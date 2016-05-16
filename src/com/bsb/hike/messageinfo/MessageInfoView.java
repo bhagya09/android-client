@@ -32,6 +32,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,6 +41,10 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.MessagesAdapter;
+import com.bsb.hike.dialog.ContactDialog;
+import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.ContactInfoData;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.Conversation.Conversation;
@@ -48,6 +53,7 @@ import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeSharedFile;
 import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.MovingList;
+import com.bsb.hike.models.PhonebookContact;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.Unique;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
@@ -89,6 +95,8 @@ public class MessageInfoView
 	private VoiceMessagePlayer voiceMessagePlayer;
 
 	public boolean isGroupChat = true;
+
+	private HikeDialog dialog;
 
 
 	public CardRenderer mMessageInfoCardRenderer;
@@ -1355,7 +1363,7 @@ public class MessageInfoView
 			openFile.setData(Uri.parse(uri));
 			break;
 		case CONTACT:
-			// saveContact(hikeFile);
+			 saveContact(hikeFile);
 			return;
 		case AUDIO_RECORDING:
 			if (hikeFile.getFilePath() == null)
@@ -1942,12 +1950,55 @@ public class MessageInfoView
 			readListString=R.string.seen_list;
 		return readListString;
 	}
+	public int getReadListExpandedString(){
+		if(vType==ViewType.SEND_HIKE||vType==ViewType.SEND_SMS)
+			readListString=R.string.readExpanded;
+		else
+			readListString=R.string.seenExpanded;
+		return readListString;
+	}
 	public boolean shouldShowPlayedByList(){
 		return false;
 	}
 
 
 
+	private void saveContact(HikeFile hikeFile)
+	{
 
+		final String name = hikeFile.getDisplayName();
+
+		final List<ContactInfoData> items = Utils.getContactDataFromHikeFile(hikeFile);
+
+		PhonebookContact contact = new PhonebookContact();
+		contact.name = name;
+		contact.items = items;
+
+		this.dialog = HikeDialogFactory.showDialog(mContext, HikeDialogFactory.CONTACT_SAVE_DIALOG, new HikeDialogListener() {
+
+			@Override
+			public void positiveClicked(HikeDialog hikeDialog) {
+				Spinner accounts = (Spinner) ((ContactDialog) hikeDialog).findViewById(R.id.account_spinner);
+
+				if (accounts.getSelectedItem() != null) {
+					Utils.addToContacts(items, name, mContext, accounts);
+				} else {
+					Utils.addToContacts(items, name, mContext);
+				}
+
+				hikeDialog.dismiss();
+			}
+
+			@Override
+			public void neutralClicked(HikeDialog hikeDialog) {
+
+			}
+
+			@Override
+			public void negativeClicked(HikeDialog hikeDialog) {
+				hikeDialog.dismiss();
+			}
+		}, contact, mContext.getString(R.string.SAVE), true);
+	}
 
 }

@@ -1139,7 +1139,11 @@ public class MqttMessagesManager
 		{
 			messageStatusMap.get(msisdn).setSecond(msgID);
 		}
-
+		if(ChatThreadUtils.isMessageInfoDatabaseEnabled()){
+			if(jsonObj.has(HikeConstants.FROM)&&jsonObj.has(HikeConstants.TIMESTAMP)){
+				Logger.d("delivery", "got delivery report for msgId "+msgID+" timestamp ");
+				saveDeliveryReceipt(msgID,jsonObj.getString(HikeConstants.FROM ),jsonObj.optLong(HikeConstants.TIMESTAMP),msisdn);
+			}}
 	}
 
 	public synchronized void saveMessageRead(JSONObject jsonObj) throws JSONException

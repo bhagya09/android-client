@@ -56,7 +56,7 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 
 	private long messageID;
 
-	private ListView parentListView;
+	public ListView parentListView;
 
 	private Context mContext;
 
@@ -141,6 +141,7 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 		}, 500);
 		// addMessageHeaderView(controller.getConvMessage());'
 
+
 	}
 
 	private void setDataModelsandControllers()
@@ -198,6 +199,8 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 
 		public abstract void refreshData();
 
+		public abstract void setScrollPosition();
+
 		Conversation mConversation;
 
 		ChatTheme chatTheme;
@@ -236,6 +239,8 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 			messageInfoAdapter.setMessageInfoView(messageInfoView);
 			addItems();
 			notifyAdapter();
+			setScrollPosition();
+
 
 		}
 
@@ -291,6 +296,24 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 
 		@Override
+		public void setScrollPosition() {
+			parentListView.postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					int first = parentListView.getFirstVisiblePosition();
+					int last = parentListView.getLastVisiblePosition();
+					Logger.d("listvis", " first visible " + first);
+					Logger.d("listvis", " last visible " + last);
+					if (last < 2) {
+						parentListView.setSelection(2);
+					}
+					;
+
+				}
+			}, 500);
+		}
+
+		@Override
 		protected void notifyAdapter()
 		{
 			uiHandler.sendEmptyMessage(NOTIFY_ADAPTER);
@@ -333,6 +356,7 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 			{
 				messageMap.add(new MessageInfoItem.MessageInfoSMSItem());
 			}
+			messageMap.add(new MessageInfoItem.MessageInfoEmptyItem());
 		}
 
 		public void updateItemsinMap()
@@ -365,6 +389,24 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 
 		@Override
+		public void setScrollPosition() {
+			parentListView.postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					int first=parentListView.getFirstVisiblePosition();
+					int last =	parentListView.getLastVisiblePosition();
+					Logger.d("listvis", " first visible " +first );
+					Logger.d("listvis", " last visible " + last);
+					if(last<1){
+						parentListView.setSelection(1);
+					}
+					;
+
+				}
+			}, 500);
+		}
+
+		@Override
 		protected void notifyAdapter()
 		{
 
@@ -389,6 +431,7 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 					messageMap.add(messageInfoList.remainingItem);
 
 			}
+			messageMap.add(new MessageInfoItem.MessageInfoEmptyItem());
 		}
 
 		@Override
@@ -405,9 +448,7 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 			// playedList = new MessageInfoPlayedList(participantTreeMap.size(), R.string.emptyplayedlist);
 			while (iterator.hasNext())
 			{
-
 				MessageInfoDataModel.MessageInfoParticipantData participantData = (MessageInfoDataModel.MessageInfoParticipantData) iterator.next();
-
 				readList.addParticipant(participantData);
 				deliveredList.addParticipant(participantData);
 

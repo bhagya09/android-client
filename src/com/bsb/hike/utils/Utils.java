@@ -147,6 +147,7 @@ import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.View;
 import android.view.View.OnTouchListener;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AccelerateInterpolator;
@@ -158,6 +159,8 @@ import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -4889,7 +4892,7 @@ public class Utils
 
 			int days = Math.abs(currentDay - startDay);
 			String daySuffix;
-			String time=getFormattedTime(context,givenTimeStampInMillis);
+			String time=getFormattedTime(context, givenTimeStampInMillis);
 			// TODO: some locales name other days too, such as de_DE's "Vorgestern" (today - 2).
 			if (days == 1) {
 				daySuffix=context.getString(R.string.yesterday);
@@ -4929,7 +4932,25 @@ public class Utils
 	}
 
 	}
+	public static void setListViewHeightBasedOnChildren(ListView listView) {
+		ListAdapter listAdapter = listView.getAdapter();
+		if (listAdapter == null) {
+			// pre-condition
+			return;
+		}
 
+		int totalHeight = 0;
+		for (int i = 0; i < listAdapter.getCount(); i++) {
+			View listItem = listAdapter.getView(i, null, listView);
+			listItem.measure(0, 0);
+			totalHeight += listItem.getMeasuredHeight();
+		}
+
+		ViewGroup.LayoutParams params = listView.getLayoutParams();
+		params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
+		listView.setLayoutParams(params);
+		listView.requestLayout();
+	}
 	private static String getFallBackPrettyTime(Context context, long timestampInSeconds)
 	{
 		try

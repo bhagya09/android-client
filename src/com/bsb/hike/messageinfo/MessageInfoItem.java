@@ -272,6 +272,10 @@ public abstract class MessageInfoItem
 			return participantData.contactInfo;
 		}
 
+		public String getMsisdn(){
+			return participantData.getContactInfo().getMsisdn();
+		}
+
 		public String getTimeStampDescription()
 		{
 			String desc = "None";
@@ -323,6 +327,12 @@ public abstract class MessageInfoItem
 
 		}
 	}
+	public static class MessageInfoEmptyItem extends MessageInfoItem{
+		public MessageInfoEmptyItem(){
+			super(0,"MessageInfoSMS",MessageInfoAdapter.MESSAGE_INFO_EMPTY);
+
+		}
+	}
 	public static class MesageInfoReadItem extends MessageInfoItem
 	{
 
@@ -349,17 +359,25 @@ public abstract class MessageInfoItem
 
 		public List<MessageInfoDataModel.MessageInfoParticipantData> remainingItemList;
 
-		public MesageInfoRemainingItem(int itemId, int countTotal, int viewType, int emptyStateText)
+		public  static final int READ_REMAINING=1;
+
+		public static final int DELIVERED_REMAINING=2;
+
+		public  int listType=READ_REMAINING;
+
+
+		public MesageInfoRemainingItem(int itemId, int countTotal, int viewType, int emptyStateText,int listType)
 		{
 			super(itemId, countTotal, viewType);
 			this.countTotal = countTotal;
 			this.emptyStateText = emptyStateText;
+			this.listType=listType;
 			// TODO Auto-generated constructor stub
 		}
 
 		public String getRemainingItem()
 		{
-			if (remainingItemList.size() == countTotal)
+			if (remainingItemList.size() == countTotal&&listType==READ_REMAINING)
 			{
 				return mContext.getResources().getString(emptyStateText);
 			}
@@ -372,7 +390,7 @@ public abstract class MessageInfoItem
 		}
 
 		public boolean shouldshowList(){
-			return remainingItemList.size()!=countTotal;
+			return remainingItemList.size()!=countTotal||listType==DELIVERED_REMAINING;
 		}
 
 
