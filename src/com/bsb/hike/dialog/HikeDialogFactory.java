@@ -38,7 +38,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.chatthread.ChatThreadActivity;
-import com.bsb.hike.dialog.CustomAlertRadioButtonDialog.CheckBoxPojo;
+import com.bsb.hike.dialog.CustomAlertRadioButtonCheckboxDialog.CheckBoxPojo;
 import com.bsb.hike.dialog.CustomAlertRadioButtonDialog.RadioButtonItemCheckedListener;
 import com.bsb.hike.dialog.CustomAlertRadioButtonDialog.RadioButtonPojo;
 import com.bsb.hike.models.AccountData;
@@ -466,7 +466,7 @@ public class HikeDialogFactory
 		final Mute mute = (Mute) data[0];
 		mute.setShowNotifInMute(checkBox.isChecked);
 
-		final CustomAlertRadioButtonDialog hikeDialog = new CustomAlertRadioButtonDialog(context, dialogId, radioButtons, new RadioButtonItemCheckedListener() {
+		final CustomAlertRadioButtonCheckboxDialog hikeDialog = new CustomAlertRadioButtonCheckboxDialog(context, dialogId, radioButtons, new RadioButtonItemCheckedListener() {
 
 			@Override
 			public void onRadioButtonItemClicked(RadioButtonPojo whichItem, CustomAlertRadioButtonDialog dialog) {
@@ -474,7 +474,7 @@ public class HikeDialogFactory
 				saveMuteDuration(mute, whichItem);
 			}
 
-		}, checkBox, new CustomAlertRadioButtonDialog.CheckBoxListener() {
+		}, checkBox, new CustomAlertRadioButtonCheckboxDialog.CheckBoxListener() {
 
 			@Override
 			public void onCheckboxClicked(CheckBoxPojo whichItem, CustomAlertRadioButtonDialog dialog) {

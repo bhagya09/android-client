@@ -44,7 +44,7 @@
     <LinearLayout
         android:id="@+id/checkbox_container"
         android:layout_width="match_parent"
-        android:layout_height="59dp"
+        android:layout_height="50dp"
         android:visibility="gone"
         android:orientation="vertical">
 
@@ -52,7 +52,6 @@
         android:id="@+id/divider"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginTop="12dp"
         android:background="#14000000"
         android:visibility="gone"/>
 
@@ -60,7 +59,8 @@
             android:id="@+id/checkbox_panel"
             style="@style/CheckboxBarCustomDialog"
             android:layout_width="match_parent"
-            android:layout_height="46dp"
+            android:layout_height="44dp"
+            android:layout_marginTop="3dp"
             android:orientation="horizontal"
             android:visibility="gone">
 
