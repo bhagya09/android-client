@@ -181,10 +181,13 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 		};
 
 		attachmentsGridView.setAdapter(gridAdapter);
-		if (userSelection != null)
-		{
-			attachmentsGridView.setSelection(getThemePosition(availableThemes, userSelection));
-		}
+
+//BugFix CE-763, Making the userSelection defaulted to Camera icon in Theme Palette
+//		if (userSelection != null)
+//		{
+//			attachmentsGridView.setSelection(getThemePosition(availableThemes, userSelection));
+//		}
+		attachmentsGridView.setSelection(0);
 
 		attachmentsGridView.setOnItemClickListener(new OnItemClickListener()
 		{
