@@ -7899,7 +7899,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		contentValues.put(DBConstants.AUTHOR, stickerCategory.getAuthor());
 		contentValues.put(DBConstants.COPYRIGHT_STRING, stickerCategory.getCopyRightString());
 		contentValues.put(DBConstants.IS_DOWNLOADED, stickerCategory.isDownloaded());
-
+		contentValues.put(DBConstants.UPDATED_PREVIEW_TIMESTAMP, stickerCategory.getPreviewUpdationTime());
 		if (mDb.update(DBConstants.STICKER_CATEGORIES_TABLE, contentValues, DBConstants._ID + "=?", new String[] { stickerCategory.getCategoryId() }) <= 0)
 		{
 			mDb.insert(DBConstants.STICKER_CATEGORIES_TABLE, null, contentValues);
@@ -8255,7 +8255,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			String author = c.getString(c.getColumnIndex(DBConstants.AUTHOR));
 			String copyRightString = c.getString(c.getColumnIndex(DBConstants.COPYRIGHT_STRING));
 			boolean isDisabled = c.getInt(c.getColumnIndex(DBConstants.IS_DISABLED)) == 1 ;
-			int updatedMetadataTs = c.getInt(c.getColumnIndex(DBConstants.UPDATED_METADATA_TIMESTAMP));
+			long updatedMetadataTs = c.getLong(c.getColumnIndex(DBConstants.UPDATED_METADATA_TIMESTAMP));
+			long updatedPreviewTs = c.getLong(c.getColumnIndex(DBConstants.UPDATED_PREVIEW_TIMESTAMP));
 			int ucid = c.getInt(c.getColumnIndex(DBConstants.UCID));
 			stickerCategory = new StickerCategory.Builder()
 					.setCategoryId(categoryId)
@@ -8277,6 +8278,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					.setUcid(ucid)
 					.setIsDiabled(isDisabled)
 					.setPackUpdationTime(updatedMetadataTs)
+					.setPreviewUpdationTime(updatedPreviewTs)
 					.build();
 		}
 
