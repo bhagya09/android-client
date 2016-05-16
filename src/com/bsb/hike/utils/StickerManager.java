@@ -2287,72 +2287,54 @@ public class StickerManager
 		initiateFetchCategoryRanksAndDataTask();
 	}
 
-	public void logStickerButtonPressAnalytics()
+    /**
+     *
+     * @param buttonType : the content ID of the button pressed
+     *
+     * Sticker Button Ids : HikeMessengerApp.EMOTICON_BUTTON_CLICK_ANALYTICS ;
+     *                      HikeMessengerApp.STICKER_SEARCH_BUTTON_CLICK_ANALYTICS ;
+     *                      HikeMessengerApp.STICKER_PALLETE_BUTTON_CLICK_ANALYTICS
+     *
+     */
+
+	public void logStickerButtonsPressAnalytics(String buttonType)
 	{
-		int pressCount = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_BUTTON_CLICK_ANALYTICS_COUNT, 0);
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STICKER_BUTTON_CLICK_ANALYTICS_COUNT, ++pressCount);
+		int pressCount = HikeSharedPreferenceUtil.getInstance().getData(buttonType, 0);
+		HikeSharedPreferenceUtil.getInstance().saveData(buttonType, ++pressCount);
 	}
 
-	/**
-	 * Send sticker button click analytics one time in day
-	 */
-	public void sendStickerButtonClickAnalytics()
+	public void sendStickerButtonsClickAnalytics()
 	{
-		int pressCount = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_BUTTON_CLICK_ANALYTICS_COUNT, 0);
-		if (pressCount <= 0)
+		String[] stickerButtons = { HikeMessengerApp.EMOTICON_BUTTON_CLICK_ANALYTICS, HikeMessengerApp.STICKER_PALLETE_BUTTON_CLICK_ANALYTICS,
+				HikeMessengerApp.STICKER_SEARCH_BUTTON_CLICK_ANALYTICS };
+
+		String[] stickerButtonAnalyticsKeys = { HikeConstants.LogEvent.EMOTICON_BTN_CLICKED, HikeConstants.LogEvent.STICKER_BTN_CLICKED,
+				HikeConstants.LogEvent.STICKER_SEARCH_BTN_CLICKED };
+
+		for (int i = 0; ((i < stickerButtonAnalyticsKeys.length) && (i < stickerButtons.length)); i++)
 		{
-			return;
-		}
-		try
-		{
-			JSONObject metadata = new JSONObject();
-			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_BTN_CLICKED);
-			metadata.put(AnalyticsConstants.CLICK_COUNT, pressCount);
-			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
+			int pressCount = HikeSharedPreferenceUtil.getInstance().getData(stickerButtons[i], 0);
+			if (pressCount <= 0)
+			{
+				continue;
+			}
+			try
+			{
+				JSONObject metadata = new JSONObject();
+				metadata.put(HikeConstants.EVENT_KEY, stickerButtonAnalyticsKeys[i]);
+				metadata.put(AnalyticsConstants.CLICK_COUNT, pressCount);
+				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
 
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STICKER_BUTTON_CLICK_ANALYTICS_COUNT, 0);
+				HikeSharedPreferenceUtil.getInstance().saveData(stickerButtons[i], 0);
 
-		}
-		catch (JSONException e)
-		{
-			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json", e);
-		}
-
-	}
-
-	public void sendEmoticonIconClickAnalytics()
-	{
-
-		int pressCount = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.EMOTICON_BUTTON_CLICK_ANALYTICS_COUNT, 0);
-		if (pressCount <= 0)
-		{
-			return;
-		}
-
-		try
-		{
-			JSONObject metadata = new JSONObject();
-			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.EMOTICON_BTN_CLICKED);
-			metadata.put(AnalyticsConstants.CLICK_COUNT, pressCount);
-			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
-
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.EMOTICON_BUTTON_CLICK_ANALYTICS_COUNT, 0);
-
-		}
-		catch (JSONException e)
-		{
-			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json", e);
+			}
+			catch (JSONException e)
+			{
+				Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json", e);
+			}
 		}
 
 	}
-
-
-	public void logEmoticonButtonPressAnalytics()
-	{
-		int pressCount = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.EMOTICON_BUTTON_CLICK_ANALYTICS_COUNT, 0);
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.EMOTICON_BUTTON_CLICK_ANALYTICS_COUNT, ++pressCount);
-	}
-
 
     /**
      * JSON Structure example
@@ -2475,11 +2457,11 @@ public class StickerManager
 	public void sendStickerDailyAnalytics()
 	{
 		sendStickerError();
-		sendStickerButtonClickAnalytics();
-		sendEmoticonIconClickAnalytics();
+		sendStickerButtonsClickAnalytics();
 		sendEmoticonUsageAnalytics();
 		sendStickerPackAndOrderListForAnalytics();
-        StickerSearchManager.getInstance().sendStickerRecommendationAccuracyAnalytics();
+		CategorySearchManager.sendSearchedCategoryDailyReport();
+		StickerSearchManager.getInstance().sendStickerRecommendationAccuracyAnalytics();
 	}
 
 	/**
@@ -3422,6 +3404,11 @@ public class StickerManager
 			{
 				HikeConversationsDatabase.getInstance().clearTable(DBConstants.STICKER_TABLE);
 			}
+
+			if (oldBackupVersion < AccountBackupRestore.STICKER_CATEGORY_TABLE_UPDATE_VERSION)
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, false); // Need to mark already downloaded categories as downloaded
+			}
 		}
 
 		HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1);
@@ -3462,13 +3449,14 @@ public class StickerManager
 	 *
 	 * 2. Update sticker file path in sticker table (Note: New path updated to directory returned by getStickerExternalDirFilePath}
 	 */
-	public void migrateStickerAssets(String fromPath, String toPath)
+	public boolean migrateStickerAssets(String fromPath, String toPath)
 	{
 		boolean isMoved = moveStickersFolder(fromPath, toPath);
-		HikeConversationsDatabase.getInstance().clearTable(DBConstants.STICKER_TABLE); // Need to wipe off the table as well and then populate the new one
 
 		if (isMoved)
 		{
+			HikeConversationsDatabase.getInstance().clearTable(DBConstants.STICKER_TABLE); // Need to wipe off the table as well and then populate the new one
+
 			// Assets migrated successfully
 			// Update stickers path
 			stickerExternalDir = getStickerExternalDirFilePath(); // We need to re-init this path to the new path now
@@ -3476,14 +3464,20 @@ public class StickerManager
 			if (HikeConversationsDatabase.getInstance().upgradeForStickerTable())
 			{
 				doInitialSetup();
+				return true;
+			}
+			else
+			{
+				recordStickerMigrationFailure("failed to upgrade for sticker table");
+				return false;
 			}
 		}
 		else
 		{
-			// Move wasn't successful.
-			// 1. Delete old sticker folder (if present)
-			Utils.deleteFile(new File(StickerManager.getInstance().getOldStickerExternalDirFilePath()));
+			recordStickerMigrationFailure("failed to move stickers");
 		}
+
+		return isMoved;
 	}
 
 	/**
@@ -3576,7 +3570,7 @@ public class StickerManager
     }
 
 
-	public void sendPackPreviewOpenAnalytics(String categoryId, StickerConstants.PackPreviewClickSource packPreviewClickSource)
+	public void sendPackPreviewOpenAnalytics(String categoryId, int position, String packPreviewClickSource, String packPreviewClickSearchKey)
 	{
 		try
 		{
@@ -3588,7 +3582,9 @@ public class StickerManager
 			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.PACK_PREVIEW);
 			json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
 			json.put(AnalyticsConstants.V2.SPECIES, categoryId);
-			json.put(AnalyticsConstants.V2.SOURCE, packPreviewClickSource.getValue());
+			json.put(AnalyticsConstants.V2.SOURCE, packPreviewClickSource);
+			json.put(AnalyticsConstants.V2.VAL_STR, packPreviewClickSearchKey);
+			json.put(AnalyticsConstants.V2.VAL_INT, position);
 			HAManager.getInstance().recordV2(json);
 		}
 		catch (JSONException e)
@@ -3780,5 +3776,25 @@ public class StickerManager
 	{
 		HikeConversationsDatabase.getInstance().markAllCategoriesAsDownloaded();
 		setupStickerCategoryList(); //Set up the sticker category list again
+	}
+
+	public void recordStickerMigrationFailure(String errorString)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, "backup");
+			json.put(AnalyticsConstants.V2.KINGDOM, "act_hs");
+			json.put(AnalyticsConstants.V2.ORDER, "stk_rstr_error");
+			if(!TextUtils.isEmpty(errorString))
+			{
+				json.put(AnalyticsConstants.V2.GENUS, errorString);
+			}
+			HAManager.getInstance().recordV2(json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
 	}
 }
