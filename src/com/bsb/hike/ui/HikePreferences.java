@@ -28,7 +28,12 @@ import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.localisation.LocalLanguage;
 import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.Conversation.ConversationTip;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerSettingsTask;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.offline.OfflineController;
@@ -105,6 +110,8 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	private boolean mIsResumed = false;
 	
 	private boolean isSettingChanged = false;
+
+	private static final String INVALID_PREF_VALUE = "-1";
 
 	@Override
 	public Object onRetainNonConfigurationInstance()
@@ -1262,6 +1269,17 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				e.printStackTrace();
 			}
 		}
+		else if(HikeConstants.BIRTHDAY_PRIVACY_PREF.equals(preference.getKey()))
+		{
+			Logger.d(getClass().getSimpleName(), "calling update bd pref");
+			String bdPrefValue = String.valueOf(newValue);
+			updateBirthdayPrivacyPref(preference, bdPrefValue);
+			/**
+			 * we are updating pref on server via http. we want value on client to update only on request success so always
+			 * returning false here and updating value in HTTP's onRequestSuccess callback here {@link #sendBDPrefToServer}
+			 */
+			return false;
+		}
 		else if (newValue instanceof Boolean)
 		{
 			boolean isChecked = (Boolean) newValue;
@@ -1718,6 +1736,9 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		{
 			profilePicPrefs.setSummary(getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.profile_pic_display_info_frn : R.string.profile_pic_display_info));
 		}
+
+		//calling setup for birthday privacy preference
+		setupBirthdayPrivacyPref();
 	}
 
 	private String getLSSummaryText()
@@ -1743,6 +1764,166 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				break;
 		}
 		return summaryTxt;
+	}
+
+	/**
+	 * Method to setup birthday privacy pref
+	 */
+	private void setupBirthdayPrivacyPref()
+	{
+		Logger.d(getClass().getSimpleName(), "setting up birthday privacy pref");
+		IconListPreference bdListPref = (IconListPreference) getPreferenceScreen().findPreference(HikeConstants.BIRTHDAY_PRIVACY_PREF);
+		//adding entries on basis of friends experiment
+		if (Utils.isFavToFriendsMigrationAllowed())
+		{
+			bdListPref.setEntries(R.array.privacyPrefKeysFriendsExp);
+			bdListPref.setEntryValues(R.array.privacyPrefValuesFriendsExp);
+		}
+
+		else
+		{
+			bdListPref.setEntries(R.array.privacyPrefKeys);
+			bdListPref.setEntryValues(R.array.privacyPrefValues);
+		}
+
+		bdListPref.setNegativeButtonText(R.string.CANCEL);
+		bdListPref.setOnPreferenceChangeListener(this);
+
+		//adding preference title and summary text
+		bdListPref.setTitle(getString(R.string.birthday_privacy_header) + ": " + bdListPref.getEntry());
+		String defValue = getApplicationContext().getString(R.string.privacy_my_contacts);
+		String selectedValue = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString(HikeConstants.BIRTHDAY_PRIVACY_PREF, defValue);
+		bdListPref.setSummary(getBDPrefText(selectedValue, true));
+	}
+
+	/**
+	 * Method to get title/summary text for birthday preference based on current user selection
+	 * @param bdPrefValue - id for current user pref selection
+	 * @param isSummary - whether summary or header text is required
+     * @return
+     */
+	private String getBDPrefText(String bdPrefValue, boolean isSummary)
+	{
+		int bdPrefInt = Integer.valueOf(bdPrefValue);
+		if(bdPrefInt == -1)
+		{
+			return null;
+		}
+
+		String summaryTxt = null;
+		String headerTxt = null;
+		switch (HikeConstants.PrivacyOptions.values()[bdPrefInt])
+		{
+			case NOBODY:
+				summaryTxt = getApplicationContext().getString(R.string.bd_nobody_summary);
+				headerTxt = getApplicationContext().getString(R.string.privacy_nobody_key);
+				break;
+			case EVERYONE:
+				summaryTxt = getApplicationContext().getString(R.string.bd_everyone_summary);
+				headerTxt = getApplicationContext().getString(R.string.privacy_everyone_key);
+				break;
+			case FAVORITES:
+				summaryTxt = getApplicationContext().getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.bd_friends_summary : R.string.bd_favorites_summary);
+				headerTxt = getApplicationContext().getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.privacy_friends_key : R.string.privacy_favorites_key);
+				break;
+			case MY_CONTACTS:
+				summaryTxt = getApplicationContext().getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.bd_my_contacts_summary_frn : R.string.bd_my_contacts_summary);
+				headerTxt = getApplicationContext().getString(R.string.privacy_my_contacts_key);
+				break;
+		}
+
+		if(isSummary)
+		{
+			return summaryTxt;
+		}
+		else
+		{
+			return headerTxt;
+		}
+	}
+
+	/**
+	 * Method to handle privacy pref update for birthday visibility
+	 * @param bdPref
+	 * @param bdSelectedPrefId
+     */
+	private void updateBirthdayPrivacyPref(Preference bdPref, String bdSelectedPrefId)
+	{
+		if(bdSelectedPrefId.equals(INVALID_PREF_VALUE))
+		{
+			showBDUpdateStatusToast(getString(R.string.bd_change_failed));
+			return;
+		}
+
+		Logger.d(getClass().getSimpleName(), "new birthday privacy id: " + bdSelectedPrefId);
+
+		JSONObject payload = new JSONObject();
+
+		try
+		{
+			payload.put(HikeConstants.Extras.PREF, Integer.valueOf(bdSelectedPrefId));
+			sendBDPrefToServer(bdPref, bdSelectedPrefId, payload);
+		}
+		catch (JSONException jse)
+		{
+			Logger.d(getClass().getSimpleName(), "error in forming request object for birthday privacy update");
+			showBDUpdateStatusToast(getString(R.string.bd_change_failed));
+		}
+	}
+
+	/**
+	 * Method to notify server of birthday privacy pref update via HTTP
+	 * @param bdPref
+	 * @param bdSelectedPrefId
+	 * @param payload
+     */
+	private void sendBDPrefToServer(final Preference bdPref, final String bdSelectedPrefId, JSONObject payload)
+	{
+		Logger.d(getClass().getSimpleName(), "dob update payload: " + payload.toString());
+
+		RequestToken bdPrefUpdateRequest = HttpRequests.getBDPrefUpdateRequest(payload, new IRequestListener()
+		{
+			@Override
+			public void onRequestFailure(HttpException httpException)
+			{
+				Logger.d(getClass().getSimpleName(), "updating bd pref http failure code: " + httpException.getErrorCode());
+				showBDUpdateStatusToast(getString(R.string.bd_change_failed));
+			}
+
+			@Override
+			public void onRequestSuccess(Response result)
+			{
+				Logger.d(getClass().getSimpleName(), "http request result code: " + result.getStatusCode());
+				setNewBDPrefValue(bdPref, bdSelectedPrefId);
+			}
+
+			@Override
+			public void onRequestProgressUpdate(float progress)
+			{
+				//doing nothing here
+			}
+		});
+
+		bdPrefUpdateRequest.execute();
+	}
+
+	private void setNewBDPrefValue(Preference bdPref, String bdPrefValue)
+	{
+		Logger.d(getClass().getSimpleName(), "setting new bd pref");
+		IconListPreference bdListPref = (IconListPreference) bdPref;
+		bdListPref.setTitle(getString(R.string.birthday_privacy_header) + ": " + getBDPrefText(bdPrefValue, false));
+		bdListPref.setSummary(getBDPrefText(bdPrefValue, true));
+		bdListPref.setValue(String.valueOf(bdPrefValue));
+		PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString(HikeConstants.BIRTHDAY_PRIVACY_PREF, bdPrefValue).commit();
+	}
+
+
+	private void showBDUpdateStatusToast(String toastMsg)
+	{
+		if(!TextUtils.isEmpty(toastMsg))
+		{
+			Toast.makeText(getApplicationContext(), toastMsg, Toast.LENGTH_SHORT).show();
+		}
 	}
 
 	private void updateAccountBackupPrefView()
