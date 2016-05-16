@@ -177,6 +177,7 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 		filter.addAction(StickerManager.RECENTS_UPDATED);
 		filter.addAction(StickerManager.STICKERS_PROGRESS);
 		filter.addAction(StickerManager.MORE_STICKERS_DOWNLOADED);
+		filter.addAction(StickerManager.QUICK_STICKER_SUGGESTION_FETCHED);
 		LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiver, filter);
 
         HikeMessengerApp.getPubSub().addListeners(this, pubSubListeners);
@@ -192,6 +193,28 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
                 Sticker st = (Sticker) intent.getSerializableExtra(StickerManager.RECENT_STICKER_SENT);
                 refreshRecents(st);
             }
+			else if(intent.getAction().equals(StickerManager.QUICK_STICKER_SUGGESTION_FETCHED))
+			{
+				Logger.d(TAG, "fetched quick suggestion intent received ");
+
+				Bundle bundle = intent.getBundleExtra(HikeConstants.BUNDLE);
+				StickerCategory category = QuickSuggestionStickerCategory.fromBundle(bundle);
+
+
+
+				if(category == null)
+				{
+					Logger.wtf(TAG, "null category received");
+					return;
+				}
+				Logger.d(TAG, " fetched quick suggestion category : " + category.getCategoryId() + " sticker list size : " + category.getStickerList().size());
+
+				if(category.equals(stickerCategoryList.get(0)))
+				{
+					addQuickSuggestionCategory(category);
+					initStickers(category);
+				}
+			}
 			/**
 			 * More stickers downloaded case
 			 */
