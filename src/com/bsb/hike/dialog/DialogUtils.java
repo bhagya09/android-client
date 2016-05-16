@@ -11,7 +11,7 @@ import com.bsb.hike.HikeConstants.SMSSyncState;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.ComposeChatAdapter;
-import com.bsb.hike.dialog.CustomAlertRadioButtonDialog.CheckBoxPojo;
+import com.bsb.hike.dialog.CustomAlertRadioButtonCheckboxDialog.CheckBoxPojo;
 import com.bsb.hike.dialog.CustomAlertRadioButtonDialog.RadioButtonPojo;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
