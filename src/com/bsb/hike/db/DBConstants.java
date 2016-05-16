@@ -4,7 +4,7 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 
 public interface DBConstants
 {
-	public static final int CONVERSATIONS_DATABASE_VERSION = 50;
+	public static final int CONVERSATIONS_DATABASE_VERSION = 51;
 
 	public static final int USERS_DATABASE_VERSION = 18;
 
@@ -295,6 +295,12 @@ public interface DBConstants
 	public static final int DEFAULT_ACTIVE_STATE = 1;
 
 	public static final int DEFAULT_INACTIVE_STATE = 0;
+
+	public static final String QUICK_SUGGESTED_REPLY_STICKERS = "qck_sgstd_rply_stckrs";
+
+	public static final String QUICK_SUGGESTED_SENT_STICKERS = "qck_sgstd_snt_stckrs";
+
+	public static final String LAST_QUICK_SUGGESTION_REFRESH_TIME = "lst_qck_sug_rfsh_time";
 
 	public static interface HIKE_CONV_DB
 	{
