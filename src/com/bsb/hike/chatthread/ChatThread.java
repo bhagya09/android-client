@@ -568,7 +568,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		case OPEN_PICKER:
 			mStickerPicker.setShowLastCategory(StickerManager.getInstance().getShowLastCategory());
 			StickerManager.getInstance().setShowLastCategory(false);
-			stickerClicked();
+			stickerButtonClicked();
 			break;
 		default:
 			Logger.d(TAG, "Did not find any matching event for msg.what : " + msg.what);
@@ -1299,6 +1299,10 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		mActionBar.showOverflowMenu(width, LayoutParams.WRAP_CONTENT, -rightMargin, -(int) (0.5 * Utils.scaledDensityMultiplier), activity.findViewById(R.id.overflow_anchor));
 	}
 
+	private void stickerClicked(ConvMessage convMessage)
+	{
+	}
+
 	@Override
 	public void onClick(View v)
 	{
@@ -1321,7 +1325,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			break;
 		case R.id.sticker_btn:
 			StickerManager.getInstance().initiateFetchCategoryRanksAndDataTask();
-			stickerClicked();
+			stickerButtonClicked();
 			break;
 		case R.id.emoticon_btn:
 			if (mShareablePopupLayout.isBusyInOperations())
@@ -1369,11 +1373,27 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		case R.id.search_clear_btn:
 			mComposeView.setText("");
 			break;
+		case R.id.placeholder:
+			onPlaceHolderClick(v);
+			break;
 		default:
 			Logger.e(TAG, "onClick Registered but not added in onClick : " + v.toString());
 			break;
 		}
 
+	}
+
+	private void onPlaceHolderClick(View v)
+	{
+		ConvMessage convMessage = (ConvMessage) v.getTag();
+
+		if(convMessage.isStickerMessage())
+		{
+			if(convMessage.getMetadata() != null && convMessage.getMetadata().getSticker() != null)
+			{
+				stickerClicked(convMessage);
+			}
+		}
 	}
 
 	protected void sendButtonClicked()
@@ -1471,7 +1491,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		else showRecordingErrorTip(R.string.recording_help_text);
 	}
 
-	protected void stickerClicked()
+	protected void stickerButtonClicked()
 	{
 		if (mShareablePopupLayout.isBusyInOperations()) {//  previous task is running don't accept this event
 			return;
