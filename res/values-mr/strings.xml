@@ -1433,5 +1433,6 @@
     <string name="mute_chat_one_week">1 आठवड्यासाठी</string>
     <string name="mute_chat_one_yr">1 वर्षासाठी</string>
     <string name="show_notif">सूचना दाखवा</string>
+    <string name="mute_chat">चैट निशब्द करा</string>
 
 </resources>

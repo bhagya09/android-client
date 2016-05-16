@@ -1429,5 +1429,7 @@
     <string name="mute_chat_one_week">1 हफ़्ते के लिए</string>
     <string name="mute_chat_one_yr">1 वर्ष के लिए</string>
     <string name="show_notif">सूचनाएं दिखाएं</string>
+    <string name="mute_chat">चैट शांत करें</string>
+
 
 </resources>
