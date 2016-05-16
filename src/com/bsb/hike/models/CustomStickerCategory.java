@@ -5,6 +5,7 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.Utils;
 
 import java.io.File;
 import java.util.Iterator;
@@ -16,11 +17,10 @@ public class CustomStickerCategory extends StickerCategory
 {
 	private Set<Sticker> stickerSet;
 
-	private CustomStickerCategory(Init<?> builder)
+	protected CustomStickerCategory(Init<?> builder)
 	{
 		super(builder);
 		this.stickerSet = builder.stickerSet;
-		loadStickers();
 	}
 
 	protected static abstract class Init<S extends Init<S>> extends StickerCategory.Init<S>
@@ -173,6 +173,10 @@ public class CustomStickerCategory extends StickerCategory
 	public Set<Sticker> getStickerSet()
 	{
 		// TODO Auto-generated method stub
+		if(Utils.isEmpty(stickerSet))
+		{
+			loadStickers();
+		}
 		return stickerSet;
 	}
 
