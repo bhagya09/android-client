@@ -2137,18 +2137,6 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		{
 			ConvMessage message = (ConvMessage) object;
 			updateUIWithLastMessage(message);
-
-			final ConvInfo convInfo = (mConversationsByMSISDN.containsKey(message.getMsisdn())) ? mConversationsByMSISDN.get(message.getMsisdn()) :
-					new ConvInfo.ConvInfoBuilder(message.getMsisdn()).setIsMute(ContactManager.getInstance().isChatMuted(message.getMsisdn())).build();
-
-			getActivity().runOnUiThread(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					updateViewForMuteToggle(convInfo);
-				}
-			});
 		}
 		else if (HikePubSub.LAST_MESSAGE_DELETED.equals(type))
 		{
