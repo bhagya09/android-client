@@ -1315,12 +1315,13 @@ public class HttpRequests
 
 	}
 	
-	public static RequestToken validateFileKey(String fileKey, IRequestListener requestListener)
+	public static RequestToken validateFileKey(String fileKey, long msgId, IRequestListener requestListener)
 	{
 		RequestToken requestToken = new ByteArrayRequest.Builder()
 				.setUrl(getValidateFileKeyBaseUrl() + fileKey)
 				.setRequestType(Request.REQUEST_TYPE_SHORT)
 				.setRequestListener(requestListener)
+				.setId(String.valueOf(msgId))
 				.head()
 				.setRetryPolicy(new BasicRetryPolicy(FileTransferManager.MAX_RETRY_COUNT, 0, 1))
 				.build();
@@ -1341,7 +1342,7 @@ public class HttpRequests
 		return requestToken;
 	}
 
-	public static RequestToken uploadContactOrLocation(String fileName, JSONObject json, String fileType, IRequestListener requestListener, IRequestInterceptor interceptor)
+	public static RequestToken uploadContactOrLocation(String fileName, JSONObject json, String fileType, IRequestListener requestListener, IRequestInterceptor interceptor, long msgId)
 	{
 		List<Header> headers = new ArrayList<>();
 		headers.add(new Header("Content-Name", fileName));
@@ -1353,6 +1354,7 @@ public class HttpRequests
  		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setUrl(getUploadContactOrLocationBaseUrl())
 				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setId(String.valueOf(msgId))
 				.setRequestListener(requestListener)
 				.addHeader(headers)
 				.put(body)
