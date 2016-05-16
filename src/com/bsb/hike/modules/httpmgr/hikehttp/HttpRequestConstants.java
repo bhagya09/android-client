@@ -277,6 +277,11 @@ public class HttpRequestConstants
 		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER + "/categories";
 	}
 
+	public static String quickSuggestionUrl()
+	{
+		return HTTP + "54.251.141.175:8080" + "/quickSuggestions";
+	}
+
 	public static String lastSeenUrl()
 	{
 		return BASE_URL + BASE_V1 + BASE_USER + "/lastseen";

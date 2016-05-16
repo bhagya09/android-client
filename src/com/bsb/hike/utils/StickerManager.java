@@ -35,13 +35,16 @@ import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.quickstickersuggestions.QuickStickerSuggestionController;
 import com.bsb.hike.modules.stickerdownloadmgr.FetchCategoryRanksTask;
 import com.bsb.hike.modules.stickerdownloadmgr.DefaultTagDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.FetchCategoryMetadataTask;
 import com.bsb.hike.modules.stickerdownloadmgr.FetchCategoryTagDataTask;
 import com.bsb.hike.modules.stickerdownloadmgr.MultiStickerDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.MultiStickerImageDownloadTask;
+import com.bsb.hike.modules.stickerdownloadmgr.MultiStickerQuickSuggestionDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerDownloadTask;
+import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerQuickSuggestionDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerCategoryDataUpdateTask;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
@@ -1685,6 +1688,20 @@ public class StickerManager
 			MultiStickerImageDownloadTask multiStickerImageDownloadTask = new MultiStickerImageDownloadTask(category, downloadType, bodyJson);
 			multiStickerImageDownloadTask.execute();
 		}
+	}
+
+	public void initiateSingleStickerQuickSuggestionDownloadTask(Sticker quickSuggestSticker)
+	{
+		QuickStickerSuggestionController.getInstance().saveInRetrySet(quickSuggestSticker);
+		SingleStickerQuickSuggestionDownloadTask singleStickerQuickSuggestionDownloadTask = new SingleStickerQuickSuggestionDownloadTask(quickSuggestSticker);
+		singleStickerQuickSuggestionDownloadTask.execute();
+	}
+
+	public void initiateMultiStickerQuickSuggestionDownloadTask(Set<Sticker> quickSuggestStickerSet)
+	{
+		QuickStickerSuggestionController.getInstance().saveInRetrySet(quickSuggestStickerSet);
+		MultiStickerQuickSuggestionDownloadTask multiStickerQuickSuggestionDownloadTask = new MultiStickerQuickSuggestionDownloadTask(quickSuggestStickerSet);
+		multiStickerQuickSuggestionDownloadTask.execute();
 	}
 
 	public StickerCategory parseStickerCategoryMetadata(JSONObject jsonObj)
@@ -3813,5 +3830,10 @@ public class StickerManager
 		{
 			e.printStackTrace();
 		}
+	}
+	
+	public boolean isQuickSuggestionCategory(String categotyId)
+	{
+		return (TextUtils.isEmpty(categotyId) || !categotyId.equalsIgnoreCase(QUICK_SUGGESTIONS)) ? false : true;
 	}
 }

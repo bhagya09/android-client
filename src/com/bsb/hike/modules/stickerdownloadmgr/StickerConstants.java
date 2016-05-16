@@ -1,8 +1,5 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-
 public class StickerConstants
 {
 	public static final String STICKER_SETTINGS_TASK_ARG = "stickerSettingsTaskArg";
@@ -92,7 +89,9 @@ public class StickerConstants
 		FORCED(11, "forced"),
 		FETCH_CATEGORY(12, "ftch"),
 		UPDATE_CATEGORY(13, "updtCt"),
-		UPDATE_ORDER(14, "updtOdr");
+		UPDATE_ORDER(14, "updtOdr"),
+		SINGLE_QUICK_SUGGESTION(15, "sqs"),
+		MULTI_QUICK_SUGGESTION(16, "mqs");
 
 		private final int type;
 		private final String label;

@@ -6,7 +6,7 @@ import android.text.TextUtils;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.filetransfer.FileTransferManager;
-import com.bsb.hike.modules.httpmgr.DefaultHeaders;
+import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -90,6 +90,7 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.postAdd
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.postDeviceDetailsBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.postGreenBlueDetailsBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.preActivationBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.quickSuggestionUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.registerAccountBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.registerViewActionUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.sendDeviceDetailBaseUrl;
@@ -647,6 +648,36 @@ public class HttpRequests
 				.build();
 
 		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
+		return requestToken;
+	}
+
+	public static RequestToken quickSuggestionsForSingleStickerRequest(String requestId, Sticker sticker, String langList, int setId, IRequestListener requestListener)
+	{
+
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setId(requestId)
+				.setUrl((quickSuggestionUrl() + "?catId=" + sticker.getCategoryId() + "&stkId=" + sticker.getStickerId() + "&gender=" + 0 + "&lang=" + langList + "&setId=" + setId))
+				.setRequestListener(requestListener)
+				.setRequestType(REQUEST_TYPE_SHORT)
+				.setPriority(PRIORITY_HIGH)
+				.build();
+		return requestToken;
+	}
+
+	public static RequestToken quickSuggestionsForMultiStickerRequest(String requestId, JSONObject json, IRequestListener requestListener)
+	{
+		JsonBody body = new JsonBody(json);
+
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setId(requestId)
+				.setUrl(quickSuggestionUrl())
+				.setRequestListener(requestListener)
+				.setRequestType(REQUEST_TYPE_SHORT)
+				.post(body)
+				.setPriority(PRIORITY_NORMAL)
+				.build();
+
+		//requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
 		return requestToken;
 	}
 
