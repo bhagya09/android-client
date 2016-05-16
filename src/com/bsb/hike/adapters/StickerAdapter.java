@@ -563,6 +563,8 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
                 }
 
                 refreshRecents(null);
+				refreshQuickSuggestionCategory();
+
                 break;
             default:
                 Logger.d(TAG, "Did not find any matching event for msg.what : " + msg.what);
@@ -596,6 +598,18 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
         }
     }
 
+	private void refreshQuickSuggestionCategory()
+	{
+		StickerPageObjects spo = stickerObjMap.get(StickerManager.QUICK_SUGGESTIONS);
+		if (spo != null)
+		{
+			final StickerPageAdapter stickerPageAdapter = spo.getStickerPageAdapter();
+			if (stickerPageAdapter != null)
+			{
+				stickerPageAdapter.notifyDataSetChanged();
+			}
+		}
+	}
 
 	public void addQuickSuggestionCategory(StickerCategory quickSuggestionCategory)
 	{
