@@ -28,6 +28,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.db.DBConstants.HIKE_CONV_DB;
 import com.bsb.hike.db.DatabaseErrorHandlers.ConversationDatabaseErrorHandler;
 import com.bsb.hike.db.dbcommand.SetPragmaModeCommand;
@@ -4051,10 +4052,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				boolean onhike = c.getInt(isOnHikeColumn) != 0;
 				Mute mute = ContactManager.getInstance().getMute(msisdn);
 
+				boolean muteApproach = HikeSharedPreferenceUtil.getInstance().getData(
+						(ChatThreadUtils.getChatThreadType(msisdn) == HikeConstants.Extras.GROUP_CHAT_THREAD ? HikeConstants.MUTE_GC_SERVER_SWITCH : HikeConstants.MUTE_ONE_TO_ONE_SERVER_SWITCH), true);
+
 				/*
 				 *	This handles the backup restore case when a conversation is muted.
 				 */
-				if (mute != null && mute.isMute() && mute.getMuteEndTime() < System.currentTimeMillis())
+				if (muteApproach && mute != null && mute.isMute() && mute.getMuteEndTime() < System.currentTimeMillis())
 				{
 					mute.setIsMute(false);
 					HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, mute);

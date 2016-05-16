@@ -834,7 +834,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			MenuItem muteItem = menu.findItem(R.id.mute_group);
 			if (muteItem != null)
 			{
-				muteItem.setTitle(oneToNConversation.isMuted() ? R.string.unmute_group : R.string.mute_group);
+				muteItem.setTitle(ContactManager.getInstance().isChatMuted(mLocalMSISDN) ? R.string.unmute_group : R.string.mute_group);
 			}
 			return true;
 		}
@@ -2237,6 +2237,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			case HikeDialogFactory.MUTE_CHAT_DIALOG:
 				final Mute mute = (ContactManager.getInstance().getMute(mLocalMSISDN) == null ? new Mute.InitBuilder(mLocalMSISDN).build() : ContactManager.getInstance().getMute(mLocalMSISDN));
 				Utils.toggleMuteChat(getApplicationContext(), mute);
+				invalidateOptionsMenu();
 				hikeDialog.dismiss();
 				break;
 
@@ -2307,8 +2308,12 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	public void onProfileSmallRightBtnClick(String text)
 	{
+		Mute mute = (ContactManager.getInstance().getMute(mLocalMSISDN) == null ? new Mute.InitBuilder(mLocalMSISDN).build() : ContactManager.getInstance().getMute(mLocalMSISDN));
+
 		if (OneToNConversationUtils.isOneToNConversation(mLocalMSISDN))
 		{
+			oneToNConversation.setMute(mute);
+
 			if ((getString(R.string.mute_group)).equals(text))
 			{
 				boolean muteGCApproach = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MUTE_GC_SERVER_SWITCH, true);
@@ -2318,19 +2323,18 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				}
 				else
 				{
-					Mute mute = new Mute.InitBuilder(oneToNConversation.getMsisdn()).setIsMute(false).setMuteDuration(HikeConstants.MuteDuration.DURATION_ONE_YEAR).setShowNotifInMute(false).build();
-					oneToNConversation.setMute(mute);
 					Utils.toggleMuteChat(getApplicationContext(), oneToNConversation.getMute());
+					invalidateOptionsMenu();
 				}
 			}
 			else
 			{
 				Utils.toggleMuteChat(getApplicationContext(), oneToNConversation.getMute());
+				invalidateOptionsMenu();
 			}
 		}
 		else
 		{
-			final Mute mute = (ContactManager.getInstance().getMute(mLocalMSISDN) == null ? new Mute.InitBuilder(mLocalMSISDN).build() : ContactManager.getInstance().getMute(mLocalMSISDN));
 			Conversation mConversation = new OneToOneConversation.ConversationBuilder(mLocalMSISDN).build();
 			mConversation.setMute(mute);
 
@@ -2344,15 +2348,16 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				else
 				{
 					Utils.toggleMuteChat(getApplicationContext(), mute);
+					invalidateOptionsMenu();
 				}
 			}
 			else
 			{
 				Utils.toggleMuteChat(getApplicationContext(), mute);
+				invalidateOptionsMenu();
 			}
 		}
 
-		invalidateOptionsMenu();
 	}
 
 	public void onProfileBtn1Click(View v)
