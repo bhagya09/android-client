@@ -111,6 +111,8 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	
 	private boolean isSettingChanged = false;
 
+	private static final String INVALID_PREF_VALUE = "-1";
+
 	@Override
 	public Object onRetainNonConfigurationInstance()
 	{
@@ -1847,7 +1849,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
      */
 	private void updateBirthdayPrivacyPref(Preference bdPref, String bdSelectedPrefId)
 	{
-		if(bdSelectedPrefId.equals("-1"))
+		if(bdSelectedPrefId.equals(INVALID_PREF_VALUE))
 		{
 			showBDUpdateStatusToast(getString(R.string.bd_change_failed));
 			return;

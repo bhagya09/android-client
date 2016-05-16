@@ -107,6 +107,8 @@ public class HttpRequestConstants
 
 	private static final String HIKE_SETTINGS = "/hikesettings";
 
+	private static final String DOB_PREF_PATH = "/dob/pref";
+
 	public static synchronized void setUpBase()
 	{
 		toggleStaging();
@@ -612,6 +614,6 @@ public class HttpRequestConstants
 
 	public static String getBDPrefUpdateUrl()
 	{
-		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/dob/pref";
+		return BASE_URL + BASE_V1 + BASE_ACCOUNT + DOB_PREF_PATH;
 	}
 }

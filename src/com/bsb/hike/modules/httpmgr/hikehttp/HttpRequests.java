@@ -1452,7 +1452,7 @@ public class HttpRequests
 		return requestToken;
 	}
 
-	public static RequestToken getBDPrefUpdateRequest(JSONObject payload, IRequestListener requestListener)
+	public static RequestToken getBDPrefUpdateRequest(@NonNull JSONObject payload, IRequestListener requestListener)
 	{
 		JsonBody jsonBody = new JsonBody(payload);
 		RequestToken requestToken = new JSONObjectRequest.Builder()
