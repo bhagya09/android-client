@@ -531,6 +531,8 @@ public class HikeConstants
 
 	public static final String LAST_SEEN_PREF_LIST = "lastSeenPrefList";
 
+	public static final String BIRTHDAY_PRIVACY_PREF = "birthdayPrivacyPref";
+
 	public static final String LONG_PRESS_DUR_PREF = "longPressDurationPref";
 	
 	public static final String KEYPRESS_VOL_PREF = "keyPressVolPref";
@@ -1390,6 +1392,12 @@ public class HikeConstants
 
 	public static final class Preactivation
 	{
+		public static final String UID = "pa_uid";
+
+		public static final String TOKEN = "pa_token";
+
+		public static final String ENCRYPT_KEY="pa_encryption_key";
+
 		public static final String LOGS_SCHEDULE="logs_schdl";
 
 		public static final String INTERVAL = "inv";
@@ -2276,7 +2284,19 @@ public class HikeConstants
 
 		public static final String STICKER_BTN_CLICKED = "sBnc";
 
+        public static final String STICKER_SEARCH_BTN_CLICKED = "s_s_Bnc";
+
         public static final String EMOTICON_BTN_CLICKED = "eBnc";
+
+        public static final String CATEGORY_SEARCHED_REPORT = "shpSrchAggRept";
+
+        public static final String CATEGORY_SEARCHED_REPORT_DATA = "csrd";
+
+        public static final String SEARCHED_CATEGORY_RESPONSE = "shpSrchRept";
+
+        public static final String SHOP_SEARCH = "shpSrch";
+
+        public static final String SEARCHED_CATEGORY_RESPONSE_DATA = "scRepD";
 
         public static final String EMOTICON_SENT = "eSnt";
 
