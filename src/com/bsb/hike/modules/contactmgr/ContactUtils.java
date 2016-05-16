@@ -35,8 +35,8 @@ public class ContactUtils
 				for (ContactInfo cInfo : list)
 				{
 					JSONObject contactInfo = new JSONObject();
-					contactInfo.put("name", cInfo.getName());
-					contactInfo.put("phone_no", cInfo.getPhoneNum());
+					contactInfo.put("n", cInfo.getName());
+					contactInfo.put("ph", cInfo.getPhoneNum());
 					if (sendWAValue)
 					{
 						contactInfo.put("t1", calculateGreenBlueValue(cInfo.isOnGreenBlue()));
