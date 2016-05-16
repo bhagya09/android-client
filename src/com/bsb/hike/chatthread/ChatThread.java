@@ -1691,7 +1691,9 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			CropCompression compression = new CropCompression().maxWidth(width).maxHeight(height).quality(100);
 			Intent imageChooserIntent = IntentFactory.getImageChooserIntent(activity, galleryFlags, ChatThemeManager.getInstance().customThemeTempUploadImagePath, compression, true, width, height);
 			activity.startActivityForResult(imageChooserIntent, HikeConstants.ResultCodes.CHATTHEME_GALLERY_REQUEST_CODE);
-
+			if (themePicker != null && themePicker.isShowing()) {
+				themePicker.dismiss();
+			}
 		}else {
 			postTrialsAnalytic(themeId);
 			updateUIAsPerTheme(themeId);
