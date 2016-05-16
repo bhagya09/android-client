@@ -4261,6 +4261,12 @@ public class HikeConstants
 
 	public static final String IS_ATOMIC_TIP = "isAtomicTip";
 
+	public static final String SHOW_QUICK_STICKER_SUGGESTION_ON_STICKER_RECEIVE = "shqssosr";
+
+	public static final String SHOW_QUICK_STICKER_SUGGESTION_ON_STICKER_SENT = "shqssoss";
+
+	public static final String QUICK_SUGGESTED_STICKERS_TTL = "qck_ss_ttl";
+
 	public static final String BUNDLE = "bundle";
 
 	public static final String LAST_REFRESH_TIME = "last_refresh_time";

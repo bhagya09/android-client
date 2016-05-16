@@ -136,6 +136,8 @@ public class StickerManager
 
 	public static final String STICKER_PREVIEW_DOWNLOADED = "stickerPreviewDownloaded";
 
+	public static final String QUICK_STICKER_SUGGESTION_FETCHED = "quickStickerSuggestionFetched";
+
 	public static final String ADD_NO_MEDIA_FILE_FOR_STICKERS = "addNoMediaFileForStickers";
 
 	public static final String ADD_NO_MEDIA_FILE_FOR_STICKER_OTHER_FOLDERS = "addNoMediaFileForStickerOtherFolders";
@@ -195,6 +197,8 @@ public class StickerManager
 	public static final String HUMANOID = "humanoid";
 
 	public static final String LOVE = "love";
+
+	public static final String QUICK_SUGGESTIONS = "quick_suggestions";
 
 	public static final String OTHER_STICKER_ASSET_ROOT = "/other";
 
@@ -2109,6 +2113,17 @@ public class StickerManager
 		}
 	}
 
+	public Set<Sticker> getStickerSetFromStickerStringSet(Set<String> stickerStringSet)
+	{
+		Set<Sticker> stickerSet = new HashSet<>(stickerStringSet.size());
+		for (String info : stickerStringSet)
+		{
+			Pair<String, String> pair = getStickerInfoFromSetString(info);
+			stickerSet.add(new Sticker(pair.first, pair.second));
+		}
+		return stickerSet;
+	}
+
 	public Sticker getStickerFromSetString(String info)
 	{
 		Pair<String, String> pair = getStickerInfoFromSetString(info);
@@ -2270,6 +2285,7 @@ public class StickerManager
 		HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF).saveData(StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE_ISO_CODE, true);
 		StickerManager.getInstance().downloadStickerTagData();
 		StickerManager.getInstance().downloadDefaultTagsFirstTime(false);
+		fetchQuickSuggestionForAllStickersFirstTime();
 	}
 
 	public void doSignupTasks()
@@ -2285,6 +2301,7 @@ public class StickerManager
 		StickerManager.getInstance().downloadStickerTagData();
 		StickerManager.getInstance().downloadDefaultTagsFirstTime(true);
 		initiateFetchCategoryRanksAndDataTask();
+		fetchQuickSuggestionForAllStickersFirstTime();
 	}
 
     /**
@@ -3786,7 +3803,7 @@ public class StickerManager
 			json.put(AnalyticsConstants.V2.UNIQUE_KEY, "backup");
 			json.put(AnalyticsConstants.V2.KINGDOM, "act_hs");
 			json.put(AnalyticsConstants.V2.ORDER, "stk_rstr_error");
-			if(!TextUtils.isEmpty(errorString))
+			if (!TextUtils.isEmpty(errorString))
 			{
 				json.put(AnalyticsConstants.V2.GENUS, errorString);
 			}
