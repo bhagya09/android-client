@@ -1,26 +1,5 @@
 package com.bsb.hike;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.acra.ACRA;
-import org.acra.ErrorReporter;
-import org.acra.ReportField;
-import org.acra.annotation.ReportsCrashes;
-import org.acra.collector.CrashReportData;
-import org.acra.sender.HttpSender;
-import org.acra.sender.ReportSender;
-import org.acra.sender.ReportSenderException;
-import org.acra.util.HttpRequest;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -30,6 +9,7 @@ import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.location.Location;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.multidex.MultiDex;
@@ -65,6 +45,7 @@ import com.bsb.hike.platform.PlatformUIDFetch;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentConstants;
+import com.bsb.hike.productpopup.AtomicTipManager;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.service.HikeService;
 import com.bsb.hike.service.RegisterToGCMTrigger;
@@ -83,6 +64,29 @@ import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.hike.abtest.ABTest;
 import com.crashlytics.android.Crashlytics;
+import com.twinprime.TwinPrimeSDK.TwinPrimeSDK;
+
+import org.acra.ACRA;
+import org.acra.ErrorReporter;
+import org.acra.ReportField;
+import org.acra.annotation.ReportsCrashes;
+import org.acra.collector.CrashReportData;
+import org.acra.sender.HttpSender;
+import org.acra.sender.ReportSender;
+import org.acra.sender.ReportSenderException;
+import org.acra.util.HttpRequest;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.fabric.sdk.android.Fabric;
 
@@ -233,6 +237,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public static final String LAST_BACK_OFF_TIME = "lastBackOffTime";
 
+	public static final String LAST_BACK_OFF_TIME_USER_LOGS = "lastBackOffTimeUserLogs";
+
 	public static final String FACEBOOK_TOKEN = "facebookToken";
 
 	public static final String FACEBOOK_TOKEN_EXPIRES = "facebookTokenExpires";
@@ -247,7 +253,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	// public static final String TWITTER_AUTH_COMPLETE = "twitterAuthComplete";
 
-    public static final int DEFAULT_SEND_ANALYTICS_TIME_HOUR = 12;
+    public static final int DEFAULT_SEND_ANALYTICS_TIME_HOUR = 0;
 
     public static final String DAILY_ANALYTICS_ALARM_STATUS = "dailyAnalyticsAlarmStatus";
 
@@ -342,8 +348,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	public static final String FIRST_VIEW_FTUE_LIST_TIMESTAMP = "firstViewFtueListTimestamp";
 
 	public static final String HIDE_FTUE_SUGGESTIONS = "hideFtueSuggestions";
-
-	public static final String FB_SIGNUP = "fbSignup";
 
 	public static final String BIRTHDAY_DAY = "birthdayDay";
 
@@ -511,6 +515,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public static final String ENABLE_ADDRESSBOOK_THROUGH_HTTP_MGR = "enAbHttpMgr";
 
+	public static final String EDIT_PROFILE_THROUGH_HTTP_MGR = "editProfHttpMgr";
+
 	public static final String PROB_NUM_TEXT_MSG = "num_txt";
 
 	public static final String PROB_NUM_STICKER_MSG = "num_stk";
@@ -562,9 +568,11 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public static final String SET_ALARM_FIRST_TIME = "setAlarmFirstTime";
 
-    public static final String STICKER_BUTTON_CLICK_ANALYTICS_COUNT = "lastStickerButtonClickAnalyticsCount";
+    public static final String STICKER_PALLETE_BUTTON_CLICK_ANALYTICS = "lastStickerButtonClickAnalyticsCount";
 
-    public static final String EMOTICON_BUTTON_CLICK_ANALYTICS_COUNT = "lastEmoticonButtonClickAnalyticsCount";
+    public static final String STICKER_SEARCH_BUTTON_CLICK_ANALYTICS = "lastStickerSearchButtonClickAnalyticsCount";
+
+    public static final String EMOTICON_BUTTON_CLICK_ANALYTICS = "lastEmoticonButtonClickAnalyticsCount";
 
     public static final String EMOTICONS_CLICKED_LIST = "emoticonClickedIndex";
 
@@ -940,6 +948,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 			editor.commit();
 		}
 
+
 		if (token != null)
 		{
 			AccountUtils.setToken(token);
@@ -993,6 +1002,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		CustomTabsHelper.getPackageNameToUse(this);
 		Logger.d(HikeConstants.APP_OPENING_BENCHMARK, "Time taken in HikeMessengerApp onCreate = " + (System.currentTimeMillis() - time));
 
+		Utils.connectToGcmPreSignup();
+
 	}
 
 	private void validateCriticalDirs()
@@ -1040,6 +1051,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	{
 		// we're basically banking on the fact here that init() would be
 		// succeeded by the onUpgrade() calls being triggered in the respective databases.
+		initTwinPrime();
 		HikeConversationsDatabase.init(this);
 
 		initHikeLruCache(getApplicationContext());
@@ -1073,6 +1085,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		registerReceivers();
 
 		ProductInfoManager.getInstance().init();
+
+		AtomicTipManager.getInstance().init();
 
         // Set default path as internal storage on production host
         PlatformContentConstants.PLATFORM_CONTENT_DIR = PlatformContentConstants.MICRO_APPS_VERSIONING_PROD_CONTENT_DIR;
@@ -1124,6 +1138,18 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		return diskCache;
 	}
 
+	private void initTwinPrime()
+	{
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TP_ENABLE, 0) == 1)
+		{
+			new TwinPrimeSDK(getApplicationContext(), HikeConstants.TP_API_KEY);
+			// Setting passive location if found for tracking
+			Location loc = Utils.getPassiveLocation();
+			Logger.d("TwinPrime","PassiveLocation is "+ loc);
+			if (loc != null)
+				TwinPrimeSDK.setLocation(loc);
+		}
+	}
 	/**
 	 * fetching the platform user id from the server. Will not fetch if the platform user id is already present. Will fetch the address book's platform uid on success of this call.
 	 */

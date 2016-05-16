@@ -11,6 +11,8 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.ChatAnalyticConstants;
+import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
@@ -72,6 +74,8 @@ public class UploadFileTask extends FileTransferBase
 	private List<ConvMessage> messageList;
 
 	private String vidCompressionRequired = "0";
+
+	private int retryCount = 0;
 
 	public UploadFileTask(Context ctx, ConvMessage convMessage, String fileKey)
 	{
@@ -156,9 +160,17 @@ public class UploadFileTask extends FileTransferBase
 
 				if (httpException.getErrorCode() / 100 > 0)
 				{
-					// do this in any failure response code returned by server
-					fileKey = null;
-					verifyMd5(false);
+					retryCount++;
+					if (retryCount >= FileTransferManager.MAX_RETRY_COUNT)
+					{
+						removeTaskAndShowToast(HikeConstants.FTResult.UPLOAD_FAILED);
+					}
+					else
+					{
+						// do this in any failure response code returned by server
+						fileKey = null;
+						verifyMd5(false);
+					}
 				}
 				else if (httpException.getCause() instanceof FileTransferCancelledException)
 				{
@@ -216,6 +228,7 @@ public class UploadFileTask extends FileTransferBase
 			}
 		}
 
+		retryCount = 0;
 		// If we are not able to verify the filekey validity from the server, fall back to uploading the file
 		RequestToken validateFileKeyToken = HttpRequests.validateFileKey(fileKey, getValidateFileKeyRequestListener());
 		validateFileKeyToken.execute();
@@ -334,7 +347,12 @@ public class UploadFileTask extends FileTransferBase
 						}
 						selectedFile = mFile;
 					}
+					if (selectedFile.length() > HikeConstants.MAX_FILE_SIZE) {
+						String msisdn = ((ConvMessage) userContext).getMsisdn();
+						Utils.recordEventMaxSizeToastShown(ChatAnalyticConstants.VIDEO_MAX_SIZE_TOAST_SHOWN, ChatThreadUtils.getChatThreadType(msisdn), msisdn, hikeFile.getFileSize());
+					}
 					hikeFile.setFile(selectedFile);
+					hikeFile.setFileSize(selectedFile.length());
 				}
 				// do not copy the file if it is video or audio or any other file
 				else
@@ -375,10 +393,7 @@ public class UploadFileTask extends FileTransferBase
 
 	public void upload()
 	{
-		if (requestToken != null)
-		{
-			requestToken.execute();
-		}
+		uploadFile(selectedFile);
 	}
 
 	private String getImageQuality()
@@ -443,6 +458,7 @@ public class UploadFileTask extends FileTransferBase
 			return;
 		}
 
+		retryCount = 0;
 		RequestToken token = HttpRequests.verifyMd5(msgId, new IRequestListener()
 		{
 			@Override
@@ -463,8 +479,16 @@ public class UploadFileTask extends FileTransferBase
 				}
 				else if (httpException.getErrorCode() / 100 > 0)
 				{
-					// do this in any failure response code returned by server
-					uploadFile(selectedFile);
+					retryCount++;
+					if (retryCount >= FileTransferManager.MAX_RETRY_COUNT)
+					{
+						removeTaskAndShowToast(HikeConstants.FTResult.UPLOAD_FAILED);
+					}
+					else
+					{
+						// do this in any failure response code returned by server
+						uploadFile(selectedFile);
+					}
 				}
 				else if (httpException.getCause() instanceof FileTransferCancelledException)
 				{
@@ -566,14 +590,24 @@ public class UploadFileTask extends FileTransferBase
 
 	public void uploadFile(File sourceFile)
 	{
+		uploadFile(sourceFile, false);
+	}
+
+	public void uploadFile(File sourceFile, boolean retry)
+	{
 		if (!FileTransferManager.getInstance(context).isFileTaskExist(msgId))
 		{
 			return;
 		}
 
+		if (!retry)
+		{
+			retryCount = 0;
+		}
+
 		if (requestToken == null || !requestToken.isRequestRunning())
 		{
-			requestToken = HttpRequests.uploadFile(sourceFile.getAbsolutePath(), msgId, vidCompressionRequired, new IRequestListener()
+			requestToken = HttpRequests.uploadFile(sourceFile.getAbsolutePath(), msgId, vidCompressionRequired, fileType, new IRequestListener()
 			{
 				@Override
 				public void onRequestSuccess(Response result)
@@ -615,7 +649,15 @@ public class UploadFileTask extends FileTransferBase
 				{
 					Logger.e("HttpResponseUpload", "  onprogress failure called : ", httpException.getCause());
 
-					if (httpException.getErrorCode() == HttpException.REASON_CODE_NO_NETWORK)
+					if (httpException.getErrorCode() == HttpException.REASON_CODE_REQUEST_PAUSED)
+					{
+						if (userContext != null)
+						{
+							removeTask();
+							HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
+						}
+					}
+					else if (httpException.getErrorCode() == HttpException.REASON_CODE_NO_NETWORK)
 					{
 						removeTaskAndShowToast(HikeConstants.FTResult.UPLOAD_FAILED);
 					}
@@ -626,8 +668,42 @@ public class UploadFileTask extends FileTransferBase
 					}
 					else if (httpException.getErrorCode() == HttpURLConnection.HTTP_INTERNAL_ERROR)
 					{
-						deleteStateFile();
-						removeTaskAndShowToast(HikeConstants.FTResult.UPLOAD_FAILED);
+						retryCount++;
+						if (retryCount >= FileTransferManager.MAX_RETRY_COUNT)
+						{
+							removeTaskAndShowToast(HikeConstants.FTResult.UPLOAD_FAILED);
+						}
+						else
+						{
+							deleteStateFile();
+							handler.postDelayed(new Runnable()
+							{
+								@Override
+								public void run()
+								{
+									uploadFile(selectedFile, true);
+								}
+							}, FileTransferManager.RETRY_DELAY);
+						}
+					}
+					else if (httpException.getErrorCode() / 100 > 0)
+					{
+						retryCount++;
+						if (retryCount >= FileTransferManager.MAX_RETRY_COUNT)
+						{
+							removeTaskAndShowToast(HikeConstants.FTResult.UPLOAD_FAILED);
+						}
+						else
+						{
+							handler.postDelayed(new Runnable()
+							{
+								@Override
+								public void run()
+								{
+									uploadFile(selectedFile, true);
+								}
+							}, FileTransferManager.RETRY_DELAY);
+						}
 					}
 					else if (httpException.getErrorCode() == HttpException.REASON_CODE_MALFORMED_URL)
 					{
@@ -857,42 +933,45 @@ public class UploadFileTask extends FileTransferBase
 			HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 		}
 
-		handler.post(new Runnable()
+		if (getFileSavedState().getFTState() != FTState.PAUSED)
 		{
-			@Override
-			public void run()
+			handler.post(new Runnable()
 			{
-				switch (result)
+				@Override
+				public void run()
 				{
-				case UPLOAD_FAILED:
-					Toast.makeText(context, R.string.upload_failed, Toast.LENGTH_SHORT).show();
-					break;
-				case CARD_UNMOUNT:
-					Toast.makeText(context, R.string.card_unmount, Toast.LENGTH_SHORT).show();
-					break;
-				case READ_FAIL:
-					Toast.makeText(context, R.string.unable_to_read, Toast.LENGTH_SHORT).show();
-					break;
-				case DOWNLOAD_FAILED:
-					Toast.makeText(context, R.string.download_failed, Toast.LENGTH_SHORT).show();
-					break;
-				case FILE_SIZE_EXCEEDING:
-					Toast.makeText(context, R.string.max_file_size, Toast.LENGTH_SHORT).show();
-					break;
-				case CANCELLED:
-					Toast.makeText(context, R.string.upload_cancelled, Toast.LENGTH_SHORT).show();
-					break;
-				case NO_SD_CARD:
-					Toast.makeText(context, R.string.no_sd_card, Toast.LENGTH_SHORT).show();
-					break;
-				case FILE_TOO_LARGE:
-					Toast.makeText(context, R.string.not_enough_space, Toast.LENGTH_SHORT).show();
-					break;
-				case SERVER_ERROR:
-					Toast.makeText(context, R.string.file_expire, Toast.LENGTH_SHORT).show();
-					break;
+					switch (result)
+					{
+						case UPLOAD_FAILED:
+							Toast.makeText(context, R.string.upload_failed, Toast.LENGTH_SHORT).show();
+							break;
+						case CARD_UNMOUNT:
+							Toast.makeText(context, R.string.card_unmount, Toast.LENGTH_SHORT).show();
+							break;
+						case READ_FAIL:
+							Toast.makeText(context, R.string.unable_to_read, Toast.LENGTH_SHORT).show();
+							break;
+						case DOWNLOAD_FAILED:
+							Toast.makeText(context, R.string.download_failed, Toast.LENGTH_SHORT).show();
+							break;
+						case FILE_SIZE_EXCEEDING:
+							Toast.makeText(context, R.string.max_file_size, Toast.LENGTH_SHORT).show();
+							break;
+						case CANCELLED:
+							Toast.makeText(context, R.string.upload_cancelled, Toast.LENGTH_SHORT).show();
+							break;
+						case NO_SD_CARD:
+							Toast.makeText(context, R.string.no_sd_card, Toast.LENGTH_SHORT).show();
+							break;
+						case FILE_TOO_LARGE:
+							Toast.makeText(context, R.string.not_enough_space, Toast.LENGTH_SHORT).show();
+							break;
+						case SERVER_ERROR:
+							Toast.makeText(context, R.string.file_expire, Toast.LENGTH_SHORT).show();
+							break;
+					}
 				}
-			}
-		});
+			});
+		}
 	}
 }
