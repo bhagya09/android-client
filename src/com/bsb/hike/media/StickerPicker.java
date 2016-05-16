@@ -481,6 +481,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		{
 			stickerAdapter.getStickerLoader().setExitTasksEarly(flag);
 			stickerAdapter.getStickerOtherIconLoader().setExitTasksEarly(flag);
+			stickerAdapter.getMiniStickerLoader().setExitTasksEarly(flag);
 			if (!flag)
 			{
 				stickerAdapter.notifyDataSetChanged();

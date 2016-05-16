@@ -62,6 +62,8 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 	private StickerLoader worker;
 	
 	private StickerOtherIconLoader stickerOtherIconLoader;
+
+	private StickerLoader miniStickerLoader;
 	
 	private StickerPickerListener mStickerPickerListener;
 
@@ -107,6 +109,11 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
                 .downloadLargeStickerIfNotFound(true)
                 .setDefaultBitmap(HikeBitmapFactory.decodeResource(mContext.getResources(), R.drawable.shop_placeholder))
                 .build();
+
+		miniStickerLoader = new StickerLoader.Builder()
+				.downloadMiniStickerIfNotFound(true)
+				.loadMiniStickerIfNotFound(true)
+				.build();
 
 		stickerOtherIconLoader = new StickerOtherIconLoader(mContext, true);
 		registerListener();
@@ -433,7 +440,8 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 		}
 		else
 		{
-			final StickerPageAdapter stickerPageAdapter = new StickerPageAdapter(mContext, stickerPageList, category, worker, spo.getStickerGridView(), mStickerPickerListener);
+			StickerLoader stickerLoader = StickerManager.getInstance().isQuickSuggestionCategory(category.getCategoryId()) ? miniStickerLoader : worker;
+			final StickerPageAdapter stickerPageAdapter = new StickerPageAdapter(mContext, stickerPageList, category, stickerLoader, spo.getStickerGridView(), mStickerPickerListener);
 			spo.setStickerPageAdapter(stickerPageAdapter);
 			spo.getStickerGridView().setAdapter(stickerPageAdapter);
 		}
@@ -467,6 +475,11 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 	public StickerOtherIconLoader getStickerOtherIconLoader()
 	{
 		return stickerOtherIconLoader;
+	}
+
+	public StickerLoader getMiniStickerLoader()
+	{
+		return miniStickerLoader;
 	}
 
 	/**
