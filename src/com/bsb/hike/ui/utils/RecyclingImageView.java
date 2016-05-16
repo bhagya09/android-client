@@ -38,23 +38,6 @@ public class RecyclingImageView extends ImageView
 	}
 
 	/**
-	 * @see android.widget.ImageView#onDetachedFromWindow()
-	 */
-	@Override
-	protected void onDetachedFromWindow()
-	{
-
-		if (!Utils.isHoneycombOrHigher())
-		{
-			Logger.i(RecyclingImageView.class.getSimpleName(), "RecyclingImageView: onDetachedFromWindow");
-			// This has been detached from Window, so clear the drawable
-			setImageDrawable(null);
-		}
-
-		super.onDetachedFromWindow();
-	}
-
-	/**
 	 * @see android.widget.ImageView#setImageResource(int)
 	 */
 	@Override

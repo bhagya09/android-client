@@ -1,13 +1,6 @@
 package com.bsb.hike.ui;
 
 
-import java.net.HttpURLConnection;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -63,12 +56,14 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.analytics.HomeAnalyticsConstants;
+import com.bsb.hike.backup.AccountBackupRestore;
 import com.bsb.hike.backup.HikeCloudSettingsManager;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
-import com.bsb.hike.backup.AccountBackupRestore;
 import com.bsb.hike.db.AccountRestoreAsyncTask;
 import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
@@ -113,7 +108,13 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.lang.ref.WeakReference;
+import java.net.HttpURLConnection;
+import java.util.ArrayList;
+import java.util.List;
 
 public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Listener, HikeDialogListener,
 		AccountRestoreAsyncTask.IRestoreCallback
@@ -324,8 +325,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		FTApkManager.removeApkIfNeeded();
 		moveToComposeChatScreen();
 
-
-		HikeCloudSettingsManager.getInstance().doRestore(null);
     }
 	
 	@Override
@@ -545,8 +544,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		HikeMessengerApp.getPubSub().addListeners(this, homePubSubListeners);
 
 		GetFTUEContactsTask getFTUEContactsTask = new GetFTUEContactsTask();
-		Utils.executeContactInfoListResultTask(getFTUEContactsTask);
-
+		getFTUEContactsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 
 	private void setupFestivePopup()
@@ -738,6 +736,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				@Override
 				public void onClick(View v)
 				{
+					recordOverFlowMenuClick();
 					showOverFlowMenu();
 					topBarIndicator.setVisibility(View.GONE);
 					Editor editor = accountPrefs.edit();
@@ -870,7 +869,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			return false;
 		}
 	}
-
 
 	private void recordSearchOptionClick()
 	{
@@ -1601,19 +1599,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				if (!deviceDetailsSent)
 				{
 					sendDeviceDetails();
-					if (accountPrefs.getBoolean(HikeMessengerApp.FB_SIGNUP, false))
-					{
-						try
-						{
-							JSONObject metadata = new JSONObject();
-							metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.FB_CLICK);
-							HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-						}
-						catch(JSONException e)
-						{
-							Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-						}
-					}
 					if (accountPrefs.getInt(HikeMessengerApp.WELCOME_TUTORIAL_VIEWED, -1) > -1)
 					{
 						try
@@ -1663,7 +1648,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				public void run()
 				{
 					GetFTUEContactsTask ftueContactsTask = new GetFTUEContactsTask();
-					Utils.executeContactInfoListResultTask(ftueContactsTask);
+					ftueContactsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 				}
 			});
 		}
@@ -2099,10 +2084,12 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					OfflineUtils.recordHikeDirectOverFlowClicked();
 					break;
 				case R.string.invite_friends:
+					recordInviteFriendsClick();
 					intent = new Intent(HomeActivity.this, TellAFriend.class);
 					break;
 					
 				case R.string.hike_extras:
+					recordRewardsClick();
 					editor.putBoolean(HikeConstants.IS_GAMES_ITEM_CLICKED, true);
 					editor.commit();
 					updateOverFlowMenuNotification();
@@ -2121,6 +2108,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					intent = new Intent(HomeActivity.this, SettingsActivity.class);
 					break;
 				case R.string.new_group:
+					recordNewGroupClick();
 					intent = new Intent(HomeActivity.this, CreateNewGroupOrBroadcastActivity.class);
 					break;
 				
@@ -2182,11 +2170,12 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					}
 
 					intent = new Intent(HomeActivity.this, StatusUpdate.class);
+					Utils.setSpecies(HomeAnalyticsConstants.SU_SPECIES_OVERFLOW, intent);
 					break;
 					
 				case R.string.send_logs:
 					SendLogsTask logsTask = new SendLogsTask(HomeActivity.this);
-					Utils.executeAsyncTask(logsTask);
+					logsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 					break;
 					
 				case R.string.new_broadcast:
@@ -2428,13 +2417,14 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	public void hikeLogoClicked()
 	{
+		recordHikeLogoClicked();
 		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_WELCOME_HIKE_TIP, false))
 		{
 			HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_TIP, ConversationTip.WELCOME_HIKE_TIP);
 		}
 		StealthModeManager.getInstance().toggleActionTriggered(this);
 	}
-	
+
 	private void sendAnalyticsTakePicture()
 	{
 		try
@@ -2535,8 +2525,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	private void startRestoreProcess()
 	{
 		restoreAsyncTask = new AccountRestoreAsyncTask(new WeakReference<AccountRestoreAsyncTask.IRestoreCallback>(this));
-
-		Utils.executeIntegerAsyncTask(restoreAsyncTask);
+		restoreAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 
 	@Override
@@ -2616,6 +2605,81 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			Logger.d(TAG, "Removed ConvFragment and showing the restore chats dialog now");
 
 			showCorruptDBRestoreDialog();
+		}
+	}
+
+	private void recordOverFlowMenuClick()
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, HomeAnalyticsConstants.HOME_OVERFLOW_MENU);
+			json.put(AnalyticsConstants.V2.KINGDOM, HomeAnalyticsConstants.HOMESCREEN_KINGDOM);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, HomeAnalyticsConstants.HOME_OVERFLOW_MENU);
+
+			HAManager.getInstance().recordV2(json);
+		}
+
+		catch (JSONException e)
+		{
+			e.toString();
+		}
+	}
+
+	private void recordNewGroupClick()
+	{
+		recordOverflowItemclick("grp");
+	}
+
+	private void recordInviteFriendsClick()
+	{
+		recordOverflowItemclick("invt_frnds");
+	}
+
+	private void recordRewardsClick()
+	{
+		recordOverflowItemclick("rwds");
+	}
+
+	private void recordOverflowItemclick(String whichItem)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, HomeAnalyticsConstants.HOME_OVERFLOW_MENU_ITEM);
+			json.put(AnalyticsConstants.V2.KINGDOM, HomeAnalyticsConstants.HOMESCREEN_KINGDOM);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, whichItem);
+
+			HAManager.getInstance().recordV2(json);
+		}
+
+		catch (JSONException e)
+		{
+			e.toString();
+		}
+	}
+
+	private void recordHikeLogoClicked()
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, HomeAnalyticsConstants.HIDDEN_UK);
+			json.put(AnalyticsConstants.V2.KINGDOM, HomeAnalyticsConstants.HOMESCREEN_KINGDOM);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, HomeAnalyticsConstants.HIDDEN_UK);
+
+			HAManager.getInstance().recordV2(json);
+		}
+
+		catch (JSONException e)
+		{
+			e.toString();
 		}
 	}
 

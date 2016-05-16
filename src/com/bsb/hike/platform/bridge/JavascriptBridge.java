@@ -963,7 +963,6 @@ public abstract class JavascriptBridge
 	}
 
 
-
 	/**
 	 * Platform Bridge Version 3
 	 * Call this function to enable zooming in webViews.
@@ -994,6 +993,7 @@ public abstract class JavascriptBridge
 		}
 	}
 
+	
 	/**
 	 * Platform Version 3
 	 * Call this function to send email. This function opens Android email intent to send email. Hike Version, Device name, Android version and Phone number are added by default in the email body.

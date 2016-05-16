@@ -35,6 +35,7 @@ import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_I
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_IO_EXCEPTION;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_MALFORMED_URL;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_NO_NETWORK;
+import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_REQUEST_PAUSED;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_RESPONSE_PARSING_ERROR;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_SOCKET_EXCEPTION;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_SOCKET_TIMEOUT;
@@ -306,6 +307,10 @@ public class RequestExecuter
 				handleException(ex, statusCode);
 			}
 		}
+		catch (HttpException ex)
+		{
+			handleException(ex);
+		}
 		catch (Throwable ex)
 		{
 			HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), REASON_CODE_UNEXPECTED_ERROR, request.getMethod(), request.getAnalyticsParam(),
@@ -316,11 +321,13 @@ public class RequestExecuter
 
 	private void notifyResponseToRequestRunner()
 	{
-		if (request.getState() != null && request.getState().getFTState() == FTState.PAUSED)
+		LogFull.d(" request total size : "+request.getState().getTotalSize() + "   transffereed size : " + request.getState().getTransferredSize());
+		if (request.getState() != null && (request.getState().getFTState() == FTState.PAUSED || request.getState().getTotalSize() != request.getState().getTransferredSize()))
 		{
 			LogFull.d("removing request");
 			RequestProcessor.removeRequest(request);
 			LogFull.d("removed request");
+			listener.onResponse(null, new HttpException(REASON_CODE_REQUEST_PAUSED, "request is paused"));
 		}
 		else
 		{
@@ -350,6 +357,12 @@ public class RequestExecuter
 	{
 		LogFull.e(ex, "exception occured for " + request.toString());
 		listener.onResponse(null, new HttpException(reasonCode, ex));
+	}
+
+	private void handleException(HttpException ex)
+	{
+		LogFull.e(ex, "exception occured for " + request.toString());
+		listener.onResponse(null, ex);
 	}
 
 	/**

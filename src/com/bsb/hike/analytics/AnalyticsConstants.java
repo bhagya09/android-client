@@ -279,6 +279,8 @@ public class AnalyticsConstants
 
 		public static final String REC_ID = "ri";
 
+		public static final String SECTION = "sec";
+
 		public static final String TO_USER = "tu";
 
 		public static final String USER_STATE = "us";
@@ -799,6 +801,22 @@ public class AnalyticsConstants
 		public static final String INTERCEPT_SETTING_TURNED_OFF = "incStgOff";
 
 		public static final String INTERCEPT_CLICK_FOR_DELETED_FILE = "incDltClk";
+
+		public static final String IMAGE_CAPTURE = "incImgCapt";
+
+		public static final String VIDEO_CAPTURE = "incVidCapt";
+
+		public static final String SCREENSHOT_CAPTURE = "incScrnCapt";
+
+		public static final String INTERCEPT_VIDEO_CLICKED = "incVidClk";
+
+		public static final String INTERCEPT_NOTIF_SWIPED = "incNtfSwp";
+
+		public static final String CAPTURE = "capture";
+
+		public static final String SWIPED = "swiped";
+
+		public static final String ACT_INTERCEPT = "act_intercept";
 	}
 
     public static final String DISK_CONSUMPTION_ANALYTICS = "disk_consumption";
@@ -821,11 +839,11 @@ public class AnalyticsConstants
 
 	public static final String ACT_USERS = "act_users";
 
-	public static final String ACT_CORE_LOGS = "act_core";
-
 	public static final String ACT_STICKER_LOGS = "act_stck";
 
 	public static final String ACT_ABTEST_LOGS = "act_ab";
+
+	public static final String ACT_EXPERIMENT = "act_exp";
 
 	public static final String CHAT_OPEN = "chat_open";
 
@@ -840,26 +858,6 @@ public class AnalyticsConstants
 	public static final String AUTO_DOWNLOAD_OFF = "autoDownloadOff";
 	public static final String REQUEST_FAILURE = "requestFailure";
 
-
-	public static final String CAMERA_ICON_CLICK = "camicon";
-	public static final String AUDIO_ICON_CLICK  = "audicon";
-	public static final String VIDEO_ICON_CLICK  = "vidicon";
-	public static final String LOCATION_ICON_CLICK = "locicon";
-	public static final String FILE_ICON_CLICK = "fileicon";
-	public static final String GALLERY_ICON_CLICK = "galicon";
-	public static final String APPS_ICON_CLICK = "appsicon";
-	public static final String CONTACT_ICON_CLICK = "cntcticon";
-
-	public static final String ATTACHMENT_PICKER_CLICK = "atchicon";
-
-	public static final String CHAT_BACKGROUND_TRIAL = "cbg_trial";
-
-	public static final String WT_CLICKED_TOUCHED = "wticon";
-
-	public static final String LOCATION_SHARING_CANCELLED= "cnclLoc";
-
-	public static final String STEALTH_CHAT_THREAD = "stealth";
-
 	public static final String TIME_LINE_OPEN = "TL_open";
 
 	public static final String PACK_PREVIEW = "pckPrvw";
@@ -868,22 +866,31 @@ public class AnalyticsConstants
 
 	public static final String STICKER_DOWNLOAD_TIME = "stdnt";
 
-	public static final String VIDEO_SENT = "sendVid";
-
-	public static final String VIDEO_UPLOAD_PAUSE_MANUALLY = "pauseVid";
-
-	public static final String VIDEO_RECEIVER_DOWNLOAD_MANUALLY = "vidDwnld";
-
-	public static final String MEDIA_UPLOAD_DOWNLOAD_RETRY = "mediaRetry";
-
-	public static final String UPLOAD_MEDIA = "upload";
-
-	public static final String DOWNLOAD_MEDIA = "download";
-
 	public static final String BLOCK_LIST_BACK_PRESS = "blckPriv";
 
 	public static final String BLOCK_LIST_BACK = "bckBlck";
 
+	public static final class AtomicTipsAnalyticsConstants
+	{
+		public static final String TIPS = "tips";
+		public static final String TIP_RECEIVED = "tip_rcvd";
+		public static final String TIP_DECODED = "tip_dcod";
+		public static final String TIP_VALIDITY = "tip_vldt";
+		public static final String TIP_EXPIRY = "tip_expr";
+		public static final String TIP_DISPLAYED = "tip_disp";
+		public static final String TIP_CLICKED = "tip_clk";
+		public static final String TIP_CROSSED = "tip_crss";
+		public static final String TIP_NOTIF_CREATED = "tip_ntf_crt";
+		public static final String TIP_NOTIF_CLICKED = "tip_ntf_clk";
+		public static final String TIP_NOTIF_SWIPED = "tip_ntf_swp";
+		public static final String TIP_VALID = "valid";
+		public static final String TIP_INVALID = "invalid";
+		public static final String TIP_FLUSH = "tip_flush";
+		public static final String HOME_SCREEN = "home_scrn";
+		public static final String FUNNEL = "funnel";
+		public static final String EXIT = "exit";
+
+	}
 	public static final String VIDEO_MAX_SIZE_TOAST_SHOWN = "maxLimToast";
 
 	public static final String SHARE_IMAGES = "imgShare";
@@ -893,4 +900,5 @@ public class AnalyticsConstants
 	public static final String IMAGE_SOURCE_CAMERA = "atchCam";
 
 	public static final String OVERFLOW_MENU_CLICKED = "ctOvrFlw";
+
 }

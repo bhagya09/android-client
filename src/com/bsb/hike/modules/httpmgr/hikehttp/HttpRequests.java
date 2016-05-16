@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.filetransfer.FileTransferManager;
+import com.bsb.hike.modules.httpmgr.DefaultHeaders;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -38,6 +39,7 @@ import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.userlogs.PhoneSpecUtils;
 import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.StickerManager;
@@ -59,7 +61,10 @@ import java.util.List;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.authSDKBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.bulkLastSeenUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.deleteAccountBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.editDOBBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.editProfileAvatarBase;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.editProfileEmailGenderBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.editProfileNameBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getActionsUpdateUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getAvatarBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getBaseCodeGCAcceptUrl;
@@ -97,9 +102,12 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.signUpP
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.singleStickerDownloadBase;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.singleStickerImageDownloadBase;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.singleStickerTagsUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerCategoryFetchPrefOrderUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerPalleteImageDownloadUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerPreviewImageDownloadUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerShopDownloadUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerShopFetchCategoryTagsUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerShopFetchCategoryUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerSignupUpgradeUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerCategoryDetailsUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.unlinkAccountBaseUrl;
@@ -110,6 +118,7 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.validat
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getHistoricalStatusUpdatesUrl;
 import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_HIGH;
 import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_LOW;
+import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_NORMAL;
 import static com.bsb.hike.modules.httpmgr.request.Request.REQUEST_TYPE_LONG;
 import static com.bsb.hike.modules.httpmgr.request.Request.REQUEST_TYPE_SHORT;
 
@@ -212,6 +221,47 @@ public class HttpRequests
 				.setId(requestId)
 				.setRequestListener(requestListener)
 				.setRequestType(REQUEST_TYPE_SHORT)
+				.setPriority(PRIORITY_HIGH)
+				.build();
+		return requestToken;
+	}
+
+	public static RequestToken fetchCategoryData(String requestId, JSONObject json, IRequestListener requestListener)
+	{
+		JsonBody body = new JsonBody(json);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(stickerShopFetchCategoryUrl())
+				.setId(requestId)
+				.post(body)
+				.setRequestListener(requestListener)
+				.setRequestType(REQUEST_TYPE_LONG)
+				.setPriority(PRIORITY_LOW)
+				.build();
+		return requestToken;
+	}
+
+    public static RequestToken fetchCategoryTagData(String requestId, JSONObject json, IRequestListener requestListener)
+    {
+        JsonBody body = new JsonBody(json);
+        RequestToken requestToken = new JSONObjectRequest.Builder()
+                .setUrl(stickerShopFetchCategoryTagsUrl())
+                .setId(requestId)
+                .post(body)
+                .setRequestListener(requestListener)
+                .setRequestType(REQUEST_TYPE_LONG)
+                .setPriority(PRIORITY_LOW)
+                .build();
+        return requestToken;
+    }
+
+	public static RequestToken getPrefOrderForCategories(String requestId, IRequestListener requestListener, int catSize, int offset)
+	{
+		String url = stickerCategoryFetchPrefOrderUrl() + "?N=" + catSize + "&offset=" + offset;
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(url)
+				.setId(requestId)
+				.setRequestListener(requestListener)
+				.setRequestType(REQUEST_TYPE_LONG)
 				.setPriority(PRIORITY_HIGH)
 				.build();
 		return requestToken;
@@ -713,14 +763,32 @@ public class HttpRequests
 		return requestToken;
 	}
 
+	private static  JSONObjectRequest.Builder addPreActivationHeaders(JSONObjectRequest.Builder jsonRequestBuilder )
+	{
+		if (!Utils.isUserAuthenticated(HikeMessengerApp.getInstance().getApplicationContext()))
+		{
+			Header customHeader;
+			String paUid = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Preactivation.UID, "");
+			String paToken = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Preactivation.TOKEN, "");
+			customHeader = new Header(HttpHeaderConstants.COOKIE_HEADER_NAME, HikeConstants.Preactivation.TOKEN + "=" + paToken + "; " + HikeConstants.Preactivation.UID + "=" + paUid);
+			jsonRequestBuilder.addHeader(customHeader);
+		}
+		return jsonRequestBuilder;
+	}
+
 	public static RequestToken sendUserLogInfoRequest(String logKey, JSONObject json, IRequestListener requestListener)
 	{
+
 		JsonBody body = new JsonBody(json);
-		RequestToken requestToken = new JSONObjectRequest.Builder()
+
+		JSONObjectRequest.Builder sendUserLogJsonRequestBuilder = new JSONObjectRequest.Builder()
 				.setUrl(sendUserLogsInfoBaseUrl() + logKey)
 				.setRequestListener(requestListener)
-				.post(body)
-				.build();
+				.setRetryPolicy(new BasicRetryPolicy(Integer.MAX_VALUE, BasicRetryPolicy.DEFAULT_RETRY_DELAY, 4f))
+				.post(body);
+		addPreActivationHeaders(sendUserLogJsonRequestBuilder);
+
+		RequestToken requestToken = sendUserLogJsonRequestBuilder.build();
 		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
 		return requestToken;
 	}
@@ -1155,7 +1223,7 @@ public class HttpRequests
 
 	}
 
-	public static RequestToken downloadFile(String destFilePath, String url, long msgId, IRequestListener requestListener, IGetChunkSize chunkSizePolicy, String fileTypeString)
+	public static RequestToken downloadFile(String destFilePath, String url, long msgId, IRequestListener requestListener, IGetChunkSize chunkSizePolicy, String fileTypeString, String fileKey)
 	{
 		RequestToken token = new FileDownloadRequest.Builder()
 				.setUrl(url)
@@ -1164,18 +1232,20 @@ public class HttpRequests
 				.setFile(destFilePath)
 				.setFileTypeString(fileTypeString)
 				.setChunkSizePolicy(chunkSizePolicy)
+				.setFileKey(fileKey)
 				.setId(String.valueOf(msgId))
 				.setRetryPolicy(new BasicRetryPolicy(FileTransferManager.MAX_RETRY_COUNT, FileTransferManager.RETRY_DELAY, FileTransferManager.RETRY_BACKOFF_MULTIPLIER))
 				.build();
 		return token;
 	}
 	
-	public static RequestToken uploadFile(String filePath, long msgId, String videoCompressionReqd, IRequestListener requestListener, IRequestInterceptor interceptor, IGetChunkSize chunkSizePolicy)
+	public static RequestToken uploadFile(String filePath, long msgId, String videoCompressionReqd, String fileType, IRequestListener requestListener, IRequestInterceptor interceptor, IGetChunkSize chunkSizePolicy)
 	{
 		RequestToken requestToken = new FileUploadRequest.Builder()
 				.setUrl(getUploadFileBaseUrl())
 				.setId(String.valueOf(msgId))
 				.setRequestType(Request.REQUEST_TYPE_LONG)
+				.setFileType(fileType)
 				.addHeader(new Header("X-Compression-Required", videoCompressionReqd))
 				.setChunkSizePolicy(chunkSizePolicy)
 				.setRequestListener(requestListener)
@@ -1315,6 +1385,7 @@ public class HttpRequests
 				.setUrl(url)
 				.addHeader(new Header("X-SESSION-ID", sessionId))
 				.setAsynchronous(false)
+				.setId(sessionId)
 				.setRetryPolicy(new BasicRetryPolicy(1, FileTransferManager.RETRY_DELAY, 1))
 				.setRequestListener(listener)
 				.build();
@@ -1332,8 +1403,31 @@ public class HttpRequests
 		return requestToken;
 	}
 
-	public static RequestToken uploadUserSettings(IRequestListener requestListener,
-												  int retryCount, int delayBeforeRetry,@NonNull JSONObject payloadJSON)
+	public static RequestToken atomicTipRequestGet(String url, IRequestListener listener)
+	{
+		JSONObjectRequest.Builder builder = new JSONObjectRequest.Builder()
+				.setUrl(url)
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(listener)
+				.setRetryPolicy(new BasicRetryPolicy(ProductPopupsConstants.numberOfRetries, ProductPopupsConstants.retryDelay, ProductPopupsConstants.backOffMultiplier));
+		return builder.build();
+	}
+
+	public static RequestToken atomicTipRequestPost(String url, JSONObject payload, IRequestListener listener, boolean addHeader) {
+		JsonBody jsonBody = new JsonBody(payload);
+		JSONObjectRequest.Builder builder = new JSONObjectRequest.Builder()
+				.setUrl(url)
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(listener)
+				.post(jsonBody)
+				.setRetryPolicy(new BasicRetryPolicy(ProductPopupsConstants.numberOfRetries, ProductPopupsConstants.retryDelay, ProductPopupsConstants.backOffMultiplier));
+		if (addHeader) {
+			builder.addHeader(PlatformUtils.getHeaders());
+		}
+		return builder.build();
+	}
+
+	public static RequestToken uploadUserSettings(IRequestListener requestListener, int retryCount, int delayBeforeRetry,@NonNull JSONObject payloadJSON)
 	{
 
 		JSONObject settingsJSON = new JSONObject();
@@ -1374,5 +1468,55 @@ public class HttpRequests
 		return requestToken;
 	}
 
+	public static RequestToken editProfileNameRequest(JSONObject json, IRequestListener requestListener)
+	{
+		JsonBody body = new JsonBody(json);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(editProfileNameBaseUrl())
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(requestListener)
+				.setResponseOnUIThread(true)
+				.post(body)
+				.build();
+		return requestToken;
+	}
 
+	public static RequestToken editGroupProfileNameRequest(JSONObject json, IRequestListener requestListener, String groupId)
+	{
+		JsonBody body = new JsonBody(json);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(groupProfileBaseUrl() + groupId + "/name")
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(requestListener)
+				.setResponseOnUIThread(true)
+				.post(body)
+				.build();
+		return requestToken;
+	}
+
+	public static RequestToken editProfileEmailGenderRequest(JSONObject json, IRequestListener requestListener)
+	{
+		JsonBody body = new JsonBody(json);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(editProfileEmailGenderBaseUrl())
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(requestListener)
+				.setResponseOnUIThread(true)
+				.post(body)
+				.build();
+		return requestToken;
+	}
+
+	public static RequestToken editDOBRequest(JSONObject json, IRequestListener requestListener)
+	{
+		JsonBody body = new JsonBody(json);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(editDOBBaseUrl())
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(requestListener)
+				.setResponseOnUIThread(true)
+				.post(body)
+				.build();
+		return requestToken;
+	}
 }

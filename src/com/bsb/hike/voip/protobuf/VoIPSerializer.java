@@ -73,8 +73,12 @@ public class VoIPSerializer {
 		DataPacket protoBuf = null;
 		try {
             protoBuf = DataPacket.parseFrom(codedInputStream);
+			if (protoBuf == null) {
+				Logger.w(VoIPConstants.TAG, "Deserialized protobuf is NULL.");
+			}
         } catch (IOException e) {
-            Logger.w(VoIPConstants.TAG, "VoIPSerializer IOException : " + e.toString());
+            Logger.w(VoIPConstants.TAG, "VoIPSerializer IOException : " + e.toString() +
+			"bytes length: " + length);
         }
 
 		dp.setPacketType(PacketType.fromValue(protoBuf.getPacketType()));

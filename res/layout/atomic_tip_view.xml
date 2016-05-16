@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/all_content"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingLeft="20dp"
+    android:paddingBottom="18dp"
+    android:background="@color/credits_blue">
+
+    <ImageView
+        android:id="@+id/atomic_tip_icon"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentLeft="true"
+        android:layout_marginTop="18dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_error"/>
+
+    <LinearLayout
+        android:id="@+id/atomic_tip_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:layout_marginRight="32dp"
+        android:layout_marginLeft="12dp"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_toRightOf="@id/atomic_tip_icon"
+        android:orientation="vertical">
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/atomic_tip_header_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/AtomicTipHeaderText"
+            android:singleLine="true"
+            android:text="@string/atomic_tip_header_default"/>
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/atomic_tip_body_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            style="@style/AtomicTipBodyText"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:text="@string/atomic_tip_body_default"/>
+
+    </LinearLayout>
+
+    <ViewStub
+        android:id="@+id/close_tip_stub"
+        android:inflatedId="@+id/close_tip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout="@layout/tip_close_layout"/>
+
+</RelativeLayout>
