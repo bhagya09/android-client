@@ -689,7 +689,7 @@
     <string name="update_all">அனைத்தையும் அப்டேட் செய்க</string>
     <string name="RETRY">மீண்டும் முயற்சி செய்க</string>
     <string name="see_them">ஆயிற்று</string>
-    <string name="CANCEL">கேன்செல் செய்க</string>
+    <string name="CANCEL">ரத்து செய்</string>
     <string name="n_more">இன்னும் %1$d</string>
     <string name="n_stickers">%1$d ஸ்டிக்கர்ஸ்</string>
     <string name="last_backup">கடைசி பேக்அப்</string>
@@ -1423,7 +1423,7 @@
     <string name="max_duration_recorded">அதிக காலத்திற்கு ரெக்கார்டிங் செய்தாயிற்று</string>
     <string name="stream_volume_muted_or_low">வாலியும்-ஐ அதிகரிக்கவும்</string>
 
-    <string name="group_mute_dialog_title">க்ருப்-ஐ ஓசையற்று செய்யவும்</string>
+    <string name="group_mute_dialog_title">க்ருப்-ஐ அமைதியாக்கு</string>
     <string name="chat_mute_dialog_title">சேட்-ஐ ஓசையற்று செய்யவும்</string>
     <string name="mute_chat_eight_hrs">8 மணி நேரத்திருக்கு</string>
     <string name="mute_chat_one_week">1 வாரதிருக்கு</string>

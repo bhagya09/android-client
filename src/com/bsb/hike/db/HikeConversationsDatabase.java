@@ -10084,6 +10084,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				ContentValues values = new ContentValues();
 				values.put(DBConstants.MSISDN, msisdn);
 				values.put(DBConstants.IS_MUTE, mute);
+				values.put(DBConstants.MUTE_DURATION, HikeConstants.MuteDuration.DURATION_ONE_YEAR);
+				values.put(DBConstants.MUTE_TIMESTAMP, System.currentTimeMillis());
 
 				int id = (int) mDb.insertWithOnConflict(DBConstants.CHAT_PROPERTIES_TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
 				if (id < 0)

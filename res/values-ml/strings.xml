@@ -298,7 +298,7 @@
     <string name="system_health_hinttext">hike സിസ്റ്റം സ്റ്റാറ്റസ് കാണുക</string>
     <string name="app_version">പതിപ്പ് %1$s</string>
     <string name="remind">ഓർമ്മിപ്പിക്കുക</string>
-    <string name="OK">ശരി</string>
+    <string name="OK">ഓകെ</string>
     <string name="not_show_call_alert_msg">വീണ്ടും കാണിക്കരുത്</string>
     <string name="view_profile">പ്രൊഫൈൽ കാണുക</string>
     <string name="normal_update_head">പ്രധാനപ്പെട്ട അപ്ഡേറ്റ് ലഭ്യമാണ്</string>
@@ -689,7 +689,7 @@
     <string name="update_all">എല്ലാം അപ്ഡേറ്റ്‌ ചെയ്യുക</string>
     <string name="RETRY">വീണ്ടും ശ്രമിക്കുക</string>
     <string name="see_them">പൂർത്തിയായി</string>
-    <string name="CANCEL">റദ്ദാക്കുക</string>
+    <string name="CANCEL">ഉപേക്ഷിക്കുക</string>
     <string name="n_more">%1$d കൂടുതൽ</string>
     <string name="n_stickers">%1$d സ്റ്റിക്കറുകൾ</string>
     <string name="last_backup">അവസാനം ബാക്കപ്പ് ചെയ്തത്</string>
@@ -1424,7 +1424,7 @@
     <string name="stream_volume_muted_or_low">ദയവായി ശബ്ദം കൂട്ടുക</string>
 
     <string name="group_mute_dialog_title">ഗ്രൂപ്പ് നിശ്ശബ്ദമാക്കുക</string>
-    <string name="chat_mute_dialog_title">Mute chat for</string>
+    <string name="chat_mute_dialog_title">ചാറ്റ് നിശ്ശബ്ദമാക്കുക</string>
     <string name="mute_chat_eight_hrs">8 മണിക്കൂർ</string>
     <string name="mute_chat_one_week">1 ആഴ്ച</string>
     <string name="mute_chat_one_yr">1 വർഷം</string>

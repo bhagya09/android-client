@@ -690,7 +690,7 @@
     <string name="update_all">সমস্ত আপডেট</string>
     <string name="RETRY">আবার চেষ্টা করুন</string>
     <string name="see_them">সম্পন্ন</string>
-    <string name="CANCEL">বাতিল করুন</string>
+    <string name="CANCEL">বাতিল</string>
     <string name="n_more">আরো %1$d টি</string>
     <string name="n_stickers">%1$d টি স্টিকার</string>
     <string name="last_backup">শেষ ব্যাকআপ</string>
@@ -1435,10 +1435,10 @@
     <string name="stream_volume_muted_or_low">প্লিস আওয়াজ বাড়ান</string>
 
     <string name="group_mute_dialog_title">গ্রুপ কে অনুচ্চারিত করুন</string>
-    <string name="chat_mute_dialog_title">Mute chat for</string>
-    <string name="mute_chat_eight_hrs">৮ ঘন্টা </string>
-    <string name="mute_chat_one_week">১ সপ্তাহ </string>
-    <string name="mute_chat_one_yr">১ বর্ষ</string>
+    <string name="chat_mute_dialog_title">চ্যাট অনুচ্চারিত করুন</string>
+    <string name="mute_chat_eight_hrs">8 ঘন্টা</string>
+    <string name="mute_chat_one_week">1 সপ্তাহ</string>
+    <string name="mute_chat_one_yr">1 বর্ষ</string>
     <string name="show_notif">নোটিফিকেশন দেখান</string>
 
 </resources>

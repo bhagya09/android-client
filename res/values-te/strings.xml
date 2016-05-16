@@ -298,7 +298,7 @@
     <string name="system_health_hinttext">hike సిస్టమ్ స్టేటస్ చూడండి</string>
     <string name="app_version">వెర్షన్ %1$s</string>
     <string name="remind">గుర్తు చేయి</string>
-    <string name="OK">సరే</string>
+    <string name="OK">ఓకే</string>
     <string name="not_show_call_alert_msg">మళ్లీ చూపించవద్దు</string>
     <string name="view_profile">ప్రొఫైల్ వీక్షించు</string>
     <string name="normal_update_head">ముఖ్యమైన అప్‌డేట్ లభ్యం అయ్యింది</string>
@@ -689,7 +689,7 @@
     <string name="update_all">అన్నింటిని అప్‌డేట్ చేయి</string>
     <string name="RETRY">తిరిగి ప్రయత్నించండి</string>
     <string name="see_them">పూర్తి అయింది</string>
-    <string name="CANCEL">రద్దు చేయి</string>
+    <string name="CANCEL">రద్దు</string>
     <string name="n_more">%1$d మరిన్ని</string>
     <string name="n_stickers">%1$d స్టిక్కర్లు</string>
     <string name="last_backup">చివరి బ్యాకప్</string>
