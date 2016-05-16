@@ -4086,6 +4086,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					if (BotUtils.isBot(msisdn))
 					{
 						convInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+						convInfo.setIsMute((mute != null) ? mute.isMute() : false);
 						contact = ContactManager.getInstance().getContact(convInfo.getMsisdn());
 					}
 
