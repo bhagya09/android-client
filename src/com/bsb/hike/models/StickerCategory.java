@@ -50,7 +50,7 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 
     private String copyRightString;
 
-    private int state = -1;
+    private int state;
 
     private int totalStickers;
 
@@ -62,7 +62,7 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 
     private int packUpdationTime;
 
-    private int ucid = -1;
+    private int ucid;
 
     private int previewUpdationTime;
 
@@ -167,11 +167,11 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 
         private int	packUpdationTime;
 
-        private int ucid;
+        private int ucid = -1;
 
         private int	previewUpdationTime;
 
-        private int state;
+        private int state = -1;
 
         protected abstract S self();
 

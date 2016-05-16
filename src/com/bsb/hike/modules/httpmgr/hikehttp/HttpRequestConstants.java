@@ -107,7 +107,7 @@ public class HttpRequestConstants
 
 	private static final String HIKE_SETTINGS = "/hikesettings";
 
-	private static final String DOB_PREF_PATH = "/dob/pref";
+	private static final String PREF_PATH = "/pref";
 
 	public static synchronized void setUpBase()
 	{
@@ -321,7 +321,7 @@ public class HttpRequestConstants
 
 	public static String preActivationBaseUrl()
 	{
-		return HTTP + STAGING_API + BASE_V1 + "/pa";
+		return BASE_URL + BASE_V1 + "/pa";
 	}
 
 	public static String postAddressbookBaseUrl()
@@ -346,7 +346,14 @@ public class HttpRequestConstants
 
 	public static String sendUserLogsInfoBaseUrl()
 	{
-		return HTTP + STAGING_API + BASE_V1 + "/pa/";
+		if(!Utils.isUserAuthenticated(HikeMessengerApp.getInstance().getApplicationContext()))
+		{
+			return BASE_URL + BASE_V1 + "/pa/";
+		}
+		else
+		{
+			return BASE_URL + BASE_V1 +  "/";
+		}
 	}
 
 	public static String deleteAccountBaseUrl()
@@ -612,8 +619,23 @@ public class HttpRequestConstants
 		return  BASE_URL + BASE_V5 + HIKE_SETTINGS;
 	}
 
+	public static String editProfileNameBaseUrl()
+	{
+		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/name";
+	}
+
+	public static String editProfileEmailGenderBaseUrl()
+	{
+		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/profile";
+	}
+
+	public static String editDOBBaseUrl()
+	{
+		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/dob";
+	}
+
 	public static String getBDPrefUpdateUrl()
 	{
-		return BASE_URL + BASE_V1 + BASE_ACCOUNT + DOB_PREF_PATH;
+		return editDOBBaseUrl() + PREF_PATH;
 	}
 }
