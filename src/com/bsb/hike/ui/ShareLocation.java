@@ -508,7 +508,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 		if (userMarker != null)
 			userMarker.remove();
 		// create and set marker propertie//s
-		userMarker = map.addMarker(new MarkerOptions().position(myLatLng).title("My Location").icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_map_marker_location_sharing)).visible(false));
+		userMarker = map.addMarker(new MarkerOptions().position(myLatLng).title(getString(R.string.my_location)).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_map_marker_location_sharing)).visible(false));
 		selectedPosition = 0;
 		updateLocationAddress(lat, lng, userMarker);
 
@@ -550,7 +550,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 			userMarker.remove();
 
 		if (settingCustomLocation) {
-			userMarker = map.addMarker(new MarkerOptions().position(myLatLng).title("Custom Location").visible(false));
+			userMarker = map.addMarker(new MarkerOptions().position(myLatLng).title(getString(R.string.custom_location)).visible(false));
 			selectedPosition = 0;
 			Location location = new Location("");
 			location.setLatitude(lat);
@@ -558,7 +558,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 			updateNearbyPlaces(location);
 		} else {
 			// create and set marker properties
-			userMarker = map.addMarker(new MarkerOptions().position(myLatLng).title("My Location").icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_map_marker_location_sharing)).visible(false));
+			userMarker = map.addMarker(new MarkerOptions().position(myLatLng).title(getString(R.string.my_location)).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_map_marker_location_sharing)).visible(false));
 
 		}
 

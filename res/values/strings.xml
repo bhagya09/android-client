@@ -1596,6 +1596,8 @@
     <string name="atomic_tip_body_default">Atomic Tip default body text!!! Just to let it flow to next line</string>
     <string name="atomic_tip_http_failure">Some error occurred. Please try again later.</string>
     <string name="edit_profile_birthday">Birth Date</string>
+    <string name="my_location">My Location</string>
+    <string name="custom_location">Custom Location</string>
 
     <string name="file_size_invalid_error">The file size which you are trying to share is invalid</string>
 </resources>
