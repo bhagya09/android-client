@@ -272,8 +272,16 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 		View empty;
 		if (category.isCustom())
 		{
-			// Set Recents EmptyView
-			empty = LayoutInflater.from(mContext).inflate(R.layout.recent_empty_view, emptyView);
+			if(category.getCategoryId().equals(StickerManager.RECENT))
+			{
+				// Set Recents EmptyView
+				empty = LayoutInflater.from(mContext).inflate(R.layout.recent_empty_view, emptyView);
+			}
+			else
+			{
+				// Set Quick Suggestions EmptyView
+				empty = LayoutInflater.from(mContext).inflate(R.layout.quick_suggestions_empty_view, emptyView);
+			}
 		}
 
 		else
