@@ -1082,77 +1082,57 @@ public class PlatformUtils
 
 		mThread.postRunnable(new Runnable()
 		{
-
 			@Override
 			public void run()
 			{
 				byte[] fileBytes = prepareFileBody(filePath);
 				if (fileBytes != null)
 				{
-					String response = send(fileBytes, filePath, url, fileListener);
-					Logger.d("FileUpload", response);
+                    File srcFile = new File(filePath);
+                    List<Header> headers = getHeaders();
+                    headers.add(new Header("Connection", "Keep-Alive"));
+                    headers.add(new Header("Content-Name", srcFile.getName()));
+                    headers.add(new Header("X-Thumbnail-Required", "0"));
+
+                    RequestToken requestToken = HttpRequests.uploadFileRequest(fileBytes,BOUNDARY,new IRequestListener()
+					{
+
+						@Override
+						public void onRequestFailure(HttpException httpException)
+						{
+							fileListener.onRequestFailure(httpException.toString());
+						}
+
+						@Override
+						public void onRequestSuccess(Response result)
+						{
+							if (result.getBody().getContent() instanceof byte[])
+							{
+								String responseJsonString = new String((byte[]) result.getBody().getContent());
+								fileListener.onRequestSuccess(responseJsonString);
+							}
+						}
+
+						@Override
+						public void onRequestProgressUpdate(float progress)
+						{
+
+						}
+
+					},headers,url);
+
+                    if (requestToken != null && !requestToken.isRequestRunning())
+                    {
+                        requestToken.execute();
+                    }
 				}
 				else
 				{
-
 					Logger.e("fileUpload", "Empty File Body");
 					return;
 				}
 			}
 		});
-
-	}
-
-	private static String send(byte[] fileBytes, final String filePath, final String url, IFileUploadListener filelistener)
-	{
-		HttpClient client = AccountUtils.getClient(null);
-		client.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, HikeConstants.CONNECT_TIMEOUT);
-		long so_timeout = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.FT_UPLOAD_SO_TIMEOUT, 180 * 1000l);
-		Logger.d("UploadFileTask", "Socket timeout = " + so_timeout);
-		client.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT, (int) so_timeout);
-		client.getParams().setParameter(CoreConnectionPNames.TCP_NODELAY, true);
-		client.getParams().setParameter(CoreProtocolPNames.USER_AGENT, "android-" + AccountUtils.getAppVersion());
-
-		HttpPost post = new HttpPost(url);
-		String res = null;
-		int resCode = 0;
-		try
-		{
-			post.setHeader("Content-Type", "multipart/form-data; boundary=" + BOUNDARY);
-
-			HikeSharedPreferenceUtil mpref = HikeSharedPreferenceUtil.getInstance();
-			String platformUID = mpref.getData(HikeMessengerApp.PLATFORM_UID_SETTING, null);
-			String platformToken = mpref.getData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, null);
-			if (!TextUtils.isEmpty(platformToken) && !TextUtils.isEmpty(platformUID))
-			{
-				post.addHeader(HttpHeaderConstants.COOKIE_HEADER_NAME, HikePlatformConstants.PLATFORM_TOKEN + "=" + platformToken + "; " + HikePlatformConstants.PLATFORM_USER_ID
-						+ "=" + platformUID);
-			}
-
-			post.setEntity(new ByteArrayEntity(fileBytes));
-			HttpResponse response = client.execute(post);
-			Logger.d("FileUpload", response.toString());
-			resCode = response.getStatusLine().getStatusCode();
-
-			res = EntityUtils.toString(response.getEntity());
-			Logger.d("FileUpload", "" + resCode);
-		}
-		catch (IOException | NullPointerException ex)
-		{
-			Logger.e("FileUpload", ex.toString());
-			filelistener.onRequestFailure(ex.toString());
-			return ex.toString();
-		}
-		Logger.d("FileUpload", res);
-		if (resCode == 200)
-		{
-			filelistener.onRequestSuccess(res);
-		}
-		else
-		{
-			filelistener.onRequestFailure(res);
-		}
-		return res;
 	}
 
 	/*
