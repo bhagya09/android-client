@@ -101,7 +101,12 @@ public class FetchCategoryRanksTask implements IHikeHTTPTask, IHikeHttpTaskResul
 					}
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPDATED_ALL_CATEGORIES_METADATA, false);
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPDATED_ALL_CATEGORIES_TAGDATA, false);
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPDATE_SHOP_RANK_TIMESTAMP, System.currentTimeMillis());
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ALREDAY_FETCHED_CATEGORIES_RANK_LIMIT,
+							offset + HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NUMBER_OF_ROWS_FOR_ORDER, StickerConstants.DEFAULT_NUMBER_OF_ROWS_FOR_ORDER));
+					if (offset == 0)
+					{
+						HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPDATE_SHOP_RANK_TIMESTAMP, System.currentTimeMillis());
+					}
 					doOnSuccess(null);
 				}
 				catch (Exception e)
@@ -129,8 +134,10 @@ public class FetchCategoryRanksTask implements IHikeHTTPTask, IHikeHttpTaskResul
 	@Override
 	public void execute()
 	{
+		int alreadyFetchedCategoriesLimit = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ALREDAY_FETCHED_CATEGORIES_RANK_LIMIT, 0); 
+		int newOffset = alreadyFetchedCategoriesLimit > offset ? alreadyFetchedCategoriesLimit : offset;
 		token = getPrefOrderForCategories(getRequestId(), getRequestListener(),
-				HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NUMBER_OF_ROWS_FOR_ORDER, StickerConstants.DEFAULT_NUMBER_OF_ROWS_FOR_ORDER), offset);
+				HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NUMBER_OF_ROWS_FOR_ORDER, StickerConstants.DEFAULT_NUMBER_OF_ROWS_FOR_ORDER), newOffset);
 		if (!token.isRequestRunning())
 		{
 			token.execute();

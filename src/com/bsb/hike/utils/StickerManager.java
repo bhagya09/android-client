@@ -431,6 +431,10 @@ public class StickerManager
 			{
 				if (((System.currentTimeMillis() - HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_SHOP_RANK_TIMESTAMP, 0L)) > HikeConstants.ONE_DAY_MILLS) || fetchRankForced)
 				{
+					if(!fetchRankForced)
+					{
+						HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ALREDAY_FETCHED_CATEGORIES_RANK_LIMIT, 0);
+					}
 					FetchCategoryRanksTask fetchCategoryRanksTask = new FetchCategoryRanksTask(offset, toPublish);
 					fetchCategoryRanksTask.execute();
 				}
