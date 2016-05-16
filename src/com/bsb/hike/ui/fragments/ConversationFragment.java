@@ -1755,6 +1755,12 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			{
 				((BotInfo) convInfo).setConvPresent(true);
 			}
+
+			if (convInfo.isMute())
+			{
+				updateViewForMuteToggle(convInfo);
+			}
+
 		}
 
 		stealthConversations = new HashSet<ConvInfo>();
@@ -2131,6 +2137,18 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		{
 			ConvMessage message = (ConvMessage) object;
 			updateUIWithLastMessage(message);
+
+			final ConvInfo convInfo = (mConversationsByMSISDN.containsKey(message.getMsisdn())) ? mConversationsByMSISDN.get(message.getMsisdn()) :
+					new ConvInfo.ConvInfoBuilder(message.getMsisdn()).setIsMute(ContactManager.getInstance().isChatMuted(message.getMsisdn())).build();
+
+			getActivity().runOnUiThread(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					updateViewForMuteToggle(convInfo);
+				}
+			});
 		}
 		else if (HikePubSub.LAST_MESSAGE_DELETED.equals(type))
 		{
@@ -2888,14 +2906,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				{
 					convInfo.setIsMute(isMuted);
 
-					View parentView = getParenViewForConversation(convInfo);
-					if (parentView == null)
-					{
-						notifyDataSetChanged();
-						return;
-					}
-
-					notifyDataSetChanged();
+					updateViewForMuteToggle(convInfo);
 				}
 			});
 		}
@@ -3434,6 +3445,24 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		}
 
 		mAdapter.updateViewsRelatedToName(parentView, convInfo);
+	}
+
+	private void updateViewForMuteToggle(ConvInfo convInfo)
+	{
+		if (!wasViewSetup())
+		{
+			return;
+		}
+
+		View parentView = getParenViewForConversation(convInfo);
+
+		if (parentView == null)
+		{
+			notifyDataSetChanged();
+			return;
+		}
+
+		mAdapter.updateViewsRelatedToMute(parentView, convInfo);
 	}
 
 	private void updateViewForAvatarChange(ConvInfo convInfo)
