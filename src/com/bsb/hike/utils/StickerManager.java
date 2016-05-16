@@ -36,6 +36,7 @@ import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.quickstickersuggestions.QuickStickerSuggestionController;
+import com.bsb.hike.modules.quickstickersuggestions.tasks.FetchForAllStickerQuickSuggestionTask;
 import com.bsb.hike.modules.stickerdownloadmgr.FetchCategoryRanksTask;
 import com.bsb.hike.modules.stickerdownloadmgr.DefaultTagDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.FetchCategoryMetadataTask;
@@ -3832,6 +3833,15 @@ public class StickerManager
 		}
 	}
 	
+	public void fetchQuickSuggestionForAllStickersFirstTime()
+	{
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.FETCHED_QUICK_SUGGESTION_FIRST_TIME, false))
+		{
+			return;
+		}
+		HikeHandlerUtil.getInstance().postRunnable(new FetchForAllStickerQuickSuggestionTask());
+	}
+
 	public boolean isQuickSuggestionCategory(String categotyId)
 	{
 		return (TextUtils.isEmpty(categotyId) || !categotyId.equalsIgnoreCase(QUICK_SUGGESTIONS)) ? false : true;
