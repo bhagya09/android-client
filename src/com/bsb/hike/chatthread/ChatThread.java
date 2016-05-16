@@ -135,6 +135,7 @@ import com.bsb.hike.models.PhonebookContact;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.models.Unique;
+import com.bsb.hike.modules.quickstickersuggestions.QuickStickerSuggestionController;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerPickerRecommendationListener;
@@ -1301,6 +1302,13 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	private void stickerClicked(ConvMessage convMessage)
 	{
+		boolean isSent = convMessage.isSent();
+		if(QuickStickerSuggestionController.getInstance().isStickerClickAllowed(isSent))
+		{
+			initStickerPicker();
+			mStickerPicker.showQuickSuggestionCategory(QuickStickerSuggestionController.getInstance().getQuickSuggestionCategory(convMessage));
+			stickerButtonClicked();
+		}
 	}
 
 	@Override

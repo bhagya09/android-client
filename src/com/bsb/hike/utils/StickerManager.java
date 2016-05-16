@@ -1466,14 +1466,28 @@ public class StickerManager
 		switch (type)
 		{
 		case PALLATE_ICON_TYPE:
-			baseFilePath += PALLATE_ICON + OTHER_ICON_TYPE;
-			bitmap = HikeBitmapFactory.decodeFile(baseFilePath);
-			defaultIconResId = R.drawable.misc_sticker_placeholder;
+			if(isQuickSuggestionCategory(categoryId))
+			{
+				bitmap = HikeBitmapFactory.decodeResource(ctx.getResources(), R.drawable.ic_thunderbolt_inactive);
+			}
+			else
+			{
+				baseFilePath += PALLATE_ICON + OTHER_ICON_TYPE;
+				bitmap = HikeBitmapFactory.decodeFile(baseFilePath);
+				defaultIconResId = R.drawable.misc_sticker_placeholder;
+			}
 			break;
 		case PALLATE_ICON_SELECTED_TYPE:
-			baseFilePath += PALLATE_ICON_SELECTED + OTHER_ICON_TYPE;
-			bitmap = HikeBitmapFactory.decodeFile(baseFilePath);
-			defaultIconResId = R.drawable.misc_sticker_placeholder_selected;
+			if(isQuickSuggestionCategory(categoryId))
+			{
+				bitmap = HikeBitmapFactory.decodeResource(ctx.getResources(), R.drawable.ic_thunderbolt);
+			}
+			else
+			{
+				baseFilePath += PALLATE_ICON_SELECTED + OTHER_ICON_TYPE;
+				bitmap = HikeBitmapFactory.decodeFile(baseFilePath);
+				defaultIconResId = R.drawable.misc_sticker_placeholder_selected;
+			}
 			break;
 		case PREVIEW_IMAGE_EMPTY_PALETTE_TYPE:
 		case PREVIEW_IMAGE_SHOP_TYPE:

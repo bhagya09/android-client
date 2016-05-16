@@ -21,10 +21,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.media.StickerPickerListener;
+import com.bsb.hike.modules.quickstickersuggestions.model.QuickSuggestionStickerCategory;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.models.StickerPageAdapterItem;
@@ -550,4 +552,23 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
         }
     }
 
+
+	public void addQuickSuggestionCategory(StickerCategory quickSuggestionCategory)
+	{
+		removeQuickSuggestionCategory();
+		stickerCategoryList.add(0, quickSuggestionCategory);
+	}
+
+	public boolean removeQuickSuggestionCategory()
+	{
+		if(getCount() > 0 && StickerManager.getInstance().isQuickSuggestionCategory(stickerCategoryList.get(0).getCategoryId()))
+		{
+			stickerCategoryList.remove(0);
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
 }
