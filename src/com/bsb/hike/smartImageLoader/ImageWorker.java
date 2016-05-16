@@ -88,11 +88,7 @@ public abstract class ImageWorker
     protected ImageWorker()
     {
         this.mImageCache = HikeMessengerApp.getLruCache();
-    }
-
-    public void setResource(Context ctx)
-    {
-        mResources = ctx.getResources();
+        mResources = HikeMessengerApp.getInstance().getApplicationContext().getResources();
     }
 
     /**

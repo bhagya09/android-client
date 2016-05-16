@@ -2,7 +2,7 @@ package com.bsb.hike.db;
 
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 
-public interface DBConstants
+public class DBConstants
 {
 	public static final int CONVERSATIONS_DATABASE_VERSION = 51;
 
@@ -287,8 +287,8 @@ public interface DBConstants
 
 	public static final String FEED_TS = "ts";
 	public static final String FEED_INDEX = "feed_idx";
-	String URL_KEY = "urlKey";
-	String URL_KEY_INDEX = "urlKeyIndex";
+	public static final String URL_KEY = "urlKey";
+	public static final String URL_KEY_INDEX = "urlKeyIndex";
 
 	//StickerTable
 
@@ -310,7 +310,7 @@ public interface DBConstants
 
 	public static final int DEFAULT_INACTIVE_STATE = 0;
 
-	public static interface HIKE_CONV_DB
+	public static class HIKE_CONV_DB
 	{
 		// CHANNEL TABLE -> _id,channel_id,name,visibility,index
 		public static final String CHANNEL_TABLE = "channel";
@@ -337,7 +337,7 @@ public interface DBConstants
 	 * @author gauravKhanna
 	 *
 	 */
-	public static interface HIKE_CONTENT{
+	public static class HIKE_CONTENT{
 		public static final int DB_VERSION = 8;
 		public static final String DB_NAME = "hike_content_db";
 		// CONTENT TABLE -> _id,content_id,love_id,channel_id,timestamp,metadata
@@ -390,7 +390,7 @@ public interface DBConstants
 		
 		public static final String CONTENT_ID_INDEX = "contentTableContentIdIndex";
 		public static final String CONTENT_TABLE_NAMESPACE_INDEX = "contentTableNamespaceIndex";
-		String NAMESPACE = "nameSpace";
+		public static final String NAMESPACE = "nameSpace";
 		public static final String NOTIF_DATA = "notif_data";
 		public static final String VALUE = "value";
 		public static final String CONTENT_CACHE_TABLE = "contentCache";
@@ -421,11 +421,11 @@ public interface DBConstants
         public static final String APP_PACKAGE = "app_package";
 
 		//Bot Download state table starts here
-		String PLATFORM_DOWNLOAD_STATE_TABLE = "plf_dwnld_state_table";
+		public static final String PLATFORM_DOWNLOAD_STATE_TABLE = "plf_dwnld_state_table";
 
-		String DOWNLOAD_STATE = "downloadState";
-		String AUTO_RESUME = "autoResume";
-		
+		public static final String DOWNLOAD_STATE = "downloadState";
+		public static final String AUTO_RESUME = "autoResume";
+
 		// AUTH TABLE ->auth_table--> microApp_id,token
 		public static final String AUTH_TABLE = "auth_table";
 		public static final String MICROAPP_ID = "microapp_id";
@@ -597,9 +597,9 @@ public interface DBConstants
 	public static final String URL_TABLE = "urlTable";
 
 	public static final String URL = "url";
-	String LIFE = "life";
-	int SHORT_LIVED = 0;
-	int LONG_LIVED = 1;
+	public static final String LIFE = "life";
+	public static final int SHORT_LIVED = 0;
+	public static final int LONG_LIVED = 1;
 	
 	public static final String[] JOURNAL_MODE_ARRAY = { "DELETE", "TRUNCATE", "PERSIST", "MEMORY", "WAL", "OFF" };
 
