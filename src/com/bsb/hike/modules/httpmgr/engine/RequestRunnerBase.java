@@ -66,8 +66,11 @@ public abstract class RequestRunnerBase
 						else
 						{
 							requestListenerNotifier.notifyListenersOfRequestSuccess(request, response);
-							removeGcmTaskConfigFromDB(gcmTaskConfig);
-							HikeGcmNetworkMgr.getInstance().cancelTask(gcmTaskConfig.getTag(), gcmTaskConfig.getService());
+							if (gcmTaskConfig != null)
+							{
+								removeGcmTaskConfigFromDB(gcmTaskConfig);
+								HikeGcmNetworkMgr.getInstance().cancelTask(gcmTaskConfig.getTag(), gcmTaskConfig.getService());
+							}
 						}
 					}
 		});
