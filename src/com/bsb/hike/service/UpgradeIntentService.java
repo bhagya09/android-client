@@ -120,6 +120,14 @@ public class UpgradeIntentService extends IntentService
             scheduleHikeMicroAppsMigrationAlarm(getBaseContext());
         }
 
+		if (!prefs.getBoolean(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, false))
+		{
+			StickerManager.getInstance().markAllCategoriesAsDownloaded();
+			Editor editor = prefs.edit();
+			editor.putBoolean(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, true);
+			editor.apply();
+		}
+
 		if((!prefs.getBoolean(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, false)) && Utils
 				.doesExternalDirExists())
 		{
@@ -141,14 +149,6 @@ public class UpgradeIntentService extends IntentService
 			{
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.MIGRATE_RECENT_STICKER_TO_DB, true);
 			}
-		}
-
-		if (!prefs.getBoolean(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, false))
-		{
-			StickerManager.getInstance().markAllCategoriesAsDownloaded();
-			Editor editor = prefs.edit();
-			editor.putBoolean(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, true);
-			editor.apply();
 		}
 
 		// Set block notifications as false in shared preference i.e allow notifications to occur once Upgrade intent completes
