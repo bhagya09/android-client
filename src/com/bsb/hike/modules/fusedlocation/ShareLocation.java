@@ -1,5 +1,31 @@
 package com.bsb.hike.modules.fusedlocation;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.bsb.hike.BitmapModule.BitmapUtils;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.R;
+import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
+import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
+import com.bsb.hike.view.CustomRelativeLayout;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.*;
+
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
@@ -22,31 +48,7 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.*;
 
-import com.bsb.hike.BitmapModule.BitmapUtils;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.R;
-import com.bsb.hike.dialog.HikeDialog;
-import com.bsb.hike.dialog.HikeDialogFactory;
-import com.bsb.hike.dialog.HikeDialogListener;
-import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.Utils;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.*;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-
-public class ShareLocation extends HikeAppStateBaseFragmentActivity implements ILocationUpdates
+public class ShareLocation extends HikeAppStateBaseFragmentActivity implements ILocationUpdates, GoogleMap.OnCameraChangeListener, CustomRelativeLayout.IDragCallback
 {
 
 	private GoogleMap map;
@@ -61,13 +63,10 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements I
 
 	private Marker userMarker;
 
-	private Marker lastMarker;
-
 	// places of interest
 	private Marker[] placeMarkers;
 
 	private String searchStr;
-	
 
 	// max
 	private final int MAX_PLACES = 20;// most returned from google
@@ -99,12 +98,24 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements I
 
 	private int SEARCH_RADIUS = 2000; // 2KM
 
+	private boolean settingCustomLocation;
+
+	// These settings are the same as the settings for the map. They will in
+	// fact give you updates at
+	// the maximal rates currently possible.
+	private static final LocationRequest REQUEST = LocationRequest.create().setInterval(1000)
+			// 1 seconds
+			.setFastestInterval(16)
+			// 16ms = 60fps
+			.setSmallestDisplacement(4).setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
 	private View doneBtn;
 
 	private TextView title;
 
-	private final String TAG = getClass().getSimpleName();
+	private Marker lastMarker;
 
+	private final String TAG = getClass().getSimpleName();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -114,10 +125,10 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements I
 		 * if isGooglePlayServicesAvailable method returns 2=ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED this implies we need to update our playservice library if it returns
 		 * 0=ConnectionResult.SUCCESS this implies we have correct version and working playservice api
 		 */
-//		Logger.d(TAG, "is play service available = " + Integer.valueOf(GooglePlayServicesUtil.isGooglePlayServicesAvailable(this)).toString());
+		// Logger.d(TAG, "is play service available = " + Integer.valueOf(GooglePlayServicesUtil.isGooglePlayServicesAvailable(this)).toString());
 
 		// Showing status
-		if (Utils.checkAndShowPlayServicesErrorDialog(ShareLocation.this)) //PlayServices Available
+		if (Utils.checkAndShowPlayServicesErrorDialog(ShareLocation.this)) // PlayServices Available
 		{
 			setContentView(R.layout.share_location);
 			gpsDialogShown = savedInstanceState != null && savedInstanceState.getBoolean(HikeConstants.Extras.GPS_DIALOG_SHOWN);
@@ -131,15 +142,11 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements I
 				@Override
 				public void onItemClick(AdapterView<?> parent, final View view, int position, long id)
 				{
-					if (lastMarker != null)
-					{
-						lastMarker.setVisible(false);
-					}
 					selectedPosition = position;
+					settingCustomLocation = false;
 					Marker currentMarker = adapter.getMarker(position);
-					currentMarker.setVisible(true);
-					currentMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ic_share_location_item));
-					lastMarker = currentMarker;
+					currentMarker.setVisible(false);
+					currentMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ic_map_marker_location_sharing));
 					map.animateCamera(CameraUpdateFactory.newLatLng(currentMarker.getPosition()));
 					adapter.notifyDataSetChanged();
 					if (selectedPosition != 0)
@@ -161,6 +168,11 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements I
 			map.getUiSettings().setMyLocationButtonEnabled(true);
 
 			map.setTrafficEnabled(false);
+
+			// Enable user to manually select location my moving the map around
+			map.setOnCameraChangeListener(this);
+			((CustomRelativeLayout) findViewById(R.id.frame)).setOnDragListener(this);
+
 			// map.setMyLocationEnabled(true);
 			LocationManager.getInstance().addLocationListener(this);
 			setUpLocationClientIfNeeded();
@@ -195,6 +207,17 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements I
 			}
 		});
 
+		Button myLocationButton = (Button) findViewById(R.id.my_location_button);
+		myLocationButton.setOnClickListener(new OnClickListener()
+		{
+			@Override
+			public void onClick(View view)
+			{
+				settingCustomLocation = false;
+				updateMyLocation();
+			}
+		});
+
 		Button searchButton = (Button) findViewById(R.id.search_button);
 		searchButton.setOnClickListener(new View.OnClickListener()
 		{
@@ -212,18 +235,13 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements I
 						{
 							lat = myLocation.getLatitude();
 							lng = myLocation.getLongitude();
-
-							lastMarker.setVisible(false);
-							lastMarker = userMarker;
-							lastMarker.setVisible(true);
 							selectedPosition = 0;
-							map.animateCamera(CameraUpdateFactory.newLatLng(lastMarker.getPosition()));
 							adapter.notifyDataSetChanged();
 
 						}
 						searchStr = "https://maps.googleapis.com/maps/api/place/textsearch/" + "json?query=" + searchString + "&location=" + lat + "," + lng + "&radius="
 								+ SEARCH_RADIUS + "&sensor=true" + "&key=" + getResources().getString(R.string.places_api_key);// ADD
-																																// KEY
+						// KEY
 						isTextSearch = true;
 
 						new GetPlaces().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, searchStr);
@@ -261,7 +279,6 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements I
 		TextView postText = (TextView) actionBarView.findViewById(R.id.post_btn);
 		postText.setText(R.string.send);
 
-
 		doneBtn.setOnClickListener(new OnClickListener()
 		{
 
@@ -273,7 +290,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements I
 		});
 
 		actionBar.setCustomView(actionBarView);
-		Toolbar parent=(Toolbar)actionBarView.getParent();
+		Toolbar parent = (Toolbar) actionBarView.getParent();
 		parent.setContentInsetsAbsolute(0, 0);
 
 		init();
@@ -295,10 +312,13 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements I
 	@Override
 	public void onLocationChanged(Location newLocation)
 	{
+		if (settingCustomLocation)
+			return;
+
 		if (myLocation != null)
 		{
 			userMarker.setPosition(new LatLng(newLocation.getLatitude(), newLocation.getLongitude()));
-			map.animateCamera(CameraUpdateFactory.newLatLng(userMarker.getPosition()));
+			map.animateCamera(CameraUpdateFactory.newLatLngZoom(userMarker.getPosition(), HikeConstants.DEFAULT_ZOOM_LEVEL));
 			Logger.d(TAG, "is Location changed = " + Double.valueOf(myLocation.distanceTo(newLocation)).toString());
 			if ((currentLocationDevice == GPS_ENABLED && myLocation.distanceTo(newLocation) > 100)
 					|| (currentLocationDevice == GPS_DISABLED && myLocation.distanceTo(newLocation) > 800))
@@ -312,11 +332,9 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements I
 				Logger.d(TAG, "my lati in loc listener = " + Double.valueOf(newLocation.getLatitude()).toString());
 				if (!isTextSearch)
 				{
-					lastMarker = userMarker;
 					selectedPosition = 0;
-					lastMarker.setVisible(true);
 					adapter.notifyDataSetChanged();
-					updateNearbyPlaces();
+					updateNearbyPlaces(myLocation);
 				}
 			}
 		}
@@ -324,7 +342,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements I
 		{
 			myLocation = newLocation;
 			setMyLocation(newLocation);
-			updateNearbyPlaces();
+			updateNearbyPlaces(myLocation);
 		}
 
 	}
@@ -397,7 +415,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements I
 		if (myLocation != null)
 		{
 			setMyLocation(myLocation);
-			updateNearbyPlaces();
+			updateNearbyPlaces(myLocation);
 		}
 	}
 
@@ -411,10 +429,9 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements I
 		// remove any existing marker
 		if (userMarker != null)
 			userMarker.remove();
-		// create and set marker properties
-		userMarker = map.addMarker(new MarkerOptions().position(myLatLng).title("My Location").icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_share_location_item)));
-
-		lastMarker = userMarker;
+		// create and set marker propertie//s
+		userMarker = map.addMarker(new MarkerOptions().position(myLatLng).title(getString(R.string.my_location))
+				.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_map_marker_location_sharing)).visible(false));
 		selectedPosition = 0;
 		updateLocationAddress(lat, lng, userMarker);
 
@@ -422,21 +439,65 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements I
 				.zoom(HikeConstants.DEFAULT_ZOOM_LEVEL) // Sets the zoom
 				.build(); // Creates a CameraPosition from the builder
 		Logger.d(TAG, "stting up camera in set my location");
-		map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
+		map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 	}
 
-	private void updateNearbyPlaces()
+	private void updateNearbyPlaces(Location location)
 	{
 		// build places query string
-		if (searchStr == null)
+		// if (searchStr == null)
 		{
-			searchStr = "https://maps.googleapis.com/maps/api/place/nearbysearch/" + "json?location=" + myLocation.getLatitude() + "," + myLocation.getLongitude() + "&radius="
+			searchStr = "https://maps.googleapis.com/maps/api/place/nearbysearch/" + "json?location=" + location.getLatitude() + "," + location.getLongitude() + "&radius="
 					+ SEARCH_RADIUS + "&sensor=true" + "&key=" + getResources().getString(R.string.places_api_key);
-
 			isTextSearch = false;
 		}
 		new GetPlaces().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, searchStr);
+	}
+
+	@Override
+	public void onCameraChange(CameraPosition cameraPosition)
+	{
+
+		Logger.w(getClass().getSimpleName(), "Location: " + cameraPosition.target.latitude + ", " + cameraPosition.target.longitude);
+
+		double lat = cameraPosition.target.latitude;
+		double lng = cameraPosition.target.longitude;
+		// create LatLng
+		LatLng myLatLng = new LatLng(lat, lng);
+
+		// remove any existing marker
+		if (userMarker != null)
+			userMarker.remove();
+
+		if (settingCustomLocation)
+		{
+			userMarker = map.addMarker(new MarkerOptions().position(myLatLng).title(getString(R.string.custom_location)).visible(false));
+			selectedPosition = 0;
+			Location location = new Location("");
+			location.setLatitude(lat);
+			location.setLongitude(lng);
+			updateNearbyPlaces(location);
+		}
+		else
+		{
+			// create and set marker properties
+			userMarker = map.addMarker(new MarkerOptions().position(myLatLng).title(getString(R.string.my_location))
+					.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_map_marker_location_sharing)).visible(false));
+
+		}
+
+		// create and set marker properties
+		lastMarker = userMarker;
+
+		updateLocationAddress(lat, lng, userMarker);
+	}
+
+	@Override
+	public void onDrag()
+	{
+		// Logger.d(getClass().getSimpleName(), "User is setting location manually.");
+		settingCustomLocation = true;
 	}
 
 	private class GetPlaces extends AsyncTask<String, Void, Integer>
@@ -495,12 +556,15 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements I
 						jse.printStackTrace();
 					}
 					// if values missing we don't display
-					if (missingValue)
-						places[p] = null;
-					else
+					synchronized (places)
 					{
-						places[p] = new MarkerOptions().position(placeLL).title(placeName).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_share_location_item))
-								.snippet(address);
+						if (missingValue)
+							places[p] = null;
+						else
+						{
+							places[p] = new MarkerOptions().position(placeLL).title(placeName).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_map_marker_location_sharing))
+									.snippet(address);
+						}
 					}
 				}
 			}
@@ -541,17 +605,21 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements I
 		// process data retrieved from doInBackground
 		protected void onPostExecute(Integer totalPlaces)
 		{
-			for (int p = 0; p < totalPlaces; p++)
+			synchronized (places)
 			{
-				if (places[p] != null)
+				for (int p = 0; p < totalPlaces; p++)
 				{
-					placeMarkers[p] = map.addMarker(places[p]);
-					addItemToAdapter(places[p].getTitle(), places[p].getSnippet(), placeMarkers[p], false);
-					placeMarkers[p].setVisible(false);
-					adapter.notifyDataSetChanged();
+					if (places[p] != null)
+					{
+						placeMarkers[p] = map.addMarker(places[p]);
+						addItemToAdapter(places[p].getTitle(), places[p].getSnippet(), placeMarkers[p], false);
+						placeMarkers[p].setVisible(false);
+						adapter.notifyDataSetChanged();
+					}
 				}
 			}
-			if(totalPlaces == 0)
+
+			if (totalPlaces == 0)
 				Toast.makeText(ShareLocation.this, getString(R.string.no_places_found), Toast.LENGTH_SHORT).show();
 			findViewById(R.id.progress_dialog).setVisibility(View.GONE);
 		}
@@ -610,7 +678,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements I
 		}
 
 		int messageId = currentLocationDevice == GPS_DISABLED ? R.string.gps_disabled : R.string.location_disabled;
-		
+
 		alert = HikeDialogFactory.showDialog(this, HikeDialogFactory.GPS_DIALOG, new HikeDialogListener()
 		{
 
@@ -633,7 +701,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements I
 				gpsDialogShown = currentLocationDevice == GPS_DISABLED;
 				hikeDialog.dismiss();
 			}
-		}, messageId,R.string.OK);
+		}, messageId, R.string.OK);
 
 		if (!ShareLocation.this.isFinishing())
 			alert.show();
@@ -729,7 +797,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements I
 				Bitmap b = HikeBitmapFactory.createScaledBitmap(bitmap, width, width, Bitmap.Config.RGB_565, true, true, false);
 				Drawable scaled_dr = HikeBitmapFactory.getBitmapDrawable(getResources(), b);
 
-				Logger.d(TAG,"size : "+BitmapUtils.getBitmapSize(b));
+				Logger.d(TAG, "size : " + BitmapUtils.getBitmapSize(b));
 				holder.txt_itemName.setCompoundDrawablesWithIntrinsicBounds(scaled_dr, null, null, null);
 				holder.txt_itemName.setCompoundDrawablePadding((int) getResources().getDimension(R.dimen.share_my_location_drawable_padding));
 			}
@@ -822,7 +890,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements I
 		}
 		return address;
 	}
-	
+
 	@Override
 	public void onBackPressed()
 	{

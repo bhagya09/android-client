@@ -49,7 +49,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
-
 public class HttpRequests
 {
 	public static RequestToken singleStickerDownloadRequest(String requestId, String stickerId, String categoryId, IRequestListener requestListener, String keyboardList)
@@ -700,19 +699,32 @@ public class HttpRequests
 		return requestToken;
 	}
 
+	private static  JSONObjectRequest.Builder addPreActivationHeaders(JSONObjectRequest.Builder jsonRequestBuilder )
+	{
+		if (!Utils.isUserAuthenticated(HikeMessengerApp.getInstance().getApplicationContext()))
+		{
+			Header customHeader;
+			String paUid = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Preactivation.UID, "");
+			String paToken = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Preactivation.TOKEN, "");
+			customHeader = new Header(HttpHeaderConstants.COOKIE_HEADER_NAME, HikeConstants.Preactivation.TOKEN + "=" + paToken + "; " + HikeConstants.Preactivation.UID + "=" + paUid);
+			jsonRequestBuilder.addHeader(customHeader);
+		}
+		return jsonRequestBuilder;
+	}
+
 	public static RequestToken sendUserLogInfoRequest(String logKey, JSONObject json, IRequestListener requestListener)
 	{
-		String pa_uid = HikeSharedPreferenceUtil.getInstance().getData("pa_uid","");
-		String pa_token = HikeSharedPreferenceUtil.getInstance().getData("pa_token","");
-		Header hdr =new Header(HttpHeaderConstants.COOKIE_HEADER_NAME, "pa_token" + "=" + pa_token + "; " + "pa_uid" + "=" + pa_uid);
+
 		JsonBody body = new JsonBody(json);
-		RequestToken requestToken = new JSONObjectRequest.Builder()
+
+		JSONObjectRequest.Builder sendUserLogJsonRequestBuilder = new JSONObjectRequest.Builder()
 				.setUrl(sendUserLogsInfoBaseUrl() + logKey)
 				.setRequestListener(requestListener)
-				.addHeader(hdr)
-				.setRetryPolicy(new BasicRetryPolicy(Integer.MAX_VALUE,BasicRetryPolicy.DEFAULT_RETRY_DELAY,4f))
-				.post(body)
-				.build();
+				.setRetryPolicy(new BasicRetryPolicy(Integer.MAX_VALUE, BasicRetryPolicy.DEFAULT_RETRY_DELAY, 4f))
+				.post(body);
+		addPreActivationHeaders(sendUserLogJsonRequestBuilder);
+
+		RequestToken requestToken = sendUserLogJsonRequestBuilder.build();
 		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
 		return requestToken;
 	}
@@ -1309,6 +1321,7 @@ public class HttpRequests
 				.setUrl(url)
 				.addHeader(new Header("X-SESSION-ID", sessionId))
 				.setAsynchronous(false)
+				.setId(sessionId)
 				.setRetryPolicy(new BasicRetryPolicy(1, FileTransferManager.RETRY_DELAY, 1))
 				.setRequestListener(listener)
 				.build();
@@ -1391,4 +1404,68 @@ public class HttpRequests
 		return requestToken;
 	}
 
+	public static RequestToken editProfileNameRequest(JSONObject json, IRequestListener requestListener)
+	{
+		JsonBody body = new JsonBody(json);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(editProfileNameBaseUrl())
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(requestListener)
+				.setResponseOnUIThread(true)
+				.post(body)
+				.build();
+		return requestToken;
+	}
+
+	public static RequestToken editGroupProfileNameRequest(JSONObject json, IRequestListener requestListener, String groupId)
+	{
+		JsonBody body = new JsonBody(json);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(groupProfileBaseUrl() + groupId + "/name")
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(requestListener)
+				.setResponseOnUIThread(true)
+				.post(body)
+				.build();
+		return requestToken;
+	}
+
+	public static RequestToken editProfileEmailGenderRequest(JSONObject json, IRequestListener requestListener)
+	{
+		JsonBody body = new JsonBody(json);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(editProfileEmailGenderBaseUrl())
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(requestListener)
+				.setResponseOnUIThread(true)
+				.post(body)
+				.build();
+		return requestToken;
+	}
+
+	public static RequestToken editDOBRequest(JSONObject json, IRequestListener requestListener)
+	{
+		JsonBody body = new JsonBody(json);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(editDOBBaseUrl())
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(requestListener)
+				.setResponseOnUIThread(true)
+				.post(body)
+				.build();
+		return requestToken;
+	}
+
+	public static RequestToken getBDPrefUpdateRequest(@NonNull JSONObject payload, IRequestListener requestListener)
+	{
+		JsonBody jsonBody = new JsonBody(payload);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(getBDPrefUpdateUrl())
+				.setRequestType(REQUEST_TYPE_SHORT)
+				.setResponseOnUIThread(true)
+				.setRequestListener(requestListener)
+				.post(jsonBody)
+				.build();
+		return requestToken;
+	}
 }
