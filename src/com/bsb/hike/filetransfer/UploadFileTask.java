@@ -230,7 +230,7 @@ public class UploadFileTask extends FileTransferBase
 
 		retryCount = 0;
 		// If we are not able to verify the filekey validity from the server, fall back to uploading the file
-		RequestToken validateFileKeyToken = HttpRequests.validateFileKey(fileKey, getValidateFileKeyRequestListener());
+		RequestToken validateFileKeyToken = HttpRequests.validateFileKey(fileKey, msgId, getValidateFileKeyRequestListener());
 		validateFileKeyToken.execute();
 	}
 
@@ -607,7 +607,8 @@ public class UploadFileTask extends FileTransferBase
 
 		if (requestToken == null || !requestToken.isRequestRunning())
 		{
-			requestToken = HttpRequests.uploadFile(sourceFile.getAbsolutePath(), msgId, vidCompressionRequired, fileType, new IRequestListener()
+			String fileTypeToSendInHttpCall = (hikeFileType == HikeFileType.AUDIO_RECORDING) ? fileType : "";
+			requestToken = HttpRequests.uploadFile(sourceFile.getAbsolutePath(), msgId, vidCompressionRequired, fileTypeToSendInHttpCall, new IRequestListener()
 			{
 				@Override
 				public void onRequestSuccess(Response result)

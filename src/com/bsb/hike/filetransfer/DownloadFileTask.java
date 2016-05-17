@@ -136,6 +136,8 @@ public class DownloadFileTask extends FileTransferBase
 	{
 		if (getFileSavedState().getFTState() == FTState.PAUSED)
 		{
+			FileTransferManager.getInstance(context).removeTask(msgId);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 			return;
 		}
 
