@@ -142,7 +142,7 @@ public class ChatThemeManager {
     }
 
     public String getCCTTempUploadPath() {
-        return getDrawableHelper().getCCTTempUploadRootPath() + Long.toString(System.currentTimeMillis()) + "_tmp.jpg";
+        return getDrawableHelper().getCCTTempUploadRootPath() + File.separator + Long.toString(System.currentTimeMillis()) + "_tmp.jpg";
     }
 
     //MQTT Signal packet processing
