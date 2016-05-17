@@ -1135,6 +1135,10 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		case HikeConstants.ResultCodes.CHATTHEME_GALLERY_REQUEST_CODE:
 			if(resultCode == Activity.RESULT_OK)
 			{
+				if (themePicker != null && themePicker.isShowing())
+				{
+					themePicker.dismiss();
+				}
 				if(ChatThemeManager.getInstance().customThemeTempUploadImagePath != null) {
 					FileTransferManager.getInstance(activity).uploadCustomThemeBackgroundImage(ChatThemeManager.getInstance().customThemeTempUploadImagePath);
 				}
