@@ -7,6 +7,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.HikeChatTheme;
 import com.bsb.hike.models.HikeChatThemeAsset;
@@ -314,7 +315,7 @@ public class ChatThemeManager {
             getAllHikeThemesForDisplay();
         }
         availableThemes.addAll(defaultHikeThemes);
-        if (recentCustomTheme != null) {
+        if (recentCustomTheme != null && ChatThreadUtils.isCustomChatThemeEnabled()) {
             availableThemes.add(0, recentCustomTheme);
         }
         return availableThemes;
