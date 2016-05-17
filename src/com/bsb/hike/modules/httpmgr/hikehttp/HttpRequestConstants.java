@@ -594,6 +594,12 @@ public class HttpRequestConstants
 
 	public static String getBotInitiateUrl()
 	{
-        return "http://bots.hike.in/bot/initiate";
+		String suffix = "bots.hike.in/api" + BASE_V1 + "/manage/initiate";
+		if (isProduction)
+		{
+			return HTTPS + suffix;
+		}
+		else
+			return HTTP + "dev." + suffix;
 	}
 }
