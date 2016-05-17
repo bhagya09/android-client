@@ -59,6 +59,7 @@ import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatthread.ChatThreadActivity;
+import com.bsb.hike.cropimage.HikeCropActivity;
 import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -304,6 +305,14 @@ public class PlatformUtils
 			{
 				Intent intent = IntentFactory.getProfileIntent(context);
 				intent.putExtra(HikeConstants.Extras.EDIT_PROFILE, true);
+				context.startActivity(intent);
+
+			}
+			if (activityName.equals(HIKESCREEN.PROFILE_DOB.toString()))
+			{
+				Intent intent = IntentFactory.getProfileIntent(context);
+				intent.putExtra(HikeConstants.Extras.EDIT_PROFILE, true);
+				intent.putExtra(HikeConstants.Extras.PROFILE_DOB, true);
 				context.startActivity(intent);
 
 			}
@@ -610,7 +619,7 @@ public class PlatformUtils
 						}
 						else
 						{
-							if(botMetadata.getAutoResume() && !(PlatformContent.EventCode.UNZIP_FAILED.equals(event.toString())))
+							if(botMetadata.getAutoResume() && !(PlatformContent.EventCode.UNZIP_FAILED.toString().equals(event.toString())) && !(PlatformContent.EventCode.INCOMPLETE_ZIP_DOWNLOAD.toString().equals(event.toString())))
 							{
 								// In case of failure updating status
 								updatePlatformDownloadState(botMetadata.getAppName(), botMetadata.getmAppVersionCode(), HikePlatformConstants.PlatformDwnldState.FAILED);
@@ -841,12 +850,16 @@ public class PlatformUtils
                         HikeMessengerApp.getPubSub().publish(HikePubSub.MAPP_CREATED, mAppCreatedSuccessfullyPair);
                     }
 					//Updating state in case of failure
-					if (autoResume && !(PlatformContent.EventCode.UNZIP_FAILED.equals(event.toString())))
+					if (autoResume && !(PlatformContent.EventCode.UNZIP_FAILED.toString().equals(event.toString())))
 					{
 
 						updatePlatformDownloadState(platformContentModel.getId(), platformContentModel.cardObj.getmAppVersionCode(),
 								HikePlatformConstants.PlatformDwnldState.FAILED);
 						sendDownloadPausedAnalytics(platformContentModel.getId());
+					}
+					if (!autoResume)
+					{
+						PlatformUtils.removeFromPlatformDownloadStateTable(platformContentModel.getId(), platformContentModel.cardObj.getmAppVersionCode());
 					}
 					else
 					{
@@ -883,17 +896,17 @@ public class PlatformUtils
 		boolean resumeSupported = downloadData.optBoolean(HikePlatformConstants.RESUME_SUPPORTED);
 		String assoc_cbot = downloadData.optString(HikePlatformConstants.ASSOCIATE_CBOT, "");
 		int prefNetwork = downloadData.optInt(HikePlatformConstants.PREF_NETWORK, Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK));
-		if(autoResume)
+		if (autoResume)
 		{
-			resumeSupported =true;
-			PlatformUtils.addToPlatformDownloadStateTable(rqst.getContentData().getId(),rqst.getContentData().cardObj.getmAppVersionCode(), downloadData.toString(), HikePlatformConstants.PlatformTypes.MAPP,
-					downloadData.optLong(HikePlatformConstants.TTL,HikePlatformConstants.oneDayInMS), downloadData.optInt(HikePlatformConstants.PREF_NETWORK, Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK)), HikePlatformConstants.PlatformDwnldState.IN_PROGRESS);
+			resumeSupported = true;
 		}
+			PlatformUtils.addToPlatformDownloadStateTable(rqst.getContentData().getId(), rqst.getContentData().cardObj.getmAppVersionCode(), downloadData.toString(), HikePlatformConstants.PlatformTypes.MAPP,
+					downloadData.optLong(HikePlatformConstants.TTL, HikePlatformConstants.oneDayInMS), downloadData.optInt(HikePlatformConstants.PREF_NETWORK, Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK)), HikePlatformConstants.PlatformDwnldState.IN_PROGRESS,autoResume);
 		if(currentNetwork <= 0 || prefNetwork < currentNetwork)
 		{
 			return;    // Do not download if current network is below preferred network.
 		}
-		downloadAndUnzip(rqst, false, doReplace, callbackId, resumeSupported, assoc_cbot,autoResume);
+		downloadAndUnzip(rqst, false, doReplace, callbackId, resumeSupported, assoc_cbot, autoResume);
 	}
 
 	private static void microappDownloadAnalytics(String key, PlatformContentModel content)
@@ -1344,26 +1357,29 @@ public class PlatformUtils
 			if (dir.isDirectory())// This checks if the call is made to delete a particular file (eg. "index.html") or an entire sub-folder
 			{
 				String[] children = dir.list();
-				for (int i = 0; i < children.length; i++)
+				if (children != null && children.length>0)
 				{
-					File temp = new File(dir, children[i]);
-					if (temp.isDirectory())
+					for (int i = 0; i < children.length; i++)
 					{
-						Logger.d("DeleteRecursive", "Recursive Call" + temp.getPath());
-						deleteOp(temp);
-					}
-					else
-					{
-						Logger.d("DeleteRecursive", "Delete File" + temp.getPath());
-						boolean b = temp.delete();
-						if (!b)
+						File temp = new File(dir, children[i]);
+						if (temp.isDirectory())
 						{
-							Logger.d("DeleteRecursive", "DELETE FAIL");
-							return false;
+							Logger.d("DeleteRecursive", "Recursive Call" + temp.getPath());
+							deleteOp(temp);
+						}
+						else
+						{
+							Logger.d("DeleteRecursive", "Delete File" + temp.getPath());
+							boolean b = temp.delete();
+							if (!b)
+							{
+								Logger.d("DeleteRecursive", "DELETE FAIL");
+								return false;
+							}
 						}
 					}
 				}
-				dir.delete();
+                dir.delete();
 			}
 			else
 			{
@@ -1418,7 +1434,7 @@ public class PlatformUtils
 	{
 		StickerPalleteImageDownloadTask stickerPalleteImageDownloadTask = new StickerPalleteImageDownloadTask(category.getCategoryId());
 		stickerPalleteImageDownloadTask.execute();
-		StickerManager.getInstance().initialiseDownloadStickerPackTask(category, StickerConstants.DownloadSource.POPUP, StickerConstants.DownloadType.NEW_CATEGORY, HikeMessengerApp.getInstance().getApplicationContext());
+		StickerManager.getInstance().initialiseDownloadStickerPackTask(category, StickerConstants.DownloadType.NEW_CATEGORY, StickerManager.getInstance().getPackDownloadBodyJson(StickerConstants.DownloadSource.POPUP));
 	}
 
 	public static void OnChatHeadPopupActivateClick()
@@ -2404,7 +2420,7 @@ public class PlatformUtils
 /*
  *Method to add data to the State table
  */
-	public static void addToPlatformDownloadStateTable(final String name, final int mAppVersionCode, final String data,@HikePlatformConstants.PlatformTypes final int type, final long ttl,final int prefNetwork,@HikePlatformConstants.PlatformDwnldState final int state)
+	public static void addToPlatformDownloadStateTable(final String name, final int mAppVersionCode, final String data,@HikePlatformConstants.PlatformTypes final int type, final long ttl,final int prefNetwork,@HikePlatformConstants.PlatformDwnldState final int state, final boolean autoResume)
 	{
 		if (mAppVersionCode <-1 || TextUtils.isEmpty(name) || ttl < 0)
 		{
@@ -2415,7 +2431,7 @@ public class PlatformUtils
 		handler.postRunnable(new Runnable() {
 			@Override
 			public void run() {
-				HikeContentDatabase.getInstance().addToPlatformDownloadStateTable(name, mAppVersionCode, data, type, System.currentTimeMillis() + ttl, prefNetwork, state);
+				HikeContentDatabase.getInstance().addToPlatformDownloadStateTable(name, mAppVersionCode, data, type, System.currentTimeMillis() + ttl, prefNetwork, state,(autoResume) ? 1 : 0);
 			}
 		});
 	}
@@ -2499,14 +2515,16 @@ public class PlatformUtils
 
 						String name = c.getString(c.getColumnIndex(HikePlatformConstants.APP_NAME));
 
+						if(c.getInt(c.getColumnIndex(HikePlatformConstants.AUTO_RESUME)) != 1)
+						{
+							continue;    // Moving ahead only if auto_resume is true.
+						}
+
 						if (currentTime > ttl)
 						{
 							int mAppVersionCode = c.getInt(c.getColumnIndex(HikePlatformConstants.MAPP_VERSION_CODE));
 							removeFromPlatformDownloadStateTable(name, mAppVersionCode);
-							if(type == HikePlatformConstants.PlatformTypes.CBOT)
-							{
-								sendCbotFailDueToTTL(name);
-							}
+							sendFailDueToTTL(name);
 							continue;
 						}
 						if(prefNetwork < currentNetwork) // Pausing a request if  the network is downgraded.
@@ -2642,15 +2660,22 @@ public class PlatformUtils
 
 	public static String getFileUploadJson(Intent data)
 	{
-		String filepath = data.getStringExtra(HikeConstants.Extras.GALLERY_SELECTION_SINGLE).toLowerCase();
+		String filepath = data.getStringExtra(HikeConstants.Extras.GALLERY_SELECTION_SINGLE);
 
-		if(TextUtils.isEmpty(filepath))
+		if (TextUtils.isEmpty(filepath))
 		{
-			Logger.e("FileUpload","Invalid file Path");
+			// Could be from crop activity
+			filepath = data.getStringExtra(HikeCropActivity.CROPPED_IMAGE_PATH);
+		}
+
+		if (TextUtils.isEmpty(filepath))
+		{
+			Logger.e("FileUpload", "Invalid file Path");
 			return "";
 		}
 		else
 		{
+			filepath = filepath.toLowerCase();
 			Logger.d("FileUpload", "Path of selected file :" + filepath);
 			String fileExtension = MimeTypeMap.getFileExtensionFromUrl(filepath).toLowerCase();
 			String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase()); // fixed size type extension
@@ -2670,13 +2695,14 @@ public class PlatformUtils
 			}
 
 		}
+
 	}
 
 	/**
 	 * analytics json : {"d":{"ep":"HIGH","st":"filetransfer","et":"nonUiEvent","md":{"sid":1460011903528,"fld1":"pushkar11","ek":"micro_app","fld2":"+pushkar11+","event":"ttlExpired"},"cts":1460011966846,"tag":"plf"},"t":"le_android"}
 	 * @param name
 	 */
-	public static void sendCbotFailDueToTTL(String name)
+	public static void sendFailDueToTTL(String name)
 	{
 		JSONObject json = new JSONObject();
 		try

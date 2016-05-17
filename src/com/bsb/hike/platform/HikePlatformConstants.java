@@ -53,6 +53,10 @@ public interface HikePlatformConstants
 	String PLATFORM_AUTH_TOKEN_EXPIRY = "access_token_expiry";
 	String PLATFORM_CLIENTID = "clientId";
 	String PLATFORM_UID_FOR_ADDRESS_BOOK_FETCH = "platformUidForAddressBookFetch";
+	String BACK_PROPERTY = "back_property";
+	String BACK_ENABLE = "back_enable";
+	String BACK_CONFIRMATION_TEXT = "text";
+	String BACK_CONFIRMATION_TITLE = "title";
 	public int NUMBER_OF_RETRIES = 3;  // number of retries
 	public int RETRY_DELAY = 1000; // 1 sec
 	public float BACK_OFF_MULTIPLIER = 2.0f; // exponential time delay multiplier
@@ -424,4 +428,6 @@ public interface HikePlatformConstants
     String APP_NOT_FOUND = "appNotFound";
 
     String APP_STATUS = "app_status";
+
+    String BOT_DISCOVERY = "bot_discovery";
 }

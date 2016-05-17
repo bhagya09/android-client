@@ -1,13 +1,6 @@
 package com.bsb.hike.ui;
 
 
-import java.net.HttpURLConnection;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -63,12 +56,14 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.analytics.HomeAnalyticsConstants;
+import com.bsb.hike.backup.AccountBackupRestore;
+import com.bsb.hike.backup.HikeCloudSettingsManager;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
-import com.bsb.hike.bots.NonMessagingBotConfiguration;
-import com.bsb.hike.backup.AccountBackupRestore;
 import com.bsb.hike.db.AccountRestoreAsyncTask;
 import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
@@ -77,7 +72,6 @@ import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.filetransfer.FTApkManager;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.models.FtueContactsData;
@@ -93,7 +87,6 @@ import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
-import com.bsb.hike.platform.auth.PlatformAuthenticationManager;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.snowfall.SnowFallView;
 import com.bsb.hike.tasks.DownloadAndInstallUpdateAsyncTask;
@@ -115,7 +108,13 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.lang.ref.WeakReference;
+import java.net.HttpURLConnection;
+import java.util.ArrayList;
+import java.util.List;
 
 public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Listener, HikeDialogListener,
 		AccountRestoreAsyncTask.IRestoreCallback
@@ -217,7 +216,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	private AccountRestoreAsyncTask restoreAsyncTask;
 
 	private boolean wasFragmentRemoved = false;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -545,8 +544,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		HikeMessengerApp.getPubSub().addListeners(this, homePubSubListeners);
 
 		GetFTUEContactsTask getFTUEContactsTask = new GetFTUEContactsTask();
-		Utils.executeContactInfoListResultTask(getFTUEContactsTask);
-
+		getFTUEContactsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 
 	private void setupFestivePopup()
@@ -728,7 +726,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	
 	private boolean setupMenuOptions(final Menu menu)
 	{
-		// Adding defensive null pointer check (bug#44531)May be due to sherlock code, nullpointerexception occured.
 		try
 		{
 			getMenuInflater().inflate(R.menu.chats_menu, menu);
@@ -739,6 +736,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				@Override
 				public void onClick(View v)
 				{
+					recordOverFlowMenuClick();
 					showOverFlowMenu();
 					topBarIndicator.setVisibility(View.GONE);
 					Editor editor = accountPrefs.edit();
@@ -871,7 +869,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			return false;
 		}
 	}
-
 
 	private void recordSearchOptionClick()
 	{
@@ -1252,9 +1249,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	public void onBackPressed()
 	{
-		// In android 5.0(and higher) when back is pressed, sherlock action mode does not exit.
-		// Instead the activity was exiting.
-		// The following change checks if search mode is still there, and take s action accordingly
+		// The following change checks if search mode is still there, and takes action accordingly
 		if (searchMenuItem != null && searchMenuItem.isActionViewExpanded())
 		{
 			searchMenuItem.collapseActionView();
@@ -1485,37 +1480,36 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		else if (type.equals(HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE))
 		{
-			new Thread(new Runnable()
+			runOnUiThread(new Runnable()
 			{
+				@SuppressLint("NewApi")
 				@Override
 				public void run()
 				{
-					runOnUiThread(new Runnable()
+					HikeMessengerApp.getPubSub().removeListeners(HomeActivity.this, progressPubSubListeners);
+
+					showingBlockingDialog = false;
+					if (progDialog != null)
 					{
-						@SuppressLint("NewApi")
-						@Override
-						public void run()
-						{
-							HikeMessengerApp.getPubSub().removeListeners(HomeActivity.this, progressPubSubListeners);
+						progDialog.dismiss();
+						progDialog = null;
+					}
 
-							showingBlockingDialog = false;
-							if (progDialog != null)
-							{
-								progDialog.dismiss();
-								progDialog = null;
-							}
+					if (restoreProgDialog != null)
+					{
+						restoreProgDialog.dismiss();
+						restoreProgDialog = null;
+					}
 
-							if (Utils.isDBCorrupt())
-							{
-								showCorruptDBRestoreDialog();
-							}
+					if (Utils.isDBCorrupt())
+					{
+						showCorruptDBRestoreDialog();
+					}
 
-							invalidateOptionsMenu();
-							initialiseHomeScreen(null);
-						}
-					});
+					invalidateOptionsMenu();
+					initialiseHomeScreen(null);
 				}
-			}).start();
+			});
 		}
 		else if (HikePubSub.SMS_SYNC_COMPLETE.equals(type) || HikePubSub.SMS_SYNC_FAIL.equals(type))
 		{
@@ -1605,19 +1599,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				if (!deviceDetailsSent)
 				{
 					sendDeviceDetails();
-					if (accountPrefs.getBoolean(HikeMessengerApp.FB_SIGNUP, false))
-					{
-						try
-						{
-							JSONObject metadata = new JSONObject();
-							metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.FB_CLICK);
-							HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-						}
-						catch(JSONException e)
-						{
-							Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-						}
-					}
 					if (accountPrefs.getInt(HikeMessengerApp.WELCOME_TUTORIAL_VIEWED, -1) > -1)
 					{
 						try
@@ -1667,7 +1648,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				public void run()
 				{
 					GetFTUEContactsTask ftueContactsTask = new GetFTUEContactsTask();
-					Utils.executeContactInfoListResultTask(ftueContactsTask);
+					ftueContactsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 				}
 			});
 		}
@@ -1801,6 +1782,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			{
 				return;
 			}
+			if(((Pair) object).first instanceof BotInfo)
+			{
 			 final BotInfo info = ((BotInfo) ((Pair) object).first);
 			if(info == null)
 			{
@@ -1818,6 +1801,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 						}
 					});
 			 }
+		   }
 		}
 	}
 
@@ -2063,8 +2047,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		optionsList.add(new OverFlowMenuItem(getString(R.string.status), 0, 0, R.string.status));
 
-		optionsList.add(new OverFlowMenuItem("Corrupt Db", 0, 0, -100));
-
 		addEmailLogItem(optionsList);
 		
 		addBotItems(optionsList);
@@ -2102,10 +2084,12 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					OfflineUtils.recordHikeDirectOverFlowClicked();
 					break;
 				case R.string.invite_friends:
+					recordInviteFriendsClick();
 					intent = new Intent(HomeActivity.this, TellAFriend.class);
 					break;
 					
 				case R.string.hike_extras:
+					recordRewardsClick();
 					editor.putBoolean(HikeConstants.IS_GAMES_ITEM_CLICKED, true);
 					editor.commit();
 					updateOverFlowMenuNotification();
@@ -2124,6 +2108,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					intent = new Intent(HomeActivity.this, SettingsActivity.class);
 					break;
 				case R.string.new_group:
+					recordNewGroupClick();
 					intent = new Intent(HomeActivity.this, CreateNewGroupOrBroadcastActivity.class);
 					break;
 				
@@ -2185,11 +2170,12 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					}
 
 					intent = new Intent(HomeActivity.this, StatusUpdate.class);
+					Utils.setSpecies(HomeAnalyticsConstants.SU_SPECIES_OVERFLOW, intent);
 					break;
 					
 				case R.string.send_logs:
 					SendLogsTask logsTask = new SendLogsTask(HomeActivity.this);
-					Utils.executeAsyncTask(logsTask);
+					logsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 					break;
 					
 				case R.string.new_broadcast:
@@ -2205,13 +2191,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					startActivity(galleryPickerIntent);
 
 					sendAnalyticsTakePicture();
-					break;
-
-				case -100: // Dummy commit for QA Testing.
-					// TODO : Revert this before build goes live.
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.DB_CORRUPT, true);
-					Long alarmTime = System.currentTimeMillis() + (1000 * 60); // (Current time + 10 minutes)
-					HikeAlarmManager.setAlarm(HikeMessengerApp.getInstance().getApplicationContext(), alarmTime, HikeAlarmManager.REQUESTCODE_SHOW_CORRUPT_DB_NOTIF, false);
 					break;
 					
 				}
@@ -2438,13 +2417,14 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	public void hikeLogoClicked()
 	{
+		recordHikeLogoClicked();
 		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_WELCOME_HIKE_TIP, false))
 		{
 			HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_TIP, ConversationTip.WELCOME_HIKE_TIP);
 		}
 		StealthModeManager.getInstance().toggleActionTriggered(this);
 	}
-	
+
 	private void sendAnalyticsTakePicture()
 	{
 		try
@@ -2545,8 +2525,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	private void startRestoreProcess()
 	{
 		restoreAsyncTask = new AccountRestoreAsyncTask(new WeakReference<AccountRestoreAsyncTask.IRestoreCallback>(this));
-
-		Utils.executeIntegerAsyncTask(restoreAsyncTask);
+		restoreAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 
 	@Override
@@ -2558,12 +2537,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	public void postRestoreFinished(@AccountBackupRestore.RestoreErrorStates Integer restoreResult)
 	{
-		if (restoreProgDialog != null)
-		{
-			restoreProgDialog.dismiss();
-			restoreProgDialog = null;
-		}
-
 		if (dbCorruptDialog != null)
 		{
 			dbCorruptDialog.dismiss();
@@ -2579,6 +2552,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		else
 		{
+			if (restoreProgDialog != null) //Dismiss the rotator!
+			{
+				restoreProgDialog.dismiss();
+				restoreProgDialog = null;
+			}
 			checkAndShowCorruptDbDialog(); // Take the user to the same damn dialog until "Skip Restore" is pressed.
 			Toast.makeText(HomeActivity.this, getString(R.string.restore_failure) , Toast.LENGTH_LONG).show();
 			return;
@@ -2588,9 +2566,19 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		HikeMessengerApp app = (HikeMessengerApp) getApplication();
 		app.connectToService();
 
-		// Set up the home screen
-		invalidateOptionsMenu();
-		initialiseHomeScreen(null);
+		// Set up the home screen. First check if we are running upgrade intent service or not.
+
+		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPGRADING, false))
+		{
+			if (restoreProgDialog != null)
+			{
+				restoreProgDialog.dismiss();
+				restoreProgDialog = null;
+			}
+
+			invalidateOptionsMenu();
+			initialiseHomeScreen(null);
+		}
 	}
 
 	private void showRestoreInProcessDialog()
@@ -2619,4 +2607,80 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			showCorruptDBRestoreDialog();
 		}
 	}
+
+	private void recordOverFlowMenuClick()
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, HomeAnalyticsConstants.HOME_OVERFLOW_MENU);
+			json.put(AnalyticsConstants.V2.KINGDOM, HomeAnalyticsConstants.HOMESCREEN_KINGDOM);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, HomeAnalyticsConstants.HOME_OVERFLOW_MENU);
+
+			HAManager.getInstance().recordV2(json);
+		}
+
+		catch (JSONException e)
+		{
+			e.toString();
+		}
+	}
+
+	private void recordNewGroupClick()
+	{
+		recordOverflowItemclick("grp");
+	}
+
+	private void recordInviteFriendsClick()
+	{
+		recordOverflowItemclick("invt_frnds");
+	}
+
+	private void recordRewardsClick()
+	{
+		recordOverflowItemclick("rwds");
+	}
+
+	private void recordOverflowItemclick(String whichItem)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, HomeAnalyticsConstants.HOME_OVERFLOW_MENU_ITEM);
+			json.put(AnalyticsConstants.V2.KINGDOM, HomeAnalyticsConstants.HOMESCREEN_KINGDOM);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, whichItem);
+
+			HAManager.getInstance().recordV2(json);
+		}
+
+		catch (JSONException e)
+		{
+			e.toString();
+		}
+	}
+
+	private void recordHikeLogoClicked()
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, HomeAnalyticsConstants.HIDDEN_UK);
+			json.put(AnalyticsConstants.V2.KINGDOM, HomeAnalyticsConstants.HOMESCREEN_KINGDOM);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, HomeAnalyticsConstants.HIDDEN_UK);
+
+			HAManager.getInstance().recordV2(json);
+		}
+
+		catch (JSONException e)
+		{
+			e.toString();
+		}
+	}
+
 }

@@ -13,8 +13,8 @@ buildscript {
 
     dependencies {
         // updating class path due to http://stackoverflow.com/questions/29962735/android-studio-gradle-error
-        //classpath 'com.android.tools.build:gradle:1.5.0'
-        classpath 'com.android.tools.build:gradle:1.1.2+'
+        //classpath 'com.android.tools.build:gradle:2.1.0'
+        classpath 'com.android.tools.build:gradle:2.1.0'
         classpath 'com.squareup.gradle:gradle-android-test-plugin:0.9.+'
         classpath 'io.fabric.tools:gradle:1.+'
     }
@@ -24,7 +24,7 @@ apply plugin: 'io.fabric'
 
 android {
     compileSdkVersion "Google Inc.:Google APIs:22"
-    buildToolsVersion "22.0.1"
+    buildToolsVersion "23.0.2"
     aaptOptions {
         useNewCruncher true
     }
@@ -192,6 +192,8 @@ dependencies {
     compile('com.crashlytics.sdk.android:crashlytics:2.5.5@aar') {
         transitive = true;
     }
+    compile 'com.squareup.okhttp:okhttp:2.7.5'
+    compile 'com.squareup.okhttp:logging-interceptor:2.7.5'
 }
 
 

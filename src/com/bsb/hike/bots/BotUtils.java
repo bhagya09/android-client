@@ -289,7 +289,7 @@ public class BotUtils
 	 *
 	 * @param jsonObj	:	The bot Json object containing the properties of the bot files to be deleted
 	 */
-	public static void removeMicroAppFromVersioningPath(final JSONObject jsonObj)
+	public static void removeMicroAppFromVersioningPathByMsisdn(final JSONObject jsonObj)
 	{
 		// Performing deletion operation on Backend thread;
 		HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
@@ -302,7 +302,7 @@ public class BotUtils
 				try
 				{
 					// Code path to be deleted that is being generated after platform versioning release
-					JSONArray appsToBeRemoved = jsonObj.optJSONArray(HikePlatformConstants.MSISDN);
+					JSONArray appsToBeRemoved = jsonObj.getJSONArray(HikePlatformConstants.MSISDN);
 					for (int i = 0; i < appsToBeRemoved.length(); i++)
 					{
 						String msisdn = appsToBeRemoved.get(i).toString();
@@ -317,10 +317,8 @@ public class BotUtils
 						String appName = msisdn.substring(1, msisdn.length() - 1);
 						microAppVersioningPath = PlatformUtils.generateMappUnZipPathForBotType(botType, microAppVersioningPath, appName);
 						Logger.d("FileSystemAccess", "To delete the file path being used after versioning: " + microAppVersioningPath);
-						String makePath = PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + appName;
-						Logger.d("FileSystemAccess", "To delete the old file path : " + makePath);
 
-						if (PlatformUtils.deleteDirectory(makePath) || PlatformUtils.deleteDirectory(microAppVersioningPath))
+						if (PlatformUtils.deleteDirectory(microAppVersioningPath))
 						{
 							String sentData = AnalyticsConstants.REMOVE_SUCCESS;
 							JSONObject json = new JSONObject();
@@ -355,7 +353,7 @@ public class BotUtils
 
 	 * @param jsonObj	:	The bot Json object containing the properties of the bot files to be deleted
 	 */
-	public static void removeMicroApp(final JSONObject jsonObj)
+	public static void removeMicroAppByAppName(final JSONObject jsonObj)
 	{
 		// Performing deletion operation on Backend thread;
 		HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
@@ -369,22 +367,34 @@ public class BotUtils
 				try
 				{
 					JSONArray appsToBeRemoved = jsonObj.getJSONArray(HikePlatformConstants.APP_NAME);
-					for (int i = 0; i < appsToBeRemoved.length(); i++)
-					{
-						String appName = appsToBeRemoved.get(i).toString();
-						String makePath = PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + appName;
-						Logger.d("FileSystemAccess", "To delete the path : " + makePath);
-
-						if (PlatformUtils.deleteDirectory(makePath))
+						for (int i = 0; i < appsToBeRemoved.length(); i++)
 						{
-							String sentData = AnalyticsConstants.REMOVE_SUCCESS;
-							JSONObject json = new JSONObject();
-							json.putOpt(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.REMOVE_MICRO_APP);
-							json.putOpt(AnalyticsConstants.REMOVE_MICRO_APP, sentData);
-							json.putOpt(AnalyticsConstants.MICRO_APP_ID, appName);
-							HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.REMOVE_MICRO_APP, json);
+							String appName = appsToBeRemoved.get(i).toString();
+
+                            if(TextUtils.isEmpty(appName))
+                                return;
+
+                            String microAppsDirectoryPath = PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS;
+							String webMicroAppsPath = PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS, microAppsDirectoryPath,
+									appName);
+							String mAppsPath = PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.HIKE_MAPPS, microAppsDirectoryPath, appName);
+							String nativeMicroAppsPath = PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.NATIVE_APPS, microAppsDirectoryPath,
+									appName);
+							String popupsPath = PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.ONE_TIME_POPUPS, microAppsDirectoryPath,
+									appName);
+
+							if (PlatformUtils.deleteDirectory(webMicroAppsPath) || PlatformUtils.deleteDirectory(mAppsPath) || PlatformUtils.deleteDirectory(nativeMicroAppsPath)
+									|| PlatformUtils.deleteDirectory(popupsPath))
+							{
+								String sentData = AnalyticsConstants.REMOVE_SUCCESS;
+								JSONObject json = new JSONObject();
+								json.putOpt(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.REMOVE_MICRO_APP);
+								json.putOpt(AnalyticsConstants.REMOVE_MICRO_APP, sentData);
+								json.putOpt(AnalyticsConstants.MICRO_APP_ID, appName);
+								HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.REMOVE_MICRO_APP, json);
+							}
 						}
-					}
+
 				}
 				catch (JSONException e1)
 				{
@@ -418,7 +428,7 @@ public class BotUtils
 			return;
 		}
 
-		if (ContactManager.getInstance().isBlocked(msisdn))
+		if (ContactManager.getInstance().isBlocked(msisdn) && jsonObj.optBoolean(HikePlatformConstants.ENABLE_BOT))
 		{
 			Logger.e("bot error", "bot is blocked by user.");
 			return;
@@ -504,14 +514,15 @@ public class BotUtils
 
 
 			NonMessagingBotMetadata botMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
+			if(checkIfDownloadInProgress(botMetadata.getAppName()))
+			{
+				return;
+			}
 
             if (botMetadata.isMicroAppMode())
 			{
 
-				if(botMetadata.getAutoResume())
-				{
-					PlatformUtils.addToPlatformDownloadStateTable(botMetadata.getAppName(), botMetadata.getmAppVersionCode(), jsonObj.toString(), HikePlatformConstants.PlatformTypes.CBOT,jsonObj.optLong(HikePlatformConstants.TTL, HikePlatformConstants.oneDayInMS),jsonObj.optInt(HikePlatformConstants.PREF_NETWORK,Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK)), HikePlatformConstants.PlatformDwnldState.IN_PROGRESS);
-				}
+					PlatformUtils.addToPlatformDownloadStateTable(botMetadata.getAppName(), botMetadata.getmAppVersionCode(), jsonObj.toString(), HikePlatformConstants.PlatformTypes.CBOT,jsonObj.optLong(HikePlatformConstants.TTL, HikePlatformConstants.oneDayInMS),botMetadata.getPrefNetwork(), HikePlatformConstants.PlatformDwnldState.IN_PROGRESS,botMetadata.getAutoResume());
 				if(botMetadata.getPrefNetwork() < currentNetwork)
 					return; // Restricting download only to better network than pref.
 				botInfo.setBotType(HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS);
@@ -527,11 +538,11 @@ public class BotUtils
 			else if (botMetadata.isNativeMode())
 			{
 
-				if(botMetadata.getAutoResume())
-				{
-					PlatformUtils.addToPlatformDownloadStateTable(botMetadata.getAppName(), botMetadata.getmAppVersionCode(), jsonObj.toString(), HikePlatformConstants.PlatformTypes.CBOT,jsonObj.optLong(HikePlatformConstants.TTL,HikePlatformConstants.oneDayInMS),jsonObj.optInt(HikePlatformConstants.PREF_NETWORK,Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK)), HikePlatformConstants.PlatformDwnldState.IN_PROGRESS);
-				}
-				if(botMetadata.getPrefNetwork() < currentNetwork)
+				PlatformUtils.addToPlatformDownloadStateTable(botMetadata.getAppName(), botMetadata.getmAppVersionCode(), jsonObj.toString(),
+						HikePlatformConstants.PlatformTypes.CBOT, jsonObj.optLong(HikePlatformConstants.TTL, HikePlatformConstants.oneDayInMS),
+						jsonObj.optInt(HikePlatformConstants.PREF_NETWORK, Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK)),
+						HikePlatformConstants.PlatformDwnldState.IN_PROGRESS, botMetadata.getAutoResume());
+				if (botMetadata.getPrefNetwork() < currentNetwork)
 					return; // Restricting download only to better network than pref.
 				botInfo.setBotType(HikePlatformConstants.PlatformBotType.NATIVE_APPS);
 
@@ -541,6 +552,11 @@ public class BotUtils
 		}
 
 		Logger.d("create bot", "It takes " + String.valueOf(System.currentTimeMillis() - startTime) + "msecs");
+	}
+
+	private static boolean checkIfDownloadInProgress(String appName)
+	{
+		return HikeContentDatabase.getInstance().isMicroAppDownloadRunning(appName);
 	}
 
 	private static BotInfo getBotInfoForNonMessagingBots(JSONObject jsonObj, String msisdn)

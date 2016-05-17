@@ -47,6 +47,8 @@ public class ChatThreadTips implements OnClickListener, OnTouchListener
 	
 	public static final int STICKER_RECOMMEND_AUTO_OFF_TIP = 7;
 
+	public static final int WT_RECOMMEND_TIP = 8;
+
 	/**
 	 * Class members
 	 */
@@ -140,6 +142,14 @@ public class ChatThreadTips implements OnClickListener, OnTouchListener
 	private void showFtueTips()
 	{
 		showStickerFtueTip();
+		if(ChatThreadUtils.isWT1RevampEnabled(mContext)) showWalkieTalkieFtueTip();
+	}
+
+	private void showWalkieTalkieFtueTip() {
+		if (filterTips(WT_RECOMMEND_TIP)) {
+			tipId = WT_RECOMMEND_TIP;
+			setupWalkieTalkieFTUETip();
+		}
 	}
 
 	/**
@@ -184,6 +194,26 @@ public class ChatThreadTips implements OnClickListener, OnTouchListener
 		{
 			tipId = STICKER_RECOMMEND_AUTO_OFF_TIP;
 			setupStickerRecommendAutoPopupOffTip();
+		}
+	}
+
+	/**
+	 * Used to set up pulsating dot views
+	 */
+	private void setupWalkieTalkieFTUETip() {
+		ViewStub pulsatingDot = (ViewStub) mainView.findViewById(R.id.pulsatingDotViewStub_WT);
+
+		if (pulsatingDot != null) {
+			pulsatingDot.setOnInflateListener(new ViewStub.OnInflateListener() {
+
+				@Override
+				public void onInflate(ViewStub stub, View inflated) {
+					tipView = inflated;
+					startPulsatingDotAnimation(tipView);
+				}
+			});
+
+			pulsatingDot.inflate();
 		}
 	}
 
@@ -342,6 +372,16 @@ public class ChatThreadTips implements OnClickListener, OnTouchListener
 			return mPrefs.getData(HikeMessengerApp.SHOWN_STICKER_RECOMMEND_TIP, false);
 		case STICKER_RECOMMEND_AUTO_OFF_TIP:
 			return mPrefs.getData(HikeMessengerApp.SHOWN_STICKER_RECOMMEND_AUTOPOPUP_OFF_TIP, false);
+		case WT_RECOMMEND_TIP:
+			boolean isStickerTipSeen = mPrefs.getData(HikeMessengerApp.SHOWN_EMOTICON_TIP, false);
+			/* If sticker FTUE is not seen, then its a new user and wont require an FTUE for WT
+			   If sticker FTUE is seen then its existing user, we respect the sharepref value and
+			   decide to show or not show WT FTUE */
+			if(isStickerTipSeen) {
+				return mPrefs.getData(HikeMessengerApp.SHOWN_WALKIE_TALKIE_TIP, false);
+			} else {
+				return mPrefs.saveData(HikeMessengerApp.SHOWN_WALKIE_TALKIE_TIP, true);
+			}
 		default:
 			return false;
 		}
@@ -505,6 +545,14 @@ public class ChatThreadTips implements OnClickListener, OnTouchListener
 				ChatThreadUtils.recordStickerFTUEClick();
 			}
 			closeTip();
+			break;
+		case WT_RECOMMEND_TIP:
+			mPrefs.saveData(HikeMessengerApp.SHOWN_WALKIE_TALKIE_TIP, true);
+			closeTip();
+			if (mainView.findViewById(R.id.pulsatingDot) != null)  // Safety null check.
+			{
+				mainView.findViewById(R.id.pulsatingDot).setVisibility(View.GONE);
+			}
 			break;
 		}
 	}

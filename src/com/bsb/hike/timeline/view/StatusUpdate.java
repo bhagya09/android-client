@@ -8,6 +8,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.adapters.MoodAdapter;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HomeAnalyticsConstants;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.media.EmoticonPicker;
 import com.bsb.hike.media.ImageParser;
@@ -60,12 +61,19 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.view.MotionEvent;
 
+import org.w3c.dom.Text;
+
+import java.io.File;
+
 public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Listener, OnSoftKeyboardListener, PopupListener, View.OnClickListener, View.OnTouchListener
 {
-
 	private BitmapFactory.Options options;
 
 	private String mPrefillCaption;
+
+	private String mSpecies;
+
+	private String mGenus;
 
 	private class ActivityTask
 	{
@@ -191,6 +199,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
+
 		setContentView(R.layout.status_dialog);
 
 		Object o = getLastCustomNonConfigurationInstance();
@@ -245,6 +254,10 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			}
 
 			mPrefillCaption = savedInstanceState.getString(STATUS_UPDATE_TEXT);
+
+			mGenus = savedInstanceState.getString(HikeConstants.Extras.GENUS);
+
+			mSpecies = savedInstanceState.getString(HikeConstants.Extras.SPECIES);
 		}
 		else
 		{
@@ -355,6 +368,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		outState.putBoolean(IS_IMAGE_DELETED, mActivityTask.imageDeleted);
 		outState.putString(STATUS_UPDATE_IMAGE_PATH, mImagePath);
 		outState.putString(STATUS_UPDATE_TEXT, mPrefillCaption);
+		outState.putString(HikeConstants.Extras.GENUS, mGenus);
+		outState.putString(HikeConstants.Extras.SPECIES,mSpecies);
 		outState.putInt(SELECTED_MOOD_ID, mActivityTask.moodId);
 		outState.putInt(SELECTED_MOOD_INDEX, mActivityTask.moodIndex);
 		super.onSaveInstanceState(outState);
@@ -365,6 +380,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		super.onResume();
 		isForeground = true;
+		Utils.showSoftKeyboard(StatusUpdate.this, statusTxt);
 		if (statusImage != null && statusImage.getDrawable() != null)
 		{
 			ChatThreadUtils.applyMatrixTransformationToImageView(statusImage.getDrawable(), statusImage);
@@ -388,6 +404,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		mPrefillCaption = intent.getStringExtra(STATUS_UPDATE_TEXT);
 		mInputIntentData = intent.toUri(Intent.URI_INTENT_SCHEME);
 		enableCompression = intent.getBooleanExtra(ENABLE_COMPRESSION,true);
+		mSpecies = intent.getStringExtra(HikeConstants.Extras.SPECIES);
+		mGenus = intent.getStringExtra(HikeConstants.Extras.GENUS);
 	}
 
 	/**
@@ -562,6 +580,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		mActivityTask.imageDeleted = true;
 		mImagePath = null;
+		mGenus = HomeAnalyticsConstants.SU_GENUS_OTHER;
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 		refreshLayouts();
 	}
@@ -704,6 +723,16 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		}
 
 		mActivityTask.task = new StatusUpdateTask(status, mActivityTask.moodId, mImagePath, null,enableCompression);
+
+		if(!TextUtils.isEmpty(mGenus))
+		{
+			mActivityTask.task.setGenus(mGenus);
+		}
+
+		if(!TextUtils.isEmpty(mSpecies))
+		{
+			mActivityTask.task.setSpecies(mSpecies);
+		}
 
 		if (mActivityTask.task != null)
 		{
@@ -873,6 +902,12 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			progressDialog.dismiss();
 			progressDialog = null;
 		}
+
+		if(!enableCompression && mActivityTask.task == null && !TextUtils.isEmpty(mImagePath))
+		{
+			Utils.deleteFile(new File(mImagePath));
+		}
+
 		super.onDestroy();
 		
 	}
@@ -899,6 +934,12 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		mActivityTask.keyboardShowing = false;
 		Logger.d(StatusUpdate.class.getSimpleName(), "hidden keyboard");
 	}
+
+	@Override
+	public void onHiddingPreviouslyShown()
+	{
+	}
+
 
 	@Override
 	public void onClick(View v)
@@ -1022,6 +1063,12 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		if (resultCode == Activity.RESULT_CANCELED)
 		{
 			return;
+		}
+
+		final String genus = data.getStringExtra(HikeConstants.Extras.GENUS);
+		if(!TextUtils.isEmpty(genus))
+		{
+			mGenus = genus;
 		}
 
 		switch (requestCode)

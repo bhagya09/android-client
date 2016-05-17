@@ -51,6 +51,7 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.crashlytics.android.Crashlytics;
+import com.bsb.hike.backup.BackupUtils;
 
 public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> implements ActivityCallableTask
 {
@@ -120,8 +121,8 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 
 	public enum State
 	{
-		MSISDN, ADDRESSBOOK, NAME, PULLING_PIN, PIN, ERROR, PROFILE_IMAGE, GENDER, SCANNING_CONTACTS, PIN_VERIFIED, BACKUP_AVAILABLE, RESTORING_BACKUP
-	};
+		MSISDN, ADDRESSBOOK, NAME, PULLING_PIN, PIN, ERROR, PROFILE_IMAGE, GENDER, SCANNING_CONTACTS, PIN_VERIFIED, BACKUP_AVAILABLE, RESTORING_BACKUP, RESTORING_CLOUD_SETTINGS, SHOW_STICKER_RESTORE_DIALOG
+	}
 
 	public class StateValue
 	{
@@ -441,7 +442,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 			/* save the new msisdn */
 			Utils.savedAccountCredentials(accountInfo, settings.edit());
 			//Check for crash reporting tool
-			if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CRASH_REPORTING_TOOL, HikeConstants.CRASHLYTICS).equals(HikeConstants.CRASHLYTICS))
+			if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CRASH_REPORTING_TOOL, HikeConstants.ACRA).equals(HikeConstants.CRASHLYTICS))
 			{
 				Crashlytics.setUserIdentifier(accountInfo.getUid());
 			}
@@ -505,7 +506,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 			String token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
 			ContactManager conMgr = ContactManager.getInstance();
 			List<ContactInfo> contactinfos = null;
-			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_AB_SYNC_CHANGE, true))
+			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HIDE_DELETED_CONTACTS, false))
 			{
 				contactinfos = conMgr.getContacts(this.context);
 			}
@@ -706,7 +707,13 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 					{
 						BotUtils.postAccountRestoreSetup();
 						publishProgress(new StateValue(State.RESTORING_BACKUP,Boolean.TRUE.toString()));
+
+						if (BackupUtils.isDeviceDpiDifferent())
+						{
+							publishProgress(new StateValue(State.SHOW_STICKER_RESTORE_DIALOG, null)); //Give a signal to show the sticker restore dialog.
+						}
 					}
+
 					else
 					{
 						BotUtils.initBots();
@@ -744,6 +751,22 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 				return Boolean.FALSE;
 			}
 		}
+
+		try
+		{
+			// Fetch user settings from server
+			publishProgress(new StateValue(State.RESTORING_CLOUD_SETTINGS, null));
+			synchronized (this)
+			{
+				this.wait();
+			}
+		}
+		catch (InterruptedException iex)
+		{
+			iex.printStackTrace();
+			Logger.e("SignupTask","Interrupted while waiting for returning user's setting restore");
+		}
+
 		Logger.d("SignupTask", "Publishing Token_Created");
 
 		/* tell the service to start listening for new messages */
@@ -855,7 +878,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 		getSignupTask(activity);
 		if (!signupTask.isRunning())
 		{
-			Utils.executeSignupTask(signupTask);
+			signupTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		}
 		return signupTask;
 	}
@@ -874,7 +897,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 			 * auto auth
 			 */
 			SignupTask.isAlreadyFetchingNumber = true;
-			Utils.executeSignupTask(signupTask);
+			signupTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		}
 		return signupTask;
 	}

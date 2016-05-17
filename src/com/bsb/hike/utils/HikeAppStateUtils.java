@@ -27,18 +27,8 @@ public class HikeAppStateUtils
 	public static void onResume(Activity activity)
 	{
 		Logger.d(TAG + activity.getClass().getSimpleName(), "onResume called");
-		if (!Utils.isHoneycombOrHigher())
-		{
-			if (HikeMessengerApp.currentState == CurrentState.NEW_ACTIVITY_IN_BG)
-			{
-				handleRestart(activity);
-			}
-			else
-			{
-				handleResumeOrStart(activity);
-			}
-		}
-		else if (HikeMessengerApp.currentState == CurrentState.BACK_PRESSED)
+
+		if (HikeMessengerApp.currentState == CurrentState.BACK_PRESSED)
 		{
 			// if back is pressed OR finish is called on an activity B
 			// and the activity stack has another activity A lying below activity B
@@ -55,10 +45,7 @@ public class HikeAppStateUtils
 	public static void onStart(Activity activity)
 	{
 		Logger.d(TAG + activity.getClass().getSimpleName(), "onStart called.");
-		if (Utils.isHoneycombOrHigher())
-		{
-			handleResumeOrStart(activity);
-		}
+		handleResumeOrStart(activity);
 	}
 
 	private static void handleResumeOrStart(Activity activity)
@@ -74,10 +61,7 @@ public class HikeAppStateUtils
 	public static void onRestart(Activity activity)
 	{
 		Logger.d(TAG + activity.getClass().getSimpleName(), "App was restarted.");
-		if (Utils.isHoneycombOrHigher())
-		{
-			handleRestart(activity);
-		}
+		handleRestart(activity);
 	}
 
 	private static void handleRestart(Activity activity)
@@ -105,23 +89,10 @@ public class HikeAppStateUtils
 		HikeMessengerApp.currentState = CurrentState.BACK_PRESSED;
 	}
 
-	public static void onPause(Activity activity)
-	{
-		Logger.d(TAG + activity.getClass().getSimpleName(), "onPause called");
-		if (!Utils.isHoneycombOrHigher())
-		{
-			handlePauseOrStop(activity);
-		}
-	}
-
 	public static void onStop(Activity activity)
 	{
 		Logger.d(TAG + activity.getClass().getSimpleName(), "OnStop");
-		if (Utils.isHoneycombOrHigher())
-		{
-			handlePauseOrStop(activity);
-		}
-
+		handlePauseOrStop(activity);
 	}
 
 	private static void handlePauseOrStop(Activity activity)
@@ -149,7 +120,7 @@ public class HikeAppStateUtils
 			else if (HikeMessengerApp.currentState != CurrentState.BACKGROUNDED && HikeMessengerApp.currentState != CurrentState.CLOSED
 					&& HikeMessengerApp.currentState != CurrentState.NEW_ACTIVITY_IN_BG)
 			{
-				if (Utils.isHoneycombOrHigher() && activity.isChangingConfigurations())
+				if (activity.isChangingConfigurations())
 				{
 					Logger.d(TAG, "App was going to another activity");
 					HikeMessengerApp.currentState = CurrentState.RESUMED;
@@ -157,7 +128,7 @@ public class HikeAppStateUtils
 				}
 				Logger.d(TAG + activity.getClass().getSimpleName(), "App was backgrounded. Sending packet");
 				HikeMessengerApp.currentState = CurrentState.BACKGROUNDED;
-				Utils.appStateChanged(activity.getApplicationContext(), true, Utils.isHoneycombOrHigher());
+				Utils.appStateChanged(activity.getApplicationContext(), true, true);
 			}
 		}
 	}

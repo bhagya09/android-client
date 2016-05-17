@@ -1,6 +1,7 @@
 package com.bsb.hike.adapters;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -463,7 +464,7 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 								@Override
 								public void positiveClicked(HikeDialog hikeDialog)
 								{
-									Utils.executeAsyncTask(deletePackTask);
+									deletePackTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 									StickerManager.getInstance().sendPackDeleteAnalytics(HikeConstants.LogEvent.DELETE_POSITIVE_CLICKED, category.getCategoryId());
 									//Displaying delete progress bar and deleting message in delete dialog box
 									CustomAlertDialog deleteDialog = (CustomAlertDialog)hikeDialog;
@@ -492,7 +493,7 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 					break;
 
 				case R.id.update_button:
-					StickerManager.getInstance().initialiseDownloadStickerPackTask(category, DownloadSource.SETTINGS, mContext);
+					StickerManager.getInstance().initialiseDownloadStickerPackTask(category, StickerManager.getInstance().getPackDownloadBodyJson(DownloadSource.SETTINGS));
 					StickerManager.getInstance().sendPackUpdateAnalytics(HikeConstants.LogEvent.STICKER_PACK_UPDATE, category.getCategoryId());
 					sendDownloadClicked(category);
 					this.notifyDataSetChanged();

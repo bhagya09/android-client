@@ -6,6 +6,7 @@ import java.net.HttpURLConnection;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -13,17 +14,15 @@ import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Message;
 import android.text.TextUtils;
 import android.webkit.JavascriptInterface;
-import com.bsb.hike.ui.WebViewActivity;
 
-import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.adapters.ConversationsAdapter;
-import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.NonMessagingBotConfiguration;
@@ -33,38 +32,27 @@ import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeAlarmManager;
-import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.platform.*;
-import com.bsb.hike.platform.auth.AuthListener;
-import com.bsb.hike.platform.auth.PlatformAuthenticationManager;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.GpsLocation;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.NonMessagingBotAlarmManager;
 import com.bsb.hike.platform.PlatformHelper;
 import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.platform.auth.AuthListener;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.tasks.SendLogsTask;
-import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.utils.CustomAnnotation.DoNotObfuscate;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.Utils;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
 
 /**
  * API bridge that connects the javascript to the non-messaging Native environment. Make the instance of this class and add it as the
@@ -215,6 +203,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			jsonObject.put(HikePlatformConstants.BOT_VERSION, mBotInfo.getVersion());
             jsonObject.put(HikePlatformConstants.MAPP_VERSION_CODE, mBotInfo.getMAppVersionCode());
 			jsonObject.put(HikePlatformConstants.ASSOCIATE_MAPP,botMetadata.getAsocmapp());
+			jsonObject.put(HikeMessengerApp.PRODUCTION,HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PRODUCTION,true));
 
 			if (!TextUtils.isEmpty(extraData))
 			{
@@ -514,7 +503,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 				// checking for interceptUrl JSON String
 				if (params[3] != null)
 				{
-					mCallback.openFullPageWithTitle(params[1], params[0], params[2], params[3]); // Url, title, interceptUrlJson
+					mCallback.openFullPageWithTitle(params[1], params[0], params[2], params[3]); // Url, title, interceptUrlJson,back
 				}
 				else if (params[2] != null)
 				{
@@ -1412,8 +1401,8 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
         {
             e.printStackTrace();
         }
-        BotUtils.removeMicroApp(json);
-        BotUtils.removeMicroAppFromVersioningPath(json);
+        BotUtils.removeMicroAppByAppName(json);
+        BotUtils.removeMicroAppFromVersioningPathByMsisdn(json);
 
         // code to delete bot from conversations
         BotUtils.deleteBot(msisdn);
@@ -1464,25 +1453,6 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			return;
 		}
 
-		mHandler.post(new Runnable() {
-			@Override
-			public void run() {
-				Context weakActivityRef = weakActivity.get();
-				if (weakActivityRef != null) {
-					int galleryFlags;
-					if (Boolean.valueOf(displayCameraItem)) {
-						galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS | GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
-					} else {
-						galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS;
-					}
-					Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(weakActivityRef, galleryFlags, null);
-					galleryPickerIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
-					galleryPickerIntent.putExtra(HikeConstants.CALLBACK_ID, id);
-					((WebViewActivity) weakActivityRef).startActivityForResult(galleryPickerIntent, HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST);
-				}
-			}
-		});
-		Logger.d("FileUpload","input Id chooseFile is "+ id);
 		PlatformHelper.chooseFile(id,displayCameraItem,weakActivity.get());
 	}
 
@@ -1513,6 +1483,29 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	{
 		openFullPage( title,  url,  interceptUrlJson,"false");
 	}
+	/**
+	 * Platform bridge Version 11
+	 * Call this function to open a full page webView within hike. Calling this function will create full page with action bar
+	 * color specified by server, js injected to remove unwanted features from the full page, and URLs defined by the interceptUrlJson
+	 * will be intercepted when they start loading.
+	 * @param title
+	 *            : the title on the action bar.
+	 * @param url
+	 *            : the url that will be loaded.
+	 * @param interceptUrlJson
+	 * 			  : the JSON String that contains the interception URL and type.
+	 * 			    If a loading url contains the String value of the "url" field, it will be intercepted.
+	 * 			    eg - {"icpt_url":[{"url":"ndtv","type":1},{"url":"techinsider.com","type":1}]}
+	 * 			    URL http://www.ndtv.com/news?txId=1234&authId=12345&key1=val1&key2=val2
+	 * 			    will be intercepted and parameter String ?txId=1234&authId=12345&key1=val1&key2=val2 will be returned to the microapp
+	 * 			    in the urlIntercepted method.
+	 *
+	 * 			    Type 1 : Closes the current WebView and opens the microapp that invoked it, with the URL parameters from the
+	 * 			    		 intercepted URL.
+	 * @param backToActivity : "true"/"false"-- Depends whether on back press, activity wants to kill itself or not
+	 */
+	@JavascriptInterface
+	
 	public void openFullPage(String title, String url, String interceptUrlJson, String backToActivity)
 	{
 		if (TextUtils.isEmpty(title))
@@ -1521,7 +1514,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		}
 		else if (TextUtils.isEmpty(interceptUrlJson))
 		{
-			sendMessageToUiThread(OPEN_FULL_PAGE_WITH_TITLE, new String[] { title, url, null });
+			sendMessageToUiThread(OPEN_FULL_PAGE_WITH_TITLE, new String[] { title, url, null, null });
 		}
 		else
 		{
@@ -1582,7 +1575,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			return;
 		}
 		SendLogsTask logsTask = new SendLogsTask(mContext);
-		Utils.executeAsyncTask(logsTask);
+		logsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 
 	/**
@@ -1619,6 +1612,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
      * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
      * Call this function to get the mAppVersionCode for asked msisdn.
      * @param id: the id of the function that native will call to call the js .
+     * @param msisdn: the msisdn of the bot for which micro app version code is required.
      * returns -1 if bot not exists
      */
     @JavascriptInterface
@@ -1634,6 +1628,31 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 
         callbackToJS(id, String.valueOf(botInfo.getMAppVersionCode()));
 
+    }
+
+    /**
+     * Platform Version 11
+     * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
+     * Call this function to get the mAppVersionCode for asked appName.
+     * @param id: the id of the function that native will call to call the js .
+     * @param appName: the appName of the sdk that you require version code for.
+     * returns -1 if caller of the method is not a special bot
+     */
+    @JavascriptInterface
+    public void getSDKVersionCode(String id, String appName)
+    {
+        if (!BotUtils.isSpecialBot(mBotInfo))
+        {
+            callbackToJS(id,"-1");
+            return;
+        }
+
+        int gameEngineMappVersionCode = 0;
+
+        if(HikeMessengerApp.hikeMappInfo.containsKey(appName))
+            gameEngineMappVersionCode = HikeMessengerApp.hikeMappInfo.get(appName);
+
+        callbackToJS(id, String.valueOf(gameEngineMappVersionCode));
     }
 
 

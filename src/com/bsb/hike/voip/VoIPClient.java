@@ -634,12 +634,10 @@ public class VoIPClient  {
 						Logger.w(tag, "RTT expired.");
 						rttSent = false;
 						rttTooHigh = true;
-					}
-
-					// If we have a playback buffer, then keep calculating RTT every second. 
-					if (minimumDecodedQueueSize > 0)
+					} else if (minimumDecodedQueueSize > 0)
+						// If we have a playback buffer, then keep calculating RTT.
 						measureRTT();
-					
+
 					try {
 						Thread.sleep(HEARTBEAT_INTERVAL);
 					} catch (InterruptedException e) {
@@ -1203,7 +1201,7 @@ public class VoIPClient  {
 					} catch (IOException e) {
 						break;
 					}
-					
+
 					VoIPDataPacket dataPacket = VoIPUtils.getPacketFromUDPData(packet.getData(), packet.getLength());
 					
 					if (dataPacket == null)
@@ -1511,12 +1509,12 @@ public class VoIPClient  {
 						
 					case RTT_RESPONSE:
 						if (rttSent) {
-							long newRtt = System.currentTimeMillis() - rttSentAt; 
+							long newRtt = System.currentTimeMillis() - rttSentAt;
+//							Logger.d(tag, "Round Trip Time. Was: " + rtt + " ms, Is: " + newRtt + " ms.");
 							if (newRtt > VoIPConstants.MAX_RTT * 1000) {
 								Logger.w(tag, "Discarding excessive RTT: " + newRtt);
 								rttTooHigh = true;
 							} else {
-//								Logger.d(tag, "Round Trip Time. Was: " + rtt + " ms, Is: " + newRtt + " ms.");
 								rtt = newRtt;
 								if (minimumDecodedQueueSize > 0)
 									setAudioLatency();
@@ -1990,7 +1988,8 @@ public class VoIPClient  {
 		// Introduce an artificial lag if there is packet loss
 		if (decodedBuffersQueue.size() < minimumDecodedQueueSize &&
 				!isSpeaking()) {
-			Logger.d(tag, "Stalling. Current queue size: " + decodedBuffersQueue.size());
+			Logger.d(tag, "Stalling. Current queue size: " + decodedBuffersQueue.size()
+			+ ", want: " + minimumDecodedQueueSize);
 			return null;
 		}
 
@@ -2099,7 +2098,7 @@ public class VoIPClient  {
 
 		if (minimumDecodedQueueSize != newQueueSize) {
 			minimumDecodedQueueSize = newQueueSize;
-			Logger.d(tag, "New audio latency: " + minimumDecodedQueueSize * 60 + " ms, frames: " + minimumDecodedQueueSize);
+//			Logger.d(tag, "New audio latency: " + minimumDecodedQueueSize * 60 + " ms, frames: " + minimumDecodedQueueSize);
 		}
 	}
 	
@@ -2409,6 +2408,7 @@ public class VoIPClient  {
 		bitrateAdjustment = 0;
 		audioFramesPerUDPPacket = 1;
 		decodedBuffersQueue.clear();
+		voicePacketsCache.clear();
 		measureRTT();
 		sendMessageToService(VoIPConstants.CONNECTION_ESTABLISHED_FIRST_TIME);
 	}

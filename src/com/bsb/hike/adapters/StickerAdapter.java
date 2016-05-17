@@ -321,7 +321,7 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 					{
 						category.setUpdateAvailable(false);
 					}
-					StickerManager.getInstance().initialiseDownloadStickerPackTask(category, DownloadSource.FIRST_TIME, DownloadType.NEW_CATEGORY, mContext);
+					StickerManager.getInstance().initialiseDownloadStickerPackTask(category, DownloadType.NEW_CATEGORY, StickerManager.getInstance().getPackDownloadBodyJson(DownloadSource.FIRST_TIME));
 					setupStickerPage(parent, category);
 				}
 			});

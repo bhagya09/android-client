@@ -1,5 +1,7 @@
 package com.bsb.hike.service;
 
+import java.io.File;
+
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
@@ -15,8 +17,7 @@ import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
-
-import java.io.File;
+import com.bsb.hike.utils.Utils;
 
 public class UpgradeIntentService extends IntentService
 {
@@ -66,7 +67,7 @@ public class UpgradeIntentService extends IntentService
 			editor.putInt(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, 2);
 			editor.commit();
 		}
-		
+
 		if (prefs.getInt(StickerManager.MOVED_HARDCODED_STICKERS_TO_SDCARD, 1) == 1)
 		{
 			if(StickerManager.moveHardcodedStickersToSdcard(getApplicationContext()))
@@ -119,32 +120,52 @@ public class UpgradeIntentService extends IntentService
             scheduleHikeMicroAppsMigrationAlarm(getBaseContext());
         }
 
-		if(prefs.getInt(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 1) == 1)
+		if((!prefs.getBoolean(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, false)) && Utils
+				.doesExternalDirExists())
 		{
-			if(upgradeForStickerTable())
+			if (StickerManager.getInstance().migrateStickerAssets(StickerManager.getInstance().getOldStickerExternalDirFilePath(),
+					StickerManager.getInstance().getStickerExternalDirFilePath()))
 			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, true);
 				Logger.v(TAG, "Upgrade for sticker table was successful");
-				Editor editor = prefs.edit();
-				editor.putInt(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 2);
-				editor.commit();
-                StickerManager.getInstance().doInitialSetup();
+			}
+			else
+			{
+				Logger.v(TAG, "Upgrade for sticker table was NOT successful");
 			}
 		}
 
-        // Set block notifications as false in shared preference i.e allow notifications to occur once Upgrade intent completes
+		if((!prefs.getBoolean(HikeMessengerApp.MIGRATE_RECENT_STICKER_TO_DB, false)))
+		{
+			if(StickerManager.getInstance().migrateRecent())
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.MIGRATE_RECENT_STICKER_TO_DB, true);
+			}
+		}
+
+		if (!prefs.getBoolean(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, false))
+		{
+			StickerManager.getInstance().markAllCategoriesAsDownloaded();
+			Editor editor = prefs.edit();
+			editor.putBoolean(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, true);
+			editor.apply();
+		}
+
+		// Set block notifications as false in shared preference i.e allow notifications to occur once Upgrade intent completes
         Editor editor = prefs.edit();
         editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
         editor.apply();
 
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPGRADING, false);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE, null);
+
+		Utils.connectToGcmPreSignup();
+
 	}
 
 	public UpgradeIntentService()
 	{
-
 		super(TAG);
-
 	}
 
 	private void initialiseSharedMediaAndFileThumbnailTable()
@@ -190,10 +211,16 @@ public class UpgradeIntentService extends IntentService
             Intent migrationIntent = new Intent(context, HikeMicroAppsCodeMigrationService.class);
             context.startService(migrationIntent);
         }
+        else
+        {
+            // As there is no older content directory there to migrate, setting the migration as successful so that it doesn't get triggered again
+            HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, true);
+        }
     }
 
 	private boolean upgradeForStickerTable()
 	{
 		return HikeConversationsDatabase.getInstance().upgradeForStickerTable();
 	}
+
 }

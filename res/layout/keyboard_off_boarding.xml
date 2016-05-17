@@ -1,47 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="305dp"
-    android:background="@color/signup_white">
-
-    <ImageView
-        android:id="@+id/close"
-        android:layout_width="44dp"
-        android:layout_height="44dp"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:contentDescription="image_close"
-        android:scaleType="center"
-        android:src="@drawable/ic_keyboard_popup_cross" />
-
-<LinearLayout
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/keyboard_off_boarding"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/signup_white"
     android:gravity="center"
     android:orientation="vertical"
     android:paddingTop="10dp">
-    
+
     <ImageView
         android:layout_width="54.5dp"
         android:layout_height="58dp"
         android:layout_margin="10dp"
-        android:background="@drawable/art_keyboard"/>
+        android:background="@drawable/art_keyboard" />
 
     <com.bsb.hike.view.CustomFontTextView
         android:id="@+id/kpt_exit_heading"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
         android:layout_marginBottom="8dp"
+        android:layout_marginTop="10dp"
         android:contentDescription="keyboard_shutdown_heading"
-        android:maxLines="2"
         android:gravity="center"
+        android:maxWidth="@dimen/keyboard_offboarding_heading_width"
         android:text="@string/keyboard_shutdown_heading"
         android:textColor="#3d475b"
         android:textSize="20sp"
-        android:maxWidth="250dp"
-        android:textStyle="bold|italic"/>
+        android:textStyle="bold|italic" />
 
     <com.bsb.hike.view.CustomFontTextView
         android:id="@+id/kpt_exit_text"
@@ -50,17 +35,16 @@
         android:layout_margin="6dp"
         android:contentDescription="keyboard_shutdown_description"
         android:gravity="center"
-        android:maxLines="3"
-        android:maxWidth="280dp"
+        android:maxWidth="@dimen/keyboard_offboarding_text_width"
         android:text="@string/keyboard_shutdown_description"
         android:textColor="@color/settings_text_subheader_color"
         android:textSize="16sp" />
 
     <View
-        android:layout_width="280dp"
+        android:layout_width="290dp"
         android:layout_height="0.5dp"
-        android:layout_marginTop="10dp"
         android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/keyboard_offboarding_divider"
         android:background="#14000000" />
 
     <LinearLayout
@@ -73,9 +57,9 @@
             style="@style/ButtonCustomDialog"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:contentDescription="open_phone_keyboard"
             android:gravity="center"
-            android:layout_weight="1"
             android:paddingBottom="20dp"
             android:paddingTop="20dp"
             android:text="@string/open_phone_keyboard" />
@@ -83,9 +67,9 @@
         <View
             android:layout_width="0.5dp"
             android:layout_height="match_parent"
-            android:layout_marginBottom="5dp"
-            android:layout_marginTop="10dp"
             android:layout_gravity="center|center_vertical"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="10dp"
             android:background="#14000000" />
 
         <com.bsb.hike.view.CustomFontButton
@@ -93,14 +77,12 @@
             style="@style/ButtonCustomDialog"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:contentDescription="open_phone_keyboard"
             android:gravity="center"
-            android:layout_weight="1"
             android:paddingBottom="20dp"
             android:paddingTop="20dp"
             android:text="@string/open_google_keyboard" />
-
     </LinearLayout>
-
 </LinearLayout>
-</RelativeLayout>
+

@@ -13,11 +13,6 @@ import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 
 public class PackPreviewActivity extends HikeAppStateBaseFragmentActivity
 {
-	public PackPreviewActivity()
-	{
-		
-	}
-	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -25,24 +20,6 @@ public class PackPreviewActivity extends HikeAppStateBaseFragmentActivity
 		setContentView(R.layout.sticker_preview_parent);
 		setupPreviewFragment(savedInstanceState);
 		setupActionBar();
-	}
-	
-	@Override
-	protected void onResume()
-	{
-		super.onResume();
-	}
-	
-	@Override
-	protected void onPause()
-	{
-		super.onPause();
-	}
-	
-	@Override
-	protected void onDestroy()
-	{
-		super.onDestroy();
 	}
 	
 	private void setupPreviewFragment(Bundle savedInstance)
@@ -54,7 +31,8 @@ public class PackPreviewActivity extends HikeAppStateBaseFragmentActivity
 		
 		Intent intent = getIntent();
 		String catId = intent.getStringExtra(HikeConstants.STICKER_CATEGORY_ID);
-		PackPreviewFragment stickerPreviewFragment = PackPreviewFragment.newInstance(catId);
+		int position = intent.getIntExtra(HikeConstants.POSITION, -1);
+		PackPreviewFragment stickerPreviewFragment = PackPreviewFragment.newInstance(catId, position);
 		getSupportFragmentManager().beginTransaction().replace(R.id.sticker_preview_parent, stickerPreviewFragment).commit();
 	}
 	
@@ -66,8 +44,6 @@ public class PackPreviewActivity extends HikeAppStateBaseFragmentActivity
 		View actionBarView = getLayoutInflater().inflate(R.layout.sticker_shop_action_bar, null);
 
 		View backContainer = actionBarView.findViewById(R.id.back);
-		View stickerSettingsBtn = actionBarView.findViewById(R.id.sticker_settings_btn);
-		stickerSettingsBtn.setVisibility(View.GONE);
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
 		title.setText(R.string.pack_preview_activity_actionbar_text);
 

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
     <string name="app_name">Hike</string>
@@ -1418,10 +1418,13 @@
     <string name="share_on_timeline">ટાઇમલાઇન પર શેયર કરીએ?</string>
     <string name="posting_photos_timeline">તમારા ફોટો પોસ્ટ કરી રહ્યા છે</string>
     <string name="add_a_caption">કેપ્શન ઉમેરો</string>
-    <string name="keyboard_shutdown_heading">પ્રાદેશિક કીબોર્ડ માટે સહાય દૂર કરી રહ્યા ચીયે</string>
-    <string name="keyboard_shutdown_description">તમાર ફોન કિબોર્ડ સાથે તમે હંમેશાં ચેટ કરી
-
-શકશો અથવા પ્લેસ્ટોરમાંથી કોઈપણ ડાઉનલોડ કરો</string>
+    <string name="keyboard_shutdown_heading">Hike ના પ્રાદેશિક કીબોર્ડ  દૂર કરી રહ્યા ચીયે</string>
+    <string name="keyboard_shutdown_description">તમે તમારા ફોન કીબોર્ડ અથવા અન્ય પ્રાદેશિક કીબોર્ડ પ્લયસ્ટોરે માંથી ડાઉનલોડ કરીને ચૅટ જારી રાખી શકો ચો</string>
     <string name="open_phone_keyboard">ફોન કિબોર્ડ</string>
     <string name="open_google_keyboard">ગુગલ કિબોર્ડ</string>
+
+    <string name="slide_to_cancel"> રદ કરવા માટે સ્લાઇડ કરો</string>
+    <string name="recording_help_text">રેકોર્ડ કરવા માટે ટેપ અને હોલ્ડ કરો, મોકલવા માટે છોડો</string>
+    <string name="max_duration_recorded">મહત્તમ સમયગાળા માટે રેકોર્ડિંગ પૂર્ણ</string>
+    <string name="stream_volume_muted_or_low">કૃપા કરીને અવાજ વધારો</string>
 </resources>

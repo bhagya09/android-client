@@ -22,11 +22,17 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.backup.iface.BackupableRestorable;
+import com.bsb.hike.backup.impl.DBsBackupRestore;
+import com.bsb.hike.backup.impl.PrefBackupRestore;
+import com.bsb.hike.backup.model.BackupMetadata;
 import com.bsb.hike.db.BackupState;
 import com.bsb.hike.db.DBConstants;
+import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
 /**
@@ -73,7 +79,14 @@ public class AccountBackupRestore
 
 	public static final String DATA = "data";
 
+	public static final String RESTORE_FAIL_REASON = "reason";
+
 	private static volatile AccountBackupRestore _instance = null;
+
+	/**
+	 *If backup is taken below and/or on this version, and restored on a future build, sticker backup will not work.
+	 */
+	public static int STICKER_BACKUP_THRESHHOLD_VERSION = 1705;
 
 	private final Context mContext;
 
@@ -153,7 +166,7 @@ public class AccountBackupRestore
 				}
 			}
 
-			backupUserData();
+			BackupUtils.backupUserData();
 		}
 		catch (Exception e)
 		{
@@ -178,30 +191,6 @@ public class AccountBackupRestore
 		return result;
 	}
 
-	private void backupUserData() throws Exception
-	{
-		BackupMetadata backupMetadata = new BackupMetadata(mContext);
-		String dataString = backupMetadata.toString();
-		File userDataFile = getMetadataFile();
-		BackupUtils.writeToFile(dataString, userDataFile);
-	}
-
-	private BackupMetadata getBackupMetadata() {
-		BackupMetadata userData;
-		try
-		{
-			File userDataFile = getMetadataFile();
-			String userDataString = BackupUtils.readStringFromFile(userDataFile);
-			userData = new BackupMetadata(mContext, userDataString);
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-			return null;
-		}
-		return userData;
-	}
-
 	/**
 	 * Restores the complete backup of chats and the specified preferences.
 	 *
@@ -221,23 +210,30 @@ public class AccountBackupRestore
 
 		String backupToken = getBackupToken();
 		BackupState state = getBackupState();
-		BackupMetadata backupMetadata = getBackupMetadata();
+		BackupMetadata backupMetadata = BackupUtils.getBackupMetadata();
 
-		if (state == null && backupMetadata == null)
+		if (backupMetadata != null)
+		{
+			if (!ContactManager.getInstance().isMyMsisdn(backupMetadata.getMsisdn()))
+			{
+				successState = STATE_RESTORE_FAILURE_MSISDN_MISMATCH;
+			}
+			else if (!isBackupAppVersionCompatible(backupMetadata.getAppVersion()))
+			{
+				successState = STATE_RESTORE_FAILURE_INCOMPATIBLE_VERSION;
+			}
+		}
+		else if (state != null)
+		{
+			if (!isBackupDbVersionCompatible(state.getDBVersion()))
+			{
+				successState = STATE_RESTORE_FAILURE_INCOMPATIBLE_VERSION;
+			}
+		}
+		// both the backup metadata and the state date are unavailable. Atleast one on them is required.
+		else
 		{
 			successState = STATE_RESTORE_FAILURE_GENERIC;
-		}
-		else if (!ContactManager.getInstance().isMyMsisdn(backupMetadata.getMsisdn()))
-		{
-			successState = STATE_RESTORE_FAILURE_MSISDN_MISMATCH;
-		}
-		else if (backupMetadata != null && !isBackupAppVersionCompatible(backupMetadata.getAppVersion()))
-		{
-			successState = STATE_RESTORE_FAILURE_INCOMPATIBLE_VERSION;
-		}
-		else if (state != null && !isBackupDbVersionCompatible(state.getDBVersion()))
-		{
-			successState = STATE_RESTORE_FAILURE_INCOMPATIBLE_VERSION;
 		}
 
 		if (successState == STATE_RESTORE_SUCCESS)
@@ -294,7 +290,7 @@ public class AccountBackupRestore
 
 		time = System.currentTimeMillis() - time;
 		Logger.d(LOGTAG, "Restore " + successState + " in " + time / 1000 + "." + time % 1000 + "s");
-		recordLog(RESTORE_EVENT_KEY, successState == STATE_RESTORE_SUCCESS, time);
+		recordLog(RESTORE_EVENT_KEY,successState, time);
 		logRestoreDetails(backupMetadata);
 		return successState;
 	}
@@ -336,6 +332,34 @@ public class AccountBackupRestore
 		{
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 		}
+	}
+
+	private void recordLog(String eventKey, int result, long timeTaken)
+	{
+		if (result == STATE_RESTORE_SUCCESS)
+		{
+			recordLog(eventKey, true, timeTaken);
+			return;
+		}
+
+		JSONObject metadata = new JSONObject();
+		try
+		{
+			JSONArray sizes = new JSONArray();
+			metadata
+					.put(HikeConstants.EVENT_KEY, eventKey)
+					.put(SIZE, sizes)
+					.put(STATUS, false)
+					.put(TIME_TAKEN, timeTaken)
+					.put(RESTORE_FAIL_REASON, getRestoreFailReason(result));
+			HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.ANALYTICS_BACKUP, metadata);
+		}
+		catch(JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+		}
+
+
 	}
 
 	private String getBackupToken()
@@ -383,14 +407,8 @@ public class AccountBackupRestore
 			prefbBackupReady = false;
 		}
 
-		File backupStateFile = getBackupStateFile();
-		boolean stateFileAvailable = true;
-		if(!backupStateFile.exists())
-		{
-			stateFileAvailable = false;
-		}
 		if (getLastBackupTime() > 0
-				&& (stateFileAvailable || prefbBackupReady)
+				&& prefbBackupReady
 				&& dbBackupReady)
 		{
 			return true;
@@ -402,7 +420,7 @@ public class AccountBackupRestore
 	{
 		Long backupTime = (long) -1;
 		BackupState state = getBackupState();
-		BackupMetadata userData = getBackupMetadata();
+		BackupMetadata userData = BackupUtils.getBackupMetadata();
 		if (userData != null)
 		{
 			backupTime = userData.getBackupTime();
@@ -436,7 +454,7 @@ public class AccountBackupRestore
 			e.printStackTrace();
 		}
 		getBackupStateFile().delete();
-		getMetadataFile().delete();
+		BackupUtils.getMetadataFile().delete();
 	}
 
 	private File getBackupStateFile()
@@ -502,11 +520,6 @@ public class AccountBackupRestore
 		return prefUpdated;
 	}
 
-	private File getMetadataFile() {
-		new File(HikeConstants.HIKE_BACKUP_DIRECTORY_ROOT).mkdirs();
-		return new File(HikeConstants.HIKE_BACKUP_DIRECTORY_ROOT, DATA);
-	}
-
 	/**
 	 * Returns whether the current backup file's properties are compatible with the app version on which they are being restored
 	 *
@@ -537,5 +550,19 @@ public class AccountBackupRestore
 			return false;
 		}
 		return true;
+	}
+
+	private String getRestoreFailReason(int result)
+	{
+		//STATE_RESTORE_SUCCESS, STATE_RESTORE_FAILURE_MSISDN_MISMATCH, STATE_RESTORE_FAILURE_INCOMPATIBLE_VERSION, STATE_RESTORE_FAILURE_GENERIC
+		switch (result)
+		{
+		case STATE_RESTORE_FAILURE_MSISDN_MISMATCH:
+			return "msisdn_mismatch";
+		case STATE_RESTORE_FAILURE_INCOMPATIBLE_VERSION:
+			return "version_mismatch";
+		default:
+			return "generic_failure";
+		}
 	}
 }

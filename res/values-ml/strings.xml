@@ -1413,8 +1413,13 @@
     <string name="share_on_timeline">ടൈംലൈനിൽ ഷെയർ ചെയ്യണോ?</string>
     <string name="posting_photos_timeline">ടൈംലൈനിൽ ഫോട്ടോ പോസ്റ്റ്‌ ചെയ്യുന്നു</string>
     <string name="add_a_caption">കാപ്ഷൻ ചേർക്കുക`</string>
-    <string name="keyboard_shutdown_heading">റീജണൽ കീബോർഡുകൾ നീക്കം ചെയ്യുന്നു </string>
-    <string name="keyboard_shutdown_description">നിങ്ങൾക്ക് ഫോൺ കീബോർഡ് അല്ലെങ്കിൽ പ്ലേസ്റ്റോറിൽ നിന്നും വേറൊരു കീബോർഡ് ഡൗൺലോഡ് ചെയ്യാം</string>
+    <string name="keyboard_shutdown_heading">Hike റീജിണൽ കീബോർഡുകൾ നീക്കുന്നു </string>
+    <string name="keyboard_shutdown_description">ഫോൺ കീബോർഡ് അല്ലെങ്കിൽ പ്ലേസ്റ്റോറിൽ നിന്നും വേറൊരു കീബോർഡ് ഡൗൺലോഡ് ചെയ്യൂ</string>
     <string name="open_phone_keyboard">ഫോൺ കീബോർഡ്‌</string>
     <string name="open_google_keyboard">ഗൂഗിൾ കീബോർഡ്‌ </string>
+
+    <string name="slide_to_cancel">ഒഴിവാക്കാൻ സ്ലൈഡ്</string>
+    <string name="recording_help_text">പരമാവധി ദൈർഘ്യം രേഖപ്പെടുത്തിയിട്ടുണ്ട്</string>
+    <string name="max_duration_recorded">പരമാവധി ദൈർഘ്യത്തിൽ റെക്കോർഡിംഗ് ചെയ്തു</string>
+    <string name="stream_volume_muted_or_low">ദയവായി ശബ്ദം കൂട്ടുക</string>
 </resources>

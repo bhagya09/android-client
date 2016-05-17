@@ -1,22 +1,26 @@
 package com.bsb.hike.utils;
 
-import java.util.List;
+import android.content.Context;
+import android.text.TextUtils;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.MqttConstants;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.ChatAnalyticConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HomeAnalyticsConstants;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.content.PlatformContent;
+import com.bsb.hike.service.HikeMqttManagerNew;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.content.Context;
-
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.MqttConstants;
-import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.service.HikeMqttManagerNew;
+import java.util.ArrayList;
+import java.util.List;
 
 public class HikeAnalyticsEvent
 {
@@ -196,9 +200,10 @@ public class HikeAnalyticsEvent
 		try
 		{
 			JSONObject analyticsObj = new JSONObject();
-			analyticsObj.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.ACT_LOG_2);
+			analyticsObj.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.USER_TL_OPEN);
 			analyticsObj.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_LOG_2);
 			analyticsObj.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			analyticsObj.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
 			analyticsObj.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.USER_TL_OPEN);
 			analyticsObj.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
 			analyticsObj.put(AnalyticsConstants.V2.GENUS, source);
@@ -210,6 +215,109 @@ public class HikeAnalyticsEvent
 		catch (JSONException e)
 		{
 			e.printStackTrace();
+		}
+	}
+
+	public static void recordAnalyticsForAddFriend(String userMsisdn, String source, boolean requestSent)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.ADD_FRIEND);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_LOG_2);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.ADD_FRIEND);
+			json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
+			json.put(AnalyticsConstants.V2.GENUS, requestSent ? "req_sent" : "req_acc");
+			json.put(AnalyticsConstants.V2.SPECIES, source);
+			json.put(AnalyticsConstants.V2.TO_USER, userMsisdn);
+
+			HAManager.getInstance().recordV2(json);
+		}
+
+		catch (JSONException e)
+		{
+			e.toString();
+		}
+	}
+
+	public static void recordAnalyticsForGCPins(String uniqueKey_order, String genus, String source, String species)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, uniqueKey_order);
+			json.put(AnalyticsConstants.V2.KINGDOM, ChatAnalyticConstants.ACT_CORE_LOGS);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, uniqueKey_order);
+
+			if(!TextUtils.isEmpty(genus))
+				json.put(AnalyticsConstants.V2.GENUS, genus);
+
+			if(!TextUtils.isEmpty(source))
+				json.put(AnalyticsConstants.V2.SOURCE, source);
+
+			if(!TextUtils.isEmpty(species))
+				json.put(AnalyticsConstants.V2.SPECIES, species);
+
+			HAManager.getInstance().recordV2(json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	public static void recordAnalyticsForGCFlow(String uniqueKey_order, String form, int race, int breed, int val_int, ArrayList<String> toUser_msisdn)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, uniqueKey_order);
+			json.put(AnalyticsConstants.V2.KINGDOM, ChatAnalyticConstants.ACT_CORE_LOGS);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, uniqueKey_order);
+			if(!TextUtils.isEmpty(form))
+				json.put(AnalyticsConstants.V2.FORM, form);
+			if(race != -1)
+				json.put(AnalyticsConstants.V2.RACE, race);
+			if(breed != -1)
+				json.put(AnalyticsConstants.V2.BREED, breed);
+			if(val_int > 0)
+				json.put(AnalyticsConstants.V2.VAL_INT, val_int);
+			if(toUser_msisdn != null)
+			{
+				json.put(AnalyticsConstants.V2.TO_USER, toUser_msisdn.toString());
+			}
+			json.put(AnalyticsConstants.V2.NETWORK, Utils.getNetworkTypeAsString(HikeMessengerApp.getInstance().getApplicationContext()));
+
+			HAManager.getInstance().recordV2(json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	public static JSONObject getSettingsAnalyticsJSON()
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, HomeAnalyticsConstants.SETTINGS_UK);
+			json.put(AnalyticsConstants.V2.KINGDOM, HomeAnalyticsConstants.HOMESCREEN_KINGDOM);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, HomeAnalyticsConstants.SETTINGS_ORDER);
+			return json;
+		}
+		catch (JSONException e)
+		{
+			e.toString();
+			return null;
 		}
 	}
 }

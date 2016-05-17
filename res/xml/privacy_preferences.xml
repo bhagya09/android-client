@@ -32,12 +32,17 @@
 
         <com.bsb.hike.view.IconListPreference
             android:defaultValue="@string/privacy_my_contacts"
-            android:entries="@array/privacyPrefKeys"
-            android:entryValues="@array/privacyPrefValues"
             android:key="lastSeenPrefList"
             android:layout="@layout/list_preference"
             android:summary="@string/ls_my_contacts_summary"
             android:title="@string/last_seen_header" />
+
+        <com.bsb.hike.view.IconListPreference
+            android:defaultValue="@string/privacy_my_contacts"
+            android:key="birthdayPrivacyPref"
+            android:layout="@layout/list_preference"
+            android:summary="@string/bd_my_contacts_summary"
+            android:title="@string/birthday_privacy_header" />
 
         <com.bsb.hike.view.SwitchPreferenceCompat
             android:key="sslPref"

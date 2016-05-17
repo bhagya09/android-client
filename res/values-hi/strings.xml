@@ -1413,8 +1413,13 @@
     <string name="share_on_timeline">टाइमलाइन पर साझा करें?</string>
     <string name="posting_photos_timeline">आपके फ़ोटोस टाइमलाइन पर पोस्ट किए जा रहे हैं</string>
     <string name="add_a_caption">कैप्शन डालें</string>
-    <string name="keyboard_shutdown_heading">क्षेत्रीय कीबोर्ड का समर्थन हटाया जा रहा है</string>
-    <string name="keyboard_shutdown_description">आप हमेशा अपने फ़ोन कीबोर्ड से चैट कर सकते हैं या प्लेस्टोर से अन्य कीबोर्ड डाउनलोड कर सकते हैं</string>
+    <string name="keyboard_shutdown_heading">Hike के क्षेत्रीय कीबोर्ड हटाए जा रहें हैं</string>
+    <string name="keyboard_shutdown_description">अब आप अपने फ़ोन कीबोर्ड से चैट जारी रख सकते हैं या प्लेस्टोर से अन्य क्षेत्रीय कीबोर्ड डाउनलोड कर चैट कर सकते हैं</string>
     <string name="open_phone_keyboard">फ़ोन कीबोर्ड</string>
     <string name="open_google_keyboard">गूगल कीबोर्ड</string>
+
+    <string name="slide_to_cancel">रद्द के लिए स्लाईड करें</string>
+    <string name="recording_help_text">रिकॉर्डिंग के लिए दबा कर रखें, भेजने के लिए छोड़ें</string>
+    <string name="max_duration_recorded">अधिकतम अवधि तक रिकॉर्डिंग की गई</string>
+    <string name="stream_volume_muted_or_low">कृप्या आवाज़ बढ़ाएँ</string>
 </resources>

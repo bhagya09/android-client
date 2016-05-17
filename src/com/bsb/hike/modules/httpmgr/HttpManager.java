@@ -1,12 +1,10 @@
 package com.bsb.hike.modules.httpmgr;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.json.JSONArray;
-import org.json.JSONException;
+import com.bsb.hike.AppConfig;
+import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.filetransfer.FileSavedState;
 import com.bsb.hike.modules.httpmgr.client.ClientOptions;
 import com.bsb.hike.modules.httpmgr.engine.HttpEngine;
 import com.bsb.hike.modules.httpmgr.engine.RequestListenerNotifier;
@@ -16,7 +14,16 @@ import com.bsb.hike.modules.httpmgr.log.LogFull;
 import com.bsb.hike.modules.httpmgr.log.LogHttp;
 import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.requeststate.HttpRequestState;
+import com.bsb.hike.modules.httpmgr.requeststate.HttpRequestStateDB;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class will be used for initialization by and outside world and for adding or canceling a request by {@link RequestToken}
@@ -38,18 +45,10 @@ public class HttpManager
 
 	private HttpManager(ClientOptions options)
 	{
-		if (HttpLogger.DEBUG)
+		if (AppConfig.DEBUG_LOGS_ENABLED)
 		{
-			boolean t = true;
-			if (t)
-			{
-				HttpLogger.plant(new LogFull("Http"));
-				HttpLogger.plant(new LogHttp("Http"));
-			}
-			else
-			{
-				HttpLogger.plant(new LogHttp("Http"));
-			}
+			HttpLogger.plant(new LogFull("Http"));
+			HttpLogger.plant(new LogHttp("Http"));
 		}
 		setHostUris();
 		HttpEngine engine = new HttpEngine();
@@ -57,7 +56,7 @@ public class HttpManager
 		requestProcessor = new RequestProcessor(options, engine, notifier);
 	}
 
-	static HttpManager getInstance()
+	public static HttpManager getInstance()
 	{
 		if (_instance == null)
 		{
@@ -78,6 +77,7 @@ public class HttpManager
 	{
 		setProductionHostUris();
 		setPlatformProductionHostUris();
+		setFtHostUris();
 	}
 
 	public static void setProductionHostUris()
@@ -164,8 +164,43 @@ public class HttpManager
 		return ftHostUris;
 	}
 
-	public static void setFtHostUris(List<String> ftHostUris) {
-		HttpManager.ftHostUris = ftHostUris;
+	public static void setFtHostUris()
+	{
+		ftHostUris = new ArrayList<>();
+		String ipString = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FT_HOST_IPS, "");
+		JSONArray ipArray = null;
+
+		try
+		{
+			if (!TextUtils.isEmpty(ipString)) {
+				ipArray = new JSONArray(ipString);
+			}
+		}
+		catch (JSONException e)
+		{
+			LogFull.d("Exception while parsing = " + e);
+			e.printStackTrace();
+		}
+
+		if (null != ipArray && ipArray.length() > 0)
+		{
+			int len = ipArray.length();
+			for (int i = 0; i < len; i++)
+			{
+				if (ipArray.optString(i) != null)
+				{
+					LogFull.d("FT host api[" + i + "] = " + ipArray.optString(i));
+					ftHostUris.add(ipArray.optString(i));
+				}
+			}
+		}
+		else
+		{
+			ftHostUris.add("54.169.191.114");
+			ftHostUris.add("54.169.191.115");
+			ftHostUris.add("54.169.191.116");
+			ftHostUris.add("54.169.191.113");
+		}
 	}
 
 	/**
@@ -192,7 +227,7 @@ public class HttpManager
 	 * 
 	 * @param request
 	 */
-	public <T> void addRequest(Request<T> request)
+	<T> void addRequest(Request<T> request)
 	{
 		addRequest(request, null);
 	}
@@ -203,7 +238,7 @@ public class HttpManager
 	 * @param request
 	 * @param options
 	 */
-	public <T> void addRequest(Request<T> request, ClientOptions options)
+	<T> void addRequest(Request<T> request, ClientOptions options)
 	{
 		requestProcessor.addRequest(request, options);
 	}
@@ -213,12 +248,12 @@ public class HttpManager
 	 * 
 	 * @param request
 	 */
-	public <T> void cancel(Request<T> request)
+	<T> void cancel(Request<T> request)
 	{
 		request.cancel();
 	}
 
-	public <T> void addRequestListener(Request<T> request, IRequestListener listener)
+	<T> void addRequestListener(Request<T> request, IRequestListener listener)
 	{
 		request.addRequestListeners(listener);
 	}
@@ -229,7 +264,7 @@ public class HttpManager
 	 * @param request
 	 * @param listener
 	 */
-	public <T> void removeListener(Request<T> request, IRequestListener listener)
+	<T> void removeListener(Request<T> request, IRequestListener listener)
 	{
 		List<IRequestListener> listeners = new ArrayList<IRequestListener>(1);
 		listeners.add(listener);
@@ -243,7 +278,7 @@ public class HttpManager
 	 * @param request
 	 * @param listeners
 	 */
-	public <T> void removeListeners(Request<T> request, List<IRequestListener> listeners)
+	<T> void removeListeners(Request<T> request, List<IRequestListener> listeners)
 	{
 		request.removeRequestListeners(listeners);
 	}
@@ -254,9 +289,38 @@ public class HttpManager
 	 * @param request
 	 * @return
 	 */
-	public <T> boolean isRequestRunning(Request<T> request)
+	<T> boolean isRequestRunning(Request<T> request)
 	{
 		return requestProcessor.isRequestRunning(request);
+	}
+
+	public FileSavedState getRequestStateFromDB(String url, String defaultId)
+	{
+		String input = url + defaultId;
+		String requestId = HttpUtils.calculateMD5hash(input);
+		HttpRequestState state = HttpRequestStateDB.getInstance().getRequestState(requestId);
+		if (state == null)
+		{
+			return null;
+		}
+		JSONObject metadata = state.getMetadata();
+		return FileSavedState.getFileSavedStateFromJSON(metadata);
+	}
+
+	public void deleteRequestStateFromDB(String url, String defaultId)
+	{
+		String input = url + defaultId;
+		String requestId = HttpUtils.calculateMD5hash(input);
+		HttpRequestStateDB.getInstance().deleteState(requestId);
+	}
+
+	public void saveRequestStateInDB(String url, String defaultId, FileSavedState fss)
+	{
+		String input = url + defaultId;
+		String requestId = HttpUtils.calculateMD5hash(input);
+		HttpRequestState state = new HttpRequestState(requestId);
+		state.setMetadata(fss.toJSON());
+		HttpRequestStateDB.getInstance().insertOrReplaceRequestState(state);
 	}
 
 	/**
