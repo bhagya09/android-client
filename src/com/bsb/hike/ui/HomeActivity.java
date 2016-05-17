@@ -2719,16 +2719,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					{
 						final JSONArray bdayJSONArray = response.getJSONArray(HikeConstants.BIRTHDAY_DATA);
 
-						// TODO Remove me before merging into IR
-						uiHandler.post(new Runnable()
-						{
-							@Override
-							public void run()
-							{
-								Toast.makeText(HomeActivity.this, "Birthday Res:- " + bdayJSONArray.toString(), Toast.LENGTH_SHORT).show();
-							}
-						});
-
 						if (bdayJSONArray == null || bdayJSONArray.length() == 0)
 						{
 							Logger.d("bday_HTTP_Sucess", "No list in server responce ");
