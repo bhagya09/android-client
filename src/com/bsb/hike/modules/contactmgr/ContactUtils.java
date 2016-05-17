@@ -169,4 +169,22 @@ public class ContactUtils
 			}
 		}
 	}
+
+	public static JSONArray getFavouriteJSONObject(JSONObject obj) {
+
+		JSONArray favourites = null;
+		try {
+			if ((obj == null) || ("fail".equals(obj.optString("stat")))) {
+				Logger.w("HTTP", "Unable to upload address book");
+				return null;
+			}
+			Logger.d("AccountUtils", "Reply from addressbook:" + obj.toString());
+			favourites = obj.getJSONArray("favourites");
+		} catch (JSONException e) {
+			Logger.e("AccountUtils", "Invalid json object", e);
+			return null;
+		}
+		return favourites;
+
+	}
 }

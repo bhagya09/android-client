@@ -2046,17 +2046,17 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		return contactList;
 	}
 
-	void setMultipleContactsToFavorites(JSONObject favorites) {
+	void setMultipleContactsToFavorites(JSONArray favorites) {
 
-		JSONArray msisdns = favorites.names();
-		if (msisdns == null) {
+		if (favorites == null) {
 			return;
 		}
 		mDb.beginTransaction();
 		try {
-			for (int i = 0; i < msisdns.length(); i++) {
-				String msisdn = msisdns.optString(i);
-				JSONObject msisdnInfo = favorites.optJSONObject(msisdn);
+			for (int i = 0; i < favorites.length(); i++) {
+
+				JSONObject msisdnInfo = favorites.getJSONObject(i);
+				String msisdn = msisdnInfo.optString("m");
 
 				FavoriteType favoriteType;
 				if (msisdnInfo.has(HikeConstants.PENDING)) {
@@ -2077,6 +2077,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 				}
 				ContentValues cv=new ContentValues();
 				cv.put(DBConstants.MSISDN,msisdn);
+				cv.put(DBConstants.HIKE_UID,msisdnInfo.optString("u",null));
 				cv.put(DBConstants.FAVORITE_TYPE,favoriteType.ordinal());
 				long value = mDb.update(DBConstants.USERS_TABLE, cv, DBConstants.MSISDN + "=?", new String[]{msisdn});
 				if (value == -1 || value == 0) {
@@ -2089,6 +2090,10 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 
 			}
 			mDb.setTransactionSuccessful();
+		}
+		catch(JSONException e)
+		{
+			Logger.d(TAG,"JSON Exception while parsing fav");
 		}
 		finally
 		{
