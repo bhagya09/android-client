@@ -1,8 +1,6 @@
 package com.bsb.hike.modules.httpmgr.request;
 
-import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_HIGH;
-import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_LOW;
-import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_NORMAL;
+import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.*;
 import static com.bsb.hike.modules.httpmgr.request.RequestConstants.GET;
 
 import java.io.IOException;
@@ -16,14 +14,12 @@ import java.util.concurrent.Future;
 
 import org.json.JSONObject;
 
-import android.text.TextUtils;
-
 import com.bsb.hike.filetransfer.FileSavedState;
 import com.bsb.hike.filetransfer.FileTransferBase.FTState;
-import com.bsb.hike.modules.httpmgr.request.requestbody.StringBody;
-import com.bsb.hike.modules.httpmgr.requeststate.HttpRequestState;
+import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.modules.gcmnetworkmanager.Config;
+import com.bsb.hike.modules.gcmnetworkmanager.HikeGcmNetworkMgr;
 import com.bsb.hike.modules.httpmgr.Header;
-import com.bsb.hike.modules.httpmgr.requeststate.HttpRequestStateDB;
 import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.client.IClient;
@@ -38,8 +34,13 @@ import com.bsb.hike.modules.httpmgr.request.listener.IProgressListener;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestCancellationListener;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
+import com.bsb.hike.modules.httpmgr.request.requestbody.StringBody;
+import com.bsb.hike.modules.httpmgr.requeststate.HttpRequestState;
+import com.bsb.hike.modules.httpmgr.requeststate.HttpRequestStateDB;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.httpmgr.retry.BasicRetryPolicy;
+
+import android.text.TextUtils;
 
 /**
  * Encapsulates all of the information necessary to make an HTTP request.
@@ -100,6 +101,8 @@ public abstract class Request<T> implements IRequestFacade
 
 	protected int chunkSize;
 
+	private Config gcmTaskConfig;
+
 	protected Request(Init<?> builder)
 	{
 		this.defaultId = builder.id;
@@ -114,6 +117,7 @@ public abstract class Request<T> implements IRequestFacade
 		addRequestListeners(builder.requestListeners);
 		this.responseOnUIThread = builder.responseOnUIThread;
 		this.asynchronous = builder.asynchronous;
+		this.gcmTaskConfig = builder.gcmTaskConfig;
 		ensureSaneDefaults();
 		setHostUris();
 	}
@@ -151,6 +155,13 @@ public abstract class Request<T> implements IRequestFacade
 		{
 			setWrongRequest(true);
 			setWrongRequestErrorCode(HttpException.REASON_CODE_WRONG_URL);
+			return;
+		}
+
+		if (gcmTaskConfig != null && !asynchronous)
+		{
+			setWrongRequest(true);
+			setWrongRequestErrorCode(HttpException.REASON_CODE_CAN_NOT_USE_GCM_TASK_FOR_SYNC_CALLS);
 			return;
 		}
 	}
@@ -413,6 +424,16 @@ public abstract class Request<T> implements IRequestFacade
 		return asynchronous;
 	}
 
+	public Config getGcmTaskConfig()
+	{
+		return gcmTaskConfig;
+	}
+
+	public void setGcmTaskConfig(Config gcmTaskConfig)
+	{
+		this.gcmTaskConfig = gcmTaskConfig;
+	}
+
 	/**
 	 * Returns the future of the request that is submitted to the executor
 	 * 
@@ -668,6 +689,21 @@ public abstract class Request<T> implements IRequestFacade
 		}
 		this.isCancelled = true;
 
+		if (gcmTaskConfig != null)
+		{
+			final String tag = gcmTaskConfig.getTag();
+			HikeHandlerUtil.getInstance().postAtFront(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					HttpRequestStateDB.getInstance().deleteBundleForTag(tag);
+				}
+			});
+
+			HikeGcmNetworkMgr.getInstance().cancelTask(tag, gcmTaskConfig.getService());
+		}
+
 		if (future != null)
 		{
 			future.cancel(true);
@@ -724,6 +760,8 @@ public abstract class Request<T> implements IRequestFacade
 		private boolean responseOnUIThread;
 
 		private boolean asynchronous = true;
+
+		private Config gcmTaskConfig;
 
 		protected abstract S self();
 
@@ -959,6 +997,18 @@ public abstract class Request<T> implements IRequestFacade
 		public S setAsynchronous(boolean async)
 		{
 			this.asynchronous = async;
+			return self();
+		}
+
+		/**
+		 * Sets the properties of request which will be used for scheduling the task {@link com.google.android.gms.gcm.OneoffTask} in Gcm network manager
+		 *
+		 * @param config
+		 * @return
+		 */
+		public S setGcmTaskConfig(Config config)
+		{
+			this.gcmTaskConfig = config;
 			return self();
 		}
 

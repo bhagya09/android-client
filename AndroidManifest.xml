@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1713"
-    android:versionName="4.2.6.82.23" >
+    android:versionCode="1717"
+    android:versionName="4.2.6.82.102" >
 
    <uses-sdk
         android:minSdkVersion="14"
@@ -135,6 +135,15 @@
                 <action android:name="com.bsb.hike.service.ACTION_BIND" />
             </intent-filter>
         </service>
+
+        <service android:name=".modules.gcmnetworkmanager.GcmNwMgrService"
+                 android:permission="com.google.android.gms.permission.BIND_NETWORK_TASK_SERVICE"
+                 android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.android.gms.gcm.ACTION_TASK_READY"/>
+            </intent-filter>
+        </service>
+
         <service android:name=".service.UpgradeIntentService" />
         <service android:name=".spaceManager.StorageSpecIntentService" />
         <service android:name=".GCMIntentService" />
@@ -242,7 +251,7 @@
             android:theme="@style/WebView.Theme"> 
         </activity>
         <activity
-            android:name=".ui.ShareLocation"
+            android:name=".modules.fusedlocation.ShareLocation"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:launchMode="singleTop"
             android:windowSoftInputMode="stateHidden" >
