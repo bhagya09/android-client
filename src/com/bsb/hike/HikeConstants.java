@@ -4237,6 +4237,8 @@ public class HikeConstants
 
 	public static final String VIEW_ALL_CLICKED = "viewAllClicked";
 
+	public static final int DEFAULT_RETRIES_GCM_NW_MANAGER = 5;
+
 	public static final String CHUNK_SIZE_POLICY = "chunkSizePolicy";
 
 	public static final String NUMBER_OF_ROWS_FOR_ORDER = "orderRowsCount";

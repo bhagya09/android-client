@@ -1,20 +1,7 @@
 package com.bsb.hike.utils;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
+import java.lang.Process;
 import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URL;
@@ -24,23 +11,8 @@ import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Random;
-import java.util.Set;
-import java.util.StringTokenizer;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -55,123 +27,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
-import android.accounts.AuthenticatorDescription;
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.ActivityManager;
-import android.app.ActivityManager.RunningAppProcessInfo;
-import android.app.AlertDialog;
-import android.app.PendingIntent;
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.ComponentName;
-import android.content.ContentProviderOperation;
-import android.content.ContentResolver;
-import android.content.ContentUris;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.OperationApplicationException;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import android.content.pm.ActivityInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.content.pm.ResolveInfo;
-import android.content.res.Configuration;
-import android.content.res.Resources;
-import android.content.res.TypedArray;
-import android.database.Cursor;
-import android.database.DatabaseUtils;
-import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Bitmap;
-import android.graphics.Bitmap.CompressFormat;
-import android.graphics.Canvas;
-import android.graphics.Matrix;
-import android.graphics.Point;
-import android.graphics.Shader.TileMode;
-import android.graphics.Typeface;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
-import android.location.Address;
-import android.location.Geocoder;
-import android.location.Location;
-import android.location.LocationManager;
-import android.media.AudioManager;
-import android.media.ExifInterface;
-import android.media.MediaScannerConnection;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.net.TrafficStats;
-import android.net.Uri;
-import android.os.BatteryManager;
-import android.os.Build;
-import android.os.Environment;
-import android.os.Message;
-import android.os.PowerManager;
-import android.os.RemoteException;
-import android.os.StatFs;
-import android.os.Vibrator;
-import android.preference.PreferenceManager;
-import android.provider.ContactsContract;
-import android.provider.ContactsContract.CommonDataKinds.Email;
-import android.provider.ContactsContract.CommonDataKinds.Event;
-import android.provider.ContactsContract.CommonDataKinds.Phone;
-import android.provider.ContactsContract.CommonDataKinds.StructuredName;
-import android.provider.ContactsContract.CommonDataKinds.StructuredPostal;
-import android.provider.ContactsContract.Data;
-import android.provider.ContactsContract.Intents.Insert;
-import android.provider.ContactsContract.RawContacts;
-import android.provider.DocumentsContract;
-import android.provider.MediaStore;
-import android.provider.Settings.Secure;
-import android.support.v4.content.LocalBroadcastManager;
-import android.telephony.SmsManager;
-import android.telephony.TelephonyManager;
-import android.text.Editable;
-import android.text.Spannable;
-import android.text.SpannableStringBuilder;
-import android.text.TextUtils;
-import android.text.TextWatcher;
-import android.text.format.DateUtils;
-import android.text.style.StyleSpan;
-import android.util.Base64;
-import android.util.DisplayMetrics;
-import android.util.Pair;
-import android.view.Display;
-import android.view.MotionEvent;
-import android.view.Surface;
-import android.view.View;
-import android.view.View.OnTouchListener;
-import android.view.Window;
-import android.view.WindowManager;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.Animation;
-import android.view.animation.AnimationSet;
-import android.view.animation.ScaleAnimation;
-import android.view.inputmethod.InputMethodManager;
-import android.webkit.MimeTypeMap;
-import android.webkit.URLUtil;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.Spinner;
-import android.widget.TextView;
-import android.widget.Toast;
-
+import com.bsb.hike.*;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.BuildConfig;
-import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.ImageQuality;
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikeMessengerApp.CurrentState;
-import com.bsb.hike.HikePubSub;
-import com.bsb.hike.MqttConstants;
-import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.analytics.HAManager;
@@ -189,25 +49,13 @@ import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.localisation.LocalLanguage;
 import com.bsb.hike.localisation.LocalLanguageUtils;
-import com.bsb.hike.models.AccountData;
-import com.bsb.hike.models.AccountInfo;
-import com.bsb.hike.models.Birthday;
-import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.*;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
-import com.bsb.hike.models.ContactInfoData;
 import com.bsb.hike.models.ContactInfoData.DataType;
-import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
-import com.bsb.hike.models.Conversation.ConvInfo;
-import com.bsb.hike.models.Conversation.Conversation;
-import com.bsb.hike.models.Conversation.GroupConversation;
-import com.bsb.hike.models.Conversation.OneToNConvInfo;
-import com.bsb.hike.models.Conversation.OneToNConversation;
-import com.bsb.hike.models.GroupParticipant;
-import com.bsb.hike.models.HikeFile;
+import com.bsb.hike.models.Conversation.*;
 import com.bsb.hike.models.HikeFile.HikeFileType;
-import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -226,70 +74,78 @@ import com.bsb.hike.tasks.StatusUpdateTask;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.timeline.view.TimelineActivity;
-import com.bsb.hike.ui.HikePreferences;
-import com.bsb.hike.ui.HomeActivity;
-import com.bsb.hike.ui.PeopleActivity;
-import com.bsb.hike.ui.SignupActivity;
-import com.bsb.hike.ui.WebViewActivity;
-import com.bsb.hike.ui.WelcomeActivity;
+import com.bsb.hike.ui.*;
 import com.bsb.hike.userlogs.AESEncryption;
 import com.bsb.hike.voip.VoIPUtils;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.maps.model.LatLng;
 
-import org.apache.http.NameValuePair;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Field;
-import java.net.URI;
-import java.net.URL;
-import java.nio.CharBuffer;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Random;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.concurrent.RejectedExecutionHandler;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.jar.JarFile;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.zip.GZIPInputStream;
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.accounts.AuthenticatorDescription;
+import android.annotation.SuppressLint;
+import android.app.*;
+import android.app.ActivityManager.RunningAppProcessInfo;
+import android.content.*;
+import android.content.ClipboardManager;
+import android.content.SharedPreferences.Editor;
+import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.pm.ResolveInfo;
+import android.content.res.Configuration;
+import android.content.res.Resources;
+import android.content.res.TypedArray;
+import android.database.Cursor;
+import android.database.DatabaseUtils;
+import android.database.sqlite.SQLiteDatabase;
+import android.graphics.*;
+import android.graphics.Bitmap.CompressFormat;
+import android.graphics.Shader.TileMode;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationManager;
+import android.media.AudioManager;
+import android.media.ExifInterface;
+import android.media.MediaScannerConnection;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.TrafficStats;
+import android.net.Uri;
+import android.os.*;
+import android.preference.PreferenceManager;
+import android.provider.ContactsContract;
+import android.provider.ContactsContract.CommonDataKinds.*;
+import android.provider.ContactsContract.Data;
+import android.provider.ContactsContract.Intents.Insert;
+import android.provider.ContactsContract.RawContacts;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
+import android.provider.Settings.Secure;
+import android.support.v4.content.LocalBroadcastManager;
+import android.telephony.SmsManager;
+import android.telephony.TelephonyManager;
+import android.text.*;
+import android.text.format.DateUtils;
+import android.text.style.StyleSpan;
+import android.util.Base64;
+import android.util.DisplayMetrics;
+import android.util.Pair;
+import android.view.*;
+import android.view.View.OnTouchListener;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.ScaleAnimation;
+import android.view.inputmethod.InputMethodManager;
+import android.webkit.MimeTypeMap;
+import android.webkit.URLUtil;
+import android.widget.*;
 
 public class Utils
 {
@@ -650,7 +506,7 @@ public class Utils
 
 	/*
 	 * Extract a pin code from a specially formatted message to the application.
-	 * 
+	 *
 	 * @return null iff the message isn't an SMS pincode, otherwise return the pincode
 	 */
 	public static String getSMSPinCode(String body)
@@ -1516,7 +1372,7 @@ public class Utils
 	}
 
 	public static boolean compressAndCopyImage(String srcFilePath, String destFilePath, Context context, Bitmap.Config config, int quality, int imageQuality,
-			boolean toUserServerConfig)
+											   boolean toUserServerConfig)
 	{
 		InputStream src = null;
 		FileOutputStream dest = null;
@@ -2527,7 +2383,7 @@ public class Utils
 	 * @return
 	 */
 	public static int getNotificationCount(SharedPreferences accountPrefs, boolean countUsersStatus, boolean countUserActivity, boolean countUnseenStatus,
-			boolean friendRequestCount)
+										   boolean friendRequestCount)
 	{
 		int notificationCount = 0;
 		if (countUnseenStatus)
@@ -4559,7 +4415,7 @@ public class Utils
 	}
 
 	public static void setupCountryCodeData(Context context, String countryCode, final EditText countryCodeEditor, final TextView countryNameEditor,
-			final ArrayList<String> countriesArray, final HashMap<String, String> countriesMap, final HashMap<String, String> codesMap, final HashMap<String, String> languageMap)
+											final ArrayList<String> countriesArray, final HashMap<String, String> countriesMap, final HashMap<String, String> codesMap, final HashMap<String, String> languageMap)
 	{
 		try
 		{
@@ -4640,7 +4496,7 @@ public class Utils
 	}
 
 	public static boolean selectCountry(String countryName, HashMap<String, String> countriesMap, ArrayList<String> countriesArray, String countryCode, TextView countryCodeEditor,
-			TextView countryNameEditor)
+										TextView countryNameEditor)
 	{
 		int index = countriesArray.indexOf(countryName);
 		if (index != -1)
@@ -5481,9 +5337,9 @@ public class Utils
 
 	/*
 	 * Returns the name of the device owner.
-	 * 
+	 *
 	 * @param context
-	 * 
+	 *
 	 * @return The device owner's name, or an empty string
 	 */
 	@SuppressLint("InlinedApi")
@@ -7562,7 +7418,7 @@ public class Utils
 					HikePreferences.sendNLSToServer(slectedPrivacyId, true);
 					settingEditor.commit();
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 0); // Resetting the flag, so that when the packet might
-																																// be sent again, it is able to alter the prefs
+					// be sent again, it is able to alter the prefs
 				}
 				catch (JSONException e)
 				{
@@ -8034,7 +7890,7 @@ public class Utils
 	 *
 	 * Function to get the last known Passive Location
 	 * Can return null
-     */
+	 */
 	public static Location getPassiveLocation() {
 		Location bestLocation = null;
 		LocationManager locManager = (LocationManager) HikeMessengerApp.getInstance().getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
@@ -8054,36 +7910,37 @@ public class Utils
 	}
 
 
-    public static String formatDOB(String dobString) {
-        if (TextUtils.isEmpty(dobString)) {
-            return "";
-        }
+	public static String formatDOB(String dobString) {
+		if (TextUtils.isEmpty(dobString)) {
+			return "";
+		}
 
-        Birthday dob = new Birthday(dobString);
-        return String.format("%d/%d/%d", dob.day, dob.month, dob.year);
-    }
+		Birthday dob = new Birthday(dobString);
+		return String.format("%d/%d/%d", dob.day, dob.month, dob.year);
+	}
 
-    public static void setGenus(String argGenus, Intent argIntent)
-    {
-        if(TextUtils.isEmpty(argGenus) || argIntent == null)
-        {
-            return;
-        }
+	public static void setGenus(String argGenus, Intent argIntent)
+	{
+		if(TextUtils.isEmpty(argGenus) || argIntent == null)
+		{
+			return;
+		}
 
-        argIntent.putExtra(HikeConstants.Extras.GENUS, argGenus);
-    }
+		argIntent.putExtra(HikeConstants.Extras.GENUS, argGenus);
+	}
 
-    public static void setSpecies(String argSpecies, Intent argIntent)
-    {
-        if(TextUtils.isEmpty(argSpecies) || argIntent == null)
-        {
-            return;
-        }
+	public static void setSpecies(String argSpecies, Intent argIntent)
+	{
+		if(TextUtils.isEmpty(argSpecies) || argIntent == null)
+		{
+			return;
+		}
 
-        argIntent.putExtra(HikeConstants.Extras.SPECIES, argSpecies);
-    }
+		argIntent.putExtra(HikeConstants.Extras.SPECIES, argSpecies);
+	}
 
-	public static void connectToGcmPreSignup() {
+	public static void connectToGcmPreSignup()
+	{
 		// GCM_ID_SENT_PRELOAD=true,UserAuth=false,UserOnline=true;GooglePlayServices Installed---->Best Case Scenario
 
 		Context context = HikeMessengerApp.getInstance().getApplicationContext();
@@ -8096,5 +7953,93 @@ public class Utils
 			LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(in);
 		}
 
+	}
+
+	/**
+	 * Taken from https://github.com/googlesamples/google-services/blob/master/android/gcm/app/src/main/java/gcm/play/android/samples/com/gcmquickstart/MainActivity.java
+	 *
+	 * @return true : If Play Services are available on the device
+	 */
+	public static boolean checkAndShowPlayServicesErrorDialog(final Activity activity)
+	{
+		int resultCode = getPlayServicesAvailableCode(activity.getApplicationContext());
+
+		if (resultCode != ConnectionResult.SUCCESS)
+		{
+			if (GoogleApiAvailability.getInstance().isUserResolvableError(resultCode))
+			{
+				int requestCode = 10; //Magic Number
+				Dialog errorDialog = GoogleApiAvailability.getInstance()
+						.getErrorDialog(activity, resultCode, requestCode);
+				errorDialog.setOnDismissListener(new DialogInterface.OnDismissListener()
+				{
+					@Override
+					public void onDismiss(DialogInterface dialog)
+					{
+						activity.finish();
+					}
+				});
+				errorDialog.show();
+			}
+			else
+			{
+				Logger.wtf(TAG, "This device is not supported.");
+				activity.finish();
+			}
+
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Can return any of the following :
+	 * SUCCESS, SERVICE_MISSING, SERVICE_VERSION_UPDATE_REQUIRED, SERVICE_DISABLED, SERVICE_INVALID
+	 *
+	 * @param context
+	 * @return
+	 */
+	public static int getPlayServicesAvailableCode(Context context)
+	{
+		int resultCode = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context);
+		Logger.d(TAG, "Is PlayService Available ? : " + resultCode);
+		return resultCode;
+	}
+
+	public static byte[] getBytesFromBundle(Bundle bundle)
+	{
+		byte[] bundleBytes = null;
+
+		if(bundle != null)
+		{
+			Parcel parcel = Parcel.obtain();
+			bundle.writeToParcel(parcel, 0);
+			bundleBytes = parcel.marshall();
+			parcel.recycle();
+		}
+
+		return bundleBytes;
+	}
+
+	public static Bundle getBundleFromBytes(byte[] bundleBytes)
+	{
+		Bundle bundle = null;
+
+		if (!isEmpty(bundleBytes))
+		{
+			Parcel parcel = Parcel.obtain();
+			parcel.unmarshall(bundleBytes, 0, bundleBytes.length);
+			parcel.setDataPosition(0);
+			bundle = parcel.readBundle();
+			parcel.recycle();
+		}
+
+		return bundle;
+	}
+
+	public static boolean isEmpty(byte[] argument)
+	{
+		return (argument == null) || argument.length == 0;
 	}
 }
