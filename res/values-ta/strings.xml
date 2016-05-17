@@ -1422,5 +1422,6 @@
     <string name="recording_help_text">ரெக்கார்டு செய்ய டாப் செய், அனுப்புவதற்கு விடு</string>
     <string name="max_duration_recorded">அதிக காலத்திற்கு ரெக்கார்டிங் செய்தாயிற்று</string>
     <string name="stream_volume_muted_or_low">வாலியும்-ஐ அதிகரிக்கவும்</string>
-    <string name="edit_profile_birthday">ಹುಟ್ಟಿದ ದಿನಾಂಕ</string>
+    <string name="edit_profile_birthday">பிறந்த தேதி</string>
+    <string name="atomic_tip_http_failure">பிழை ஏற்பட்டது. தயவுசெய்து மீண்டும் முயற்சிக்கவும்</string>
 </resources>

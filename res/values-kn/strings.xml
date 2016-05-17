@@ -1430,6 +1430,7 @@
     <string name="recording_help_text">ಒತ್ತಿ ಹಿಡಿದು ರೆಕಾರ್ಡ್ ಮಾಡಿ, ಕಳುಹಿಸಲು ಬಿಡಿ</string>
     <string name="max_duration_recorded">ಗರಿಷ್ಠ ಸಮಯದವರೆಗೆ ರೆಕಾರ್ಡಿಂಗ್ ಆಗಿದೆ</string>
     <string name="stream_volume_muted_or_low">ದಯವಿಟ್ಟು ವಾಲ್ಯೂಮ್ಅನ್ನು ಜಾಸ್ತಿ ಮಾಡಿ</string>
-    <string name="edit_profile_birthday">பிறந்த தேதி</string>
+    <string name="edit_profile_birthday">ಹುಟ್ಟಿದ ದಿನಾಂಕ</string>
+    <string name="atomic_tip_http_failure">ದೋಷ ಸಂಭವಿಸಿದ. ಸ್ವಲ್ಪಾ ಸಮಯದ ನಂತರ ಪ್ರಯತ್ನಿಸಿ</string>
 
 </resources>
