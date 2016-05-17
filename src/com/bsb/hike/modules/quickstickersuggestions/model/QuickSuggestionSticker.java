@@ -14,13 +14,19 @@ public class QuickSuggestionSticker extends Sticker
 {
 	private static final String TAG = "QuickSuggestionSticker";
 
+	/**
+	 * Represents the number of times this sticker is clicked in quick suggestion categor ( sent frequency )
+	 */
 	private int clickCount;
 
+	/**
+	 * Represents the number of times this sticker gets visible in quick suggestion category ( seen frequency )
+	 */
 	private int visibleCount;
 
-	public QuickSuggestionSticker(String catId, String stkId)
+	public QuickSuggestionSticker(String categoryId, String stickerId)
 	{
-		super(catId, stkId);
+		super(categoryId, stickerId);
 	}
 
 	public int getClickCount()

@@ -656,7 +656,7 @@ public class HttpRequests
 
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setId(requestId)
-				.setUrl((quickSuggestionUrl() + "?catId=" + sticker.getCategoryId() + "&stkId=" + sticker.getStickerId() + "&gender=" + 0 + "&lang=" + langList + "&setId=" + setId))
+				.setUrl((quickSuggestionUrl() + "?catId=" + sticker.getCategoryId() + "&stkId=" + sticker.getStickerId() + "&gender=" + HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.GENDER, 0) + "&lang=" + langList + "&setId=" + setId))
 				.setRequestListener(requestListener)
 				.setRequestType(REQUEST_TYPE_SHORT)
 				.setPriority(PRIORITY_HIGH)

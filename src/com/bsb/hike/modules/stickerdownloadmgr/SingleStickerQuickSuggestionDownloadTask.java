@@ -97,7 +97,7 @@ public class SingleStickerQuickSuggestionDownloadTask implements IHikeHTTPTask, 
 
 	private String getRequestId()
 	{
-		return StickerConstants.StickerRequestType.SINGLE_QUICK_SUGGESTION.getLabel() + "\\" + sticker.getCategoryId() + "\\" + sticker.getCategoryId();
+		return StickerConstants.StickerRequestType.SINGLE_QUICK_SUGGESTION.getLabel() + "\\" + sticker.getCategoryId() + "\\" + sticker.getStickerId();
 	}
 
 	@Override

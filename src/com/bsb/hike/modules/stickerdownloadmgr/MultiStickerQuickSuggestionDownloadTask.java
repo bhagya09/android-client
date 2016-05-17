@@ -11,6 +11,7 @@ import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.quickstickersuggestions.QuickStickerSuggestionController;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerRequestType;
 import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -80,7 +81,7 @@ public class MultiStickerQuickSuggestionDownloadTask implements IHikeHTTPTask, I
 			JSONObject json = new JSONObject();
 			json.put("stickers", array);
 			json.put(HikeConstants.LANG, new JSONArray(StickerLanguagesManager.getInstance().getAccumulatedSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE, StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE)));
-			json.put(HikeConstants.GENDER, 0);
+			json.put(HikeConstants.GENDER, HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.GENDER, 0));
 
 
 			RequestToken requestToken = quickSuggestionsForMultiStickerRequest(getRequestId(), json, getResponseListener());
@@ -168,6 +169,6 @@ public class MultiStickerQuickSuggestionDownloadTask implements IHikeHTTPTask, I
 	@Override
 	public void doOnFailure(HttpException exception)
 	{
-		Logger.d(TAG, "response failed for quick suggestions", exception);
+		Logger.e(TAG, "response failed for quick suggestions", exception);
 	}
 }

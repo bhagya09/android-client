@@ -235,7 +235,7 @@ public class QuickSuggestionStickerCategory extends CustomStickerCategory
 
 	public static Set<Sticker> replyStickerSetFromString(String jsonString)
 	{
-		Set<Sticker> replyStickers = new LinkedHashSet<>(8);
+		Set<Sticker> replyStickers = new LinkedHashSet<>(8); // got this number through rigorous research
 		try
 		{
 			JSONArray jsonArray = new JSONArray(jsonString);
