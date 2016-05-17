@@ -1068,7 +1068,7 @@ public class ChatHeadUtils
 		});
 	}
 
-	public static void updateBdayHttCallInfo()
+	public static void resetBdayHttpCallInfo()
 	{
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BDAY_HTTP_CALL_TS, 0l);
 		HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeConstants.BDAYS_LIST, null);
@@ -1076,31 +1076,13 @@ public class ChatHeadUtils
 
 	public static List<ContactInfo> getSortedBdayContactListFromSharedPref()
 	{
-		ArrayList<ContactInfo> bdayList = new ArrayList<ContactInfo>();
-		ContactInfo contact = null;
+		List<ContactInfo> bdayList = new ArrayList<ContactInfo>();
 		Set<String> bdayMsisdns = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeConstants.BDAYS_LIST, null);
 
 		if (bdayMsisdns != null)
 		{
-			Iterator<String> iterator = bdayMsisdns.iterator();
-			while (iterator.hasNext())
-			{
-				String msisdn = iterator.next();
-				contact = ContactManager.getInstance().getContact(msisdn, true, false);
-				if (contact == null)
-				{
-					contact = new ContactInfo(msisdn, msisdn, msisdn, msisdn);
-				}
-
-				// contact.setId(FriendsAdapter.BDAY_CONTACT_ID);
-
-				if (contact.getFirstName() == null)
-				{
-					contact.setName(msisdn);
-				}
-
-				bdayList.add(contact);
-			}
+			List<String> msisdns = new ArrayList<String>(bdayMsisdns);
+			bdayList = ContactManager.getInstance().getContact(msisdns, false, true);
 
 			// Sorting alphabetically
 			if (bdayList != null && !bdayList.isEmpty())

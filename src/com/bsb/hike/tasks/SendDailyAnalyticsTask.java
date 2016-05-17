@@ -32,7 +32,7 @@ public class SendDailyAnalyticsTask implements Runnable
         //Add module specific analytics code here
         StickerManager.getInstance().sendStickerDailyAnalytics();
 
-        ChatHeadUtils.updateBdayHttCallInfo();
+        ChatHeadUtils.resetBdayHttpCallInfo();
 
         Logger.d(TAG, "SendDailyAnalyticsTask completed with result: ");
 

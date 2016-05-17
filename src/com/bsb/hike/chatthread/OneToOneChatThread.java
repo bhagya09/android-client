@@ -268,7 +268,7 @@ import java.util.Map;
 		}
 		else if (activity.getIntent().getBooleanExtra(HikeConstants.Extras.HIKE_BDAY_MODE, false))
 		{
-			activity.getIntent().removeExtra(HikeConstants.Extras.HIKE_DIRECT_MODE);
+			activity.getIntent().removeExtra(HikeConstants.Extras.HIKE_BDAY_MODE);
 			sendUIMessage(SHOW_BDAY_UI, 1000, null);
 		}
 	}

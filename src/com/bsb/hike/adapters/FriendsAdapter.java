@@ -549,7 +549,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
             if(suggestedContactsList != null && !suggestedContactsList.isEmpty())
             {
                 filteredSuggestedContactsList.clear();
-                filteredSuggestedContactsList.addAll(resultList.get(9));
+                filteredSuggestedContactsList.addAll(resultList.get(8));
             }
 			
 			makeCompleteList(true);
@@ -1186,7 +1186,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		{
 			return ViewType.HIKE_FEATURES.ordinal();
 		}
-		else if (filteredHikeBdayContactList.contains(contactInfo))
+		else if (isBirthdayContact(contactInfo))
 		{
 			return ViewType.BDAY_CONTACT.ordinal();
 		}
@@ -1945,5 +1945,10 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 	public void setOriginalMicroAppsCount(int count)
 	{
 		this.originalMicroAppCount = count;
+	}
+
+	public boolean isBirthdayContact(ContactInfo contactInfo)
+	{
+		return filteredHikeBdayContactList.contains(contactInfo);
 	}
 }
