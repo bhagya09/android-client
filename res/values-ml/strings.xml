@@ -1422,4 +1422,5 @@
     <string name="recording_help_text">പരമാവധി ദൈർഘ്യം രേഖപ്പെടുത്തിയിട്ടുണ്ട്</string>
     <string name="max_duration_recorded">പരമാവധി ദൈർഘ്യത്തിൽ റെക്കോർഡിംഗ് ചെയ്തു</string>
     <string name="stream_volume_muted_or_low">ദയവായി ശബ്ദം കൂട്ടുക</string>
+    <string name="edit_profile_birthday">సంభవించింది</string>
 </resources>
