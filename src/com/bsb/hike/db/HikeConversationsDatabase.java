@@ -107,8 +107,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import static com.bsb.hike.db.DBConstants.*;
+import static com.bsb.hike.db.DBConstants.HIKE_CONV_DB.*;
 
-public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBConstants, HIKE_CONV_DB
+public class HikeConversationsDatabase extends SQLiteOpenHelper
 {
 
 	private static volatile SQLiteDatabase mDb;

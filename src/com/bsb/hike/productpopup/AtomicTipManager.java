@@ -1,7 +1,6 @@
 package com.bsb.hike.productpopup;
 
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
@@ -342,7 +341,16 @@ public class AtomicTipManager
      */
     private boolean createAndCacheIcon(AtomicTipContentModel tipContentModel)
     {
-        BitmapDrawable iconDrawable = drawableFromString(tipContentModel.getIcon());
+        BitmapDrawable iconDrawable;
+        try
+        {
+            iconDrawable = drawableFromString(tipContentModel.getIcon());
+        }
+        catch (IllegalArgumentException iae)
+        {
+            Logger.d(TAG, "exception while creating tip icon. possibly invalid base64");
+            return false;
+        }
         if(iconDrawable != null)
         {
             Logger.d(TAG, "caching atomic tip icon");
@@ -363,7 +371,16 @@ public class AtomicTipManager
      */
     private boolean createAndCacheBgImage(AtomicTipContentModel tipContentModel)
     {
-        BitmapDrawable bgImageDrawable = drawableFromString(tipContentModel.getBgImage());
+        BitmapDrawable bgImageDrawable;
+        try
+        {
+            bgImageDrawable = drawableFromString(tipContentModel.getBgImage());
+        }
+        catch (IllegalArgumentException iae)
+        {
+            Logger.d(TAG, "exception while creating tip bg image. possibly invalid base64");
+            return false;
+        }
         if(bgImageDrawable != null)
         {
             cacheTipAsset(tipContentModel.getBgImgKey(), bgImageDrawable);
@@ -831,7 +848,20 @@ public class AtomicTipManager
         @Override
         public void onRequestSuccess(Response result)
         {
-            Logger.d(TAG, "atmoic tip http call response code " + result.getStatusCode());
+            Logger.d(TAG, "atomic tip http call response code: " + result.getStatusCode());
+            //getting response body to check for custom toast message
+            JSONObject response = (JSONObject) result.getBody().getContent();
+            if (response != null)
+            {
+                if(response.optBoolean(HikeConstants.TOAST, false))
+                {
+                    String toastMsg = response.optString(HikeConstants.Toast.TOAST_MESSAGE, "");
+                    if(!TextUtils.isEmpty(toastMsg))
+                    {
+                        showHttpToast(toastMsg);
+                    }
+                }
+            }
             removeTipFromView();
         }
 
@@ -844,18 +874,23 @@ public class AtomicTipManager
         public void onRequestFailure(HttpException httpException)
         {
             Logger.d(TAG, "atomic tip http call  error code " + httpException.getErrorCode());
-            final Context hikeAppContext = HikeMessengerApp.getInstance().getApplicationContext();
-            Handler uiHandler = new Handler(hikeAppContext.getMainLooper());
-            uiHandler.post(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    Toast.makeText(hikeAppContext, hikeAppContext.getString(R.string.atomic_tip_http_failure), Toast.LENGTH_SHORT).show();
-                }
-            });
+            String toastMsg = HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.atomic_tip_http_failure);
+            showHttpToast(toastMsg);
         }
     };
+
+    public void showHttpToast(final String toastMsg)
+    {
+        Handler uiHandler = new Handler(HikeMessengerApp.getInstance().getApplicationContext().getMainLooper());
+        uiHandler.post(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), toastMsg, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
     public JSONObject getJSONForTipAnalytics(String unqKey, String cls, String family, boolean genus, String species, String variety)
     {

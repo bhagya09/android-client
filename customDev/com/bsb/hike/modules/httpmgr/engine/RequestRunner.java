@@ -3,8 +3,8 @@ package com.bsb.hike.modules.httpmgr.engine;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.modules.httpmgr.client.ClientOptions;
 import com.bsb.hike.modules.httpmgr.client.IClient;
-import com.bsb.hike.modules.httpmgr.client.OkClient;
-import com.bsb.hike.modules.httpmgr.client.TwinPrimeOkClient;
+import com.bsb.hike.modules.httpmgr.client.OkClientCustomDev;
+import com.bsb.hike.modules.httpmgr.client.TwinPrimeOkClientCustomDev;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 
 /**
@@ -13,7 +13,7 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
  * @author sidharth & anubhav
  *
  */
-public class RequestRunner extends RequestRunnerBase
+public class RequestRunner extends com.bsb.hike.modules.httpmgr.engine.RequestRunnerBase
 {
 	public RequestRunner(ClientOptions options, HttpEngine engine, com.bsb.hike.modules.httpmgr.engine.RequestListenerNotifier requestListenerNotifier)
 	{
@@ -24,11 +24,11 @@ public class RequestRunner extends RequestRunnerBase
 	{
 		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TP_ENABLE,0)==1)
 		{
-			return new TwinPrimeOkClient(options);
+			return new TwinPrimeOkClientCustomDev(options);
 		}
 		else
 		{
-			return new OkClient(options);
+			return new OkClientCustomDev(options);
 		}
 	}
 }

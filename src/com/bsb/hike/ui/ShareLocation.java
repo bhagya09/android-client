@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -18,7 +17,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -42,6 +40,7 @@ import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.view.CustomRelativeLayout;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
 import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailedListener;
@@ -67,8 +66,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class ShareLocation extends HikeAppStateBaseFragmentActivity implements ConnectionCallbacks, OnConnectionFailedListener, LocationListener
-{
+public class ShareLocation extends HikeAppStateBaseFragmentActivity implements ConnectionCallbacks, OnConnectionFailedListener, LocationListener, GoogleMap.OnCameraChangeListener, CustomRelativeLayout.IDragCallback {
 
 	private GoogleMap map;
 
@@ -83,8 +81,6 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 	private boolean gpsDialogShown = false;
 
 	private Marker userMarker;
-
-	private Marker lastMarker;
 
 	// places of interest
 	private Marker[] placeMarkers;
@@ -124,6 +120,8 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 
 	private int SEARCH_RADIUS = 2000; // 2KM
 
+	private boolean settingCustomLocation;
+
 	// These settings are the same as the settings for the map. They will in
 	// fact give you updates at
 	// the maximal rates currently possible.
@@ -137,6 +135,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 
 	private TextView title;
 
+	private Marker lastMarker;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -186,15 +185,11 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 				@Override
 				public void onItemClick(AdapterView<?> parent, final View view, int position, long id)
 				{
-					if (lastMarker != null)
-					{
-						lastMarker.setVisible(false);
-					}
 					selectedPosition = position;
+					settingCustomLocation = false;
 					Marker currentMarker = adapter.getMarker(position);
-					currentMarker.setVisible(true);
-					currentMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ic_share_location_item));
-					lastMarker = currentMarker;
+					currentMarker.setVisible(false);
+					currentMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ic_map_marker_location_sharing));
 					map.animateCamera(CameraUpdateFactory.newLatLng(currentMarker.getPosition()));
 					adapter.notifyDataSetChanged();
 					if (selectedPosition != 0)
@@ -216,6 +211,11 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 			map.getUiSettings().setMyLocationButtonEnabled(true);
 
 			map.setTrafficEnabled(false);
+
+			// Enable user to manually select location my moving the map around
+			map.setOnCameraChangeListener(this);
+			((CustomRelativeLayout) findViewById(R.id.frame)).setOnDragListener(this);
+
 			// map.setMyLocationEnabled(true);
 			setUpLocationClientIfNeeded();
 			mLocationClient.connect(); // onConnected is called when connection
@@ -251,6 +251,15 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 			}
 		});
 
+		Button myLocationButton = (Button) findViewById(R.id.my_location_button);
+		myLocationButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				settingCustomLocation = false;
+				updateMyLocation();
+			}
+		});
+
 		Button searchButton = (Button) findViewById(R.id.search_button);
 		searchButton.setOnClickListener(new View.OnClickListener()
 		{
@@ -268,12 +277,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 						{
 							lat = myLocation.getLatitude();
 							lng = myLocation.getLongitude();
-
-							lastMarker.setVisible(false);
-							lastMarker = userMarker;
-							lastMarker.setVisible(true);
 							selectedPosition = 0;
-							map.animateCamera(CameraUpdateFactory.newLatLng(lastMarker.getPosition()));
 							adapter.notifyDataSetChanged();
 
 						}
@@ -360,11 +364,15 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 	@Override
 	public void onLocationChanged(Location newLocation)
 	{
+		if (settingCustomLocation)
+			return;
+
 		if (myLocation != null)
 		{
 			userMarker.setPosition(new LatLng(newLocation.getLatitude(), newLocation.getLongitude()));
-			map.animateCamera(CameraUpdateFactory.newLatLng(userMarker.getPosition()));
+			map.animateCamera(CameraUpdateFactory.newLatLngZoom(userMarker.getPosition(), HikeConstants.DEFAULT_ZOOM_LEVEL));
 			Logger.d("ShareLocation", "is Location changed = " + Double.valueOf(myLocation.distanceTo(newLocation)).toString());
+			Logger.d(getClass().getSimpleName(), "Location accuracy: " + newLocation.getAccuracy() + "m.");
 			if ((currentLocationDevice == GPS_ENABLED && myLocation.distanceTo(newLocation) > 100)
 					|| (currentLocationDevice == GPS_DISABLED && myLocation.distanceTo(newLocation) > 800))
 			{
@@ -377,11 +385,9 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 				Logger.d("ShareLocation", "my lati in loc listener = " + Double.valueOf(newLocation.getLatitude()).toString());
 				if (!isTextSearch)
 				{
-					lastMarker = userMarker;
 					selectedPosition = 0;
-					lastMarker.setVisible(true);
 					adapter.notifyDataSetChanged();
-					updateNearbyPlaces();
+					updateNearbyPlaces(myLocation);
 				}
 			}
 		}
@@ -389,7 +395,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 		{
 			myLocation = newLocation;
 			setMyLocation(newLocation);
-			updateNearbyPlaces();
+			updateNearbyPlaces(myLocation);
 		}
 
 	}
@@ -487,7 +493,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 		if (myLocation != null)
 		{
 			setMyLocation(myLocation);
-			updateNearbyPlaces();
+			updateNearbyPlaces(myLocation);
 		}
 	}
 
@@ -501,32 +507,71 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 		// remove any existing marker
 		if (userMarker != null)
 			userMarker.remove();
-		// create and set marker properties
-		userMarker = map.addMarker(new MarkerOptions().position(myLatLng).title("My Location").icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_share_location_item)));
-
-		lastMarker = userMarker;
+		// create and set marker propertie//s
+		userMarker = map.addMarker(new MarkerOptions().position(myLatLng).title(getString(R.string.my_location)).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_map_marker_location_sharing)).visible(false));
 		selectedPosition = 0;
 		updateLocationAddress(lat, lng, userMarker);
 
 		CameraPosition cameraPosition = new CameraPosition.Builder().target(myLatLng) // Sets the center of the map to Mountain View
 				.zoom(HikeConstants.DEFAULT_ZOOM_LEVEL) // Sets the zoom
 				.build(); // Creates a CameraPosition from the builder
-		Logger.d(getClass().getSimpleName(), "stting up camera in set my location");
-		map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+		Logger.d(getClass().getSimpleName(), "Setting up camera at my location");
 
+		map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 	}
 
-	private void updateNearbyPlaces()
+	private void updateNearbyPlaces(Location location)
 	{
 		// build places query string
-		if (searchStr == null)
+//		if (searchStr == null)
 		{
-			searchStr = "https://maps.googleapis.com/maps/api/place/nearbysearch/" + "json?location=" + myLocation.getLatitude() + "," + myLocation.getLongitude() + "&radius="
+			searchStr = "https://maps.googleapis.com/maps/api/place/nearbysearch/" + "json?location=" + location.getLatitude() + "," + location.getLongitude() + "&radius="
 					+ SEARCH_RADIUS + "&sensor=true" + "&key=" + getResources().getString(R.string.places_api_key);
 			;
+			Logger.d(getClass().getSimpleName(), "search: " + searchStr);
 			isTextSearch = false;
 		}
 		new GetPlaces().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, searchStr);
+	}
+
+	@Override
+	public void onCameraChange(CameraPosition cameraPosition) {
+
+		Logger.w(getClass().getSimpleName(), "Location: " + cameraPosition.target.latitude
+				+ ", " + cameraPosition.target.longitude);
+
+		double lat = cameraPosition.target.latitude;
+		double lng = cameraPosition.target.longitude;
+		// create LatLng
+		LatLng myLatLng = new LatLng(lat, lng);
+
+		// remove any existing marker
+		if (userMarker != null)
+			userMarker.remove();
+
+		if (settingCustomLocation) {
+			userMarker = map.addMarker(new MarkerOptions().position(myLatLng).title(getString(R.string.custom_location)).visible(false));
+			selectedPosition = 0;
+			Location location = new Location("");
+			location.setLatitude(lat);
+			location.setLongitude(lng);
+			updateNearbyPlaces(location);
+		} else {
+			// create and set marker properties
+			userMarker = map.addMarker(new MarkerOptions().position(myLatLng).title(getString(R.string.my_location)).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_map_marker_location_sharing)).visible(false));
+
+		}
+
+		// create and set marker properties
+		lastMarker = userMarker;
+
+		updateLocationAddress(lat, lng, userMarker);
+	}
+
+	@Override
+	public void onDrag() {
+//		Logger.d(getClass().getSimpleName(), "User is setting location manually.");
+		settingCustomLocation = true;
 	}
 
 	private class GetPlaces extends AsyncTask<String, Void, Integer>
@@ -585,12 +630,14 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 						jse.printStackTrace();
 					}
 					// if values missing we don't display
-					if (missingValue)
-						places[p] = null;
-					else
-					{
-						places[p] = new MarkerOptions().position(placeLL).title(placeName).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_share_location_item))
-								.snippet(address);
+					synchronized (places) {
+						if (missingValue)
+							places[p] = null;
+						else
+						{
+							places[p] = new MarkerOptions().position(placeLL).title(placeName).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_map_marker_location_sharing))
+									.snippet(address);
+						}
 					}
 				}
 			}
@@ -631,16 +678,19 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 		// process data retrieved from doInBackground
 		protected void onPostExecute(Integer totalPlaces)
 		{
-			for (int p = 0; p < totalPlaces; p++)
-			{
-				if (places[p] != null)
+			synchronized (places) {
+				for (int p = 0; p < totalPlaces; p++)
 				{
-					placeMarkers[p] = map.addMarker(places[p]);
-					addItemToAdapter(places[p].getTitle(), places[p].getSnippet(), placeMarkers[p], false);
-					placeMarkers[p].setVisible(false);
-					adapter.notifyDataSetChanged();
+					if (places[p] != null)
+					{
+						placeMarkers[p] = map.addMarker(places[p]);
+						addItemToAdapter(places[p].getTitle(), places[p].getSnippet(), placeMarkers[p], false);
+						placeMarkers[p].setVisible(false);
+						adapter.notifyDataSetChanged();
+					}
 				}
 			}
+
 			if(totalPlaces == 0)
 				Toast.makeText(ShareLocation.this, getString(R.string.no_places_found), Toast.LENGTH_SHORT).show();
 			findViewById(R.id.progress_dialog).setVisibility(View.GONE);

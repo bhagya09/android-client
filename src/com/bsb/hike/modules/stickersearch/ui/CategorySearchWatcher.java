@@ -3,6 +3,7 @@ package com.bsb.hike.modules.stickersearch.ui;
 import java.util.List;
 
 import android.support.v7.widget.SearchView;
+import android.text.TextUtils;
 
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.stickersearch.listeners.CategorySearchListener;
@@ -90,6 +91,7 @@ public class CategorySearchWatcher implements CategorySearchListener, SearchView
     @Override
 	public boolean onQueryTextSubmit(String query)
 	{
+		currentQueryState = null;
 		return CategorySearchManager.getInstance().onQueryTextSubmit(query, this);
 	}
 
@@ -105,14 +107,20 @@ public class CategorySearchWatcher implements CategorySearchListener, SearchView
 			@Override
 			public void run()
 			{
+				if (TextUtils.isEmpty(capturedQueryState) || TextUtils.isEmpty(currentQueryState))
+				{
+					Logger.e(TAG, "onQueryTextChange() : ignoring : empty query");
+					return;
+				}
+                
 				if (capturedQueryState.equals(currentQueryState))
 				{
-					Logger.e(TAG, "Yo going to search oq= " + capturedQueryState + " <> nq=" + currentQueryState);
+					Logger.i(TAG, "onQueryTextChange(): going to search oq= " + capturedQueryState + " <> nq=" + currentQueryState);
 					CategorySearchManager.getInstance().onQueryTextChange(currentQueryState, CategorySearchWatcher.this);
 				}
 				else
 				{
-					Logger.i(TAG, "ignoring since changed oq= " + capturedQueryState + " <> nq=" + currentQueryState);
+					Logger.i(TAG, "onQueryTextChange(): ignoring since changed oq= " + capturedQueryState + " <> nq=" + currentQueryState);
 				}
 			}
 		}, HikeSharedPreferenceUtil.getInstance().getData(CategorySearchManager.AUTO_SEARCH_TIME, CategorySearchManager.DEFAULT_AUTO_SEARCH_TIME));

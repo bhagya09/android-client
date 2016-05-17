@@ -96,7 +96,7 @@ public class RecommendedPacksFooterItem extends BasePackPreviewAdapterItem imple
 		}
 
 		StickerCategory stickerCategory = recommendedPacks.get(position);
-		IntentFactory.openPackPreviewIntent(mContext, stickerCategory.getCategoryId(), position, StickerConstants.PackPreviewClickSource.RECOMMENDATION);
+		IntentFactory.openPackPreviewIntent(mContext, stickerCategory.getCategoryId(), position, StickerConstants.PackPreviewClickSource.RECOMMENDATION, "");
 		activity.finish();
 	}
 
