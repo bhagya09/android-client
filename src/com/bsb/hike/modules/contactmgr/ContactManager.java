@@ -1165,7 +1165,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	 * 
 	 * @param favorites
 	 */
-	public void setMultipleContactsToFavorites(JSONObject favorites)
+	public void setMultipleContactsToFavorites(JSONArray favorites)
 	{
 		hDb.setMultipleContactsToFavorites(favorites);
 	}

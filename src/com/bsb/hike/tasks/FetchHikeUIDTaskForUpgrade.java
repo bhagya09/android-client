@@ -46,11 +46,12 @@ public class FetchHikeUIDTaskForUpgrade implements IHikeHTTPTask, IHikeHttpTaskR
     private JSONObject getPostData() {
         JSONObject data = new JSONObject();
         try {
-            addressBookContact.removeAll(activeChats);
+            //addressBookContact.removeAll(activeChats);
             addressBookContact.addAll(bots);
+            addressBookContact.addAll(activeChats);
             data.put("othr", getJSONArrayFromSet(addressBookContact));
 
-            data.put("subs", getJSONArrayFromSet(activeChats));
+            //data.put("subs", getJSONArrayFromSet(activeChats));
 
         } catch (JSONException e) {
             e.printStackTrace();

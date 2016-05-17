@@ -35,8 +35,8 @@ public class ContactUtils
 				for (ContactInfo cInfo : list)
 				{
 					JSONObject contactInfo = new JSONObject();
-					contactInfo.put("name", cInfo.getName());
-					contactInfo.put("phone_no", cInfo.getPhoneNum());
+					contactInfo.put("n", cInfo.getName());
+					contactInfo.put("ph", cInfo.getPhoneNum());
 					if (sendWAValue)
 					{
 						contactInfo.put("t1", calculateGreenBlueValue(cInfo.isOnGreenBlue()));
@@ -168,5 +168,23 @@ public class ContactUtils
 				mContext.sendBroadcast(contactSyncIntent);
 			}
 		}
+	}
+
+	public static JSONArray getFavouriteJSONObject(JSONObject obj) {
+
+		JSONArray favourites = null;
+		try {
+			if ((obj == null) || ("fail".equals(obj.optString("stat")))) {
+				Logger.w("HTTP", "Unable to upload address book");
+				return null;
+			}
+			Logger.d("AccountUtils", "Reply from addressbook:" + obj.toString());
+			favourites = obj.getJSONArray("favourites");
+		} catch (JSONException e) {
+			Logger.e("AccountUtils", "Invalid json object", e);
+			return null;
+		}
+		return favourites;
+
 	}
 }
