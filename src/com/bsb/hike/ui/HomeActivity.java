@@ -219,6 +219,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private boolean wasFragmentRemoved = false;
 
+	private static final Long DEFAULT_CACHE_TIME_FOR_BDAY_CALL = 1* 60 * 60 * 1000l;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -2697,7 +2699,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		final long ts = sharedPreferenceUtil.getData(HikeConstants.BDAY_HTTP_CALL_TS, 0l);
 
-		if(System.currentTimeMillis() - ts > sharedPreferenceUtil.getData(HikeConstants.BDAY_HTTP_CALL_TIME_GAP, 1* 60 * 60 * 1000)) {
+		if(System.currentTimeMillis() - ts > sharedPreferenceUtil.getData(HikeConstants.BDAY_HTTP_CALL_TIME_GAP, DEFAULT_CACHE_TIME_FOR_BDAY_CALL)) {
 			RequestToken requestToken = HttpRequests.fetchBdaysForCCA(new IRequestListener() {
 
 				@Override
@@ -2745,7 +2747,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 						sharedPreferenceUtil.saveData(HikeConstants.BDAY_HTTP_CALL_TS, System.currentTimeMillis());
 						HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeConstants.BDAYS_LIST, bdayMsisdnSet);
 					}
-					catch (Exception e)
+					catch (JSONException e)
 					{
 						e.printStackTrace();
 					}
