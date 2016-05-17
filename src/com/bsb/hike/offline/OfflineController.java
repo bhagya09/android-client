@@ -1,14 +1,5 @@
 package com.bsb.hike.offline;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import android.app.NotificationManager;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
@@ -18,33 +9,30 @@ import android.widget.Toast;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
-import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.filetransfer.FileSavedState;
-import com.bsb.hike.filetransfer.FileTransferManager;
-import com.bsb.hike.filetransfer.UploadFileTask;
-import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
-import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeHandlerUtil;
-import com.bsb.hike.ui.ComposeChatActivity.FileTransferData;
-import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
-import com.bsb.hike.offline.OfflineConstants.HandlerConstants;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
-import com.bsb.hike.service.HikeMqttManagerNew;
+import com.bsb.hike.ui.ComposeChatActivity.FileTransferData;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
-import com.google.ads.AdRequest.ErrorCode;
 import com.google.gson.Gson;
 import com.hike.transporter.TException;
 import com.hike.transporter.Transporter;
 import com.hike.transporter.models.SenderConsignment;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.util.ArrayList;
 
 /**
  * 

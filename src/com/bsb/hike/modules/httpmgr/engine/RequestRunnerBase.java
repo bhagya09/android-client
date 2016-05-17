@@ -1,9 +1,13 @@
 package com.bsb.hike.modules.httpmgr.engine;
 
+import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.modules.gcmnetworkmanager.Config;
+import com.bsb.hike.modules.gcmnetworkmanager.HikeGcmNetworkMgr;
 import com.bsb.hike.modules.httpmgr.client.ClientOptions;
 import com.bsb.hike.modules.httpmgr.client.IClient;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.request.Request;
+import com.bsb.hike.modules.httpmgr.requeststate.HttpRequestStateDB;
 import com.bsb.hike.modules.httpmgr.response.Response;
 
 /**
@@ -43,18 +47,61 @@ public abstract class RequestRunnerBase
 		{
 			@Override
 			public void onResponse(Response response, HttpException ex)
+					{
+						final Config gcmTaskConfig = request.getGcmTaskConfig();
+						if (null == response)
+						{
+							requestListenerNotifier.notifyListenersOfRequestFailure(request, ex);
+							if (gcmTaskConfig != null && gcmTaskConfig.getNumRetries() > 0)
+							{
+								gcmTaskConfig.decrementRetries();
+								updateGcmTaskConfigInDB(gcmTaskConfig);
+								HikeGcmNetworkMgr.getInstance().schedule(gcmTaskConfig);
+							}
+							else
+							{
+								removeGcmTaskConfigFromDB(gcmTaskConfig);
+							}
+						}
+						else
+						{
+							requestListenerNotifier.notifyListenersOfRequestSuccess(request, response);
+							removeGcmTaskConfigFromDB(gcmTaskConfig);
+							HikeGcmNetworkMgr.getInstance().cancelTask(gcmTaskConfig.getTag(), gcmTaskConfig.getService());
+						}
+					}
+		});
+		requestExecuter.execute();
+	}
+
+	private void removeGcmTaskConfigFromDB(final Config gcmTaskConfig)
+	{
+		HikeHandlerUtil.getInstance().postAtFront(new Runnable()
+		{
+			@Override
+			public void run()
 			{
-				if (null == response)
+				if (gcmTaskConfig != null)
 				{
-					requestListenerNotifier.notifyListenersOfRequestFailure(request, ex);
-				}
-				else
-				{
-					requestListenerNotifier.notifyListenersOfRequestSuccess(request, response);
+					HttpRequestStateDB.getInstance().deleteBundleForTag(gcmTaskConfig.getTag());
 				}
 			}
 		});
-		requestExecuter.execute();
+	}
+
+	private void updateGcmTaskConfigInDB(final Config gcmTaskConfig)
+	{
+		HikeHandlerUtil.getInstance().postAtFront(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if (gcmTaskConfig != null)
+				{
+					HttpRequestStateDB.getInstance().update(gcmTaskConfig.getTag(), gcmTaskConfig.toBundle());
+				}
+			}
+		});
 	}
 
 	/**

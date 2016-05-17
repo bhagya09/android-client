@@ -3532,6 +3532,66 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 
 	}
 
+	/**
+	 *
+	 * @param msgId of the convmessage we are fetching
+	 * @return
+     */
+
+	public ConvMessage getConvMessageForMsgId(long msgId)
+	{
+		// msgid cant be negative so returning null here
+		
+		if(msgId < 0)
+		{
+			return null;
+		}
+		Cursor c = null;
+
+		try
+		{
+			c = mDb.query(DBConstants.MESSAGES_TABLE, null, DBConstants.MESSAGE_ID + " =? ", new String[] { Long.toString(msgId) }, null, null, null , null);
+
+			if (c.moveToFirst())
+			{
+				final int msisdnColumn = c.getColumnIndex(DBConstants.MSISDN);
+				final int msgColumn = c.getColumnIndex(DBConstants.MESSAGE);
+				final int msgStatusColumn = c.getColumnIndex(DBConstants.MSG_STATUS);
+				final int tsColumn = c.getColumnIndex(DBConstants.TIMESTAMP);
+				final int mappedMsgIdColumn = c.getColumnIndex(DBConstants.MAPPED_MSG_ID);
+				final int metadataColumn = c.getColumnIndex(DBConstants.MESSAGE_METADATA);
+				final int groupParticipantColumn = c.getColumnIndex(DBConstants.GROUP_PARTICIPANT);
+				final int sortingIdColumn = c.getColumnIndex(DBConstants.SORTING_ID);
+
+				ConvMessage message = new ConvMessage(c.getString(msgColumn), c.getString(msisdnColumn), c.getInt(tsColumn), ConvMessage.stateValue(c.getInt(msgStatusColumn)),
+						msgId, c.getLong(mappedMsgIdColumn), c.getString(groupParticipantColumn), c.getLong(sortingIdColumn));
+				String metadata = c.getString(metadataColumn);
+				try
+				{
+					message.setMetadata(metadata);
+				}
+				catch (JSONException e)
+				{
+					Logger.e(HikeConversationsDatabase.class.getName(), "Invalid JSON metadata", e);
+				}
+
+				return message;
+			}
+		}
+		catch (Exception e)
+		{
+			Logger.e(HikeConversationsDatabase.class.getName(), "exception in fetching convmessage for msgId : " + msgId , e);
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+		return null;
+	}
+
 	public Conversation getConversation(String msisdn, int limit)
 	{
 		return getConversation(msisdn, limit, false);
