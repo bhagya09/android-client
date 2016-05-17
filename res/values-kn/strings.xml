@@ -1437,5 +1437,6 @@
     <string name="mute_chat_one_week">1 ವಾರ</string>
     <string name="mute_chat_one_yr">1 ವರ್ಷ</string>
     <string name="show_notif">ಪ್ರಕಟಣೆಅನ್ನು  ತೋರಿಸು</string>
+    <string name="mute_chat">ಚಾಟ್ಅನ್ನು ಮ್ಯೂಟ್ ಮಾಡಿ</string>
 
 </resources>

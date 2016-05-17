@@ -1429,5 +1429,6 @@
     <string name="mute_chat_one_week">1 వారం</string>
     <string name="mute_chat_one_yr">1 సంవత్సరం</string>
     <string name="show_notif">నోటిఫికేషన్లను చూపించు</string>
+    <string name="mute_chat">మ్యూట్ చాట్</string>
 
 </resources>

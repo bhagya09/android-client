@@ -1440,5 +1440,7 @@
     <string name="mute_chat_one_week">1 সপ্তাহ</string>
     <string name="mute_chat_one_yr">1 বর্ষ</string>
     <string name="show_notif">নোটিফিকেশন দেখান</string>
+    <string name="mute_chat">চ্যাট অনুচ্চারিত করুন</string>
+
 
 </resources>

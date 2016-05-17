@@ -1429,5 +1429,6 @@
     <string name="mute_chat_one_week">1 வாரதிருக்கு</string>
     <string name="mute_chat_one_yr">1 வருடத்திருக்கு</string>
     <string name="show_notif">நோட்டிபிகேஷன் காண்பிக்க</string>
+    <string name="mute_chat">சேட்-ஐ ஓசையற்று செய்யவும்</string>
 
 </resources>
