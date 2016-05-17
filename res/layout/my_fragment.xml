@@ -15,7 +15,7 @@
             style="@style/RoundedStyle"
             android:layout_width="198dp"
             android:layout_height="198dp"
-            android:layout_marginTop="45dp"
+            android:layout_marginTop="40dp"
             android:contentDescription="Profile Image"
             android:src="@drawable/ic_default_avatar_group" />
 
@@ -25,14 +25,14 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="30dp"
             android:text="My name"
-            android:textColor="#3d475b"
-            android:textSize="20sp" />
+            android:textColor="@color/caller_free_call"
+            android:textSize="20dp" />
 
         <LinearLayout
             android:id="@+id/statuslayout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="4dp"
             android:contentDescription="Status Layout"
             android:gravity="center_vertical"
             android:orientation="horizontal"
