@@ -1129,7 +1129,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	}
 
 	private void fetchHikeUIDForUpgrade() {
-		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FETCH_UID_UPGRADE_SUCCESSFULL, false)) {
+		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FETCH_UID_UPGRADE_SUCCESSFULL, false)&&(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MIGRATE_TABLE_TO_USER,0))>0) {
 			new FetchHikeUIDTaskForUpgrade().execute();
 		}
 	}
