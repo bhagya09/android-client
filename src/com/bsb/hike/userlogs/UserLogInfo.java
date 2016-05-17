@@ -12,10 +12,8 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
 import android.location.Location;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.preference.PreferenceManager;
-import android.os.Handler;
 import android.provider.CallLog;
 import android.text.TextUtils;
 
@@ -112,10 +110,6 @@ public class UserLogInfo {
 	private final static byte RUNNING_PROCESS_BIT = 0;
 	private final static byte FOREGROUND_TASK_BIT = 1;
 
-	public static final int NO_OF_RETRIES = 3;
-	public static final int RETRY_DELAY = 2000;
-	public static final int MULIPLIER = 1;
-	
 	private static int flags;
 
 	private static HikeHandlerUtil mHikeHandler = HikeHandlerUtil.getInstance();
