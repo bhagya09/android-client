@@ -125,6 +125,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -756,34 +757,26 @@ public class MqttMessagesManager
 	{
 
 		PlatformContentRequest rqst = PlatformContentRequest.make(
-				PlatformContentModel.make(convMessage.webMetadata.JSONtoString()), new PlatformContentListener<PlatformContentModel>()
-				{
+			PlatformContentModel.make(convMessage.webMetadata.JSONtoString()), new PlatformContentListener<PlatformContentModel>() {
 
-					@Override
-					public void onComplete(PlatformContentModel content)
-					{
+				@Override
+				public void onComplete(PlatformContentModel content) {
+					saveMessage(convMessage);
+				}
+
+				@Override
+				public void onEventOccured(int uniqueId, PlatformContent.EventCode event) {
+					if (event == PlatformContent.EventCode.DOWNLOADING || event == PlatformContent.EventCode.LOADED) {
+						//do nothing
+						return;
+					} else if (event == PlatformContent.EventCode.ALREADY_DOWNLOADED) {
+						Logger.d(HikePlatformConstants.TAG, "microapp already exists");
+					} else {
 						saveMessage(convMessage);
+						HikeAnalyticsEvent.cardErrorAnalytics(event, convMessage);
 					}
-
-					@Override
-					public void onEventOccured(int uniqueId,PlatformContent.EventCode event)
-					{
-						if (event == PlatformContent.EventCode.DOWNLOADING || event == PlatformContent.EventCode.LOADED)
-						{
-							//do nothing
-							return;
-						}
-						else if (event == PlatformContent.EventCode.ALREADY_DOWNLOADED)
-						{
-							Logger.d(HikePlatformConstants.TAG, "microapp already exists");
-						}
-						else
-						{
-							saveMessage(convMessage);
-							HikeAnalyticsEvent.cardErrorAnalytics(event, convMessage);
-						}
-					}
-				});
+				}
+			});
 
 		// Stop the flow and return from here in case any exception occurred and contentData becomes null
 		if(rqst.getContentData() == null)
@@ -1029,7 +1022,7 @@ public class MqttMessagesManager
 		long serverID;
 		long timestamp = jsonObj.optLong(HikeConstants.TIMESTAMP);
 
-		Logger.d("delivery", "got delivery report from msisdn "+jsonObj.getString(HikeConstants.FROM)+" pretty time "+Utils.getFormattedTime(false,context,timestamp));
+		Logger.d("delivery", "got delivery report from msisdn " + jsonObj.getString(HikeConstants.FROM) + " pretty time " + Utils.getFormattedTime(false, context, timestamp));
 		try
 		{
 			serverID = Long.parseLong(id);
@@ -1297,11 +1290,13 @@ public class MqttMessagesManager
 	 */
 	private void saveMessageReadBulk(JSONObject jsonObj) throws JSONException
 	{
+		Logger.d("ravia","saveMessageBu");
 
 		JSONArray msgIds = jsonObj.optJSONArray(HikeConstants.DATA);
 		String id = jsonObj.has(HikeConstants.TO) ? jsonObj.getString(HikeConstants.TO) : jsonObj.getString(HikeConstants.FROM);
 
 		String participantMsisdn = jsonObj.has(HikeConstants.TO) ? jsonObj.getString(HikeConstants.FROM) : "";
+
 		Logger.d("MessageInfo","savemessageread bulk");
 		if (msgIds == null)
 		{
@@ -1361,6 +1356,19 @@ public class MqttMessagesManager
 				}
 			}
 
+
+		}
+		if(ChatThreadUtils.isMessageInfoDatabaseEnabled()){
+			if(jsonObj.has(HikeConstants.TIMESTAMP))
+			{
+				ArrayList<Long> updateId=new ArrayList<Long>();
+				for(int i=0;i< msgIds.length();i++)
+				{
+					updateId.add(msgIds.optLong(i));
+				}
+
+				convDb.setAllDeliveredMessageReceiptsReadforMsisdn(participantMsisdn,updateId,jsonObj.getLong(HikeConstants.TIMESTAMP));
+			}
 		}
 	}
 

@@ -109,6 +109,10 @@ public class MessageInfoView
 
 	public int readListString=R.string.seen_list;
 
+	public static final int ONE_TO_ONE=1;
+
+	public static final int GROUP_CHAT=2;
+
 	private MovingList.OnItemsFinishedListener mOnItemsFinishedListener  = new MovingList.OnItemsFinishedListener()
 	{
 		@Override
@@ -1973,11 +1977,20 @@ public class MessageInfoView
 		}
 	}
 
-	public int getReadListHeaderString(){
-		if(vType==ViewType.SEND_HIKE||vType==ViewType.SEND_SMS)
-		readListString=R.string.read_list;
-		else
-			readListString=R.string.seen_list;
+	public int getReadListHeaderString(int chatType){
+		if(vType==ViewType.SEND_HIKE||vType==ViewType.SEND_SMS){
+			if(chatType==GROUP_CHAT)
+				readListString=R.string.read_list;
+			else
+				readListString=R.string.read_list_one;
+		}
+		else{
+			if(chatType==GROUP_CHAT)
+				readListString=R.string.seen_list;
+			else
+				readListString=R.string.seen_list_one;
+		}
+
 		return readListString;
 	}
 	public int getReadListExpandedString(){

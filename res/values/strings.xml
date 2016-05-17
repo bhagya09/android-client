@@ -1594,6 +1594,9 @@
     <string name="emptyplayedlist"> - </string>
     <string name="remaining_items">%1s Remaining</string>
     <string name="read_list">READ BY</string>
+    <string name="read_list_one">READ</string>
+    <string name="delivered_list_one">DELIVERED</string>
+    <string name="seen_list_one">SEEN</string>
     <string name="readExpanded">Read</string>
     <string name="seenExpanded">Seen</string>
     <string name="seen_list">SEEN BY</string>

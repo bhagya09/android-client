@@ -11,6 +11,8 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
 import android.widget.AbsListView;
 import android.widget.AbsListView.LayoutParams;
 import android.widget.ArrayAdapter;
@@ -170,6 +172,7 @@ public class MessageInfoAdapter extends BaseAdapter
 				viewHolder.expandedReadTimeStamp=(TextView)viewHolder.parent.findViewById(R.id.read_message_timestamp);
 				viewHolder.expandedDeliveredTimeStamp=(TextView)viewHolder.parent.findViewById(R.id.delivered_message_timestamp);
 				viewHolder.expandedReadDescription=(TextView)viewHolder.parent.findViewById(R.id.expand_read_text);
+				viewHolder.expandedDeliveredDescription=(TextView)viewHolder.parent.findViewById(R.id.expand_delivered_text);
 				v.setTag(viewHolder);
 				break;
 
@@ -221,36 +224,13 @@ public class MessageInfoAdapter extends BaseAdapter
 			viewHolder.contactName.setText(contactInfo.getNameOrMsisdn());
 			setAvatar(contactInfo.getMsisdn(), viewHolder.contactAvatar);
 			viewHolder.timeStamp.setText(participant.getDisplayedTimeStamp());
-
-			viewHolder.timeStamp.animate().x(300).setDuration(2500).start();
-
 			Logger.d("refresh", "Adapter parent" + viewHolder.parent);
 			parentView.addView(viewHolder.parent);
+
+			//animateViews(viewHolder, v, participant);
 			Logger.d("refresh", "adapter LISTCONTACTGROUP " + messageInfoItem + " position " + position);
 			viewHolder.messageInfoParticipantItem=participant;
-			v.setOnClickListener(readListItemonClick);
-			if(participant.getMsisdn().equals(msisdnToExpand)&&participant.hasRead()){
-			if(viewHolder.shouldExpand)
-			{
-				v.setMinimumHeight(context.getResources().getDimensionPixelSize(R.dimen.read_list_expanded_height));
 
-				v.findViewById(R.id.conversation_item).setMinimumHeight(context.getResources().getDimensionPixelSize(R.dimen.read_listitem_expanded_height));
-				viewHolder.isExpanded=true;
-				viewHolder.expandedReadDescription.setText(messageInfoView.getReadListExpandedString());
-				viewHolder.expandedReadTimeStamp.setText(participant.getReadTimeStamp());
-				viewHolder.expandedDeliveredTimeStamp.setText(participant.getDeliveredTimeStamp());
-				notifyDataSetChanged();
-
-			}else if(viewHolder.shouldCollapse)
-			{
-				v.setMinimumHeight(context.getResources().getDimensionPixelSize(R.dimen.read_list_collapsed_height));
-				v.findViewById(R.id.conversation_item).setMinimumHeight(context.getResources().getDimensionPixelSize(R.dimen.read_listitem_collapsed_height));
-				viewHolder.isExpanded=false;
-
-				MessageInfoActivity act=(MessageInfoActivity)context;
-				notifyDataSetChanged();
-			}
-			}
 			break;
 		case LIST_REMAINING_GROUP:
 			viewHolder = (ViewHolder) v.getTag();
@@ -281,7 +261,137 @@ public class MessageInfoAdapter extends BaseAdapter
 
 		return v;
 	}
+	public void animateViews(ViewHolder viewHolder,View v,MessageInfoItem.MesageInfoParticipantItem participant){
+		if(!participant.getMsisdn().equals(msisdnToExpand)&&participant.hasRead())
+			return;
+		final TextView timeStampV=viewHolder.timeStamp;
+		final View expandedReadLayout=viewHolder.expandedReadLayout;
+		final View expandedDeliveredLayout=viewHolder.expandedDeliveredLayout;
+		final View collapsedView=viewHolder.collapsedReadLayout;
+		final View expandedReadText=viewHolder.expandedReadDescription;
+		final View expandedDeliveredText=viewHolder.expandedDeliveredDescription;
+		final View expandedReadTimeStamp=viewHolder.expandedReadTimeStamp;
+		final View expandedDeliveredTimeStamp=viewHolder.expandedDeliveredTimeStamp;
+		final View collapsedTimeStamp=viewHolder.timeStamp;
 
+
+
+
+
+		collapsedView.setVisibility(View.VISIBLE);
+		expandedReadLayout.setVisibility(View.VISIBLE);
+		expandedDeliveredLayout.setVisibility(View.VISIBLE);
+		int[] loc=new int[2];
+		collapsedTimeStamp.getLocationOnScreen(loc);
+		int stX=loc[0];
+		int stY=loc[1];
+		Logger.d("ravia", "collapsedTimeStamp 0  :x " + loc[0] + " y " + loc[1]+ " ::::::: colla x"+collapsedTimeStamp.getX()+" pivot ::: "+collapsedTimeStamp.getPivotX());
+
+		int[] loc1=new int[2];
+		expandedReadTimeStamp.getLocationOnScreen(loc1);
+
+		Logger.d("ravia", "expandedReadTimeStamp 0  :x " + loc1[0] + " y " + loc1[1]+" x ::::"+expandedReadTimeStamp.getX()+" Pivot :: "+expandedReadTimeStamp.getPivotX());
+
+		Animator.AnimatorListener animatorListener=new Animator.AnimatorListener() {
+			@Override
+			public void onAnimationStart(Animator animation) {
+
+			}
+
+			@Override
+			public void onAnimationEnd(Animator animation) {
+				collapsedView.setVisibility(View.GONE);
+				expandedReadLayout.setVisibility(View.VISIBLE);
+				expandedDeliveredLayout.setVisibility(View.VISIBLE);
+			}
+
+			@Override
+			public void onAnimationCancel(Animator animation) {
+
+			}
+
+			@Override
+			public void onAnimationRepeat(Animator animation) {
+
+			}
+		}	;
+
+		int screenWidth = context.getResources().getDisplayMetrics().widthPixels;
+		int calculatedDist = (screenWidth - timeStampV.getText().length()) - stX;
+		timeStampV.animate().setDuration(2000).x(calculatedDist).setListener(animatorListener).start();
+
+
+
+
+
+
+
+
+
+
+		expandedReadLayout.setVisibility(View.VISIBLE);
+		expandedDeliveredLayout.setVisibility(View.VISIBLE);
+		if(participant.getMsisdn().equals(msisdnToExpand)&&participant.hasRead()){
+			if(viewHolder.shouldExpand)
+			{
+//				timeStampV.animate().x(400).setDuration(2500).setListener(new Animator.AnimatorListener() {
+//					@Override
+//					public void onAnimationStart(Animator animation) {
+//
+//						expandedReadLayout.setVisibility(View.VISIBLE);
+//						expandedDeliveredLayout.setVisibility(View.VISIBLE);
+//					}
+//
+//					@Override
+//					public void onAnimationEnd(Animator animation) {
+//
+//					}
+//
+//					@Override
+//					public void onAnimationCancel(Animator animation) {
+//
+//					}
+//
+//					@Override
+//					public void onAnimationRepeat(Animator animation) {
+//
+//					}
+//				});
+				//expandedReadText.animate().y(-100).setDuration(5000).start();
+				//expandedDeliveredText.animate().y(-100).setDuration(5000).start();
+				//expandedDeliveredTimeStamp.animate().y(-100).setDuration(5000).start();
+
+
+
+
+
+
+				v.setMinimumHeight(context.getResources().getDimensionPixelSize(R.dimen.read_list_expanded_height));
+
+				v.findViewById(R.id.conversation_item).setMinimumHeight(context.getResources().getDimensionPixelSize(R.dimen.read_listitem_expanded_height));
+				viewHolder.isExpanded = true;
+				viewHolder.expandedReadDescription.setText(messageInfoView.getReadListExpandedString());
+				viewHolder.expandedReadTimeStamp.setText(participant.getReadTimeStamp());
+				viewHolder.expandedDeliveredTimeStamp.setText(participant.getDeliveredTimeStamp());
+
+
+
+
+
+
+				//notifyDataSetChanged();
+
+			}else if(viewHolder.shouldCollapse)
+			{
+				v.setMinimumHeight(context.getResources().getDimensionPixelSize(R.dimen.read_list_collapsed_height));
+				v.findViewById(R.id.conversation_item).setMinimumHeight(context.getResources().getDimensionPixelSize(R.dimen.read_listitem_collapsed_height));
+				viewHolder.isExpanded=false;
+
+				MessageInfoActivity act=(MessageInfoActivity)context;
+				notifyDataSetChanged();
+			}
+		}
+	}
 	public View.OnClickListener remainingItemonClick = new View.OnClickListener()
 	{
 		@Override
@@ -310,16 +420,16 @@ public class MessageInfoAdapter extends BaseAdapter
 					viewHolder.shouldCollapse=true;
 					viewHolder.shouldExpand=false;
 
-					v.findViewById(R.id.default_timestamp).setVisibility(View.VISIBLE);
-					v.findViewById(R.id.expandedReadLayout).setVisibility(View.GONE);
-					v.findViewById(R.id.expandedDeliveredLayout).setVisibility(View.GONE);
+					//v.findViewById(R.id.default_timestamp).setVisibility(View.VISIBLE);
+					//v.findViewById(R.id.expandedReadLayout).setVisibility(View.GONE);
+					//v.findViewById(R.id.expandedDeliveredLayout).setVisibility(View.GONE);
 				}else{
 					viewHolder.shouldExpand=true;
 					viewHolder.shouldCollapse=false;
 
-					v.findViewById(R.id.default_timestamp).setVisibility(View.GONE);
-					v.findViewById(R.id.expandedReadLayout).setVisibility(View.VISIBLE);
-					v.findViewById(R.id.expandedDeliveredLayout).setVisibility(View.VISIBLE);
+					//v.findViewById(R.id.default_timestamp).setVisibility(View.GONE);
+					//v.findViewById(R.id.expandedReadLayout).setVisibility(View.VISIBLE);
+					//v.findViewById(R.id.expandedDeliveredLayout).setVisibility(View.VISIBLE);
 
 					msisdnToExpand=participantItem.getMsisdn();
 				}
@@ -351,6 +461,7 @@ public class MessageInfoAdapter extends BaseAdapter
 		remaininglistView.setAdapter(adapter);
 		alertDialog.setView(remView);
 		alertDialog.show();
+
 
 	}
 

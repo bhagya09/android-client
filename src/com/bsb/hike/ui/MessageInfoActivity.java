@@ -211,6 +211,8 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 
 		protected int readListString;
 
+		protected int controllerType;
+
 		void init()
 		{
 			chatTheme = HikeConversationsDatabase.getInstance().getChatThemeForMsisdn(msisdn);
@@ -235,7 +237,7 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 			participantTreeMap = data.participantTreeMap;
 			convMessage = data.convMessage;
 			messageInfoView = new MessageInfoView(convMessage, chatTheme, MessageInfoActivity.this, mConversation, messageInfoAdapter);
-			readListString = messageInfoView.getReadListHeaderString();
+			readListString = messageInfoView.getReadListHeaderString(controllerType);
 			messageInfoAdapter.setMessageInfoView(messageInfoView);
 			addItems();
 			notifyAdapter();
@@ -284,6 +286,7 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 		MessageInfoControllerOnetoOne(MessageInfoDataModel dataModel)
 		{
 			super(dataModel);
+			controllerType=MessageInfoView.ONE_TO_ONE;
 		}
 
 		@Override
@@ -341,7 +344,7 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 						readList.setTimeStamp(participantData.getReadTimeStamp());
 				}
 				// Creating deliveredList
-				MessageInfoItem.MessageInfoItemOnetoOne deliveredList = new MessageInfoItem.MessageInfoItemOnetoOne(0, getString(R.string.delivered_list),
+				MessageInfoItem.MessageInfoItemOnetoOne deliveredList = new MessageInfoItem.MessageInfoItemOnetoOne(0, getString(R.string.delivered_list_one),
 						R.drawable.ic_double_tick_blue);
 				if (!participantTreeMap.isEmpty())
 				{
@@ -372,6 +375,7 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 		MessageInfoControllerGroup(MessageInfoDataModel dataModel)
 		{
 			super(dataModel);
+			controllerType=MessageInfoView.GROUP_CHAT;
 		}
 
 		@Override
