@@ -1,11 +1,14 @@
 package com.bsb.hike.modules.httpmgr.engine;
 
+import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.modules.gcmnetworkmanager.Config;
 import com.bsb.hike.modules.httpmgr.client.ClientOptions;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.log.LogFull;
 import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.modules.httpmgr.request.listener.IProgressListener;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestCancellationListener;
+import com.bsb.hike.modules.httpmgr.requeststate.HttpRequestStateDB;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -56,6 +59,21 @@ public class RequestProcessor
 		}
 		else
 		{
+			if (request.getGcmTaskConfig() != null)
+			{
+				final Config config = HttpRequestStateDB.getInstance().getConfigFromDb(request.getGcmTaskConfig());
+				request.setGcmTaskConfig(config);
+
+				HikeHandlerUtil.getInstance().postAtFront(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						HttpRequestStateDB.getInstance().insertBundleToDb(config.getTag(), config.toBundle());
+					}
+				});
+			}
+
 			LogFull.d("adding " + request.toString() + " to request map");
 			IRequestCancellationListener listener = new IRequestCancellationListener()
 			{
