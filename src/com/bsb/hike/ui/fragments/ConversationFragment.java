@@ -2882,6 +2882,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			final Boolean isMuted = mute.isMute();
 
 			final ConvInfo convInfo = mConversationsByMSISDN.get(msisdn);
+			convInfo.setIsMute(ContactManager.getInstance().isChatMuted(convInfo.getMsisdn()));
 
 			if (convInfo == null)
 			{
