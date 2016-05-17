@@ -1,8 +1,12 @@
 package com.bsb.hike.chatthemes;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
+import android.media.ThumbnailUtils;
 import android.util.Log;
 
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -20,6 +24,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Set;
@@ -259,16 +264,14 @@ public class ChatThemeManager {
                 } else if (assetKey.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_THEME_BG_LANDSCAPE)) {
                     theme.setAsset(HikeChatThemeConstants.ASSET_INDEX_BG_LANDSCAPE, assetId);
                 } else if (assetKey.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_THEME_THUMBNAIL)) {
-                    //TODO CHATTHEME, remove once the thumbnail is corrected on server, enable the below code
-                    theme.setAsset(HikeChatThemeConstants.ASSET_INDEX_THUMBNAIL, assetId);
-//                    JSONObject thumbnail = data.getJSONObject(assetKey);
-//                    thumbnailAssetId = (thumbnail.getString(HikeChatThemeConstants.JSON_SIGNAL_ASSET_VALUE) + ".jpg").toLowerCase();
-//                    int thumbnailType = thumbnail.getInt(HikeChatThemeConstants.JSON_SIGNAL_ASSET_TYPE);
-//                    int thumbnailSize = thumbnail.getInt(HikeChatThemeConstants.JSON_SIGNAL_ASSET_SIZE);
-//                    HikeChatThemeAsset thumbnailAsset = new HikeChatThemeAsset(thumbnailAssetId, thumbnailType, "", thumbnailSize);
-//                    mAssetHelper.saveChatThemeAsset(thumbnailAssetId, thumbnailAsset);
-//                    thumbnailAsset.setIsDownloaded(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_NOT_DOWNLOADED);
-//                    theme.setAsset(HikeChatThemeConstants.ASSET_INDEX_THUMBNAIL, thumbnailAssetId);
+                    JSONObject thumbnail = data.getJSONObject(assetKey);
+                    thumbnailAssetId = (thumbnail.getString(HikeChatThemeConstants.JSON_SIGNAL_ASSET_VALUE) + HikeChatThemeConstants.FILEEXTN_JPG);
+                    int thumbnailType = thumbnail.getInt(HikeChatThemeConstants.JSON_SIGNAL_ASSET_TYPE);
+                    int thumbnailSize = thumbnail.getInt(HikeChatThemeConstants.JSON_SIGNAL_ASSET_SIZE);
+                    HikeChatThemeAsset thumbnailAsset = new HikeChatThemeAsset(thumbnailAssetId, thumbnailType, "", thumbnailSize);
+                    mAssetHelper.saveChatThemeAsset(thumbnailAssetId, thumbnailAsset);
+                    thumbnailAsset.setIsDownloaded(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_NOT_DOWNLOADED);
+                    theme.setAsset(HikeChatThemeConstants.ASSET_INDEX_THUMBNAIL, thumbnailAssetId);
                 } else {
                     HikeChatThemeAsset asset = getDrawableHelper().getDefaultCustomDrawable(assetKey);
                     if (asset != null) {
@@ -294,7 +297,20 @@ public class ChatThemeManager {
                 asset.setIsDownloaded(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_DOWNLOADED_SDCARD);
                 assetsList.add(asset);
 
-                //TODO CHATTHEME same goes with thumbnail asset as well
+
+                try {
+                    String thumbnailFilePath = ChatThemeManager.getInstance().getDrawableHelper().getAssetRootPath() + File.separator + thumbnailAssetId;
+                    //Bitmap thumbnail = HikeBitmapFactory.decodeSampledBitmapFromFile(customThemeTempUploadImagePath, 120, 120);
+                    Bitmap thumbnail = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(customThemeTempUploadImagePath), 120, 120);
+                    byte[] bmpData = Utils.bitmapToBytes(thumbnail, Bitmap.CompressFormat.JPEG, 100);
+                    Utils.saveByteArrayToFile(new File(thumbnailFilePath), bmpData);
+
+                    HikeChatThemeAsset thumbAsset = getAssetHelper().getChatThemeAsset(thumbnailAssetId);
+                    thumbAsset.setIsDownloaded(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_DOWNLOADED_SDCARD);
+                    assetsList.add(thumbAsset);
+                }catch(IOException e){
+                    e.printStackTrace();
+                }
 
                 HikeConversationsDatabase.getInstance().saveChatThemeAssets(assetsList);
             }
