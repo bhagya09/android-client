@@ -773,6 +773,11 @@ public class Utils
 		return false;
 	}
 
+	public static boolean isUpgradeIntentServiceRunning()
+	{
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPGRADING, false);
+	}
+
 	public static boolean isValidEmail(Editable text)
 	{
 		return isValidEmail(text.toString());
