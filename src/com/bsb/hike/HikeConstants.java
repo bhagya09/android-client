@@ -4215,6 +4215,8 @@ public class HikeConstants
 
 	public static final String HIKE_CUSTOM_PHONE_TYPE = "HIKE";
 
+	public static final String SHARED_PREF_ANALYTICS = "share_pref_analytics";
+
 	public static final String UPDATED_ALL_CATEGORIES_METADATA = "updatedAllCategoriesMeta";
 
     public static final String UPDATED_ALL_CATEGORIES_TAGDATA = "updatedAllCategoriesTags";
