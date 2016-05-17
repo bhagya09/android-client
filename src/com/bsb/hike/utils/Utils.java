@@ -8082,7 +8082,7 @@ public class Utils
 		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
 
 		if (prefs != null) {
-			return prefs.getData(HikeConstants.ENABLE_BDAY_IN_CCA, true);
+			return prefs.getData(HikeConstants.ENABLE_BDAY_IN_CCA, false);
 		}
 
 		return false;
