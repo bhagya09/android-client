@@ -342,4 +342,5 @@
     <color name="atomic_tip_header_text">#f7f8f9</color>
     <color name="atomic_tip_body_text">#e6f7f8f9</color>
     <color name="rec_duration_color">#3D475B</color>
+    <color name="custom_tab_action_bar">#03000000</color>
 </resources>

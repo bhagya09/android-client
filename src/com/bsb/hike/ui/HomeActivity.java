@@ -28,7 +28,6 @@ import android.support.v7.app.ActionBar;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.KeyEvent;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -176,11 +175,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private MyFragment myFragment;
 
-	private static final int SU_FRAGMENT_ID = 0;
+	private static final int SU_FRAGMENT_POSITION = 0;
 
-	private static final int CONV_FRAGMENT_ID = 1;
+	private static final int CONV_FRAGMENT_POSITION = 1;
 
-	private static final int MY_FRAGMENT_ID = 2;
+	private static final int MY_FRAGMENT_POSITION = 2;
 
 	private static final String SU_FRAGMENT_TAG = "suFragTag";
 
@@ -229,6 +228,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	private ViewPager mPager;
 
 	private PagerAdapter mPagerAdapter;
+
+	private CustomTabsBar tabsBar;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -521,6 +522,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 
 		setupFragments();
+		setupTabsBar();
 		initialiseTabs();
 
 		setupFestivePopup();
@@ -590,9 +592,33 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		mPager = (ViewPager) findViewById(R.id.pager_frag);
 		mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
 		mPager.setAdapter(mPagerAdapter);
-		mPager.setCurrentItem(CONV_FRAGMENT_ID);
+		mPager.setCurrentItem(CONV_FRAGMENT_POSITION);
 		mPager.setOnPageChangeListener(pageChangeListener);
 	}
+
+	private void setupTabsBar()
+	{
+		tabsBar = new CustomTabsBar(this, (ViewGroup)findViewById(R.id.tab_action_bar_parent));
+		tabsBar.addTab(tabsBar.newTab(SU_FRAGMENT_POSITION).setIcon(R.drawable.ic_tab_friend_selector).setCustomTabListener(tabsListener));
+		tabsBar.addTab(tabsBar.newTab(CONV_FRAGMENT_POSITION).setIcon(R.drawable.ic_tab_chat_selector).setCustomTabListener(tabsListener));
+		tabsBar.addTab(tabsBar.newTab(MY_FRAGMENT_POSITION).setIcon(R.drawable.ic_tab_me_selector).setCustomTabListener(tabsListener));
+		tabsBar.selectTab(CONV_FRAGMENT_POSITION);
+	}
+
+	private CustomTabsBar.CustomTabListener tabsListener = new CustomTabsBar.CustomTabListener() {
+		@Override
+		public void onTabSelected(CustomTabsBar.Tab tab) {
+			if (mPager != null) {
+				mPager.setCurrentItem(tab.getId());
+			}
+		}
+
+		@Override
+		public void onTabUnselected(CustomTabsBar.Tab tab) {}
+
+		@Override
+		public void onTabReselected(CustomTabsBar.Tab tab) {}
+	};
 
 
 	private class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter {
@@ -603,11 +629,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		@Override
 		public Fragment getItem(int position) {
 			switch (position) {
-				case SU_FRAGMENT_ID:
+				case SU_FRAGMENT_POSITION:
 					return getStatusFragment();
-				case CONV_FRAGMENT_ID:
+				case CONV_FRAGMENT_POSITION:
 					return getConversationFragment();
-				case MY_FRAGMENT_ID:
+				case MY_FRAGMENT_POSITION:
 					return getMyFragment();
 			}
 			return null;
@@ -627,7 +653,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		@Override
 		public void onPageSelected(int position) {
-
+			tabsBar.selectTab(position);
 		}
 
 		@Override
