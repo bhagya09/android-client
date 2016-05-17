@@ -7679,8 +7679,8 @@ public class Utils
 		{
 			ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 
-			ops.add(ContentProviderOperation.newUpdate(Data.CONTENT_URI).withSelection(Data.RAW_CONTACT_ID + " = ?", new String[] { mRawContactId })
-					.withSelection(Data._ID + " = ?", new String[] { mDataId }).withValue(Data.MIMETYPE, Phone.CONTENT_ITEM_TYPE).withValue(StructuredName.DISPLAY_NAME, name)
+			ops.add(ContentProviderOperation.newUpdate(Data.CONTENT_URI).withSelection(Data.RAW_CONTACT_ID + " = ?", new String[]{mRawContactId})
+					.withSelection(Data._ID + " = ?", new String[]{mDataId}).withValue(Data.MIMETYPE, Phone.CONTENT_ITEM_TYPE).withValue(StructuredName.DISPLAY_NAME, name)
 					.build());
 			context.getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
 
@@ -7939,6 +7939,16 @@ public class Utils
 		argIntent.putExtra(HikeConstants.Extras.SPECIES, argSpecies);
 	}
 
+	public static boolean isBDayInNewChatEnabled() {
+		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
+
+		if (prefs != null) {
+			return prefs.getData(HikeConstants.ENABLE_BDAY_IN_CCA, false);
+		}
+
+		return false;
+	}
+
 	public static void connectToGcmPreSignup()
 	{
 		// GCM_ID_SENT_PRELOAD=true,UserAuth=false,UserOnline=true;GooglePlayServices Installed---->Best Case Scenario
@@ -7952,7 +7962,6 @@ public class Utils
 			mprefs.saveData(HikeConstants.REGISTER_GCM_SIGNUP, HikeConstants.REGISTEM_GCM_BEFORE_SIGNUP);
 			LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(in);
 		}
-
 	}
 
 	/**
