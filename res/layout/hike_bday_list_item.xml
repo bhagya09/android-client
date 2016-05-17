@@ -6,6 +6,26 @@
     android:paddingLeft="@dimen/conv_item_padding"
     android:paddingRight="@dimen/conv_item_padding" >
 
+    <RelativeLayout
+        android:id="@+id/action_container"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/compose_item_height"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:gravity="right">
+
+        <CheckBox
+            android:id="@+id/checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:background="@android:color/transparent"
+            android:button="@drawable/hike_list_item_checkbox"
+            android:clickable="false"
+            android:focusable="false"
+            android:visibility="gone" />
+    </RelativeLayout>
+
     <com.bsb.hike.view.RoundedImageView
         android:id="@+id/contact_image"
         style="@style/RoundedStyle"
@@ -13,6 +33,7 @@
         android:layout_height="@dimen/compose_avatar_dimen"
         android:layout_centerVertical="true"
         android:layout_alignParentLeft="true" />
+
 
     <ImageView
         android:id="@+id/bday_icon"

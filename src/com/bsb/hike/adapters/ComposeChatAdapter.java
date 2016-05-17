@@ -351,6 +351,20 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			}
 
 			updateViewsRelatedToAvatar(convertView, contactInfo);
+
+			if(showCheckbox)
+			{
+				holder.checkbox.setVisibility(View.VISIBLE);
+				if (selectedPeople.containsKey(contactInfo.getMsisdn())){
+					holder.checkbox.setChecked(true);
+				} else {
+					holder.checkbox.setChecked(false);
+				}
+			}
+			else
+			{
+				holder.checkbox.setVisibility(View.GONE);
+			}
 		}
 		else
 		{
@@ -590,6 +604,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			holder = new ViewHolder();
 			holder.userImage = (ImageView) convertView.findViewById(R.id.contact_image);
 			holder.name = (TextView) convertView.findViewById(R.id.name);
+			holder.checkbox = (CheckBox) convertView.findViewById(R.id.checkbox);
 			convertView.setTag(holder);
 			break;
 		default:
@@ -1016,6 +1031,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		if(select)
 		{
 			ArrayList<List<ContactInfo>> listsToSelect = getOnHikeContactLists();
+			listsToSelect.add(filteredHikeBdayContactList);
 			listsToSelect.add(groupsList);
 			listsToSelect.add(filteredHikeOtherFeaturesList);
 			selectAllFromList(listsToSelect);
@@ -1120,5 +1136,6 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			microappsListAdapter.onBotCreated(data);
 		}
 	}
-	
+
+
 }
