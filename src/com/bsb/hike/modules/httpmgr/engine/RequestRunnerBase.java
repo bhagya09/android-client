@@ -65,9 +65,12 @@ public abstract class RequestRunnerBase
 						}
 						else
 						{
+							if (gcmTaskConfig != null)
+							{
+								removeGcmTaskConfigFromDB(gcmTaskConfig);
+								HikeGcmNetworkMgr.getInstance().cancelTask(gcmTaskConfig.getTag(), gcmTaskConfig.getService());
+							}
 							requestListenerNotifier.notifyListenersOfRequestSuccess(request, response);
-							removeGcmTaskConfigFromDB(gcmTaskConfig);
-							HikeGcmNetworkMgr.getInstance().cancelTask(gcmTaskConfig.getTag(), gcmTaskConfig.getService());
 						}
 					}
 		});
