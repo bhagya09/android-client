@@ -10,16 +10,23 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Future;
 
+import org.json.JSONObject;
+
 import android.text.TextUtils;
 
+import com.bsb.hike.filetransfer.FileSavedState;
+import com.bsb.hike.filetransfer.FileTransferBase.FTState;
+import com.bsb.hike.modules.httpmgr.request.requestbody.StringBody;
+import com.bsb.hike.modules.httpmgr.requeststate.HttpRequestState;
 import com.bsb.hike.modules.httpmgr.Header;
+import com.bsb.hike.modules.httpmgr.requeststate.HttpRequestStateDB;
 import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.client.IClient;
 import com.bsb.hike.modules.httpmgr.engine.ProgressByteProcessor;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.interceptor.IRequestInterceptor;
@@ -31,8 +38,8 @@ import com.bsb.hike.modules.httpmgr.request.listener.IProgressListener;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestCancellationListener;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.httpmgr.retry.BasicRetryPolicy;
-import com.bsb.hike.utils.Utils;
 
 /**
  * Encapsulates all of the information necessary to make an HTTP request.
@@ -46,11 +53,11 @@ public abstract class Request<T> implements IRequestFacade
 	public static final int BUFFER_SIZE = 4 * 1024; // 4Kb
 
 	private String defaultId = "";
-	
+
 	private String md5Id;
 
 	private String analyticsParam;
-	
+
 	private String method;
 
 	private URL url;
@@ -66,7 +73,7 @@ public abstract class Request<T> implements IRequestFacade
 	private BasicRetryPolicy retryPolicy;
 
 	private volatile boolean isCancelled;
-	
+
 	private volatile boolean isFinished;
 
 	private volatile boolean wrongRequest;
@@ -88,6 +95,10 @@ public abstract class Request<T> implements IRequestFacade
 	private boolean asynchronous;
 
 	private Future<?> future;
+
+	private volatile FileSavedState state = null;
+
+	protected int chunkSize;
 
 	protected Request(Init<?> builder)
 	{
@@ -125,7 +136,7 @@ public abstract class Request<T> implements IRequestFacade
 		}
 
 		md5Id = generateId();
-		
+
 		if (requestInteceptors == null)
 		{
 			requestInteceptors = new Pipeline<IRequestInterceptor>();
@@ -170,26 +181,89 @@ public abstract class Request<T> implements IRequestFacade
 		this.future = null;
 	}
 
+	public Response executeRequest(IClient client) throws Throwable {
+		return client.execute(this);
+	}
+
 	public abstract T parseResponse(InputStream in, int contentLength) throws IOException;
 
 	protected void readBytes(InputStream is, ProgressByteProcessor progressByteProcessor) throws IOException
 	{
+		readBytes(is, progressByteProcessor, 0);
+	}
+
+	protected void readBytes(InputStream is, ProgressByteProcessor progressByteProcessor, int offset) throws IOException
+	{
 		final byte[] buffer = new byte[BUFFER_SIZE];
 		int len = 0;
-		while ((len = is.read(buffer)) != -1)
+		FTState st = state == null ? FTState.NOT_STARTED : state.getFTState();
+		while ((len = is.read(buffer)) != -1 && st != FTState.PAUSED)
 		{
-			progressByteProcessor.processBytes(buffer, 0, len);
+			progressByteProcessor.processBytes(buffer, offset, len);
 		}
+	}
+
+	public FileSavedState getState()
+	{
+		if (state == null)
+		{
+			state = getStateFromDB();
+		}
+		return state;
+	}
+
+	protected FileSavedState getStateFromDB()
+	{
+		FileSavedState fss;
+		HttpRequestState st = HttpRequestStateDB.getInstance().getRequestState(this.getId());
+		if (st == null)
+		{
+			fss = new FileSavedState(FTState.INITIALIZED, 0, 0, 0);
+		}
+		else
+		{
+			LogFull.d("getting state from db");
+			JSONObject md = st.getMetadata();
+			fss = FileSavedState.getFileSavedStateFromJSON(md);
+			LogFull.d("getting state from db file upload request ft state : "+fss.getFTState().name());
+		}
+		return fss;
+	}
+
+	public int getChunkSize()
+	{
+		return chunkSize;
+	}
+
+	public void deleteState()
+	{
+		HttpRequestStateDB.getInstance().deleteState(this.getId());
+	}
+
+	protected void saveStateInDB(FileSavedState fss)
+	{
+		HttpRequestState state = new HttpRequestState(this.getId());
+		state.setMetadata(fss.toJSON());
+		HttpRequestStateDB.getInstance().insertOrReplaceRequestState(state);
+	}
+
+	public void setState(FileSavedState state) {
+		this.state = state;
 	}
 
 	/**
 	 * Returns the unique id of the request
-	 * 
+	 *
 	 * @return
 	 */
 	public String getId()
 	{
 		return md5Id;
+	}
+
+	public String getCustomId()
+	{
+		return defaultId;
 	}
 
 	/**
@@ -382,29 +456,6 @@ public abstract class Request<T> implements IRequestFacade
 		Header header = new Header(name, value);
 		this.headers.add(header);
 	}
-	
-	@Override
-	/**
-	 * Adds more headers to the list of headers of the request
-	 * 
-	 * @param headers
-	 */
-	public void addHeaders(List<Header> headers)
-	{
-		if (null == headers)
-		{
-			return;
-		}
-
-		if (null == this.headers)
-		{
-			this.headers = headers;
-		}
-		else
-		{
-			this.headers.addAll(headers);
-		}
-	}
 
 	public void replaceOrAddHeader(String name, String value)
 	{
@@ -428,6 +479,29 @@ public abstract class Request<T> implements IRequestFacade
 		{
 			Header header = new Header(name, value);
 			this.headers.add(header);
+		}
+	}
+
+	@Override
+	/**
+	 * Adds more headers to the list of headers of the request
+	 * 
+	 * @param headers
+	 */
+	public void addHeaders(List<Header> headers)
+	{
+		if (null == headers)
+		{
+			return;
+		}
+
+		if (null == this.headers)
+		{
+			this.headers = headers;
+		}
+		else
+		{
+			this.headers.addAll(headers);
 		}
 	}
 
@@ -708,7 +782,7 @@ public abstract class Request<T> implements IRequestFacade
 		public S post(IRequestBody body)
 		{
 			this.method = RequestConstants.POST;
-			this.body = body;
+			this.body = body != null ? body : new StringBody("");
 			return self();
 		}
 

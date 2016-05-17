@@ -37,7 +37,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.filetransfer.FileTransferManager;
+import com.bsb.hike.filetransfer.FTUtils;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -894,7 +894,7 @@ public class HikeAuthActivity extends Activity
 			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.SDK_AUTH_SUCCESS);
 			metadata.put(HikeConstants.Extras.SDK_THIRD_PARTY_PKG, mAppPackage);
 			metadata.put(HikeConstants.LogEvent.SOURCE_APP, HikePlatformConstants.GAME_SDK_ID);
-			metadata.put(HikeConstants.Extras.SDK_CONNECTION_TYPE, FileTransferManager.getInstance(getApplicationContext()).getNetworkType());
+			metadata.put(HikeConstants.Extras.SDK_CONNECTION_TYPE, FTUtils.getNetworkType(getApplicationContext()));
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 		}
 		catch (JSONException e)
@@ -965,7 +965,7 @@ public class HikeAuthActivity extends Activity
 			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.SDK_AUTH_FAILURE);
 			metadata.put(HikeConstants.Extras.SDK_THIRD_PARTY_PKG, mAppPackage);
 			metadata.put(HikeConstants.LogEvent.SOURCE_APP, HikePlatformConstants.GAME_SDK_ID);
-			metadata.put(HikeConstants.Extras.SDK_CONNECTION_TYPE, FileTransferManager.getInstance(getApplicationContext()).getNetworkType());
+			metadata.put(HikeConstants.Extras.SDK_CONNECTION_TYPE, FTUtils.getNetworkType(getApplicationContext()));
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 		}
 		catch (JSONException e)

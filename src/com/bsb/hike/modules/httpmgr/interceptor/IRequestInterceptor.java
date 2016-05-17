@@ -16,7 +16,7 @@ public interface IRequestInterceptor
 	 * 
 	 * @param chain
 	 */
-	void intercept(Chain chain);
+	void intercept(Chain chain) throws Exception;
 
 	interface Chain
 	{
@@ -30,6 +30,6 @@ public interface IRequestInterceptor
 		/**
 		 * Tells that work of this interceptor is completed and chain can proceed to next interceptor
 		 */
-		void proceed();
+		void proceed() throws Exception;
 	}
 }

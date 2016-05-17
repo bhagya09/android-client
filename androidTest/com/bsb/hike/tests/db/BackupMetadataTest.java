@@ -1,9 +1,9 @@
-package androidTest.com.bsb.hike.tests.db;
+package com.bsb.hike.tests.db;
 
 import android.content.Context;
 import android.support.test.runner.AndroidJUnit4;
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.backup.BackupMetadata;
+import com.bsb.hike.backup.model.BackupMetadata;
 
 import junit.framework.Assert;
 

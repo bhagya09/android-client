@@ -88,11 +88,7 @@ public abstract class ImageWorker
     protected ImageWorker()
     {
         this.mImageCache = HikeMessengerApp.getLruCache();
-    }
-
-    public void setResource(Context ctx)
-    {
-        mResources = ctx.getResources();
+        mResources = HikeMessengerApp.getInstance().getApplicationContext().getResources();
     }
 
     /**
@@ -659,7 +655,7 @@ public abstract class ImageWorker
             if (mFadeInBitmap)
             {
                 // Transition drawable with a transparent drawable and the final drawable
-                final TransitionDrawable td = new TransitionDrawable(new Drawable[] { new ColorDrawable(android.R.color.transparent), drawable });
+                final TransitionDrawable td = new TransitionDrawable(new Drawable[] { new ColorDrawable(mResources.getColor(android.R.color.transparent)), drawable });
                 if (!dontSetBackground)
                 {
                     // Set background to loading bitmap
