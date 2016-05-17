@@ -302,11 +302,22 @@ public class MessageInfoView
 				videoHolder=new VideoViewHolder();
 				v = inflater.inflate(R.layout.message_sent_video, null, false);
 				videoHolder.fileThumb = (ImageView) v.findViewById(R.id.file_thumb);
+				videoHolder.circularProgressBg = v.findViewById(R.id.circular_bg);
+				videoHolder.initializing = (ProgressBar) v.findViewById(R.id.initializing);
+				videoHolder.circularProgress = (HoloCircularProgress) v.findViewById(R.id.progress);
+				videoHolder.circularProgress.setRelatedMsgId(convMessage.getMsgID());
 				videoHolder.ftAction = (ImageView) v.findViewById(R.id.action);
-				videoHolder.messageContainer = (ViewGroup) v.findViewById(R.id.message_container);
+				videoHolder.fileDetails = v.findViewById(R.id.file_details);
+				videoHolder.fileSize = (TextView) v.findViewById(R.id.file_size);
+				videoHolder.fileName = (TextView) v.findViewById(R.id.file_name);
+				videoHolder.filmstripLeft = (ImageView) v.findViewById(R.id.filmstrip_left);
+				videoHolder.filmstripRight = (ImageView) v.findViewById(R.id.filmstrip_right);
+				videoHolder.broadcastIndicator = (ImageView) v.findViewById(R.id.broadcastIndicator);
 				videoHolder.time = (TextView) v.findViewById(R.id.time);
 				videoHolder.status = (ImageView) v.findViewById(R.id.status);
-				videoHolder.timeStatus = v.findViewById(R.id.time_status);
+				videoHolder.timeStatus = (View) v.findViewById(R.id.time_status);
+				videoHolder.selectedStateOverlay = v.findViewById(R.id.selected_state_overlay);
+				videoHolder.messageContainer = (ViewGroup) v.findViewById(R.id.message_container);
 				videoHolder.dayStub = (ViewStub) v.findViewById(R.id.day_stub);
 				videoHolder.messageInfoStub = (ViewStub) v.findViewById(R.id.message_info_stub);
 				v.setTag(videoHolder);
@@ -314,6 +325,9 @@ public class MessageInfoView
 			{
 				videoHolder=(VideoViewHolder)v.getTag();
 			}
+			videoHolder.circularProgressBg.setVisibility(View.GONE);
+
+			videoHolder.circularProgress.setVisibility(View.GONE);
 			final HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
 			Drawable thumbnail = null;
 			if (hikeFile.getThumbnail() == null && !TextUtils.isEmpty(hikeFile.getFileKey()))
@@ -356,6 +370,18 @@ public class MessageInfoView
 				if (width >= minWidth && width <= maxWidth)
 					fileThumbParams.width = width;
 			}
+			videoHolder.ftAction.setVisibility(View.VISIBLE);
+			videoHolder.ftAction.setImageResource(R.drawable.ic_videoicon);
+			videoHolder.fileSize.setText(Utils.getSizeForDisplay(hikeFile.getFile().length()));
+			videoHolder.fileSize.setVisibility(View.VISIBLE);
+			videoHolder.fileThumb.setVisibility(View.VISIBLE);
+			videoHolder.filmstripLeft.setVisibility(View.VISIBLE);
+			videoHolder.filmstripRight.setVisibility(View.VISIBLE);
+			videoHolder.initializing.setVisibility(View.GONE);
+			videoHolder.circularProgress.setVisibility(View.GONE);
+			videoHolder.circularProgressBg.setVisibility(View.VISIBLE);
+			videoHolder.ftAction.setScaleType(ImageView.ScaleType.CENTER);
+			setBubbleColor(convMessage, videoHolder.messageContainer);
 			setTimeNStatus(videoHolder, true);
 		}
 		else if (viewType == ViewType.IMAGE_SENT)
@@ -884,6 +910,7 @@ public class MessageInfoView
 			fileThumb.setLayoutParams(fileThumbParams);
 
 			fileThumb.setVisibility(View.VISIBLE);
+
 			setBubbleColor(convMessage, messageContainer);
 			setTimeNStatus(detailViewHolder, true);
 
