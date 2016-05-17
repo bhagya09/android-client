@@ -60,7 +60,6 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.analytics.HomeAnalyticsConstants;
 import com.bsb.hike.backup.AccountBackupRestore;
-import com.bsb.hike.backup.HikeCloudSettingsManager;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.AccountRestoreAsyncTask;
@@ -327,8 +326,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		FTApkManager.removeApkIfNeeded();
 		moveToComposeChatScreen();
-
-		HikeCloudSettingsManager.getInstance().doRestore(null);
 
 		fetchAndUpdateBdayList();
     }
@@ -684,8 +681,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 			
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
-
-		fetchAndUpdateBdayList();
 	}
 
 	private void showSmsOrFreeInvitePopup()
@@ -2702,7 +2697,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		final long ts = sharedPreferenceUtil.getData(HikeConstants.BDAY_HTTP_CALL_TS, 0l);
 
-		if(System.currentTimeMillis() - ts > sharedPreferenceUtil.getData(HikeConstants.BDAY_HTTP_CALL_TIME_GAP, 2 * 60 * 60 * 1000)) {
+		if(System.currentTimeMillis() - ts > sharedPreferenceUtil.getData(HikeConstants.BDAY_HTTP_CALL_TIME_GAP, 1* 60 * 60 * 1000)) {
 			RequestToken requestToken = HttpRequests.fetchBdaysForCCA(new IRequestListener() {
 
 				@Override
