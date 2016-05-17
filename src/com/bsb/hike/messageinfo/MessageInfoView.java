@@ -713,6 +713,9 @@ public class MessageInfoView
 				textHolder.text.setText(markedUp);
 
 			}
+
+			Linkify.addLinks(textHolder.text, Linkify.ALL);
+			Linkify.addLinks(textHolder.text, Utils.shortCodeRegex, "tel:");
 			setTimeNStatus(textHolder, false);
 
 		}
