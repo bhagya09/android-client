@@ -2,6 +2,7 @@ package com.bsb.hike.media;
 
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,6 +33,7 @@ import com.bsb.hike.models.HikeChatTheme;
 import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 import java.util.ArrayList;
 
@@ -157,7 +159,7 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 				animatedThemeIndicator.setVisibility(View.GONE);
 				animatedBackground.setVisibility(View.GONE);
 				theme.setImageBitmap(null);
-				theme.setBackground(null);
+				setBackgroundThumbnail(theme, null);
 
 				if(getItem(position).equalsIgnoreCase(HikeChatThemeConstants.THEME_PALETTE_CAMERA_ICON)) {
 					theme.setImageResource(R.drawable.ic_ct_camera);
@@ -172,7 +174,7 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 				} else {
 					HikeChatTheme chatTheme = ChatThemeManager.getInstance().getTheme(getItem(position));
 					animatedThemeIndicator.setVisibility(chatTheme.isAnimated() ? View.VISIBLE : View.GONE);
-					theme.setBackground(ChatThemeManager.getInstance().getDrawableForTheme(chatTheme.getThemeId(), HikeChatThemeConstants.ASSET_INDEX_THUMBNAIL));
+					setBackgroundThumbnail(theme, ChatThemeManager.getInstance().getDrawableForTheme(chatTheme.getThemeId(), HikeChatThemeConstants.ASSET_INDEX_THUMBNAIL));
 					theme.setEnabled(userSelection.equals(chatTheme.getThemeId()));
 				}
 
@@ -213,6 +215,14 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 			}
 		});
 
+	}
+
+	private void setBackgroundThumbnail(ImageView imgView, Drawable drawable){
+		if (Utils.isJellybeanOrHigher()) {
+			imgView.setBackground(drawable);
+		} else {
+			imgView.setBackgroundDrawable(drawable);
+		}
 	}
 
 	private boolean orientationChanged(int orientation)
