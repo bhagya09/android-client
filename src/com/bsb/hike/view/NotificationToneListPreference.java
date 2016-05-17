@@ -1,9 +1,5 @@
 package com.bsb.hike.view;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -21,9 +17,19 @@ import android.view.View;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.ui.HikePreferences;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.SoundUtils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class NotificationToneListPreference extends ListPreference implements DialogInterface.OnClickListener
 {
@@ -118,6 +124,7 @@ public class NotificationToneListPreference extends ListPreference implements Di
 			String selectedRingtoneValue = this.getEntryValues()[mClickedDialogEntryIndex].toString();
 			this.setValue(selectedRingtoneValue);
 			setTitle(mContext.getString(R.string.notificationSoundTitle) + " - " + selectedRingtoneValue);
+			recordToneChangePrefValue(selectedRingtoneValue);
 			String selectedRintoneUri = getFinalSelectedRingtoneUri(selectedRingtoneValue);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.NOTIFICATION_TONE_URI, selectedRintoneUri);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.NOTIFICATION_TONE_NAME, selectedRingtoneValue);
@@ -260,4 +267,25 @@ public class NotificationToneListPreference extends ListPreference implements Di
 			this.getDialog().dismiss();
 		}
 	}
+
+	private void recordToneChangePrefValue(String selectedRingtoneValue)
+	{
+		try
+		{
+			JSONObject json = HikeAnalyticsEvent.getSettingsAnalyticsJSON();
+
+			if (json != null)
+			{
+				json.put(AnalyticsConstants.V2.FAMILY, "notif_tone");
+				json.put(AnalyticsConstants.V2.GENUS, selectedRingtoneValue);
+				HAManager.getInstance().recordV2(json);
+			}
+		}
+
+		catch (JSONException e)
+		{
+			e.toString();
+		}
+	}
+
 }

@@ -1,6 +1,5 @@
 package com.hike.abtest;
 
-import java.lang.annotation.Documented;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.json.JSONException;
@@ -9,7 +8,6 @@ import org.json.JSONObject;
 import android.content.Context;
 
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.analytics.AnalyticsConstants;
 import com.hike.abtest.dataPersist.DataPersist;
 import com.hike.abtest.dataparser.DataParser;
 import com.hike.abtest.model.Experiment;
@@ -182,16 +180,10 @@ public class ABTest {
         Experiment experiment = getInstance().getDataManager().getExperiment(varKey);
 
         if(experiment != null) {
-            try {
-                //Logging only when experiment is running
-                if (experiment.getExperimentState() == Experiment.EXPERIMENT_STATE_RUNNING) {
-                    experimentDetails = new JSONObject();
-                    experimentDetails.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_ABTEST_LOGS);
-                    experimentDetails.put(AnalyticsConstants.V2.PHYLUM, experiment.getExperimentId());
-                    experimentDetails.put(AnalyticsConstants.V2.CLASS, experiment.getVariantId());
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
+            //Logging only when experiment is running
+            if (experiment.getExperimentState() == Experiment.EXPERIMENT_STATE_RUNNING) {
+                experimentDetails = AnalyticsUtil.getExperimentAnalyticsJson(experiment.getExperimentId(),
+                        experiment.getVariantId());
             }
         }
 

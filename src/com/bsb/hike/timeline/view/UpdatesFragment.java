@@ -9,6 +9,7 @@ import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -32,6 +33,9 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HomeAnalyticsConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.media.ImageParser;
 import com.bsb.hike.media.ImageParser.ImageParserListener;
@@ -1088,6 +1092,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		switch (arg0.getId())
 		{
 		case R.id.new_photo_tab:
+			recordNewPhotoClick();
 			int galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS | GalleryActivity.GALLERY_CROP_IMAGE | GalleryActivity.GALLERY_COMPRESS_EDITED_IMAGE
 					| GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
 
@@ -1096,7 +1101,10 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			break;
 
 		case R.id.new_status_tab:
-			startActivity(IntentFactory.getPostStatusUpdateIntent(getActivity(),null, null, false));
+			recordNewStatusClick();
+			Intent newSUIntent = IntentFactory.getPostStatusUpdateIntent(getActivity(), null, null, false);
+			Utils.setSpecies(HomeAnalyticsConstants.SU_SPECIES_TIMELINE_TEXT_BUTTON, newSUIntent);
+			startActivity(newSUIntent);
 			break;
 
 		default:
@@ -1120,12 +1128,14 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	}
 
 	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data)
+	public void onActivityResult(int requestCode, int resultCode, final Intent data)
 	{
 		if (resultCode == Activity.RESULT_CANCELED)
 		{
 			return;
 		}
+
+		final String genus = data.getStringExtra(HikeConstants.Extras.GENUS);
 
 		switch (requestCode)
 		{
@@ -1135,7 +1145,13 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				@Override
 				public void imageParsed(String imagePath)
 				{
-					startActivity(IntentFactory.getPostStatusUpdateIntent(getActivity(), null, imagePath, false));
+					Intent newSUIntent = IntentFactory.getPostStatusUpdateIntent(getActivity(), null, imagePath, false);
+					Utils.setSpecies(HomeAnalyticsConstants.SU_SPECIES_TIMELINE_PHOTO_BUTTON, newSUIntent);
+					if(!TextUtils.isEmpty(genus))
+					{
+						Utils.setGenus(genus, newSUIntent);
+					}
+					startActivity(newSUIntent);
 				}
 
 				@Override
@@ -1176,5 +1192,36 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			}
 		}
 	}
+
+	private void recordNewPhotoClick()
+	{
+		recordTimelineButtonClick("tl_photo");
+	}
+
+	private void recordNewStatusClick()
+	{
+		recordTimelineButtonClick("tl_status");
+	}
+
+	private void recordTimelineButtonClick(String whichItem)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, HomeAnalyticsConstants.TIMELINE_UK);
+			json.put(AnalyticsConstants.V2.KINGDOM, HomeAnalyticsConstants.HOMESCREEN_KINGDOM);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, whichItem);
+
+			HAManager.getInstance().recordV2(json);
+		}
+
+		catch (JSONException e)
+		{
+			e.toString();
+		}
+	}
+
 
 }

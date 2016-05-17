@@ -43,6 +43,7 @@ import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HomeAnalyticsConstants;
 import com.bsb.hike.backup.HikeCloudSettingsManager;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.cropimage.HikeCropActivity;
@@ -203,6 +204,10 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 	private ProfileImageLoader profileImageLoader;
 
+	private boolean showStickerRestoreDiffDpiDialog = false;
+
+	private final String SHOW_STICKER_RESTORE_DIALOG  = "showStkDialog";
+
 	private class ActivityState
 	{
 		public RequestToken pinCallRequestToken; /* the task to update the global profile */
@@ -347,6 +352,8 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				showErrorMsg();
 			}
 			mTask = SignupTask.startTask(this, mActivityState.userName, mActivityState.isFemale, mActivityState.birthday, mActivityState.profileBitmap);
+
+			showStickerRestoreDiffDpiDialog = savedInstanceState.getBoolean(SHOW_STICKER_RESTORE_DIALOG, false);
 		}
 		else
 		{
@@ -489,7 +496,16 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				HttpRequestConstants.toggleSSL();
 
 				mHandler.removeCallbacks(startWelcomeScreen);
-				mHandler.postDelayed(startWelcomeScreen, 2500);
+
+				if (showStickerRestoreDiffDpiDialog)
+				{
+					showStickerRestoreDialog();
+				}
+
+				else
+				{
+					mHandler.postDelayed(startWelcomeScreen, 2500);
+				}
 
 				SharedPreferences settings = getApplication().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 				Editor ed = settings.edit();
@@ -519,19 +535,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		@Override
 		public void run()
 		{
-			final LocalLanguage localLanguage = LocalLanguageUtils.getApplicationLocalLanguage(getApplicationContext());
-			for (LocalLanguage language : localLanguage.getDeviceSupportedHikeLanguages(getApplicationContext()))
-			{
-				if (language.getDisplayName().equalsIgnoreCase(localLanguage.getDisplayName()))
-				{
-					LocalLanguageUtils.setApplicationLocalLanguage(language, HikeConstants.APP_LANG_CHANGED_SETTINGS);
-					break;
-				}
-			}
-			Intent i = new Intent(SignupActivity.this, HomeActivity.class);
-			i.putExtra(HikeConstants.Extras.NEW_USER, true);
-			startActivity(i);
-			finish();
+			openHomeActivity();
 		}
 	};
 
@@ -610,6 +614,12 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			countDownTimer.cancel();
 			countDownTimer = null;
 		}
+	}
+
+	@Override
+	protected String getSourceSpecies()
+	{
+		return HomeAnalyticsConstants.DP_SPECIES_SIGN_UP;
 	}
 
 	private void startLoading()
@@ -1379,6 +1389,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 					public void onClick(View v)
 					{
 						// Open PlayStore
+						recordUpdateAppButtonClick();
 						IntentFactory.launchPlayStore(SignupActivity.this.getPackageName(), SignupActivity.this);
 					}
 				});
@@ -2072,6 +2083,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		}
 		outState.putString(HikeConstants.Extras.RESTORE_STATUS, mActivityState.restoreStatus);
 		outState.putParcelable(HikeConstants.Extras.BITMAP, mActivityState.profileBitmap);
+		outState.putBoolean(SHOW_STICKER_RESTORE_DIALOG, showStickerRestoreDiffDpiDialog);
 		super.onSaveInstanceState(outState);
 	}
 
@@ -2296,7 +2308,8 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			break;
 
 		case SHOW_STICKER_RESTORE_DIALOG:
-			showStickerRestoreDialog();
+			showStickerRestoreDiffDpiDialog = true;
+			break;
 		}
 		setListeners();
 	}
@@ -2574,10 +2587,8 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 					public void positiveClicked(HikeDialog hikeDialog)
 					{
 						hikeDialog.dismiss();
-						if (mTask != null)
-						{
-							mTask.addUserInput("");
-						}
+						recordStickerRestoreDialogOkClick();
+						openHomeActivity();
 					}
 
 					@Override
@@ -2588,4 +2599,50 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				}, null);
 	}
 
+	private void openHomeActivity()
+	{
+		final LocalLanguage localLanguage = LocalLanguageUtils.getApplicationLocalLanguage(getApplicationContext());
+		for (LocalLanguage language : localLanguage.getDeviceSupportedHikeLanguages(getApplicationContext()))
+		{
+			if (language.getDisplayName().equalsIgnoreCase(localLanguage.getDisplayName()))
+			{
+				LocalLanguageUtils.setApplicationLocalLanguage(language, HikeConstants.APP_LANG_CHANGED_SETTINGS);
+				break;
+			}
+		}
+		Intent i = new Intent(SignupActivity.this, HomeActivity.class);
+		i.putExtra(HikeConstants.Extras.NEW_USER, true);
+		startActivity(i);
+		finish();
+	}
+
+	private void recordStickerRestoreDialogOkClick()
+	{
+		recordBackupRelatedEvents("stk_rstr_popup");
+	}
+
+	private void recordUpdateAppButtonClick()
+	{
+		recordBackupRelatedEvents("upgrade");
+	}
+
+	private void recordBackupRelatedEvents(String whichEvent)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, HomeAnalyticsConstants.BACKUP_UK);
+			json.put(AnalyticsConstants.V2.KINGDOM, HomeAnalyticsConstants.HOMESCREEN_KINGDOM);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.CLASS, HomeAnalyticsConstants.BACKUP_UK);
+			json.put(AnalyticsConstants.V2.ORDER, whichEvent);
+
+			HAManager.getInstance().recordV2(json);
+		}
+
+		catch (JSONException e)
+		{
+			e.toString();
+		}
+	}
 }

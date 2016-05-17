@@ -500,7 +500,9 @@ public class IntentFactory
 	public static Intent getVideoRecordingIntent()
 	{
 		Intent newMediaFileIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-		newMediaFileIntent.putExtra(MediaStore.EXTRA_SIZE_LIMIT, (long) (0.9 * HikeConstants.MAX_FILE_SIZE));
+		if (!ChatThreadUtils.isBigVideoSharingEnabled()) {
+			newMediaFileIntent.putExtra(MediaStore.EXTRA_SIZE_LIMIT, (long) (0.9 * HikeConstants.MAX_FILE_SIZE));
+		}
 		Intent pickVideo = new Intent(Intent.ACTION_PICK).setType("video/*");
 		return Intent.createChooser(pickVideo, "").putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[] { newMediaFileIntent });
 	}
@@ -1506,13 +1508,13 @@ public class IntentFactory
 		return intent;
 	}
 
-	public static void openPackPreviewIntent(Context context, String catId, int position, StickerConstants.PackPreviewClickSource previewClickSource)
+	public static void openPackPreviewIntent(Context context, String catId, int position, StickerConstants.PackPreviewClickSource previewClickSource, String previewClickSearchKey)
 	{
 		Intent intent = new Intent(context, PackPreviewActivity.class);
 		intent.putExtra(HikeConstants.STICKER_CATEGORY_ID, catId);
 		intent.putExtra(HikeConstants.POSITION, position);
 		context.startActivity(intent);
-		StickerManager.getInstance().sendPackPreviewOpenAnalytics(catId, previewClickSource);
+		StickerManager.getInstance().sendPackPreviewOpenAnalytics(catId, position, previewClickSource.getValue(), previewClickSearchKey);
 	}
 
 	public static String getTextFromActionSendIntent(Intent presentIntent)

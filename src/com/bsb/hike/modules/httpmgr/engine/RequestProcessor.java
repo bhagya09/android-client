@@ -121,10 +121,11 @@ public class RequestProcessor
 
 	public static void removeRequest(Request<?> request)
 	{
-		if (request.getId() != null)
+		String id = request.getId();
+		if (id != null)
 		{
             LogFull.i(request.toString() + " removing key in map");
-			requestMap.remove(request.getId());
+			requestMap.remove(id);
 		}
 	}
 

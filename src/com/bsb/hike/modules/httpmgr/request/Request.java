@@ -1,8 +1,6 @@
 package com.bsb.hike.modules.httpmgr.request;
 
-import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_HIGH;
-import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_LOW;
-import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_NORMAL;
+import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.*;
 import static com.bsb.hike.modules.httpmgr.request.RequestConstants.GET;
 
 import java.io.IOException;
@@ -16,17 +14,12 @@ import java.util.concurrent.Future;
 
 import org.json.JSONObject;
 
-import android.text.TextUtils;
-
 import com.bsb.hike.filetransfer.FileSavedState;
 import com.bsb.hike.filetransfer.FileTransferBase.FTState;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.gcmnetworkmanager.Config;
-import com.bsb.hike.modules.gcmnetworkmanager.GcmNwMgrService;
 import com.bsb.hike.modules.gcmnetworkmanager.HikeGcmNetworkMgr;
-import com.bsb.hike.modules.httpmgr.requeststate.HttpRequestState;
 import com.bsb.hike.modules.httpmgr.Header;
-import com.bsb.hike.modules.httpmgr.requeststate.HttpRequestStateDB;
 import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.client.IClient;
@@ -41,9 +34,13 @@ import com.bsb.hike.modules.httpmgr.request.listener.IProgressListener;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestCancellationListener;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
+import com.bsb.hike.modules.httpmgr.request.requestbody.StringBody;
+import com.bsb.hike.modules.httpmgr.requeststate.HttpRequestState;
+import com.bsb.hike.modules.httpmgr.requeststate.HttpRequestStateDB;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.httpmgr.retry.BasicRetryPolicy;
-import com.hike.transporter.interfaces.IRetryPolicy;
+
+import android.text.TextUtils;
 
 /**
  * Encapsulates all of the information necessary to make an HTTP request.
@@ -823,7 +820,7 @@ public abstract class Request<T> implements IRequestFacade
 		public S post(IRequestBody body)
 		{
 			this.method = RequestConstants.POST;
-			this.body = body;
+			this.body = body != null ? body : new StringBody("");
 			return self();
 		}
 
