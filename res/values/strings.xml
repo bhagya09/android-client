@@ -1598,4 +1598,8 @@
     <string name="edit_profile_birthday">Birth Date</string>
 
     <string name="file_size_invalid_error">The file size which you are trying to share is invalid</string>
+    <string name="services">Services</string>
+    <string name="ADD_FRIENDS">ADD FRIENDS</string>
+    <string name="ADDED_ME">ADDED ME</string>
+    <string name="SERVICES">SERVICES</string>
 </resources>
