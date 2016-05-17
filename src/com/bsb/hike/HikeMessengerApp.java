@@ -33,6 +33,7 @@ import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.diskcache.Cache;
 import com.bsb.hike.modules.diskcache.InternalCache;
+import com.bsb.hike.modules.gcmnetworkmanager.HikeGcmNetworkMgr;
 import com.bsb.hike.modules.httpmgr.HttpManager;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
@@ -253,7 +254,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	// public static final String TWITTER_AUTH_COMPLETE = "twitterAuthComplete";
 
-    public static final int DEFAULT_SEND_ANALYTICS_TIME_HOUR = 12;
+    public static final int DEFAULT_SEND_ANALYTICS_TIME_HOUR = 0;
 
     public static final String DAILY_ANALYTICS_ALARM_STATUS = "dailyAnalyticsAlarmStatus";
 
@@ -515,6 +516,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public static final String ENABLE_ADDRESSBOOK_THROUGH_HTTP_MGR = "enAbHttpMgr";
 
+	public static final String EDIT_PROFILE_THROUGH_HTTP_MGR = "editProfHttpMgr";
+
 	public static final String PROB_NUM_TEXT_MSG = "num_txt";
 
 	public static final String PROB_NUM_STICKER_MSG = "num_stk";
@@ -566,9 +569,11 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public static final String SET_ALARM_FIRST_TIME = "setAlarmFirstTime";
 
-    public static final String STICKER_BUTTON_CLICK_ANALYTICS_COUNT = "lastStickerButtonClickAnalyticsCount";
+    public static final String STICKER_PALLETE_BUTTON_CLICK_ANALYTICS = "lastStickerButtonClickAnalyticsCount";
 
-    public static final String EMOTICON_BUTTON_CLICK_ANALYTICS_COUNT = "lastEmoticonButtonClickAnalyticsCount";
+    public static final String STICKER_SEARCH_BUTTON_CLICK_ANALYTICS = "lastStickerSearchButtonClickAnalyticsCount";
+
+    public static final String EMOTICON_BUTTON_CLICK_ANALYTICS = "lastEmoticonButtonClickAnalyticsCount";
 
     public static final String EMOTICONS_CLICKED_LIST = "emoticonClickedIndex";
 
@@ -998,12 +1003,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		CustomTabsHelper.getPackageNameToUse(this);
 		Logger.d(HikeConstants.APP_OPENING_BENCHMARK, "Time taken in HikeMessengerApp onCreate = " + (System.currentTimeMillis() - time));
 
-		if (Utils.isUserOnline(this) && (!Utils.isUserAuthenticated(this)) && !settings.getBoolean(HikeMessengerApp.GCM_ID_SENT_PRELOAD, false))
-		{
-			Intent in = new Intent(HikeService.REGISTER_TO_GCM_ACTION);
-			settings.edit().putInt(HikeConstants.REGISTER_GCM_SIGNUP, HikeConstants.REGISTEM_GCM_BEFORE_SIGNUP).commit();
-			LocalBroadcastManager.getInstance(this.getApplicationContext()).sendBroadcast(in);
-		}
+		Utils.connectToGcmPreSignup();
 
 	}
 
@@ -1114,6 +1114,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		}
 
 		initCrashReportingTool();
+
+		checkAndTriggerPendingGcmNetworkCalls();
 	}
 
 	public void logUser() {
@@ -1429,5 +1431,10 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
     {
         diskCache = null;
     }
+
+	private void checkAndTriggerPendingGcmNetworkCalls()
+	{
+		HikeGcmNetworkMgr.getInstance().triggerPendingGcmNetworkCalls();
+	}
 
 }

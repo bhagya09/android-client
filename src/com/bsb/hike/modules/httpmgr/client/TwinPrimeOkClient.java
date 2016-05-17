@@ -17,7 +17,7 @@ public class TwinPrimeOkClient extends OkClient {
         clientOptions = clientOptions != null ? clientOptions : ClientOptions.getDefaultClientOptions();
         OkHttpClient client = new TPOkHttpClient();
         addLogging(client);
-        return setClientParameters(client, clientOptions);
+        return new OkHttpClientFactory().setClientParameters(client, clientOptions);
     }
 
 

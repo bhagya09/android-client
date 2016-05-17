@@ -70,7 +70,7 @@ import com.bsb.hike.ui.PinHistoryActivity;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.ProfilePicActivity;
 import com.bsb.hike.ui.SettingsActivity;
-import com.bsb.hike.ui.ShareLocation;
+import com.bsb.hike.modules.fusedlocation.ShareLocation;
 import com.bsb.hike.ui.SignupActivity;
 import com.bsb.hike.modules.packPreview.PackPreviewActivity;
 import com.bsb.hike.ui.StickerSettingsActivity;
@@ -90,8 +90,6 @@ import org.json.JSONObject;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.bsb.hike.backup.AccountBackupRestore.*;
 
 public class IntentFactory
 {
@@ -1510,13 +1508,13 @@ public class IntentFactory
 		return intent;
 	}
 
-	public static void openPackPreviewIntent(Context context, String catId, int position, StickerConstants.PackPreviewClickSource previewClickSource)
+	public static void openPackPreviewIntent(Context context, String catId, int position, StickerConstants.PackPreviewClickSource previewClickSource, String previewClickSearchKey)
 	{
 		Intent intent = new Intent(context, PackPreviewActivity.class);
 		intent.putExtra(HikeConstants.STICKER_CATEGORY_ID, catId);
 		intent.putExtra(HikeConstants.POSITION, position);
 		context.startActivity(intent);
-		StickerManager.getInstance().sendPackPreviewOpenAnalytics(catId, previewClickSource);
+		StickerManager.getInstance().sendPackPreviewOpenAnalytics(catId, position, previewClickSource.getValue(), previewClickSearchKey);
 	}
 
 	public static String getTextFromActionSendIntent(Intent presentIntent)

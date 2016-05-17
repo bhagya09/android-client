@@ -86,7 +86,9 @@ public class AccountBackupRestore
 	/**
 	 *If backup is taken below and/or on this version, and restored on a future build, sticker backup will not work.
 	 */
-	public static int STICKER_BACKUP_THRESHHOLD_VERSION = 1687;
+	public static int STICKER_BACKUP_THRESHHOLD_VERSION = 1705;
+
+	public static int STICKER_CATEGORY_TABLE_UPDATE_VERSION = 1687;
 
 	private final Context mContext;
 

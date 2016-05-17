@@ -138,22 +138,27 @@ public class StickerShopAdapter extends CursorAdapter
 
     private void showPackPreviewFtue(int position, ViewHolder viewholder)
     {
-        if(!shownPackPreviewFtue)
-        {
-            Animation animation = viewholder.downloadState.getAnimation();
-            if(animation != null)
-            {
-                animation.cancel();
-            }
-
-            if(position == 0)
-            {
-                viewholder.downloadState.startAnimation(packPreviewFtueAnimation);
-            }
-            else
-            {
-                viewholder.downloadState.setAnimation(null);
-            }
-        }
+		Animation animation = viewholder.downloadState.getAnimation();
+		if (shownPackPreviewFtue)
+		{
+			if (animation != null)
+			{
+				viewholder.downloadState.clearAnimation();
+			}
+		}
+		else
+		{
+			if (position == 0)
+			{
+				if (animation == null)
+				{
+					viewholder.downloadState.startAnimation(packPreviewFtueAnimation);
+				}
+			}
+			else
+			{
+				viewholder.downloadState.setAnimation(null);
+			}
+		}
     }
 }
