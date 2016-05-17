@@ -1375,6 +1375,7 @@ public class Utils
 			data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis() / 1000));
 			data.put(HikeConstants.RESOLUTION_ID, Utils.getResolutionId());
 			data.put(HikeConstants.NEW_LAST_SEEN_SETTING, true);
+			data.put(HikeConstants.FAVS_RAI,false);
 			requestAccountInfo.put(HikeConstants.DATA, data);
 			HikeMqttManagerNew.getInstance().sendMessage(requestAccountInfo, MqttConstants.MQTT_QOS_ONE);
 		}
