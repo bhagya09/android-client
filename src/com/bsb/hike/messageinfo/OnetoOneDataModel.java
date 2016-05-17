@@ -37,7 +37,7 @@ public class OnetoOneDataModel extends MessageInfoDataModel
 	}
 
 	@Override
-	public void fetchAllParticipantsInfo()
+	public MessageInfoLoaderData fetchAllParticipantsInfo()
 	{
 
 		ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, true, true);
@@ -53,6 +53,11 @@ public class OnetoOneDataModel extends MessageInfoDataModel
 			participant.setReadTimeStamp(info.getReadTimestamp());
 			participant.setPlayedTimeStamp(info.getPlayedTimestamp());
 		}
+		MessageInfoLoaderData data=new MessageInfoLoaderData();
+		data.messageInfoHashSet=messageInfoMap;
+		data.convMessage=convMessage;
+		data.participantTreeMap=participantTreeMap;
+		return data;
 	}
 
 

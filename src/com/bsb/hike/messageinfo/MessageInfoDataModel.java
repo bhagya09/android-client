@@ -1,5 +1,8 @@
 package com.bsb.hike.messageinfo;
 
+import android.content.AsyncTaskLoader;
+import android.content.Context;
+
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -39,7 +42,7 @@ public abstract class MessageInfoDataModel
 
 	protected List<MessageInfoParticipantData> allParticipantsList;
 
-	public abstract void fetchAllParticipantsInfo();
+	public abstract MessageInfoLoaderData fetchAllParticipantsInfo();
 
 	protected HikeConversationsDatabase mDb = HikeConversationsDatabase.getInstance();
 
@@ -140,4 +143,6 @@ public abstract class MessageInfoDataModel
 	{
 
 	}
+
+
 }

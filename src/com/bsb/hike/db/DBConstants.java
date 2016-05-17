@@ -534,6 +534,24 @@ public interface DBConstants
 
 	public static final String COPYRIGHT_STRING = "copyRightString";
 
+	public static final String STICKER_CATEGORY_RANK_TABLE = "categoryRankTable";
+
+	public static final String UCID_INDEX = "ucidIndex";
+
+	public static final String RANK = "rank";
+
+	public static final String UCID = "ucid";
+
+	public static final String IS_PACK_METADATA_UPDATED = "isPackMetadataUpdated";
+
+    public static final String IS_PACK_TAGDATA_UPDATED = "isPackTagdataUpdated";
+
+	public static final String UPDATED_METADATA_TIMESTAMP = "updatedMetadataTs";
+
+	public static final String UPDATED_PREVIEW_TIMESTAMP = "updatedPreviewTs";
+
+	public static final String IS_DISABLED = "is_disabled";
+
 	public static final String STICKER_SHOP_TABLE = "stickerShopTable";
 	
 	public static final String MESSAGE_TABLE_CONTENT_INDEX = "messageContentIndex";

@@ -1319,6 +1319,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			recordMediaShareAnalyticEvent(ChatAnalyticConstants.OVERFLOW_MENU_CLICKED);
 			break;
 		case R.id.sticker_btn:
+			StickerManager.getInstance().initiateFetchCategoryRanksAndDataTask();
 			stickerClicked();
 			break;
 		case R.id.emoticon_btn:

@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:orientation="vertical">
  	<LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/conversation_item"
         android:layout_width="match_parent"
-        android:layout_height="54dp"
+        android:layout_height="wrap_content"
+        android:minHeight="63dp"
         android:background="@drawable/conversation_list_item"
         android:gravity="center_vertical"
         android:orientation="horizontal"
@@ -13,7 +17,9 @@
 
         <FrameLayout
             android:layout_width="@dimen/message_info_contact_avatar"
-            android:layout_height="@dimen/message_info_contact_avatar">
+            android:layout_height="@dimen/message_info_contact_avatar"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="12dp">
 
             <com.bsb.hike.view.RoundedImageView
                 android:id="@+id/avatar"
@@ -45,7 +51,8 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:weightSum="1.0"
-                android:layout_marginTop=".5dp">
+                android:layout_marginTop=".5dp"
+                android:id="@+id/default_timestamp">
 
                  <com.bsb.hike.view.CustomFontTextView
                     android:id="@+id/timestamp"
@@ -63,25 +70,28 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:visibility="gone"
-                android:weightSum="1.0"
-                android:layout_marginTop=".5dp">
+                android:layout_marginTop=".5dp"
+                android:id="@+id/expandedReadLayout">
 
                 <com.bsb.hike.view.CustomFontTextView
                     android:id="@+id/expand_read_text"
-                    android:layout_marginRight="16dp"
                     style="@style/ListItemSubHeaderTextView"
+                    android:layout_width="wrap_content"
+                    android:gravity="left"
+                    android:text="Read"/>
+
+                <View
                     android:layout_width="0dp"
-                    android:layout_weight="1.0"
-                    android:visibility="invisible" />
-
-
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    />
                 <com.bsb.hike.view.CustomFontTextView
                     android:id="@+id/read_message_timestamp"
                     android:layout_marginRight="16dp"
                     style="@style/ListItemSubHeaderTextView"
-                    android:layout_width="0dp"
-                    android:layout_weight="1.0"
-                    android:visibility="invisible" />
+                    android:layout_width="wrap_content"
+                    android:text="5 PM TOday"
+                    android:layout_gravity="right"/>
 
             </LinearLayout>
             <LinearLayout
@@ -89,26 +99,45 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:visibility="gone"
-                android:weightSum="1.0"
-                android:layout_marginTop=".5dp">
+                android:layout_marginTop=".5dp"
+                android:id="@+id/expandedDeliveredLayout">
 
                 <com.bsb.hike.view.CustomFontTextView
                     android:id="@+id/expand_delivered_text"
-                    android:layout_marginRight="16dp"
                     style="@style/ListItemSubHeaderTextView"
+                    android:layout_width="wrap_content"
+                    android:text="Delivered"/>
+
+                <View
                     android:layout_width="0dp"
-                    android:layout_weight="1.0"
-                    android:visibility="invisible" />
-
-
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    />
                 <com.bsb.hike.view.CustomFontTextView
                     android:id="@+id/delivered_message_timestamp"
                     android:layout_marginRight="16dp"
                     style="@style/ListItemSubHeaderTextView"
-                    android:layout_width="0dp"
-                    android:layout_weight="1.0"
-                    android:visibility="invisible" />
+                    android:layout_width="wrap_content"
+                    android:text="4 PM TOday"/>
 
             </LinearLayout>
         </LinearLayout>
+
  </LinearLayout>
+    <View
+    android:layout_width="match_parent"
+    android:layout_height="1dp"
+    android:layout_marginLeft="72dp"
+    android:layout_marginRight="16dp"
+    android:background="@color/black_alpha_10"
+    android:id="@+id/dividermiddle"
+        android:visibility="gone"></View>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:background="@color/black_alpha_10"
+        android:visibility="gone"
+        android:id="@+id/dividerend"></View>
+</LinearLayout>

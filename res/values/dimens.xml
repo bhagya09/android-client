@@ -154,5 +154,9 @@
 	<dimen name="keyboard_offboarding_text_width">270dp</dimen>
 	<dimen name="keyboard_offboarding_divider">30dp</dimen>
 	<dimen name="keyboard_offboarding_heading_width">250dp</dimen>
+	<dimen name="read_list_collapsed_height">64dp</dimen>
+	<dimen name="read_list_expanded_height">81dp</dimen>
+	<dimen name="read_listitem_collapsed_height">63dp</dimen>
+	<dimen name="read_listitem_expanded_height">80dp</dimen>
 
 </resources>

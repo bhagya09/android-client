@@ -4,7 +4,7 @@
     package="com.bsb.hike"
     android:installLocation="auto"
     android:versionCode="1699"
-    android:versionName="4.2.5.82.112" >
+    android:versionName="4.2.5.82.49.22.mi1" >
 
 
    <uses-sdk
@@ -611,6 +611,9 @@
             </intent-filter>
             <intent-filter >
                 <action android:name="com.bsb.hike.INTERCEPT_PHOTO_EDIT_INTENT" />
+            </intent-filter>
+            <intent-filter >
+                <action android:name="com.bsb.hike.INTERCEPT_VIDEO_SHARE_INTENT" />
             </intent-filter>
         </receiver>
 

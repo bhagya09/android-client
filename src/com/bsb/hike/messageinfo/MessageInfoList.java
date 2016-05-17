@@ -13,6 +13,8 @@ public abstract class MessageInfoList {
     public List<MessageInfoItem.MesageInfoParticipantItem> allDisplayedContactItems;
     public MessageInfoItem.MesageInfoRemainingItem remainingItem;
     public MessageInfoItem.MessageStatusHeader messageStatusHeader;
+    public static final int BIG_DIVIDER_CONTACTLIST=2;
+    protected static int listType=1;
     public boolean shouldAddList(){
         return !(getRemainingItemCount()==0&&allDisplayedContactItems.size()==0);
     }
@@ -22,10 +24,13 @@ public abstract class MessageInfoList {
 
         this.totalNumberofParticipants=totalNumberofParticipants;
         allDisplayedContactItems=new ArrayList<MessageInfoItem.MesageInfoParticipantItem>();
-        remainingItem=new MessageInfoItem.MesageInfoRemainingItem(MessageInfoItem.REMAINING_ITEM,totalNumberofParticipants, MessageInfoAdapter.LIST_REMAINING_GROUP, R.string.emptydeliveredlist);
-        remainingItem.remainingItemList=new ArrayList<MessageInfoDataModel.MessageInfoParticipantData>();
 
 
+    }
+    public void setDivider(){
+        if(!allDisplayedContactItems.isEmpty()){
+            allDisplayedContactItems.get(allDisplayedContactItems.size()-1).setDividerBehavior(BIG_DIVIDER_CONTACTLIST);
+        }
     }
     public int getRemainingItemCount()
     {
