@@ -815,8 +815,9 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			//We do not show sms contacts in broadcast mode
 			// read intent to find if group chat is enabled or not. also read to find out if any chats are excluded
 			boolean isGroupFirst = getIntent().getBooleanExtra(HikeConstants.Extras.IS_GROUP_FIRST, false);
+			boolean isRecentJoined = getIntent().getBooleanExtra(HikeConstants.Extras.IS_RECENT_JOINED, fetchRecentlyJoined);
 			List<String> excludeGroupList = getIntent().getStringArrayListExtra(HikeConstants.Extras.COMPOSE_EXCLUDE_LIST);
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage || isGroupFirst, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false, false,isContactChooserFilter,isShowTimeline());
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage || isGroupFirst, (isForwardingMessage && !isSharingFile), isRecentJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false, false,isContactChooserFilter,isShowTimeline());
 
 			adapter.setGroupFirst(isGroupFirst);
 			adapter.setComposeExcludeList(excludeGroupList);

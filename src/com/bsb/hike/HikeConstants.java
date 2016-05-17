@@ -1959,6 +1959,8 @@ public class HikeConstants
 
 		public static final String IS_GROUP_FIRST = "is_group_first";
 
+		public static final String IS_RECENT_JOINED = "is_recent_joined";
+
 		public static final String COMPOSE_EXCLUDE_LIST = "compose_exclude_list";
 
 		public static final String PROFILE_DOB = "profile_dob";

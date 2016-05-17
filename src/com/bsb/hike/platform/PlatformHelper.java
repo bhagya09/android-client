@@ -202,11 +202,16 @@ public class PlatformHelper
 			NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
 			JSONObject cardObj = new JSONObject(cardObject);
 
-			boolean isGroupFirst = true;
+			boolean isGroupFirst = true; // TODO: change the value to false
+			boolean isRecentJoined = false; // TODO: change the value to true
 			ArrayList<String> composeExcludedList = new ArrayList<>();
 			if(cardObj.has(HikeConstants.Extras.IS_GROUP_FIRST))
 			{
 				isGroupFirst = cardObj.getBoolean(HikeConstants.Extras.IS_GROUP_FIRST);
+			}
+			if(cardObj.has(HikeConstants.Extras.IS_RECENT_JOINED))
+			{
+				isRecentJoined = cardObj.getBoolean(HikeConstants.Extras.IS_RECENT_JOINED);
 			}
 			if(cardObj.has(HikeConstants.Extras.COMPOSE_EXCLUDE_LIST))
 			{
@@ -249,7 +254,7 @@ public class PlatformHelper
 
 			message.setPlatformData(sharedDataJson);
 			message.setNameSpace(mBotInfo.getNamespace());
-			pickContactAndSend(message, activity, hashcode, isGroupFirst, composeExcludedList);
+			pickContactAndSend(message, activity, hashcode, isGroupFirst, composeExcludedList, isRecentJoined);
 
 		}
 		catch (JSONException e)
@@ -401,7 +406,7 @@ public class PlatformHelper
 		}
 	}
 
-	public static void pickContactAndSend(ConvMessage message, final Activity activity, int hashcode, boolean isGroupFirst, ArrayList<String> composeExcludedList)
+	public static void pickContactAndSend(ConvMessage message, final Activity activity, int hashcode, boolean isGroupFirst, ArrayList<String> composeExcludedList, boolean isRecentJoined)
 	{
 		if (activity != null)
 		{
@@ -412,6 +417,7 @@ public class PlatformHelper
 			intent.putExtra(HikePlatformConstants.REQUEST_CODE, JavascriptBridge.PICK_CONTACT_AND_SEND_REQUEST);
 			intent.putExtra(HikeConstants.Extras.THUMBNAILS_REQUIRED, true);
 			intent.putExtra(HikeConstants.Extras.IS_GROUP_FIRST, isGroupFirst);
+			intent.putExtra(HikeConstants.Extras.IS_RECENT_JOINED, isRecentJoined);
 			intent.putStringArrayListExtra(HikeConstants.Extras.COMPOSE_EXCLUDE_LIST, composeExcludedList);
 			activity.startActivityForResult(intent, HikeConstants.PLATFORM_REQUEST);
 
