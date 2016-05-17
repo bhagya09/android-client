@@ -944,7 +944,9 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				dialogStrings[1] = getString(R.string.initiate_reset_stealth_body);
 				dialogStrings[2] = getString(R.string.CONFIRM);
 				dialogStrings[3] = getString(R.string.CANCEL);
-				
+
+				LockPattern.recordResetStealthModeClick();
+
 				HikeDialogFactory.showDialog(this, HikeDialogFactory.RESET_STEALTH_DIALOG, new HikeDialogListener()
 				{
 
@@ -1571,6 +1573,11 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			{
 				recordAudioDownloadWifiPref(Boolean.valueOf(newValue.toString()));
 			}
+
+			else if (HikeConstants.TICK_SOUND_PREF.equals(preference.getKey()))
+			{
+				recordNotificationTonesclick(Boolean.valueOf(newValue.toString()));
+			}
 		}
 
 		isSettingChanged = true;
@@ -1956,6 +1963,12 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 
 		lp.setOnPreferenceChangeListener(this);
 		ListPreference ledPref = (ListPreference) getPreferenceScreen().findPreference(HikeConstants.COLOR_LED_PREF);
+
+		Preference tickSoundPref = getPreferenceScreen().findPreference(HikeConstants.TICK_SOUND_PREF);
+		if (tickSoundPref != null)
+		{
+			tickSoundPref.setOnPreferenceChangeListener(this);
+		}
 
 		String entry = (String) ledPref.getEntry();
 		if (entry == null)
@@ -2385,4 +2398,8 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		recordPreferencesAnalytics("hdn_cng_pwd", "");
 	}
 
+	private void recordNotificationTonesclick(boolean newValue)
+	{
+		recordPreferencesAnalytics("notif_conv_tone", newValue ? "on" : "off");
+	}
 }

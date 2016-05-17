@@ -31,7 +31,6 @@ public class SocialIconLoader extends ImageWorker
 		this.context = ctx;
 		this.mImageWidth = imageWidth;
 		this.mImageHeight = imageHeight;
-		mResources = this.context.getResources();
 	}
 
 	/**

@@ -121,14 +121,14 @@ public class LockPattern
 			{
 			case Activity.RESULT_OK:
 				//Record Successful attempt
-				recordPasswordEnterAttempt(true);
+				recordPasswordEnterAttempt(true, StealthModeManager.getInstance().isPinAsPassword());
 				LockPattern.createNewPattern(activity, true, HikeConstants.ResultCodes.CREATE_LOCK_PATTERN);
 				break;
 			case Activity.RESULT_CANCELED:
 			case LockPatternActivity.RESULT_FAILED:
 			default:
 				//Record Failed Attempt
-				recordPasswordEnterAttempt(false);
+				recordPasswordEnterAttempt(false, StealthModeManager.getInstance().isPinAsPassword());
 				break;
 			}
 			break;
@@ -237,27 +237,27 @@ public class LockPattern
 		activity.startActivityForResult(i, requestCode);
 	}
 
-	private static void recordPasswordEnterAttempt(boolean successful)
+	private static void recordPasswordEnterAttempt(boolean successful, boolean isPin)
 	{
-		recordHiddenModeResetClicks("hdn_cng_pwd", successful ? "correct" : "incorrect");
+		recordHiddenModeResetClicks("hdn_cng_pwd", successful ? "correct" : "incorrect", isPin);
 	}
 
-	public static void recordCancelClickForResetPassword(String family)
+	public static void recordCancelClickForResetPassword(String family, boolean isPin)
 	{
-		recordHiddenModeResetClicks(family, "cancel");
+		recordHiddenModeResetClicks(family, "cancel", isPin);
 	}
 
-	public static void recordConfirmOnResetPassword(String family)
+	public static void recordConfirmOnResetPassword(String family, String species, boolean isPin)
 	{
-		recordHiddenModeResetClicks(family, "confirm");
+		recordHiddenModeResetClicks(family, species, isPin);
 	}
 
-	public static void recordRetryClickForResetPassword(String family)
+	public static void recordRetryClickForResetPassword(String family, boolean isPin)
 	{
-		recordHiddenModeResetClicks(family, "retry");
+		recordHiddenModeResetClicks(family, "retry", isPin);
 	}
 
-	private static void recordHiddenModeResetClicks(String family, String species)
+	private static void recordHiddenModeResetClicks(String family, String species, boolean isPin)
 	{
 		try
 		{
@@ -266,7 +266,7 @@ public class LockPattern
 			if (json != null)
 			{
 				json.put(AnalyticsConstants.V2.FAMILY, family);
-				json.put(AnalyticsConstants.V2.GENUS, StealthModeManager.getInstance().isPinAsPassword() ? "pin" : "pattern");
+				json.put(AnalyticsConstants.V2.GENUS, isPin ? "pin" : "pattern");
 				json.put(AnalyticsConstants.V2.SPECIES, species);
 				HAManager.getInstance().recordV2(json);
 			}
@@ -318,22 +318,22 @@ public class LockPattern
 		}
 	}
 
-	public static void recordCancelClickForSetPassword(String family)
+	public static void recordCancelClickForSetPassword(String family, boolean isPin)
 	{
-		recordHiddenModeSetClicks(family, "cancel");
+		recordHiddenModeSetClicks(family, "cancel", isPin);
 	}
 
-	public static void recordRetryClickForSetPassword(String family)
+	public static void recordRetryClickForSetPassword(String family, boolean isPin)
 	{
-		recordHiddenModeSetClicks(family, "retry");
+		recordHiddenModeSetClicks(family, "retry", isPin);
 	}
 
-	public static void recordConfirmOnSetPassword(String family)
+	public static void recordConfirmOnSetPassword(String family, String species, boolean isPin)
 	{
-		recordHiddenModeSetClicks(family, "confirm");
+		recordHiddenModeSetClicks(family, species, isPin);
 	}
 
-	private static void recordHiddenModeSetClicks(String family, String species)
+	private static void recordHiddenModeSetClicks(String family, String species, boolean isPin)
 	{
 		try
 		{
@@ -343,7 +343,7 @@ public class LockPattern
 			{
 				json.put(AnalyticsConstants.V2.FAMILY, family);
 				json.put(AnalyticsConstants.V2.ORDER, "hm_ftue");
-				json.put(AnalyticsConstants.V2.GENUS, StealthModeManager.getInstance().isPinAsPassword() ? "pin" : "pattern");
+				json.put(AnalyticsConstants.V2.GENUS, isPin ? "pin" : "pattern");
 				json.put(AnalyticsConstants.V2.SPECIES, species);
 				HAManager.getInstance().recordV2(json);
 			}
@@ -365,6 +365,26 @@ public class LockPattern
 			{
 				json.put(AnalyticsConstants.V2.FAMILY, "hdn_banner");
 				json.put(AnalyticsConstants.V2.ORDER, "hm_ftue");
+				HAManager.getInstance().recordV2(json);
+			}
+		}
+
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	public static void recordResetStealthModeClick()
+	{
+		try
+		{
+			JSONObject json = HikeAnalyticsEvent.getSettingsAnalyticsJSON();
+
+			if (json != null)
+			{
+				json.put(AnalyticsConstants.V2.FAMILY, "hdn_reset");
+				json.put(AnalyticsConstants.V2.ORDER, "sttng");
 				HAManager.getInstance().recordV2(json);
 			}
 		}
