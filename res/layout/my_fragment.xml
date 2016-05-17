@@ -54,6 +54,37 @@
                 android:textSize="16dp" />
         </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="18dp"
+            android:layout_marginRight="18dp"
+            android:layout_marginTop="30dp"
+            android:orientation="horizontal">
+
+            <include
+                android:id="@+id/ic_add_friends"
+                layout="@layout/icon_with_badge_counter"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <include
+                android:id="@+id/ic_added_me"
+                layout="@layout/icon_with_badge_counter"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <include
+                android:id="@+id/ic_services"
+                layout="@layout/icon_with_badge_counter"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+        </LinearLayout>
+
     </LinearLayout>
+
 
 </ScrollView>
