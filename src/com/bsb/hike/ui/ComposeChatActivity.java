@@ -1217,7 +1217,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 	private void selectContact(ContactInfo contactInfo)
 	{
-		if (!contactInfo.isMyOneWayFriend() && Utils.isFavToFriendsMigrationAllowed() && composeMode == MULTIPLE_FWD) {
+		if (!contactInfo.isMyOneWayFriend() && composeMode == MULTIPLE_FWD) {
 			sendFriendRequest(contactInfo);
 		}
 		adapter.addContact(contactInfo);

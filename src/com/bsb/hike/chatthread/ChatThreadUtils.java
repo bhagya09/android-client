@@ -318,7 +318,7 @@ public class ChatThreadUtils
 
 	protected static boolean shouldShowLastSeen(String msisdn, Context context, boolean convOnHike, boolean isBlocked)
 	{
-		if (Utils.isFavToFriendsMigrationAllowed() && !ContactManager.getInstance().isTwoWayFriend(msisdn))
+		if (!ContactManager.getInstance().isTwoWayFriend(msisdn))
 		{
 			return false; // We do not want to show the last seen in this case if the user is not 2way friend
 		}
