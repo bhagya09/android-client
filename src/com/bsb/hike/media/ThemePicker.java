@@ -181,9 +181,18 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 		};
 
 		attachmentsGridView.setAdapter(gridAdapter);
-		if (userSelection != null)
+
+		//BugFix CE-763, Making the userSelection defaulted to Camera icon in Theme Palette
+		if(gridAdapter.getItem(0).equalsIgnoreCase(HikeChatThemeConstants.THEME_PALETTE_CAMERA_ICON))
 		{
-			attachmentsGridView.setSelection(getThemePosition(availableThemes, userSelection));
+			attachmentsGridView.setSelection(0);
+		}
+		else
+		{
+			if (userSelection != null)
+			{
+				attachmentsGridView.setSelection(getThemePosition(availableThemes, userSelection));
+			}
 		}
 
 		attachmentsGridView.setOnItemClickListener(new OnItemClickListener()
