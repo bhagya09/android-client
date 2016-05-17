@@ -386,7 +386,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	
 	protected IChannelSelector channelSelector;
 
-	protected StickerTagWatcher stickerTagWatcher;
+	private StickerTagWatcher stickerTagWatcher;
 	
 	protected int mCurrentActionMode;
 
