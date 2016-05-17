@@ -608,6 +608,10 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public static final String MIGRATE_RECENT_STICKER_TO_DB = "migrateRecentStickersToDb";
 
+	public static final String QUICK_SUGGESTION_RETRY_SET = "quickSuggestionRetrySet";
+
+	public static final String FETCHED_QUICK_SUGGESTION_FIRST_TIME = "fetchedQuickSuggestionFirstTime";
+
 	// =========================================================================================Constants for sticker search]]
 
 	private static HikePubSub mPubSubInstance;

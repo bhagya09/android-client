@@ -229,6 +229,8 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 
                             getStickerTags(data);
 
+							getQuickSuggestions(sticker);
+
 							boolean cdn = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SINGLE_STICKER_CDN, true);
 
                             StickerManager.getInstance().sendResponseTimeAnalytics(result, cdn ? HikeConstants.SINGLE_STICKER_CDN : HikeConstants.SINGLE_STICKER, categoryId, stickerId);
@@ -336,6 +338,11 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 			StickerSearchManager.getInstance().insertStickerTags(data, StickerSearchConstants.STATE_STICKER_DATA_FRESH_INSERT);
 		}
 
+	}
+
+	private void getQuickSuggestions(Sticker sticker)
+	{
+		StickerManager.getInstance().initiateSingleStickerQuickSuggestionDownloadTask(sticker);
 	}
 
 	private boolean saveFullSticker(String stickerImage, JSONObject stickerData) throws IOException
