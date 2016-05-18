@@ -591,6 +591,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		mPager = (ViewPager) findViewById(R.id.pager_frag);
 		mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
+		mPager.setOffscreenPageLimit(2);
 		mPager.setAdapter(mPagerAdapter);
 		mPager.setCurrentItem(DEAFULT_FRAGMENT_POSITION);
 		mPager.setOnPageChangeListener(pageChangeListener);
