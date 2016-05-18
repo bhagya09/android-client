@@ -596,10 +596,8 @@ public class HttpRequestConstants
 	{
 		String suffix = "bots.hike.in/api" + BASE_V1 + "/manage/initiate";
 		if (isProduction)
-		{
 			return HTTPS + suffix;
-		}
 		else
-			return HTTP + "dev." + suffix;
+			return HTTP + "dev-" + suffix;
 	}
 }
