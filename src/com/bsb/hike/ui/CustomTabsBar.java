@@ -17,17 +17,17 @@ import java.util.HashMap;
  */
 public class CustomTabsBar {
 
-    Context mContext;
+    private Context mContext;
 
-    ViewGroup parentLayout;
+    private ViewGroup parentLayout;
 
-    LinearLayout actionBar;
+    private LinearLayout actionBar;
 
-    HashMap<Integer, Tab> tabs;
+    private HashMap<Integer, Tab> tabs;
 
-    Tab currentSelectedTab;
+    private Tab currentSelectedTab;
 
-    LayoutInflater inflater;
+    private LayoutInflater inflater;
 
     CustomTabsBar(Context ctx, ViewGroup layout) {
         this.mContext = ctx;
