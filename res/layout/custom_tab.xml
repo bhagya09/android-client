@@ -8,6 +8,5 @@
     <ImageView
         android:id="@+id/tab_icon"
         android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:layout_gravity="center" />
+        android:layout_height="36dp" />
 </LinearLayout>

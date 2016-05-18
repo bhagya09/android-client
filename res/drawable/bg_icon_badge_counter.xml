@@ -6,6 +6,6 @@
         android:width="2dp"
         android:color="@color/white" />
 
-    <solid android:color="#1da8e8" />
+    <solid android:color="@color/blue_badge_counter_bg" />
 
 </shape>
