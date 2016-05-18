@@ -377,11 +377,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		snowFallView = FestivePopup.startAndSetSnowFallView(HomeActivity.this, type, false);
 	}
-	
+
 	private void showRecentlyJoinedDot()
 	{
 		// Defensive check for case where newConversationIndicator was coming as null. Possible due to the various if..else conditions for newConversationIndicator initialisation.
-		conversationFragment.showRecentlyJoinedDot();
+		//conversationFragment.showRecentlyJoinedDot();
 	}
 
 	private void showTimelineUpdatesIndicator()
@@ -443,7 +443,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private void showNewChatRedDot()
 	{
-		conversationFragment.showNewChatRedDot();
+		//conversationFragment.showNewChatRedDot();
 	}
 
 	private void setupActionBar()

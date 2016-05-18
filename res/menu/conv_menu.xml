@@ -3,16 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-		android:id="@+id/search"
-		android:icon="@drawable/ic_top_bar_search"
-		app:showAsAction="always|collapseActionView"
-		android:title="@string/search"
-		app:actionLayout="@layout/search_layout"
-		 >
-    </item>
+        android:id="@+id/search"
+        android:icon="@drawable/ic_top_bar_search"
+        android:title="@string/search"
+        app:actionLayout="@layout/search_layout"
+        app:showAsAction="always|collapseActionView" />
     <item
         android:id="@+id/new_conversation"
-        app:actionLayout="@layout/overflow_icon_view"
-        app:showAsAction="always"
-        android:title="@string/start_new_chat"/>
+        android:icon="@drawable/ic_new_conversation"
+        android:title="@string/start_new_chat"
+        app:showAsAction="always" />
 </menu>

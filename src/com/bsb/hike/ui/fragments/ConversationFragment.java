@@ -234,8 +234,6 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 
 	private MenuItem searchMenuItem;
 
-	private TextView newConversationIndicator;
-
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
@@ -974,7 +972,6 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
 	{
 		inflater.inflate(R.menu.conv_menu, menu);
-		setupNewConvOptionItem(menu);
 		setupSearchOptionItem(menu);
 		super.onCreateOptionsMenu(menu, inflater);
 	}
@@ -985,40 +982,25 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		{
 			recordSearchOptionClick();
 		}
-		return super.onOptionsItemSelected(item);
-	}
-
-	private void setupNewConvOptionItem(final Menu menu)
-	{
-		newConversationIndicator = (TextView) MenuItemCompat.getActionView(menu.findItem(R.id.new_conversation)).findViewById(R.id.top_bar_indicator_text);
-		MenuItemCompat.getActionView(menu.findItem(R.id.new_conversation)).findViewById(R.id.overflow_icon_image).setContentDescription("Start a new chat");
-		((ImageView) MenuItemCompat.getActionView(menu.findItem(R.id.new_conversation)).findViewById(R.id.overflow_icon_image))
-				.setImageResource(R.drawable.ic_new_conversation);
-
-		MenuItemCompat.getActionView(menu.findItem(R.id.new_conversation)).setOnClickListener(new OnClickListener()
+		else if (item.getItemId() == R.id.new_conversation)
 		{
-			@Override
-			public void onClick(View v)
+			Logger.d(HikeConstants.COMPOSE_SCREEN_OPENING_BENCHMARK, "start=" + System.currentTimeMillis());
+			try
 			{
-				Logger.d(HikeConstants.COMPOSE_SCREEN_OPENING_BENCHMARK, "start=" + System.currentTimeMillis());
-				try
-				{
-					JSONObject metadata = new JSONObject();
-					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.NEW_CHAT_FROM_TOP_BAR);
-					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-				}
-				catch (JSONException e)
-				{
-					Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-				}
-
-				Intent intent = IntentFactory.getComposeChatIntentWithBotDiscovery(getActivity());
-
-				newConversationIndicator.setVisibility(View.GONE);
-				HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_USER_JOINED, new Integer(0));
-				startActivity(intent);
+				JSONObject metadata = new JSONObject();
+				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.NEW_CHAT_FROM_TOP_BAR);
+				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 			}
-		});
+			catch (JSONException e)
+			{
+				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+			}
+
+			Intent intent = IntentFactory.getComposeChatIntentWithBotDiscovery(getActivity());
+			HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_USER_JOINED, new Integer(0));
+			startActivity(intent);
+		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	private void setupSearchOptionItem(final Menu menu)
@@ -1029,7 +1011,6 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		searchView.setQueryHint(getString(R.string.search));
 		searchView.clearFocus();
 
-		//MenuItemCompat.setShowAsAction(MenuItemCompat.setActionView(searchMenuItem, searchView), MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
 		MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener()
 		{
 			@Override
@@ -1037,12 +1018,6 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			{
 				setupSearch();
 				toggleMenuItems(menu, false);
-//				showProductPopup(ProductPopupsConstants.PopupTriggerPoints.SEARCH.ordinal());
-//				showingSearchModeActionBar = true;
-//				if (hiButton != null)
-//				{
-//					hiButton.clearAnimation();
-//				}
 				return true;
 			}
 
@@ -1051,7 +1026,6 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			{
 				removeSearch();
 				toggleMenuItems(menu, true);
-//				setupActionBar();
 				return true;
 			}
 		});
@@ -1079,35 +1053,6 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		catch (JSONException e)
 		{
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-		}
-	}
-
-	public void showRecentlyJoinedDot()
-	{
-		// Defensive check for case where newConversationIndicator was coming as null. Possible due to the various if..else conditions for newConversationIndicator initialisation.
-		if(newConversationIndicator == null)
-			return;
-
-		boolean showNujNotif = PreferenceManager.getDefaultSharedPreferences(getContext()).getBoolean(HikeConstants.NUJ_NOTIF_BOOLEAN_PREF, true);
-		if (showNujNotif && HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_RECENTLY_JOINED_DOT, false))
-		{
-			newConversationIndicator.setText("1");
-			newConversationIndicator.setVisibility(View.VISIBLE);
-			newConversationIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
-		}
-		else
-		{
-			newConversationIndicator.setVisibility(View.GONE);
-		}
-	}
-
-	public void showNewChatRedDot()
-	{
-		if (newConversationIndicator != null && HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NEW_CHAT_RED_DOT, false))
-		{
-			newConversationIndicator.setText("1");
-			newConversationIndicator.setVisibility(View.VISIBLE);
-			newConversationIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
 		}
 	}
 
