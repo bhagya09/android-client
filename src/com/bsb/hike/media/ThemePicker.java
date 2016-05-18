@@ -32,6 +32,7 @@ import com.bsb.hike.models.HikeChatTheme;
 import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.view.CustomFontTextView;
 
 import java.util.ArrayList;
 
@@ -268,6 +269,11 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 			saveThemeBtn.startAnimation(AnimationUtils.loadAnimation(appCompatActivity, R.anim.scale_in));
 
 			saveThemeBtn.setOnClickListener(ThemePicker.this);
+
+			CustomFontTextView doneButton = (CustomFontTextView) saveThemeBtn.findViewById(R.id.save);
+			if(doneButton != null) {
+				doneButton.setText(appCompatActivity.getResources().getString(R.string.apply));
+			}
 			
 			return true;
 		}
