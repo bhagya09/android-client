@@ -296,6 +296,7 @@ public class ChatThemeManager {
 
                 //TODO CHATTHEME same goes with thumbnail asset as well
 
+                ChatThemeManager.getInstance().customThemeTempUploadImagePath = null;
                 HikeConversationsDatabase.getInstance().saveChatThemeAssets(assetsList);
             }
             return themeID;
