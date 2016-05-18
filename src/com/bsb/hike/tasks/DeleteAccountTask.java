@@ -207,6 +207,11 @@ public class DeleteAccountTask implements ActivityCallableTask
 		{
 			AccountBackupRestore.getInstance(ctx).deleteAllFiles();
 		}
+
+		if (!delete)
+		{
+			AccountBackupRestore.getInstance(ctx).backup(); // Keep a backup if it's reset account
+		}
 		
 		/*
 		 *Closing connection is connected or connecting  via hike direct    

@@ -43,6 +43,8 @@ public class HttpException extends Exception
 
 	public static final short REASON_CODE_SERVER_STATUS_FAILED = 21;
 
+	public static final short REASON_CODE_CAN_NOT_USE_GCM_TASK_FOR_SYNC_CALLS = 22;
+
 	/** Http custom status codes returned by server */
 
 	/**

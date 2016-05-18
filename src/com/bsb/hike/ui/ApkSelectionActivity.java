@@ -1,12 +1,5 @@
 package com.bsb.hike.ui;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
@@ -26,7 +19,9 @@ import com.bsb.hike.R;
 import com.bsb.hike.adapters.ApkExplorerListAdapter;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
-import com.google.android.gms.maps.internal.p;
+
+import java.util.*;
+
 public class ApkSelectionActivity extends HikeAppStateBaseFragmentActivity implements OnItemClickListener  {
 	ArrayList<ApplicationSelectionStatus>  apkInfo ;
 	Map<ApplicationInfo,Boolean> selectedApplications;

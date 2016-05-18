@@ -33,6 +33,7 @@ import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.diskcache.Cache;
 import com.bsb.hike.modules.diskcache.InternalCache;
+import com.bsb.hike.modules.gcmnetworkmanager.HikeGcmNetworkMgr;
 import com.bsb.hike.modules.httpmgr.HttpManager;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
@@ -514,6 +515,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	public static final String TOGGLE_OK_HTTP = "toggleOkHttp";
 
 	public static final String ENABLE_ADDRESSBOOK_THROUGH_HTTP_MGR = "enAbHttpMgr";
+
+	public static final String EDIT_PROFILE_THROUGH_HTTP_MGR = "editProfHttpMgr";
 
 	public static final String PROB_NUM_TEXT_MSG = "num_txt";
 
@@ -1113,6 +1116,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		}
 
 		initCrashReportingTool();
+
+		checkAndTriggerPendingGcmNetworkCalls();
 	}
 
 	public void logUser() {
@@ -1428,5 +1433,10 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
     {
         diskCache = null;
     }
+
+	private void checkAndTriggerPendingGcmNetworkCalls()
+	{
+		HikeGcmNetworkMgr.getInstance().triggerPendingGcmNetworkCalls();
+	}
 
 }
