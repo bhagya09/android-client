@@ -187,4 +187,6 @@ public class HikeChatThemeConstants {
 	public static final String THEME_PALETTE_CAMERA_ICON = "camera";
 
     public static final String SHARED_PREF_CT_SHOW_FTUE_ANIMATION = "showCTFTUEAnim";
+
+    public static final int CHATTHEME_CUSTOM_THUMBNAIL_SIZE = 120;
 }
