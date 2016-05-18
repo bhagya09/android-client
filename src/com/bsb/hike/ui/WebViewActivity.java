@@ -177,7 +177,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	public static final String KEY_CUSTOM_TABS_MENU_TITLE = "android.support.customtabs.customaction.MENU_ITEM_TITLE";
 	public static final String EXTRA_CUSTOM_TABS_MENU_ITEMS = "android.support.customtabs.extra.MENU_ITEMS";
 	public static final String KEY_CUSTOM_TABS_PENDING_INTENT = "android.support.customtabs.customaction.PENDING_INTENT";
-	private String source = "";
+	private String source = "unDefined";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
