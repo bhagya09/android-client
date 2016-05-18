@@ -7897,13 +7897,22 @@ public class Utils
 
 		if (!newRootDir.exists())
 		{
-			result = result && newRootDir.mkdirs();
+			result = newRootDir.mkdirs();
+		}
+
+		else // newRootDir exists, but can it be a simple file instead of DIR ?
+		{
+			if (!newRootDir.isDirectory())
+			{
+				result = deleteFile(newRootDir) && newRootDir.mkdirs();
+			}
 		}
 
 		if (!oldRootDir.exists() || (oldRootDir.listFiles() == null))
 		{
 			Logger.d("StickerMigration", "Migration unsuccessful but new folder created");
-			return true; // Migration unsuccessful but new folder created
+			StickerManager.getInstance().recordStickerMigrationFailure("Migration unsuccessful but new folder created, The oldDir was absent or listFiles were null");
+			return result; // Migration unsuccessful but new folder created
 		}
 
 		if (result)
@@ -7913,6 +7922,10 @@ public class Utils
 				if (f.isDirectory())
 				{
 					File newDir = new File(newRootDir, f.getName());
+					if (!newDir.exists())
+					{
+						newDir.mkdirs();
+					}
 					result = result && moveDirectoryByRename(f, newDir);
 				}
 				else
@@ -7920,8 +7933,9 @@ public class Utils
 					File newFile = new File(newRootDir, f.getName());
 					if (newFile.exists())
 					{
-						result = result && newFile.delete();
+						result = result && Utils.deleteFile(newFile);
 					}
+
 					result = result && f.renameTo(newFile);
 				}
 			}

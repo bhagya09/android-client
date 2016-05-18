@@ -3509,6 +3509,7 @@ public class StickerManager
 		}
 		else
 		{
+			recordStickerMigrationFailure("Either fromPath is null or toPath is null ");
 			return false;
 		}
 	}
