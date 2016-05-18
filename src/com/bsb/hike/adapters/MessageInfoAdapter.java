@@ -463,14 +463,13 @@ public class MessageInfoAdapter extends BaseAdapter
 		AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
 		remaininglistView.setAdapter(adapter);
 		alertDialog.setView(remView);
-		AlertDialog ag=alertDialog.create();
-		Resources r =context.getResources();
+		AlertDialog ag = alertDialog.create();
+		Resources r = context.getResources();
 		DisplayMetrics metrics = r.getDisplayMetrics();
-		int width = (metrics.widthPixels);
-		float px=r.getDimensionPixelSize(R.dimen.read_listitem_expanded_height)*remainingItem.remainingItemList.size();
-		int height = (metrics.heightPixels)*2/3;
-		if(px>height)
-		ag.getWindow().setLayout(width, height);
+		float px = r.getDimensionPixelSize(R.dimen.read_listitem_expanded_height) * remainingItem.remainingItemList.size();
+		int height = (metrics.heightPixels) * 2 / 3;
+		if (px > height)
+			ag.getWindow().setLayout(metrics.widthPixels, height);
 		ag.show();
 
 	}
