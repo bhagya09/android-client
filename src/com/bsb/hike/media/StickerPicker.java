@@ -1,8 +1,5 @@
 package com.bsb.hike.media;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import android.content.Context;
 import android.content.res.Configuration;
 import android.support.v4.view.ViewPager;
