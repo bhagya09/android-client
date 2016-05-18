@@ -1,23 +1,20 @@
 package com.bsb.hike.tasks;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.NUXConstants;
-import com.bsb.hike.R;
-import com.bsb.hike.adapters.ComposeChatAdapter;
 import com.bsb.hike.adapters.FriendsAdapter;
 import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.GroupParticipant;
-import com.bsb.hike.models.HikeFeatureInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.utils.Logger;
@@ -301,9 +298,24 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		long startTime = System.currentTimeMillis();
 		String myMsisdn = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, "");
 
+		List<ContactInfo> bdayContactList = null;
+
+		if(Utils.isBDayInNewChatEnabled())
+		{
+			bdayContactList = ChatHeadUtils.getSortedBdayContactListFromSharedPref();
+		}
+		else
+		{
+			bdayContactList = new ArrayList<ContactInfo>();
+		}
+
 		if (showFilteredContacts && !TextUtils.isEmpty(msisdnList))
 		{
 			contactsInfo = ContactManager.getInstance().getContactInfoListForMsisdnFilter(msisdnList);
+			/**
+			 * Removing Birthday users from contacts list
+			 */
+			contactsInfo.removeAll(bdayContactList);
 			suggestedContactsList.addAll(contactsInfo);
 			filteredSuggestedContactsList.addAll(contactsInfo);
 		}
@@ -339,7 +351,10 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 				}
 				recentTaskList.add(recentContact);
 			}
-
+			/**
+			 * Removing Birthday users from resent contacts list
+			 */
+			recentTaskList.removeAll(bdayContactList);
 		}
 
 		Logger.d("TestQuery", "query time: " + (System.currentTimeMillis() - queryTime));
@@ -394,6 +409,10 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		}
 
 		long iterationTime = System.currentTimeMillis();
+		/**
+		 * Removing Birthday users from all contacts list
+		 */
+		allContacts.removeAll(bdayContactList);
 		for (ContactInfo contactInfo : allContacts)
 		{
 			String msisdn = contactInfo.getMsisdn();

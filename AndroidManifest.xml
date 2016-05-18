@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1711"
-    android:versionName="4.2.6.82.100.2.ota_chatthemes_v1_1" >
+    android:versionCode="1721"
+    android:versionName="4.2.6.82.104" >
 
    <uses-sdk
         android:minSdkVersion="14"
@@ -26,7 +26,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.RECEIVE_SMS" />   
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.WRITE_SMS" />
@@ -36,7 +36,7 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> 
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS" />
     <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
@@ -76,7 +76,7 @@
 
 <!--     for solid -->
     <uses-permission android:name="com.majeur.launcher.permission.UPDATE_BADGE"/>
-    
+
     <!-- C2DM -->
     <permission
         android:name="com.bsb.hike.permission.C2D_MESSAGE"
@@ -85,7 +85,7 @@
     <uses-permission android:name="com.bsb.hike.permission.C2D_MESSAGE" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
-    
+
 
     <uses-feature
         android:name="android.hardware.telephony"
@@ -113,7 +113,7 @@
         android:required="false" />
 
     <uses-permission android:name="android.permission.CAMERA" />
-    
+
 
     <application
         android:name=".HikeMessengerApp"
@@ -135,6 +135,15 @@
                 <action android:name="com.bsb.hike.service.ACTION_BIND" />
             </intent-filter>
         </service>
+
+        <service android:name=".modules.gcmnetworkmanager.GcmNwMgrService"
+                 android:permission="com.google.android.gms.permission.BIND_NETWORK_TASK_SERVICE"
+                 android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.android.gms.gcm.ACTION_TASK_READY"/>
+            </intent-filter>
+        </service>
+
         <service android:name=".service.UpgradeIntentService" />
         <service android:name=".spaceManager.StorageSpecIntentService" />
         <service android:name=".GCMIntentService" />
@@ -160,11 +169,11 @@
             android:windowSoftInputMode="stateHidden" >
             <intent-filter android:label="@string/app_label">
                 <action android:name="android.intent.action.SEND" />
-                
+
 				<action android:name="android.intent.action.SEND_MULTIPLE" />
-                
+
                 <category android:name="android.intent.category.DEFAULT" />
-                
+
                 <data android:mimeType="*/*" />
             </intent-filter>
         </activity>
@@ -234,15 +243,15 @@
             android:name=".cropimage.HikeCropActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Home.PhotoEditor" />
-        
+
         <activity
             android:name=".ui.WebViewActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:exported="true" 
-            android:theme="@style/WebView.Theme"> 
+            android:exported="true"
+            android:theme="@style/WebView.Theme">
         </activity>
         <activity
-            android:name=".ui.ShareLocation"
+            android:name=".modules.fusedlocation.ShareLocation"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:launchMode="singleTop"
             android:windowSoftInputMode="stateHidden" >
@@ -251,8 +260,8 @@
             android:name=".ui.TellAFriend"
             android:launchMode="singleTop" >
         </activity>
-        <activity android:name=".ui.SettingsActivity" 
-                  android:configChanges="orientation|screenSize">            
+        <activity android:name=".ui.SettingsActivity"
+                  android:configChanges="orientation|screenSize">
         </activity>
         <activity
             android:name="com.bsb.hike.ui.ConnectedAppsActivity"
@@ -374,7 +383,7 @@
             android:windowSoftInputMode="adjustPan|stateUnspecified" />
          <activity
             android:name=".ui.ServerHostChangeActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize" 
+            android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_label"
             />
          <activity
@@ -411,7 +420,7 @@
                     android:scheme="https" />
             </intent-filter>
         </activity>
-         
+
         <receiver
             android:name=".service.BootService"
             android:enabled="true" >
@@ -510,7 +519,7 @@
             android:process="com.bsb.hike"
             />
 
-        <service android:name=".chatHead.ChatHeadService" 
+        <service android:name=".chatHead.ChatHeadService"
             android:label="HikeStickeyService"/>
         <service android:name=".voip.VoIPService" />
 
@@ -544,7 +553,7 @@
 
 		<receiver android:name=".service.ScreenOnOffReceiver" >
         </receiver>
-        
+
         <receiver
             android:name=".service.ReferralReceiver"
             android:exported="true" >
@@ -559,9 +568,9 @@
                 <action android:name="android.intent.action.ACTION_SHUTDOWN" />
                 <action android:name="android.intent.action.QUICKBOOT_POWEROFF" />
             </intent-filter>
-        
+
         </receiver>
-        
+
         <receiver
              android:name="com.bsb.hike.offline.NotificationCancelReceiver" >
             <intent-filter android:priority="999" >

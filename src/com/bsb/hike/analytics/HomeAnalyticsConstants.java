@@ -59,7 +59,7 @@ public class HomeAnalyticsConstants
 
 	public static final String SU_SPECIES_OVERFLOW = "overflow";
 
-	public static final String SU_SPECIES_TIMELINE_PHOTO_BUTTON = "tl_photot";
+	public static final String SU_SPECIES_TIMELINE_PHOTO_BUTTON = "tl_photo";
 
 	public static final String SU_SPECIES_TIMELINE_TEXT_BUTTON = "tl_text";
 
