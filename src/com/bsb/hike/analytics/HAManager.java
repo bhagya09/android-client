@@ -1001,7 +1001,6 @@ public class HAManager
 
 				metadata.put(AnalyticsConstants.NETWORK_TYPE, Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
 				metadata.put(AnalyticsConstants.APP_VERSION, AccountUtils.getAppVersion());
-				metadata.put(AnalyticsConstants.APP_VERSION, AccountUtils.getAppVersion());
 				metadata.put(AnalyticsConstants.SOURCE_APP_OPEN,source);
 
 				record(AnalyticsConstants.CHAT_ANALYTICS, AnalyticsConstants.NON_UI_EVENT, EventPriority.HIGH, metadata, AnalyticsConstants.EVENT_TAG_BOTS);
