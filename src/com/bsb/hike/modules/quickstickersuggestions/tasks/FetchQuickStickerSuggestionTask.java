@@ -6,6 +6,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.modules.quickstickersuggestions.QuickStickerSuggestionController;
 import com.bsb.hike.modules.quickstickersuggestions.model.QuickSuggestionStickerCategory;
 import com.bsb.hike.utils.StickerManager;
 
@@ -25,6 +26,7 @@ public class FetchQuickStickerSuggestionTask implements Runnable
     public void run()
     {
         quickSuggestionCategory = HikeConversationsDatabase.getInstance().getQuickStickerSuggestionsForSticker(quickSuggestionCategory);
+        QuickStickerSuggestionController.getInstance().checkIfNeedsRefresh(quickSuggestionCategory);
         LocalBroadcastManager.getInstance(HikeMessengerApp.getInstance()).sendBroadcast(new Intent(StickerManager.QUICK_STICKER_SUGGESTION_FETCHED).putExtra(HikeConstants.BUNDLE, quickSuggestionCategory.toBundle()));
     }
 }

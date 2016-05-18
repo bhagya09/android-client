@@ -164,4 +164,14 @@ public class QuickStickerSuggestionController
         }
         HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeMessengerApp.QUICK_SUGGESTION_RETRY_SET, retrySet);
     }
+
+    public boolean checkIfNeedsRefresh(QuickSuggestionStickerCategory quickSuggestionStickerCategory)
+    {
+        if((System.currentTimeMillis() - quickSuggestionStickerCategory.getLastRefreshTime()) > suggestedStickerTtl)
+        {
+            StickerManager.getInstance().initiateSingleStickerQuickSuggestionDownloadTask(quickSuggestionStickerCategory.getQuickSuggestSticker());
+            return true;
+        }
+        return false;
+    }
 }
