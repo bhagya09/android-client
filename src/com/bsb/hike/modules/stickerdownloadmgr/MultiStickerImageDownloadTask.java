@@ -303,6 +303,7 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 		{
 			Logger.d(TAG, "sticker set for get tags : " + stickerSet);
 			StickerSearchManager.getInstance().downloadStickerTags(false, StickerSearchConstants.STATE_STICKER_DATA_FRESH_INSERT, stickerSet, StickerLanguagesManager.getInstance().getAccumulatedSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE, StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE));
+			StickerManager.getInstance().initiateMultiStickerQuickSuggestionDownloadTask(StickerManager.getInstance().getStickerSetFromStickerStringSet(stickerSet));
 
 			if(isFailed)
 			{
