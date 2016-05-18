@@ -67,21 +67,15 @@ public class ChatThreadUtils
 	public static boolean isWT1RevampEnabled(Context context)
 	{
 		boolean wtRevamp = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.WT_1_REVAMP_ENABLED, false);
-		return wtRevamp&&isMessageInfoDatabaseEnabled();
+		return wtRevamp;
 	}
 
 	public static boolean isMessageInfoEnabled()
 	{
 		boolean enabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MESSAGE_INFO_ENABLED, false);
-		enabled=true;
 		return enabled;
 	}
-	public static boolean isMessageInfoDatabaseEnabled()
-	{
-		boolean enabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MESSAGE_INFO_ENABLED_DATABASE, false);
-		enabled=true;
-		return enabled;
-	}
+
 	protected static void playUpDownAnimation(Context context, final View view)
 	{
 		if (view == null)
