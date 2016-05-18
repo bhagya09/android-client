@@ -467,11 +467,11 @@
     <string name="resetting_complete_stealth_header">Resetting Hidden Mode</string>
     <string name="resetting_complete_stealth_info">Tap to cancel.</string>
     <string name="reset_stealth_tip">
-<![CDATA[ <b> All hidden chats will be deleted in %1$s minutes </b> 
+<![CDATA[ <b> All hidden chats will be deleted in %1$s minutes </b>
 	    ]]>
     </string>
     <string name="tap_to_reset_stealth_tip">
-<![CDATA[ <b> Tap here to reset Hidden Mode now! </b> 
+<![CDATA[ <b> Tap here to reset Hidden Mode now! </b>
 	    ]]>
     </string>
     <string name="tap_to_reveal_stealth_contacts">Tap \'hi\' to reveal chats</string>
@@ -672,7 +672,6 @@
     <string name="medium_faster">fast</string>
     <string name="original_slow">slow</string>
     <string name="forward_to_plural">Send message to %1$s contacts?</string>
-    <string name="forward_to_singular">Send message to 1 contact?</string>
     <string name="selected_contacts_count_plural">%1$s contacts</string>
     <string name="selected_contacts_count_singular">%1$s contact</string>
     <string name="wish_now">Wish Now</string>
@@ -1487,7 +1486,6 @@
     <string name="filters">Filters</string>
     <string name="rotate">Rotate</string>
     <string name="forward_to_plural_timeline">Send message to %1$s contacts and on Timeline?</string>
-    <string name="forward_to_single_timeline">Send message to 1 contact and on Timeline?</string>
     <string name="share_with_timeline">Share with %1$d contacts and on Timeline?</string>
     <string name="share_with_contact_timeline">Share with %1$s and on Timeline?</string>
     <string name="image_w_caption_sms">sent you an image with caption %1$s</string>
@@ -1608,5 +1606,9 @@
     <string name="bd_everyone_summary">Birthday is visible to everyone on hike</string>
     <string name="bd_nobody_summary">Birthday is not shared with anyone on hike</string>
     <string name="bd_change_failed">Birthday privacy update failed!</string>
-
+    <string name="hike_bday_contacts">TODAY\'S BIRTHDAYS</string>
+    <string name="bday_list_view_subheading">WISH HAPPY BIRTHDAY!</string>
+    <string name="composeview_bday">HAPPY BIRTHDAY</string>
+    <string name="forward_to_single_timeline">Send message to %1$s and on Timeline?</string>
+    <string name="forward_to_singular">Send message to %1$s?</string>
 </resources>

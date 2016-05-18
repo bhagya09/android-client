@@ -146,6 +146,141 @@ import android.view.inputmethod.InputMethodManager;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
 import android.widget.*;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.bsb.hike.BitmapModule.BitmapUtils;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.BuildConfig;
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeConstants.ImageQuality;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikeMessengerApp.CurrentState;
+import com.bsb.hike.HikePubSub;
+import com.bsb.hike.MqttConstants;
+import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.ChatAnalyticConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HomeAnalyticsConstants;
+import com.bsb.hike.analytics.TrafficsStatsFile;
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatHead.ChatHeadUtils;
+import com.bsb.hike.chatthread.ChatThreadActivity;
+import com.bsb.hike.chatthread.ChatThreadUtils;
+import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.dialog.CustomAlertDialog;
+import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
+import com.bsb.hike.filetransfer.FTAnalyticEvents;
+import com.bsb.hike.localisation.LocalLanguage;
+import com.bsb.hike.localisation.LocalLanguageUtils;
+import com.bsb.hike.models.AccountData;
+import com.bsb.hike.models.AccountInfo;
+import com.bsb.hike.models.Birthday;
+import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.ContactInfo.FavoriteType;
+import com.bsb.hike.models.ContactInfoData;
+import com.bsb.hike.models.ContactInfoData.DataType;
+import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
+import com.bsb.hike.models.ConvMessage.State;
+import com.bsb.hike.models.Conversation.ConvInfo;
+import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.models.Conversation.GroupConversation;
+import com.bsb.hike.models.Conversation.OneToNConvInfo;
+import com.bsb.hike.models.Conversation.OneToNConversation;
+import com.bsb.hike.models.GroupParticipant;
+import com.bsb.hike.models.HikeFile;
+import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.notifications.HikeNotification;
+import com.bsb.hike.offline.OfflineUtils;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.service.ConnectionChangeReceiver;
+import com.bsb.hike.service.HikeMqttManagerNew;
+import com.bsb.hike.service.HikeService;
+import com.bsb.hike.tasks.CheckForUpdateTask;
+import com.bsb.hike.tasks.StatusUpdateTask;
+import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
+import com.bsb.hike.timeline.view.TimelineActivity;
+import com.bsb.hike.ui.HikePreferences;
+import com.bsb.hike.ui.HomeActivity;
+import com.bsb.hike.ui.PeopleActivity;
+import com.bsb.hike.ui.SignupActivity;
+import com.bsb.hike.ui.WebViewActivity;
+import com.bsb.hike.ui.WelcomeActivity;
+import com.bsb.hike.userlogs.AESEncryption;
+import com.bsb.hike.voip.VoIPUtils;
+import com.google.android.gms.maps.model.LatLng;
+
+import org.apache.http.NameValuePair;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Field;
+import java.net.URI;
+import java.net.URL;
+import java.nio.CharBuffer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Random;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.jar.JarFile;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
 
 public class Utils
 {
@@ -7679,8 +7814,8 @@ public class Utils
 		{
 			ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 
-			ops.add(ContentProviderOperation.newUpdate(Data.CONTENT_URI).withSelection(Data.RAW_CONTACT_ID + " = ?", new String[] { mRawContactId })
-					.withSelection(Data._ID + " = ?", new String[] { mDataId }).withValue(Data.MIMETYPE, Phone.CONTENT_ITEM_TYPE).withValue(StructuredName.DISPLAY_NAME, name)
+			ops.add(ContentProviderOperation.newUpdate(Data.CONTENT_URI).withSelection(Data.RAW_CONTACT_ID + " = ?", new String[]{mRawContactId})
+					.withSelection(Data._ID + " = ?", new String[]{mDataId}).withValue(Data.MIMETYPE, Phone.CONTENT_ITEM_TYPE).withValue(StructuredName.DISPLAY_NAME, name)
 					.build());
 			context.getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
 
@@ -7919,24 +8054,35 @@ public class Utils
 		return String.format("%d/%d/%d", dob.day, dob.month, dob.year);
 	}
 
-	public static void setGenus(String argGenus, Intent argIntent)
-	{
-		if(TextUtils.isEmpty(argGenus) || argIntent == null)
-		{
-			return;
+	public static void setGenus(@HomeAnalyticsConstants.StatusUpdateSpecies String argGenus, Intent argIntent)
+    {
+        if(argIntent == null)
+        {
+            return;
+        }
+
+        argIntent.putExtra(HikeConstants.Extras.GENUS, argGenus);
+    }
+
+    public static void setSpecies(@HomeAnalyticsConstants.ProfilePicUpdateSpecies
+                                  @HomeAnalyticsConstants.StatusUpdateSpecies String argSpecies, Intent argIntent)
+    {
+        if(argIntent == null)
+        {
+            return;
+        }
+
+        argIntent.putExtra(HikeConstants.Extras.SPECIES, argSpecies);
+    }
+
+	public static boolean isBDayInNewChatEnabled() {
+		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
+
+		if (prefs != null) {
+			return prefs.getData(HikeConstants.ENABLE_BDAY_IN_CCA, false);
 		}
 
-		argIntent.putExtra(HikeConstants.Extras.GENUS, argGenus);
-	}
-
-	public static void setSpecies(String argSpecies, Intent argIntent)
-	{
-		if(TextUtils.isEmpty(argSpecies) || argIntent == null)
-		{
-			return;
-		}
-
-		argIntent.putExtra(HikeConstants.Extras.SPECIES, argSpecies);
+		return false;
 	}
 
 	public static void connectToGcmPreSignup()
@@ -7952,7 +8098,6 @@ public class Utils
 			mprefs.saveData(HikeConstants.REGISTER_GCM_SIGNUP, HikeConstants.REGISTEM_GCM_BEFORE_SIGNUP);
 			LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(in);
 		}
-
 	}
 
 	/**
