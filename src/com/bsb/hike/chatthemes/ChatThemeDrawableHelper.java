@@ -338,15 +338,6 @@ public class ChatThemeDrawableHelper {
         if (!dir.exists()) {
             dir.mkdirs();
         }
-        String noMediaFilePath = directory + File.separator + ".nomedia";
-        File nomediaFile = new File(noMediaFilePath);
-        if (!nomediaFile.exists()) {
-            try {
-                nomediaFile.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
         return directory;
     }
 
