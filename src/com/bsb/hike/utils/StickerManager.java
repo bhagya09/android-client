@@ -418,6 +418,12 @@ public class StickerManager
 
 	public void initiateFetchCategoryRanksAndDataTask()
 	{
+		if(!Utils.isUserSignedUp(HikeMessengerApp.getInstance(), false) || Utils.isUpgradeIntentServiceRunning())
+		{
+			Logger.d(TAG, "user not signed up or user is upgrading");
+			return;
+		}
+
 		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
 		{
 			@Override
@@ -1707,6 +1713,10 @@ public class StickerManager
 
 	public void initiateSingleStickerQuickSuggestionDownloadTask(Sticker quickSuggestSticker)
 	{
+		if(!QuickStickerSuggestionController.getInstance().isQuickSuggestionEnabled())
+		{
+			return ;
+		}
 		QuickStickerSuggestionController.getInstance().saveInRetrySet(quickSuggestSticker);
 		SingleStickerQuickSuggestionDownloadTask singleStickerQuickSuggestionDownloadTask = new SingleStickerQuickSuggestionDownloadTask(quickSuggestSticker);
 		singleStickerQuickSuggestionDownloadTask.execute();
@@ -1714,6 +1724,10 @@ public class StickerManager
 
 	public void initiateMultiStickerQuickSuggestionDownloadTask(Set<Sticker> quickSuggestStickerSet)
 	{
+		if(!QuickStickerSuggestionController.getInstance().isQuickSuggestionEnabled())
+		{
+			return ;
+		}
 		QuickStickerSuggestionController.getInstance().saveInRetrySet(quickSuggestStickerSet);
 		MultiStickerQuickSuggestionDownloadTask multiStickerQuickSuggestionDownloadTask = new MultiStickerQuickSuggestionDownloadTask(quickSuggestStickerSet);
 		multiStickerQuickSuggestionDownloadTask.execute();
@@ -2317,7 +2331,6 @@ public class StickerManager
 		HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF).saveData(StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE_ISO_CODE, true);
 		StickerManager.getInstance().downloadStickerTagData();
 		StickerManager.getInstance().downloadDefaultTagsFirstTime(false);
-		fetchQuickSuggestionForAllStickersFirstTime();
 	}
 
 	public void doSignupTasks()
@@ -2333,7 +2346,6 @@ public class StickerManager
 		StickerManager.getInstance().downloadStickerTagData();
 		StickerManager.getInstance().downloadDefaultTagsFirstTime(true);
 		initiateFetchCategoryRanksAndDataTask();
-		fetchQuickSuggestionForAllStickersFirstTime();
 	}
 
     /**
@@ -3860,9 +3872,9 @@ public class StickerManager
 		}
 	}
 	
-	public void fetchQuickSuggestionForAllStickersFirstTime()
+	public void fetchQuickSuggestionForAllStickers()
 	{
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.FETCHED_QUICK_SUGGESTION_FIRST_TIME, false))
+		if (!QuickStickerSuggestionController.getInstance().isQuickSuggestionEnabled())
 		{
 			return;
 		}

@@ -531,6 +531,8 @@ public class HikeConstants
 
 	public static final String LAST_SEEN_PREF_LIST = "lastSeenPrefList";
 
+	public static final String BIRTHDAY_PRIVACY_PREF = "birthdayPrivacyPref";
+
 	public static final String LONG_PRESS_DUR_PREF = "longPressDurationPref";
 	
 	public static final String KEYPRESS_VOL_PREF = "keyPressVolPref";
@@ -1856,6 +1858,8 @@ public class HikeConstants
 		
 		public static final String HIKE_DIRECT_MODE="hikedirectmode";
 		public static final String SHOW_TIMELINE = "showTimeline";
+
+		public static final String HIKE_BDAY_MODE = "hikeBdayMode";
 
 		// constants related to sharing Functioanlity
 		public static final class ShareTypes
@@ -4200,6 +4204,8 @@ public class HikeConstants
 
 	public static final String HIKE_CUSTOM_PHONE_TYPE = "HIKE";
 
+	public static final String SHARED_PREF_ANALYTICS = "share_pref_analytics";
+
 	public static final String UPDATED_ALL_CATEGORIES_METADATA = "updatedAllCategoriesMeta";
 
     public static final String UPDATED_ALL_CATEGORIES_TAGDATA = "updatedAllCategoriesTags";
@@ -4234,6 +4240,8 @@ public class HikeConstants
 	public static final String POSITION = "pos";
 
 	public static final String VIEW_ALL_CLICKED = "viewAllClicked";
+
+	public static final int DEFAULT_RETRIES_GCM_NW_MANAGER = 5;
 
 	public static final String CHUNK_SIZE_POLICY = "chunkSizePolicy";
 
@@ -4291,5 +4299,13 @@ public class HikeConstants
 
 	public static final String SCROLL_COUNT = "scroll_count";
 
+	public static final String ENABLE_BDAY_IN_CCA = "e_bd_cca";
 
+	public static final String BDAYS_LIST = "bday_list";
+
+	public static final String BDAY_HTTP_CALL_TS = "bday_call_ts";
+
+	public static final String BDAY_HTTP_CALL_TIME_GAP = "b_c_g";
+
+	public static final String BIRTHDAY_DATA = "bdata";
 }

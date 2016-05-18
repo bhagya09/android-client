@@ -95,10 +95,11 @@ public class InsertQuickSuggestionTask implements Runnable
             JSONArray sentJson = response.getJSONArray(HikeConstants.SENT);
 
              quickSuggestionStickerCategory = new QuickSuggestionStickerCategory.Builder()
-                    .setQuickSuggestSticker(new Sticker(catId, stkId))
-                    .setReplyStickerSet(getStickerSet(replyJson))
-                    .setSentStickerSet(getStickerSet(sentJson))
-                    .build();
+					 .setCategoryId(StickerManager.QUICK_SUGGESTIONS)
+					 .setQuickSuggestSticker(new Sticker(catId, stkId))
+					 .setReplyStickerSet(getStickerSet(replyJson))
+					 .setSentStickerSet(getStickerSet(sentJson))
+					 .build();
 
 
 		}

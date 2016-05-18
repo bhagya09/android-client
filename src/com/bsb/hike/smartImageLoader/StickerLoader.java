@@ -43,7 +43,6 @@ public class StickerLoader extends ImageWorker
         this.downloadMiniStickerIfNotFound = builder.downloadMiniStickerIfNotFound;
         this.defaultBitmap = builder.defaultBitmap;
         this.stickerSize = builder.stickerSize;
-        mResources = HikeMessengerApp.getInstance().getResources();
     }
 
 	@Override
