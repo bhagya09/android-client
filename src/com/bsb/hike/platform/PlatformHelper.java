@@ -460,7 +460,7 @@ public class PlatformHelper
 		jsonObject.put(AnalyticsConstants.V2.RACE,botName);
 		jsonObject.put(AnalyticsConstants.V2.TO_USER,msisdn);
 		jsonObject.put(AnalyticsConstants.V2.SERIES,String.valueOf(mAppVersionCode));
-		HikeAnalyticsEvent.platformAnalytics(json,uniqueKey,kingdom);
+		HikeAnalyticsEvent.platformAnalytics(jsonObject.toString(),uniqueKey,kingdom);
 		}
 		catch (JSONException e)
 		{
