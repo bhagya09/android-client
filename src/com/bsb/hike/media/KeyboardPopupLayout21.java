@@ -28,31 +28,31 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
  *
  *         Our main focus in keyboard issues is to hold EditText in is position while keyboard and emojji are change their appearance while other is present We are using
  *         OnPreDrawListener for fulfill this task We are also using state to select which task should perform.
- * 
+ *
  *         <pre>
  * 			STATE 1:
  * 			Click on Sticker icon or emojji icon =>
- *          * updatePadding 
+ *          * updatePadding
  *          * set state=STICKER
- *          
+ *
  *          STATE 2:
- *          Click on EditText First Time =>  
+ *          Click on EditText First Time =>
  *          * handle by system
- *          
+ *
  *          STATE 3:
  *          Click on Sticker icon or emojji icon when keyboard is present =>
  *          * state=KEYBOARD_STICKER
- *          * hideKeyboard 
+ *          * hideKeyboard
  *          * set preDrawTaskFlag =true
  *          * updatePadding when keyboard disappear completely
- *          
+ *
  *          STATE 4:
  *          Click on Edittext when either Sticker icon or emojji is present// Or Click on Sticker icon or emojji icon atfer state=KEYBOARD_STICKER =>
  *          * openKeyboard if icon is clicked
  *          * set preDrawTaskFlag =true
  *          * when its keyboard opened hide popupWindow and update padding to originalBottomPadding
  * </pre>
- * 
+ *
  */
 public class KeyboardPopupLayout21 extends KeyboardPopupLayout
 {
@@ -78,8 +78,9 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout
 
 	private View lastClickedEditText;// hold EditText through which keyboard opened last time
 
+    private int customKeyboardHeight = 0;
 	/**
-	 * 
+	 *
 	 * @param mainView
 	 *            - This should be top most view of your activity which get resized when soft keyboard is toggled
 	 * @param firstTimeHeight
@@ -201,6 +202,85 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout
 		hideKeyboard();
 		return true;
 	}
+
+    /*
+     * This code is being added for specific use case of displaying popups for custom keyboard with dynamic height
+     * @param view
+     * @param refreshKeyboard
+     * @param customKeyboardHeight
+     */
+    public boolean showCustomKeyboardPopup(View view, boolean refreshKeyboard,int customKeyboardHeight)
+    {
+
+        if(customKeyboardHeight > 0)
+            this.customKeyboardHeight = customKeyboardHeight;
+
+        if (mainView == null || mainView.getWindowToken() == null)
+        {
+            String errorMsg = "Inside method : showKeyboardPopup of KeyboardPopupLayout. Is view null" + (mainView == null);
+            if (mainView != null)
+            {
+                errorMsg += " is WindowToken Null : " + (mainView.getWindowToken() == null);
+            }
+
+            HAManager.sendStickerEmoticonStrangeBehaviourReport(errorMsg);
+            Logger.wtf("chatthread", "window token is null or view itself is null! Cannot show sticker/emoticons. Eating this exception");
+            return false;
+        }
+
+        int height = getHeightForStickerNEmojjiPalette();
+
+        if (refreshKeyboard && height > this.customKeyboardHeight)
+            height = this.customKeyboardHeight;
+
+        if (popup == null)
+        {
+            initPopUpWindow(LayoutParams.MATCH_PARENT, height, view, context, PopupWindow.INPUT_METHOD_NOT_NEEDED);
+            // TODO
+            // fixLollipopHeadsUpNotifPopup(popup);
+
+            // this is a strange bug in Android, if we set focusable true, GRAVITY BOTTOM IS NOT working
+            popup.setFocusable(false);
+            popup.setOutsideTouchable(false);
+            /**
+             * Conditionally setting the touch interceptor
+             */
+            if (null != mEatTouchEventViewIds && mEatTouchEventViewIds.length > 0)
+            {
+                popup.setTouchInterceptor(this);
+            }
+        }
+        else
+        {
+            updateInputMethodMode(PopupWindow.INPUT_METHOD_NOT_NEEDED);
+        }
+
+        view.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height));
+        popup.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN | WindowManager.LayoutParams.SOFT_INPUT_STATE_UNCHANGED);
+
+        popup.setHeight(height);
+        setOnDismissListener(this);
+        if (isKeyboardOpen)
+        {
+            setState(STATE_KEYBOARD_STICKER);
+        }
+        else
+        {
+            updatePadding(popup.getHeight());
+            setState(STATE_STICKER);
+        }
+
+        showPopup(height);
+
+        if (isKeyboardOpen)
+        {
+            setOnPreDrawTaskFlagOn();
+
+        }
+        hideKeyboard();
+        return true;
+    }
+
 
 	@Override
 	public void dismiss()
@@ -418,11 +498,11 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout
 	}
 
 	/**
-	 * 
+	 *
 	 * This method will return keyboard height if keyboard is opened and will not store this value. you must call this method while keyboard is still open
-	 * 
+	 *
 	 * @param isLandScape
-	 * 
+	 *
 	 * @return keyboard height
 	 */
 	private int calculateKeyboardHeight(boolean isLandScape)

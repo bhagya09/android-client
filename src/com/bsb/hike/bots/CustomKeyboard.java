@@ -14,8 +14,6 @@ public class CustomKeyboard
 
 	private boolean remove;
 
-	private String stSize;
-
 	private ArrayList<ArrayList<TextKey>> textKeys = new ArrayList<ArrayList<TextKey>>();
 
 	private ArrayList<StkrKey> stkrKeys = new ArrayList<StkrKey>();
@@ -115,24 +113,4 @@ public class CustomKeyboard
 		this.stkrKeys = stkrKeys;
 	}
 
-	/**
-	 * Gets st size.
-	 *
-	 * @return the st size
-	 */
-	public String getStSize()
-	{
-		return stSize;
-	}
-
-	/**
-	 * Sets st size.
-	 *
-	 * @param stSize
-	 *            the st size
-	 */
-	public void setStSize(String stSize)
-	{
-		this.stSize = stSize;
-	}
 }

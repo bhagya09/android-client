@@ -24,7 +24,6 @@ import com.bsb.hike.media.StickerPickerListener;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerPageAdapterItem;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
-import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.smartImageLoader.StickerLoader;
 import com.bsb.hike.ui.utils.RecyclingImageView;
 import com.bsb.hike.utils.Logger;
@@ -51,7 +50,7 @@ public class BotsStickerAdapter extends BaseAdapter implements View.OnClickListe
 		/**
 		 * Downloading view type.
 		 */
-		DOWNLOADING,
+		DOWNLOADING
 	}
 
 	private int sizeEachImage;
@@ -63,8 +62,6 @@ public class BotsStickerAdapter extends BaseAdapter implements View.OnClickListe
 	private StickerLoader stickerLoader;
 
 	private StickerPickerListener mStickerPickerListener;
-
-	private String stickerSize;
 
 	private LayoutInflater inflater;
 
@@ -90,20 +87,17 @@ public class BotsStickerAdapter extends BaseAdapter implements View.OnClickListe
 	 *            the abs list view
 	 * @param listener
 	 *            the listener
-	 * @param stickerSize
-	 *            the sticker size
 	 * @param numItemsRow
 	 *            the num items row
 	 */
 	public BotsStickerAdapter(Context context, List<StickerPageAdapterItem> itemList, StickerLoader worker, AbsListView absListView, StickerPickerListener listener,
-			String stickerSize, int numItemsRow)
+			 int numItemsRow)
 	{
 		this.mContext = context;
 		this.itemList = itemList;
 		this.mStickerPickerListener = listener;
 		this.stickerLoader = worker;
 		this.absListView = absListView;
-		this.stickerSize = stickerSize;
 		this.inflater = LayoutInflater.from(mContext);
 		calculateSizeOfStickerImage(numItemsRow);
 		registerListener();
@@ -215,18 +209,7 @@ public class BotsStickerAdapter extends BaseAdapter implements View.OnClickListe
 		{
 		case STICKER:
 			Sticker sticker = item.getSticker();
-			switch (stickerSize)
-			{
-			case HikePlatformConstants.BotsStickerSize.MEDIUM:
-			case HikePlatformConstants.BotsStickerSize.LARGE:
-				stickerLoader.loadSticker(sticker, StickerConstants.StickerType.LARGE, ((ImageView) convertView), false);
-				break;
-			case HikePlatformConstants.BotsStickerSize.SMALL:
-				stickerLoader.loadSticker(sticker, StickerConstants.StickerType.SMALL, ((ImageView) convertView), false);
-				break;
-			default:
-				stickerLoader.loadSticker(sticker, StickerConstants.StickerType.LARGE, ((ImageView) convertView), false);
-			}
+            stickerLoader.loadSticker(sticker, StickerConstants.StickerType.LARGE, ((ImageView) convertView), false);
 			convertView.setOnClickListener(this);
 			break;
 		case DOWNLOADING:
