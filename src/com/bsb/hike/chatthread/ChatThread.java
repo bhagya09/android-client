@@ -1303,12 +1303,14 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	private void stickerClicked(ConvMessage convMessage)
 	{
 		boolean isSent = convMessage.isSent();
-		if(QuickStickerSuggestionController.getInstance().isStickerClickAllowed(isSent))
+		if (QuickStickerSuggestionController.getInstance().isStickerClickAllowed(isSent))
 		{
 			initStickerPicker();
 			mStickerPicker.showQuickSuggestionCategory(QuickStickerSuggestionController.getInstance().getQuickSuggestionCategory(convMessage));
 			stickerButtonClicked();
 		}
+
+		StickerManager.getInstance().sendStickerClickedLogs(convMessage, HikeConstants.SINGLE_TAP);
 	}
 
 	@Override

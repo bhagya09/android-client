@@ -419,6 +419,8 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 			{
 				category.setState(StickerCategory.NONE);
 			}
+
+			StickerManager.getInstance().logCategoryPalleteVisibilityAnalytics(category);
 		}
 
 		@Override
