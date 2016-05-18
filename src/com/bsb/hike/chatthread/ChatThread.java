@@ -11,6 +11,7 @@ import android.content.SharedPreferences.Editor;
 import android.content.pm.ApplicationInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
@@ -399,6 +400,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	private boolean shouldKeyboardPopupShow;
 
 	protected KeyboardOffBoarding keyboardOffBoarding;
+
+	private boolean isCustomThemePreview = false;
 	
 	public static final int RESULT_CODE_STICKER_SHOP_ACTIVITY = 100;
 
@@ -1135,13 +1138,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		case HikeConstants.ResultCodes.CHATTHEME_GALLERY_REQUEST_CODE:
 			if(resultCode == Activity.RESULT_OK)
 			{
-				if (themePicker != null && themePicker.isShowing())
-				{
-					themePicker.dismiss();
-				}
-				if(ChatThemeManager.getInstance().customThemeTempUploadImagePath != null) {
-					FileTransferManager.getInstance(activity).uploadCustomThemeBackgroundImage(ChatThemeManager.getInstance().customThemeTempUploadImagePath);
-				}
+				setCustomThemeBackground();
 			}
 			break;
 		}
@@ -1695,10 +1692,9 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			CropCompression compression = new CropCompression().maxWidth(width).maxHeight(height).quality(100);
 			Intent imageChooserIntent = IntentFactory.getImageChooserIntent(activity, galleryFlags, ChatThemeManager.getInstance().customThemeTempUploadImagePath, compression, true, width, height);
 			activity.startActivityForResult(imageChooserIntent, HikeConstants.ResultCodes.CHATTHEME_GALLERY_REQUEST_CODE);
-			if (themePicker != null && themePicker.isShowing()) {
-				themePicker.dismiss();
-			}
+			isCustomThemePreview = true;
 		}else {
+			isCustomThemePreview = false;
 			postTrialsAnalytic(themeId);
 			updateUIAsPerTheme(themeId);
 		}
@@ -1718,6 +1714,9 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		 * Save current theme and send chat theme message
 		 */
 		if (chatThemeId.equalsIgnoreCase(HikeChatThemeConstants.THEME_PALETTE_CAMERA_ICON)) {
+            if(ChatThemeManager.getInstance().customThemeTempUploadImagePath != null) {
+					FileTransferManager.getInstance(activity).uploadCustomThemeBackgroundImage(ChatThemeManager.getInstance().customThemeTempUploadImagePath);
+            }
 			return;
 		}
 		if (!currentThemeId.equals(chatThemeId))
@@ -1793,31 +1792,54 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		{
 			setChatBackground(REMOVE_CHAT_BACKGROUND);
 			Drawable drawable = Utils.getChatTheme(themeId, activity);
-			if(ChatThemeManager.getInstance().getTheme(themeId).isTiled()){
-				backgroundImage.setScaleType(ScaleType.FIT_XY);
-			} else {
-				int orientation = getResources().getConfiguration().orientation;
-				if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-					backgroundImage.setScaleType(ScaleType.CENTER_CROP);
-				} else {
-					backgroundImage.setScaleType(ScaleType.MATRIX);
-				}
-				ChatThreadUtils.applyMatrixTransformationToImageView(drawable, backgroundImage);
-			}
-			if(!ChatThreadUtils.disableOverlayEffectForCCT() && ChatThemeManager.getInstance().getTheme(themeId).isCustomTheme()) {
-				backgroundImage.setOverLay(true);
-			}
-			backgroundImage.setImageDrawable(drawable);
+			setThemeBackground(backgroundImage, drawable, ChatThemeManager.getInstance().getTheme(themeId).isTiled(), ChatThemeManager.getInstance().getTheme(themeId).isCustomTheme());
 		}
+	}
+
+    private void setCustomThemeBackground() {
+        if(ChatThemeManager.getInstance().customThemeTempUploadImagePath == null) {
+            return;
+        }
+        CustomBGRecyclingImageView backgroundImage = (CustomBGRecyclingImageView) activity.findViewById(R.id.background);
+		backgroundImage.setOverLay(false);
+		int height = DrawUtils.displayMetrics.heightPixels;
+		int width = DrawUtils.displayMetrics.widthPixels;
+		Bitmap bmp = HikeBitmapFactory.decodeSampledBitmapFromFile(ChatThemeManager.getInstance().customThemeTempUploadImagePath, width, height);
+		Drawable drawable = new BitmapDrawable(getResources(), bmp);
+
+		setThemeBackground(backgroundImage, drawable, false, true);
+
+    }
+
+	private void setThemeBackground(CustomBGRecyclingImageView backgroundImage, Drawable drawable, boolean isTiled, boolean isCustom) {
+		if((drawable == null) || (backgroundImage == null)){
+			return;
+		}
+		if(isTiled){
+			backgroundImage.setScaleType(ScaleType.FIT_XY);
+		} else {
+			int orientation = getResources().getConfiguration().orientation;
+			if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+				backgroundImage.setScaleType(ScaleType.CENTER_CROP);
+			} else {
+				backgroundImage.setScaleType(ScaleType.MATRIX);
+			}
+			ChatThreadUtils.applyMatrixTransformationToImageView(drawable, backgroundImage);
+		}
+
+		if(isCustom && !ChatThreadUtils.disableOverlayEffectForCCT()) {
+			backgroundImage.setOverLay(true);
+		}
+		backgroundImage.setImageDrawable(drawable);
 	}
 
 	@Override
 	public void themeCancelled()
 	{
 		Logger.i(TAG, "theme cancelled, resetting the default theme if needed.");
-		if (!currentThemeId.equals(mAdapter.getChatThemeId()))
-		{
+		if (!currentThemeId.equals(mAdapter.getChatThemeId()) || isCustomThemePreview) {
 			setConversationTheme(currentThemeId);
+			ChatThemeManager.getInstance().customThemeTempUploadImagePath = null;
 		}
 	}
 
