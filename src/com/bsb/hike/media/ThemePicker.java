@@ -159,7 +159,7 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 				animatedThemeIndicator.setVisibility(View.GONE);
 				animatedBackground.setVisibility(View.GONE);
 				theme.setImageBitmap(null);
-				setBackgroundThumbnail(theme, null);
+				Utils.setBackground(theme, null);
 
 				if(getItem(position).equalsIgnoreCase(HikeChatThemeConstants.THEME_PALETTE_CAMERA_ICON)) {
 					theme.setImageResource(R.drawable.ic_ct_camera);
@@ -174,7 +174,7 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 				} else {
 					HikeChatTheme chatTheme = ChatThemeManager.getInstance().getTheme(getItem(position));
 					animatedThemeIndicator.setVisibility(chatTheme.isAnimated() ? View.VISIBLE : View.GONE);
-					setBackgroundThumbnail(theme, ChatThemeManager.getInstance().getDrawableForTheme(chatTheme.getThemeId(), HikeChatThemeConstants.ASSET_INDEX_THUMBNAIL));
+					Utils.setBackground(theme, ChatThemeManager.getInstance().getDrawableForTheme(chatTheme.getThemeId(), HikeChatThemeConstants.ASSET_INDEX_THUMBNAIL));
 					theme.setEnabled(userSelection.equals(chatTheme.getThemeId()));
 				}
 
@@ -215,14 +215,6 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 			}
 		});
 
-	}
-
-	private void setBackgroundThumbnail(ImageView imgView, Drawable drawable){
-		if (Utils.isJellybeanOrHigher()) {
-			imgView.setBackground(drawable);
-		} else {
-			imgView.setBackgroundDrawable(drawable);
-		}
 	}
 
 	private boolean orientationChanged(int orientation)
