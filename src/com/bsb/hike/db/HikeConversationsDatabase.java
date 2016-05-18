@@ -10075,6 +10075,51 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 	 */
 	public void migrateMuteData()
 	{
+		migrateGroupMuteData();
+		migrateBotMuteData();
+	}
+
+	/**
+	 * This method restores the mute settings for bots
+	 */
+	public void migrateBotMuteData()
+	{
+		Cursor c = null;
+		try
+		{
+			c = mDb.query(DBConstants.BOT_TABLE, new String[] { DBConstants.MSISDN, DBConstants.IS_MUTE }, DBConstants.IS_MUTE + " = 1", null, null, null, null);
+			while (c.moveToNext())
+			{
+				String msisdn = c.getString(c.getColumnIndex(DBConstants.MSISDN));
+				int mute = c.getInt(c.getColumnIndex(DBConstants.IS_MUTE));
+
+				ContentValues values = new ContentValues();
+				values.put(DBConstants.MSISDN, msisdn);
+				values.put(DBConstants.IS_MUTE, mute);
+				values.put(DBConstants.MUTE_DURATION, HikeConstants.MuteDuration.DURATION_ONE_YEAR);
+				values.put(DBConstants.MUTE_TIMESTAMP, System.currentTimeMillis());
+
+				int id = (int) mDb.insertWithOnConflict(DBConstants.CHAT_PROPERTIES_TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+				if (id < 0)
+				{
+					mDb.update(DBConstants.CHAT_PROPERTIES_TABLE, values, DBConstants.MSISDN + "=?", new String[] { msisdn });
+				}
+			}
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+	}
+
+	/**
+	 * This method restores the mute settings for groups
+	 */
+	public void migrateGroupMuteData()
+	{
 		Cursor c = null;
 		try
 		{

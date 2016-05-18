@@ -1424,11 +1424,11 @@
     <string name="stream_volume_muted_or_low">வாலியும்-ஐ அதிகரிக்கவும்</string>
 
     <string name="group_mute_dialog_title">க்ருப்-ஐ அமைதியாக்கு</string>
-    <string name="chat_mute_dialog_title">சேட்-ஐ ஓசையற்று செய்யவும்</string>
+    <string name="chat_mute_dialog_title">ஒலித்தடுப்பு அரட்டை</string>
     <string name="mute_chat_eight_hrs">8 மணி நேரத்திருக்கு</string>
     <string name="mute_chat_one_week">1 வாரதிருக்கு</string>
     <string name="mute_chat_one_yr">1 வருடத்திருக்கு</string>
     <string name="show_notif">நோட்டிபிகேஷன் காண்பிக்க</string>
-    <string name="mute_chat">சேட்-ஐ ஓசையற்று செய்யவும்</string>
+    <string name="mute_chat">ஒலித்தடுப்பு அரட்டை</string>
 
 </resources>
