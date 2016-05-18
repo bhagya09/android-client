@@ -2043,5 +2043,7 @@ public class MessageInfoView
 			}
 		}, contact, mContext.getString(R.string.SAVE), true);
 	}
-
+	public void resetPlayerIfRunning(){
+		voiceMessagePlayer.resetPlayer();
+	}
 }
