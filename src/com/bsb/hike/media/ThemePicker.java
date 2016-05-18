@@ -271,7 +271,9 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 			saveThemeBtn.setOnClickListener(ThemePicker.this);
 
 			CustomFontTextView doneButton = (CustomFontTextView) saveThemeBtn.findViewById(R.id.save);
-			doneButton.setText(appCompatActivity.getResources().getString(R.string.apply));
+			if(doneButton != null) {
+				doneButton.setText(appCompatActivity.getResources().getString(R.string.apply));
+			}
 			
 			return true;
 		}

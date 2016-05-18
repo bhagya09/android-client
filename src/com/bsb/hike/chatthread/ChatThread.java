@@ -1792,21 +1792,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		{
 			setChatBackground(REMOVE_CHAT_BACKGROUND);
 			Drawable drawable = Utils.getChatTheme(themeId, activity);
-			if(ChatThemeManager.getInstance().getTheme(themeId).isTiled()){
-				backgroundImage.setScaleType(ScaleType.FIT_XY);
-			} else {
-				int orientation = getResources().getConfiguration().orientation;
-				if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-					backgroundImage.setScaleType(ScaleType.CENTER_CROP);
-				} else {
-					backgroundImage.setScaleType(ScaleType.MATRIX);
-				}
-				ChatThreadUtils.applyMatrixTransformationToImageView(drawable, backgroundImage);
-			}
-			if(!ChatThreadUtils.disableOverlayEffectForCCT() && ChatThemeManager.getInstance().getTheme(themeId).isCustomTheme()) {
-				backgroundImage.setOverLay(true);
-			}
-			backgroundImage.setImageDrawable(drawable);
+			setThemeBackground(backgroundImage, drawable, ChatThemeManager.getInstance().getTheme(themeId).isTiled());
 		}
 	}
 
@@ -1815,22 +1801,37 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
             return;
         }
         CustomBGRecyclingImageView backgroundImage = (CustomBGRecyclingImageView) activity.findViewById(R.id.background);
-        int orientation = getResources().getConfiguration().orientation;
-        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            backgroundImage.setScaleType(ScaleType.CENTER_CROP);
-        } else {
-            backgroundImage.setScaleType(ScaleType.MATRIX);
-        }
-        int height = DrawUtils.displayMetrics.heightPixels;
-        int width = DrawUtils.displayMetrics.widthPixels;
-        Bitmap bmp = HikeBitmapFactory.decodeSampledBitmapFromFile(ChatThemeManager.getInstance().customThemeTempUploadImagePath, width, height);
-        Drawable drawable = new BitmapDrawable(getResources(), bmp);
-        ChatThreadUtils.applyMatrixTransformationToImageView(drawable, backgroundImage);
-        if(!ChatThreadUtils.disableOverlayEffectForCCT()) {
-            backgroundImage.setOverLay(true);
-        }
-        backgroundImage.setImageDrawable(drawable);
+		backgroundImage.setOverLay(false);
+		int height = DrawUtils.displayMetrics.heightPixels;
+		int width = DrawUtils.displayMetrics.widthPixels;
+		Bitmap bmp = HikeBitmapFactory.decodeSampledBitmapFromFile(ChatThemeManager.getInstance().customThemeTempUploadImagePath, width, height);
+		Drawable drawable = new BitmapDrawable(getResources(), bmp);
+
+		setThemeBackground(backgroundImage, drawable, false);
+
     }
+
+	private void setThemeBackground(CustomBGRecyclingImageView backgroundImage, Drawable drawable, boolean isTiled) {
+		if((drawable == null) || (backgroundImage == null)){
+			return;
+		}
+		if(isTiled){
+			backgroundImage.setScaleType(ScaleType.FIT_XY);
+		} else {
+			int orientation = getResources().getConfiguration().orientation;
+			if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+				backgroundImage.setScaleType(ScaleType.CENTER_CROP);
+			} else {
+				backgroundImage.setScaleType(ScaleType.MATRIX);
+			}
+			ChatThreadUtils.applyMatrixTransformationToImageView(drawable, backgroundImage);
+		}
+
+		if(!ChatThreadUtils.disableOverlayEffectForCCT()) {
+			backgroundImage.setOverLay(true);
+		}
+		backgroundImage.setImageDrawable(drawable);
+	}
 
 	@Override
 	public void themeCancelled()
