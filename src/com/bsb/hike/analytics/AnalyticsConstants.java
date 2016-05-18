@@ -279,6 +279,8 @@ public class AnalyticsConstants
 
 		public static final String REC_ID = "ri";
 
+		public static final String SECTION = "sec";
+
 		public static final String TO_USER = "tu";
 
 		public static final String USER_STATE = "us";
@@ -814,7 +816,7 @@ public class AnalyticsConstants
 
 		public static final String SWIPED = "swiped";
 
-		public static final String ACT_INTERCEPT = "act_intrcpt";
+		public static final String ACT_INTERCEPT = "act_intercept";
 	}
 
     public static final String DISK_CONSUMPTION_ANALYTICS = "disk_consumption";

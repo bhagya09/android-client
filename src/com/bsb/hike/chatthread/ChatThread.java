@@ -141,6 +141,7 @@ import com.bsb.hike.models.PhonebookContact;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.models.Unique;
+import com.bsb.hike.modules.quickstickersuggestions.QuickStickerSuggestionController;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerPickerRecommendationListener;
@@ -578,7 +579,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		case OPEN_PICKER:
 			mStickerPicker.setShowLastCategory(StickerManager.getInstance().getShowLastCategory());
 			StickerManager.getInstance().setShowLastCategory(false);
-			stickerClicked();
+			stickerButtonClicked();
 			break;
 		case SEND_CUSTOM_THEME_MESSAGE:
 			sendChatThemeMessage(true);
@@ -1324,6 +1325,17 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		mActionBar.showOverflowMenu(width, LayoutParams.WRAP_CONTENT, -rightMargin, -(int) (0.5 * Utils.scaledDensityMultiplier), activity.findViewById(R.id.overflow_anchor));
 	}
 
+	private void stickerClicked(ConvMessage convMessage)
+	{
+		boolean isSent = convMessage.isSent();
+		if(QuickStickerSuggestionController.getInstance().isStickerClickAllowed(isSent))
+		{
+			initStickerPicker();
+			mStickerPicker.showQuickSuggestionCategory(QuickStickerSuggestionController.getInstance().getQuickSuggestionCategory(convMessage));
+			stickerButtonClicked();
+		}
+	}
+
 	@Override
 	public void onClick(View v)
 	{
@@ -1346,7 +1358,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			break;
 		case R.id.sticker_btn:
 			StickerManager.getInstance().initiateFetchCategoryRanksAndDataTask();
-			stickerClicked();
+			stickerButtonClicked();
 			break;
 		case R.id.emoticon_btn:
 			if (mShareablePopupLayout.isBusyInOperations())
@@ -1394,11 +1406,27 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		case R.id.search_clear_btn:
 			mComposeView.setText("");
 			break;
+		case R.id.placeholder:
+			onPlaceHolderClick(v);
+			break;
 		default:
 			Logger.e(TAG, "onClick Registered but not added in onClick : " + v.toString());
 			break;
 		}
 
+	}
+
+	private void onPlaceHolderClick(View v)
+	{
+		ConvMessage convMessage = (ConvMessage) v.getTag();
+
+		if(convMessage.isStickerMessage())
+		{
+			if(convMessage.getMetadata() != null && convMessage.getMetadata().getSticker() != null)
+			{
+				stickerClicked(convMessage);
+			}
+		}
 	}
 
 	protected void sendButtonClicked()
@@ -1496,7 +1524,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		else showRecordingErrorTip(R.string.recording_help_text);
 	}
 
-	protected void stickerClicked()
+	protected void stickerButtonClicked()
 	{
 		if (mShareablePopupLayout.isBusyInOperations()) {//  previous task is running don't accept this event
 			return;
@@ -1509,7 +1537,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		initStickerPicker();
 		
 		closeStickerTip();
-		StickerManager.getInstance().logStickerButtonPressAnalytics();
+		StickerManager.getInstance().logStickerButtonsPressAnalytics(HikeMessengerApp.STICKER_PALLETE_BUTTON_CLICK_ANALYTICS);
 
 		if(mShareablePopupLayout.isShowing()) {
 			inProcessOfShowingPopup = false;
@@ -1610,7 +1638,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			}
 		}
 
-        StickerManager.getInstance().logEmoticonButtonPressAnalytics();
+        StickerManager.getInstance().logStickerButtonsPressAnalytics(HikeMessengerApp.EMOTICON_BUTTON_CLICK_ANALYTICS);
 
 		Logger.v(TAG, "Time taken to open emoticon pallete : " + (System.currentTimeMillis() - time));
 	}
