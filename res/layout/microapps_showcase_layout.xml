@@ -3,7 +3,8 @@
     android:id="@+id/showcase_item_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical" >
+    android:gravity="center_horizontal"
+    android:orientation="vertical">
     
     <com.bsb.hike.view.RoundedImageView
                 android:id="@+id/microapp_image"

@@ -305,9 +305,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 
 		overFlowWindow = new PopupWindow(this);
 
-		FrameLayout homeScreen = (FrameLayout) findViewById(R.id.home_screen);
-
-		View parentView = getLayoutInflater().inflate(R.layout.overflow_menu, homeScreen, false);
+		View parentView = getLayoutInflater().inflate(R.layout.overflow_menu, null, false);
 
 		overFlowWindow.setContentView(parentView);
 

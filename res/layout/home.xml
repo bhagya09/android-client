@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/parent_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/home_bg"
-    android:orientation="vertical" >
+    android:orientation="vertical">
 
         <View
             android:id="@+id/overflow_anchor"
@@ -20,6 +19,26 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" >
         </FrameLayout>
+
+        <LinearLayout
+            android:id="@+id/tab_action_bar_parent"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/custom_tab_action_bar_height"
+            android:layout_alignParentBottom="true"
+            android:background="@color/custom_tab_action_bar"/>
+
+        <View
+            android:id="@+id/fragment_limit"
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:layout_above="@id/tab_action_bar_parent"
+            android:background="@color/home_screen_list_divider" />
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/pager_frag"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@id/fragment_limit" />
 
         <View
             android:id="@+id/chat_bg_ftue_fade"
@@ -40,8 +59,8 @@
             android:id="@+id/network_error"
             android:layout_width="match_parent"
             android:layout_height="28dp"
-            android:layout_alignParentBottom="true"
-            android:layout_gravity="bottom"
+            android:layout_above="@id/fragment_limit"
+            android:layout_alignWithParentIfMissing="true"
             android:gravity="center"
             android:textColor="@color/white"
             android:textSize="15sp" />
