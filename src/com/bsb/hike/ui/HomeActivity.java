@@ -186,12 +186,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private static final int DEAFULT_FRAGMENT_POSITION = CONV_FRAGMENT_POSITION;
 
-	private static final String SU_FRAGMENT_TAG = "suFragTag";
-
-	private static final String CONV_FRAGMENT_TAG = "convFragTag";
-
-	private static final String MY_FRAGMENT_TAG = "myFragTag";
-
 	private SnowFallView snowFallView;
 	
 	//private int searchOptionID;
@@ -670,11 +664,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private Fragment getStatusFragment()
 	{
-		Fragment frag = getSupportFragmentManager().findFragmentByTag(SU_FRAGMENT_TAG);
-		if (frag != null)
-		{
-			updatesFragment = (UpdatesFragment) frag;
-		}
 		if (updatesFragment == null)
 		{
 			updatesFragment = new UpdatesFragment();
@@ -684,11 +673,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private Fragment getConversationFragment()
 	{
-		Fragment frag = getSupportFragmentManager().findFragmentByTag(CONV_FRAGMENT_TAG);
-		if (frag != null)
-		{
-			conversationFragment = (ConversationFragment) frag;
-		}
 		if (conversationFragment == null)
 		{
 			conversationFragment = new ConversationFragment();
@@ -698,11 +682,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private Fragment getMyFragment()
 	{
-		Fragment frag = getSupportFragmentManager().findFragmentByTag(MY_FRAGMENT_TAG);
-		if (frag != null)
-		{
-			myFragment = (MyFragment) frag;
-		}
 		if (myFragment == null)
 		{
 			myFragment = new MyFragment();
@@ -2613,13 +2592,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		if (Utils.isDBCorrupt()) //Conversation fragment could have been added previously. Remove it and show the corrupt dialog
 		{
-			if (isFragmentAdded(CONV_FRAGMENT_TAG))
-			{
-				removeFragment(CONV_FRAGMENT_TAG);
-			}
-
-			Logger.d(TAG, "Removed ConvFragment and showing the restore chats dialog now");
-
+			Logger.d(TAG, "Showing the restore chats dialog now");
 			showCorruptDBRestoreDialog();
 		}
 	}
