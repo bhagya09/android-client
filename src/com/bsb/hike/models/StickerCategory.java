@@ -113,7 +113,7 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 
     private void ensureSaneDefaults()
     {
-        if(categoryId == null && ucid < 0 )
+        if(categoryId == null && (!isCustom() && ucid < 0))
         {
             throw new IllegalStateException("Category cannot be null");
         }

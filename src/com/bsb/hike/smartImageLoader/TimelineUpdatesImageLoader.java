@@ -57,7 +57,6 @@ public class TimelineUpdatesImageLoader extends ImageWorker
 		this.context = ctx;
 		this.mImageWidth = imageWidth;
 		this.mImageHeight = imageHeight;
-		mResources = this.context.getResources();
 	}
 
 	/**

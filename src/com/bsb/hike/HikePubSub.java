@@ -543,6 +543,8 @@ public class HikePubSub extends Handler implements Runnable
 
 	public static final String CHATTHEME_CUSTOM_IMAGE_UPLOAD_FAILED = "chatThemeCustomImageUploadFailed";
 
+	public static final String DISMISS_EDIT_PROFILE_DIALOG = "dismiss_edit_profile_dialog";
+
 	public static final String ATOMIC_TIP_WITH_NOTIF = "atomic_tip_notif";
 
 	private final Thread mThread;
