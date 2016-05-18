@@ -10848,6 +10848,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		long timestamp = themeDbRow.getLong(themeDbRow.getColumnIndex(ChatThemes.CHAT_THEME_TIMESTAMP_COL));
 		boolean isVisible = (themeDbRow.getInt(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_VISIBLE)) == 1) ? true : false;
 		int order = themeDbRow.getInt(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_ORDER));
+		int messageType = themeDbRow.getInt(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_SYSTEM_MESSAGE));
 
 		//loading into the object
 		HikeChatTheme chatTheme = new HikeChatTheme();
@@ -10869,6 +10870,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		chatTheme.setMetadata(meta);
 		chatTheme.setVisibilityStatus(isVisible);
 		chatTheme.setThemeOrderIndex(order);
+		chatTheme.setSystemMessageType(messageType);
 
 		return chatTheme;
 	}
