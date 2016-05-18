@@ -4669,6 +4669,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 
 		mDb.execSQL("DELETE FROM " + DBConstants.SHARED_MEDIA_TABLE + " WHERE " + DBConstants.MSISDN + "= ?", args);
 
+		mDb.execSQL("DELETE FROM " + DBConstants.RECEIPTS_TABLE + " WHERE " + DBConstants.MSISDN + "= ?", args);
 		/*
 		 * Next we have to clear the conversation table.
 		 */

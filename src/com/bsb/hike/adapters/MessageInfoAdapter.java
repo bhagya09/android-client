@@ -196,6 +196,7 @@ public class MessageInfoAdapter extends BaseAdapter
 			case MESSAGE_INFO_NOTAPPLICABLE:
 				v = inflater.inflate(R.layout.messageinfo_sms_item, null);
 				viewHolder.text = (TextView) v.findViewById(R.id.text);
+				v.setTag(viewHolder);
 				break;
 			case MESSAGE_INFO_EMPTY:
 				v = inflater.inflate(R.layout.messageinfo_empty_item, null);
@@ -256,6 +257,7 @@ public class MessageInfoAdapter extends BaseAdapter
 			v = messageInfoView.getView(v, convMessage);
 			break;
 		case MESSAGE_INFO_NOTAPPLICABLE:
+			viewHolder=(ViewHolder)v.getTag();
 			viewHolder.text.setText(R.string.messageinfo_not_applicable);
 			break;
 			

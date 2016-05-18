@@ -32,6 +32,8 @@ public abstract class MessageInfoDataModel
 
 	public long messageID;
 
+	protected boolean areAnyReceiptsReceived=false;
+
 	public MessageInfoDataModel(String msisdn, long messageID)
 	{
 		this.msisdn = msisdn;
@@ -143,6 +145,9 @@ public abstract class MessageInfoDataModel
 	{
 
 	}
+	public boolean areAnyReceiptsReceived(){
+	return areAnyReceiptsReceived;
+}
 
 
 }
