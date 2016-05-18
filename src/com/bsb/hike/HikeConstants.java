@@ -4288,4 +4288,8 @@ public class HikeConstants
 	public static final int LONG_TAP = 2;
 
 	public static final int SINGLE_TAP = 1;
+
+	public static final String SCROLL_COUNT = "scroll_count";
+
+
 }

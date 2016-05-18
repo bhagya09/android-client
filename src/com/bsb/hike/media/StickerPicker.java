@@ -79,7 +79,8 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	private StickerCategory quickSuggetionCategory;
 
 	private boolean showQuickSuggestions;
-	
+
+	private int lastClickedCategoryIndex = -1;
 	/**
 	 * Constructor
 	 * 
@@ -417,7 +418,8 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 				category.setState(StickerCategory.NONE);
 			}
 
-			StickerManager.getInstance().logCategoryPalleteVisibilityAnalytics(category);
+			StickerManager.getInstance().logCategoryPalleteVisibilityAnalytics(category, (pageNum == lastClickedCategoryIndex));
+			lastClickedCategoryIndex = -1;
 		}
 
 		@Override
@@ -720,8 +722,9 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	}
 
 	@Override
-	public void onTabClick()
+	public void onTabClick(int position)
 	{
+		lastClickedCategoryIndex = position;
 		mViewPager.setVisibility(View.VISIBLE);
 		chatHeadInfoIconButton.setSelected(false);
 		chatHeadInfoIconLayout.setVisibility(View.GONE);

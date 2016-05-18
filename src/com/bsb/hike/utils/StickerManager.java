@@ -2551,7 +2551,16 @@ public class StickerManager
 					{
 						index = -1;
 					}
-					stickerPackAndOrderList.put(stickerCategory.getCategoryId() + STRING_DELIMETER + index + STRING_DELIMETER + catList.optInt(stickerCategory.getCategoryId()));
+                    
+					int scrollVisibility = 0, tapVisibility = 0;
+					if (catList.has(stickerCategory.getCategoryId()))
+					{
+						JSONObject categoryVisibility = catList.getJSONObject(stickerCategory.getCategoryId());
+						scrollVisibility = categoryVisibility.optInt(HikeConstants.SCROLL_COUNT);
+						tapVisibility = categoryVisibility.optInt(HikeConstants.CLICK_COUNT);
+					}
+
+					stickerPackAndOrderList.put(stickerCategory.getCategoryId() + STRING_DELIMETER + index + STRING_DELIMETER + scrollVisibility + STRING_DELIMETER + tapVisibility);
 				}
 
 				JSONObject metadata = new JSONObject();
@@ -2565,6 +2574,7 @@ public class StickerManager
 
 				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LAST_STICKER_PACK_AND_ORDERING_SENT_TIME, currentTime);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.VIEWED_IN_PALLETE_CATEGORY_LIST, "");
 			}
 		}
 		catch (JSONException e)
@@ -3903,31 +3913,37 @@ public class StickerManager
 		});
 	}
 
-    public void logCategoryPalleteVisibilityAnalytics(final StickerCategory category)
-    {
-        if (category == null)
-        {
-            return;
-        }
+	public void logCategoryPalleteVisibilityAnalytics(final StickerCategory category, final boolean selectedByTap)
+	{
+		if (category == null)
+		{
+			return;
+		}
 
-        HikeHandlerUtil.getInstance().postRunnable(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                String categoriesViewed = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.VIEWED_IN_PALLETE_CATEGORY_LIST, "");
+		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				String categoriesViewed = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.VIEWED_IN_PALLETE_CATEGORY_LIST, "");
 
-                try
-                {
-                    JSONObject catList = (TextUtils.isEmpty(categoriesViewed)) ? new JSONObject() : new JSONObject(categoriesViewed);
-                    catList.put(category.getCategoryId(), (catList.optInt(category.getCategoryId(), 0) + 1));
-                    HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.VIEWED_IN_PALLETE_CATEGORY_LIST, catList.toString());
-                }
-                catch (JSONException e)
-                {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
+				try
+				{
+					JSONObject catList = (TextUtils.isEmpty(categoriesViewed)) ? new JSONObject() : new JSONObject(categoriesViewed);
+					JSONObject categoryVisibility = catList.has(category.getCategoryId()) ? catList.getJSONObject(category.getCategoryId()) : new JSONObject();
+
+					String visibilitySrc = selectedByTap ? HikeConstants.CLICK_COUNT : HikeConstants.SCROLL_COUNT;
+
+					categoryVisibility.put(visibilitySrc, (catList.optInt(visibilitySrc, 0) + 1));
+					catList.put(category.getCategoryId(), categoryVisibility);
+
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.VIEWED_IN_PALLETE_CATEGORY_LIST, catList.toString());
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		});
+	}
 }
