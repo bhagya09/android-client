@@ -400,6 +400,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	private boolean shouldKeyboardPopupShow;
 
 	protected KeyboardOffBoarding keyboardOffBoarding;
+
+	private boolean isCustomThemePreview = false;
 	
 	public static final int RESULT_CODE_STICKER_SHOP_ACTIVITY = 100;
 
@@ -1690,7 +1692,9 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			CropCompression compression = new CropCompression().maxWidth(width).maxHeight(height).quality(100);
 			Intent imageChooserIntent = IntentFactory.getImageChooserIntent(activity, galleryFlags, ChatThemeManager.getInstance().customThemeTempUploadImagePath, compression, true, width, height);
 			activity.startActivityForResult(imageChooserIntent, HikeConstants.ResultCodes.CHATTHEME_GALLERY_REQUEST_CODE);
+			isCustomThemePreview = true;
 		}else {
+			isCustomThemePreview = false;
 			postTrialsAnalytic(themeId);
 			updateUIAsPerTheme(themeId);
 		}
@@ -1831,14 +1835,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	@Override
 	public void themeCancelled()
 	{
-		if(ChatThemeManager.getInstance().customThemeTempUploadImagePath != null){
-			setConversationTheme(currentThemeId);
-			ChatThemeManager.getInstance().customThemeTempUploadImagePath = null;
-			return;
-		}
-
 		Logger.i(TAG, "theme cancelled, resetting the default theme if needed.");
-		if (!currentThemeId.equals(mAdapter.getChatThemeId())) {
+		if (!currentThemeId.equals(mAdapter.getChatThemeId()) || isCustomThemePreview) {
 			setConversationTheme(currentThemeId);
 		}
 	}
