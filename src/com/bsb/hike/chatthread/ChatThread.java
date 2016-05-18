@@ -1834,6 +1834,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		if(ChatThemeManager.getInstance().customThemeTempUploadImagePath != null){
 			setConversationTheme(currentThemeId);
 			ChatThemeManager.getInstance().customThemeTempUploadImagePath = null;
+			return;
 		}
 
 		Logger.i(TAG, "theme cancelled, resetting the default theme if needed.");
