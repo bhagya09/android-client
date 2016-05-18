@@ -160,7 +160,9 @@ public class HikeCropFragment extends Fragment implements View.OnClickListener
 		super.onViewCreated(view, savedInstanceState);
 
 		mCropImageView.setFixedAspectRatio(fixedAspectRatio);
-		mCropImageView.setAspectRatio(aspectRatioX, aspectRatioY);
+		if((aspectRatioX > 0) && (aspectRatioY > 0)) {
+			mCropImageView.setAspectRatio(aspectRatioX, aspectRatioY);
+		}
 
 		if (!fixedAspectRatio)
 		{
