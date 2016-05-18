@@ -634,12 +634,10 @@ public class VoIPClient  {
 						Logger.w(tag, "RTT expired.");
 						rttSent = false;
 						rttTooHigh = true;
-					}
-
-					// If we have a playback buffer, then keep calculating RTT every second. 
-					if (minimumDecodedQueueSize > 0)
+					} else if (minimumDecodedQueueSize > 0)
+						// If we have a playback buffer, then keep calculating RTT.
 						measureRTT();
-					
+
 					try {
 						Thread.sleep(HEARTBEAT_INTERVAL);
 					} catch (InterruptedException e) {
@@ -1203,7 +1201,7 @@ public class VoIPClient  {
 					} catch (IOException e) {
 						break;
 					}
-					
+
 					VoIPDataPacket dataPacket = VoIPUtils.getPacketFromUDPData(packet.getData(), packet.getLength());
 					
 					if (dataPacket == null)

@@ -2155,6 +2155,12 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.ENABLE_ADDRESSBOOK_THROUGH_HTTP_MGR, enAb);
 		}
 
+		if (data.has(HikeMessengerApp.EDIT_PROFILE_THROUGH_HTTP_MGR))
+		{
+			boolean editProfileHttpMgr = data.getBoolean(HikeMessengerApp.EDIT_PROFILE_THROUGH_HTTP_MGR);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.EDIT_PROFILE_THROUGH_HTTP_MGR, editProfileHttpMgr);
+		}
+
 		if (data.has(HikeConstants.Extras.CHANGE_MAX_MESSAGE_PROCESS_TIME))
 		{
 			long maxMessageProcessTime = data.optLong(HikeConstants.Extras.CHANGE_MAX_MESSAGE_PROCESS_TIME);
@@ -3142,6 +3148,18 @@ public class MqttMessagesManager
 			QuickStickerSuggestionController.getInstance().toggleQuickSuggestionOnSent(data.optBoolean(HikeConstants.SHOW_QUICK_STICKER_SUGGESTION_ON_STICKER_SENT));
 		}
 
+		if (data.has(HikeConstants.ENABLE_BDAY_IN_CCA))
+		{
+			boolean showBdayInCCA = data.getBoolean(HikeConstants.ENABLE_BDAY_IN_CCA);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_BDAY_IN_CCA, showBdayInCCA);
+		}
+
+		if (data.has(HikeConstants.BDAY_HTTP_CALL_TIME_GAP))
+		{
+			long bdayHttpTimeGap = data.getLong(HikeConstants.BDAY_HTTP_CALL_TIME_GAP);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BDAY_HTTP_CALL_TIME_GAP, bdayHttpTimeGap);
+		}
+		
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 

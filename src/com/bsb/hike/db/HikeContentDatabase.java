@@ -16,6 +16,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.SparseArray;
+import static com.bsb.hike.db.DBConstants.*;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.*;
+
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -36,7 +39,7 @@ import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
-public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants, HIKE_CONTENT
+public class HikeContentDatabase extends SQLiteOpenHelper
 {
 
 	private static final HikeContentDatabase hikeContentDatabase=new HikeContentDatabase();
