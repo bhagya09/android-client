@@ -42,6 +42,7 @@ public class OnetoOneDataModel extends MessageInfoDataModel
 
 		ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, true, true);
 		messageInfoMap = mDb.getMessageInfo(messageID);
+		areAnyReceiptsReceived=!messageInfoMap.isEmpty();
 		convMessage=mDb.getMessageFromID(messageID,msisdn);
 		Iterator<MessageInfo> iterator = messageInfoMap.iterator();
 		participantTreeMap.put(contactInfo.getMsisdn(), new MessageInfoParticipantData(contactInfo, 0, 0));

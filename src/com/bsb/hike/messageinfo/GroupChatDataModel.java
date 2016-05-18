@@ -25,6 +25,7 @@ public class GroupChatDataModel extends MessageInfoDataModel
 
 	OneToNConversation oneToNConversation;
 
+
 	private Map<String, PairModified<GroupParticipant, String>> participantMap;
 
 	@Override
@@ -51,7 +52,7 @@ public class GroupChatDataModel extends MessageInfoDataModel
 
 		convMessage=mDb.getMessageFromID(messageID,msisdn);
 		messageInfoMap = mDb.getMessageInfo(messageID);
-
+		areAnyReceiptsReceived=!messageInfoMap.isEmpty();
 		oneToNConversation = (OneToNConversation) mDb.getConversation(msisdn, 0, false);
 		participantMap = oneToNConversation.getConversationParticipantList();
 
@@ -82,6 +83,7 @@ public class GroupChatDataModel extends MessageInfoDataModel
 		data.convMessage=convMessage;
 		data.messageInfoHashSet=messageInfoMap;
 		data.participantTreeMap=participantTreeMap;
+		data.areAnyReceiptsReceived=areAnyReceiptsReceived;
 		return data;
 	}
 	public void refreshData(){

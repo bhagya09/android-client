@@ -14,5 +14,6 @@ public class MessageInfoLoaderData {
     public OneToNConversation conversation;
     public HashSet<MessageInfo> messageInfoHashSet;
     public TreeMap<String, MessageInfoDataModel.MessageInfoParticipantData> participantTreeMap;
+    public boolean areAnyReceiptsReceived;
 
 }

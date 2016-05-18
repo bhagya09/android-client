@@ -47,6 +47,7 @@ import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.models.ConvMessage.State;
 
 public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implements HikePubSub.Listener
 {
@@ -123,6 +124,7 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 		msisdn = getIntent().getExtras().getString(HikeConstants.MSISDN);
 		messageID = getIntent().getExtras().getLong(HikeConstants.MESSAGE_ID);
 		convMessage = HikeConversationsDatabase.getInstance().getMessageFromID(messageID, msisdn);
+
 		initializeListViewandAdapters();
 		setDataModelsandControllers();
 
@@ -213,13 +215,14 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 
 		protected int controllerType;
 
+		public boolean areAnyReceiptsReceived;
+
 		void init()
 		{
 			chatTheme = HikeConversationsDatabase.getInstance().getChatThemeForMsisdn(msisdn);
 			mConversation = HikeConversationsDatabase.getInstance().getConversation(msisdn, 1, true);
 			// getSupportLoaderManager().initLoader(1,null,this).forceLoad();
 			// dataModel.fetchAllParticipantsInfo();
-
 			getSupportLoaderManager().initLoader(1, null, this).forceLoad();
 			HikeMessengerApp.getPubSub().addListeners(this, listeners);
 
@@ -236,9 +239,12 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 		{
 			participantTreeMap = data.participantTreeMap;
 			convMessage = data.convMessage;
+			areAnyReceiptsReceived=data.areAnyReceiptsReceived;
+
 			messageInfoView = new MessageInfoView(convMessage, chatTheme, MessageInfoActivity.this, mConversation, messageInfoAdapter);
 			readListString = messageInfoView.getReadListHeaderString(controllerType);
 			messageInfoAdapter.setMessageInfoView(messageInfoView);
+
 			addItems();
 			notifyAdapter();
 			setScrollPosition();
@@ -281,6 +287,15 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 		protected abstract void notifyAdapter();
 
 		public abstract void addItems();
+
+		public boolean isNotApplicable()
+		{
+
+			if (convMessage.getState().ordinal() < State.SENT_DELIVERED.ordinal())
+				return false;
+			return convMessage.getState().ordinal() <= State.SENT_DELIVERED_READ.ordinal() && !areAnyReceiptsReceived;
+
+		}
 
 	}
 
@@ -334,7 +349,12 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 			messageMap.clear();
 			participantTreeMap = dataModel.participantTreeMap;
 			messageMap.add(new MessageInfoItem.MessageInfoViewItem(convMessage));
-			if (!convMessage.isOfflineMessage())
+			if(isNotApplicable()){
+				messageMap.add(new MessageInfoItem.MessageInfoNotApplicableItem());
+			}else if(convMessage.isSMS()){
+				messageMap.add(new MessageInfoItem.MessageInfoSMSItem());
+			}
+			else
 			{
 				Iterator<MessageInfoDataModel.MessageInfoParticipantData> iterator = participantTreeMap.values().iterator();
 				MessageInfoDataModel.MessageInfoParticipantData participantData = null;
@@ -358,13 +378,11 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 
 				messageMap.add(readList);
 				messageMap.add(deliveredList);
-			}
-			else
-			{
-				messageMap.add(new MessageInfoItem.MessageInfoSMSItem());
+
 			}
 			messageMap.add(new MessageInfoItem.MessageInfoEmptyItem());
 		}
+
 
 		public void updateItemsinMap()
 		{
@@ -425,7 +443,11 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 		public void updateItemsinList()
 		{
 			Iterator<MessageInfoList> iterator = listsToBedisplayed.iterator();
+
 			messageMap.add(new MessageInfoItem.MessageInfoViewItem(convMessage));
+			if(isNotApplicable()){
+				messageMap.add(new MessageInfoItem.MessageInfoNotApplicableItem());
+			}else{
 			while (iterator.hasNext())
 			{
 				MessageInfoList messageInfoList = iterator.next();
@@ -438,7 +460,7 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 				if (messageInfoList.getRemainingItemCount() > 0)
 					messageMap.add(messageInfoList.remainingItem);
 
-			}
+			}}
 			messageMap.add(new MessageInfoItem.MessageInfoEmptyItem());
 		}
 
