@@ -17,9 +17,9 @@
         android:layout_alignRight="@id/img_icon"
         android:background="@drawable/bg_icon_badge_counter"
         android:gravity="center"
-        android:text="1"
         android:textColor="@color/white"
-        android:textSize="11dp" />
+        android:textSize="11dp"
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/txt_title"
