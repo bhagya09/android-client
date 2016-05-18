@@ -35,7 +35,7 @@ public class QuickStickerSuggestionController
 
     private QuickStickerSuggestionController()
     {
-        showQuickStickerSuggestionOnStickerReceive = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_QUICK_STICKER_SUGGESTION_ON_STICKER_RECEIVE, true);
+        showQuickStickerSuggestionOnStickerReceive = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_QUICK_STICKER_SUGGESTION_ON_STICKER_RECEIVE, false);
         showQuickStickerSuggestionOnStickerSent = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_QUICK_STICKER_SUGGESTION_ON_STICKER_SENT, false);
         suggestedStickerTtl = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.QUICK_SUGGESTED_STICKERS_TTL, DEFAULT_QUICK_SUGGESTED_STICKERS_TTL);
     }
@@ -54,6 +54,33 @@ public class QuickStickerSuggestionController
         }
 
         return _instance;
+    }
+
+    public void toggleQuickSuggestionOnReceive(boolean showQuickStickerSuggestionOnStickerReceive)
+    {
+        this.showQuickStickerSuggestionOnStickerReceive = showQuickStickerSuggestionOnStickerReceive;
+        HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_QUICK_STICKER_SUGGESTION_ON_STICKER_RECEIVE, showQuickStickerSuggestionOnStickerReceive);
+
+        if(showQuickStickerSuggestionOnStickerReceive)
+        {
+            StickerManager.getInstance().fetchQuickSuggestionForAllStickers();
+        }
+    }
+
+    public void toggleQuickSuggestionOnSent(boolean showQuickStickerSuggestionOnStickerSent)
+    {
+        this.showQuickStickerSuggestionOnStickerSent = showQuickStickerSuggestionOnStickerSent;
+        HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_QUICK_STICKER_SUGGESTION_ON_STICKER_SENT, showQuickStickerSuggestionOnStickerSent);
+
+        if(showQuickStickerSuggestionOnStickerSent)
+        {
+            StickerManager.getInstance().fetchQuickSuggestionForAllStickers();
+        }
+    }
+
+    public boolean isQuickSuggestionEnabled()
+    {
+        return showQuickStickerSuggestionOnStickerSent || showQuickStickerSuggestionOnStickerReceive;
     }
 
     public boolean isStickerClickAllowed(boolean isSent)
