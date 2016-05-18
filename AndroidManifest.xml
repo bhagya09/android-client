@@ -5,7 +5,6 @@
     android:installLocation="auto"
     android:versionCode="1721"
     android:versionName="4.2.6.82.104" >
-
    <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="17"
