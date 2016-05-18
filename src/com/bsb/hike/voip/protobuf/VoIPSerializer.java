@@ -77,6 +77,11 @@ public class VoIPSerializer {
             Logger.w(VoIPConstants.TAG, "VoIPSerializer IOException : " + e.toString());
         }
 
+		if (protoBuf == null) {
+			Logger.w(VoIPConstants.TAG, "Deserialized protobuf is NULL.");
+			return null;
+		}
+
 		dp.setPacketType(PacketType.fromValue(protoBuf.getPacketType()));
 		dp.setEncrypted(protoBuf.getEncrypted());
 		dp.setData(protoBuf.getData().toByteArray());

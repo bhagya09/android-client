@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1694"
+    android:versionCode="1719"
     android:versionName="4.2.6.81.3.hikeIdslice1" >
 
    <uses-sdk
@@ -167,11 +167,6 @@
                 
                 <data android:mimeType="*/*" />
             </intent-filter>
-        </activity>
-        <activity
-            android:name=".ui.AddFriendsActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/app_name" >
         </activity>
 
         <activity
@@ -611,8 +606,14 @@
             <intent-filter >
                 <action android:name="com.bsb.hike.INTERCEPT_PHOTO_EDIT_INTENT" />
             </intent-filter>
+            <intent-filter >
+                <action android:name="com.bsb.hike.INTERCEPT_VIDEO_SHARE_INTENT" />
+            </intent-filter>
         </receiver>
 
+        <service
+            android:name="com.hike.abtest.UpdateExperimentService"
+            android:exported="false" />
 </application>
 
 </manifest>

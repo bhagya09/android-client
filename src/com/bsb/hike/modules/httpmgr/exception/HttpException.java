@@ -35,9 +35,13 @@ public class HttpException extends Exception
 
 	public static final short REASON_CODE_WRONG_URL = 14;
 
+	public static final short REASON_CODE_REQUEST_PAUSED = 15;
+
     public static final short REASON_CODE_INCOMPLETE_REQUEST = 19;
 
     public static final short REASON_CODE_ZERO_BYTE_ZIP_DOWNLOAD = 20;
+
+	public static final short REASON_CODE_SERVER_STATUS_FAILED = 21;
 
 	/** Http custom status codes returned by server */
 

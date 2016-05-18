@@ -25,6 +25,8 @@ public class HttpRequestConstants
 	
 	public static final String STICKERS_PRODUCTION_API = "stickers.im.hike.in";
 
+	public static final String FT_PRODUCTION_API = "ft.im.hike.in";
+
 	public static final String STICKERS_CDN_PRODUCTION_API = "staticstickers.im.hike.in";
 	
 	public static final String BASE_LINK_SHARING_URL = HTTP + "hike.in";
@@ -55,11 +57,15 @@ public class HttpRequestConstants
 
 	private static final String BASE_V4 = "/v4";
 
+	private static final String BASE_V5 = "/v5";
+
 	private static final String BASE_ACCOUNT = "/account";
 
 	private static final String BASE_USER = "/user";
 
 	private static final String BASE_STICKER = "/stickers";
+
+	private static final String BASE_SHOP = "/shop";
 
 	private static final String BASE_INVITE = "/invite";
 	
@@ -98,6 +104,8 @@ public class HttpRequestConstants
 	private static final String BASE_BLOCK = "/block";
 
 	private static final String BASE_BLOCKED_LIST = "/blocked_list";
+
+	private static final String HIKE_SETTINGS = "/hikesettings";
 
 	public static synchronized void setUpBase()
 	{
@@ -220,10 +228,26 @@ public class HttpRequestConstants
 	
 	public static String stickerShopDownloadUrl()
 	{
-		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER + "/shop";
+		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER + BASE_SHOP;
 	}
-	
-	public static String stickerSignupUpgradeUrl()
+
+
+	public static String stickerCategoryFetchPrefOrderUrl()
+	{
+		return BASE_STICKERS_URL + BASE_V4 + BASE_SHOP + "/fetch_shop_order";
+	}
+
+	public static String stickerShopFetchCategoryUrl()
+	{
+		return BASE_STICKERS_URL + BASE_V4 + BASE_SHOP + "/update_metadata";
+	}
+
+	public static String stickerShopFetchCategoryTagsUrl()
+	{
+		return BASE_STICKERS_URL + BASE_V4 + BASE_SHOP + "/update_tags";
+	}
+
+    public static String stickerSignupUpgradeUrl()
 	{
 		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER + "/categories";
 	}
@@ -325,7 +349,14 @@ public class HttpRequestConstants
 
 	public static String sendUserLogsInfoBaseUrl()
 	{
-		return BASE_URL + BASE_V1 + "/";
+		if(!Utils.isUserAuthenticated(HikeMessengerApp.getInstance().getApplicationContext()))
+		{
+			return BASE_URL + BASE_V1 + "/pa/";
+		}
+		else
+		{
+			return BASE_URL + BASE_V1 +  "/";
+		}
 	}
 
 	public static String deleteAccountBaseUrl()
@@ -534,6 +565,31 @@ public class HttpRequestConstants
         }
     }
 
+	public static String getUploadFileBaseUrl()
+	{
+		return AccountUtils.fileTransferBase + "/user/pft/";
+	}
+
+	public static String getValidateFileKeyBaseUrl()
+	{
+		return AccountUtils.fileTransferBaseDownloadUrl;
+	}
+
+	public static String getFastFileUploadBaseUrl()
+	{
+		return AccountUtils.fastFileUploadUrl;
+	}
+
+	public static String getUploadContactOrLocationBaseUrl()
+	{
+		return AccountUtils.fileTransferBase + "/user/ft";
+	}
+
+	public static String getAnalyticsUrl()
+	{
+		return  BASE_URL + BASE_V1 + ANALYTICS_UPLOAD_PATH;
+	}
+
     /*
      * Async Method to fetch latest micro app from server for forward card case
      */
@@ -551,10 +607,6 @@ public class HttpRequestConstants
         }
     }
 
-	public static String getAnalyticsUrl() {
-		return  BASE_URL + BASE_V1 + ANALYTICS_UPLOAD_PATH;
-	}
-
 	public static String getHistoricalStatusUpdatesUrl()
 	{
 		return  BASE_URL + BASE_V1 + "hsu/";
@@ -563,5 +615,14 @@ public class HttpRequestConstants
 	public static String fetchUIDForMissingMsisdnUrl()
 	{
 		return BASE_URL + BASE_V2 + "/user-identifier-update-graph";
+	}
+		public static String getSettingsUploadUrl()
+	{
+		return  BASE_URL + BASE_V5 + HIKE_SETTINGS;
+	}
+
+	public static String getSettingsDownloadUrl()
+	{
+		return  BASE_URL + BASE_V5 + HIKE_SETTINGS;
 	}
 }

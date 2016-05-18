@@ -14,4 +14,6 @@ public interface InternalCache
 	boolean update(CacheRequest request);
 
 	boolean isKeyExists(String key);
+
+	boolean isClosed();
 }

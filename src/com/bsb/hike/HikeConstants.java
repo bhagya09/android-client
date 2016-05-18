@@ -31,6 +31,8 @@ public class HikeConstants
 
 	public static final String MESSAGE = "msg";
 
+	public static final String CUSTOM_MESSAGE = "cmsg";
+
 	public static final String TOAST = "tst";
 	
 	public static final String UI_TOPIC = "/u";
@@ -76,6 +78,10 @@ public class HikeConstants
 	public static final String EVENT_ID = "ei";
 
 	public static final String METADATA = "md";
+
+	public static final String SPECIES = "s";
+
+	public static final String VARIETY = "v";
 
 	public static final String METADATA_DND = "dnd";
 
@@ -282,10 +288,6 @@ public class HikeConstants
 	public static final String JOIN_TIME = "jointime";
 
 	public static final String STATUS_MESSAGE_2 = "status-message";
-
-	public static final String FACEBOOK_STATUS = "fb";
-
-	// public static final String TWITTER_STATUS = "twitter";
 
 	public static final String TIME_OF_DAY = "timeofday";
 
@@ -757,6 +759,8 @@ public class HikeConstants
 	public static final String AVATAR = "avatar";
 	public static final String LANGUAGE = "lan";
 
+    public static final String LANGUAGES = "langs";
+
 	public static final String NOTIFICATION_TITLE = "notifTitle";
 	public static final String NOTIFICATION_TEXT = "notifText";
 
@@ -771,6 +775,7 @@ public class HikeConstants
 	public static final String CALLER_BLOKED_LIST_PREF = "callerBlockedList";
 
 	public static final String CALL_TYPE = "call_type";
+	public static String CONTENT_RANGE = "Content-Range";
 
 	public class Shortcut
 	{
@@ -1002,10 +1007,6 @@ public class HikeConstants
 	public static final int MAX_RECENTS_TO_SHOW = 10;
 
 	public static final int MAX_RECENTLY_JOINED_HIKE_TO_SHOW = 5;
-
-	// Had to add this constant since its only available in the android API for
-	// Honeycomb and higher.
-	public static final int FLAG_HARDWARE_ACCELERATED = 16777216;
 
 	public static final int LOCAL_CLEAR_TYPING_TIME = 6 * 1000;
 
@@ -1384,6 +1385,25 @@ public class HikeConstants
 	public static final String VOIP_RATINGS_LEFT = "vrl";
 
 	public static final String WT_1_REVAMP_ENABLED = "wt_1";
+
+	public static final String LARGE_VIDEO_SHARING_ENABLED = "big_video";
+
+	public static final class Preactivation
+	{
+		public static final String UID = "pa_uid";
+
+		public static final String TOKEN = "pa_token";
+
+		public static final String ENCRYPT_KEY="pa_encryption_key";
+
+		public static final String LOGS_SCHEDULE="logs_schdl";
+
+		public static final String INTERVAL = "inv";
+
+		public static final String FREQUENCY = "frq";
+
+		public static final String TYPE = "typ";
+	}
 
 	public static final class ChatHead
 	{
@@ -1900,6 +1920,8 @@ public class HikeConstants
 
 		public static final String ENABLE_PHOTOS = "ph_en";
 
+		public static final String ENABLE_CLOUD_SETTING_BACKUP = "rux_stg_bkup";
+
 		public static final String STATUS_UPDATE_SHOW_COUNTS = "su_sc";
 
 		public static final String STATUS_UPDATE_SHOW_LIKES = "su_sl";
@@ -1954,6 +1976,11 @@ public class HikeConstants
 
         public static final String RESULT_CODE = "result_code";
 
+		public static final String PROFILE_DOB = "profile_dob";
+
+		public static final String GENUS = "genus_extra";
+
+		public static final String SPECIES = "species_extra";
     }
 
 	public static final class LogEvent
@@ -2171,9 +2198,6 @@ public class HikeConstants
 		public static final String NEW_CHAT_FROM_TOP_BAR = "newChatFromTopBar";
 
 		public static final String INVITE_FROM_GRID = "inviteFromGrid";
-
-		public static final String FB_CLICK = "fbClick";
-
 		/*
 		 * Invite keys
 		 */
@@ -2256,7 +2280,19 @@ public class HikeConstants
 
 		public static final String STICKER_BTN_CLICKED = "sBnc";
 
+        public static final String STICKER_SEARCH_BTN_CLICKED = "s_s_Bnc";
+
         public static final String EMOTICON_BTN_CLICKED = "eBnc";
+
+        public static final String CATEGORY_SEARCHED_REPORT = "shpSrchAggRept";
+
+        public static final String CATEGORY_SEARCHED_REPORT_DATA = "csrd";
+
+        public static final String SEARCHED_CATEGORY_RESPONSE = "shpSrchRept";
+
+        public static final String SHOP_SEARCH = "shpSrch";
+
+        public static final String SEARCHED_CATEGORY_RESPONSE_DATA = "scRepD";
 
         public static final String EMOTICON_SENT = "eSnt";
 
@@ -2866,6 +2902,14 @@ public class HikeConstants
 		 */
 		public static final String VOIP_ERROR_ALREADY_IN_CALL = "mc";
 
+		/**
+		 * VoIP custom error message.
+		 * The server will include the error text to display to the user.
+		 * Usage (15 Apr, 2016) - To let a user know if the person they are calling is on a
+		 * carrier that prohibits VoIP.
+		 */
+		public static final String VOIP_ERROR_CUSTOM_MESSAGE = "e4";
+
 		public static final String VOIP_MSG_TYPE_CALL_SUMMARY = "vcs";
 
 		public static final String VOIP_MSG_TYPE_MISSED_CALL_INCOMING = "vmci";
@@ -3213,6 +3257,10 @@ public class HikeConstants
 
 	public static final String COPYRIGHT = "copyright";
 
+	public static final String STATE = "state";
+
+	public static final String UPDATE_SHOP_RANK_TIMESTAMP = "updateOrderTimeStamp";
+
 	public static final long DEFAULT_RETRY_NOTIF_TIME = 20 * 60 * 1000; // 20
 																		// minutes
 
@@ -3233,7 +3281,13 @@ public class HikeConstants
 
 	public static final String GCM_ID = "gcm_id";
 
+	public static final String OLD_GCM_ID = "old_gcm_id";
+
 	public static final String ADD_CATEGORY = "addCat";
+
+    public static final String ADDED_DATA = "add";
+
+    public static final String REMOVED_DATA = "rem";
 
 	public static final int LED_DEFAULT_WHITE_COLOR = 0xffffffff;
 
@@ -3754,6 +3808,8 @@ public class HikeConstants
 
 	public static final String STICKER_TAG_MAXIMUM_SEARCH = "stms"; // initial to following 4 keys
 
+    public static final String LIMIT_KEY = "limit";
+
 	public static final String STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT = "stms_tl"; // integer
 
 	public static final String STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT_BROKER = "stms_tlb"; // integer
@@ -3968,6 +4024,8 @@ public class HikeConstants
     public static final String MINI_STICKER_IMAGE = "mini_image";
 
     public static final String TAGS = "tags";
+    
+	public static final String THEMES = "themes";
 
     public static final String RECENTS = "recents";
 
@@ -4047,6 +4105,10 @@ public class HikeConstants
 
 	public static final int PACKAGE_MANAGER_INTENT_FLAG_MATCH_ALL = 0x00020000;
 
+	public static final String TP_API_KEY = "60b937a7-3df3-408e-8191-c0bf227fd5e2-5514c71-1015";
+
+	public static final String TP_ENABLE = "tp";
+	
 	public static final String PROB_ACTIVITY_OPEN="prob_act_op";
 
 	public static final int DEFAULT_ACTIVITY_OPEN = 10;
@@ -4076,6 +4138,32 @@ public class HikeConstants
 	public static final String JOURNAL_MODE_INDEX = "journal_mode_idx";
 
 	public static final String LOG_SQLITE_PROPERTIES = "log_sqlite_props";
+
+	public static class BackupRestore
+	{
+		public static final String OS = "os";
+
+		public static final String FROM = "f";
+
+		public static final String TIMESTAMP = "ts";
+
+		public static final String VERSION = "ver";
+
+		public static final String DATA = "d";
+
+		public static final String VALUE = "v";
+
+		public static final String DATA_TYPE = "dt";
+
+		public static final String RUX_BACKUP_TS_PREF = "ruxbkupts";
+
+		public static final String RUX_BACKUP_PENDING = "ruxbkuppending";
+
+		public static final String KEY_SETTINGS = "settings";
+
+		public static final String KEY_MOVED_STICKER_EXTERNAL = "movdstckrext";
+
+	}
 
 	public static final String FAV_TO_FRIENDS_MIGRATION = "f2f_mig";
 
@@ -4110,6 +4198,14 @@ public class HikeConstants
 
 	public static final String HIKE_CUSTOM_PHONE_TYPE = "HIKE";
 
+	public static final String UPDATED_ALL_CATEGORIES_METADATA = "updatedAllCategoriesMeta";
+
+    public static final String UPDATED_ALL_CATEGORIES_TAGDATA = "updatedAllCategoriesTags";
+
+	public static final String UCIDS = "ucids";
+
+	public static final String UCID = "ucid";
+
 	public static final class AddFriendSources
 	{
 		public static final String CHAT_FTUE = "chat_ftue_screen";
@@ -4138,4 +4234,32 @@ public class HikeConstants
 	public static final String VIEW_ALL_CLICKED = "viewAllClicked";
 
     public static final String FAVS_RAI="favs";
+
+	public static final String CHUNK_SIZE_POLICY = "chunkSizePolicy";
+
+	public static final String NUMBER_OF_ROWS_FOR_ORDER = "orderRowsCount";
+
+	public static final String PACK_UPDATION_PAGE_SIZE = "packUpdatePageSize";
+
+	public static final String PACK_CREATION_PAGE_SIZE = "packCreationPageSize";
+
+	public static final String FETCH_METADATA_PACK_COUNT = "fetchPackMetadataCount";
+
+    public static final String SHOW_STICKER_SHOP_SEARCH_FTUE_LIMIT = "s_s_ftue";
+
+    public static final String STICKER_SHOP_SEARCH_ALLOWED = "s_s_s_allwd";
+
+    public static final String STICKER_SHOP_SEARCH_TOGGLE = "s_s_s_tgl";
+
+    public static final int DEFAULT_SEARCH_FTUE_LIMIT = 2;
+
+	public static final String TIP_CTA = "tp_cta";
+
+	public static final String TIP_CTA_LINK = "link";
+
+	public static final String TIP_PRIORITY = "tp_prrt";
+
+	public static final String ADD_HEADER = "addHeader";
+
+	public static final String IS_ATOMIC_TIP = "isAtomicTip";
 }

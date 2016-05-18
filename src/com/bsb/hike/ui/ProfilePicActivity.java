@@ -1,9 +1,11 @@
 package com.bsb.hike.ui;
 
+import java.io.File;
+
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.view.View;
+import android.text.TextUtils;
 import android.view.WindowManager;
 
 import com.bsb.hike.HikeConstants;
@@ -17,11 +19,13 @@ import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Utils;
 
-import java.io.File;
-
 public class ProfilePicActivity extends HikeAppStateBaseFragmentActivity
 {
 	private String filename;
+
+	private String mGenus;
+
+	private String mSpecies;
 
 	@Override
 	public void onCreate(Bundle savedState)
@@ -49,7 +53,12 @@ public class ProfilePicActivity extends HikeAppStateBaseFragmentActivity
 			return;
 		}
 
+		mGenus = intent.getStringExtra(HikeConstants.Extras.GENUS);
+
+		mSpecies = intent.getStringExtra(HikeConstants.Extras.SPECIES);
+
 		getSupportActionBar().hide();
+
 		StatusBarColorChanger.setStatusBarColor(getWindow(), Color.BLACK);
 
 		if(savedState == null)
@@ -115,7 +124,9 @@ public class ProfilePicActivity extends HikeAppStateBaseFragmentActivity
 			switch (resultCode)
 			{
 			case RESULT_OK:
-				uploadProfilePic(data.getStringExtra(HikeCropActivity.CROPPED_IMAGE_PATH), data.getStringExtra(HikeCropActivity.SOURCE_IMAGE_PATH));
+				String croppedImagePath = data.getStringExtra(HikeCropActivity.CROPPED_IMAGE_PATH);
+				String sourceImagePath = data.getStringExtra(HikeCropActivity.SOURCE_IMAGE_PATH);
+				uploadProfilePic(croppedImagePath, sourceImagePath);
 				break;
 			case RESULT_CANCELED:
 				// The user returned from crop...deleting temporary profile image if created
@@ -132,6 +143,17 @@ public class ProfilePicActivity extends HikeAppStateBaseFragmentActivity
 		Bundle b = new Bundle();
 		b.putString(HikeConstants.HikePhotos.FILENAME, croppedImageFile);
 		b.putString(HikeConstants.HikePhotos.ORIG_FILE, croppedImageFile);
+
+		if (!TextUtils.isEmpty(mGenus))
+		{
+			b.putString(HikeConstants.Extras.GENUS, mGenus);
+		}
+
+		if (!TextUtils.isEmpty(mSpecies))
+		{
+			b.putString(HikeConstants.Extras.SPECIES, mSpecies);
+		}
+
 		profilePicFragment.setArguments(b);
 		getSupportFragmentManager().beginTransaction().replace(R.id.container, profilePicFragment).commit();
 	}
