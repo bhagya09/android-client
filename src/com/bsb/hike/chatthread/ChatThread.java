@@ -1136,7 +1136,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		case HikeConstants.ResultCodes.CHATTHEME_GALLERY_REQUEST_CODE:
 			if(resultCode == Activity.RESULT_OK)
 			{
-				Log.v("Sriram", "setCustomThemeBackground :::::::::::::::::::::");
 				setCustomThemeBackground();
 			}
 			break;
@@ -1808,7 +1807,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	}
 
     private void setCustomThemeBackground() {
-		Log.v("Sriram", "setCustomThemeBackground ::::::::::inside:::::::::::"+ChatThemeManager.getInstance().customThemeTempUploadImagePath);
         if(ChatThemeManager.getInstance().customThemeTempUploadImagePath == null) {
             return;
         }
