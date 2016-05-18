@@ -1062,6 +1062,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 					Intent web = IntentFactory.getNonMessagingBotIntent(convInfo.getMsisdn(), getActivity());
 					if (web != null)
 					{
+						web.putExtra(AnalyticsConstants.BOT_NOTIF_TRACKER, "Conversation");
 						startActivity(web);
 					}
 				}
