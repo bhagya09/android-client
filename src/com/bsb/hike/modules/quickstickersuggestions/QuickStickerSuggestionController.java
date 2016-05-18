@@ -27,7 +27,7 @@ public class QuickStickerSuggestionController
 
     private boolean showQuickStickerSuggestionOnStickerSent;
 
-    private long suggestedStickerTtl;
+    private long ttl;
 
     public static final long DEFAULT_QUICK_SUGGESTED_STICKERS_TTL = 2 * HikeConstants.ONE_DAY_MILLS;
 
@@ -37,7 +37,7 @@ public class QuickStickerSuggestionController
     {
         showQuickStickerSuggestionOnStickerReceive = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_QUICK_STICKER_SUGGESTION_ON_STICKER_RECEIVE, false);
         showQuickStickerSuggestionOnStickerSent = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_QUICK_STICKER_SUGGESTION_ON_STICKER_SENT, false);
-        suggestedStickerTtl = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.QUICK_SUGGESTED_STICKERS_TTL, DEFAULT_QUICK_SUGGESTED_STICKERS_TTL);
+        ttl = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.QUICK_SUGGESTED_STICKERS_TTL, DEFAULT_QUICK_SUGGESTED_STICKERS_TTL);
     }
 
     public static QuickStickerSuggestionController getInstance()
@@ -76,6 +76,11 @@ public class QuickStickerSuggestionController
         {
             StickerManager.getInstance().fetchQuickSuggestionForAllStickers();
         }
+    }
+
+    public void refreshQuickSuggestionTtl(long ttl)
+    {
+        this.ttl = ttl;
     }
 
     public boolean isQuickSuggestionEnabled()
@@ -127,7 +132,7 @@ public class QuickStickerSuggestionController
 
     public boolean isCategoryRefreshRequired(long lastCategoryRefreshTime)
     {
-        return (System.currentTimeMillis() > lastCategoryRefreshTime + suggestedStickerTtl);
+        return (System.currentTimeMillis() > lastCategoryRefreshTime + ttl);
     }
 
     public void saveInRetrySet(Sticker sticker)
@@ -167,7 +172,7 @@ public class QuickStickerSuggestionController
 
     public boolean checkIfNeedsRefresh(QuickSuggestionStickerCategory quickSuggestionStickerCategory)
     {
-        if((System.currentTimeMillis() - quickSuggestionStickerCategory.getLastRefreshTime()) > suggestedStickerTtl)
+        if((System.currentTimeMillis() - quickSuggestionStickerCategory.getLastRefreshTime()) > ttl)
         {
             StickerManager.getInstance().initiateSingleStickerQuickSuggestionDownloadTask(quickSuggestionStickerCategory.getQuickSuggestSticker());
             return true;
