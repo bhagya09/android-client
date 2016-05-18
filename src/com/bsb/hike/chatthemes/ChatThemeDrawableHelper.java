@@ -1,6 +1,7 @@
 package com.bsb.hike.chatthemes;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -11,6 +12,8 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.NinePatchDrawable;
+import android.net.Uri;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -338,14 +341,10 @@ public class ChatThemeDrawableHelper {
         if (!dir.exists()) {
             dir.mkdirs();
         }
-        String noMediaFilePath = directory + File.separator + ".nomedia";
-        File nomediaFile = new File(noMediaFilePath);
-        if (!nomediaFile.exists()) {
-            try {
-                nomediaFile.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            HikeMessengerApp.getInstance().getApplicationContext().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + directory)));
+        } else {
+            HikeMessengerApp.getInstance().getApplicationContext().sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED, Uri.parse("file://" + directory)));
         }
         return directory;
     }
