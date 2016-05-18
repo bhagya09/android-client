@@ -6,8 +6,11 @@ import java.util.List;
 
 import android.animation.Animator;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.support.v7.app.AlertDialog;
+import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -460,8 +463,14 @@ public class MessageInfoAdapter extends BaseAdapter
 		AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
 		remaininglistView.setAdapter(adapter);
 		alertDialog.setView(remView);
-		alertDialog.show();
-
+		AlertDialog ag = alertDialog.create();
+		Resources r = context.getResources();
+		DisplayMetrics metrics = r.getDisplayMetrics();
+		float px = r.getDimensionPixelSize(R.dimen.read_listitem_expanded_height) * remainingItem.remainingItemList.size();
+		int height = (metrics.heightPixels) * 2 / 3;
+		if (px > height)
+			ag.getWindow().setLayout(metrics.widthPixels, height);
+		ag.show();
 
 	}
 
