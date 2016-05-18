@@ -184,6 +184,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private static final int MY_FRAGMENT_POSITION = 2;
 
+	private static final int DEAFULT_FRAGMENT_POSITION = CONV_FRAGMENT_POSITION;
+
 	private static final String SU_FRAGMENT_TAG = "suFragTag";
 
 	private static final String CONV_FRAGMENT_TAG = "convFragTag";
@@ -596,7 +598,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		mPager = (ViewPager) findViewById(R.id.pager_frag);
 		mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
 		mPager.setAdapter(mPagerAdapter);
-		mPager.setCurrentItem(CONV_FRAGMENT_POSITION);
+		mPager.setCurrentItem(DEAFULT_FRAGMENT_POSITION);
 		mPager.setOnPageChangeListener(pageChangeListener);
 	}
 
@@ -606,7 +608,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		tabsBar.addTab(tabsBar.newTab(SU_FRAGMENT_POSITION).setIcon(R.drawable.ic_tab_friend_selector).setCustomTabListener(tabsListener));
 		tabsBar.addTab(tabsBar.newTab(CONV_FRAGMENT_POSITION).setIcon(R.drawable.ic_tab_chat_selector).setCustomTabListener(tabsListener));
 		tabsBar.addTab(tabsBar.newTab(MY_FRAGMENT_POSITION).setIcon(R.drawable.ic_tab_me_selector).setCustomTabListener(tabsListener));
-		tabsBar.selectTab(CONV_FRAGMENT_POSITION);
+		tabsBar.selectTab(DEAFULT_FRAGMENT_POSITION);
 	}
 
 	private CustomTabsBar.CustomTabListener tabsListener = new CustomTabsBar.CustomTabListener() {
@@ -1261,6 +1263,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	public void onBackPressed()
 	{
+		if (mPager.getCurrentItem() != DEAFULT_FRAGMENT_POSITION)
+		{
+			mPager.setCurrentItem(DEAFULT_FRAGMENT_POSITION);
+			return;
+		}
 		// The following change checks if search mode is still there, and takes action accordingly
 		if (conversationFragment.isSearchInActionMode())
 		{
