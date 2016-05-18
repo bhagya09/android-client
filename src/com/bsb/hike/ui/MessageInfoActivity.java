@@ -255,8 +255,11 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 		void onDestroy()
 		{
 			HikeMessengerApp.getPubSub().removeListeners(this, listeners);
-		}
 
+		}
+		void onBackPress(){
+			messageInfoView.resetPlayerIfRunning();
+		}
 		public ConvMessage getConvMessage()
 		{
 			return convMessage;
@@ -606,4 +609,9 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 
 	}
 
+	@Override
+	public void onBackPressed() {
+		super.onBackPressed();
+		controller.onBackPress();
+	}
 }
