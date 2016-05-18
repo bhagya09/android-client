@@ -234,7 +234,7 @@ public class ServicesActivity extends HikeAppStateBaseFragmentActivity {
         }
     };
 
-    private static final String TAG = "BotDiscovery";
+    private static final String TAG_BOT_DISCOVERY = "BotDiscovery";
 
     private void openBot(BotInfo mBotInfo) {
         if (mContext != null) {
@@ -244,7 +244,7 @@ public class ServicesActivity extends HikeAppStateBaseFragmentActivity {
 
             mContext.startActivity(intent);
         } else {
-            Logger.e(TAG, "Context is null while trying to open the bot ");
+            Logger.e(TAG_BOT_DISCOVERY, "Context is null while trying to open the bot ");
         }
     }
 
@@ -289,7 +289,7 @@ public class ServicesActivity extends HikeAppStateBaseFragmentActivity {
 
             @Override
             public void onRequestSuccess(Response result) {
-                Logger.v(TAG, "Bot download request success for " + msisdn);
+                Logger.v(TAG_BOT_DISCOVERY, "Bot download request success for " + msisdn);
             }
 
             @Override
@@ -298,7 +298,7 @@ public class ServicesActivity extends HikeAppStateBaseFragmentActivity {
 
             @Override
             public void onRequestFailure(HttpException httpException) {
-                Logger.v(TAG, "Bot download request failure for " + msisdn);
+                Logger.v(TAG_BOT_DISCOVERY, "Bot download request failure for " + msisdn);
                 Toast.makeText(mContext, "" + mContext.getResources().getString(R.string.error_sharing), Toast.LENGTH_SHORT).show();
                 if (dialog != null) {
                     dialog.dismiss();
@@ -369,7 +369,7 @@ public class ServicesActivity extends HikeAppStateBaseFragmentActivity {
             json.put(AnalyticsConstants.EVENT, AnalyticsConstants.DISCOVERY_BOT_TAP);
             json.put(AnalyticsConstants.LOG_FIELD_1, botName);
         } catch (JSONException e) {
-            Logger.e(TAG, "JSON Exception in analyticsForDiscoveryBotTap " + e.getMessage());
+            Logger.e(TAG_BOT_DISCOVERY, "JSON Exception in analyticsForDiscoveryBotTap " + e.getMessage());
         }
         HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.BOT_DISCOVERY, json);
     }
@@ -382,7 +382,7 @@ public class ServicesActivity extends HikeAppStateBaseFragmentActivity {
         BotInfo botInfo = (BotInfo) data;
 
         String msisdn = botInfo.getMsisdn();
-        Logger.i(TAG, "Bot created : " + msisdn);
+        Logger.i(TAG_BOT_DISCOVERY, "Bot created : " + msisdn);
         if (dialog != null) {
             dialog.dismiss();
             if (dialog.data instanceof String && msisdn.equals((String) dialog.data)) {
