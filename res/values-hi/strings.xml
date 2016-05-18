@@ -1423,4 +1423,5 @@
     <string name="max_duration_recorded">अधिकतम अवधि तक रिकॉर्डिंग की गई</string>
     <string name="stream_volume_muted_or_low">कृप्या आवाज़ बढ़ाएँ</string>
     <string name="edit_profile_birthday">जन्मदिन</string>
+    <string name="atomic_tip_http_failure">कुछ त्रुटि हुई। कृपया कुछ देर बाद प्रयत्न करें</string>
 </resources>
