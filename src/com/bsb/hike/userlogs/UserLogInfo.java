@@ -483,7 +483,7 @@ public class UserLogInfo {
 
 		final JSONArray jsonLogArray = collectLogs(flags);
 		// if nothing is logged we do not send anything
-		if (jsonLogArray != null)
+		if (jsonLogArray != null && jsonLogArray.length() > 0)
 		{
 			final JSONObject jsonLogObj = getEncryptedJSON(jsonLogArray, flags);
 
