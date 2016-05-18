@@ -158,5 +158,5 @@
 	<dimen name="read_list_expanded_height">81dp</dimen>
 	<dimen name="read_listitem_collapsed_height">63dp</dimen>
 	<dimen name="read_listitem_expanded_height">80dp</dimen>
-
+	<dimen name="remaining_list_item_height">54dp</dimen>
 </resources>
