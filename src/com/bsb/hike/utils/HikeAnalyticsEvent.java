@@ -11,6 +11,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.MqttConstants;
@@ -236,5 +237,28 @@ public class HikeAnalyticsEvent
 		{
 			e.toString();
 		}
+	}
+
+	public static void platformAnalytics(String json,String uniqueKey,String kingdom)
+	{
+		if (TextUtils.isEmpty(uniqueKey) || TextUtils.isEmpty(kingdom))
+		{
+			Logger.e(TAG, "Either unique key or kingdom is null");
+		}
+		try
+		{
+			JSONObject jsonObject = new JSONObject(json);
+
+			jsonObject.put(AnalyticsConstants.V2.NETWORK,(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
+			jsonObject.put(AnalyticsConstants.V2.KINGDOM, kingdom);
+			jsonObject.put(AnalyticsConstants.V2.UNIQUE_KEY, uniqueKey);
+			HAManager.getInstance().recordV2(jsonObject);
+		}
+		catch (JSONException e)
+		{
+			Logger.e(TAG, e.toString());
+		}
+
+
 	}
 }

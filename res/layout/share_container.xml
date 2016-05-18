@@ -12,7 +12,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="36dp"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:gravity="center">
         <com.bsb.hike.view.CustomFontTextView
             android:id="@+id/share"
@@ -23,6 +23,7 @@
             android:text="@string/share"
             android:drawableLeft="@drawable/ic_share"
             android:textColor="@android:color/black"
+            android:layout_gravity="center"
             android:textSize="14sp" />
     </LinearLayout>
 

@@ -452,4 +452,20 @@ public class PlatformHelper
 		});
 	}
 
+	public static void logAnaLyticsV2(String json, String botName ,String msisdn,String uniqueKey,String kingdom,int mAppVersionCode)
+	{
+		try
+		{
+		JSONObject jsonObject = new JSONObject(json);
+		jsonObject.put(AnalyticsConstants.V2.RACE,botName);
+		jsonObject.put(AnalyticsConstants.V2.TO_USER,msisdn);
+		jsonObject.put(AnalyticsConstants.V2.SERIES,String.valueOf(mAppVersionCode));
+		HikeAnalyticsEvent.platformAnalytics(jsonObject.toString(),uniqueKey,kingdom);
+		}
+		catch (JSONException e)
+		{
+			Logger.e(TAG,"Error in logging analytics");
+		}
+	}
+
 }

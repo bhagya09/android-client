@@ -980,7 +980,7 @@ public class HAManager
     /**
      * It records Events For Bot for this individual session
      */
-	public void recordIndividualChatSession(String msisdn)
+	public void recordIndividualChatSession(String msisdn ,String source)
 	{
 		JSONObject metadata;
         ChatSession chatSession = fgSessionInstance.getIndividualChatSesions(msisdn);
@@ -1001,6 +1001,7 @@ public class HAManager
 
 				metadata.put(AnalyticsConstants.NETWORK_TYPE, Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
 				metadata.put(AnalyticsConstants.APP_VERSION, AccountUtils.getAppVersion());
+				metadata.put(AnalyticsConstants.SOURCE_APP_OPEN,source);
 
 				record(AnalyticsConstants.CHAT_ANALYTICS, AnalyticsConstants.NON_UI_EVENT, EventPriority.HIGH, metadata, AnalyticsConstants.EVENT_TAG_BOTS);
 				botOpenMqttAnalytics(metadata);

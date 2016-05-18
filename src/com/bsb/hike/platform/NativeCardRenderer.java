@@ -19,6 +19,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.nativecards.NativeCardManager;
+import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontTextView;
 
 /**
@@ -105,7 +106,7 @@ public class NativeCardRenderer implements View.OnLongClickListener
 
 					if (textComponent.size > 0)
 					{
-						tv.setTextSize((float) textComponent.size);
+						tv.setTextSize(textComponent.size);
 					}
 				}
 			}
