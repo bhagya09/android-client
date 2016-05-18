@@ -73,6 +73,7 @@ public class ChatThreadUtils
 	public static boolean isMessageInfoEnabled()
 	{
 		boolean enabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MESSAGE_INFO_ENABLED, false);
+
 		return enabled;
 	}
 
