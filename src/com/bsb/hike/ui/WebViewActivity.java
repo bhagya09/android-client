@@ -177,6 +177,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	public static final String KEY_CUSTOM_TABS_MENU_TITLE = "android.support.customtabs.customaction.MENU_ITEM_TITLE";
 	public static final String EXTRA_CUSTOM_TABS_MENU_ITEMS = "android.support.customtabs.extra.MENU_ITEMS";
 	public static final String KEY_CUSTOM_TABS_PENDING_INTENT = "android.support.customtabs.customaction.PENDING_INTENT";
+	private String source = "";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -516,9 +517,12 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		if(mCustomTabActivityHelper != null && Utils.isJellybeanOrHigher()) {
 			mCustomTabActivityHelper.unbindCustomTabsService(this);
 		}
-
+		if(getIntent() != null && getIntent().hasExtra(AnalyticsConstants.BOT_NOTIF_TRACKER))
+		{
+			source = getIntent().getStringExtra(AnalyticsConstants.BOT_NOTIF_TRACKER);
+		}
         if(!TextUtils.isEmpty(msisdn))
-            HAManager.getInstance().recordIndividualChatSession(msisdn);
+            HAManager.getInstance().recordIndividualChatSession(msisdn,source);
 
         if(webView!=null)
 		{
