@@ -1427,5 +1427,9 @@
     <string name="recording_help_text">રેકોર્ડ કરવા માટે ટેપ અને હોલ્ડ કરો, મોકલવા માટે છોડો</string>
     <string name="max_duration_recorded">મહત્તમ સમયગાળા માટે રેકોર્ડિંગ પૂર્ણ</string>
     <string name="stream_volume_muted_or_low">કૃપા કરીને અવાજ વધારો</string>
-    <string name="edit_profile_birthday">जन्म दिवस</string>
+    <string name="shop_search_hint">પ્રેમ,હિન્દી,બોલિવૂડ આદિ</string>
+    <string name="no_sticker_pack_match_found">તમારી શોધ \'%1$s\' કોઈપણ સ્ટીકર પેક સાથે મેળ ખાતી નથી</string>
+    <string name="pack_search_again_hint">સંપૂર્ણ શબ્દો લખો જેમ પ્રેમ,હિન્દી,બોલિવૂડ આદિें</string>
+    <string name="edit_profile_birthday">જન્મદિવસ</string>
+    <string name="atomic_tip_http_failure">કોઈ ત્રુટિ થઇ છે. કૃપા કરી થોડા સમય પછી પ્રયન્ત કરો</string>
 </resources>

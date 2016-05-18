@@ -341,6 +341,7 @@ public class CategorySearchManager
 				metadata.put(AnalyticsConstants.V2.PHYLUM, HikeConstants.LogEvent.SHOP_SEARCH);
 				metadata.put(AnalyticsConstants.V2.ORDER, HikeConstants.LogEvent.CATEGORY_SEARCHED_REPORT);
 				metadata.put(AnalyticsConstants.V2.UNIQUE_KEY, HikeConstants.LogEvent.CATEGORY_SEARCHED_REPORT);
+				metadata.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
 
 				String catUcid = iterator.next();
 				JSONObject categoryReportJson = searchReportJSON.getJSONObject(catUcid);
@@ -405,6 +406,7 @@ public class CategorySearchManager
 						metadata.put(AnalyticsConstants.V2.UNIQUE_KEY, HikeConstants.LogEvent.SEARCHED_CATEGORY_RESPONSE);
 						metadata.put(AnalyticsConstants.V2.VAL_STR, recordedReport.optString(CategorySearchAnalyticsTask.QUERY_KEY));
 						metadata.put(AnalyticsConstants.V2.VAL_INT, recordedReport.optString(CategorySearchAnalyticsTask.RESULTS_COUNT));
+						metadata.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
 
 						HAManager.getInstance().recordV2(metadata);
 						return;
@@ -421,6 +423,7 @@ public class CategorySearchManager
 						metadata.put(AnalyticsConstants.V2.UNIQUE_KEY, HikeConstants.LogEvent.SEARCHED_CATEGORY_RESPONSE);
 						metadata.put(AnalyticsConstants.V2.VAL_STR, recordedReport.optString(CategorySearchAnalyticsTask.QUERY_KEY));
 						metadata.put(AnalyticsConstants.V2.VAL_INT, recordedReport.optString(CategorySearchAnalyticsTask.RESULTS_COUNT));
+						metadata.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
 
 						JSONObject categoryReport = categoriesReport.getJSONObject(i);
 						metadata.put(AnalyticsConstants.V2.GENUS, categoryReport.optString(HikeConstants.UCID));

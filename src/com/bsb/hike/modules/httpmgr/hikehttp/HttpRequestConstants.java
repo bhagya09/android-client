@@ -107,6 +107,10 @@ public class HttpRequestConstants
 
 	private static final String HIKE_SETTINGS = "/hikesettings";
 
+	private static final String  FETCH_TODAYS_BIRTHDAY_URL = "/events/birthday";
+
+	private static final String PREF_PATH = "/pref";
+
 	public static synchronized void setUpBase()
 	{
 		toggleStaging();
@@ -275,6 +279,11 @@ public class HttpRequestConstants
 	public static String stickerCategoryDetailsUrl()
 	{
 		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER + "/categories";
+	}
+
+	public static String quickSuggestionUrl()
+	{
+		return HTTP + "54.251.141.175:8080" + "/quickSuggestions";
 	}
 
 	public static String lastSeenUrl()
@@ -624,5 +633,30 @@ public class HttpRequestConstants
 	public static String getSettingsDownloadUrl()
 	{
 		return  BASE_URL + BASE_V5 + HIKE_SETTINGS;
+	}
+
+	public static String getFetchBdayUrl()
+	{
+		return BASE_URL + BASE_V1 + FETCH_TODAYS_BIRTHDAY_URL;
+	}
+
+	public static String editProfileNameBaseUrl()
+	{
+		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/name";
+	}
+
+	public static String editProfileEmailGenderBaseUrl()
+	{
+		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/profile";
+	}
+
+	public static String editDOBBaseUrl()
+	{
+		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/dob";
+	}
+
+	public static String getBDPrefUpdateUrl()
+	{
+		return editDOBBaseUrl() + PREF_PATH;
 	}
 }

@@ -74,7 +74,8 @@ public class VoIPSerializer {
 		try {
             protoBuf = DataPacket.parseFrom(codedInputStream);
         } catch (IOException e) {
-            Logger.w(VoIPConstants.TAG, "VoIPSerializer IOException : " + e.toString());
+            Logger.w(VoIPConstants.TAG, "VoIPSerializer IOException : " + e.toString() +
+			"bytes length: " + length);
         }
 
 		if (protoBuf == null) {

@@ -531,6 +531,8 @@ public class HikeConstants
 
 	public static final String LAST_SEEN_PREF_LIST = "lastSeenPrefList";
 
+	public static final String BIRTHDAY_PRIVACY_PREF = "birthdayPrivacyPref";
+
 	public static final String LONG_PRESS_DUR_PREF = "longPressDurationPref";
 	
 	public static final String KEYPRESS_VOL_PREF = "keyPressVolPref";
@@ -1856,6 +1858,8 @@ public class HikeConstants
 		
 		public static final String HIKE_DIRECT_MODE="hikedirectmode";
 		public static final String SHOW_TIMELINE = "showTimeline";
+
+		public static final String HIKE_BDAY_MODE = "hikeBdayMode";
 
 		// constants related to sharing Functioanlity
 		public static final class ShareTypes
@@ -4198,6 +4202,8 @@ public class HikeConstants
 
 	public static final String HIKE_CUSTOM_PHONE_TYPE = "HIKE";
 
+	public static final String SHARED_PREF_ANALYTICS = "share_pref_analytics";
+
 	public static final String UPDATED_ALL_CATEGORIES_METADATA = "updatedAllCategoriesMeta";
 
     public static final String UPDATED_ALL_CATEGORIES_TAGDATA = "updatedAllCategoriesTags";
@@ -4235,6 +4241,8 @@ public class HikeConstants
 
     public static final String FAVS_RAI="favs";
 
+	public static final int DEFAULT_RETRIES_GCM_NW_MANAGER = 5;
+
 	public static final String CHUNK_SIZE_POLICY = "chunkSizePolicy";
 
 	public static final String NUMBER_OF_ROWS_FOR_ORDER = "orderRowsCount";
@@ -4262,4 +4270,36 @@ public class HikeConstants
 	public static final String ADD_HEADER = "addHeader";
 
 	public static final String IS_ATOMIC_TIP = "isAtomicTip";
+
+	public static final String SHOW_QUICK_STICKER_SUGGESTION_ON_STICKER_RECEIVE = "shqssosr";
+
+	public static final String SHOW_QUICK_STICKER_SUGGESTION_ON_STICKER_SENT = "shqssoss";
+
+	public static final String QUICK_SUGGESTED_STICKERS_TTL = "qck_ss_ttl";
+
+	public static final String BUNDLE = "bundle";
+
+	public static final String LAST_REFRESH_TIME = "last_refresh_time";
+
+	public static final String REPLY = "reply";
+
+	public static final String SENT = "sent";
+
+	public static final String LANG = "lang";
+
+	public static final String QUICK_RESPONSE = "quickResponse";
+
+	public static final String CLICK_COUNT = "click_count";
+
+	public static final String VISIBLE_COUNT = "visible_count";
+
+	public static final String ENABLE_BDAY_IN_CCA = "e_bd_cca";
+
+	public static final String BDAYS_LIST = "bday_list";
+
+	public static final String BDAY_HTTP_CALL_TS = "bday_call_ts";
+
+	public static final String BDAY_HTTP_CALL_TIME_GAP = "b_c_g";
+
+	public static final String BIRTHDAY_DATA = "bdata";
 }
