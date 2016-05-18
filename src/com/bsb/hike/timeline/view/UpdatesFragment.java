@@ -1128,7 +1128,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	}
 
 	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data)
+	public void onActivityResult(int requestCode, int resultCode, final Intent data)
 	{
 		if (resultCode == Activity.RESULT_CANCELED)
 		{
