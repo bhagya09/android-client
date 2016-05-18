@@ -2526,6 +2526,9 @@ public class StickerManager
 			long lastPackAndOrderingSentTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.LAST_STICKER_PACK_AND_ORDERING_SENT_TIME, 0L);
 			long currentTime = System.currentTimeMillis();
 
+			String categoriesViewed = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.VIEWED_IN_PALLETE_CATEGORY_LIST, "");
+			JSONObject catList = (TextUtils.isEmpty(categoriesViewed)) ? new JSONObject() : new JSONObject(categoriesViewed);
+
 			if ((currentTime - lastPackAndOrderingSentTime) >= 24 * 60 * 60 * 1000) // greater than one day
 			{
 				List<StickerCategory> stickerCategories = getMyStickerCategoryList();
@@ -2548,7 +2551,7 @@ public class StickerManager
 					{
 						index = -1;
 					}
-					stickerPackAndOrderList.put(stickerCategory.getCategoryId() + STRING_DELIMETER + index);
+					stickerPackAndOrderList.put(stickerCategory.getCategoryId() + STRING_DELIMETER + index + STRING_DELIMETER + catList.optInt(stickerCategory.getCategoryId()));
 				}
 
 				JSONObject metadata = new JSONObject();
