@@ -249,7 +249,7 @@ public class HikeAnalyticsEvent
 		{
 			JSONObject jsonObject = new JSONObject(json);
 
-			jsonObject.put(AnalyticsConstants.V2.NETWORK, Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
+			jsonObject.put(AnalyticsConstants.V2.NETWORK,(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
 			jsonObject.put(AnalyticsConstants.V2.KINGDOM, kingdom);
 			jsonObject.put(AnalyticsConstants.V2.UNIQUE_KEY, uniqueKey);
 			HAManager.getInstance().recordV2(jsonObject);
