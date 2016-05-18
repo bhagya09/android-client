@@ -448,13 +448,7 @@ public interface HikePlatformConstants
         String LARGE = "l";
     }
 
-    @IntDef({BotsStickerGridType.largeStkrGridCols,BotsStickerGridType.midStkrGridCols,BotsStickerGridType.smallStkrGridCols})
-    @interface BotsStickerGridType
-    {
-        int largeStkrGridCols = 2;
-        int midStkrGridCols = 3;
-        int smallStkrGridCols = 5;
-    }
+    int stickerGridNoOfCols = 3;
 
     String BOT_CUSTOM_KEYBOARD_TYPE_STICKER = "s";
 

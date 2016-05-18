@@ -89,7 +89,7 @@ public class CustomKeyboardManager implements ShareablePopup, TextPickerListener
 		{
 			ArrayList<StkrKey> customKeyboardStkrKeys = customKeyboard.getStkrKeys();
 
-			viewToDisplay = customKeyboardInputBoxAdapter.initStickerKeyboardView(customKeyboardStkrKeys,customKeyboard.getStSize());
+			viewToDisplay = customKeyboardInputBoxAdapter.initStickerKeyboardView(customKeyboardStkrKeys);
 		}
 
 	}
@@ -158,22 +158,26 @@ public class CustomKeyboardManager implements ShareablePopup, TextPickerListener
 	 * @return the custom keyboard object
 	 */
 	public CustomKeyboard getCustomKeyboardObject(String msisdn)
-    {
-        String keyboardDataJson = HikeSharedPreferenceUtil.getInstance(CustomKeyboardManager.CUSTOM_INPUT_BOX_KEY).getData(getKeyboardKey(msisdn), HikePlatformConstants.KEYBOARD_DEFAULT_DATA);
+	{
+		String keyboardDataJson = HikeSharedPreferenceUtil.getInstance(CustomKeyboardManager.CUSTOM_INPUT_BOX_KEY).getData(getKeyboardKey(msisdn),
+				HikePlatformConstants.KEYBOARD_DEFAULT_DATA);
 
-        if(TextUtils.isEmpty(keyboardDataJson) || keyboardDataJson.equals(HikePlatformConstants.KEYBOARD_DEFAULT_DATA))
-            return null;
+		if (TextUtils.isEmpty(keyboardDataJson) || keyboardDataJson.equals(HikePlatformConstants.KEYBOARD_DEFAULT_DATA))
+			return null;
 
-        JsonParser jsonParser = new JsonParser();
-        JsonObject keyboardJsonObj = null;
-        try {
-            keyboardJsonObj = (jsonParser.parse(keyboardDataJson)).getAsJsonObject();
-        } catch (JsonSyntaxException e) {
-            e.printStackTrace();
-        }
-        CustomKeyboard customKeyboard = new Gson().fromJson(keyboardJsonObj, CustomKeyboard.class);
-        return customKeyboard;
-    }
+		JsonParser jsonParser = new JsonParser();
+		JsonObject keyboardJsonObj = null;
+		try
+		{
+			keyboardJsonObj = (jsonParser.parse(keyboardDataJson)).getAsJsonObject();
+		}
+		catch (JsonSyntaxException e)
+		{
+			e.printStackTrace();
+		}
+		CustomKeyboard customKeyboard = new Gson().fromJson(keyboardJsonObj, CustomKeyboard.class);
+		return customKeyboard;
+	}
     
 	/**
 	 * Save to shared preferences.
