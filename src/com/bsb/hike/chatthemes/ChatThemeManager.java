@@ -309,7 +309,7 @@ public class ChatThemeManager {
                     e.printStackTrace();
                 }
 
-                ChatThemeManager.getInstance().customThemeTempUploadImagePath = null;
+                customThemeTempUploadImagePath = null;
                 HikeConversationsDatabase.getInstance().saveChatThemeAssets(assetsList);
             }
             return themeID;

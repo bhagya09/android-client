@@ -1839,6 +1839,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		Logger.i(TAG, "theme cancelled, resetting the default theme if needed.");
 		if (!currentThemeId.equals(mAdapter.getChatThemeId()) || isCustomThemePreview) {
 			setConversationTheme(currentThemeId);
+			ChatThemeManager.getInstance().customThemeTempUploadImagePath = null;
 		}
 	}
 
