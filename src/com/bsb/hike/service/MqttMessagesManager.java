@@ -1045,7 +1045,7 @@ public class MqttMessagesManager
 				{
 					long msgId = values.get(0); // max size this list will be of 1 only
 					saveDeliveryReport(msgId, chatMsisdn);
-					if(ChatThreadUtils.isMessageInfoDatabaseEnabled()){
+					if(ChatThreadUtils.isMessageInfoEnabled()){
 					if(jsonObj.has(HikeConstants.FROM)){
 						Logger.d("delivery", "got delivery report for msgId "+msgId+" timestamp ");
 						saveDeliveryReceipt(msgId,jsonObj.getString(HikeConstants.FROM ),timestamp,msisdn);
@@ -1133,7 +1133,7 @@ public class MqttMessagesManager
 		{
 			messageStatusMap.get(msisdn).setSecond(msgID);
 		}
-		if(ChatThreadUtils.isMessageInfoDatabaseEnabled()){
+		if(ChatThreadUtils.isMessageInfoEnabled()){
 			if(jsonObj.has(HikeConstants.FROM)&&jsonObj.has(HikeConstants.TIMESTAMP)){
 				Logger.d("delivery", "got delivery report for msgId "+msgID+" timestamp ");
 				saveDeliveryReceipt(msgID,jsonObj.getString(HikeConstants.FROM ),jsonObj.optLong(HikeConstants.TIMESTAMP),msisdn);
@@ -1210,7 +1210,7 @@ public class MqttMessagesManager
 
 			Pair<String, long[]> pair = new Pair<String, long[]>(msisdn, updatedMsgIdsLongArray);
 			Logger.d(AnalyticsConstants.MSG_REL_TAG, "For mr/nmr, firing pubsub MESSAGE_DELIVERED_READ: " + updatedMsgIdsLongArray);
-			if(ChatThreadUtils.isMessageInfoDatabaseEnabled())
+			if(ChatThreadUtils.isMessageInfoEnabled())
 			convDb.setAllDeliveredMessageReceiptsReadforMsisdn(participantMsisdn,updatedMessageIds,timestamp);
 			this.pubSub.publish(HikePubSub.MESSAGE_DELIVERED_READ, pair);
 		}
@@ -1228,7 +1228,7 @@ public class MqttMessagesManager
 			{
 				Pair<Long, String> pair = new Pair<Long, String>(maxMsgId, participantMsisdn);
 				Pair<String, Pair<Long, String>> groupPair = new Pair<String, Pair<Long, String>>(msisdn, pair);
-				if(ChatThreadUtils.isMessageInfoDatabaseEnabled())
+				if(ChatThreadUtils.isMessageInfoEnabled())
 				convDb.setReceiptsReadByGroupMsisdn(participantMsisdn,msgIds,timestamp);
 				this.pubSub.publish(HikePubSub.ONETON_MESSAGE_DELIVERED_READ, groupPair);
 			}
@@ -1359,7 +1359,7 @@ public class MqttMessagesManager
 
 
 		}
-		if(ChatThreadUtils.isMessageInfoDatabaseEnabled()){
+		if(ChatThreadUtils.isMessageInfoEnabled()){
 			if(jsonObj.has(HikeConstants.TIMESTAMP))
 			{
 				ArrayList<Long> updateId=new ArrayList<Long>();
@@ -2873,7 +2873,7 @@ public class MqttMessagesManager
 			{
 				boolean screenshot = showIntercepts.getBoolean(HikeConstants.INTERCEPTS.SCREENSHOTS);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.INTERCEPTS.SHOW_SCREENSHOT_INTERCEPT, screenshot);
-                InterceptUtils.registerOrUnregisterScreenshotObserver();
+				InterceptUtils.registerOrUnregisterScreenshotObserver();
 			}
 		}
 		if (data.has(HikeConstants.INTERCEPTS.ENABLE_INTERCEPTS))
@@ -2904,7 +2904,7 @@ public class MqttMessagesManager
 		if(data.has(HikeConstants.SPACE_MANAGER.NOTIFY_DISK_SPACE_USAGE))
 		{
 			boolean notifyDiskUsage = data.optBoolean(HikeConstants.SPACE_MANAGER.NOTIFY_DISK_SPACE_USAGE, false);
-			if(notifyDiskUsage)
+			if (notifyDiskUsage)
 			{
 				if(data.has(HikeConstants.SPACE_MANAGER.DIRECTORY_LIST))
 				{
@@ -3150,8 +3150,7 @@ public class MqttMessagesManager
 		if(data.has(HikeConstants.CONTACT_UPDATE))
 		{
 			saveContacts(data, false);
-		}
-		else if (data.has(HikeConstants.CONTACT_NUMBER_OLD))
+		} else if (data.has(HikeConstants.CONTACT_NUMBER_OLD))
 		{
 			saveContacts(data, true);
 		}
