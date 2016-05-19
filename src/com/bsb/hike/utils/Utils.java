@@ -8115,4 +8115,34 @@ public class Utils
 		}
 
 	}
+
+	public static int getFilesCountRecursive(File file)
+	{
+		if (file == null)
+		{
+			return 0;
+		}
+
+		if (!file.exists() || file.listFiles() == null)
+		{
+			return 0;
+		}
+
+		int count = 0;
+
+		for (File newFile : file.listFiles())
+		{
+			if (newFile.isDirectory())
+			{
+				count += getFilesCountRecursive(newFile);
+			}
+
+			else
+			{
+				count ++;
+			}
+		}
+
+		return count;
+	}
 }

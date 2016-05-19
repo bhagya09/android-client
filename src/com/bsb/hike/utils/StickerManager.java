@@ -3474,6 +3474,8 @@ public class StickerManager
 			return false;
 		}
 
+		int oldCount = TextUtils.isEmpty(fromPath) ? 0 : Utils.getFilesCountRecursive(new File(fromPath));
+
 		boolean isMoved = moveStickersFolder(fromPath, toPath);
 
 		if (isMoved)
@@ -3482,14 +3484,19 @@ public class StickerManager
 			// Update stickers path
 			stickerExternalDir = HikeConstants.HIKE_DIRECTORY_ROOT + HikeConstants.STICKERS_ROOT; // We need to re-init this path to the new path now
 
+			int newCount = TextUtils.isEmpty(toPath) ? 0 : Utils.getFilesCountRecursive(new File(toPath));
+
+			Logger.d("StickerMigration", " Old Count : " + oldCount + " New Count : " + newCount);
+
 			if (HikeConversationsDatabase.getInstance().upgradeForStickerTable())
 			{
+				recordStickerMigrationSuccess("Stickers Successfully Moved. Old Count : " + oldCount + " New Count : " + newCount);
 				doInitialSetup();
 				return true;
 			}
 			else
 			{
-				recordStickerMigrationFailure("failed to upgrade for sticker table");
+				recordStickerMigrationFailure("failed to upgrade for sticker table. Old Count : " + oldCount + " New Count : " + newCount);
 				return false;
 			}
 		}
@@ -3811,6 +3818,26 @@ public class StickerManager
 			if(!TextUtils.isEmpty(errorString))
 			{
 				json.put(AnalyticsConstants.V2.GENUS, errorString);
+			}
+			HAManager.getInstance().recordV2(json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	public void recordStickerMigrationSuccess(String successString)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, "backup");
+			json.put(AnalyticsConstants.V2.KINGDOM, "act_hs");
+			json.put(AnalyticsConstants.V2.ORDER, "stk_rstr_success");
+			if(!TextUtils.isEmpty(successString))
+			{
+				json.put(AnalyticsConstants.V2.GENUS, successString);
 			}
 			HAManager.getInstance().recordV2(json);
 		}
