@@ -211,8 +211,8 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 
 				if(category.equals(stickerCategoryList.get(0)))
 				{
-					addQuickSuggestionCategory(category);
-					initStickers(category);
+					updateQuickSuggestionCategoryInlList((QuickSuggestionStickerCategory) category);
+					initStickers(stickerCategoryList.get(0));
 				}
 			}
 			/**
@@ -609,6 +609,14 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 				stickerPageAdapter.notifyDataSetChanged();
 			}
 		}
+	}
+
+	private void updateQuickSuggestionCategoryInlList(QuickSuggestionStickerCategory newCategory)
+	{
+		QuickSuggestionStickerCategory presentCategory = (QuickSuggestionStickerCategory) stickerCategoryList.get(0);
+		presentCategory.setSentStickers(newCategory.getSentStickers());
+		presentCategory.setReplyStickers(newCategory.getReplyStickers());
+		presentCategory.setLastRefreshTime(newCategory.getLastRefreshTime());
 	}
 
 	public void addQuickSuggestionCategory(StickerCategory quickSuggestionCategory)

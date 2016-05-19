@@ -4351,6 +4351,11 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		voiceMessagePlayer.resetPlayer();
 	}
 
+	public void pausetPlayerIfPlaying()
+	{
+		voiceMessagePlayer.pausePlayer();
+	}
+
 	public IconLoader getIconImageLoader()
 	{
 		return iconLoader;

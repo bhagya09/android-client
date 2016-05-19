@@ -1433,8 +1433,9 @@
     <string name="recording_help_text">রেকর্ড করতে স্পর্শ করুন, পাঠাতে ছেড়ে দিন</string>
     <string name="max_duration_recorded">সর্বোচ্চ সময়ের জন্য রেকর্ড সম্পন্ন হয়েছে</string>
     <string name="stream_volume_muted_or_low">প্লিস আওয়াজ বাড়ান</string>
-
     <string name="shop_search_hint">লাভ, হিন্দি, বলিউড, ইত্যাদিि</string>
     <string name="no_sticker_pack_match_found">\'%1$s\' সাথে কোন স্টিকার প্যাকগুলি মেলেনি</string>
     <string name="pack_search_again_hint">প্রেম, হিন্দি, বলিউড, ইত্যাদি সম্পূর্ণ শব্দ টাইপ করুনें</string>
+    <string name="edit_profile_birthday">জন্ম দিন</string>
+    <string name="atomic_tip_http_failure">কিছু ত্রুটি ঘটেছে অনুগ্রহ করে একটু পরে আবার চেষ্টা করুন</string>
 </resources>

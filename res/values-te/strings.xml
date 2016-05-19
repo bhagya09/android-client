@@ -1422,9 +1422,9 @@
     <string name="recording_help_text">రికార్డింగ్ కొరకు నోక్కి ఉంచు, పంపుటకు రిలీజ్ చేయు</string>
     <string name="max_duration_recorded">రికార్డింగ్ టైం పరిమితి మించినది</string>
     <string name="stream_volume_muted_or_low">దయచేసి వాల్యూమ్ పెంచండి</string>
-
     <string name="shop_search_hint">లవ్,హిందీ,బాలీవుడ్ మొదలైనవిी</string>
     <string name="no_sticker_pack_match_found">మీరు సెర్చ్ చేసిన \'%1$s\' ఏ ఒక్క స్టిక్కర్ ప్యాక్ కి సరిపోలడం లేదుી</string>
     <string name="pack_search_again_hint">లవ్,హిందీ,బాలీవుడ్ మొదలైన పదాలను పూర్తిగా టైపు చెయ్యండిा</string>
-
+    <string name="edit_profile_birthday">సంభవించింది</string>
+    <string name="atomic_tip_http_failure">కొంత లోపం సంభవించింది.దయచేసి తర్వాత మళ్లీ ప్రయత్నించండి</string>
 </resources>
