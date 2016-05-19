@@ -1438,5 +1438,5 @@
     <string name="mute_chat_one_yr">1 ವರ್ಷ</string>
     <string name="show_notif">ಪ್ರಕಟಣೆಅನ್ನು  ತೋರಿಸು</string>
     <string name="mute_chat">ಚಾಟ್ಅನ್ನು ಮ್ಯೂಟ್ ಮಾಡಿ</string>
-
+    <string name="unmute_chat">ಚಾಟ್ಅನ್ನು ಸದ್ದಾಗಿಸು</string>
 </resources>

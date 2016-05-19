@@ -1431,5 +1431,5 @@
     <string name="show_notif">सूचनाएं दिखाएं</string>
     <string name="mute_chat">चैट शांत करें</string>
 
-
+    <string name="unmute_chat">म्यूट हटाएं</string>
 </resources>

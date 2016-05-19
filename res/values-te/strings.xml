@@ -1430,5 +1430,5 @@
     <string name="mute_chat_one_yr">1 సంవత్సరం</string>
     <string name="show_notif">నోటిఫికేషన్లను చూపించు</string>
     <string name="mute_chat">మ్యూట్ చాట్</string>
-
+    <string name="unmute_chat">అన్ మ్యూట్ చాట్</string>
 </resources>
