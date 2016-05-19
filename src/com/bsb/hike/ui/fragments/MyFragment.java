@@ -1,6 +1,7 @@
 package com.bsb.hike.ui.fragments;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -29,6 +30,8 @@ import com.bsb.hike.ui.SettingsActivity;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
+
+import java.io.File;
 
 /**
  * Created by gauravmittal on 14/04/16.
@@ -67,11 +70,15 @@ public class MyFragment extends Fragment {
         nameView.setText(contactInfo.getName());
 
         // set profile picture
-        Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(contactInfo.getMsisdn());
-        if (drawable == null) {
-            drawable = HikeBitmapFactory.getDefaultTextAvatar(contactInfo.getMsisdn());
+        File profileImage = (new File(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT, Utils.getProfileImageFileName(contactInfo.getMsisdn())));
+        if (profileImage.exists()) {
+            Bitmap bm = HikeBitmapFactory.scaleDownBitmap(profileImage.getAbsolutePath(), HikeConstants.PROFILE_IMAGE_DIMENSIONS * Utils.densityDpi , HikeConstants.PROFILE_IMAGE_DIMENSIONS * Utils.densityDpi, Bitmap.Config.RGB_565,
+                    true, false);
+            profileImgView.setImageBitmap(bm);
+        } else {
+            Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(contactInfo.getNameOrMsisdn());
+            profileImgView.setImageDrawable(drawable);
         }
-        profileImgView.setImageDrawable(drawable);
 
         ImageViewerInfo imageViewerInfo = new ImageViewerInfo(contactInfo.getMsisdn() + ProfileActivity.PROFILE_PIC_SUFFIX, null, false, !ContactManager.getInstance().hasIcon(
                 contactInfo.getMsisdn()));
