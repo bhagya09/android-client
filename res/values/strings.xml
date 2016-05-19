@@ -1592,4 +1592,5 @@
     <string name="edit_profile_birthday">Birth Date</string>
 
     <string name="stream_volume_muted_or_low">Please turn up the volume</string>
+    <string name="select_options">Select options...</string>
 </resources>

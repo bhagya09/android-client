@@ -122,7 +122,7 @@ public class BotChatThread extends OneToOneChatThread
     public void onDestroy()
     {
         super.onDestroy();
-        HAManager.getInstance().recordIndividualChatSession(msisdn);
+        HAManager.getInstance().recordIndividualChatSession(msisdn,"");
     }
 
     @Override

@@ -294,7 +294,7 @@ public interface HikePlatformConstants
 	
 	public static final int VERSION_ALTO = 1;
 
-	public static final int CURRENT_VERSION = 11;
+	public static final int CURRENT_VERSION = 12;
 
 	public static final String AB_COLOR = "color";
 	
@@ -456,13 +456,7 @@ public interface HikePlatformConstants
         String LARGE = "l";
     }
 
-    @IntDef({BotsStickerGridType.largeStkrGridCols,BotsStickerGridType.midStkrGridCols,BotsStickerGridType.smallStkrGridCols})
-    @interface BotsStickerGridType
-    {
-        int largeStkrGridCols = 2;
-        int midStkrGridCols = 3;
-        int smallStkrGridCols = 5;
-    }
+    int stickerGridNoOfCols = 3;
 
     String BOT_CUSTOM_KEYBOARD_TYPE_STICKER = "s";
 

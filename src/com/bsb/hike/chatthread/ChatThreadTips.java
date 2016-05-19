@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.bots.CustomKeyboardManager;
 import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
 import com.bsb.hike.ui.utils.RecyclingImageView;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -222,7 +223,11 @@ public class ChatThreadTips implements OnClickListener, OnTouchListener
 	 */
 	private void setupStickerFTUETip()
 	{
-		ViewStub pulsatingDot = (ViewStub) mainView.findViewById(R.id.pulsatingDotViewStub);
+		// Don't show sticker ftue tip for bots, return if bots keyboard is in display
+        if(CustomKeyboardManager.getInstance().isInputBoxButtonShowing())
+            return;
+
+        ViewStub pulsatingDot = (ViewStub) mainView.findViewById(R.id.pulsatingDotViewStub);
 		
 		if(pulsatingDot != null)
 		{

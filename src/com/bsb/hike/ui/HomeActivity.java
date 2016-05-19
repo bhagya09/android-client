@@ -2651,7 +2651,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
                             if(BotUtils.isBot(msisdn))
                             {
                                 ConvInfo convInfo = new ConvInfo.ConvInfoBuilder(msisdn)
-                                        .setConvName(botInfo.getConversationName()).setIsStealth(false).setIsMute(false)
+                                        .setConvName(botInfo.getConversationName())
                                         .setSortingTimeStamp(System.currentTimeMillis()).build();
                                 Intent chatThreadIntent = IntentFactory.createChatThreadIntentFromConversation(HomeActivity.this, convInfo,
                                         ChatThreadActivity.ChatThreadOpenSources.INITIATE_BOT);
@@ -2688,7 +2688,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
                                 MqttMessagesManager.getInstance(HomeActivity.this).saveMessage(botIntroJson);
 
                                 ConvInfo convInfo = new ConvInfo.ConvInfoBuilder(msisdn)
-                                        .setConvName(botInfo.getConversationName()).setIsStealth(false).setIsMute(false)
+                                        .setConvName(botInfo.getConversationName())
                                         .setSortingTimeStamp(System.currentTimeMillis()).build();
 
                                 Intent chatThreadIntent = IntentFactory.createChatThreadIntentFromConversation(HomeActivity.this, convInfo,

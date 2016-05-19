@@ -19,81 +19,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences.Editor;
-import android.content.pm.ApplicationInfo;
-import android.content.res.Configuration;
-import android.content.res.Resources;
-import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
-import android.net.Uri;
-import android.net.wifi.ScanResult;
-import android.net.wifi.p2p.WifiP2pDeviceList;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.preference.PreferenceManager;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.AsyncTaskLoader;
-import android.support.v4.content.Loader;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.view.MenuItemCompat;
-import android.text.Editable;
-import android.text.InputType;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.TextUtils;
-import android.text.TextWatcher;
-import android.text.style.CharacterStyle;
-import android.text.style.ForegroundColorSpan;
-import android.text.style.StyleSpan;
-import android.util.Pair;
-import android.view.GestureDetector;
-import android.view.GestureDetector.SimpleOnGestureListener;
-import android.view.HapticFeedbackConstants;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.View.OnKeyListener;
-import android.view.View.OnTouchListener;
-import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
-import android.view.ViewStub;
-import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.view.inputmethod.EditorInfo;
-import android.webkit.MimeTypeMap;
-import android.widget.AbsListView;
-import android.widget.AbsListView.OnScrollListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
-import android.widget.ListView;
-import android.widget.PopupWindow;
-import android.widget.PopupWindow.OnDismissListener;
-import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
-import android.widget.Toast;
-
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.MESSAGE_TYPE;
@@ -101,6 +26,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
+import com.bsb.hike.adapters.CustomKeyboardInputBoxAdapter;
 import com.bsb.hike.adapters.MessagesAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
@@ -108,6 +34,7 @@ import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.bots.CustomKeyboard;
 import com.bsb.hike.bots.CustomKeyboardManager;
 import com.bsb.hike.bots.TextPickerListener;
 import com.bsb.hike.chatthread.ChatThreadActivity.ChatThreadOpenSources;
@@ -197,6 +124,81 @@ import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.view.CustomFontEditText.BackKeyListener;
 import com.bsb.hike.view.CustomLinearLayout;
 import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
+
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences.Editor;
+import android.content.pm.ApplicationInfo;
+import android.content.res.Configuration;
+import android.content.res.Resources;
+import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.net.Uri;
+import android.net.wifi.ScanResult;
+import android.net.wifi.p2p.WifiP2pDeviceList;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
+import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.MenuItemCompat;
+import android.text.Editable;
+import android.text.InputType;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.TextUtils;
+import android.text.TextWatcher;
+import android.text.style.CharacterStyle;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
+import android.util.Pair;
+import android.view.GestureDetector;
+import android.view.GestureDetector.SimpleOnGestureListener;
+import android.view.HapticFeedbackConstants;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnKeyListener;
+import android.view.View.OnTouchListener;
+import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
+import android.view.ViewStub;
+import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.inputmethod.EditorInfo;
+import android.webkit.MimeTypeMap;
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
+import android.widget.ListView;
+import android.widget.PopupWindow;
+import android.widget.PopupWindow.OnDismissListener;
+import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
+import android.widget.Toast;
 
 
 
@@ -1507,7 +1509,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			inProcessOfShowingPopup = false;
 		}
 
-		if (mShareablePopupLayout.togglePopup(mStickerPicker, activity.getResources().getConfiguration().orientation))
+		if (mShareablePopupLayout.togglePopup(mStickerPicker, activity.getResources().getConfiguration().orientation,false))
 		{
 			activity.showProductPopup(ProductPopupsConstants.PopupTriggerPoints.STKBUT_BUT.ordinal());
 		}
@@ -1592,7 +1594,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		if(mShareablePopupLayout.isShowing()) {
 			inProcessOfShowingPopup = false;
 		}
-		if (!mShareablePopupLayout.togglePopup(mEmoticonPicker, activity.getResources().getConfiguration().orientation))
+		if (!mShareablePopupLayout.togglePopup(mEmoticonPicker, activity.getResources().getConfiguration().orientation,false))
 		{
 			if (!retryToInflateEmoticons())
 			{
@@ -1616,7 +1618,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		String errorMsg = "Inside method : retry to inflate emoticons. Houston!, something's not right here";
 		HAManager.sendStickerEmoticonStrangeBehaviourReport(errorMsg);
 		initShareablePopup();
-		return mShareablePopupLayout.togglePopup(mEmoticonPicker, activity.getResources().getConfiguration().orientation);
+		return mShareablePopupLayout.togglePopup(mEmoticonPicker, activity.getResources().getConfiguration().orientation,false);
 	}
 	
 	private boolean retryToInflateStickers()
@@ -1624,7 +1626,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		String errorMsg = "Inside method : retry to inflate stickers. Houston!, something's not right here";
 		HAManager.sendStickerEmoticonStrangeBehaviourReport(errorMsg);
 		initShareablePopup();
-		return mShareablePopupLayout.togglePopup(mStickerPicker, activity.getResources().getConfiguration().orientation);
+		return mShareablePopupLayout.togglePopup(mStickerPicker, activity.getResources().getConfiguration().orientation,false);
 	}
 
 	protected void setUpThemePicker()
@@ -6799,24 +6801,64 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
         sendUIMessage(SHOW_INPUT_BOX, object);
     }
 
-    private void showInputBox()
-    {
-        if(!CustomKeyboardManager.getInstance().isInputBoxButtonShowing())
-        {
-			CustomKeyboardManager.getInstance().setInputBoxButtonShowing(true);
+	private void showInputBox()
+	{
+		CustomKeyboardManager customKeyboardManager = CustomKeyboardManager.getInstance();
+
+		if (!customKeyboardManager.isInputBoxButtonShowing())
+		{
+            setComposeViewCustomKeyboardState();
+            customKeyboardManager.setInputBoxButtonShowing(true);
         }
-        if(mShareablePopupLayout != null)
-            mShareablePopupLayout.showPopup(CustomKeyboardManager.getInstance(), activity.getResources().getConfiguration().orientation);
-    }
+
+		CustomKeyboard customKeyboard = CustomKeyboardManager.getInstance().getCustomKeyboardObject(msisdn);
+		int customKeyBoardHeight = CustomKeyboardInputBoxAdapter.getCustomKeyBoardHeight(customKeyboard);
+
+		mShareablePopupLayout.showPopup(CustomKeyboardManager.getInstance(), activity.getResources().getConfiguration().orientation, customKeyBoardHeight);
+	}
 
     private void dismissInputBox()
     {
         mShareablePopupLayout.dismiss();
         if(CustomKeyboardManager.getInstance().isInputBoxButtonShowing())
         {
-            ((ImageButton)activity.findViewById(R.id.send_message)).setImageResource(R.drawable.walkie_talkie_btn_selector);
-            CustomKeyboardManager.getInstance().setInputBoxButtonShowing(false);
+            setComposeViewDefaultState();
+            ((ImageButton) activity.findViewById(R.id.send_message)).setImageResource(R.drawable.walkie_talkie_btn_selector);
         }
+    }
+
+    private void setComposeViewDefaultState()
+    {
+        CustomFontEditText composeTextView = (CustomFontEditText) activity.findViewById(R.id.msg_compose);
+        composeTextView.setEnabled(true);
+        composeTextView.setClickable(true);
+        composeTextView.setFocusable(true);
+        composeTextView.setHint("");
+        composeTextView.setPadding((int)(10 * Utils.densityMultiplier),(int)(6 * Utils.densityMultiplier),0,0);
+        CustomKeyboardManager.getInstance().setInputBoxButtonShowing(false);
+    }
+
+    private void setComposeViewCustomKeyboardState()
+    {
+        if(activity.findViewById(R.id.sticker_btn) != null)
+            activity.findViewById(R.id.sticker_btn).setVisibility(View.GONE);
+        if(activity.findViewById(R.id.emoticon_btn) != null)
+            activity.findViewById(R.id.emoticon_btn).setVisibility(View.GONE);
+        if(activity.findViewById(R.id.pulsatingDotViewStub) != null)
+            activity.findViewById(R.id.pulsatingDotViewStub).setVisibility(View.GONE);
+        if(activity.findViewById(R.id.pulsatingDotViewStub_WT) != null)
+            activity.findViewById(R.id.pulsatingDotViewStub_WT).setVisibility(View.GONE);
+
+        CustomFontEditText composeTextView = (CustomFontEditText) activity.findViewById(R.id.msg_compose);
+        composeTextView.setHint(getResources().getString(R.string.select_options));
+        composeTextView.setPadding((int)(10 * Utils.densityMultiplier),(int)(6 * Utils.densityMultiplier),0,0);
+        composeTextView.setEnabled(false);
+        composeTextView.setClickable(false);
+
+        ImageButton keyboardInputButton = (ImageButton) activity.findViewById(R.id.send_message);
+        keyboardInputButton.setImageResource(R.drawable.keyboard_button_selector);
+        keyboardInputButton.setContentDescription(activity.getResources().getString(R.string.content_des_send_recorded_audio_text_chatting));
+        keyboardInputButton.setSelected(true);
     }
 
     protected ConvMessage createConvMessageFromString(String message)
@@ -6846,7 +6888,17 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
         setInputBoxButtonSelected(true);
         setStickerButtonSelected(false);
         setEmoticonButtonSelected(false);
-        mShareablePopupLayout.togglePopup(CustomKeyboardManager.getInstance(), activity.getResources().getConfiguration().orientation);
+
+        if (isKeyboardOpen())
+        {
+            setComposeViewCustomKeyboardState();
+        }
+        else
+        {
+            Utils.showSoftKeyboard(activity.getApplicationContext(), mComposeView);
+            setComposeViewDefaultState();
+        }
+        mShareablePopupLayout.togglePopup(CustomKeyboardManager.getInstance(), activity.getResources().getConfiguration().orientation, true);
     }
 
 
