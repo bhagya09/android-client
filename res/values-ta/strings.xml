@@ -1427,4 +1427,7 @@
     <string name="pack_search_again_hint">காதல் , இந்தி , பாலிவுட் , போன்றவை முழு வார்த்தைகளை தட்டச்சுें</string>
     <string name="edit_profile_birthday">பிறந்த தேதி</string>
     <string name="atomic_tip_http_failure">பிழை ஏற்பட்டது. தயவுசெய்து மீண்டும் முயற்சிக்கவும்</string>
+    <string name="my_location">என் இடம்</string>
+    <string name="custom_location">விருப்ப இடம்</string>
+
 </resources>
