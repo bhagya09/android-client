@@ -37,6 +37,7 @@ public class FetchHikeUIDTaskForUpgrade implements IHikeHTTPTask, IHikeHttpTaskR
     private Set<String> addressBookContact;
     private Set<String> activeChats;
     private Set<String> bots;
+    private Set<String> groupMembers;
     private RequestToken token;
 
     public FetchHikeUIDTaskForUpgrade() {
@@ -49,6 +50,7 @@ public class FetchHikeUIDTaskForUpgrade implements IHikeHTTPTask, IHikeHttpTaskR
             //addressBookContact.removeAll(activeChats);
             addressBookContact.addAll(bots);
             addressBookContact.addAll(activeChats);
+            addressBookContact.addAll(groupMembers);
             data.put("othr", getJSONArrayFromSet(addressBookContact));
 
             //data.put("subs", getJSONArrayFromSet(activeChats));
@@ -133,6 +135,8 @@ public class FetchHikeUIDTaskForUpgrade implements IHikeHTTPTask, IHikeHttpTaskR
         //Update in User Db
         HikeUserDatabase.getInstance().updateContactUid(addressBookContacts);
 
+        HikeConversationsDatabase.getInstance().updateContactUidForGroupMembers(addressBookContacts);
+
         //update Bots Table
         HikeConversationsDatabase.getInstance().updateUIDForBot(botsContact);
         //save Pref for upgrade
@@ -183,6 +187,8 @@ public class FetchHikeUIDTaskForUpgrade implements IHikeHTTPTask, IHikeHttpTaskR
         }
         //Bots
         bots = HikeMessengerApp.hikeBotInfoMap.keySet();
+
+        groupMembers = HikeConversationsDatabase.getInstance().getAllMsisdnsForMissingUID();
 
 
 
