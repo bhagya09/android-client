@@ -1142,12 +1142,15 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		case HikeConstants.ResultCodes.CHATTHEME_GALLERY_REQUEST_CODE:
 			if(resultCode == Activity.RESULT_OK)
 			{
-				if (themePicker != null && themePicker.isShowing())
-				{
+				if (themePicker != null && themePicker.isShowing()) {
 					themePicker.dismiss();
 				}
 				if(ChatThemeManager.getInstance().customThemeTempUploadImagePath != null) {
-					FileTransferManager.getInstance(activity).uploadCustomThemeBackgroundImage(ChatThemeManager.getInstance().customThemeTempUploadImagePath);
+					if(Utils.isUserOnline(activity)) {
+						FileTransferManager.getInstance(activity).uploadCustomThemeBackgroundImage(ChatThemeManager.getInstance().customThemeTempUploadImagePath);
+					} else {
+						Toast.makeText(activity, R.string.admin_task_error, Toast.LENGTH_LONG).show();
+					}
 				}
 			}
 			break;
@@ -3977,6 +3980,10 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 						}
 						walkieView.initialize(activity.findViewById(R.id.bottom_panel), mShareablePopupLayout.isShowing() || isKeyboardOpen());
 						walkieView.update(v,event);
+						if (mAdapter != null)
+						{
+							mAdapter.pausetPlayerIfPlaying();
+						}
 						sendWTClickedAnalytic();
 						break;
 					case MotionEvent.ACTION_MOVE:
