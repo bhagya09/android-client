@@ -22,7 +22,6 @@ public class StickerOtherIconLoader extends ImageWorker
 	{
 		super();
 		this.ctx = ctx;
-		mResources = ctx.getResources();
 		this.downloadIfNotFound = downloadIfNotFound;
 	}
 	

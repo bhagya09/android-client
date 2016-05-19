@@ -11,6 +11,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.graphics.Bitmap;
+import android.os.Bundle;
 import android.text.TextUtils;
 
 import com.bsb.hike.BitmapModule.BitmapUtils;
@@ -97,7 +98,11 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 
 		if (imageOnly)
 		{
-			token = singleStickerImageDownloadRequest(requestId, stickerId, categoryId, downloadMini, getRequestListener());
+			Bundle extras = new Bundle();
+			extras.putString(HikeConstants.STICKER_ID, stickerId);
+			extras.putString(HikeConstants.CATEGORY_ID, categoryId);
+			extras.putLong(HikeConstants.MESSAGE_ID, convMessage != null ? convMessage.getMsgID() : -1);
+			token = singleStickerImageDownloadRequest(requestId, stickerId, categoryId, downloadMini, getRequestListener(), extras);
 		}
 		else
 		{
@@ -229,6 +234,8 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 
                             getStickerTags(data);
 
+							getQuickSuggestions(sticker);
+
 							boolean cdn = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SINGLE_STICKER_CDN, true);
 
                             StickerManager.getInstance().sendResponseTimeAnalytics(result, cdn ? HikeConstants.SINGLE_STICKER_CDN : HikeConstants.SINGLE_STICKER, categoryId, stickerId);
@@ -336,6 +343,11 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 			StickerSearchManager.getInstance().insertStickerTags(data, StickerSearchConstants.STATE_STICKER_DATA_FRESH_INSERT);
 		}
 
+	}
+
+	private void getQuickSuggestions(Sticker sticker)
+	{
+		StickerManager.getInstance().initiateSingleStickerQuickSuggestionDownloadTask(sticker);
 	}
 
 	private boolean saveFullSticker(String stickerImage, JSONObject stickerData) throws IOException

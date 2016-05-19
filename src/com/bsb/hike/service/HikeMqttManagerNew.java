@@ -713,7 +713,10 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 
 		try
 		{
-			ipArray = new JSONArray(ipString);
+			if(ipString!=null && !ipString.isEmpty())
+			{
+				ipArray = new JSONArray(ipString);
+			}
 		}
 		catch (JSONException e)
 		{

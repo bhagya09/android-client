@@ -33,6 +33,7 @@ import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.diskcache.Cache;
 import com.bsb.hike.modules.diskcache.InternalCache;
+import com.bsb.hike.modules.gcmnetworkmanager.HikeGcmNetworkMgr;
 import com.bsb.hike.modules.httpmgr.HttpManager;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
@@ -538,6 +539,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public static final String ENABLE_ADDRESSBOOK_THROUGH_HTTP_MGR = "enAbHttpMgr";
 
+	public static final String EDIT_PROFILE_THROUGH_HTTP_MGR = "editProfHttpMgr";
+
 	public static final String PROB_NUM_TEXT_MSG = "num_txt";
 
 	public static final String PROB_NUM_STICKER_MSG = "num_stk";
@@ -632,6 +635,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	public static final String MIGRATE_TABLE_TO_USER="migblktbl";
 
 	public static final String MIGRATE_RECENT_STICKER_TO_DB = "migrateRecentStickersToDb";
+
+	public static final String QUICK_SUGGESTION_RETRY_SET = "quickSuggestionRetrySet";
 
 	// =========================================================================================Constants for sticker search]]
 
@@ -1140,7 +1145,10 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		}
 
 		initCrashReportingTool();
+
 		fetchHikeUIDForUpgrade();
+
+		checkAndTriggerPendingGcmNetworkCalls();
 	}
 
 	public void logUser() {
@@ -1462,5 +1470,10 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
     {
         diskCache = null;
     }
+
+	private void checkAndTriggerPendingGcmNetworkCalls()
+	{
+		HikeGcmNetworkMgr.getInstance().triggerPendingGcmNetworkCalls();
+	}
 
 }
