@@ -8035,9 +8035,8 @@ public class Utils
 			if (mute.isMute() && muteApproach)
 			{
 				Intent intent = IntentFactory.getIntentForMuteAlarm(mute);
-				HikeAlarmManager.setAlarmwithIntentPersistance(context.getApplicationContext(), mute.getMuteEndTime(), HikeAlarmManager.REQUESTCODE_END_CONVERSATION_MUTE, true, intent, true);
+				HikeAlarmManager.setAlarmwithIntentPersistanceMute(context.getApplicationContext(), mute.getMuteEndTime(), HikeAlarmManager.REQUESTCODE_END_CONVERSATION_MUTE, true, intent, true);
 			}
-
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, mute);
 		}
 	}

@@ -247,6 +247,29 @@ public class HikeAlarmManager
 		}
 
 	}
+
+	public static void setAlarmwithIntentPersistanceMute(Context context, long time, int requestCode, boolean WillWakeCPU, Intent intent, boolean persistance) {
+
+		AlarmManager mAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+
+		intent.setAction(INTENT_ALARM);
+		intent.putExtra(INTENT_EXTRA, requestCode);
+		intent.putExtra(ALARM_TIME, time);
+
+		requestCode = (int) (System.currentTimeMillis() / 1000);
+		if (persistance)
+			HikeContentDatabase.getInstance().insertIntoAlarmManagerDB(time, requestCode, WillWakeCPU, intent);
+
+		PendingIntent mPendingIntent = PendingIntent.getBroadcast(context, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+		if (Utils.isKitkatOrHigher()) {
+			mAlarmManager.setExact(WillWakeCPU ? AlarmManager.RTC_WAKEUP : AlarmManager.RTC, time, mPendingIntent);
+		} else {
+
+			mAlarmManager.set(WillWakeCPU ? AlarmManager.RTC_WAKEUP : AlarmManager.RTC, time, mPendingIntent);
+		}
+
+	}
 	/**
 	 * 
 	 * @param context
@@ -287,7 +310,7 @@ public class HikeAlarmManager
 		
 		int requestCode = intent.getIntExtra(HikeAlarmManager.INTENT_EXTRA, HikeAlarmManager.REQUESTCODE_DEFAULT);
 		deleteAlarmFromDatabase(intent);
-		
+
 		switch (requestCode)
 		{
 		case HikeAlarmManager.REQUESTCODE_NOTIFICATION_PRELOAD:
