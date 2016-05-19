@@ -2835,6 +2835,8 @@ public class HikeConstants
 
 		public static final String CHAT_BACKGROUD = "cbg";
 
+		public static final String CHAT_BACKGROUD_V2 = "cbgv2";
+
 		public static final String GROUP_OWNER_CHANGE = "goc";
 
 		public static final String REQUEST_DP = "rdp";

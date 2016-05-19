@@ -303,6 +303,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	protected static final int SEND_CUSTOM_THEME_MESSAGE = 42;
 
+	protected static final int CUSTOM_CT_COMPATABILITY_ERROR_MESSAGE = 43;
+
 	protected static final int REMOVE_CHAT_BACKGROUND = 0;
 
 	protected final int NUDGE_COOLOFF_TIME = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NUDGE_SEND_COOLOFF_TIME, 300);
@@ -583,6 +585,9 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			break;
 		case SEND_CUSTOM_THEME_MESSAGE:
 			sendChatThemeMessage(true);
+			break;
+		case CUSTOM_CT_COMPATABILITY_ERROR_MESSAGE:
+			customThemeErrorNotifier((String)msg.obj);
 			break;
 		default:
 			Logger.d(TAG, "Did not find any matching event for msg.what : " + msg.what);
@@ -4260,6 +4265,9 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			break;
 		case HikePubSub.CHATTHEME_CUSTOM_IMAGE_UPLOAD_FAILED:
 			break;
+		case HikePubSub.CHATTHEME_CUSTOM_COMPATABILITY_ERROR:
+			sendUIMessage(CUSTOM_CT_COMPATABILITY_ERROR_MESSAGE, object);
+			break;
 		default:
 			Logger.e(TAG, "PubSub Registered But Not used : " + type);
 			break;
@@ -4494,7 +4502,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				HikePubSub.CHAT_BACKGROUND_CHANGED, HikePubSub.CLOSE_CURRENT_STEALTH_CHAT, HikePubSub.ClOSE_PHOTO_VIEWER_FRAGMENT, HikePubSub.STICKER_CATEGORY_MAP_UPDATED,
 				HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.MULTI_MESSAGE_DB_INSERTED, HikePubSub.BLOCK_USER, HikePubSub.UNBLOCK_USER, HikePubSub.MUTE_CONVERSATION_TOGGLED, HikePubSub.SHARED_WHATSAPP, 
 				HikePubSub.STEALTH_CONVERSATION_MARKED, HikePubSub.STEALTH_CONVERSATION_UNMARKED, HikePubSub.BULK_MESSAGE_DELIVERED_READ, HikePubSub.STICKER_RECOMMEND_PREFERENCE_CHANGED, HikePubSub.ENTER_TO_SEND_SETTINGS_CHANGED, HikePubSub.NUDGE_SETTINGS_CHANGED,
-				HikePubSub.UPDATE_THREAD,HikePubSub.GENERAL_EVENT_STATE_CHANGE, HikePubSub.FILE_OPENED, HikePubSub.CLEAR_CONVERSATION, HikePubSub.CHATTHEME_DOWNLOAD_SUCCESS, HikePubSub.CHATTHEME_CUSTOM_IMAGE_UPLOAD_SUCCESS, HikePubSub.CHATTHEME_CUSTOM_IMAGE_UPLOAD_FAILED};
+				HikePubSub.UPDATE_THREAD,HikePubSub.GENERAL_EVENT_STATE_CHANGE, HikePubSub.FILE_OPENED, HikePubSub.CLEAR_CONVERSATION, HikePubSub.CHATTHEME_DOWNLOAD_SUCCESS, HikePubSub.CHATTHEME_CUSTOM_IMAGE_UPLOAD_SUCCESS, HikePubSub.CHATTHEME_CUSTOM_IMAGE_UPLOAD_FAILED,
+				HikePubSub.CHATTHEME_CUSTOM_COMPATABILITY_ERROR };
 
 		/**
 		 * Array of pubSub listeners we get from {@link OneToOneChatThread} or {@link GroupChatThread}
@@ -6818,6 +6827,14 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		String themeId = (String) data;
 		sendUIMessage(CHAT_THEME, themeId);
 		sendUIMessage(SEND_CUSTOM_THEME_MESSAGE, null);
+	}
+
+	//TODO CHATTHEME work on proper strings
+	public void customThemeErrorNotifier(String errorType) {
+		Logger.v("Sriram", "errorType ::::::::::::::::"+errorType);
+		if(errorType.equalsIgnoreCase("ce1")){
+			Toast.makeText(activity.getApplicationContext(), "Unable to set theme at receiver side", Toast.LENGTH_LONG).show();
+		}
 	}
 
 }
