@@ -1434,5 +1434,5 @@
     <string name="mute_chat_one_yr">1 वर्षासाठी</string>
     <string name="show_notif">सूचना दाखवा</string>
     <string name="mute_chat">चैट निशब्द करा</string>
-
+    <string name="unmute_chat">चैट सशब्द करा</string>
 </resources>
