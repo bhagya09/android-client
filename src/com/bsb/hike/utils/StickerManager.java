@@ -3478,8 +3478,6 @@ public class StickerManager
 
 		if (isMoved)
 		{
-			HikeConversationsDatabase.getInstance().clearTable(DBConstants.STICKER_TABLE); // Need to wipe off the table as well and then populate the new one
-
 			// Assets migrated successfully
 			// Update stickers path
 			stickerExternalDir = HikeConstants.HIKE_DIRECTORY_ROOT + HikeConstants.STICKERS_ROOT; // We need to re-init this path to the new path now
