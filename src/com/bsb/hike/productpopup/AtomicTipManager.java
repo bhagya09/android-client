@@ -700,6 +700,11 @@ public class AtomicTipManager
                 removeTipFromView();
                 break;
 
+            case ProductPopupsConstants.PopUpAction.MAKE_FRIEND:
+                actionMakeFriend(context, metadata);
+                removeTipFromView();
+                break;
+
             case NO_CTA_ACTION:
                 removeTipFromView();
                 break;
@@ -958,6 +963,48 @@ public class AtomicTipManager
         {
             AtomicTipContentModel currentModel = (AtomicTipContentModel) tipIterator.next();
             recordTipsAnalytics(getJSONForTipAnalytics(TIP_FLUSH, EXIT, currentModel.getTipId(), currentModel.isCancellable(), null, null));
+        }
+    }
+
+    private void actionMakeFriend(Context context, String metadata)
+    {
+        Logger.d(TAG, "processing makefriend action, metadata is " + metadata);
+        JSONObject mmObject;
+        int counter = 0;
+        try
+        {
+            mmObject = new JSONObject(metadata);
+            JSONArray msisdns = mmObject.optJSONArray(HikeConstants.MSISDNS);
+            if(msisdns == null || msisdns.length() == 0)
+            {
+                return;
+            }
+            for(int i = 0; i < msisdns.length(); i++)
+            {
+                JSONObject msisdnObj = msisdns.optJSONObject(i);
+                if(msisdnObj != null)
+                {
+                    String msisdn = msisdnObj.optString(HikeConstants.MSISDN);
+                    if(!TextUtils.isEmpty(msisdn))
+                    {
+                        ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, false, false);
+                        Utils.toggleFavorite(context, contactInfo, false, null, false);
+                        counter++;
+                    }
+                }
+            }
+            if(counter == 1)
+            {
+                showHttpToast(context.getString(R.string.friend_request_sent));
+            }
+            else if(counter > 1)
+            {
+                showHttpToast(context.getString(R.string.friend_request_sent_multiple));
+            }
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
         }
     }
 }

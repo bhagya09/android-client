@@ -126,6 +126,8 @@ public class ProductPopupsConstants
 		public static final String DOWNLOAD_STKPK="dwnldstkpk";
 		
 		public static final String ACTIVATE_CHAT_HEAD_APPS = "actvchthdapps";
+
+		public static final String MAKE_FRIEND = "makefriend";
 	}
 
 	public static enum HIKESCREEN
