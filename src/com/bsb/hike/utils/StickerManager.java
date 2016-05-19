@@ -3457,6 +3457,12 @@ public class StickerManager
 	 */
 	public boolean migrateStickerAssets(String fromPath, String toPath)
 	{
+		if (isStickerFolderError())
+		{
+			recordStickerMigrationFailure("Got Sticker Folder error! Failed to migrate stickers");
+			return false;
+		}
+
 		boolean isMoved = moveStickersFolder(fromPath, toPath);
 
 		if (isMoved)
