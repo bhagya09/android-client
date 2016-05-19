@@ -2,8 +2,6 @@ package com.bsb.hike.ui.fragments;
 
 import java.util.Map;
 
-import org.json.JSONArray;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -18,7 +16,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
@@ -27,13 +24,12 @@ import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
 import com.bsb.hike.smartImageLoader.StickerOtherIconLoader;
-import com.bsb.hike.ui.StickerShopActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.StickerManager;
 
 public abstract class StickerShopBaseFragment extends Fragment implements Listener
 {
-	protected String[] pubSubListeners = { HikePubSub.STICKER_CATEGORY_MAP_UPDATED, HikePubSub.STICKER_SHOP_DOWNLOAD_SUCCESS, HikePubSub.STICKER_SHOP_DOWNLOAD_FAILURE };
+	protected String[] pubSubListeners = { HikePubSub.STICKER_CATEGORY_MAP_UPDATED, HikePubSub.STICKER_SHOP_DOWNLOAD_SUCCESS, HikePubSub.STICKER_SHOP_DOWNLOAD_FAILURE, HikePubSub.STICKER_SHOP_EXTRA_CATEGORIES };
 
 	protected StickerOtherIconLoader stickerOtherIconLoader;
 
@@ -79,10 +75,6 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 	public void onActivityCreated(Bundle savedInstanceState)
 	{
 		super.onActivityCreated(savedInstanceState);
-		if (StickerManager.getInstance().stickerShopUpdateNeeded())
-		{
-			HikeConversationsDatabase.getInstance().clearStickerShop();
-		}
 
 		doInitialSetup();
 	}
@@ -145,39 +137,7 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 		}
 		else if (HikePubSub.STICKER_SHOP_DOWNLOAD_SUCCESS.equals(type))
 		{
-			JSONArray resultData = (JSONArray) object;
-			if (resultData.length() == 0)
-			{
-				HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.STICKER_SHOP_DATA_FULLY_FETCHED, true);
-			}
-			else
-			{
-				// TODO we should also update stickerCategoriesMap in StickerManager from here as well
-				HikeConversationsDatabase.getInstance().updateStickerCategoriesInDb(resultData, true);
-			}
-			if (!isAdded())
-			{
-				return;
-			}
-			getActivity().runOnUiThread(new Runnable()
-			{
-
-				@Override
-				public void run()
-				{
-					if (currentCategoriesCount == 0)
-					{
-						HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.LAST_STICKER_SHOP_UPDATE_TIME, System.currentTimeMillis());
-					}
-					listview.setVisibility(View.VISIBLE);
-					listview.removeFooterView(loadingFooterView);
-					loadingEmptyState.setVisibility(View.GONE);
-					loadingFailedEmptyState.setVisibility(View.GONE);
-					searchFailedState.setVisibility(View.GONE);
-					reloadAdapter();
-					downloadState = NOT_DOWNLOADING;
-				}
-			});
+			StickerManager.getInstance().executeFetchShopPackTask(currentCategoriesCount + StickerManager.SHOP_PAGE_SIZE);
 		}
 		else if (HikePubSub.STICKER_SHOP_DOWNLOAD_FAILURE.equals(type))
 		{
@@ -242,7 +202,53 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 				}
 			});
 		}
+		else if (HikePubSub.STICKER_SHOP_EXTRA_CATEGORIES.equals(type))
+		{
+			final int count = HikeConversationsDatabase.getInstance().getRankCountFromCategoryTable();
+			if (!isAdded())
+			{
+				return;
+			}
+			getActivity().runOnUiThread(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					listview.setVisibility(View.VISIBLE);
+					listview.removeFooterView(loadingFooterView);
+					loadingEmptyState.setVisibility(View.GONE);
+					loadingFailedEmptyState.setVisibility(View.GONE);
+					searchFailedState.setVisibility(View.GONE);
+					if (count > currentCategoriesCount)
+					{
+						reloadAdapter();
+					}
+					downloadState = NOT_DOWNLOADING;
+				}
+			});
 
+			initiateFetchCategoryRankTask(count);
+			saveShopDataFetchedState(count);
+		}
+
+	}
+
+	private void initiateFetchCategoryRankTask(int count)
+	{
+		if (((currentCategoriesCount) > (count - (3 * StickerManager.SHOP_PAGE_SIZE)))
+				&& !HikeSharedPreferenceUtil.getInstance().getData(StickerManager.STICKER_SHOP_RANK_FULLY_FETCHED, false))
+		{
+			StickerManager.getInstance().initiateFetchCategoryRanksAndDataTask(count, true);
+		}
+	}
+
+	private void saveShopDataFetchedState(int count)
+	{
+		if (HikeSharedPreferenceUtil.getInstance().getData(StickerManager.STICKER_SHOP_RANK_FULLY_FETCHED, false)
+				&& (currentCategoriesCount >= count))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.STICKER_SHOP_DATA_FULLY_FETCHED, true);
+		}
 	}
 
 	private BroadcastReceiver mMessageReceiver = new BroadcastReceiver()

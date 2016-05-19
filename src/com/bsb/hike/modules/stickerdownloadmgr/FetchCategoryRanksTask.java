@@ -1,7 +1,9 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -30,6 +32,13 @@ public class FetchCategoryRanksTask implements IHikeHTTPTask, IHikeHttpTaskResul
 	private static final String TAG = FetchCategoryRanksTask.class.getSimpleName();
 
 	private RequestToken token;
+
+	private int offset;
+
+	public FetchCategoryRanksTask(int offset)
+	{
+		this.offset = offset;
+	}
 
 	private IRequestListener getRequestListener()
 	{
@@ -64,10 +73,25 @@ public class FetchCategoryRanksTask implements IHikeHTTPTask, IHikeHttpTaskResul
 						return;
 					}
 					JSONArray orderArray = resultData.optJSONArray(HikeConstants.PACKS);
-					HikeConversationsDatabase.getInstance().updateStickerCategoryRanks(orderArray);
+					HikeConversationsDatabase.getInstance().updateStickerCategoryRanks(orderArray, offset != 0);
+					if (!Utils.isEmpty(orderArray))
+					{
+						HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.STICKER_SHOP_DATA_FULLY_FETCHED, false);
+						HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.STICKER_SHOP_RANK_FULLY_FETCHED, false);
+					}
+					else
+					{
+						HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.STICKER_SHOP_RANK_FULLY_FETCHED, true);
+					}
+					HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_SHOP_DOWNLOAD_SUCCESS, null);
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPDATED_ALL_CATEGORIES_METADATA, false);
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPDATED_ALL_CATEGORIES_TAGDATA, false);
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPDATE_SHOP_RANK_TIMESTAMP, System.currentTimeMillis());
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ALREDAY_FETCHED_CATEGORIES_RANK_LIMIT,
+							offset + HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NUMBER_OF_ROWS_FOR_ORDER, StickerConstants.DEFAULT_NUMBER_OF_ROWS_FOR_ORDER));
+					if (offset == 0)
+					{
+						HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPDATE_SHOP_RANK_TIMESTAMP, System.currentTimeMillis());
+					}
 					doOnSuccess(null);
 				}
 				catch (Exception e)
@@ -96,7 +120,7 @@ public class FetchCategoryRanksTask implements IHikeHTTPTask, IHikeHttpTaskResul
 	public void execute()
 	{
 		token = getPrefOrderForCategories(getRequestId(), getRequestListener(),
-				HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NUMBER_OF_ROWS_FOR_ORDER, StickerConstants.DEFAULT_NUMBER_OF_ROWS_FOR_ORDER), 0);
+				HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NUMBER_OF_ROWS_FOR_ORDER, StickerConstants.DEFAULT_NUMBER_OF_ROWS_FOR_ORDER), offset);
 		if (!token.isRequestRunning())
 		{
 			token.execute();
@@ -131,6 +155,7 @@ public class FetchCategoryRanksTask implements IHikeHTTPTask, IHikeHttpTaskResul
 	@Override
 	public void doOnFailure(HttpException exception)
 	{
+		HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_SHOP_DOWNLOAD_FAILURE, exception);
 		Logger.e(TAG, "Exception", exception);
 		setAlarmForFetchOrder();
 	}
