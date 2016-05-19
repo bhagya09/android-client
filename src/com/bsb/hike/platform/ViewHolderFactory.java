@@ -283,14 +283,6 @@ public class ViewHolderFactory
 		}
 		public void clearViewHolder(View view)
 		{
-			TextView t1Text = (TextView) view.findViewWithTag("T1");
-			t1Text.setTextColor(Color.parseColor("#ffffff"));
-			t1Text.setVisibility(View.GONE);
-			t1Text.setTextSize(18);
-			TextView t2Text = (TextView) view.findViewWithTag("T2");
-			t2Text.setTextColor(Color.parseColor("#ffffff"));
-			t2Text.setVisibility(View.GONE);
-			t2Text.setTextSize(12);
 		}
 
 		@Override
