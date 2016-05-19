@@ -10,13 +10,15 @@ public class CustomKeyboard
 
 	private boolean keep;
 
-	private String type;
+	private String t;
 
 	private boolean remove;
 
-	private ArrayList<ArrayList<TextKey>> textKeys = new ArrayList<ArrayList<TextKey>>();
+    private boolean hidden;
 
-	private ArrayList<StkrKey> stkrKeys = new ArrayList<StkrKey>();
+	private ArrayList<ArrayList<Tk>> tk = new ArrayList<ArrayList<Tk>>();
+
+	private ArrayList<Sk> sk = new ArrayList<Sk>();
 
 	/**
 	 *
@@ -41,19 +43,19 @@ public class CustomKeyboard
 	 *
 	 * @return The type
 	 */
-	public String getType()
+	public String getT()
 	{
-		return type;
+		return t;
 	}
 
 	/**
 	 *
-	 * @param type
+	 * @param t
 	 *            The type
 	 */
-	public void setType(String type)
+	public void setT(String t)
 	{
-		this.type = type;
+		this.t = t;
 	}
 
 	/**
@@ -77,40 +79,58 @@ public class CustomKeyboard
 
 	/**
 	 *
-	 * @return The textKeys
+	 * @return The tk
 	 */
-	public ArrayList<ArrayList<TextKey>> getTextKeys()
+	public ArrayList<ArrayList<Tk>> getTk()
 	{
-		return textKeys;
+		return tk;
 	}
 
 	/**
 	 *
-	 * @param textKeys
-	 *            The textKeys
+	 * @param tk
+	 *            The tk
 	 */
-	public void setTextKeys(ArrayList<ArrayList<TextKey>> textKeys)
+	public void setTk(ArrayList<ArrayList<Tk>> tk)
 	{
-		this.textKeys = textKeys;
+		this.tk = tk;
 	}
 
 	/**
 	 *
-	 * @return The stkrKeys
+	 * @return The sk
 	 */
-	public ArrayList<StkrKey> getStkrKeys()
+	public ArrayList<Sk> getSk()
 	{
-		return stkrKeys;
+		return sk;
 	}
 
 	/**
 	 *
-	 * @param stkrKeys
-	 *            The stkrKeys
+	 * @param sk
+	 *            The sk
 	 */
-	public void setStkrKeys(ArrayList<StkrKey> stkrKeys)
+	public void setSk(ArrayList<Sk> sk)
 	{
-		this.stkrKeys = stkrKeys;
+		this.sk = sk;
 	}
 
+	/**
+	 * Is hidden boolean.
+	 *
+	 * @return the boolean
+	 */
+	public boolean isHidden() {
+        return hidden;
+    }
+
+	/**
+	 * Sets hidden.
+	 *
+	 * @param hidden
+	 *            the hidden
+	 */
+	public void setHidden(boolean hidden) {
+        this.hidden = hidden;
+    }
 }

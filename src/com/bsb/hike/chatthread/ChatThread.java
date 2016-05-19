@@ -199,6 +199,8 @@ import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.view.CustomFontEditText.BackKeyListener;
 import com.bsb.hike.view.CustomLinearLayout;
 import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
+import android.widget.FrameLayout;
+
 
 
 /**
@@ -2434,6 +2436,23 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		Logger.i(TAG, "sticker clicked " + sticker.getStickerId() + sticker.getCategoryId() + sourceOfSticker);
 		StickerSearchManager.getInstance().sentMessage(null, sticker, null, mComposeView.getText().toString());
 		sendSticker(sticker, sourceOfSticker);
+
+        // Added this code for custom bots keyboard , delete keyboard data only if we get keyboard data from shared pref for this msisdn and if the keyboard type is not persistent
+        String keyboardDataJson = HikeSharedPreferenceUtil.getInstance(CustomKeyboardManager.CUSTOM_INPUT_BOX_KEY).getData(CustomKeyboardManager.getKeyboardKey(msisdn),
+                HikePlatformConstants.KEYBOARD_DEFAULT_DATA);
+        try
+        {
+            if (!TextUtils.isEmpty(keyboardDataJson))
+            {
+                boolean isKeyBoardPersistent = new JSONObject(keyboardDataJson).optBoolean(HikePlatformConstants.IS_KEYBOARD_PERSISTENT, false);
+                if (!isKeyBoardPersistent)
+                    CustomKeyboardManager.getInstance().removeFromSharedPreferences(msisdn);
+            }
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
 	}
 	
 	@Override
@@ -6220,6 +6239,10 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		{
 			mShareablePopupLayout.dismiss();
 		}
+        else if(mShareablePopupLayout.isShowing())
+        {
+            setComposeViewDefaultState();
+        }
 		mShareablePopupLayout.onBackPressed();
 	}
 
@@ -6832,27 +6855,36 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	{
 		CustomKeyboardManager customKeyboardManager = CustomKeyboardManager.getInstance();
 
-		if (!customKeyboardManager.isInputBoxButtonShowing())
+        if(isKeyboardOpen())
+            Utils.hideSoftKeyboard(activity,mComposeView);
+
+		if (!customKeyboardManager.isInputBoxButtonShowing(msisdn))
 		{
             setComposeViewCustomKeyboardState();
-            customKeyboardManager.setInputBoxButtonShowing(true);
+            customKeyboardManager.setInputBoxButtonShowing(msisdn,true);
         }
 
 		CustomKeyboard customKeyboard = CustomKeyboardManager.getInstance().getCustomKeyboardObject(msisdn);
 		int customKeyBoardHeight = CustomKeyboardInputBoxAdapter.getCustomKeyBoardHeight(customKeyboard);
 
 		mShareablePopupLayout.showPopup(CustomKeyboardManager.getInstance(), activity.getResources().getConfiguration().orientation, customKeyBoardHeight);
-	}
 
-    private void dismissInputBox()
-    {
-        mShareablePopupLayout.dismiss();
-        if(CustomKeyboardManager.getInstance().isInputBoxButtonShowing())
+        if(customKeyboard.isHidden())
         {
+            mShareablePopupLayout.dismiss();
             setComposeViewDefaultState();
-            ((ImageButton) activity.findViewById(R.id.send_message)).setImageResource(R.drawable.walkie_talkie_btn_selector);
+            customKeyboard.setHidden(false);
         }
     }
+
+	private void dismissInputBox()
+	{
+		mShareablePopupLayout.dismiss();
+
+		setComposeViewDefaultState();
+
+		((ImageButton) activity.findViewById(R.id.send_message)).setImageResource(R.drawable.walkie_talkie_btn_selector);
+	}
 
     private void setComposeViewDefaultState()
     {
@@ -6862,7 +6894,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
         composeTextView.setFocusable(true);
         composeTextView.setHint("");
         composeTextView.setPadding((int)(10 * Utils.densityMultiplier),(int)(6 * Utils.densityMultiplier),0,0);
-        CustomKeyboardManager.getInstance().setInputBoxButtonShowing(false);
+        CustomKeyboardManager.getInstance().setInputBoxButtonShowing(msisdn,false);
     }
 
     private void setComposeViewCustomKeyboardState()
@@ -6871,10 +6903,11 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
             activity.findViewById(R.id.sticker_btn).setVisibility(View.GONE);
         if(activity.findViewById(R.id.emoticon_btn) != null)
             activity.findViewById(R.id.emoticon_btn).setVisibility(View.GONE);
-        if(activity.findViewById(R.id.pulsatingDotViewStub) != null)
-            activity.findViewById(R.id.pulsatingDotViewStub).setVisibility(View.GONE);
-        if(activity.findViewById(R.id.pulsatingDotViewStub_WT) != null)
-            activity.findViewById(R.id.pulsatingDotViewStub_WT).setVisibility(View.GONE);
+
+        FrameLayout pulsatingDot = (FrameLayout) activity.findViewById(R.id.pulsatingDot);
+
+        if(pulsatingDot != null)
+            pulsatingDot.setVisibility(View.GONE);
 
         CustomFontEditText composeTextView = (CustomFontEditText) activity.findViewById(R.id.msg_compose);
         composeTextView.setHint(getResources().getString(R.string.select_options));
@@ -6910,23 +6943,22 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
         activity.findViewById(R.id.send_message).setSelected(selected);
     }
 
-    protected void inputBoxClicked()
-    {
-        setInputBoxButtonSelected(true);
-        setStickerButtonSelected(false);
-        setEmoticonButtonSelected(false);
+	protected void inputBoxClicked()
+	{
+		setInputBoxButtonSelected(true);
 
-        if (isKeyboardOpen())
-        {
-            setComposeViewCustomKeyboardState();
-        }
-        else
+		if(mShareablePopupLayout.isShowing())
         {
             Utils.showSoftKeyboard(activity.getApplicationContext(), mComposeView);
             setComposeViewDefaultState();
         }
-        mShareablePopupLayout.togglePopup(CustomKeyboardManager.getInstance(), activity.getResources().getConfiguration().orientation, true);
-    }
+        else
+        {
+            setComposeViewCustomKeyboardState();
+        }
+
+		mShareablePopupLayout.togglePopup(CustomKeyboardManager.getInstance(), activity.getResources().getConfiguration().orientation, true);
+	}
 
 
 	@Override
@@ -6934,14 +6966,17 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	{
 		sendMessage(createConvMessageFromString(textSelected));
 
-		// Delete keyboard data from shared pref is the keyboard type is not persistent
+		// Delete keyboard data from shared pref if the keyboard type is not persistent
 		String keyboardDataJson = HikeSharedPreferenceUtil.getInstance(CustomKeyboardManager.CUSTOM_INPUT_BOX_KEY).getData(CustomKeyboardManager.getKeyboardKey(msisdn),
 				HikePlatformConstants.KEYBOARD_DEFAULT_DATA);
 		try
 		{
-			boolean isKeyBoardPersistent = new JSONObject(keyboardDataJson).optBoolean(HikePlatformConstants.IS_KEYBOARD_PERSISTENT, false);
-			if (!isKeyBoardPersistent)
-				CustomKeyboardManager.getInstance().removeFromSharedPreferences(msisdn);
+			if (!TextUtils.isEmpty(keyboardDataJson))
+			{
+				boolean isKeyBoardPersistent = new JSONObject(keyboardDataJson).optBoolean(HikePlatformConstants.IS_KEYBOARD_PERSISTENT, false);
+				if (!isKeyBoardPersistent)
+					CustomKeyboardManager.getInstance().removeFromSharedPreferences(msisdn);
+			}
 		}
 		catch (JSONException e)
 		{

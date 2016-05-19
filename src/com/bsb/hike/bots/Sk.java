@@ -3,7 +3,7 @@ package com.bsb.hike.bots;
 /**
  * Created by konarkarora on 01/05/16.
  */
-public class StkrKey {
+public class Sk {
 
     private String catId;
     private String stkrId;

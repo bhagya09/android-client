@@ -223,10 +223,6 @@ public class ChatThreadTips implements OnClickListener, OnTouchListener
 	 */
 	private void setupStickerFTUETip()
 	{
-		// Don't show sticker ftue tip for bots, return if bots keyboard is in display
-        if(CustomKeyboardManager.getInstance().isInputBoxButtonShowing())
-            return;
-
         ViewStub pulsatingDot = (ViewStub) mainView.findViewById(R.id.pulsatingDotViewStub);
 		
 		if(pulsatingDot != null)
