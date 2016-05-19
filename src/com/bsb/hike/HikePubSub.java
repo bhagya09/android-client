@@ -464,6 +464,8 @@ public class HikePubSub extends Handler implements Runnable
 	public static final String LOCATION_AVAILABLE = "locationAvailable";
 
 	public static final String DOWNLOAD_PROGRESS = "progress";
+
+	public static final String DOWNLOAD_PROGRESS_CARD = "download_progress_card";
 	
 	public static final String BOT_DISCOVERY_DOWNLOAD_SUCCESS = "botDiscoveryDownloadOk";
 	
