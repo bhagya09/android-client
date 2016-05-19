@@ -497,6 +497,8 @@ public class HikeConstants
 
 	public static final String CUSTOM = "custom";
 
+	public static final String CUSTOM_ERROR_DEVICE_NOT_SUPPORTED = "ce1";
+
 	public static final String SOUND_PREF = "soundPref";
 
 	public static final String VIBRATE_PREF = "vibratePref";

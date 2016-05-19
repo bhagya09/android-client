@@ -6836,11 +6836,9 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		sendUIMessage(SEND_CUSTOM_THEME_MESSAGE, null);
 	}
 
-	//TODO CHATTHEME work on proper strings
 	public void customThemeErrorNotifier(String errorType) {
-		Logger.v("Sriram", "errorType ::::::::::::::::"+errorType);
-		if(errorType.equalsIgnoreCase("ce1")){
-			Toast.makeText(activity.getApplicationContext(), "Unable to set theme at receiver side", Toast.LENGTH_LONG).show();
+		if(errorType.equalsIgnoreCase(HikeConstants.CUSTOM_ERROR_DEVICE_NOT_SUPPORTED)){
+			Toast.makeText(activity.getApplicationContext(), activity.getResources().getString(R.string.custom_chattheme_device_not_supported), Toast.LENGTH_LONG).show();
 		}
 	}
 
