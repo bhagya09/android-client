@@ -70,7 +70,7 @@ import com.bsb.hike.ui.PinHistoryActivity;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.ProfilePicActivity;
 import com.bsb.hike.ui.SettingsActivity;
-import com.bsb.hike.ui.ShareLocation;
+import com.bsb.hike.modules.fusedlocation.ShareLocation;
 import com.bsb.hike.ui.SignupActivity;
 import com.bsb.hike.modules.packPreview.PackPreviewActivity;
 import com.bsb.hike.ui.StickerSettingsActivity;
@@ -90,8 +90,6 @@ import org.json.JSONObject;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.bsb.hike.backup.AccountBackupRestore.*;
 
 public class IntentFactory
 {
@@ -1089,7 +1087,7 @@ public class IntentFactory
 		return new Intent();
 	}
 
-	public static Intent getForwardIntentForCards(Context context, ConvMessage convMessage, Uri fileUri)
+	public static Intent getForwardIntentForCards(Context context, ConvMessage convMessage, File fileUri)
 	{
 		Intent intent = new Intent(context, ComposeChatActivity.class);
 		intent.putExtra(HikeConstants.Extras.FORWARD_MESSAGE, true);
@@ -1119,7 +1117,7 @@ public class IntentFactory
 			Logger.e(context.getClass().getSimpleName(), "Invalid JSON", e);
 		}
 		intent.putExtra(HikeConstants.Extras.MULTIPLE_MSG_OBJECT, multipleMsgArray.toString());
-		intent.putExtra(HikeConstants.Extras.PREV_MSISDN, convMessage.getMsisdn());
+//		intent.putExtra(HikeConstants.Extras.PREV_MSISDN, convMessage.getMsisdn());
 		intent.putExtra(HikeConstants.Extras.BYPASS_GALLERY, true);
 		intent.putExtra(AnalyticsConstants.NATIVE_CARD_FORWARD, convMessage.platformMessageMetadata.contentId);
 		return intent;
@@ -1454,7 +1452,24 @@ public class IntentFactory
 
 		return intent;
 	}
+	public static Intent getPostStatusUpdateIntent(Context argActivity, String text, String argImagePath, boolean compressImage)
+	{
+		Intent intent = new Intent(argActivity, StatusUpdate.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
+		if (!TextUtils.isEmpty(argImagePath))
+		{
+			intent.putExtra(StatusUpdate.STATUS_UPDATE_IMAGE_PATH, argImagePath);
+			intent.putExtra(StatusUpdate.ENABLE_COMPRESSION,compressImage);
+		}
+
+		if (!TextUtils.isEmpty(text))
+		{
+			intent.putExtra(StatusUpdate.STATUS_UPDATE_TEXT, text);
+		}
+
+		return intent;
+	}
 	public static void openAccessibilitySettings(Activity activity)
 	{
 		Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
@@ -1545,13 +1560,13 @@ public class IntentFactory
 		return intent;
 	}
 
-	public static void openPackPreviewIntent(Context context, String catId, int position, StickerConstants.PackPreviewClickSource previewClickSource)
+	public static void openPackPreviewIntent(Context context, String catId, int position, StickerConstants.PackPreviewClickSource previewClickSource, String previewClickSearchKey)
 	{
 		Intent intent = new Intent(context, PackPreviewActivity.class);
 		intent.putExtra(HikeConstants.STICKER_CATEGORY_ID, catId);
 		intent.putExtra(HikeConstants.POSITION, position);
 		context.startActivity(intent);
-		StickerManager.getInstance().sendPackPreviewOpenAnalytics(catId, previewClickSource);
+		StickerManager.getInstance().sendPackPreviewOpenAnalytics(catId, position, previewClickSource.getValue(), previewClickSearchKey);
 	}
 
 	public static String getTextFromActionSendIntent(Intent presentIntent)

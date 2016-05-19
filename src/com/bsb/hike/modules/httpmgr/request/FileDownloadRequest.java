@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.filetransfer.DownloadFileTask;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
@@ -14,7 +15,9 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
 import com.bsb.hike.modules.httpmgr.log.LogFull;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.client.IClient;
+import com.bsb.hike.modules.httpmgr.request.requestbody.FileTransferChunkSizePolicy;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -34,6 +37,8 @@ public class FileDownloadRequest extends Request<File>
 
 	private String fileTypeString;
 
+	private String fileKey;
+
 	private final int DOWNLOAD_CHUNK_SIZE = 4 * 1024;
 
 	private long time = 0;
@@ -44,6 +49,7 @@ public class FileDownloadRequest extends Request<File>
 		this.filePath = init.filePath;
 		this.chunkSizePolicy = init.chunkSizePolicy;
 		this.fileTypeString = init.fileTypeString;
+		this.fileKey = init.fileKey;
 	}
 
 	protected static abstract class Init<S extends Init<S>> extends Request.Init<S>
@@ -53,6 +59,8 @@ public class FileDownloadRequest extends Request<File>
 		private IGetChunkSize chunkSizePolicy;
 
 		private String fileTypeString;
+
+		private String fileKey;
 
 		public S setFile(String filePath)
 		{
@@ -69,6 +77,12 @@ public class FileDownloadRequest extends Request<File>
 		public S setFileTypeString(String type)
 		{
 			fileTypeString = type;
+			return self();
+		}
+
+		public S setFileKey(String fileKey)
+		{
+			this.fileKey = fileKey;
 			return self();
 		}
 
@@ -138,9 +152,10 @@ public class FileDownloadRequest extends Request<File>
 				state.setTotalSize(totalSize);
 			}
 
+			int chunkPolicy = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CHUNK_SIZE_POLICY, FileTransferChunkSizePolicy.DEFAULT_CHUNK_POLICY);
 			while (state.getFTState() != FTState.PAUSED)
 			{
-				chunkSize = chunkSizePolicy.getChunkSize();
+				chunkSize = chunkSizePolicy.getChunkSize(chunkPolicy);
 				if (chunkSize <= 0)
 				{
 					FTAnalyticEvents.sendFTDevEvent(FTAnalyticEvents.DOWNLOAD_FILE_TASK, "Chunk size is less than or equal to 0, so setting it to default i.e. 100kb");
@@ -195,7 +210,11 @@ public class FileDownloadRequest extends Request<File>
 				boolean isCompleted = len == -1 ? true : false;
 				String contentRange = "bytes " + transferredSize + "-" + (transferredSize + byteRead) + "/" + totalSize;
 				int netType = Utils.getNetworkType(HikeMessengerApp.getInstance());
-				FTAnalyticEvents.logFTProcessingTime(FTAnalyticEvents.DOWNLOAD_FILE_TASK, state.getFileKey(), isCompleted, byteRead, (System.currentTimeMillis() - time), contentRange, netType, fileTypeString);
+				if(chunkPolicy == FileTransferChunkSizePolicy.NET_SPEED_BASED_CHUNK_POLICY)
+				{
+					chunkSizePolicy.setNetworkSpeed((System.currentTimeMillis() - time), byteRead);
+				}
+				FTAnalyticEvents.logFTProcessingTime(FTAnalyticEvents.DOWNLOAD_FILE_TASK, fileKey, isCompleted, byteRead, (System.currentTimeMillis() - time), contentRange, netType, fileTypeString);
 				LogFull.d("downloaded size : " + byteRead + " time taken : " + (System.currentTimeMillis() - time) + "  , isCompleted - " + isCompleted);
 				time = System.currentTimeMillis();
 				transferredSize += byteRead;

@@ -275,6 +275,13 @@ public class PlatformUtils
 					context.startActivity(IntentFactory.getComposeChatIntent(context));
 				}
 			}
+			if (activityName.equals(HIKESCREEN.COMPOSE_CHAT_WITH_BDAY.toString()))
+			{
+				if (mmObject.has(HikeConstants.MSISDNS)) {
+					ChatHeadUtils.saveBirthdaysFromTip(mmObject);
+				}
+				context.startActivity(IntentFactory.getComposeChatIntent(context));
+			}
 			if (activityName.equals(HIKESCREEN.INVITE_SMS.toString()))
 			{
 				boolean selectAll = mmObject.optBoolean(ProductPopupsConstants.SELECTALL, false);

@@ -534,6 +534,9 @@ public class HikePubSub extends Handler implements Runnable
 	public static final String ADD_INLINE_FRIEND_MSG = "inline_friend_msg";
 
     public static final String SHOW_INPUT_BOX = "showInputBox";
+	public static final String DISMISS_EDIT_PROFILE_DIALOG = "dismiss_edit_profile_dialog";
+
+	public static final String ATOMIC_TIP_WITH_NOTIF = "atomic_tip_notif";
 
 	private final Thread mThread;
 
@@ -589,12 +592,12 @@ public class HikePubSub extends Handler implements Runnable
 		list.add(listener);
 	}
 
-	public void addUiListener(String type, UiListener listener)
+	public void addUiListener(UiListener listener, String type)
 	{
 		add(type, listener);
 	}
 
-	public void addUiListeners(UiListener listener, String... types)
+	public void addUiListener(UiListener listener, String... types)
 	{
 		for (String type : types)
 		{
@@ -647,12 +650,12 @@ public class HikePubSub extends Handler implements Runnable
 		}
 	}
 
-	public void removeUiListener(String type, UiListener listener)
+	public void removeUiListener(UiListener listener, String type)
 	{
 		remove(type, listener);
 	}
 
-	public void removeListeners(UiListener listener, String... types)
+	public void removeUiListener(UiListener listener, String... types)
 	{
 		for (String type : types)
 		{

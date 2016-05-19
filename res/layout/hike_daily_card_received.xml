@@ -39,37 +39,40 @@
 
         <RelativeLayout
             android:id="@+id/message_container"
-            android:layout_width="280dp"
+            android:layout_width="@dimen/native_card_message_container_wide_width"
             android:layout_height="wrap_content"
-            android:minHeight="90dp"
+            android:minHeight="130dp"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="3dp"
             android:tag="@string/content_card_tag"
+            android:background="@drawable/card_container"
             android:layout_toRightOf="@id/avatar_container"
             android:layout_below="@id/sender_details"
             android:elevation="5dp"
             >
-
-                <LinearLayout
+                <RelativeLayout
                     android:layout_width="match_parent"
-                    android:paddingTop="22.5dp"
-                    android:paddingLeft="24dp"
-                    android:orientation="vertical"
                     android:id="@+id/card_container"
-                    android:background="@drawable/card_bg"
                     android:layout_height="wrap_content"
                     >
-
+                    <!--<LinearLayout-->
+                        <!--android:layout_width="match_parent"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:background="@null"-->
+                        <!--android:id="@+id/text_container"-->
+                        <!--android:orientation="vertical">-->
                     <com.bsb.hike.view.CustomFontTextView
                         android:id="@+id/quote"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:tag="T1"
+                        android:layout_marginLeft="24dp"
+                        android:layout_marginTop="22.5dp"
                         android:textSize="20sp"
                         android:textStyle="italic"
                         android:textColor="#FFFFFF"
                         android:visibility="gone"
-                        android:layout_marginBottom="9.5dp"
+                        android:layout_marginBottom="8.5dp"
                         />
 
                     <com.bsb.hike.view.CustomFontTextView
@@ -80,12 +83,13 @@
                         android:visibility="gone"
                         android:tag="T2"
                         app:maxLines ="1"
-                        android:layout_marginBottom="24dp"
-                        android:layout_below="@id/title"
+                        android:paddingBottom="24dp"
+                        android:layout_marginLeft="24dp"
+                        android:layout_below="@id/quote"
                         android:textColor="#FFFFFF"
-                        android:layout_gravity="center_vertical"
                         />
-                </LinearLayout>
+                    <!--</LinearLayout>-->
+                </RelativeLayout>
             <ViewStub
                 android:id="@+id/share_stub"
                 android:layout_width="match_parent"

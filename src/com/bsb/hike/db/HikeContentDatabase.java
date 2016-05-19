@@ -16,6 +16,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.SparseArray;
+import static com.bsb.hike.db.DBConstants.*;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.*;
+
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -28,6 +31,7 @@ import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.WhitelistDomain;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.productpopup.AtomicTipContentModel;
+import com.bsb.hike.productpopup.AtomicTipManager;
 import com.bsb.hike.productpopup.ProductContentModel;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.utils.ChatTheme;
@@ -35,7 +39,7 @@ import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
-public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants, HIKE_CONTENT
+public class HikeContentDatabase extends SQLiteOpenHelper
 {
 
 	private static final HikeContentDatabase hikeContentDatabase=new HikeContentDatabase();
@@ -257,7 +261,19 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 			queries.add(authTable);
 
             String createMappTableQuery = getCreateMAppDataTableQuery();
-			String botDownloadStateTableQuery = getPlatformDownloadStateTableQuery();
+			String botDownloadStateTableQuery = CREATE_TABLE + DBConstants.HIKE_CONTENT.PLATFORM_DOWNLOAD_STATE_TABLE +
+					" ("
+					+ HikePlatformConstants.APP_NAME + " TEXT, "
+					+ HikePlatformConstants.PACKET_DATA + " TEXT, "
+					+ HikePlatformConstants.MAPP_VERSION_CODE + " INTEGER, "
+					+ HikePlatformConstants.TYPE + " INTEGER, "
+					+ HikePlatformConstants.TTL + " INTEGER, "
+					+ DBConstants.HIKE_CONTENT.DOWNLOAD_STATE + " INTEGER, "
+					+ HikePlatformConstants.PREF_NETWORK + " INTEGER DEFAULT " + Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK)+", "
+					+ "UNIQUE ("
+					+ HikePlatformConstants.APP_NAME + "," + HikePlatformConstants.MAPP_VERSION_CODE
+					+ ")"
+					+ ")";
 			queries.add(botDownloadStateTableQuery);
             queries.add(createMappTableQuery);
         }
@@ -1235,8 +1251,6 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 	public List<AtomicTipContentModel> getSavedAtomicTips()
 	{
 		Logger.d(getClass().getSimpleName(), "Fetching saved atomic tips");
-		//first cleaning up tables to remove expired tips
-		cleanAtomicTipsTable();
 		List<AtomicTipContentModel> atomicTipContentModels = new ArrayList<>();
 		Cursor c = null;
 		try
@@ -1295,6 +1309,41 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 		String whereClause = dismissedClause + expiredClause;
 		int result = mDB.delete(ATOMIC_TIP_TABLE, whereClause, null);
 		Logger.d(getClass().getSimpleName(), "number of cleaned rows from atomic tip table: "+result);
+	}
+
+	/**
+	 * Method to check and record expired tips into analytics
+	 */
+	public void checkAndLogExpiredAtomicTips()
+	{
+		String expiredClause = TIP_END_TIME+ "<" + System.currentTimeMillis();
+		Cursor c = null;
+		try
+		{
+			String query = "SELECT * FROM " + ATOMIC_TIP_TABLE + " WHERE " + expiredClause;
+
+			c = mDB.rawQuery(query, null);
+
+			Logger.d(getClass().getSimpleName(), "atomic tips table cursor size = "+c.getCount());
+
+			while (c.moveToNext())
+			{
+				String tipJSON = c.getString(c.getColumnIndex(TIP_DATA));
+				AtomicTipContentModel tipContentModel = AtomicTipContentModel.getAtomicTipContentModel(new JSONObject(tipJSON));
+				AtomicTipManager.getInstance().recordExpiredTip(tipContentModel);
+			}
+		}
+		catch (JSONException jse)
+		{
+			Logger.d(getClass().getSimpleName(), "JSONException while fetching Atomic Tip from Content DB");
+		}
+		finally
+		{
+			if(c != null)
+			{
+				c.close();
+			}
+		}
 	}
 
 	/**

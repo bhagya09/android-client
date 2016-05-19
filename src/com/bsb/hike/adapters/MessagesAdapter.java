@@ -405,7 +405,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
                         .stretchMini(useMiniSticker)
                         .build();
 
-		this.mChatThreadCardRenderer = new NativeCardRenderer(context);
+		this.mChatThreadCardRenderer = new NativeCardRenderer(context, conversation, this, hqThumbLoader, isListFlinging);
 		this.mWebViewCardRenderer = new WebViewCardRenderer(activity, convMessages,this);
 		this.messageTextMap = new HashMap<Long, CharSequence>();
 
@@ -935,6 +935,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				}
 			}
 
+			stickerHolder.placeHolder.setTag(convMessage);
+			stickerHolder.placeHolder.setOnClickListener(mOnClickListener);
+			stickerHolder.placeHolder.setOnLongClickListener(this);
 			displayMessageIndicator(convMessage, stickerHolder.broadcastIndicator, false);
 			setTimeNStatus(position, stickerHolder, true, stickerHolder.placeHolder);
 			setSelection(convMessage, stickerHolder.selectedStateOverlay);
@@ -4347,6 +4350,11 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	public void resetPlayerIfRunning()
 	{
 		voiceMessagePlayer.resetPlayer();
+	}
+
+	public void pausetPlayerIfPlaying()
+	{
+		voiceMessagePlayer.pausePlayer();
 	}
 
 	public IconLoader getIconImageLoader()

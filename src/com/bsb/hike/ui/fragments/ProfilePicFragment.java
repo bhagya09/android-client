@@ -1,5 +1,6 @@
 package com.bsb.hike.ui.fragments;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.animation.Animator;
@@ -18,6 +19,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -28,12 +30,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bsb.hike.BitmapModule.BitmapUtils;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.BitmapUtils;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HomeAnalyticsConstants;
 import com.bsb.hike.imageHttp.HikeImageUploader;
 import com.bsb.hike.imageHttp.HikeImageWorker;
 import com.bsb.hike.models.ContactInfo;
@@ -523,6 +528,8 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 
 		StatusMessage statusMessage = Utils.createTimelinePostForDPChange(response, true);
 
+		recordStatusUpdateSource();
+
 		Utils.incrementUnseenStatusCount();
 
 		/*
@@ -581,5 +588,38 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 	public void onFailed()
 	{
 		hikeUiHandler.post(failedRunnable);
+	}
+
+	private void recordStatusUpdateSource()
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, HomeAnalyticsConstants.TIMELINE_UK);
+			json.put(AnalyticsConstants.V2.KINGDOM, HomeAnalyticsConstants.HOMESCREEN_KINGDOM);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, HomeAnalyticsConstants.ORDER_STATUS_UPDATE);
+			json.put(AnalyticsConstants.V2.FAMILY, HomeAnalyticsConstants.SU_TYPE_DP);
+
+			String genus = getArguments().getString(HikeConstants.Extras.GENUS);
+			if(TextUtils.isEmpty(genus))
+			{
+				genus = HomeAnalyticsConstants.SU_GENUS_OTHER;
+			}
+			json.put(AnalyticsConstants.V2.GENUS, genus);
+
+			String species = getArguments().getString(HikeConstants.Extras.SPECIES);
+			if(TextUtils.isEmpty(species))
+			{
+				species = HomeAnalyticsConstants.DP_SPECIES_OTHER;
+			}
+			json.put(AnalyticsConstants.V2.SPECIES, species);
+			HAManager.getInstance().recordV2(json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
 	}
 }

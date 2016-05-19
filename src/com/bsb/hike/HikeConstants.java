@@ -531,6 +531,8 @@ public class HikeConstants
 
 	public static final String LAST_SEEN_PREF_LIST = "lastSeenPrefList";
 
+	public static final String BIRTHDAY_PRIVACY_PREF = "birthdayPrivacyPref";
+
 	public static final String LONG_PRESS_DUR_PREF = "longPressDurationPref";
 	
 	public static final String KEYPRESS_VOL_PREF = "keyPressVolPref";
@@ -759,12 +761,15 @@ public class HikeConstants
 	public static final String AVATAR = "avatar";
 	public static final String LANGUAGE = "lan";
 
+    public static final String LANGUAGES = "langs";
+
 	public static final String NOTIFICATION_TITLE = "notifTitle";
 	public static final String NOTIFICATION_TEXT = "notifText";
 
 	public static final String TOGGLE = "toggle";
 
     public static final String HTTP_NETWORK_CHECK_CALL = "httpNetworkCheckCall";
+	public static final java.lang.String CARD_MAPPING = "card_mapping";
 	public static String ADD_URL = "addUrl";
 	public static String DELETE_URL = "deleteUrl";
 
@@ -1385,6 +1390,23 @@ public class HikeConstants
 
 	public static final String LARGE_VIDEO_SHARING_ENABLED = "big_video";
 
+	public static final class Preactivation
+	{
+		public static final String UID = "pa_uid";
+
+		public static final String TOKEN = "pa_token";
+
+		public static final String ENCRYPT_KEY="pa_encryption_key";
+
+		public static final String LOGS_SCHEDULE="logs_schdl";
+
+		public static final String INTERVAL = "inv";
+
+		public static final String FREQUENCY = "frq";
+
+		public static final String TYPE = "typ";
+	}
+
 	public static final class ChatHead
 	{
 		public static final String STICKER_WIDGET = "stkr_wdgt";
@@ -1838,6 +1860,8 @@ public class HikeConstants
 		public static final String SHOW_TIMELINE = "showTimeline";
 		public static final String BYPASS_GALLERY = "bypassGallery";
 
+		public static final String HIKE_BDAY_MODE = "hikeBdayMode";
+
 		// constants related to sharing Functioanlity
 		public static final class ShareTypes
 		{
@@ -1959,6 +1983,9 @@ public class HikeConstants
 
 		public static final String PROFILE_DOB = "profile_dob";
 
+		public static final String GENUS = "genus_extra";
+
+		public static final String SPECIES = "species_extra";
     }
 
 	public static final class LogEvent
@@ -2258,7 +2285,19 @@ public class HikeConstants
 
 		public static final String STICKER_BTN_CLICKED = "sBnc";
 
+        public static final String STICKER_SEARCH_BTN_CLICKED = "s_s_Bnc";
+
         public static final String EMOTICON_BTN_CLICKED = "eBnc";
+
+        public static final String CATEGORY_SEARCHED_REPORT = "shpSrchAggRept";
+
+        public static final String CATEGORY_SEARCHED_REPORT_DATA = "csrd";
+
+        public static final String SEARCHED_CATEGORY_RESPONSE = "shpSrchRept";
+
+        public static final String SHOP_SEARCH = "shpSrch";
+
+        public static final String SEARCHED_CATEGORY_RESPONSE_DATA = "scRepD";
 
         public static final String EMOTICON_SENT = "eSnt";
 
@@ -3225,6 +3264,10 @@ public class HikeConstants
 
 	public static final String COPYRIGHT = "copyright";
 
+	public static final String STATE = "state";
+
+	public static final String UPDATE_SHOP_RANK_TIMESTAMP = "updateOrderTimeStamp";
+
 	public static final long DEFAULT_RETRY_NOTIF_TIME = 20 * 60 * 1000; // 20
 																		// minutes
 
@@ -3245,7 +3288,13 @@ public class HikeConstants
 
 	public static final String GCM_ID = "gcm_id";
 
+	public static final String OLD_GCM_ID = "old_gcm_id";
+
 	public static final String ADD_CATEGORY = "addCat";
+
+    public static final String ADDED_DATA = "add";
+
+    public static final String REMOVED_DATA = "rem";
 
 	public static final int LED_DEFAULT_WHITE_COLOR = 0xffffffff;
 
@@ -3766,6 +3815,8 @@ public class HikeConstants
 
 	public static final String STICKER_TAG_MAXIMUM_SEARCH = "stms"; // initial to following 4 keys
 
+    public static final String LIMIT_KEY = "limit";
+
 	public static final String STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT = "stms_tl"; // integer
 
 	public static final String STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT_BROKER = "stms_tlb"; // integer
@@ -3980,6 +4031,8 @@ public class HikeConstants
     public static final String MINI_STICKER_IMAGE = "mini_image";
 
     public static final String TAGS = "tags";
+    
+	public static final String THEMES = "themes";
 
     public static final String RECENTS = "recents";
 
@@ -4059,6 +4112,10 @@ public class HikeConstants
 
 	public static final int PACKAGE_MANAGER_INTENT_FLAG_MATCH_ALL = 0x00020000;
 
+	public static final String TP_API_KEY = "60b937a7-3df3-408e-8191-c0bf227fd5e2-5514c71-1015";
+
+	public static final String TP_ENABLE = "tp";
+	
 	public static final String PROB_ACTIVITY_OPEN="prob_act_op";
 
 	public static final int DEFAULT_ACTIVITY_OPEN = 10;
@@ -4148,6 +4205,16 @@ public class HikeConstants
 
 	public static final String HIKE_CUSTOM_PHONE_TYPE = "HIKE";
 
+	public static final String SHARED_PREF_ANALYTICS = "share_pref_analytics";
+
+	public static final String UPDATED_ALL_CATEGORIES_METADATA = "updatedAllCategoriesMeta";
+
+    public static final String UPDATED_ALL_CATEGORIES_TAGDATA = "updatedAllCategoriesTags";
+
+	public static final String UCIDS = "ucids";
+
+	public static final String UCID = "ucid";
+
 	public static final class AddFriendSources
 	{
 		public static final String CHAT_FTUE = "chat_ftue_screen";
@@ -4178,6 +4245,25 @@ public class HikeConstants
     public static final String HANDLE = "handle";
 
     public static final String KEYBOARD_DATA = "kb";
+	public static final int DEFAULT_RETRIES_GCM_NW_MANAGER = 5;
+
+	public static final String CHUNK_SIZE_POLICY = "chunkSizePolicy";
+
+	public static final String NUMBER_OF_ROWS_FOR_ORDER = "orderRowsCount";
+
+	public static final String PACK_UPDATION_PAGE_SIZE = "packUpdatePageSize";
+
+	public static final String PACK_CREATION_PAGE_SIZE = "packCreationPageSize";
+
+	public static final String FETCH_METADATA_PACK_COUNT = "fetchPackMetadataCount";
+
+    public static final String SHOW_STICKER_SHOP_SEARCH_FTUE_LIMIT = "s_s_ftue";
+
+    public static final String STICKER_SHOP_SEARCH_ALLOWED = "s_s_s_allwd";
+
+    public static final String STICKER_SHOP_SEARCH_TOGGLE = "s_s_s_tgl";
+
+    public static final int DEFAULT_SEARCH_FTUE_LIMIT = 2;
 
 	public static final String TIP_CTA = "tp_cta";
 
@@ -4186,4 +4272,38 @@ public class HikeConstants
 	public static final String TIP_PRIORITY = "tp_prrt";
 
 	public static final String ADD_HEADER = "addHeader";
+
+	public static final String IS_ATOMIC_TIP = "isAtomicTip";
+
+	public static final String SHOW_QUICK_STICKER_SUGGESTION_ON_STICKER_RECEIVE = "shqssosr";
+
+	public static final String SHOW_QUICK_STICKER_SUGGESTION_ON_STICKER_SENT = "shqssoss";
+
+	public static final String QUICK_SUGGESTED_STICKERS_TTL = "qck_ss_ttl";
+
+	public static final String BUNDLE = "bundle";
+
+	public static final String LAST_REFRESH_TIME = "last_refresh_time";
+
+	public static final String REPLY = "reply";
+
+	public static final String SENT = "sent";
+
+	public static final String LANG = "lang";
+
+	public static final String QUICK_RESPONSE = "quickResponse";
+
+	public static final String CLICK_COUNT = "click_count";
+
+	public static final String VISIBLE_COUNT = "visible_count";
+
+	public static final String ENABLE_BDAY_IN_CCA = "e_bd_cca";
+
+	public static final String BDAYS_LIST = "bday_list";
+
+	public static final String BDAY_HTTP_CALL_TS = "bday_call_ts";
+
+	public static final String BDAY_HTTP_CALL_TIME_GAP = "b_c_g";
+
+	public static final String BIRTHDAY_DATA = "bdata";
 }

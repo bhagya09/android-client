@@ -1,0 +1,148 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:descendantFocusability="blocksDescendants"
+    android:gravity="center_vertical|left"
+    android:minHeight="30dp"
+    android:paddingBottom="4dp">
+
+    <ViewStub
+        android:id="@+id/day_stub"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout="@layout/message_day_container" />
+
+    <RelativeLayout
+        android:id="@+id/overlay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/day_container"
+        android:paddingBottom="2.5dp">
+
+        <include
+            android:id="@+id/avatar_container"
+            layout="@layout/message_sender_avatar"
+            android:layout_width="@dimen/chatthread_avatar"
+            android:layout_height="@dimen/chatthread_avatar"
+            android:layout_marginLeft="@dimen/chat_bubble_edge_spacing"
+            android:layout_marginTop="2.5dp" />
+
+        <include
+            android:id="@+id/sender_details"
+            layout="@layout/message_sender_details"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/chat_bubble_edge_spacing"
+            android:layout_toRightOf="@id/avatar_container" />
+
+
+        <RelativeLayout
+            android:id="@+id/message_container"
+            android:layout_width="@dimen/native_card_message_container_wide_width"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/sender_details"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="3dp"
+            android:layout_toRightOf="@id/avatar_container"
+            android:background="@drawable/card_container"
+            android:elevation="5dp"
+            android:minHeight="90dp"
+            android:tag="@string/content_card_tag">
+
+            <RelativeLayout
+                android:id="@+id/card_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true">
+                <!--<LinearLayout-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:background="@null"-->
+                <!--android:id="@+id/text_container"-->
+                <!--android:orientation="vertical">-->
+                <RelativeLayout
+                    android:id="@+id/image_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/native_card_image_height"
+                    android:gravity="center">
+
+                    <ImageView
+                        android:id="@+id/placeholder"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:src="@drawable/ic_platform_loading" />
+
+                    <ImageView
+                        android:id="@+id/image"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center"
+                        android:scaleType="centerCrop"
+                        android:tag="i1"
+                        android:visibility="gone" />
+                </RelativeLayout>
+
+                <com.bsb.hike.view.CustomFontTextView
+                    android:id="@+id/quote"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/image_container"
+                    android:layout_marginBottom="4dp"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="8dp"
+                    android:tag="T1"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
+                    android:textStyle="italic"
+                    android:visibility="gone" />
+
+                <com.bsb.hike.view.CustomFontTextView
+                    android:id="@+id/author"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/quote"
+                    android:layout_marginLeft="12.5dp"
+                    android:paddingBottom="13.5dp"
+                    android:tag="T2"
+                    android:textColor="#FFFFFF"
+                    android:textSize="11sp"
+                    android:visibility="gone"
+                    app:maxLines="1" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0.5dp"
+                    android:background="#0d000000" />
+                <!--</LinearLayout>-->
+            </RelativeLayout>
+
+            <ViewStub
+                android:id="@+id/share_stub"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/card_container"
+                android:layout="@layout/share_container" />
+        </RelativeLayout>
+
+        <include
+            android:id="@+id/time_status"
+            layout="@layout/message_time_status_ext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignRight="@+id/message_container"
+            android:layout_below="@id/message_container"
+            android:layout_marginTop="8dp" />
+    </RelativeLayout>
+
+    <View
+        android:id="@+id/selected_state_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/overlay"
+        android:layout_alignTop="@id/overlay" />
+
+</RelativeLayout>
+
+
