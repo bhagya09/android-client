@@ -35,9 +35,9 @@ public class RequestToken
 		FileSavedState fss = request.getState();
 		if (!isRequestRunning())
 		{
-			HttpManager.getInstance().addRequest(request);
 			if (fss != null)
 				fss.setFTState(FTState.INITIALIZED);
+			HttpManager.getInstance().addRequest(request);
 		}
 		else
 		{

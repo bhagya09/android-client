@@ -116,4 +116,12 @@ public class HikeAnimationFactory
 		final AnimationSet animSet = (AnimationSet) AnimationUtils.loadAnimation(context, R.anim.pack_preview_shop_ftue_anim);
 		return animSet;
 	}
+
+	public static Animation getStickerShopSearchIconFtueAnimation(Context context, AnimationListener listener)
+	{
+		Animation pulse = AnimationUtils.loadAnimation(context, R.anim.pulse);
+		pulse.setRepeatCount(Animation.INFINITE);
+		pulse.setAnimationListener(listener);
+		return pulse;
+	}
 }

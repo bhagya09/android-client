@@ -1,87 +1,5 @@
 package com.bsb.hike.ui;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.bsb.hike.BitmapModule.BitmapUtils;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
-import com.bsb.hike.HikePubSub.Listener;
-import com.bsb.hike.MqttConstants;
-import com.bsb.hike.R;
-import com.bsb.hike.adapters.ProfileAdapter;
-import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.analytics.AnalyticsConstants.ProfileImageActions;
-import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.bots.BotUtils;
-import com.bsb.hike.chatthread.ChatThreadActivity;
-import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.dialog.CustomAlertDialog;
-import com.bsb.hike.dialog.HikeDialog;
-import com.bsb.hike.dialog.HikeDialogFactory;
-import com.bsb.hike.dialog.HikeDialogListener;
-import com.bsb.hike.http.HikeHttpRequest;
-import com.bsb.hike.http.HikeHttpRequest.RequestType;
-import com.bsb.hike.models.Birthday;
-import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.models.ContactInfo.FavoriteType;
-import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.models.GroupParticipant;
-import com.bsb.hike.models.HikeSharedFile;
-import com.bsb.hike.models.ImageViewerInfo;
-import com.bsb.hike.models.ProfileItem;
-import com.bsb.hike.models.ProfileItem.ProfileStatusItem;
-import com.bsb.hike.models.Conversation.BroadcastConversation;
-import com.bsb.hike.models.Conversation.Conversation;
-import com.bsb.hike.models.Conversation.GroupConversation;
-import com.bsb.hike.models.Conversation.OneToNConversation;
-import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
-import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.modules.httpmgr.RequestToken;
-import com.bsb.hike.modules.httpmgr.exception.HttpException;
-import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
-import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
-import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.offline.OfflineUtils;
-import com.bsb.hike.productpopup.ProductPopupsConstants;
-import com.bsb.hike.service.HikeMqttManagerNew;
-import com.bsb.hike.smartImageLoader.IconLoader;
-import com.bsb.hike.tasks.FinishableEvent;
-import com.bsb.hike.tasks.GetHikeJoinTimeTask;
-import com.bsb.hike.tasks.HikeHTTPTask;
-import com.bsb.hike.timeline.model.StatusMessage;
-import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
-import com.bsb.hike.timeline.view.StatusUpdate;
-import com.bsb.hike.timeline.view.UpdatesFragment;
-import com.bsb.hike.ui.fragments.ImageViewerFragment;
-import com.bsb.hike.ui.fragments.PhotoViewerFragment;
-import com.bsb.hike.ui.utils.StatusBarColorChanger;
-import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
-import com.bsb.hike.utils.EmoticonConstants;
-import com.bsb.hike.utils.IntentFactory;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.OneToNConversationUtils;
-import com.bsb.hike.utils.PairModified;
-import com.bsb.hike.utils.SmileyParser;
-import com.bsb.hike.utils.StealthModeManager;
-import com.bsb.hike.utils.Utils;
-import com.bsb.hike.view.CustomFontEditText;
-import com.bsb.hike.view.CustomFontTextView;
-import com.bsb.hike.view.TextDrawable;
-import com.bsb.hike.voip.VoIPUtils;
-
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
@@ -137,6 +55,93 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bsb.hike.BitmapModule.BitmapUtils;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
+import com.bsb.hike.HikePubSub.Listener;
+import com.bsb.hike.MqttConstants;
+import com.bsb.hike.R;
+import com.bsb.hike.adapters.ProfileAdapter;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.AnalyticsConstants.ProfileImageActions;
+import com.bsb.hike.analytics.ChatAnalyticConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HomeAnalyticsConstants;
+import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatthread.ChatThreadActivity;
+import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.dialog.CustomAlertDialog;
+import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
+import com.bsb.hike.http.HikeHttpRequest;
+import com.bsb.hike.http.HikeHttpRequest.RequestType;
+import com.bsb.hike.models.Birthday;
+import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.ContactInfo.FavoriteType;
+import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.Conversation.BroadcastConversation;
+import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.models.Conversation.GroupConversation;
+import com.bsb.hike.models.Conversation.OneToNConversation;
+import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
+import com.bsb.hike.models.GroupParticipant;
+import com.bsb.hike.models.HikeSharedFile;
+import com.bsb.hike.models.ImageViewerInfo;
+import com.bsb.hike.models.ProfileItem;
+import com.bsb.hike.models.ProfileItem.ProfileStatusItem;
+import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.offline.OfflineUtils;
+import com.bsb.hike.productpopup.ProductPopupsConstants;
+import com.bsb.hike.service.HikeMqttManagerNew;
+import com.bsb.hike.smartImageLoader.IconLoader;
+import com.bsb.hike.tasks.EditProfileTask;
+import com.bsb.hike.tasks.FinishableEvent;
+import com.bsb.hike.tasks.GetHikeJoinTimeTask;
+import com.bsb.hike.tasks.HikeHTTPTask;
+import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
+import com.bsb.hike.timeline.view.StatusUpdate;
+import com.bsb.hike.timeline.view.UpdatesFragment;
+import com.bsb.hike.ui.fragments.ImageViewerFragment;
+import com.bsb.hike.ui.fragments.PhotoViewerFragment;
+import com.bsb.hike.ui.utils.StatusBarColorChanger;
+import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
+import com.bsb.hike.utils.EmoticonConstants;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
+import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
+import com.bsb.hike.utils.PairModified;
+import com.bsb.hike.utils.SmileyParser;
+import com.bsb.hike.utils.StealthModeManager;
+import com.bsb.hike.utils.Utils;
+import com.bsb.hike.view.CustomFontEditText;
+import com.bsb.hike.view.CustomFontTextView;
+import com.bsb.hike.view.TextDrawable;
+import com.bsb.hike.voip.VoIPUtils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
 public class ProfileActivity extends ChangeProfileImageBaseActivity implements FinishableEvent, Listener, OnLongClickListener, OnItemLongClickListener, OnScrollListener,
 		View.OnClickListener
 {
@@ -161,7 +166,9 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 		/* the task to update the global profile */
 		public HikeHTTPTask task;
-		
+
+		public EditProfileTask editProfileTask;
+
 		public void setStateValues(ChangeProfileImageActivityState state)
 		{
 			this.deleteAvatarToken = state.deleteAvatarToken;
@@ -198,6 +205,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	private boolean dobEdited = false;
 
+	private boolean extrasClearedOut = false;
+
 	private Map<String, PairModified<GroupParticipant, String>> participantMap;
 
 	private ProfileType profileType;
@@ -214,15 +223,15 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	private String[] groupInfoPubSubListeners = { HikePubSub.ICON_CHANGED, HikePubSub.ONETONCONV_NAME_CHANGED, HikePubSub.GROUP_END, HikePubSub.PARTICIPANT_JOINED_ONETONCONV,
 			HikePubSub.PARTICIPANT_LEFT_ONETONCONV, HikePubSub.USER_JOINED, HikePubSub.USER_LEFT, HikePubSub.LARGER_IMAGE_DOWNLOADED, HikePubSub.PROFILE_IMAGE_DOWNLOADED,
-			HikePubSub.ClOSE_PHOTO_VIEWER_FRAGMENT, HikePubSub.DELETE_MESSAGE, HikePubSub.CONTACT_ADDED, HikePubSub.UNREAD_PIN_COUNT_RESET, HikePubSub.MESSAGE_RECEIVED, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.ONETONCONV_ADMIN_UPDATE,HikePubSub.CONV_META_DATA_UPDATED,HikePubSub.GROUP_OWNER_CHANGE};
+			HikePubSub.ClOSE_PHOTO_VIEWER_FRAGMENT, HikePubSub.DELETE_MESSAGE, HikePubSub.CONTACT_ADDED, HikePubSub.UNREAD_PIN_COUNT_RESET, HikePubSub.MESSAGE_RECEIVED, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.ONETONCONV_ADMIN_UPDATE,HikePubSub.CONV_META_DATA_UPDATED,HikePubSub.GROUP_OWNER_CHANGE, HikePubSub.DISMISS_EDIT_PROFILE_DIALOG};
 
 	private String[] contactInfoPubSubListeners = { HikePubSub.ICON_CHANGED, HikePubSub.CONTACT_ADDED, HikePubSub.USER_JOINED, HikePubSub.USER_LEFT,
 			HikePubSub.STATUS_MESSAGE_RECEIVED, HikePubSub.FAVORITE_TOGGLED, HikePubSub.FRIEND_REQUEST_ACCEPTED, HikePubSub.REJECT_FRIEND_REQUEST,
 			HikePubSub.HIKE_JOIN_TIME_OBTAINED, HikePubSub.LARGER_IMAGE_DOWNLOADED, HikePubSub.PROFILE_IMAGE_DOWNLOADED,
-			HikePubSub.ClOSE_PHOTO_VIEWER_FRAGMENT, HikePubSub.CONTACT_DELETED, HikePubSub.DELETE_MESSAGE };
+			HikePubSub.ClOSE_PHOTO_VIEWER_FRAGMENT, HikePubSub.CONTACT_DELETED, HikePubSub.DELETE_MESSAGE, HikePubSub.DISMISS_EDIT_PROFILE_DIALOG };
 
 	private String[] profilePubSubListeners = { HikePubSub.USER_JOIN_TIME_OBTAINED, HikePubSub.LARGER_IMAGE_DOWNLOADED, HikePubSub.STATUS_MESSAGE_RECEIVED,
-			HikePubSub.ICON_CHANGED, HikePubSub.PROFILE_IMAGE_DOWNLOADED, HikePubSub.DELETE_MESSAGE };
+			HikePubSub.ICON_CHANGED, HikePubSub.PROFILE_IMAGE_DOWNLOADED, HikePubSub.DELETE_MESSAGE, HikePubSub.DISMISS_EDIT_PROFILE_DIALOG };
 
 	private String[] profilEditPubSubListeners = { HikePubSub.PROFILE_UPDATE_FINISH };
 
@@ -244,7 +253,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	public static final String PROFILE_PIC_SUFFIX = "profilePic";
 
-	private static enum ProfileType
+	public static enum ProfileType
 	{
 		USER_PROFILE, // The user profile screen
 		USER_PROFILE_EDIT, // The user profile edit screen
@@ -324,8 +333,22 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		{
 			Utils.hideSoftKeyboard(getApplicationContext(), mNameEdit);			
 		}
+		if(getIntent().hasExtra(HikeConstants.Extras.PROFILE_DOB))
+		{
+			extrasClearedOut = true;
+			getIntent().removeExtra(HikeConstants.Extras.PROFILE_DOB);
+		}
 	}
-	
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState)
+	{
+		//saving the extrasClearedOut value to be used in onCreate, in case the activity is destroyed and re-spawned using old Intent
+		Logger.d(TAG," setting value  of EXTRTA  " + extrasClearedOut);
+		outState.putBoolean(HikeConstants.Extras.CLEARED_OUT, extrasClearedOut);
+		super.onSaveInstanceState(outState);
+	}
+
 	@Override
 	protected void onDestroy()
 	{
@@ -394,6 +417,11 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				mActivityState.task.setActivity(this);
 				mDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_profile));
 			}
+			if (mActivityState.editProfileTask != null)
+			{
+				/* we're currently executing a task, so show the progress dialog */
+				mDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_profile));
+			}
 			if (mActivityState.deleteStatusToken != null)
 			{
 				/* we're currently executing a task, so show the progress dialog */
@@ -407,6 +435,22 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		else
 		{
 			mActivityState = new ProfileActivityState();
+		}
+
+		if (savedInstanceState != null && savedInstanceState.getBoolean(HikeConstants.Extras.CLEARED_OUT, false))
+		{
+
+			Logger.d(TAG, " making extra TRUE");
+			//this means that singleTop activity has been re-spawned after being destroyed
+			extrasClearedOut = true;
+		}
+
+		if(extrasClearedOut)
+		{
+			Logger.d(TAG, "clearing all data");
+			//removing unwanted EXTRA becoz every time a singleTop activity is re-spawned,
+			//android system uses the old intent to fire it, and it will contain unwanted extras.
+			getIntent().removeExtra(HikeConstants.Extras.PROFILE_DOB);
 		}
 
 		if (getIntent().hasExtra(HikeConstants.Extras.EXISTING_GROUP_CHAT) || getIntent().hasExtra(HikeConstants.Extras.EXISTING_BROADCAST_LIST))
@@ -1732,6 +1776,71 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	public void saveChanges()
 	{
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.EDIT_PROFILE_THROUGH_HTTP_MGR, true))
+		{
+			saveChangesOkhttp();
+		}
+		else
+		{
+			saveChangesApache();
+		}
+	}
+
+	public void saveChangesOkhttp()
+	{
+		if ((this.profileType == ProfileType.USER_PROFILE_EDIT) && !TextUtils.isEmpty(mEmailEdit.getText()))
+		{
+			if (!Utils.isValidEmail(mEmailEdit.getText()))
+			{
+				Toast.makeText(this, getResources().getString(R.string.invalid_email), Toast.LENGTH_LONG).show();
+				return;
+			}
+		}
+		boolean doExecute = false;
+
+		String msisdn = mLocalMSISDN;
+		if (profileType == ProfileType.GROUP_INFO)
+		{
+			msisdn = oneToNConversation.getMsisdn();
+		}
+		mActivityState.editProfileTask = new EditProfileTask(msisdn, profileType, nameTxt, emailTxt,lastSavedGender, dobTxt, isBackPressed);
+
+		if (mNameEdit != null)
+		{
+			String newName = mNameEdit.getText().toString().trim();
+			if (!TextUtils.isEmpty(newName) && !nameTxt.equals(newName))
+			{
+				mActivityState.editProfileTask.setNewName(newName);
+				doExecute = true;
+			}
+		}
+		if ((this.profileType == ProfileType.USER_PROFILE_EDIT) && ((!emailTxt.equals(mEmailEdit.getText().toString())) || ((mActivityState.genderType != lastSavedGender))))
+		{
+			mActivityState.editProfileTask.setNewEmail(mEmailEdit.getText().toString());
+			mActivityState.editProfileTask.setNewGenderType(mActivityState.genderType);
+			doExecute = true;
+		}
+
+		if (dobEdited)
+		{
+			mActivityState.editProfileTask.setNewDOB(dobTxt);
+			doExecute = true;
+		}
+
+		if (doExecute)
+		{
+			mActivityState.editProfileTask.execute();
+			mDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_profile));
+		}
+		else if (isBackPressed)
+		{
+			finishEditing();
+		}
+	}
+
+	@Deprecated
+	public void saveChangesApache()
+	{
 		ArrayList<HikeHttpRequest> requests = new ArrayList<HikeHttpRequest>();
 
 		if ((this.profileType == ProfileType.USER_PROFILE_EDIT) && !TextUtils.isEmpty(mEmailEdit.getText()))
@@ -1895,7 +2004,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			mActivityState.task = new HikeHTTPTask(this, R.string.update_profile_failed);
 			HikeHttpRequest[] r = new HikeHttpRequest[requests.size()];
 			requests.toArray(r);
-			mActivityState.task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+			mActivityState.task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, r);
 		}
 		else if (isBackPressed)
 		{
@@ -1930,6 +2039,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		}
 
 		mActivityState.task = null;
+		mActivityState.editProfileTask = null;
 	}
 
 	@Override
@@ -2908,6 +3018,21 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				}
 			});
 		}
+		else if (HikePubSub.DISMISS_EDIT_PROFILE_DIALOG.equals(type))
+		{
+			runOnUiThread(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					if (mActivityState != null)
+					{
+						mActivityState.editProfileTask = null;
+					}
+					dismissLoadingDialog();
+				}
+			});
+		}
 	}
 
 	@Override
@@ -3555,6 +3680,27 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	}
 
 	@Override
+	protected String getSourceSpecies()
+	{
+		if(Intent.ACTION_ATTACH_DATA.equals(getIntent().getAction()))
+		{
+			return HomeAnalyticsConstants.DP_SPECIES_EXTERNAL_APP;
+		}
+		else if (this.profileType == ProfileType.USER_PROFILE_EDIT)
+		{
+			return HomeAnalyticsConstants.DP_SPECIES_EDIT_PROFILE;
+		}
+		else if (getSupportFragmentManager().findFragmentByTag(HikeConstants.IMAGE_FRAGMENT_TAG) != null)
+		{
+			return HomeAnalyticsConstants.DP_SPECIES_FULL_VIEW;
+		}
+		else
+		{
+			return HomeAnalyticsConstants.DP_SPECIES_MY_PROFILE;
+		}
+	}
+
+	@Override
 	public boolean onKeyUp(int keyCode, KeyEvent event)
 	{
 		if (Build.VERSION.SDK_INT <= 10 || (Build.VERSION.SDK_INT >= 14 && ViewConfiguration.get(this).hasPermanentMenuKey()))
@@ -3595,6 +3741,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				intent.setClass(ProfileActivity.this, PinHistoryActivity.class);
 				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				intent.putExtra(HikeConstants.TEXT_PINS, mLocalMSISDN);
+				HikeAnalyticsEvent.recordAnalyticsForGCPins(ChatAnalyticConstants.GCEvents.GC_PIN_HISTORY, null, ChatAnalyticConstants.GCEvents.GC_PIN_HISTORY_SRC_GROUPINFO, null);
 				startActivity(intent);
 				return;
 			}

@@ -30,7 +30,9 @@ import java.util.List;
 import com.bsb.hike.BuildConfig;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
+import com.bsb.hike.ui.utils.LockPattern;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.haibison.android.lockpattern.util.IEncrypter;
@@ -317,6 +319,8 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
     private Button mBtnConfirm;
     private Boolean mIsRetryBtnVisible;
     private Button changePasswordSetting;
+
+	private boolean passwordResetNewScreen = true;
     /**
      * Called when the activity is first created.
      */
@@ -1183,15 +1187,43 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
 
         @Override
         public void onClick(View v) {
-        	getIntent().removeExtra(EXTRA_PATTERN);
+
+			if (getIntent() != null && getIntent().getBooleanExtra(HikeConstants.Extras.STEALTH_PASS_RESET, false))
+			{
+				Logger.d("LockPattern", "Recording cancel click in lock pattern upon reset password");
+				LockPattern.recordCancelClickForResetPassword(passwordResetNewScreen ? "hdn_new_pwd" : "hdn_cnf_pwd", (mLockPinView.getVisibility() == View.VISIBLE));
+			}
+
+			else
+			{
+				Logger.d("LockPattern", "Recording cancel click in lock pattern upon setting password");
+				LockPattern.recordCancelClickForSetPassword(passwordResetNewScreen ? "hdn_new_pwd" : "hdn_cnf_pwd", (mLockPinView.getVisibility() == View.VISIBLE));
+			}
+
+			passwordResetNewScreen = false;
+
+			getIntent().removeExtra(EXTRA_PATTERN);
             finishWithNegativeResult(RESULT_CANCELED);
         }// onClick()
     };// mBtnCancelOnClickListener
-    
-    private final View.OnClickListener mBtnRetryOnClickListener = new View.OnClickListener() {
+
+	private final View.OnClickListener mBtnRetryOnClickListener = new View.OnClickListener() {
 
         @Override
         public void onClick(View v) {
+
+			if (getIntent() != null && getIntent().getBooleanExtra(HikeConstants.Extras.STEALTH_PASS_RESET, false))
+			{
+				Logger.d("LockPattern", "Recording retry click in lock pattern upon reset password");
+				LockPattern.recordRetryClickForResetPassword("hdn_new_pwd", (mLockPinView.getVisibility() == View.VISIBLE));
+			}
+
+			else
+			{
+				Logger.d("LockPattern", "Recording retry click in lock pattern upon Set password");
+				LockPattern.recordRetryClickForSetPassword("hdn_new_pwd", (mLockPinView.getVisibility() == View.VISIBLE));
+			}
+
         	mLockPatternViewReloader.run();
         }// onClick()
     };
@@ -1245,6 +1277,20 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
                     mBtnConfirm.setText(R.string.CONFIRM);
                     mBtnConfirm.setEnabled(false);
                     mIsRetryBtnVisible = null;
+
+					if (getIntent() != null && getIntent().getBooleanExtra(HikeConstants.Extras.STEALTH_PASS_RESET, false))
+					{
+						Logger.d("LockPattern", "Recording cancel click in lock pattern upon reset password");
+						LockPattern.recordConfirmOnResetPassword(passwordResetNewScreen ? "hdn_new_pwd" : "hdn_cnf_pwd", mBtnConfirm.getText().toString(), (mLockPinView.getVisibility() == View.VISIBLE));
+					}
+
+					else
+					{
+						Logger.d("LockPattern", "Recording cancel click in lock pattern upon reset password");
+						LockPattern.recordConfirmOnSetPassword(passwordResetNewScreen ? "hdn_new_pwd" : "hdn_cnf_pwd", mBtnConfirm.getText().toString(), (mLockPinView.getVisibility() == View.VISIBLE));
+					}
+					passwordResetNewScreen = false;
+
                 } else {
                     final char[] pattern = getIntent().getCharArrayExtra(
                             EXTRA_PATTERN);
@@ -1252,6 +1298,20 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
                     if (mAutoSave)
                         Settings.Security.setPattern(LockPatternActivity.this,
                                 pattern);
+					if (getIntent() != null && getIntent().getBooleanExtra(HikeConstants.Extras.STEALTH_PASS_RESET, false))
+					{
+						Logger.d("LockPattern", "Recording confirm click in lock pattern upon set password");
+						LockPattern.recordConfirmOnResetPassword(passwordResetNewScreen ? "hdn_new_pwd" : "hdn_cnf_pwd", mBtnConfirm.getText().toString(), (mLockPinView.getVisibility() == View.VISIBLE));
+					}
+
+					else
+					{
+						Logger.d("LockPattern", "Recording cancel click in lock pattern upon reset password");
+						LockPattern.recordConfirmOnResetPassword(passwordResetNewScreen ? "hdn_new_pwd" : "hdn_cnf_pwd", mBtnConfirm.getText().toString(), (mLockPinView.getVisibility() == View.VISIBLE));
+					}
+
+					passwordResetNewScreen = false;
+
                     finishWithResultOk(pattern);
                 }
             }// ACTION_CREATE_PATTERN
@@ -1291,6 +1351,6 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
     protected void onStop() {
     	finishWithNegativeResult(RESULT_CANCELED);
     	super.onStop();
-    };
+    }
 
 }

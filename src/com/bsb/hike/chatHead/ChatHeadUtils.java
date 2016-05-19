@@ -1,18 +1,5 @@
 package com.bsb.hike.chatHead;
 
-import java.lang.reflect.Field;
-import java.sql.Date;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
 import android.app.ActivityManager.RunningTaskInfo;
@@ -41,6 +28,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.db.DBConstants;
+import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -58,6 +46,22 @@ import com.bsb.hike.voip.VoIPUtils.CallSource;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.lang.reflect.Field;
+import java.sql.Date;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 public class ChatHeadUtils
 {
@@ -1062,6 +1066,68 @@ public class ChatHeadUtils
 				}
 			}
 		});
+	}
+
+	public static void resetBdayHttpCallInfo()
+	{
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BDAY_HTTP_CALL_TS, 0l);
+		HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeConstants.BDAYS_LIST, null);
+	}
+
+	public static List<ContactInfo> getSortedBdayContactListFromSharedPref()
+	{
+		List<ContactInfo> bdayList = new ArrayList<ContactInfo>();
+		Set<String> bdayMsisdns = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeConstants.BDAYS_LIST, null);
+
+		if (bdayMsisdns != null)
+		{
+			List<String> msisdns = new ArrayList<String>(bdayMsisdns);
+			bdayList = ContactManager.getInstance().getContact(msisdns, false, true);
+
+			// Sorting alphabetically
+			if (bdayList != null && !bdayList.isEmpty())
+			{
+				Collections.sort(bdayList, new Comparator<ContactInfo>()
+				{
+					@Override
+
+					public int compare(ContactInfo lhs, ContactInfo rhs)
+					{
+						return lhs.getFirstName().compareTo(rhs.getFirstName());
+
+					}
+
+				});
+			}
+		}
+		return bdayList;
+	}
+
+	public static void saveBirthdaysFromTip(JSONObject jsonObject)
+	{
+		JSONArray msisdns = jsonObject.optJSONArray(HikeConstants.MSISDNS);
+		Set<String> bdayMsisdns = new HashSet<>();
+		if(msisdns == null || msisdns.length() == 0)
+		{
+			return;
+		}
+		for(int i = 0; i < msisdns.length(); i++)
+		{
+			JSONObject msisdnObj = msisdns.optJSONObject(i);
+			if(msisdnObj == null)
+			{
+				continue;
+			}
+			String msisdn = msisdnObj.optString(HikeConstants.MSISDN);
+			if(!TextUtils.isEmpty(msisdn))
+			{
+				bdayMsisdns.add(msisdn);
+			}
+		}
+		if(bdayMsisdns.size() != 0)
+		{
+			HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeConstants.BDAYS_LIST, bdayMsisdns);
+		}
 	}
 
 }

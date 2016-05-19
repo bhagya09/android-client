@@ -74,7 +74,7 @@ public class UploadContactOrLocationTask extends FileTransferBase
 			{
 				requestToken = HttpRequests.uploadContactOrLocation(uploadingContact ? HikeConstants.CONTACT_FILE_NAME : HikeConstants.LOCATION_FILE_NAME,
 						((ConvMessage) userContext).getMetadata().getJSON(), uploadingContact ? HikeConstants.CONTACT_CONTENT_TYPE : HikeConstants.LOCATION_CONTENT_TYPE,
-						getUploadContactorLocationRequestListener(), getUploadContactOrLocationInterceptor());
+						getUploadContactorLocationRequestListener(), getUploadContactOrLocationInterceptor(), msgId);
 				requestToken.execute();
 			}
 			else
@@ -156,7 +156,7 @@ public class UploadContactOrLocationTask extends FileTransferBase
 			@Override
 			public void onRequestFailure(HttpException httpException)
 			{
-				if (httpException.getErrorCode() == HttpException.REASON_CODE_CANCELLATION)
+				if (httpException.getErrorCode() == HttpException.REASON_CODE_CANCELLATION || httpException.getErrorCode() == HttpException.REASON_CODE_REQUEST_PAUSED)
 				{
 					FileTransferManager.getInstance(context).removeTask(msgId);
 				}

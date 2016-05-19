@@ -17,6 +17,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.backup.model.BackupMetadata;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 /**
  * Created by gauravmittal on 10/03/16.
@@ -261,5 +262,25 @@ public class BackupUtils
 	{
 		new File(HikeConstants.HIKE_BACKUP_DIRECTORY_ROOT).mkdirs();
 		return new File(HikeConstants.HIKE_BACKUP_DIRECTORY_ROOT, AccountBackupRestore.DATA);
+	}
+
+	public static boolean isDeviceDpiDifferent()
+	{
+		BackupMetadata metadata = BackupUtils.getBackupMetadata();
+
+		if (metadata != null)
+		{
+			if (metadata.getDensityDPI() == BackupMetadata.NO_DPI)
+			{
+				return false; // No DPI presently recorded so return. Perhaps checking an old backup file
+			}
+
+			else if (metadata.getDensityDPI() != Utils.getDeviceDensityDPI())
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

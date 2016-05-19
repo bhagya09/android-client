@@ -39,9 +39,9 @@
 
         <RelativeLayout
             android:id="@+id/message_container"
-            android:layout_width="280dp"
+            android:layout_width="@dimen/native_card_message_container_wide_width"
             android:layout_height="wrap_content"
-            android:minHeight="90dp"
+            android:minHeight="130dp"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="3dp"
             android:tag="@string/content_card_tag"

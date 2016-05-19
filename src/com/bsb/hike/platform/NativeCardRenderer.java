@@ -206,7 +206,7 @@ public class NativeCardRenderer implements View.OnLongClickListener, View.OnClic
 
 		NativeCardImageLoader nativeCardImageLoader = new NativeCardImageLoader((int) context.getResources().getDimension(R.dimen.native_card_message_container_wide_width),
 				(int) context.getResources().getDimension(R.dimen.native_card_image_height));
-		nativeCardImageLoader.setResource(context);
+//		nativeCardImageLoader.setResource(context);
 		nativeCardImageLoader.setImageFadeIn(false);
 		nativeCardImageLoader.setDefaultDrawableNull(true);
 		nativeCardImageLoader.setImageLoaderListener(new ImageWorker.ImageLoaderListener()

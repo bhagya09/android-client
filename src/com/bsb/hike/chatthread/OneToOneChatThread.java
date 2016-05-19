@@ -170,6 +170,8 @@ import java.util.Map;
 	private static final int UPDATE_ADD_FRIEND_VIEWS = 120;
 
 	private static final int HIDE_FRIENDS_VIEW = 121;
+
+	private static final int SHOW_BDAY_UI = 122;
 	
 	private static short H2S_MODE = 0; // Hike to SMS Mode
 
@@ -263,6 +265,11 @@ import java.util.Map;
 			{
 				sendUIMessage(SHOW_OVERFLOW_MENU, 500, null);
 			}
+		}
+		else if (activity.getIntent().getBooleanExtra(HikeConstants.Extras.HIKE_BDAY_MODE, false))
+		{
+			activity.getIntent().removeExtra(HikeConstants.Extras.HIKE_BDAY_MODE);
+			sendUIMessage(SHOW_BDAY_UI, 1000, null);
 		}
 	}
 	
@@ -944,6 +951,9 @@ import java.util.Map;
 		case HIDE_FRIENDS_VIEW:
 			activity.findViewById(R.id.compose_container).setVisibility(View.VISIBLE);
 			activity.findViewById(R.id.add_friend_view).setVisibility(View.GONE);
+			break;
+		case SHOW_BDAY_UI:
+			updateUIForBdayChat();
 			break;
 		default:
 			Logger.d(TAG, "Did not find any matching event in OneToOne ChatThread. Calling super class' handleUIMessage");
@@ -2729,10 +2739,12 @@ import java.util.Map;
 			break;
 			
 		case R.id.block_unknown_contact:
+			if(isWalkieTalkieShowing()) return; //CE-184
 			HikeMessengerApp.getPubSub().publish(HikePubSub.BLOCK_USER, msisdn);
 			break;
 
 		case R.id.add_unknown_contact:
+			if(isWalkieTalkieShowing()) return; //CE-184
 			if ( null != v.getTag() && v.getTag().equals(R.string.add))
 			{
 				Utils.addToContacts(activity, msisdn);
@@ -4170,4 +4182,11 @@ import java.util.Map;
 		}
 	}
 
+	private void updateUIForBdayChat()
+	{
+		if (mComposeView != null)
+		{
+			mComposeView.setText(getString(R.string.composeview_bday));
+		}
+	}
 }

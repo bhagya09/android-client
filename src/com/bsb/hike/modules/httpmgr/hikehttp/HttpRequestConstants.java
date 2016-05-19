@@ -65,6 +65,8 @@ public class HttpRequestConstants
 
 	private static final String BASE_STICKER = "/stickers";
 
+	private static final String BASE_SHOP = "/shop";
+
 	private static final String BASE_INVITE = "/invite";
 	
 	private static final String BASE_SDK_PROD = "oauth.hike.in/o/oauth2/";
@@ -104,6 +106,10 @@ public class HttpRequestConstants
 	private static final String BASE_BLOCKED_LIST = "/blocked_list";
 
 	private static final String HIKE_SETTINGS = "/hikesettings";
+
+	private static final String  FETCH_TODAYS_BIRTHDAY_URL = "/events/birthday";
+
+	private static final String PREF_PATH = "/pref";
 
 	public static synchronized void setUpBase()
 	{
@@ -226,10 +232,26 @@ public class HttpRequestConstants
 	
 	public static String stickerShopDownloadUrl()
 	{
-		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER + "/shop";
+		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER + BASE_SHOP;
 	}
-	
-	public static String stickerSignupUpgradeUrl()
+
+
+	public static String stickerCategoryFetchPrefOrderUrl()
+	{
+		return BASE_STICKERS_URL + BASE_V4 + BASE_SHOP + "/fetch_shop_order";
+	}
+
+	public static String stickerShopFetchCategoryUrl()
+	{
+		return BASE_STICKERS_URL + BASE_V4 + BASE_SHOP + "/update_metadata";
+	}
+
+	public static String stickerShopFetchCategoryTagsUrl()
+	{
+		return BASE_STICKERS_URL + BASE_V4 + BASE_SHOP + "/update_tags";
+	}
+
+    public static String stickerSignupUpgradeUrl()
 	{
 		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER + "/categories";
 	}
@@ -257,6 +279,11 @@ public class HttpRequestConstants
 	public static String stickerCategoryDetailsUrl()
 	{
 		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER + "/categories";
+	}
+
+	public static String quickSuggestionUrl()
+	{
+		return HTTP + "54.251.141.175:8080" + "/quickSuggestions";
 	}
 
 	public static String lastSeenUrl()
@@ -326,7 +353,14 @@ public class HttpRequestConstants
 
 	public static String sendUserLogsInfoBaseUrl()
 	{
-		return BASE_URL + BASE_V1 + "/";
+		if(!Utils.isUserAuthenticated(HikeMessengerApp.getInstance().getApplicationContext()))
+		{
+			return BASE_URL + BASE_V1 + "/pa/";
+		}
+		else
+		{
+			return BASE_URL + BASE_V1 +  "/";
+		}
 	}
 
 	public static String deleteAccountBaseUrl()
@@ -601,4 +635,28 @@ public class HttpRequestConstants
             return HTTPS + "dev-" + suffix;
     }
 
+	public static String getFetchBdayUrl()
+	{
+		return BASE_URL + BASE_V1 + FETCH_TODAYS_BIRTHDAY_URL;
+	}
+
+	public static String editProfileNameBaseUrl()
+	{
+		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/name";
+	}
+
+	public static String editProfileEmailGenderBaseUrl()
+	{
+		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/profile";
+	}
+
+	public static String editDOBBaseUrl()
+	{
+		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/dob";
+	}
+
+	public static String getBDPrefUpdateUrl()
+	{
+		return editDOBBaseUrl() + PREF_PATH;
+	}
 }

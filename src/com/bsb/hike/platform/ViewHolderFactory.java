@@ -235,7 +235,6 @@ public class ViewHolderFactory
 
 		public void clearViewHolder(View view)
 		{
-			super.clearViewHolder(view);
 			TextView t1Text = (TextView) view.findViewWithTag("T1");
 			t1Text.setVisibility(View.GONE);
 			TextView t2Text = (TextView) view.findViewWithTag("T2");
@@ -259,7 +258,7 @@ public class ViewHolderFactory
 				});
 				containerView.setBackground(backgroundDrawable);
 				hikeDailyCardImageLoader = new HikeDailyCardImageLoader();
-				hikeDailyCardImageLoader.setResource(mContext);
+//				hikeDailyCardImageLoader.setResource(mContext);
 				hikeDailyCardImageLoader.setImageFadeIn(false);
 				hikeDailyCardImageLoader.setDefaultDrawableNull(false);
 				hikeDailyCardImageLoader.setDefaultDrawable(backgroundDrawable);
@@ -284,7 +283,6 @@ public class ViewHolderFactory
 		}
 		public void clearViewHolder(View view)
 		{
-			super.clearViewHolder(view);
 			TextView t1Text = (TextView) view.findViewWithTag("T1");
 			t1Text.setTextColor(Color.parseColor("#ffffff"));
 			t1Text.setVisibility(View.GONE);
@@ -315,7 +313,6 @@ public class ViewHolderFactory
 		}
 		public void clearViewHolder(View view)
 		{
-			super.clearViewHolder(view);
 			TextView t1Text = (TextView) view.findViewWithTag("T1");
 			t1Text.setTextColor(Color.parseColor("#000000"));
 			t1Text.setVisibility(View.GONE);

@@ -54,10 +54,10 @@ public class DialogUtils
 					return context.getString(R.string.share_on_timeline);
 				}
 				
-				return arrayList.size() == 2 ? context.getString(R.string.forward_to_single_timeline) : context.getString(R.string.forward_to_plural_timeline,
+				return arrayList.size() == 2 ? context.getString(R.string.forward_to_single_timeline, otherContactName) : context.getString(R.string.forward_to_plural_timeline,
 						arrayList.size() - 1);
 			}
-			return arrayList.size() == 1 ? context.getResources().getString(R.string.forward_to_singular) : context.getResources().getString(R.string.forward_to_plural, arrayList.size());
+			return arrayList.size() == 1 ? context.getResources().getString(R.string.forward_to_singular, otherContactName) : context.getResources().getString(R.string.forward_to_plural, arrayList.size());
 		}
 
 		if (hasTimeline)
