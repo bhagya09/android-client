@@ -96,7 +96,7 @@ public class CategoryTagInsertTask implements Runnable
 
 		catch (JSONException e)
 		{
-			e.printStackTrace();
+			Logger.e(TAG, "Exception While parsing JSON : " + e.getMessage());
 		}
 
 		HikeStickerSearchDatabase.getInstance().insertCategoryTagDataList(result);

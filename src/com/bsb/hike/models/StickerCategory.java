@@ -50,7 +50,7 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 
     private String copyRightString;
 
-    private int state = -1;
+    private int state;
 
     private int totalStickers;
 
@@ -62,7 +62,7 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 
     private long packUpdationTime;
 
-    private int ucid = -1;
+    private int ucid;
 
     private long previewUpdationTime;
 
@@ -113,7 +113,7 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 
     private void ensureSaneDefaults()
     {
-        if(categoryId == null && ucid < 0 )
+        if(categoryId == null && (!isCustom() && ucid < 0))
         {
             throw new IllegalStateException("Category cannot be null");
         }
@@ -167,11 +167,11 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 
         private long packUpdationTime;
 
-        private int ucid;
+        private int ucid = -1;
 
         private long previewUpdationTime;
 
-        private int state;
+        private int state = -1;
 
         protected abstract S self();
 

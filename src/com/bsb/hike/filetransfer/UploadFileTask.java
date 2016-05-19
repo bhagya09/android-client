@@ -230,7 +230,7 @@ public class UploadFileTask extends FileTransferBase
 
 		retryCount = 0;
 		// If we are not able to verify the filekey validity from the server, fall back to uploading the file
-		RequestToken validateFileKeyToken = HttpRequests.validateFileKey(fileKey, getValidateFileKeyRequestListener());
+		RequestToken validateFileKeyToken = HttpRequests.validateFileKey(fileKey, msgId, getValidateFileKeyRequestListener());
 		validateFileKeyToken.execute();
 	}
 
@@ -607,7 +607,8 @@ public class UploadFileTask extends FileTransferBase
 
 		if (requestToken == null || !requestToken.isRequestRunning())
 		{
-			requestToken = HttpRequests.uploadFile(sourceFile.getAbsolutePath(), msgId, vidCompressionRequired, fileType, new IRequestListener()
+			String fileTypeToSendInHttpCall = (hikeFileType == HikeFileType.AUDIO_RECORDING) ? fileType : "";
+			requestToken = HttpRequests.uploadFile(sourceFile.getAbsolutePath(), msgId, vidCompressionRequired, fileTypeToSendInHttpCall, new IRequestListener()
 			{
 				@Override
 				public void onRequestSuccess(Response result)
@@ -649,7 +650,15 @@ public class UploadFileTask extends FileTransferBase
 				{
 					Logger.e("HttpResponseUpload", "  onprogress failure called : ", httpException.getCause());
 
-					if (httpException.getErrorCode() == HttpException.REASON_CODE_NO_NETWORK)
+					if (httpException.getErrorCode() == HttpException.REASON_CODE_REQUEST_PAUSED)
+					{
+						if (userContext != null)
+						{
+							removeTask();
+							HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
+						}
+					}
+					else if (httpException.getErrorCode() == HttpException.REASON_CODE_NO_NETWORK)
 					{
 						removeTaskAndShowToast(HikeConstants.FTResult.UPLOAD_FAILED);
 					}
@@ -925,42 +934,45 @@ public class UploadFileTask extends FileTransferBase
 			HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 		}
 
-		handler.post(new Runnable()
+		if (getFileSavedState().getFTState() != FTState.PAUSED)
 		{
-			@Override
-			public void run()
+			handler.post(new Runnable()
 			{
-				switch (result)
+				@Override
+				public void run()
 				{
-				case UPLOAD_FAILED:
-					Toast.makeText(context, R.string.upload_failed, Toast.LENGTH_SHORT).show();
-					break;
-				case CARD_UNMOUNT:
-					Toast.makeText(context, R.string.card_unmount, Toast.LENGTH_SHORT).show();
-					break;
-				case READ_FAIL:
-					Toast.makeText(context, R.string.unable_to_read, Toast.LENGTH_SHORT).show();
-					break;
-				case DOWNLOAD_FAILED:
-					Toast.makeText(context, R.string.download_failed, Toast.LENGTH_SHORT).show();
-					break;
-				case FILE_SIZE_EXCEEDING:
-					Toast.makeText(context, R.string.max_file_size, Toast.LENGTH_SHORT).show();
-					break;
-				case CANCELLED:
-					Toast.makeText(context, R.string.upload_cancelled, Toast.LENGTH_SHORT).show();
-					break;
-				case NO_SD_CARD:
-					Toast.makeText(context, R.string.no_sd_card, Toast.LENGTH_SHORT).show();
-					break;
-				case FILE_TOO_LARGE:
-					Toast.makeText(context, R.string.not_enough_space, Toast.LENGTH_SHORT).show();
-					break;
-				case SERVER_ERROR:
-					Toast.makeText(context, R.string.file_expire, Toast.LENGTH_SHORT).show();
-					break;
+					switch (result)
+					{
+						case UPLOAD_FAILED:
+							Toast.makeText(context, R.string.upload_failed, Toast.LENGTH_SHORT).show();
+							break;
+						case CARD_UNMOUNT:
+							Toast.makeText(context, R.string.card_unmount, Toast.LENGTH_SHORT).show();
+							break;
+						case READ_FAIL:
+							Toast.makeText(context, R.string.unable_to_read, Toast.LENGTH_SHORT).show();
+							break;
+						case DOWNLOAD_FAILED:
+							Toast.makeText(context, R.string.download_failed, Toast.LENGTH_SHORT).show();
+							break;
+						case FILE_SIZE_EXCEEDING:
+							Toast.makeText(context, R.string.max_file_size, Toast.LENGTH_SHORT).show();
+							break;
+						case CANCELLED:
+							Toast.makeText(context, R.string.upload_cancelled, Toast.LENGTH_SHORT).show();
+							break;
+						case NO_SD_CARD:
+							Toast.makeText(context, R.string.no_sd_card, Toast.LENGTH_SHORT).show();
+							break;
+						case FILE_TOO_LARGE:
+							Toast.makeText(context, R.string.not_enough_space, Toast.LENGTH_SHORT).show();
+							break;
+						case SERVER_ERROR:
+							Toast.makeText(context, R.string.file_expire, Toast.LENGTH_SHORT).show();
+							break;
+					}
 				}
-			}
-		});
+			});
+		}
 	}
 }
