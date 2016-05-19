@@ -13,8 +13,8 @@ import android.widget.TextView;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.R;
 import com.bsb.hike.bots.CustomKeyboard;
-import com.bsb.hike.bots.StkrKey;
-import com.bsb.hike.bots.TextKey;
+import com.bsb.hike.bots.Sk;
+import com.bsb.hike.bots.Tk;
 import com.bsb.hike.bots.TextPickerListener;
 import com.bsb.hike.media.StickerPickerListener;
 import com.bsb.hike.models.Sticker;
@@ -88,7 +88,7 @@ public class CustomKeyboardInputBoxAdapter implements OnClickListener
 	 *            the custom keyboard text keys
 	 * @return the view
 	 */
-	public View initTextKeyboardView(ArrayList<ArrayList<TextKey>> customKeyboardTextKeys)
+	public View initTextKeyboardView(ArrayList<ArrayList<Tk>> customKeyboardTextKeys)
 	{
 
 		viewToDisplay = inflater.inflate(R.layout.custom_keyboard_layout, null);
@@ -103,17 +103,17 @@ public class CustomKeyboardInputBoxAdapter implements OnClickListener
 
 		View view;
 
-		for (ArrayList<TextKey> textKeyArrayList : customKeyboardTextKeys)
+		for (ArrayList<Tk> tkArrayList : customKeyboardTextKeys)
 		{
 			horizontalLayout = new LinearLayout(mContext);
 
-			for (TextKey textKey : textKeyArrayList)
+			for (Tk tk : tkArrayList)
 			{
 				view = inflater.inflate(R.layout.custom_keyboard_text, null);
 				TextView textView = (TextView) view.findViewById(R.id.text);
 				RelativeLayout relativeLayout = (RelativeLayout) view.findViewById(R.id.text_container_layout);
 
-				textView.setText(textKey.getText());
+				textView.setText(tk.getV());
 				textView.setSingleLine(true);
 				params.setMargins((int) (4 * Utils.densityMultiplier), (int) (8 * Utils.densityMultiplier), (int) (4 * Utils.densityMultiplier),
 						(int) (8 * Utils.densityMultiplier));
@@ -122,7 +122,7 @@ public class CustomKeyboardInputBoxAdapter implements OnClickListener
 
 				view.setOnClickListener(this);
 
-				view.setTag(textKey.getText());
+				view.setTag(tk.getV());
 
 				horizontalLayout.addView(view);
 			}
@@ -140,7 +140,7 @@ public class CustomKeyboardInputBoxAdapter implements OnClickListener
 	 *            the custom keyboard sticker keys
 	 * @return the view
 	 */
-	public View initStickerKeyboardView(List<StkrKey> customKeyboardStickerKeys)
+	public View initStickerKeyboardView(List<Sk> customKeyboardStickerKeys)
 	{
 		View stickerViewToDisplay = inflater.inflate(R.layout.custom_keyboard_sticker_page, null);
 		GridView stickerGridView = (GridView) stickerViewToDisplay.findViewById(R.id.emoticon_grid);
@@ -151,10 +151,10 @@ public class CustomKeyboardInputBoxAdapter implements OnClickListener
 		List<Sticker> stickersList = new ArrayList<>();
 		List<StickerPageAdapterItem> stickerPageList = new ArrayList<>();
 
-		Iterator<StkrKey> customKeyboardStickerKeysIterator = customKeyboardStickerKeys.iterator();
+		Iterator<Sk> customKeyboardStickerKeysIterator = customKeyboardStickerKeys.iterator();
 		while (customKeyboardStickerKeysIterator.hasNext())
 		{
-			StkrKey customKeyboardStickerKey = customKeyboardStickerKeysIterator.next();
+			Sk customKeyboardStickerKey = customKeyboardStickerKeysIterator.next();
 			Sticker customKeyboardSticker = new Sticker(customKeyboardStickerKey.getCatId(), customKeyboardStickerKey.getStkrId());
 			if (customKeyboardSticker.isStickerAvailable())
 			{
@@ -199,9 +199,9 @@ public class CustomKeyboardInputBoxAdapter implements OnClickListener
         if (customKeyboard == null)
 			return 0;
 
-		if (customKeyboard != null && customKeyboard.getType() != null && customKeyboard.getType().equals(HikePlatformConstants.BOT_CUSTOM_KEYBOARD_TYPE_TEXT))
-			return Utils.dpToPx(customKeyboard.getTextKeys().size() * 48 + (customKeyboard.getTextKeys().size() + 1) * 16);
-		else if (customKeyboard != null && customKeyboard.getType() != null && customKeyboard.getType().equals(HikePlatformConstants.BOT_CUSTOM_KEYBOARD_TYPE_STICKER))
+		if (customKeyboard != null && customKeyboard.getT() != null && customKeyboard.getT().equals(HikePlatformConstants.BOT_CUSTOM_KEYBOARD_TYPE_TEXT))
+			return Utils.dpToPx(customKeyboard.getTk().size() * 48 + (customKeyboard.getTk().size() + 1) * 16);
+		else if (customKeyboard != null && customKeyboard.getT() != null && customKeyboard.getT().equals(HikePlatformConstants.BOT_CUSTOM_KEYBOARD_TYPE_STICKER))
 		{
 			int screenWidth = mContext.getResources().getDisplayMetrics().widthPixels;
 
@@ -210,7 +210,7 @@ public class CustomKeyboardInputBoxAdapter implements OnClickListener
 
 			int actualSpace = (screenWidth - horizontalSpacing - stickerPadding);
 
-			return (int) Math.ceil( (double) customKeyboard.getStkrKeys().size() / HikePlatformConstants.stickerGridNoOfCols) * actualSpace/HikePlatformConstants.stickerGridNoOfCols + Utils.dpToPx(((int) Math.ceil( (double) customKeyboard.getStkrKeys().size() / HikePlatformConstants.stickerGridNoOfCols) + 0) * 10);
+			return (int) Math.ceil( (double) customKeyboard.getSk().size() / HikePlatformConstants.stickerGridNoOfCols) * actualSpace/HikePlatformConstants.stickerGridNoOfCols + Utils.dpToPx(((int) Math.ceil( (double) customKeyboard.getSk().size() / HikePlatformConstants.stickerGridNoOfCols) + 0) * 10);
 		}
 		return 0;
 	}
