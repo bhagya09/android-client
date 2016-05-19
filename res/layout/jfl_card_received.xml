@@ -39,13 +39,11 @@
 
         <RelativeLayout
             android:id="@+id/message_container"
-            android:layout_width="wrap_content"
-            android:layout_height="@dimen/native_card_message_container_wide_width"
-            android:minHeight="90dp"
+            android:layout_width="@dimen/native_card_message_container_wide_width"
+            android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="3dp"
             android:tag="@string/content_card_tag"
-            android:background="@drawable/card_container"
             android:layout_toRightOf="@id/avatar_container"
             android:layout_below="@id/sender_details"
             android:elevation="5dp"
@@ -121,7 +119,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/card_container"
-                android:layout="@layout/share_container" />
+                android:layout="@layout/share_container"
+                android:layout_alignParentBottom="true"/>
         </RelativeLayout>
 
         <include

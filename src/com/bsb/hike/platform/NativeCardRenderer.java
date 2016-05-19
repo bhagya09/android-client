@@ -171,16 +171,17 @@ public class NativeCardRenderer implements View.OnLongClickListener, View.OnClic
 			if (!TextUtils.isEmpty(tag))
 			{
 				View mediaView = viewHolder.viewHashMap.get(tag);
-
-				HikeFile hikeFile = mediaComponent.getHikeFile();
-				if (hikeFile != null)
-				{
-					mediaView.setVisibility(View.VISIBLE);
-					populateMediaComponent(mediaView, convMessage, hikeFile);
-				}
-				else
-				{
-					mediaView.setVisibility(View.GONE);
+                if(mediaView != null){
+					HikeFile hikeFile = mediaComponent.getHikeFile();
+					if (hikeFile != null)
+					{
+						mediaView.setVisibility(View.VISIBLE);
+						populateMediaComponent(mediaView, convMessage, hikeFile);
+					}
+					else
+					{
+						mediaView.setVisibility(View.GONE);
+					}
 				}
 			}
 		}
@@ -318,7 +319,7 @@ public class NativeCardRenderer implements View.OnLongClickListener, View.OnClic
 		}
 		else
 		{
-			pixels = context.getResources().getDimensionPixelSize(R.dimen.native_card_message_container_wide_width);
+			pixels = context.getResources().getDimensionPixelSize(R.dimen.native_card_message_container_narror_width);
 		}
 
 		// int pixels = (int) (250 * Utils.densityMultiplier);
