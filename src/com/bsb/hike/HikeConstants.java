@@ -4283,4 +4283,8 @@ public class HikeConstants
 	public static final String ADD_HEADER = "addHeader";
 
 	public static final String IS_ATOMIC_TIP = "isAtomicTip";
+
+	public static final String VALUE_INT = "vi";
+
+	public static final String VALUE_STR = "vs";
 }

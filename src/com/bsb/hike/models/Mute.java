@@ -1,6 +1,8 @@
 package com.bsb.hike.models;
 
 import com.bsb.hike.HikeConstants.MuteDuration;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.R;
 
 /**
  * This class contains the Mute object which is used by the ConvInfo object.
@@ -80,6 +82,19 @@ public class Mute
     public void setMuteDuration(int muteDuration)
     {
         this.muteDuration = muteDuration;
+    }
+
+    public String getMuteDurationString() {
+        switch (muteDuration) {
+            case MuteDuration.DURATION_EIGHT_HOURS:
+                return HikeMessengerApp.getInstance().getApplicationContext().getResources().getString(R.string.mute_chat_eight_hrs);
+            case MuteDuration.DURATION_ONE_WEEK:
+                return HikeMessengerApp.getInstance().getApplicationContext().getResources().getString(R.string.mute_chat_one_week);
+            case MuteDuration.DURATION_ONE_YEAR:
+                return HikeMessengerApp.getInstance().getApplicationContext().getResources().getString(R.string.mute_chat_one_yr);
+            default:
+                return HikeMessengerApp.getInstance().getApplicationContext().getResources().getString(R.string.mute_chat_eight_hrs);
+        }
     }
 
     /**
