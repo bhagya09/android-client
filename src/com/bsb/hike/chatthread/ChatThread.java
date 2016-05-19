@@ -6775,5 +6775,22 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		}
 
 	}
+	public void onHelpClicked()
+	{
+		Intent intent =IntentFactory.getNonMessagingBotIntent(HikePlatformConstants.CUSTOMER_SUPPORT_BOT_MSISDN,activity.getApplicationContext());
+		JSONObject jsonObject = new JSONObject();
+		try
+		{
+			jsonObject.put(HikePlatformConstants.MSISDN, msisdn);
+
+		}
+		catch (JSONException e)
+		{
+			Logger.d(TAG, "Error on Help Click");
+		}
+		intent.putExtra(HikePlatformConstants.EXTRA_DATA,jsonObject.toString());
+		activity.startActivity(intent);
+
+	}
 
 }

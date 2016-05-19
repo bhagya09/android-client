@@ -50,6 +50,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MessageType;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.db.HikeMqttPersistence;
 import com.bsb.hike.dialog.H20Dialog;
@@ -80,6 +81,7 @@ import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.ui.fragments.OfflineAnimationFragment;
 import com.bsb.hike.ui.fragments.OfflineDisconnectFragment;
@@ -433,6 +435,10 @@ import java.util.Map;
 		}
 
 		list.add(new OverFlowMenuItem(mConversation.isBlocked() ? getString(R.string.unblock_title) : getString(R.string.block_title), 0, 0, !isNotMyOneWayFriend(), R.string.block_title));
+		if (BotUtils.isBot(HikePlatformConstants.CUSTOMER_SUPPORT_BOT_MSISDN))
+		{
+			list.add(new OverFlowMenuItem(getString(R.string.help), 0, 0, R.string.help));
+		}
 		return list;
 	}
 
@@ -1624,6 +1630,9 @@ import java.util.Map;
 				sharedPreference.saveData(OfflineConstants.CT_HIKE_DIRECT_CLICKED, true);
 			}
 			break;
+			case R.string.help:
+				onHelpClicked();
+				break;
 		default:
 		}
 	}
@@ -2810,7 +2819,7 @@ import java.util.Map;
 
 	public void startAnotherFreeHikeConnection(Boolean startAnimation)
 	{
-		sendUIMessage(START_OFFLINE_CONNECTION, 0,startAnimation);
+		sendUIMessage(START_OFFLINE_CONNECTION, 0, startAnimation);
 	}
 	
 	private void h20NextClick()
@@ -3424,6 +3433,9 @@ import java.util.Map;
 					overFlowMenuItem.drawableId = 0;
 				}
 				break;
+			case R.string.help:
+				overFlowMenuItem.enabled=BotUtils.isBot(HikePlatformConstants.CUSTOMER_SUPPORT_BOT_MSISDN);
+
 			}
 		}
 	}
@@ -3581,7 +3593,7 @@ import java.util.Map;
 	{
 		if(OfflineUtils.isConnectedToSameMsisdn(msisdn) ||  OfflineUtils.isConnectingToSameMsisdn(msisdn))
 		{
-			setLastSeen(getResources().getString(R.string.disconnecting_offline),true);
+			setLastSeen(getResources().getString(R.string.disconnecting_offline), true);
 		}
 		OfflineUtils.stopFreeHikeConnection(activity, msisdn);
 		
@@ -4189,4 +4201,5 @@ import java.util.Map;
 			mComposeView.setText(getString(R.string.composeview_bday));
 		}
 	}
+
 }
