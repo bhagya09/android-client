@@ -405,7 +405,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
                         .stretchMini(useMiniSticker)
                         .build();
 
-		this.mChatThreadCardRenderer = new NativeCardRenderer(context);
+		this.mChatThreadCardRenderer = new NativeCardRenderer(context, conversation, this, hqThumbLoader, isListFlinging);
 		this.mWebViewCardRenderer = new WebViewCardRenderer(activity, convMessages,this);
 		this.messageTextMap = new HashMap<Long, CharSequence>();
 

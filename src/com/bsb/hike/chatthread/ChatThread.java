@@ -3039,8 +3039,8 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 						ConvMessage convMessage = Utils.makeConvMessage(msisdn, mConversation.isOnHike());
 						convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.CONTENT);
 						convMessage.platformMessageMetadata = new PlatformMessageMetadata(msgExtrasJson.optString(HikeConstants.METADATA), activity.getApplicationContext());
-						convMessage.platformMessageMetadata.addThumbnailsToMetadata();
-						convMessage.setMessage(convMessage.platformMessageMetadata.notifText);
+//						convMessage.platformMessageMetadata.addThumbnailsToMetadata();
+						convMessage.setMessage(convMessage.getMessage());
 
 						sendMessage(convMessage);
 

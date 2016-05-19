@@ -43,16 +43,20 @@ public class DownloadFileTask extends FileTransferBase
 	private boolean showToast;
 
 	private String downLoadUrl;
-
-	protected DownloadFileTask(Context ctx, File tempFile, File destinationFile, String fileKey, long msgId, HikeFileType hikeFileType, ConvMessage userContext, boolean showToast)
+    private HikeFile hikeFile;
+	protected DownloadFileTask(Context ctx, File tempFile, File destinationFile, String fileKey, long msgId, HikeFileType hikeFileType, ConvMessage userContext, boolean showToast, HikeFile hikeFile)
 	{
 		super(ctx, destinationFile, msgId, hikeFileType);
 		this.fileKey = fileKey;
 		this.tempDownloadedFile = tempFile;
 		this.showToast = showToast;
 		this.userContext = userContext;
+		this.hikeFile = hikeFile;
 	}
-
+	protected DownloadFileTask(Context ctx, File tempFile, File destinationFile, String fileKey, long msgId, HikeFileType hikeFileType, ConvMessage userContext, boolean showToast)
+	{
+		this(ctx,tempFile,destinationFile,fileKey,msgId,hikeFileType,userContext,showToast,null);
+	}
 	public void download()
 	{
 		IRequestListener downloadFileRequestListener = getDownloadRequestListener();
@@ -76,8 +80,10 @@ public class DownloadFileTask extends FileTransferBase
 				return;
 			}
 		}
-		else
-		{
+		else if(this.hikeFile != null){
+			hikeFile = this.hikeFile;
+		}
+		else{
 			hikeFile = userContext.getMetadata().getHikeFiles().get(0);
 		}
 

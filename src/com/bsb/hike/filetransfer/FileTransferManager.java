@@ -245,6 +245,10 @@ public class FileTransferManager
 		return null;
 	}
 
+	public void downloadFile(File destinationFile, String fileKey, long msgId, HikeFileType hikeFileType, ConvMessage userContext, boolean showToast)
+	{
+        downloadFile(destinationFile,fileKey,msgId,hikeFileType,userContext,showToast,null);
+	}
     /**
      *
      * @param destinationFile
@@ -254,7 +258,7 @@ public class FileTransferManager
      * @param userContext
      * @param showToast
      */
-	public void downloadFile(File destinationFile, String fileKey, long msgId, HikeFileType hikeFileType, ConvMessage userContext, boolean showToast)
+	public void downloadFile(File destinationFile, String fileKey, long msgId, HikeFileType hikeFileType, ConvMessage userContext, boolean showToast, HikeFile hikeFile)
 	{
 		Logger.d(getClass().getSimpleName(), "Downloading file: " + " NAME: " + destinationFile.getName() + " KEY: " + fileKey + "MSG ID: " + msgId);
 		DownloadFileTask downloadFileTask;
@@ -302,8 +306,12 @@ public class FileTransferManager
 				Toast.makeText(context, R.string.no_sd_card, Toast.LENGTH_SHORT).show();
 				return;
 			}
+            if(hikeFile == null){
+				downloadFileTask = new DownloadFileTask(context, tempDownloadedFile, destinationFile, fileKey, msgId, hikeFileType, userContext, showToast);
+			}else{
+				downloadFileTask = new DownloadFileTask(context, tempDownloadedFile, destinationFile, fileKey, msgId, hikeFileType, userContext, showToast, hikeFile);
 
-			downloadFileTask = new DownloadFileTask(context, tempDownloadedFile, destinationFile, fileKey, msgId, hikeFileType, userContext, showToast);
+			}
 			fileTaskMap.put(msgId, downloadFileTask);
 		}
 

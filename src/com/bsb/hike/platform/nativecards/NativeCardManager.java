@@ -18,7 +18,8 @@ public class NativeCardManager
 
 	public enum NativeCardType
 	{
-		HIKE_DAILY(R.layout.hike_daily_card_sent, R.layout.hike_daily_card_received, 0), JFL(R.layout.jfl_card_sent, R.layout.jfl_card_received, 1);
+		HIKE_DAILY(R.layout.hike_daily_card_sent, R.layout.hike_daily_card_received, 0), JFL(R.layout.jfl_card_sent, R.layout.jfl_card_received, 1),
+		IMAGE_CARD(R.layout.image_card_sent, R.layout.image_card_received, 2);
 		public final int sentLayoutId;
 
 		public final int layoutId;
@@ -66,6 +67,15 @@ public class NativeCardManager
 			// return inflater.inflate(R.layout.card_layout_games_received, parent, false);
 			// case CardConstants.DEMO_CARD:
 			// return inflater.inflate(R.layout.card_demo, parent, false);
+		case IMAGE_CARD:
+			if (isSent)
+			{
+				return inflater.inflate(NativeCardType.IMAGE_CARD.sentLayoutId, parent, false);
+			}
+			else
+			{
+				return inflater.inflate(NativeCardType.IMAGE_CARD.layoutId, parent, false);
+			}
 		default:
 			return null;
 

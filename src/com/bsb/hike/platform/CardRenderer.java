@@ -263,10 +263,10 @@ public class CardRenderer implements View.OnLongClickListener
 				{
 
 					mediaView.setVisibility(View.VISIBLE);
-					String data = mediaComponent.getKey();
-					BitmapDrawable value = HikeMessengerApp.getLruCache().getBitmapDrawable(data);
-
-					((ImageView) mediaView).setImageDrawable(value);
+//					String data = mediaComponent.getKey();
+//					BitmapDrawable value = HikeMessengerApp.getLruCache().getBitmapDrawable(data);
+//
+//					((ImageView) mediaView).setImageDrawable(value);
 
 				}
 

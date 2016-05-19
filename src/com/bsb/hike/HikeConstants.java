@@ -765,6 +765,7 @@ public class HikeConstants
 	public static final String TOGGLE = "toggle";
 
     public static final String HTTP_NETWORK_CHECK_CALL = "httpNetworkCheckCall";
+	public static final java.lang.String CARD_MAPPING = "card_mapping";
 	public static String ADD_URL = "addUrl";
 	public static String DELETE_URL = "deleteUrl";
 

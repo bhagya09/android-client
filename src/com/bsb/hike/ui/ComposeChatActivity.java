@@ -2424,7 +2424,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						convMessage.setMessageType(MESSAGE_TYPE.CONTENT);
 						convMessage.platformMessageMetadata = new PlatformMessageMetadata(metadata, getApplicationContext());
 						convMessage.setIsSent(true);
-						convMessage.setMessage(convMessage.platformMessageMetadata.notifText);
+						convMessage.setMessage(convMessage.getMessage());
 						if(offlineContact!=null)
 						{
 							ConvMessage offlineConvMessage =  new ConvMessage(convMessage);

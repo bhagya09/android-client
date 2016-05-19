@@ -197,7 +197,7 @@ public class HikeFile
 	}
 
 	private int attachmentType = -1;
-
+	private int cardMapping;
 	public HikeFile(String fileName, String fileTypeString, String fileKey, long fileSize, String downloadUrl)
 	{
 		this();
@@ -242,6 +242,7 @@ public class HikeFile
 		this.hikeFileType = HikeFileType.fromString(fileTypeString, recordingDuration != -1);
 		this.isSent = isSent;
 		this.img_quality = fileJSON.optString(HikeConstants.FILE_IMAGE_QUALITY, null);
+		this.cardMapping = fileJSON.optInt(HikeConstants.CARD_MAPPING, -1);
 		if(!isSent)
 		{
 			this.downloadURL = fileJSON.optString(HikeConstants.DOWNLOAD_FILE_URL_KEY);

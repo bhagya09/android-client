@@ -27,13 +27,6 @@ import io.fabric.sdk.android.services.network.HttpRequest;
  */
 public class HikeDailyCardImageLoader extends ImageWorker {
 
-
-    public void setSource(String source) {
-        this.source = source;
-    }
-
-    private String source;
-
     @Override
     protected Bitmap processBitmap(String data) {
         InputStream input = null;

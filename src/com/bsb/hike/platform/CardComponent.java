@@ -1,5 +1,7 @@
 package com.bsb.hike.platform;
 
+import com.bsb.hike.models.HikeFile;
+
 import org.json.JSONObject;
 
 public class CardComponent {
@@ -74,90 +76,129 @@ public class CardComponent {
 		}
 	}
 
-	public static class MediaComponent extends CardComponent {
-		private String key;
-		private String thumbnail;
+	public static class MediaComponent extends CardComponent
+	{
+		private String tag;
+
+		private HikeFile hikeFile;
+
 		private String url;
-		private String type, size, duration;
 
+		public static class Builder
+		{
+			private String tag;
 
-        public MediaComponent(String tag, String key, String url,
-				String type, String size, String duration) {
+			private HikeFile hikeFile;
+
+			private String url;
+
+			public Builder(String tag)
+			{
+				this.tag = tag;
+			}
+
+			public Builder setUrl(String url)
+			{
+				this.url = url;
+				return this;
+			}
+
+			public Builder setHikeFile(HikeFile hikeFile)
+			{
+				this.hikeFile = hikeFile;
+				return this;
+			}
+
+			public MediaComponent build()
+			{
+				return new MediaComponent(this);
+			}
+		}
+
+		public MediaComponent(String tag, HikeFile hikeFile)
+		{
 			super(tag);
-            this.key = key;
-            this.url = url;
-            this.type = type;
-            this.size = size;
-            this.duration = duration;
-
-
+			this.hikeFile = hikeFile;
+		}
+		public MediaComponent(String tag, String url)
+		{
+			super(tag);
+			this.url = url;
+		}
+		public String getKey()
+		{
+			return hikeFile.getFileKey();
 		}
 
-		public String getKey() {
-			return key;
-		}
-
-        public String getThumbnail() {
-            return thumbnail;
-        }
-
-		public String getUrl() {
+		public String getUrl()
+		{
 			return url;
 		}
 
-        public void setThumbnail(String thumbnail) {
-            this.thumbnail = thumbnail;
-        }
-
-        public String getDuration() {
-			return duration;
+		public HikeFile getHikeFile()
+		{
+			return hikeFile;
 		}
 
-		public String getSize() {
-			return size;
-		}
-
-		public String getType() {
-			return type;
+		public MediaComponent(Builder builder)
+		{
+			super(builder.tag);
+			this.tag = builder.tag;
+			this.hikeFile = builder.hikeFile;
+			this.url = builder.url;
 		}
 	}
 
-	public static class ImageComponent extends MediaComponent {
-
+	public static class ImageComponent extends CardComponent {
+        private String url;
+		private String key;
+		private String type;
+		private String size;
+		private String duration;
 		public ImageComponent(String tag, String key, String url,
                               String type, String size, String duration) {
-			super(tag, key, url, type, size,duration);
+			super(tag);
+			this.url = url;
+			this.key = key;
+			this.type = type;
+			this.size = size;
+			this.duration = duration;
 		}
-
-	}
-
-	public static class VideoComponent extends MediaComponent {
-
-		public VideoComponent(String tag, String key, String url,
-                              String videoType, String size, String duration) {
-			super(tag, key, url, videoType, size, duration);
+        public String getUrl(){
+			return this.url;
 		}
-
-	}
-
-	public static class AudioComponent extends MediaComponent {
-
-		public AudioComponent(String tag,  String url, String key,
-				String type, String size, String duration) {
-			super(tag, key, url, type, size, duration);
+		public String getKey(){
+			return this.key;
 		}
-
 	}
+//
+//	public static class VideoComponent extends MediaComponent {
+//
+//		public VideoComponent(String tag, String key, String url,
+//                              String videoType, String size, String duration) {
+//			super(tag, key, url, videoType, size, duration);
+//		}
+//
+//	}
+//
+//	public static class AudioComponent extends MediaComponent {
+//
+//		public AudioComponent(String tag,  String url, String key,
+//				String type, String size, String duration) {
+//			super(tag, key, url, type, size, duration);
+//		}
+//
+//	}
 
     public static class ActionComponent extends CardComponent{
         private String action;
         private String actionText;
-		private String url;
-        public ActionComponent(String action, String actionText, String url) {
+		private JSONObject extra;
+        public ActionComponent(String action, String actionText, JSONObject extra) {
 			super(null);
             this.action = action;
 			this.actionText = actionText;
-			this.url=url;
+			this.extra=extra;
         }
 
         public String getAction() {
@@ -166,8 +207,8 @@ public class CardComponent {
 		public String getActionText() {
 			return actionText;
 		}
-		public String getActionUrl() {
-			return url;
+		public JSONObject getActionUrl() {
+			return extra;
 		}
 
 	}

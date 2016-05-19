@@ -16,6 +16,8 @@ import com.bsb.hike.platform.CardComponent;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Utils;
 
+import org.json.JSONException;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -92,7 +94,7 @@ public class NativeCardUtils
 	}
 
 
-	public static void performAction(Context context, View shareView, CardComponent.ActionComponent actionComponent, ConvMessage convMessage){
+	public static void performAction(Context context, View shareView, CardComponent.ActionComponent actionComponent, ConvMessage convMessage) throws JSONException {
 		if(actionComponent.getAction().equals(ActionType.FORWARD.getAction())){
 			shareCard(context,shareView,convMessage);
 		}else if(actionComponent.getAction().equals(ActionType.POST_TIMELINE.getAction())){
@@ -100,7 +102,7 @@ public class NativeCardUtils
 		}else if(actionComponent.getAction().equals(ActionType.SHARE.getAction())){
 			shareCard(context,shareView);
 		}else if(actionComponent.getAction().equals(ActionType.OPEN_URL.getAction())){
-            Intent intent = IntentFactory.getWebViewActivityIntent(context, actionComponent.getActionUrl(), null);
+            Intent intent = IntentFactory.getWebViewActivityIntent(context, actionComponent.getActionUrl().getString(HikeConstants.URL), null);
 			context.startActivity(intent);
 		}else if(actionComponent.getAction().equals(ActionType.OPEN_CAMERA.getAction())){
 
