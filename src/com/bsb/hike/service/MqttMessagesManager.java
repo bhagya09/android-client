@@ -14,7 +14,6 @@ import android.provider.ContactsContract;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Base64;
-import android.util.Log;
 import android.util.Pair;
 import android.widget.Toast;
 
@@ -4726,7 +4725,6 @@ public class MqttMessagesManager
 		}
 		else if (HikeConstants.MqttMessageTypes.CHAT_BACKGROUD_V2.equals(type))
 		{
-			Log.v("Sriram", "jsonObj ::::::::::" + jsonObj);
 			if(jsonObj.has(HikeConstants.SUB_TYPE)) {
 				String errorType = jsonObj.getString(HikeConstants.SUB_TYPE);
 				HikeMessengerApp.getPubSub().publish(HikePubSub.CHATTHEME_CUSTOM_COMPATABILITY_ERROR, errorType);
