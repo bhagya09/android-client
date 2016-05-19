@@ -58,6 +58,7 @@ public class OnetoOneDataModel extends MessageInfoDataModel
 		data.messageInfoHashSet=messageInfoMap;
 		data.convMessage=convMessage;
 		data.participantTreeMap=participantTreeMap;
+		data.areAnyReceiptsReceived=areAnyReceiptsReceived;
 		return data;
 	}
 
