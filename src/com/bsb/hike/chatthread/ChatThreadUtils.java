@@ -763,6 +763,8 @@ public class ChatThreadUtils
 		{
 			return;
 		}
+		//CE-765: If notification were choosen not be shown, then we reset it
+		if (!showNotification) showNotification = true;
 		Mute mute = new Mute.InitBuilder(msisdn).setIsMute(false).setShowNotifInMute(showNotification).setMuteDuration(0).build();
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, mute);
 	}
