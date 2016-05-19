@@ -1103,4 +1103,31 @@ public class ChatHeadUtils
 		return bdayList;
 	}
 
+	public static void saveBirthdaysFromTip(JSONObject jsonObject)
+	{
+		JSONArray msisdns = jsonObject.optJSONArray(HikeConstants.MSISDNS);
+		Set<String> bdayMsisdns = new HashSet<>();
+		if(msisdns == null || msisdns.length() == 0)
+		{
+			return;
+		}
+		for(int i = 0; i < msisdns.length(); i++)
+		{
+			JSONObject msisdnObj = msisdns.optJSONObject(i);
+			if(msisdnObj == null)
+			{
+				continue;
+			}
+			String msisdn = msisdnObj.optString(HikeConstants.MSISDN);
+			if(!TextUtils.isEmpty(msisdn))
+			{
+				bdayMsisdns.add(msisdn);
+			}
+		}
+		if(bdayMsisdns.size() != 0)
+		{
+			HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeConstants.BDAYS_LIST, bdayMsisdns);
+		}
+	}
+
 }
