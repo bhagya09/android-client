@@ -206,24 +206,7 @@ public class HttpRequests
 		return requestToken;
 	}
 
-	public static RequestToken StickerShopDownloadRequest(String requestId, int offset, IRequestListener requestListener)
-	{
-		List<String> unsupportedLanguages = StickerLanguagesManager.getInstance().getUnsupportedLanguagesCollection();
-
-		String url = stickerShopDownloadUrl() + "?offset=" + offset + "&resId=" + Utils.getResolutionId() + "&lang=" + StickerSearchUtils.getISOCodeFromLocale(Utils.getCurrentLanguageLocale());
-		url = Utils.isEmpty(unsupportedLanguages) ? url : (url + "&unknown_langs=" + StickerLanguagesManager.getInstance().listToString(unsupportedLanguages));
-
-		RequestToken requestToken = new JSONObjectRequest.Builder()
-				.setUrl(url)
-				.setId(requestId)
-				.setRequestListener(requestListener)
-				.setRequestType(REQUEST_TYPE_SHORT)
-				.setPriority(PRIORITY_HIGH)
-				.build();
-		return requestToken;
-	}
-
-	public static RequestToken fetchCategoryData(String requestId, JSONObject json, IRequestListener requestListener, short requestType, int priority)
+	public static RequestToken fetchCategoryData(String requestId, JSONObject json, IRequestListener requestListener)
 	{
 		JsonBody body = new JsonBody(json);
 		RequestToken requestToken = new JSONObjectRequest.Builder()
@@ -231,8 +214,8 @@ public class HttpRequests
 				.setId(requestId)
 				.post(body)
 				.setRequestListener(requestListener)
-				.setRequestType(requestType)
-				.setPriority(priority)
+				.setRequestType(REQUEST_TYPE_SHORT)
+				.setPriority(PRIORITY_NORMAL)
 				.build();
 		return requestToken;
 	}

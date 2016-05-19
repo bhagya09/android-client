@@ -80,9 +80,8 @@ public class StickerCategoryDataUpdateTask implements Runnable
 				createList.add(stickerCategory);
 				if (createList.size() == createPackListPageSize)
 				{
-					StickerManager.getInstance().fetchCategoryMetadataTask(createList, Request.REQUEST_TYPE_LONG, PriorityConstants.PRIORITY_LOW, false);
+					StickerManager.getInstance().fetchCategoryMetadataTask(createList);
 					createList = new ArrayList<StickerCategory>();
-					;
 				}
 			}
 			else
@@ -90,13 +89,13 @@ public class StickerCategoryDataUpdateTask implements Runnable
 				updateList.add(stickerCategory);
 				if (updateList.size() == updatePackListPageSize)
 				{
-					StickerManager.getInstance().fetchCategoryMetadataTask(updateList, Request.REQUEST_TYPE_LONG, PriorityConstants.PRIORITY_LOW, false);
+					StickerManager.getInstance().fetchCategoryMetadataTask(updateList);
 					updateList = new ArrayList<StickerCategory>();
 				}
 			}
 		}
-		StickerManager.getInstance().fetchCategoryMetadataTask(createList, Request.REQUEST_TYPE_LONG, PriorityConstants.PRIORITY_LOW, false);
-		StickerManager.getInstance().fetchCategoryMetadataTask(updateList, Request.REQUEST_TYPE_LONG, PriorityConstants.PRIORITY_LOW, false);
+		StickerManager.getInstance().fetchCategoryMetadataTask(createList);
+		StickerManager.getInstance().fetchCategoryMetadataTask(updateList);
 	}
 
 	private void updateCategoryTagdata(List<CategoryTagData> stickerCategoriesTagDataList)

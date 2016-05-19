@@ -433,6 +433,8 @@ public class HikePubSub extends Handler implements Runnable
 	
 	public static final String STICKER_SHOP_DOWNLOAD_FAILURE = "stickerShopDownloadFailure";
 
+	public static final String STICKER_SHOP_EXTRA_CATEGORIES = "stickerShopExtraCategories";
+
 	public static final String OFFLINE_MESSAGE_SENT = "offlineMessageSent";
 	
 	public static final String UPDATE_MESSAGE_ORIGIN_TYPE = "updateMsgOriTyp";

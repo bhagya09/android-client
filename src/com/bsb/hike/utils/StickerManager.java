@@ -280,7 +280,7 @@ public class StickerManager
 
 	public static final int INDEX_INFO_BOUND = 2;
 
-	public static final int SHOP_FETCH_PACK_COUNT = 100;
+	public static final int SHOP_PAGE_SIZE = 100;
 
 	public static final String STICKER_TYPE = "s_t";
 
@@ -408,35 +408,32 @@ public class StickerManager
 		initiateFetchCategoryRanksAndDataTask();
 }
 
-	public void fetchCategoryMetadataTask(List<StickerCategory> list, short requestType, int priority, boolean toPublish)
+	public void fetchCategoryMetadataTask(List<StickerCategory> list)
 	{
 		if (!Utils.isEmpty(list))
 		{
-			FetchCategoryMetadataTask fetchCategoryMetadataTask = new FetchCategoryMetadataTask(list, requestType, priority, toPublish);
+			FetchCategoryMetadataTask fetchCategoryMetadataTask = new FetchCategoryMetadataTask(list);
 			fetchCategoryMetadataTask.execute();
 		}
 	}
 
 	public void initiateFetchCategoryRanksAndDataTask()
 	{
-		initiateFetchCategoryRanksAndDataTask(0, false, false);
+		initiateFetchCategoryRanksAndDataTask(0, false);
 	}
 
-	public void initiateFetchCategoryRanksAndDataTask(final int offset, final boolean fetchRankForced, final boolean toPublish)
+	public void initiateFetchCategoryRanksAndDataTask(final int offset, final boolean fetchRankForced)
 	{
 		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
 		{
 			@Override
 			public void run()
 			{
-				if (((System.currentTimeMillis() - HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_SHOP_RANK_TIMESTAMP, 0L)) > HikeConstants.ONE_DAY_MILLS) || fetchRankForced)
+				boolean isMoreThanDay = (System.currentTimeMillis()
+						- HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_SHOP_RANK_TIMESTAMP, 0L)) > HikeConstants.ONE_DAY_MILLS;
+				if (isMoreThanDay || (fetchRankForced && !HikeSharedPreferenceUtil.getInstance().getData(StickerManager.STICKER_SHOP_RANK_FULLY_FETCHED, false)))
 				{
-					if(!fetchRankForced)
-					{
-						HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ALREDAY_FETCHED_CATEGORIES_RANK_LIMIT, 0);
-					}
-					FetchCategoryRanksTask fetchCategoryRanksTask = new FetchCategoryRanksTask(offset, toPublish);
-					fetchCategoryRanksTask.execute();
+					executeFetchCategoryRankTask(isMoreThanDay, offset);
 				}
 				else
 				{
@@ -446,7 +443,22 @@ public class StickerManager
 		});
 	}
 
-    public void fetchCategoryTagdataTask(List<CategoryTagData> list)
+	private void executeFetchCategoryRankTask(boolean isMoreThanDay, int offset)
+	{
+		if (isMoreThanDay)
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ALREDAY_FETCHED_CATEGORIES_RANK_LIMIT, 0);
+		}
+		else
+		{
+			int alreadyFetchedCategoriesLimit = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ALREDAY_FETCHED_CATEGORIES_RANK_LIMIT, 0);
+			offset = alreadyFetchedCategoriesLimit > offset ? alreadyFetchedCategoriesLimit : offset;
+		}
+		FetchCategoryRanksTask fetchCategoryRanksTask = new FetchCategoryRanksTask(offset);
+		fetchCategoryRanksTask.execute();
+	}
+
+	public void fetchCategoryTagdataTask(List<CategoryTagData> list)
     {
         if (!Utils.isEmpty(list))
         {
@@ -480,7 +492,7 @@ public class StickerManager
 
 	public void removeCategory(String removedCategoryId, boolean forceRemoveCategory)
 	{
-		HikeConversationsDatabase.getInstance().removeStickerCategory(removedCategoryId);
+		HikeConversationsDatabase.getInstance().removeStickerCategory(removedCategoryId, forceRemoveCategory);
         StickerCategory removedCategory = stickerCategoriesMap.remove(removedCategoryId);
 
         if(removedCategory == null)

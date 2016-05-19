@@ -4964,7 +4964,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 		finally
 		{
-			cursor.close();
+			if (cursor != null)
+			{
+				cursor.close();
+			}
 		}
 		return count;
 	}
@@ -5818,9 +5821,34 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		updateStickerCategoryData(categoryId, null, totalNum, -1, null, null);
 	}
 
-	public void removeStickerCategory(String categoryId)
+	public void removeStickerCategory(String categoryId, boolean forceRemoveCategory)
 	{
-		mDb.update(DBConstants.STICKER_CATEGORIES_TABLE, getDefaultStickerCategoryValues(categoryId), DBConstants._ID + "=?", new String[] { categoryId });
+		try
+		{
+
+			mDb.beginTransaction();
+
+			if (forceRemoveCategory)
+			{
+				Cursor cursor = mDb.query(DBConstants.STICKER_CATEGORIES_TABLE, new String[] { DBConstants.UCID }, DBConstants._ID + "=?", new String[] { categoryId }, null, null,
+						null);
+				if (cursor != null && cursor.moveToFirst())
+				{
+					String ucid = Integer.toString(cursor.getInt(cursor.getColumnIndex(DBConstants.UCID)));
+					mDb.delete(DBConstants.STICKER_CATEGORY_RANK_TABLE, DBConstants.UCID + "=?", new String[] { ucid });
+				}
+				mDb.delete(DBConstants.STICKER_CATEGORIES_TABLE, DBConstants._ID + "=?", new String[] { categoryId });
+			}
+			else
+			{
+				mDb.update(DBConstants.STICKER_CATEGORIES_TABLE, getDefaultStickerCategoryValues(categoryId), DBConstants._ID + "=?", new String[] { categoryId });
+			}
+			mDb.setTransactionSuccessful();
+		}
+		finally
+		{
+			mDb.endTransaction();
+		}
 	}
 
 	private ContentValues getDefaultStickerCategoryValues(String categoryId)
@@ -7399,11 +7427,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		 * This will fetch the top categories from the order table and the corresponding ts of the categories from the categories in sorted order based on order table whose pack
 		 * metadata is not updated
 		 */
-		Cursor cursor;
 		String query = "Select * from " + DBConstants.STICKER_CATEGORY_RANK_TABLE + " LEFT OUTER JOIN " + DBConstants.STICKER_CATEGORIES_TABLE + " ON "
 				+ DBConstants.STICKER_CATEGORY_RANK_TABLE + "." + DBConstants.UCID + "=" + DBConstants.STICKER_CATEGORIES_TABLE + "." + DBConstants.UCID +" order by " + DBConstants.STICKER_CATEGORY_RANK_TABLE
 				+ "." + DBConstants.RANK + " asc " + " limit " + limit;
-		cursor = mDb.rawQuery(query, null);
+		Cursor cursor = mDb.rawQuery(query, null);
 		return cursor;
 	}
 
@@ -7453,7 +7480,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 		catch (Exception e)
 		{
-			Logger.d(mContext.getClass().getSimpleName(), "getStickerCatToBeSendForMetaData" + e.toString());
+			Logger.e(getClass().getSimpleName(), "getStickerCatToBeSendForMetaData", e);
 		}
 		finally
 		{
@@ -7944,7 +7971,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	/*
 	 * This method is called from sticker shop call responce.
 	 */
-	public void updateStickerCategoriesInDb(JSONArray jsonArray, boolean insertInShopTable)
+	public boolean updateStickerCategoriesInDb(JSONArray jsonArray, boolean insertInShopTable)
 	{
 		try
 		{
@@ -7979,11 +8006,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				}
 			}
 			mDb.setTransactionSuccessful();
+			return true;
 		}
 		catch (Exception e)
 		{
 			Logger.e(getClass().getSimpleName(), "Exception : ", e);
-			e.printStackTrace();
+			return false;
 		}
 		finally
 		{

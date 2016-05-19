@@ -36,18 +36,9 @@ public class FetchCategoryMetadataTask implements IHikeHTTPTask, IHikeHttpTaskRe
 
 	private String ucids = "";
 
-	private short requestType;
-
-	private int priority;
-
-	private boolean toPublish;
-
-	public FetchCategoryMetadataTask(List<StickerCategory> list, short requestType, int priority, boolean toPublish)
+	public FetchCategoryMetadataTask(List<StickerCategory> list)
 	{
 		this.list = list;
-		this.requestType = requestType;
-		this.priority = priority;
-		this.toPublish = toPublish;
 		createRequestJsonBody();
 	}
 
@@ -76,7 +67,7 @@ public class FetchCategoryMetadataTask implements IHikeHTTPTask, IHikeHttpTaskRe
 
 	public String getCategoryFetchRequestId()
 	{
-		return StickerConstants.StickerRequestType.FETCH_CATEGORY.getLabel() + ucids;
+		return StickerConstants.StickerRequestType.FETCH_CATEGORY.getLabel() + Utils.StringToMD5(ucids);
 	}
 
 	private IRequestListener getRequestListener()
@@ -87,11 +78,7 @@ public class FetchCategoryMetadataTask implements IHikeHTTPTask, IHikeHttpTaskRe
 			public void onRequestFailure(HttpException httpException)
 			{
 				doOnFailure(httpException);
-
-				if (toPublish)
-				{
-					HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_SHOP_DOWNLOAD_FAILURE, httpException);
-				}
+				HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_SHOP_DOWNLOAD_FAILURE, httpException);
 			}
 
 			@Override
@@ -117,13 +104,12 @@ public class FetchCategoryMetadataTask implements IHikeHTTPTask, IHikeHttpTaskRe
 						return;
 					}
 					JSONArray jsonArray = resultData.optJSONArray(HikeConstants.PACKS);
-					HikeConversationsDatabase.getInstance().updateStickerCategoriesInDb(jsonArray, false);
-					HikeConversationsDatabase.getInstance().updateIsPackMetadataUpdated(list);
-
-					if (toPublish)
+					boolean isUpdated =HikeConversationsDatabase.getInstance().updateStickerCategoriesInDb(jsonArray, false);
+					if (isUpdated)
 					{
-						HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_SHOP_DOWNLOAD_SUCCESS, null);
+						HikeConversationsDatabase.getInstance().updateIsPackMetadataUpdated(list);
 					}
+					HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_SHOP_DOWNLOAD_SUCCESS, null);
 				}
 				catch (Exception e)
 				{
@@ -148,7 +134,7 @@ public class FetchCategoryMetadataTask implements IHikeHTTPTask, IHikeHttpTaskRe
 		{
 			return;
 		}
-		token = HttpRequests.fetchCategoryData(getCategoryFetchRequestId(), requestJsonBody, getRequestListener(), requestType, priority);
+		token = HttpRequests.fetchCategoryData(getCategoryFetchRequestId(), requestJsonBody, getRequestListener());
 		if (!token.isRequestRunning())
 		{
 			token.execute();

@@ -33,7 +33,8 @@ public class FetchCategoryDetailsTask extends AsyncTask<Void, Void, StickerCateg
 	{
 		super.onPostExecute(stickerCategory);
 		
-		if (stickerCategory == null || (stickerCategory.getPreviewUpdationTime() < (System.currentTimeMillis() - HikeConstants.ONE_DAY_MILLS)))
+		if (stickerCategory == null || Utils.isEmpty(stickerCategory.getAllStickers())
+				|| (stickerCategory.getPreviewUpdationTime() < (System.currentTimeMillis() - HikeConstants.ONE_DAY_MILLS)))
 		{
 			StickerCategoryDownloadTask stickerCategoryDownloadTask = new StickerCategoryDownloadTask(catId);
 			stickerCategoryDownloadTask.execute();
