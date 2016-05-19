@@ -1,14 +1,5 @@
 package com.bsb.hike.chatthread;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Pattern;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences.Editor;
@@ -59,6 +50,15 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
 
 public class ChatThreadUtils
 {
@@ -256,6 +256,11 @@ public class ChatThreadUtils
 		Logger.d(TAG, "File size: " + file.length() + " File name: " + file.getName());
 
 		boolean skipMaxSizeCheck = (isBigVideoSharingEnabled() && hikeFileType == HikeFileType.VIDEO);
+		//Do pre-compression size check as before if compression have been turned off by the user.
+		if(skipMaxSizeCheck && (android.os.Build.VERSION.SDK_INT < 18
+				|| !PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.COMPRESS_VIDEO, true))) {
+			skipMaxSizeCheck = false;
+		}
 		if (!skipMaxSizeCheck && HikeConstants.MAX_FILE_SIZE < file.length())
 		{
 			Toast.makeText(context, R.string.max_file_size, Toast.LENGTH_SHORT).show();
@@ -752,4 +757,5 @@ public class ChatThreadUtils
 	{
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.LARGE_VIDEO_SHARING_ENABLED, false);
 	}
+
 }

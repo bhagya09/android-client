@@ -96,7 +96,9 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
 	private boolean addFriendOption;
 
-    public ComposeChatAdapter(Context context, ListView listView, boolean fetchGroups, boolean fetchRecents, boolean fetchRecentlyJoined, String existingGroupId, String sendingMsisdn, FriendsListFetchedCallback friendsListFetchedCallback, boolean showSMSContacts, boolean showMicroappShowcase,boolean isContactChooserFilter, boolean showTimeline)
+	private boolean showBdaySection;
+
+    public ComposeChatAdapter(Context context, ListView listView, boolean fetchGroups, boolean fetchRecents, boolean fetchRecentlyJoined, String existingGroupId, String sendingMsisdn, FriendsListFetchedCallback friendsListFetchedCallback, boolean showSMSContacts, boolean showMicroappShowcase,boolean isContactChooserFilter, boolean showTimeline, boolean showBdaySection)
 	{
 		super(context, listView, friendsListFetchedCallback, ContactInfo.lastSeenTimeComparatorWithoutFav);
 		selectedPeople = new LinkedHashMap<String, ContactInfo>();
@@ -131,6 +133,8 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		this.showTimeline = showTimeline;
 
         this.isContactChooserFilter = isContactChooserFilter;
+
+		this.showBdaySection = showBdaySection;
 	}
 
 	public void setIsCreatingOrEditingGroup(boolean b)
@@ -246,6 +250,9 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 				case HIKE_FEATURES_ID:
 					tv.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(R.drawable.ic_section_header_hike_apps), null, null, null);
 					break;
+				case BDAY_CONTACT_ID:
+					tv.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(R.drawable.ic_section_header_hike_bdays), null, null, null);
+					break;
 				}
 
 				tv.setCompoundDrawablePadding((int) context.getResources().getDimension(R.dimen.favorites_star_icon_drawable_padding));
@@ -317,6 +324,46 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			if ((microappsListAdapter.getItemCount() != originalMicroAppCount) || isSearchModeOn)
 			{
 				microappsListAdapter.notifyDataSetChanged();
+			}
+		}
+		else if (viewType == ViewType.BDAY_CONTACT)
+		{
+			holder = (ViewHolder) convertView.getTag();
+			String msisdn = contactInfo.getMsisdn();
+			holder.msisdn = msisdn;
+
+			String name = contactInfo.getName();
+			if (TextUtils.isEmpty(name))
+			{
+				holder.name.setText(msisdn);
+			}
+			else
+			{
+				Integer startIndex = contactSpanStartIndexes.get(msisdn);
+				if (startIndex != null && viewType != ViewType.NEW_CONTACT)
+				{
+					holder.name.setText(getSpanText(name, startIndex), TextView.BufferType.SPANNABLE);
+				}
+				else
+				{
+					holder.name.setText(name);
+				}
+			}
+
+			updateViewsRelatedToAvatar(convertView, contactInfo);
+
+			if(showCheckbox)
+			{
+				holder.checkbox.setVisibility(View.VISIBLE);
+				if (selectedPeople.containsKey(contactInfo.getMsisdn())){
+					holder.checkbox.setChecked(true);
+				} else {
+					holder.checkbox.setChecked(false);
+				}
+			}
+			else
+			{
+				holder.checkbox.setVisibility(View.GONE);
 			}
 		}
 		else
@@ -552,6 +599,14 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
 			convertView.setTag(holder);
 			break;
+		case BDAY_CONTACT:
+			convertView = LayoutInflater.from(context).inflate(R.layout.hike_bday_list_item, parent, false);
+			holder = new ViewHolder();
+			holder.userImage = (ImageView) convertView.findViewById(R.id.contact_image);
+			holder.name = (TextView) convertView.findViewById(R.id.name);
+			holder.checkbox = (CheckBox) convertView.findViewById(R.id.checkbox);
+			convertView.setTag(holder);
+			break;
 		default:
 			convertView = LayoutInflater.from(context).inflate(R.layout.hike_list_item, parent, false);
 			holder = new ViewHolder();
@@ -657,8 +712,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 				completeList.add(microappShowcaseList);
 			}
 
-			else
-			{
+			else {
 				completeList.remove(microappSection);
 				completeList.remove(microappShowcaseList);
 			}
@@ -672,6 +726,13 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 				completeList.add(recommendedSection);
 				completeList.addAll(nuxFilteredRecoList);
 			}
+		}
+
+		if (filteredHikeBdayContactList.size() != 0 && showBdaySection)
+		{
+			ContactInfo hikeBdayContactsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredHikeBdayContactList.size()), context.getString(R.string.hike_bday_contacts),
+					BDAY_CONTACT_ID);
+			updateHikeBdayContactList(hikeBdayContactsSection);
 		}
 
 		if(fetchRecentlyJoined && !recentlyJoinedHikeContactsList.isEmpty())
@@ -970,6 +1031,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		if(select)
 		{
 			ArrayList<List<ContactInfo>> listsToSelect = getOnHikeContactLists();
+			listsToSelect.add(filteredHikeBdayContactList);
 			listsToSelect.add(groupsList);
 			listsToSelect.add(filteredHikeOtherFeaturesList);
 			selectAllFromList(listsToSelect);
@@ -1074,5 +1136,6 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			microappsListAdapter.onBotCreated(data);
 		}
 	}
-	
+
+
 }

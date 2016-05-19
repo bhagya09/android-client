@@ -47,4 +47,36 @@ public class ChatAnalyticConstants {
     public static final String IMAGE_SOURCE_CAMERA = "atchCam";
 
     public static final String OVERFLOW_MENU_CLICKED = "ctOvrFlw";
+
+    public static final class GCEvents
+    {
+        public static final String GC_PIN_CANCEL = "pinCncl";
+
+        public static final String GC_PIN_CROSS = "pinCross";
+
+        public static final String GC_PIN_HISTORY = "pinHist";
+
+        public static final String GC_PIN_LONG_TAP = "pinLongTap";
+
+        public static final String GC_PIN_ACTION = "pinAction";
+
+        public static final String GC_PIN_ACTION_DELETE = "delete";
+
+        public static final String GC_PIN_ACTION_COPY = "copy";
+
+        public static final String GC_PIN_ACTION_CANCEL = "cancel";
+
+        public static final String GC_PIN_HISTORY_SRC_GROUPINFO = "groupinfo";
+
+        public static final String GC_PIN_HISTORY_SRC_CHATTHREAD = "ctpin";
+
+        public static final String GC_CLICK_NEXT = "nxtGrp";
+
+        public static final String GC_CLICK_CREATE_GROUP = "createGrp";
+
+        public static final String CANCEL_SRC_CROSS = "cross";
+
+        public static final String CANCEL_SRC_OTHERS = "others";
+
+    }
 }

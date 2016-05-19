@@ -18,113 +18,6 @@ import java.util.concurrent.FutureTask;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeConstants.MESSAGE_TYPE;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
-import com.bsb.hike.HikePubSub.Listener;
-import com.bsb.hike.R;
-import com.bsb.hike.adapters.CustomKeyboardInputBoxAdapter;
-import com.bsb.hike.adapters.MessagesAdapter;
-import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
-import com.bsb.hike.analytics.ChatAnalyticConstants;
-import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.analytics.MsgRelLogManager;
-import com.bsb.hike.bots.BotUtils;
-import com.bsb.hike.bots.CustomKeyboard;
-import com.bsb.hike.bots.CustomKeyboardManager;
-import com.bsb.hike.bots.TextPickerListener;
-import com.bsb.hike.chatthread.ChatThreadActivity.ChatThreadOpenSources;
-import com.bsb.hike.chatthread.HikeActionMode.ActionModeListener;
-import com.bsb.hike.chatthread.KeyboardOffBoarding.KeyboardShutdownListener;
-import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.dialog.CustomAlertDialog;
-import com.bsb.hike.dialog.HikeDialog;
-import com.bsb.hike.dialog.HikeDialogFactory;
-import com.bsb.hike.dialog.HikeDialogListener;
-import com.bsb.hike.filetransfer.FTAnalyticEvents;
-import com.bsb.hike.filetransfer.FTUtils;
-import com.bsb.hike.filetransfer.FileTransferManager;
-import com.bsb.hike.media.AttachmentPicker;
-import com.bsb.hike.media.AudioRecordView;
-import com.bsb.hike.media.EmoticonPicker;
-import com.bsb.hike.media.HikeActionBar;
-import com.bsb.hike.media.HikeAudioRecordListener;
-import com.bsb.hike.media.HikeAudioRecordView;
-import com.bsb.hike.media.HikeTipVisibilityAnimator;
-import com.bsb.hike.media.ImageParser;
-import com.bsb.hike.media.ImageParser.ImageParserListener;
-import com.bsb.hike.media.OverFlowMenuItem;
-import com.bsb.hike.media.OverFlowMenuLayout.OverflowViewListener;
-import com.bsb.hike.media.OverflowItemClickListener;
-import com.bsb.hike.media.PickContactParser;
-import com.bsb.hike.media.PickFileParser;
-import com.bsb.hike.media.PickFileParser.PickFileListener;
-import com.bsb.hike.media.PopupListener;
-import com.bsb.hike.media.ShareablePopupLayout;
-import com.bsb.hike.media.StickerPicker;
-import com.bsb.hike.media.StickerPickerListener;
-import com.bsb.hike.media.ThemePicker;
-import com.bsb.hike.media.ThemePicker.ThemePickerListener;
-import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
-import com.bsb.hike.models.ConvMessage.State;
-import com.bsb.hike.models.Conversation.Conversation;
-import com.bsb.hike.models.GalleryItem;
-import com.bsb.hike.models.HikeFile;
-import com.bsb.hike.models.HikeFile.HikeFileType;
-import com.bsb.hike.models.MovingList;
-import com.bsb.hike.models.MovingList.OnItemsFinishedListener;
-import com.bsb.hike.models.PhonebookContact;
-import com.bsb.hike.models.Sticker;
-import com.bsb.hike.models.TypingNotification;
-import com.bsb.hike.models.Unique;
-import com.bsb.hike.modules.stickersearch.StickerSearchManager;
-import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
-import com.bsb.hike.modules.stickersearch.listeners.IStickerPickerRecommendationListener;
-import com.bsb.hike.modules.stickersearch.provider.StickerEventSearchManager;
-import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
-import com.bsb.hike.notifications.HikeNotification;
-import com.bsb.hike.offline.IOfflineCallbacks;
-import com.bsb.hike.offline.OfflineConstants;
-import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
-import com.bsb.hike.offline.OfflineController;
-import com.bsb.hike.offline.OfflineUtils;
-import com.bsb.hike.platform.CardComponent;
-import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.platform.PlatformMessageMetadata;
-import com.bsb.hike.platform.PlatformUtils;
-import com.bsb.hike.platform.WebMetadata;
-import com.bsb.hike.platform.content.PlatformContent;
-import com.bsb.hike.productpopup.ProductPopupsConstants;
-import com.bsb.hike.tasks.EmailConversationsAsyncTask;
-import com.bsb.hike.ui.ComposeViewWatcher;
-import com.bsb.hike.ui.GalleryActivity;
-import com.bsb.hike.ui.utils.LockPattern;
-import com.bsb.hike.ui.utils.StatusBarColorChanger;
-import com.bsb.hike.utils.ChatTheme;
-import com.bsb.hike.utils.HikeAnalyticsEvent;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.IntentFactory;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.PairModified;
-import com.bsb.hike.utils.SearchManager;
-import com.bsb.hike.utils.SmileyParser;
-import com.bsb.hike.utils.SoundUtils;
-import com.bsb.hike.utils.StealthModeManager;
-import com.bsb.hike.utils.StickerManager;
-import com.bsb.hike.utils.StopWatch;
-import com.bsb.hike.utils.Utils;
-import com.bsb.hike.utils.Utils.ExternalStorageState;
-import com.bsb.hike.view.CustomFontEditText;
-import com.bsb.hike.view.CustomFontEditText.BackKeyListener;
-import com.bsb.hike.view.CustomLinearLayout;
-import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -190,7 +83,6 @@ import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
@@ -200,6 +92,114 @@ import android.widget.PopupWindow.OnDismissListener;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
+
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeConstants.MESSAGE_TYPE;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
+import com.bsb.hike.HikePubSub.Listener;
+import com.bsb.hike.R;
+import com.bsb.hike.adapters.CustomKeyboardInputBoxAdapter;
+import com.bsb.hike.adapters.MessagesAdapter;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
+import com.bsb.hike.analytics.ChatAnalyticConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.MsgRelLogManager;
+import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.bots.CustomKeyboard;
+import com.bsb.hike.bots.CustomKeyboardManager;
+import com.bsb.hike.bots.TextPickerListener;
+import com.bsb.hike.chatthread.ChatThreadActivity.ChatThreadOpenSources;
+import com.bsb.hike.chatthread.HikeActionMode.ActionModeListener;
+import com.bsb.hike.chatthread.KeyboardOffBoarding.KeyboardShutdownListener;
+import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.dialog.CustomAlertDialog;
+import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
+import com.bsb.hike.filetransfer.FTAnalyticEvents;
+import com.bsb.hike.filetransfer.FTUtils;
+import com.bsb.hike.filetransfer.FileTransferManager;
+import com.bsb.hike.media.AttachmentPicker;
+import com.bsb.hike.media.AudioRecordView;
+import com.bsb.hike.media.EmoticonPicker;
+import com.bsb.hike.media.HikeActionBar;
+import com.bsb.hike.media.HikeAudioRecordListener;
+import com.bsb.hike.media.HikeAudioRecordView;
+import com.bsb.hike.media.HikeTipVisibilityAnimator;
+import com.bsb.hike.media.ImageParser;
+import com.bsb.hike.media.ImageParser.ImageParserListener;
+import com.bsb.hike.media.OverFlowMenuItem;
+import com.bsb.hike.media.OverFlowMenuLayout.OverflowViewListener;
+import com.bsb.hike.media.OverflowItemClickListener;
+import com.bsb.hike.media.PickContactParser;
+import com.bsb.hike.media.PickFileParser;
+import com.bsb.hike.media.PickFileParser.PickFileListener;
+import com.bsb.hike.media.PopupListener;
+import com.bsb.hike.media.ShareablePopupLayout;
+import com.bsb.hike.media.StickerPicker;
+import com.bsb.hike.media.StickerPickerListener;
+import com.bsb.hike.media.ThemePicker;
+import com.bsb.hike.media.ThemePicker.ThemePickerListener;
+import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
+import com.bsb.hike.models.ConvMessage.State;
+import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.models.GalleryItem;
+import com.bsb.hike.models.HikeFile;
+import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.MovingList;
+import com.bsb.hike.models.MovingList.OnItemsFinishedListener;
+import com.bsb.hike.models.PhonebookContact;
+import com.bsb.hike.models.Sticker;
+import com.bsb.hike.models.TypingNotification;
+import com.bsb.hike.models.Unique;
+import com.bsb.hike.modules.quickstickersuggestions.QuickStickerSuggestionController;
+import com.bsb.hike.modules.stickersearch.StickerSearchManager;
+import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
+import com.bsb.hike.modules.stickersearch.listeners.IStickerPickerRecommendationListener;
+import com.bsb.hike.modules.stickersearch.provider.StickerEventSearchManager;
+import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
+import com.bsb.hike.notifications.HikeNotification;
+import com.bsb.hike.offline.IOfflineCallbacks;
+import com.bsb.hike.offline.OfflineConstants;
+import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
+import com.bsb.hike.offline.OfflineController;
+import com.bsb.hike.offline.OfflineUtils;
+import com.bsb.hike.platform.CardComponent;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformMessageMetadata;
+import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.platform.WebMetadata;
+import com.bsb.hike.platform.content.PlatformContent;
+import com.bsb.hike.productpopup.ProductPopupsConstants;
+import com.bsb.hike.tasks.EmailConversationsAsyncTask;
+import com.bsb.hike.ui.ComposeViewWatcher;
+import com.bsb.hike.ui.GalleryActivity;
+import com.bsb.hike.ui.utils.LockPattern;
+import com.bsb.hike.ui.utils.StatusBarColorChanger;
+import com.bsb.hike.utils.ChatTheme;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.PairModified;
+import com.bsb.hike.utils.SearchManager;
+import com.bsb.hike.utils.SmileyParser;
+import com.bsb.hike.utils.SoundUtils;
+import com.bsb.hike.utils.StealthModeManager;
+import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.StopWatch;
+import com.bsb.hike.utils.Utils;
+import com.bsb.hike.utils.Utils.ExternalStorageState;
+import com.bsb.hike.view.CustomFontEditText;
+import com.bsb.hike.view.CustomFontEditText.BackKeyListener;
+import com.bsb.hike.view.CustomLinearLayout;
+import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
+import android.widget.FrameLayout;
 
 
 
@@ -583,7 +583,7 @@ import android.widget.Toast;
 		case OPEN_PICKER:
 			mStickerPicker.setShowLastCategory(StickerManager.getInstance().getShowLastCategory());
 			StickerManager.getInstance().setShowLastCategory(false);
-			stickerClicked();
+			stickerButtonClicked();
 			break;
 		default:
 			Logger.d(TAG, "Did not find any matching event for msg.what : " + msg.what);
@@ -1246,6 +1246,7 @@ import android.widget.Toast;
 			if(mConversation.isStealth()) {
 				metadata.put(HikeConstants.FROM, ChatAnalyticConstants.STEALTH_CHAT_THREAD);
 			}
+			metadata.put(HikeConstants.TO, msisdn);
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 		}
 		catch (JSONException e)
@@ -1313,6 +1314,17 @@ import android.widget.Toast;
 		mActionBar.showOverflowMenu(width, LayoutParams.WRAP_CONTENT, -rightMargin, -(int) (0.5 * Utils.scaledDensityMultiplier), activity.findViewById(R.id.overflow_anchor));
 	}
 
+	private void stickerClicked(ConvMessage convMessage)
+	{
+		boolean isSent = convMessage.isSent();
+		if(QuickStickerSuggestionController.getInstance().isStickerClickAllowed(isSent))
+		{
+			initStickerPicker();
+			mStickerPicker.showQuickSuggestionCategory(QuickStickerSuggestionController.getInstance().getQuickSuggestionCategory(convMessage));
+			stickerButtonClicked();
+		}
+	}
+
 	@Override
 	public void onClick(View v)
 	{
@@ -1334,7 +1346,8 @@ import android.widget.Toast;
 			recordMediaShareAnalyticEvent(ChatAnalyticConstants.OVERFLOW_MENU_CLICKED);
 			break;
 		case R.id.sticker_btn:
-			stickerClicked();
+			StickerManager.getInstance().initiateFetchCategoryRanksAndDataTask();
+			stickerButtonClicked();
 			break;
 		case R.id.emoticon_btn:
 			if (mShareablePopupLayout.isBusyInOperations())
@@ -1383,6 +1396,9 @@ import android.widget.Toast;
 		case R.id.search_clear_btn:
 			mComposeView.setText("");
 			break;
+		case R.id.placeholder:
+			onPlaceHolderClick(v);
+			break;
 		default:
 			Logger.e(TAG, "onClick Registered but not added in onClick : " + v.toString());
 			break;
@@ -1390,25 +1406,33 @@ import android.widget.Toast;
 
 	}
 
-    protected void sendButtonClicked()
-    {
-        if (!useWTRevamped && TextUtils.isEmpty(mComposeView.getText()))
-        {
-            if (BotUtils.isBot(msisdn) && CustomKeyboardManager.getInstance().shouldShowInputBox(msisdn))
-            {
-                inputBoxClicked();
-            }
-            else
-                audioRecordClicked();
-        }
-        else
-        {
-            sendMessageForStickerRecommendLearning();
-            sendMessage();
-            dismissStickerRecommendationPopup();
-            dismissTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
-        }
-    }
+
+	private void onPlaceHolderClick(View v)
+	{
+		ConvMessage convMessage = (ConvMessage) v.getTag();
+
+		if(convMessage.isStickerMessage())
+		{
+			if(convMessage.getMetadata() != null && convMessage.getMetadata().getSticker() != null)
+			{
+				stickerClicked(convMessage);
+			}
+		}
+	}
+
+	protected void sendButtonClicked()
+	{
+		if (!useWTRevamped && TextUtils.isEmpty(mComposeView.getText()))
+		{
+			audioRecordClicked();
+		} else
+		{
+			sendMessageForStickerRecommendLearning();
+			sendMessage();
+			dismissStickerRecommendationPopup();
+			dismissTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
+		}
+	}
 
 	/**
 	 * This function gets text from compose edit text and makes a message and uses {@link ChatThread#sendMessage(ConvMessage)} to send message
@@ -1491,7 +1515,7 @@ import android.widget.Toast;
 		else showRecordingErrorTip(R.string.recording_help_text);
 	}
 
-	protected void stickerClicked()
+	protected void stickerButtonClicked()
 	{
 		if (mShareablePopupLayout.isBusyInOperations()) {//  previous task is running don't accept this event
 			return;
@@ -1504,7 +1528,7 @@ import android.widget.Toast;
 		initStickerPicker();
 		
 		closeStickerTip();
-		StickerManager.getInstance().logStickerButtonPressAnalytics();
+		StickerManager.getInstance().logStickerButtonsPressAnalytics(HikeMessengerApp.STICKER_PALLETE_BUTTON_CLICK_ANALYTICS);
 
 		if(mShareablePopupLayout.isShowing()) {
 			inProcessOfShowingPopup = false;
@@ -1605,7 +1629,7 @@ import android.widget.Toast;
 			}
 		}
 
-        StickerManager.getInstance().logEmoticonButtonPressAnalytics();
+        StickerManager.getInstance().logStickerButtonsPressAnalytics(HikeMessengerApp.EMOTICON_BUTTON_CLICK_ANALYTICS);
 
 		Logger.v(TAG, "Time taken to open emoticon pallete : " + (System.currentTimeMillis() - time));
 	}
@@ -3059,8 +3083,8 @@ import android.widget.Toast;
 						ConvMessage convMessage = Utils.makeConvMessage(msisdn, mConversation.isOnHike());
 						convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.CONTENT);
 						convMessage.platformMessageMetadata = new PlatformMessageMetadata(msgExtrasJson.optString(HikeConstants.METADATA), activity.getApplicationContext());
-						convMessage.platformMessageMetadata.addThumbnailsToMetadata();
-						convMessage.setMessage(convMessage.platformMessageMetadata.notifText);
+//						convMessage.platformMessageMetadata.addThumbnailsToMetadata();
+						convMessage.setMessage(convMessage.getMessage());
 
 						sendMessage(convMessage);
 
@@ -3967,6 +3991,10 @@ import android.widget.Toast;
 						}
 						walkieView.initialize(activity.findViewById(R.id.bottom_panel), mShareablePopupLayout.isShowing() || isKeyboardOpen());
 						walkieView.update(v,event);
+						if (mAdapter != null)
+						{
+							mAdapter.pausetPlayerIfPlaying();
+						}
 						sendWTClickedAnalytic();
 						break;
 					case MotionEvent.ACTION_MOVE:

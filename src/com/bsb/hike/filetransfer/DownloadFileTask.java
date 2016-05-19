@@ -43,16 +43,20 @@ public class DownloadFileTask extends FileTransferBase
 	private boolean showToast;
 
 	private String downLoadUrl;
-
-	protected DownloadFileTask(Context ctx, File tempFile, File destinationFile, String fileKey, long msgId, HikeFileType hikeFileType, ConvMessage userContext, boolean showToast)
+    private HikeFile hikeFile;
+	protected DownloadFileTask(Context ctx, File tempFile, File destinationFile, String fileKey, long msgId, HikeFileType hikeFileType, ConvMessage userContext, boolean showToast, HikeFile hikeFile)
 	{
 		super(ctx, destinationFile, msgId, hikeFileType);
 		this.fileKey = fileKey;
 		this.tempDownloadedFile = tempFile;
 		this.showToast = showToast;
 		this.userContext = userContext;
+		this.hikeFile = hikeFile;
 	}
-
+	protected DownloadFileTask(Context ctx, File tempFile, File destinationFile, String fileKey, long msgId, HikeFileType hikeFileType, ConvMessage userContext, boolean showToast)
+	{
+		this(ctx,tempFile,destinationFile,fileKey,msgId,hikeFileType,userContext,showToast,null);
+	}
 	public void download()
 	{
 		IRequestListener downloadFileRequestListener = getDownloadRequestListener();
@@ -76,8 +80,10 @@ public class DownloadFileTask extends FileTransferBase
 				return;
 			}
 		}
-		else
-		{
+		else if(this.hikeFile != null){
+			hikeFile = this.hikeFile;
+		}
+		else{
 			hikeFile = userContext.getMetadata().getHikeFiles().get(0);
 		}
 
@@ -94,11 +100,8 @@ public class DownloadFileTask extends FileTransferBase
 			downLoadUrl = AccountUtils.fileTransferBaseDownloadUrl + fileKey;
 		}
 
-		if (requestToken == null)
-		{
-			requestToken = HttpRequests.downloadFile(tempDownloadedFile.getAbsolutePath(), downLoadUrl, msgId, downloadFileRequestListener,
-					new FileTransferChunkSizePolicy(context), fileTypeString);
-		}
+		requestToken = HttpRequests.downloadFile(tempDownloadedFile.getAbsolutePath(), downLoadUrl, msgId, downloadFileRequestListener,
+				new FileTransferChunkSizePolicy(context), fileTypeString, fileKey);
 		requestToken.execute();
 	}
 
@@ -139,6 +142,8 @@ public class DownloadFileTask extends FileTransferBase
 	{
 		if (getFileSavedState().getFTState() == FTState.PAUSED)
 		{
+			FileTransferManager.getInstance(context).removeTask(msgId);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 			return;
 		}
 
@@ -229,6 +234,10 @@ public class DownloadFileTask extends FileTransferBase
 			int errorCode = httpException.getErrorCode();
 			switch (errorCode)
 			{
+				case HttpException.REASON_CODE_REQUEST_PAUSED:
+					FileTransferManager.getInstance(context).removeTask(msgId);
+					HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
+					break;
 				case HttpException.REASON_CODE_NO_NETWORK:
 					FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_CONN_INIT_2_1, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "http", "DOWNLOAD_FAILED : No Internet");
 					removeTaskAndShowToast(HikeConstants.FTResult.DOWNLOAD_FAILED);
@@ -238,6 +247,7 @@ public class DownloadFileTask extends FileTransferBase
 					HttpManager.getInstance().deleteRequestStateFromDB(downLoadUrl, String.valueOf(msgId));
 					FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_STATE_CHANGE, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "state", "CANCELLED");
 					removeTaskAndShowToast(HikeConstants.FTResult.CANCELLED);
+					break;
 				case HttpException.REASON_CODE_MALFORMED_URL:
 					Logger.e(getClass().getSimpleName(), "Invalid URL");
 					FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_INIT_2_1, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "UrlCreation", "DOWNLOAD_FAILED : " , ex);
@@ -279,45 +289,53 @@ public class DownloadFileTask extends FileTransferBase
 	private void removeTaskAndShowToast(final HikeConstants.FTResult result)
 	{
 		FileTransferManager.getInstance(context).removeTask(msgId);
-		if (showToast) {
-			handler.post(new Runnable() {
-				@Override
-				public void run() {
-					switch (result) {
-						case UPLOAD_FAILED:
-							Toast.makeText(context, R.string.upload_failed, Toast.LENGTH_SHORT).show();
-							break;
-						case CARD_UNMOUNT:
-							Toast.makeText(context, R.string.card_unmount, Toast.LENGTH_SHORT).show();
-							break;
-						case READ_FAIL:
-							Toast.makeText(context, R.string.unable_to_read, Toast.LENGTH_SHORT).show();
-							break;
-						case DOWNLOAD_FAILED:
-							Toast.makeText(context, R.string.download_failed, Toast.LENGTH_SHORT).show();
-							break;
-						case FILE_SIZE_EXCEEDING:
-							Toast.makeText(context, R.string.max_file_size, Toast.LENGTH_SHORT).show();
-							break;
-						case CANCELLED:
-							Toast.makeText(context, R.string.download_cancelled, Toast.LENGTH_SHORT).show();
-							break;
-						case NO_SD_CARD:
-							Toast.makeText(context, R.string.no_sd_card, Toast.LENGTH_SHORT).show();
-							break;
-						case FILE_TOO_LARGE:
-							Toast.makeText(context, R.string.not_enough_space, Toast.LENGTH_SHORT).show();
-							break;
-						case SERVER_ERROR:
-							Toast.makeText(context, R.string.file_expire, Toast.LENGTH_SHORT).show();
-							break;
-					}
-				}
-			});
-		}
-		if (mFile != null)
+
+		if (getFileSavedState().getFTState() != FTState.PAUSED)
 		{
-			mFile.delete();
+			if (showToast)
+			{
+				handler.post(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						switch (result)
+						{
+							case UPLOAD_FAILED:
+								Toast.makeText(context, R.string.upload_failed, Toast.LENGTH_SHORT).show();
+								break;
+							case CARD_UNMOUNT:
+								Toast.makeText(context, R.string.card_unmount, Toast.LENGTH_SHORT).show();
+								break;
+							case READ_FAIL:
+								Toast.makeText(context, R.string.unable_to_read, Toast.LENGTH_SHORT).show();
+								break;
+							case DOWNLOAD_FAILED:
+								Toast.makeText(context, R.string.download_failed, Toast.LENGTH_SHORT).show();
+								break;
+							case FILE_SIZE_EXCEEDING:
+								Toast.makeText(context, R.string.max_file_size, Toast.LENGTH_SHORT).show();
+								break;
+							case CANCELLED:
+								Toast.makeText(context, R.string.download_cancelled, Toast.LENGTH_SHORT).show();
+								break;
+							case NO_SD_CARD:
+								Toast.makeText(context, R.string.no_sd_card, Toast.LENGTH_SHORT).show();
+								break;
+							case FILE_TOO_LARGE:
+								Toast.makeText(context, R.string.not_enough_space, Toast.LENGTH_SHORT).show();
+								break;
+							case SERVER_ERROR:
+								Toast.makeText(context, R.string.file_expire, Toast.LENGTH_SHORT).show();
+								break;
+						}
+					}
+				});
+			}
+			if (mFile != null)
+			{
+				mFile.delete();
+			}
 		}
 		HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 	}

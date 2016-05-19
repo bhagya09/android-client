@@ -1430,4 +1430,9 @@
     <string name="recording_help_text">ಒತ್ತಿ ಹಿಡಿದು ರೆಕಾರ್ಡ್ ಮಾಡಿ, ಕಳುಹಿಸಲು ಬಿಡಿ</string>
     <string name="max_duration_recorded">ಗರಿಷ್ಠ ಸಮಯದವರೆಗೆ ರೆಕಾರ್ಡಿಂಗ್ ಆಗಿದೆ</string>
     <string name="stream_volume_muted_or_low">ದಯವಿಟ್ಟು ವಾಲ್ಯೂಮ್ಅನ್ನು ಜಾಸ್ತಿ ಮಾಡಿ</string>
+    <string name="shop_search_hint">ಲವ್, ಹಿಂದಿ, ಬಾಲಿವುಡ್ ಇತ್ಯಾದಿ</string>
+    <string name="no_sticker_pack_match_found">ನೀವು ಹೊಡುಕುವ \'%1$s\' ಯಾವದೇ ಸ್ಟಿಕ್ಕರ  ಪ್ಯಾಕಗಳಿಗೆ ಮ್ಯಾಚ್ ಆಗುತಿಲ್ಲ</string>
+    <string name="pack_search_again_hint">ಪೂರ್ತಿ ಶಬ್ದವನ್ನು ಟೈಪ್ ಮಾಡಿ ಉದಾ: ಲವ್, ಹಿಂದಿ, ಬಾಲಿವುಡ್ ಇತ್ಯಾದಿा</string>
+    <string name="edit_profile_birthday">ಹುಟ್ಟಿದ ದಿನಾಂಕ</string>
+    <string name="atomic_tip_http_failure">ದೋಷ ಸಂಭವಿಸಿದ. ಸ್ವಲ್ಪಾ ಸಮಯದ ನಂತರ ಪ್ರಯತ್ನಿಸಿ</string>
 </resources>

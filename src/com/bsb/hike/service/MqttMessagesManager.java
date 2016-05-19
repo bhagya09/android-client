@@ -1,21 +1,5 @@
 package com.bsb.hike.service;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -88,9 +72,13 @@ import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.contactmgr.ContactUtils;
 import com.bsb.hike.modules.httpmgr.HttpManager;
 import com.bsb.hike.modules.signupmgr.PostAddressBookTask;
+import com.bsb.hike.modules.quickstickersuggestions.QuickStickerSuggestionController;
+import com.bsb.hike.modules.signupmgr.PostAddressBookTask;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
+import com.bsb.hike.modules.stickersearch.provider.db.CategorySearchManager;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.notifications.HikeNotification;
@@ -136,6 +124,22 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.hike.abtest.ABTest;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  *
@@ -2183,6 +2187,12 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.ENABLE_ADDRESSBOOK_THROUGH_HTTP_MGR, enAb);
 		}
 
+		if (data.has(HikeMessengerApp.EDIT_PROFILE_THROUGH_HTTP_MGR))
+		{
+			boolean editProfileHttpMgr = data.getBoolean(HikeMessengerApp.EDIT_PROFILE_THROUGH_HTTP_MGR);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.EDIT_PROFILE_THROUGH_HTTP_MGR, editProfileHttpMgr);
+		}
+
 		if (data.has(HikeConstants.Extras.CHANGE_MAX_MESSAGE_PROCESS_TIME))
 		{
 			long maxMessageProcessTime = data.optLong(HikeConstants.Extras.CHANGE_MAX_MESSAGE_PROCESS_TIME);
@@ -3015,6 +3025,10 @@ public class MqttMessagesManager
 			boolean enableAnalytics = data.getBoolean(HikeConstants.NET_BLOCKED_STATE_ANALYTICS);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NET_BLOCKED_STATE_ANALYTICS, enableAnalytics);
 		}
+	//1-->TWIN PRIME CLIENT,0-->OKCLIENT
+		if (data.has(HikeConstants.TP_ENABLE)) {
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TP_ENABLE, data.optInt(HikeConstants.TP_ENABLE, 1));
+		}
 		if (data.has(HikeConstants.ADD_URL))
 		{
 			try
@@ -3126,6 +3140,63 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_RECOMMENDED_PACKS, showRecommendedPacks);
 		}
 
+		if (data.has(HikeConstants.CHUNK_SIZE_POLICY))
+		{
+			int chunkSizePolicy = data.getInt(HikeConstants.CHUNK_SIZE_POLICY);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CHUNK_SIZE_POLICY, chunkSizePolicy);
+		}
+
+		if(data.has(HikeConstants.NUMBER_OF_ROWS_FOR_ORDER))
+		{
+			int orderRowsCount = data.optInt(HikeConstants.NUMBER_OF_ROWS_FOR_ORDER, StickerConstants.DEFAULT_NUMBER_OF_ROWS_FOR_ORDER);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NUMBER_OF_ROWS_FOR_ORDER, orderRowsCount);
+		}
+
+		if(data.has(HikeConstants.PACK_UPDATION_PAGE_SIZE))
+		{
+			int packUpdationPageSize = data.optInt(HikeConstants.PACK_UPDATION_PAGE_SIZE, StickerConstants.DEFAULT_PAGE_SIZE_FOR_CATEGORY_UPDATION_METADATA);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.PACK_UPDATION_PAGE_SIZE, packUpdationPageSize);
+		}
+
+		if(data.has(HikeConstants.PACK_CREATION_PAGE_SIZE))
+		{
+			int packCreationPageSize = data.optInt(HikeConstants.PACK_CREATION_PAGE_SIZE, StickerConstants.DEFAULT_PAGE_SIZE_FOR_CATEGORY_CREATION_METADATA);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.PACK_CREATION_PAGE_SIZE, packCreationPageSize);
+		}
+
+		if(data.has(HikeConstants.FETCH_METADATA_PACK_COUNT))
+		{
+			int fetchMetadataPackCount = data.optInt(HikeConstants.FETCH_METADATA_PACK_COUNT, StickerConstants.DEFAULT_CATEGORIES_TO_FETCH_DATA);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FETCH_METADATA_PACK_COUNT, fetchMetadataPackCount);
+		}
+
+		if(data.has(HikeConstants.SHOW_QUICK_STICKER_SUGGESTION_ON_STICKER_RECEIVE))
+		{
+			QuickStickerSuggestionController.getInstance().toggleQuickSuggestionOnReceive(data.optBoolean(HikeConstants.SHOW_QUICK_STICKER_SUGGESTION_ON_STICKER_RECEIVE));
+		}
+
+		if(data.has(HikeConstants.SHOW_QUICK_STICKER_SUGGESTION_ON_STICKER_SENT))
+		{
+			QuickStickerSuggestionController.getInstance().toggleQuickSuggestionOnSent(data.optBoolean(HikeConstants.SHOW_QUICK_STICKER_SUGGESTION_ON_STICKER_SENT));
+		}
+
+		if(data.has(HikeConstants.QUICK_SUGGESTED_STICKERS_TTL))
+		{
+			QuickStickerSuggestionController.getInstance().refreshQuickSuggestionTtl(data.optLong(HikeConstants.QUICK_SUGGESTED_STICKERS_TTL));
+		}
+
+		if (data.has(HikeConstants.ENABLE_BDAY_IN_CCA))
+		{
+			boolean showBdayInCCA = data.getBoolean(HikeConstants.ENABLE_BDAY_IN_CCA);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_BDAY_IN_CCA, showBdayInCCA);
+		}
+
+		if (data.has(HikeConstants.BDAY_HTTP_CALL_TIME_GAP))
+		{
+			long bdayHttpTimeGap = data.getLong(HikeConstants.BDAY_HTTP_CALL_TIME_GAP);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BDAY_HTTP_CALL_TIME_GAP, bdayHttpTimeGap);
+		}
+		
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 
@@ -3588,15 +3659,47 @@ public class MqttMessagesManager
 		}
 		else if (HikeConstants.LOG_EMOTICON_USAGE_SWITCH.equals(subType))
 		{
-			boolean showBadge = data.optBoolean(HikeConstants.BADGE, false);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LOG_EMOTICON_USAGE_SWITCH, showBadge);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LOG_EMOTICON_USAGE_SWITCH, data.optBoolean(HikeConstants.BADGE, false));
 		}
         else if(HikeConstants.STICKER_SIZE.equals(subType))
         {
             int stickerSize = data.optInt(HikeConstants.STICKER_SIZE,-1);
             HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_SIZE, stickerSize);
         }
-
+        else if(HikeConstants.SHOW_STICKER_SHOP_SEARCH_FTUE_LIMIT.equals(subType))
+        {
+            int limit = data.optInt(HikeConstants.LIMIT_KEY, HikeConstants.DEFAULT_SEARCH_FTUE_LIMIT);
+            HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_STICKER_SHOP_SEARCH_FTUE_LIMIT, limit);
+        }
+        else if(HikeConstants.STICKER_SHOP_SEARCH_TOGGLE.equals(subType))
+        {
+            HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_SHOP_SEARCH_TOGGLE, data.optBoolean(HikeConstants.BADGE, false));
+        }
+        else if(CategorySearchManager.SHOP_SEARCH_WEIGHTS.equals(subType))
+        {
+            String weightString = data.optString(HikeConstants.STICKER_SCORE_WEIGHTAGE, CategorySearchManager.DEFAULT_WEIGHTS_INPUT);
+            HikeSharedPreferenceUtil.getInstance().saveData(CategorySearchManager.SHOP_SEARCH_WEIGHTS, weightString);
+        }
+        else if(CategorySearchManager.SEARCH_RESULTS_LIMIT.equals(subType))
+        {
+            int limit = data.optInt(HikeConstants.LIMIT_KEY, CategorySearchManager.DEFAULT_SEARCH_RESULTS_LIMIT);
+            HikeSharedPreferenceUtil.getInstance().saveData(CategorySearchManager.SEARCH_RESULTS_LIMIT, limit);
+        }
+        else if(CategorySearchManager.SEARCH_QUERY_LENGTH_THRESHOLD.equals(subType))
+        {
+            int limit = data.optInt(HikeConstants.LIMIT_KEY, CategorySearchManager.DEFAULT_SEARCH_QUERY_LENGTH_THRESHOLD);
+            HikeSharedPreferenceUtil.getInstance().saveData(CategorySearchManager.SEARCH_QUERY_LENGTH_THRESHOLD, limit);
+        }
+        else if(CategorySearchManager.AUTO_SEARCH_TIME.equals(subType))
+        {
+            long limit = data.optLong(HikeConstants.LIMIT_KEY, CategorySearchManager.DEFAULT_AUTO_SEARCH_TIME);
+            HikeSharedPreferenceUtil.getInstance().saveData(CategorySearchManager.AUTO_SEARCH_TIME, limit);
+        }
+        else if(CategorySearchManager.SEARCH_RESULTS_LOG_LIMIT.equals(subType))
+        {
+            int limit = data.optInt(HikeConstants.LIMIT_KEY, CategorySearchManager.DEFAULT_SEARCH_RESULTS_LOG_LIMIT);
+            HikeSharedPreferenceUtil.getInstance().saveData(CategorySearchManager.SEARCH_RESULTS_LOG_LIMIT, limit);
+        }
 	}
 
 	private void saveBulkLastSeen(JSONObject jsonObj) throws JSONException
