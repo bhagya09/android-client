@@ -136,7 +136,7 @@ public class UpgradeIntentService extends IntentService
 				.doesExternalDirExists())
 		{
 			if (StickerManager.getInstance().migrateStickerAssets(StickerManager.getInstance().getOldStickerExternalDirFilePath(),
-					StickerManager.getInstance().getStickerExternalDirFilePath()))
+					StickerManager.getInstance().getNewStickerDirFilePath()))
 			{
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, true);
 				Logger.v(TAG, "Upgrade for sticker table was successful");

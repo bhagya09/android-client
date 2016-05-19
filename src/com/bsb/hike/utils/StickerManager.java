@@ -334,6 +334,17 @@ public class StickerManager
 
 	public String getStickerExternalDirFilePath()
 	{
+		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, false))
+		{
+			String externalDir = getOldStickerExternalDirFilePath();
+			return externalDir;
+		}
+
+		return getNewStickerDirFilePath();
+	}
+
+	public String getNewStickerDirFilePath()
+	{
 		String stickerExternalDir = HikeConstants.HIKE_DIRECTORY_ROOT + HikeConstants.STICKERS_ROOT;
 		return stickerExternalDir;
 	}
@@ -3471,7 +3482,7 @@ public class StickerManager
 
 			// Assets migrated successfully
 			// Update stickers path
-			stickerExternalDir = getStickerExternalDirFilePath(); // We need to re-init this path to the new path now
+			stickerExternalDir = HikeConstants.HIKE_DIRECTORY_ROOT + HikeConstants.STICKERS_ROOT; // We need to re-init this path to the new path now
 
 			if (HikeConversationsDatabase.getInstance().upgradeForStickerTable())
 			{
