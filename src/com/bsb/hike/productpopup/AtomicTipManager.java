@@ -701,7 +701,7 @@ public class AtomicTipManager
                 break;
 
             case ProductPopupsConstants.PopUpAction.MAKE_FRIEND:
-                makeFriend(context, metadata);
+                actionMakeFriend(context, metadata);
                 removeTipFromView();
                 break;
 
@@ -966,10 +966,11 @@ public class AtomicTipManager
         }
     }
 
-    private void makeFriend(Context context, String metadata)
+    private void actionMakeFriend(Context context, String metadata)
     {
-        Logger.d(TAG, "processing makefriend action");
+        Logger.d(TAG, "processing makefriend action, metadata is " + metadata);
         JSONObject mmObject;
+        int counter = 0;
         try
         {
             mmObject = new JSONObject(metadata);
@@ -988,10 +989,18 @@ public class AtomicTipManager
                     {
                         ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, false, false);
                         Utils.toggleFavorite(context, contactInfo, false, null, false);
+                        counter++;
                     }
                 }
             }
-            showHttpToast(context.getString(R.string.added_fav_via_tip, msisdns.length()));
+            if(counter == 1)
+            {
+                showHttpToast(context.getString(R.string.friend_request_sent));
+            }
+            else if(counter > 1)
+            {
+                showHttpToast(context.getString(R.string.friend_request_sent_multiple));
+            }
         }
         catch (JSONException e)
         {
