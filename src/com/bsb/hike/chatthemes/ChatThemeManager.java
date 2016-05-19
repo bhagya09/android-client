@@ -11,6 +11,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.chatthread.ChatThread;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.HikeChatTheme;
@@ -349,6 +350,12 @@ public class ChatThemeManager {
     }
 
     public void downloadThemeAssetsMetadata(String themeId, boolean isCustom) {
+        // Automatically enabling the Chatthemes for the receiver, though the packet is not enabled from server. This will help to organically grow chat themes
+        // https://hikeapp.atlassian.net/browse/CE-764
+        if(isCustom && !ChatThreadUtils.isCustomChatThemeEnabled()){
+            HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CUSTOM_CHATTHEME_ENABLED, true);
+        }
+
         if (!mChatThemesMap.containsKey(themeId)) {
             DownloadThemeContentTask downloadAssetIds = new DownloadThemeContentTask(themeId, isCustom);
             downloadAssetIds.execute();
