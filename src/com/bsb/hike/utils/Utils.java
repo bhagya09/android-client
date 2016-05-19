@@ -3966,6 +3966,11 @@ public class Utils
 
 	public static FavoriteType toggleFavorite(Context context, ContactInfo contactInfo, boolean isFtueContact, String addFavSource)
 	{
+		return toggleFavorite(context, contactInfo, isFtueContact, addFavSource, true);
+	}
+
+	public static FavoriteType toggleFavorite(Context context, ContactInfo contactInfo, boolean isFtueContact, String addFavSource, boolean showToast)
+	{
 		FavoriteType favoriteType;
 		boolean isRequestSent = false;
 		if (contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED)
@@ -3976,7 +3981,10 @@ public class Utils
 		{
 			favoriteType = FavoriteType.REQUEST_SENT;
 			isRequestSent = true;
-			Toast.makeText(context, Utils.isFavToFriendsMigrationAllowed() ? R.string.friend_request_sent : R.string.favorite_request_sent, Toast.LENGTH_SHORT).show();
+			if(showToast)
+			{
+				Toast.makeText(context, Utils.isFavToFriendsMigrationAllowed() ? R.string.friend_request_sent : R.string.favorite_request_sent, Toast.LENGTH_SHORT).show();
+			}
 		}
 
 		// 2-way friendship established. Get Historical updates here!

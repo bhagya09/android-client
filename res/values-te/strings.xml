@@ -1427,4 +1427,7 @@
     <string name="pack_search_again_hint">లవ్,హిందీ,బాలీవుడ్ మొదలైన పదాలను పూర్తిగా టైపు చెయ్యండిा</string>
     <string name="edit_profile_birthday">సంభవించింది</string>
     <string name="atomic_tip_http_failure">కొంత లోపం సంభవించింది.దయచేసి తర్వాత మళ్లీ ప్రయత్నించండి</string>
+    <string name="my_location">నా ప్రదేశం</string>
+    <string name="custom_location">వాడుక ప్రదేశం</string>
+
 </resources>

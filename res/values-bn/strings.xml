@@ -1438,4 +1438,7 @@
     <string name="pack_search_again_hint">প্রেম, হিন্দি, বলিউড, ইত্যাদি সম্পূর্ণ শব্দ টাইপ করুনें</string>
     <string name="edit_profile_birthday">জন্ম দিন</string>
     <string name="atomic_tip_http_failure">কিছু ত্রুটি ঘটেছে অনুগ্রহ করে একটু পরে আবার চেষ্টা করুন</string>
+    <string name="my_location">আমার অবস্থান</string>
+    <string name="custom_location">নিজের অবস্থান নির্বাচন করুন</string>
+
 </resources>
