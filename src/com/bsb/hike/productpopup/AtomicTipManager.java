@@ -1,6 +1,7 @@
 package com.bsb.hike.productpopup;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
@@ -22,8 +23,10 @@ import static com.bsb.hike.analytics.AnalyticsConstants.AtomicTipsAnalyticsConst
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
@@ -34,6 +37,7 @@ import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
