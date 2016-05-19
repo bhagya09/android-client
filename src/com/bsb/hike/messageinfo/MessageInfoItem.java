@@ -157,7 +157,7 @@ public abstract class MessageInfoItem
 
 		private String name;
 
-		private String number;
+		private String msisdn;
 
 		private long readTimeStamp, deliveryTimeStamp, playedTimeStamp;
 
@@ -172,11 +172,19 @@ public abstract class MessageInfoItem
 			readTimeStamp = participantData.getReadTimeStamp();
 			deliveryTimeStamp = participantData.getDeliveredTimeStamp();
 			playedTimeStamp = participantData.getPlayedTimeStamp();
+			msisdn=participantData.getContactInfo().getMsisdn();
 			this.type = type;
 			this.viewType = viewType;
 
 			// TODO Auto-generated constructor stub
 
+		}
+		public int getHashCode(){
+			int h=msisdn.hashCode()+type;
+			return h;
+		}
+		public int getType(){
+			return type;
 		}
 		public static final int NO_DIVIDER=0;
 		public static final int SMALL_DIVIDER=1;
@@ -273,7 +281,7 @@ public abstract class MessageInfoItem
 		}
 
 		public String getMsisdn(){
-			return participantData.getContactInfo().getMsisdn();
+			return msisdn;
 		}
 
 		public String getTimeStampDescription()
