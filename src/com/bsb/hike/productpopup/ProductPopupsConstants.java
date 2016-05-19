@@ -249,6 +249,14 @@ public class ProductPopupsConstants
 				return "newchat";
 			}
 		},
+		COMPOSE_CHAT_WITH_BDAY
+		{
+			@Override
+			public String toString()
+			{
+				return "newchat_bday";
+			}
+		},
 		HIDDEN_MODE
 		{
 			@Override

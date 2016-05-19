@@ -2745,10 +2745,12 @@ import java.util.Map;
 			break;
 			
 		case R.id.block_unknown_contact:
+			if(isWalkieTalkieShowing()) return; //CE-184
 			HikeMessengerApp.getPubSub().publish(HikePubSub.BLOCK_USER, msisdn);
 			break;
 
 		case R.id.add_unknown_contact:
+			if(isWalkieTalkieShowing()) return; //CE-184
 			if ( null != v.getTag() && v.getTag().equals(R.string.add))
 			{
 				Utils.addToContacts(activity, msisdn);

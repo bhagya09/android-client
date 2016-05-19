@@ -10261,19 +10261,20 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		{
 			c = mDb.query(
 					DBConstants.STICKER_TABLE,
-					new String[] { DBConstants.QUICK_SUGGESTED_REPLY_STICKERS, DBConstants.QUICK_SUGGESTED_SENT_STICKERS },
+					new String[] { DBConstants.QUICK_SUGGESTED_REPLY_STICKERS, DBConstants.QUICK_SUGGESTED_SENT_STICKERS, DBConstants.LAST_QUICK_SUGGESTION_REFRESH_TIME },
 					DBConstants.CATEGORY_ID + "=?" + " AND " + DBConstants.STICKER_ID + "=?",
 					new String[] { quickSuggestSticker.getCategoryId(), quickSuggestSticker.getStickerId() },
 					null, null, null, null);
 
 			int replyStickerSetStringIndex = c.getColumnIndex(QUICK_SUGGESTED_REPLY_STICKERS);
 			int sentStickerSetStringIndex = c.getColumnIndex(QUICK_SUGGESTED_SENT_STICKERS);
+			int lastRefreshTimeIdx = c.getColumnIndex(LAST_QUICK_SUGGESTION_REFRESH_TIME);
 
 			if(c.moveToFirst())
 			{
 					quickSuggestionCategory.setReplyStickers(QuickSuggestionStickerCategory.replyStickerSetFromString(c.getString(replyStickerSetStringIndex)));
 					quickSuggestionCategory.setSentStickers(QuickSuggestionStickerCategory.sentStickerSetFromSting(c.getString(sentStickerSetStringIndex)));
-
+					quickSuggestionCategory.setLastRefreshTime(c.getLong(lastRefreshTimeIdx));
 			}
 		}
 		finally
@@ -10305,6 +10306,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				Logger.d(getClass().getSimpleName(), "sent string for sticker " + quickSuggestionSticker + " is : " + sentSetString);
 				contentValues.put(DBConstants.QUICK_SUGGESTED_REPLY_STICKERS, replySetString);
 				contentValues.put(DBConstants.QUICK_SUGGESTED_SENT_STICKERS, sentSetString);
+				contentValues.put(DBConstants.LAST_QUICK_SUGGESTION_REFRESH_TIME, System.currentTimeMillis());
 				int updatesRows = mDb.update(DBConstants.STICKER_TABLE, contentValues, DBConstants.CATEGORY_ID + "=?" + " AND " + DBConstants.STICKER_ID + "=?", new String[] {quickSuggestionSticker.getCategoryId(), quickSuggestionSticker.getStickerId()});
  				Logger.d(getClass().getSimpleName(), updatesRows + " rows are updated during quick suggestions insert");
 			}

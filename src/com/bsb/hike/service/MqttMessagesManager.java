@@ -3201,6 +3201,11 @@ public class MqttMessagesManager
 			QuickStickerSuggestionController.getInstance().toggleQuickSuggestionOnSent(data.optBoolean(HikeConstants.SHOW_QUICK_STICKER_SUGGESTION_ON_STICKER_SENT));
 		}
 
+		if(data.has(HikeConstants.QUICK_SUGGESTED_STICKERS_TTL))
+		{
+			QuickStickerSuggestionController.getInstance().refreshQuickSuggestionTtl(data.optLong(HikeConstants.QUICK_SUGGESTED_STICKERS_TTL));
+		}
+
 		if (data.has(HikeConstants.ENABLE_BDAY_IN_CCA))
 		{
 			boolean showBdayInCCA = data.getBoolean(HikeConstants.ENABLE_BDAY_IN_CCA);

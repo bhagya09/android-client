@@ -3969,6 +3969,10 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 						}
 						walkieView.initialize(activity.findViewById(R.id.bottom_panel), mShareablePopupLayout.isShowing() || isKeyboardOpen());
 						walkieView.update(v,event);
+						if (mAdapter != null)
+						{
+							mAdapter.pausetPlayerIfPlaying();
+						}
 						sendWTClickedAnalytic();
 						break;
 					case MotionEvent.ACTION_MOVE:
