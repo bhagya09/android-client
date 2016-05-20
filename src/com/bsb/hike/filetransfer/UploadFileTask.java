@@ -525,7 +525,7 @@ public class UploadFileTask extends FileTransferBase
 			@Override
 			public void onRequestSuccess(Response result)
 			{
-				if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DISABLE_QUICK_UPLOAD, false))
+				if(!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PRODUCTION, true) && HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DISABLE_QUICK_UPLOAD, false))
 				{
 					uploadFile(selectedFile);
 					return;
