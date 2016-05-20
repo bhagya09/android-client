@@ -4251,7 +4251,7 @@ public class HikeConstants
 
 	public static final String CHUNK_SIZE_POLICY = "chunkSizePolicy";
 
-	public static final String NUMBER_OF_ROWS_FOR_ORDER = "orderRowsCount";
+    public static final String NUMBER_OF_ROWS_FOR_ORDER = "orderRowsCount";
 
 	public static final String PACK_UPDATION_PAGE_SIZE = "packUpdatePageSize";
 
@@ -4308,4 +4308,6 @@ public class HikeConstants
 	public static final String BDAY_HTTP_CALL_TIME_GAP = "b_c_g";
 
 	public static final String BIRTHDAY_DATA = "bdata";
+
+	public static final String DISABLE_QUICK_UPLOAD = "disable_md5";
 }
