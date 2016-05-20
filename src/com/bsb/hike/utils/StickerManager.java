@@ -2535,59 +2535,55 @@ public class StickerManager
 			/*
 			 * TO DO Unification of all events, which needs to run only once in a day
 			 */
-			long lastPackAndOrderingSentTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.LAST_STICKER_PACK_AND_ORDERING_SENT_TIME, 0L);
 			long currentTime = System.currentTimeMillis();
 
 			String categoriesViewed = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.VIEWED_IN_PALLETE_CATEGORY_LIST, "");
 			JSONObject catList = (TextUtils.isEmpty(categoriesViewed)) ? new JSONObject() : new JSONObject(categoriesViewed);
 
-			if ((currentTime - lastPackAndOrderingSentTime) >= 24 * 60 * 60 * 1000) // greater than one day
+			List<StickerCategory> stickerCategories = getMyStickerCategoryList();
+
+			if (Utils.isEmpty(stickerCategories))
 			{
-				List<StickerCategory> stickerCategories = getMyStickerCategoryList();
-
-				if (Utils.isEmpty(stickerCategories))
-				{
-					return;
-				}
-
-				JSONArray stickerPackAndOrderList = new JSONArray();
-
-				for (StickerCategory stickerCategory : stickerCategories)
-				{
-					int index;
-					if (stickerCategory.isVisible())
-					{
-						index = stickerCategory.getCategoryIndex();
-					}
-					else
-					{
-						index = -1;
-					}
-                    
-					int scrollVisibility = 0, tapVisibility = 0;
-					if (catList.has(stickerCategory.getCategoryId()))
-					{
-						JSONObject categoryVisibility = catList.getJSONObject(stickerCategory.getCategoryId());
-						scrollVisibility = categoryVisibility.optInt(HikeConstants.SCROLL_COUNT);
-						tapVisibility = categoryVisibility.optInt(HikeConstants.CLICK_COUNT);
-					}
-
-					stickerPackAndOrderList.put(stickerCategory.getCategoryId() + STRING_DELIMETER + index + STRING_DELIMETER + scrollVisibility + STRING_DELIMETER + tapVisibility);
-				}
-
-				JSONObject metadata = new JSONObject();
-				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.PACK_DATA_ANALYTIC_EVENT);
-				metadata.put(HikeConstants.NUMBER_OF_PACKS, stickerCategories.size());
-				metadata.put(HikeConstants.PACK_DATA, stickerPackAndOrderList);
-				metadata.put(
-						HikeConstants.KEYBOARD_LIST,
-						new JSONArray(StickerLanguagesManager.getInstance().getAccumulatedSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE,
-								StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE)));
-
-				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LAST_STICKER_PACK_AND_ORDERING_SENT_TIME, currentTime);
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.VIEWED_IN_PALLETE_CATEGORY_LIST, "");
+				return;
 			}
+
+			JSONArray stickerPackAndOrderList = new JSONArray();
+
+			for (StickerCategory stickerCategory : stickerCategories)
+			{
+				int index;
+				if (stickerCategory.isVisible())
+				{
+					index = stickerCategory.getCategoryIndex();
+				}
+				else
+				{
+					index = -1;
+				}
+
+				int scrollVisibility = 0, tapVisibility = 0;
+				if (catList.has(stickerCategory.getCategoryId()))
+				{
+					JSONObject categoryVisibility = catList.getJSONObject(stickerCategory.getCategoryId());
+					scrollVisibility = categoryVisibility.optInt(HikeConstants.SCROLL_COUNT);
+					tapVisibility = categoryVisibility.optInt(HikeConstants.CLICK_COUNT);
+				}
+
+				stickerPackAndOrderList.put(stickerCategory.getCategoryId() + STRING_DELIMETER + index + STRING_DELIMETER + scrollVisibility + STRING_DELIMETER + tapVisibility);
+			}
+
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.PACK_DATA_ANALYTIC_EVENT);
+			metadata.put(HikeConstants.NUMBER_OF_PACKS, stickerCategories.size());
+			metadata.put(HikeConstants.PACK_DATA, stickerPackAndOrderList);
+			metadata.put(
+					HikeConstants.KEYBOARD_LIST,
+					new JSONArray(StickerLanguagesManager.getInstance().getAccumulatedSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE,
+							StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE)));
+
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LAST_STICKER_PACK_AND_ORDERING_SENT_TIME, currentTime);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.VIEWED_IN_PALLETE_CATEGORY_LIST, "");
 		}
 		catch (JSONException e)
 		{
