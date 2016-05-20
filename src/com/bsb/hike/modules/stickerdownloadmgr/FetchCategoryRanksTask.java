@@ -58,6 +58,8 @@ public class FetchCategoryRanksTask implements IHikeHTTPTask, IHikeHttpTaskResul
 				{
 					JSONObject response = (JSONObject) result.getBody().getContent();
 
+					Logger.d(TAG, response.toString());
+
 					if (!Utils.isResponseValid(response))
 					{
 						Logger.e(TAG, "Sticker Order download failed null response");
