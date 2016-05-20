@@ -692,21 +692,9 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		}
 		setOnClick();
 		StickerIconPageIndicator.registerChatHeadTabClickListener(this);
+        isChatHeadStickerPicker = true;
 	}
 	
-	public void createExternalStickerPicker(LinearLayout layout)
-	{
-//		chatHeadstickerPickerView = getView(context.getResources().getConfiguration().orientation);
-//		findindViewById();
-//		layout.addView(chatHeadstickerPickerView);
-//		if (ChatHeadViewManager.dismissed > ChatHeadUtils.maxDismissLimit || ChatHeadUtils.shareCount >= ChatHeadUtils.shareLimit)
-//		{
-//			infoIconClick();
-//		}
-//		setOnClick();
-//		StickerEmoticonIconPageIndicator.registerChatHeadTabClickListener(this);	
-	}
-
 	private void findindViewById()
 	{
 		chatHeadDisableButton = (TextView)chatHeadstickerPickerView.findViewById(R.id.disable);
