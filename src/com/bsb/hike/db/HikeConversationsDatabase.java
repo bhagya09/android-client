@@ -1,26 +1,6 @@
 package com.bsb.hike.db;
 
 
-import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences.Editor;
@@ -39,11 +19,11 @@ import android.util.Base64;
 import android.util.Pair;
 import android.util.SparseArray;
 
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotInfo;
@@ -57,19 +37,6 @@ import com.bsb.hike.models.ConvMessage.ConvMessageComparator;
 import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
-import com.bsb.hike.models.CustomStickerCategory;
-import com.bsb.hike.models.FetchUIDTaskPojo;
-import com.bsb.hike.models.FileListItem;
-import com.bsb.hike.models.GroupParticipant;
-import com.bsb.hike.models.HikeFile;
-import com.bsb.hike.models.HikeFile.HikeFileType;
-import com.bsb.hike.models.HikeSharedFile;
-import com.bsb.hike.models.MessageEvent;
-import com.bsb.hike.models.MessageMetadata;
-import com.bsb.hike.models.Protip;
-import com.bsb.hike.modules.quickstickersuggestions.model.QuickSuggestionStickerCategory;
-import com.bsb.hike.models.Sticker;
-import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.models.Conversation.BotConversation;
 import com.bsb.hike.models.Conversation.BroadcastConversation;
 import com.bsb.hike.models.Conversation.ConvInfo;
@@ -80,9 +47,22 @@ import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
 import com.bsb.hike.models.Conversation.OneToOneConversation;
+import com.bsb.hike.models.CustomStickerCategory;
+import com.bsb.hike.models.FetchUIDTaskPojo;
+import com.bsb.hike.models.FileListItem;
+import com.bsb.hike.models.GroupParticipant;
+import com.bsb.hike.models.HikeFile;
+import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.HikeSharedFile;
+import com.bsb.hike.models.MessageEvent;
+import com.bsb.hike.models.MessageMetadata;
+import com.bsb.hike.models.Protip;
+import com.bsb.hike.models.Sticker;
+import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.contactmgr.ConversationMsisdns;
 import com.bsb.hike.modules.contactmgr.GroupDetails;
+import com.bsb.hike.modules.quickstickersuggestions.model.QuickSuggestionStickerCategory;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickersearch.datamodel.CategoryTagData;
 import com.bsb.hike.offline.OfflineUtils;
@@ -109,8 +89,64 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
-import static com.bsb.hike.db.DBConstants.*;
-import static com.bsb.hike.db.DBConstants.HIKE_CONV_DB.*;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import static com.bsb.hike.db.DBConstants.ACTIONS_TABLE;
+import static com.bsb.hike.db.DBConstants.ACTION_COUNT;
+import static com.bsb.hike.db.DBConstants.ACTION_ID;
+import static com.bsb.hike.db.DBConstants.ACTION_OBJECT_ID;
+import static com.bsb.hike.db.DBConstants.ACTION_OBJECT_TYPE;
+import static com.bsb.hike.db.DBConstants.ACTORS;
+import static com.bsb.hike.db.DBConstants.BOT_CONFIGURATION;
+import static com.bsb.hike.db.DBConstants.BOT_TABLE;
+import static com.bsb.hike.db.DBConstants.CONFIG_DATA;
+import static com.bsb.hike.db.DBConstants.CONVERSATIONS_TABLE;
+import static com.bsb.hike.db.DBConstants.CONVERSATION_METADATA;
+import static com.bsb.hike.db.DBConstants.CREATE_TABLE;
+import static com.bsb.hike.db.DBConstants.EVENT_ID;
+import static com.bsb.hike.db.DBConstants.EVENT_METADATA;
+import static com.bsb.hike.db.DBConstants.EVENT_STATUS;
+import static com.bsb.hike.db.DBConstants.EVENT_TYPE;
+import static com.bsb.hike.db.DBConstants.FEED_ACTOR;
+import static com.bsb.hike.db.DBConstants.FEED_OBJECT_ID;
+import static com.bsb.hike.db.DBConstants.FEED_OBJECT_TYPE;
+import static com.bsb.hike.db.DBConstants.FEED_TABLE;
+import static com.bsb.hike.db.DBConstants.FEED_TS;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT;
+import static com.bsb.hike.db.DBConstants.HIKE_CONV_DB.LOVE_TABLE;
+import static com.bsb.hike.db.DBConstants.HIKE_CONV_DB.REF_COUNT;
+import static com.bsb.hike.db.DBConstants.HIKE_UID;
+import static com.bsb.hike.db.DBConstants.IS_MUTE;
+import static com.bsb.hike.db.DBConstants.LAST_QUICK_SUGGESTION_REFRESH_TIME;
+import static com.bsb.hike.db.DBConstants.MESSAGES_TABLE;
+import static com.bsb.hike.db.DBConstants.MESSAGE_EVENT_TABLE;
+import static com.bsb.hike.db.DBConstants.MESSAGE_HASH;
+import static com.bsb.hike.db.DBConstants.MESSAGE_ID;
+import static com.bsb.hike.db.DBConstants.MESSAGE_METADATA;
+import static com.bsb.hike.db.DBConstants.MSISDN;
+import static com.bsb.hike.db.DBConstants.QUICK_SUGGESTED_REPLY_STICKERS;
+import static com.bsb.hike.db.DBConstants.QUICK_SUGGESTED_SENT_STICKERS;
+import static com.bsb.hike.db.DBConstants.STATUS_MAPPED_ID;
+import static com.bsb.hike.db.DBConstants.STATUS_TABLE;
+import static com.bsb.hike.db.DBConstants.UNREAD_COUNT;
 
 public class HikeConversationsDatabase extends SQLiteOpenHelper
 {
@@ -256,8 +292,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				+ DBConstants.HAS_LEFT + " INTEGER, " // Whether the participant has left the group or not.
 				+ DBConstants.ON_DND + " INTEGER, " // Whether the participant is on DND or not
 				+ DBConstants.SHOWN_STATUS + " INTEGER, " // Whether we have shown a DND status for this participant or not. 
-				+ DBConstants.TYPE + " INTEGER  DEFAULT 0" // Whether the participant is an admin or not.
-				+ " )";
+				+ DBConstants.TYPE + " INTEGER  DEFAULT 0 , " // Whether the participant is an admin or not.
+				+ DBConstants.HIKE_UID + " TEXT DEFAULT NULL"
+				+	")";
 		db.execSQL(sql);
 		sql = "CREATE UNIQUE INDEX IF NOT EXISTS " + DBConstants.GROUP_INDEX + " ON " + DBConstants.GROUP_MEMBERS_TABLE + " ( " + DBConstants.GROUP_ID + ", " + DBConstants.MSISDN
 				+ " ) ";
@@ -1068,13 +1105,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 			db.execSQL(sql);
         }
 		if(oldVersion < 50)
-		{// Adding UID coloum in Bots Table
-			if(!Utils.isColumnExistsInTable(db,DBConstants.BOT_TABLE,DBConstants.HIKE_UID))
-			{
-				String sql = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + DBConstants.HIKE_UID + " TEXT";
-				db.execSQL(sql);
-			}
-
+		{
 			if (!Utils.isColumnExistsInTable(db, DBConstants.STICKER_CATEGORIES_TABLE, DBConstants.UCID))
 			{
 				String alter1 = "ALTER TABLE " + DBConstants.STICKER_CATEGORIES_TABLE + " ADD COLUMN " + DBConstants.UCID + " INTEGER ";
@@ -1111,6 +1142,19 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 
 		if(oldVersion < 51)
 		{
+			// Adding UID coloum in Bots Table
+			if(!Utils.isColumnExistsInTable(db,DBConstants.BOT_TABLE,DBConstants.HIKE_UID))
+			{
+				String sql = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + DBConstants.HIKE_UID + " TEXT";
+				db.execSQL(sql);
+			}
+
+			if(!Utils.isColumnExistsInTable(db,DBConstants.GROUP_MEMBERS_TABLE,DBConstants.HIKE_UID))
+			{
+				String sql = "ALTER TABLE " + DBConstants.GROUP_MEMBERS_TABLE + " ADD COLUMN " + DBConstants.HIKE_UID + " TEXT DEFAULT NULL";
+				db.execSQL(sql);
+			}
+
 			if(!Utils.isColumnExistsInTable(db, DBConstants.STICKER_TABLE, DBConstants.QUICK_SUGGESTED_REPLY_STICKERS))
 			{
 				String alter1 = "ALTER TABLE " + DBConstants.STICKER_TABLE + " ADD COLUMN " + DBConstants.QUICK_SUGGESTED_REPLY_STICKERS + " TEXT";
@@ -4770,6 +4814,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 					participantsAlreadyAdded = false;
 					infoChangeOnly = true;
 				}
+				String currentUID=currentParticipant.getUid();
+				String newUidFromServer= newParticipantEntry.getValue().getFirst().getUid();
+
+				if (TextUtils.isEmpty(currentUID) && !TextUtils.isEmpty(newUidFromServer))
+				{
+					participantsAlreadyAdded = false;
+					infoChangeOnly = true;
+				}
 				currentParticipants.remove(newParticipantEntry.getKey());
 			}
 		}
@@ -4813,9 +4865,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 			{
 				ih = new InsertHelper(mDb, DBConstants.GROUP_MEMBERS_TABLE);
 				insertStatement = mDb.compileStatement("INSERT OR REPLACE INTO " + DBConstants.GROUP_MEMBERS_TABLE + " ( " + DBConstants.GROUP_ID + ", " + DBConstants.MSISDN
-						+ ", " + DBConstants.NAME + ", " + DBConstants.ONHIKE + ", " + DBConstants.HAS_LEFT + ", " + DBConstants.ON_DND + ", " + DBConstants.SHOWN_STATUS + ", " + DBConstants.TYPE 
+						+ ", " + DBConstants.NAME + ", " + DBConstants.ONHIKE + ", " + DBConstants.HAS_LEFT + ", " + DBConstants.ON_DND + ", " + DBConstants.SHOWN_STATUS + ", " + DBConstants.TYPE  + " , " + DBConstants.HIKE_UID
 						+" ) "
-						+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+						+ " VALUES (?, ?, ?, ?, ?, ?, ?, ? ,?)");
 				for (Entry<String, PairModified<GroupParticipant, String>> participant : participantList.entrySet())
 				{
 					GroupParticipant groupParticipant = participant.getValue().getFirst();
@@ -4827,6 +4879,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 					insertStatement.bindLong(ih.getColumnIndex(DBConstants.ON_DND), groupParticipant.onDnd() ? 1 : 0);
 					insertStatement.bindLong(ih.getColumnIndex(DBConstants.SHOWN_STATUS), groupParticipant.getContactInfo().isOnhike() ? 1 : 0);
 					insertStatement.bindLong(ih.getColumnIndex(DBConstants.TYPE), groupParticipant.isAdmin() ? 1 : 0);
+					if (!TextUtils.isEmpty(groupParticipant.getUid()))
+						insertStatement.bindString(ih.getColumnIndex(DBConstants.HIKE_UID), groupParticipant.getUid());
 					insertStatement.executeInsert();
 
 					newParticipants.put(participant.getKey(), new PairModified<GroupParticipant, String>(groupParticipant, participant.getValue().getSecond()));
@@ -4999,7 +5053,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		Cursor c = null;
 		try
 		{
-			c = mDb.query(DBConstants.GROUP_MEMBERS_TABLE, new String[] { DBConstants.MSISDN, DBConstants.HAS_LEFT, DBConstants.ONHIKE, DBConstants.NAME, DBConstants.ON_DND, DBConstants.TYPE },
+			c = mDb.query(DBConstants.GROUP_MEMBERS_TABLE, new String[] { DBConstants.MSISDN, DBConstants.HAS_LEFT, DBConstants.ONHIKE, DBConstants.NAME, DBConstants.ON_DND, DBConstants.TYPE,DBConstants.HIKE_UID },
 					selection, new String[] { groupId }, null, null, null);
 
 			Map<String, PairModified<GroupParticipant, String>> participantList = new HashMap<String, PairModified<GroupParticipant, String>>();
@@ -5009,7 +5063,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				String msisdn = c.getString(c.getColumnIndex(DBConstants.MSISDN));
 				allMsisdns.add(msisdn);
 				String name = c.getString(c.getColumnIndex(DBConstants.NAME));
-				GroupParticipant groupParticipant = new GroupParticipant(new ContactInfo(msisdn, msisdn, name, msisdn, c.getInt(c.getColumnIndex(DBConstants.ONHIKE)) != 0),
+				String uid = c.getString(c.getColumnIndex(DBConstants.HIKE_UID));
+				ContactInfo ci = new ContactInfo(msisdn, msisdn, name, msisdn, c.getInt(c.getColumnIndex(DBConstants.ONHIKE)) != 0);
+				ci.setUid(uid);
+				GroupParticipant groupParticipant = new GroupParticipant(ci,
 						c.getInt(c.getColumnIndex(DBConstants.HAS_LEFT)) != 0, c.getInt(c.getColumnIndex(DBConstants.ON_DND)) != 0, c.getInt(c.getColumnIndex(DBConstants.TYPE)), groupId);
 				participantList.put(msisdn, new PairModified<GroupParticipant, String>(groupParticipant, name));
 			}
@@ -7528,6 +7585,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 
 		return new Pair<List<StickerCategory>, List<String>>(metadataUpdateList, tagdataUpdateList);
 	}
+
 
 	private class SharedMediaCursorIterator implements Iterator<HikeSharedFile>
 	{
@@ -10201,5 +10259,44 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 			}
 		}
 		return stickerSet;
+	}
+
+	public Set<String> getAllMsisdnsForMissingUID()
+	{
+		String query="Select distinct msisdn from " + DBConstants.GROUP_MEMBERS_TABLE + " where uid is null and " + DBConstants.ONHIKE  + " = 1";
+
+		Cursor c =mDb.rawQuery(query,null);
+
+		Set<String> msisdns = new HashSet<>(c.getCount());
+		String msisdn = null;
+		while(c.moveToNext())
+		{
+			msisdn = c.getString(c.getColumnIndex(DBConstants.MSISDN));
+			msisdns.add(msisdn);
+		}
+		return msisdns;
+	}
+
+	public void updateContactUidForGroupMembers(Set<FetchUIDTaskPojo> data) {
+		if (Utils.isEmpty(data)) {
+			return;
+		}
+		mDb.beginTransaction();
+		try {
+			ContentValues cv = new ContentValues();
+			for (FetchUIDTaskPojo d : data) {
+				if (TextUtils.isEmpty(d.getUid())) {    // onHike is false
+					cv.put(DBConstants.ONHIKE, 0);
+				} else {
+					cv.put(DBConstants.HIKE_UID, d.getUid());
+					cv.put(DBConstants.ONHIKE, 1);
+				}
+				long rows = mDb.update(DBConstants.GROUP_MEMBERS_TABLE, cv, DBConstants.MSISDN + "=?", new String[]{d.getMsisdn()});
+				cv.clear();
+			}
+			mDb.setTransactionSuccessful();
+		} finally {
+			mDb.endTransaction();
+		}
 	}
 }

@@ -733,6 +733,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		int lastSeenTimeIdx = c.getColumnIndex(DBConstants.LAST_SEEN);
 		int platformIdIndex = c.getColumnIndex(DBConstants.PLATFORM_USER_ID);
 		int blockStatusIndex = c.getColumnIndex(DBConstants.BLOCK_STATUS);
+		int hikeIdIndex = c.getColumnIndex(DBConstants.HIKE_UID);
 
 
 		long hikeJoinTime = 0;
@@ -771,6 +772,10 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		if(blockStatusIndex != -1)
 		{
 			contactInfo.setBlockStatus(c.getString(blockStatusIndex).equals(DBConstants.STATUS_BLOCKED));
+		}
+		if(hikeIdIndex != -1)
+		{
+			contactInfo.setUid(c.getString(hikeIdIndex));
 		}
 		return contactInfo;
 	}

@@ -23,6 +23,10 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 		return isBlocked;
 	}
 
+	public void setUid(String uid) {
+		this.uid = uid;
+	}
+
 	public enum FavoriteType
 	{
 		NOT_FRIEND, REQUEST_RECEIVED, FRIEND, AUTO_RECOMMENDED_FAVORITE, REQUEST_SENT, REQUEST_SENT_REJECTED, REQUEST_RECEIVED_REJECTED
