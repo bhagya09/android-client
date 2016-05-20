@@ -488,12 +488,7 @@ import com.bsb.hike.voip.VoIPUtils;
 	{
 		mContactInfo = ContactManager.getInstance().getContact(msisdn, true, true);
 
-		boolean fetchMetadata = false;
-
-		if(mContactInfo.isUnknownContact())
-		{
-			fetchMetadata = true;
-		}
+		boolean fetchMetadata = isMetadataRequired();
 
 		mConversation = HikeConversationsDatabase.getInstance().getConversation(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, fetchMetadata);
 
@@ -511,6 +506,17 @@ import com.bsb.hike.voip.VoIPUtils;
 		mCredits = activity.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getInt(HikeMessengerApp.SMS_SETTING, 0);
 
 		return mConversation;
+	}
+
+	protected boolean isMetadataRequired()
+	{
+		boolean req = false;
+
+		if(mContactInfo.isUnknownContact())
+		{
+			req = true;
+		}
+		return req;
 	}
 
 	@Override
@@ -3918,13 +3924,8 @@ import com.bsb.hike.voip.VoIPUtils;
 	// To Show User info View in cases
 	// 1. one to one conv with unknown user
 	// 2. user opens 1-1 chat via caller "free sms" button click on hike caller card
-	private void updateUnknownUserInfoViews(Object object)
+	protected void updateUnknownUserInfoViews(Object object)
 	{
-		if (BotUtils.isBot(mConversation.getMsisdn()))
-		{
-			return;
-		}
-		
 		try
 		{
 			// This is case When Http Call is failed and we have to dismissLoader

@@ -93,7 +93,13 @@ public class BotChatThread extends OneToOneChatThread
 		mConversation.setIsMute(HikeConversationsDatabase.getInstance().isBotMuted(msisdn));
 		return mConversation;
 	}
-	
+
+	@Override
+	protected boolean isMetadataRequired()
+	{
+		return false;
+	}
+
 	@Override
 	public void onPause()
 	{
@@ -548,5 +554,11 @@ public class BotChatThread extends OneToOneChatThread
 	{
 		this.dialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.BLOCK_CHAT_CONFIRMATION_DIALOG, this, false);
 		HAManager.getInstance().recordCallerChatSpamAnalytics(AnalyticsConstants.CHAT_THREAD_BLOCK, AnalyticsConstants.BLOCK, msisdn, null);
+	}
+
+	@Override
+	protected void updateUnknownUserInfoViews(Object object)
+	{
+		return;
 	}
 }
