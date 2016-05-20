@@ -428,6 +428,12 @@ public class HttpRequestConstants
 		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/profile/";
 	}
 
+	public static String getHikeJoinTimeBaseV2Url()
+	{
+		return BASE_URL + BASE_V2 + BASE_ACCOUNT + "/profile/";
+	}
+
+
 	public static String registerAccountBaseUrl()
 	{
 		return BASE_URL + BASE_V1 + BASE_ACCOUNT;
