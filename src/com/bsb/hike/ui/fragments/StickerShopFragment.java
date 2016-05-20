@@ -24,7 +24,6 @@ import com.bsb.hike.adapters.StickerShopAdapter;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
-import com.bsb.hike.modules.stickerdownloadmgr.StickerShopDownloadTask;
 import com.bsb.hike.smartImageLoader.StickerOtherIconLoader;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
@@ -60,7 +59,9 @@ public class StickerShopFragment extends StickerShopBaseFragment implements OnSc
 			Bitmap bmp = HikeBitmapFactory.decodeResource(HikeMessengerApp.getInstance().getResources(), R.drawable.art_banner);
 			Drawable dr = HikeBitmapFactory.getBitmapDrawable(HikeMessengerApp.getInstance().getResources(), bmp);
 
-			Cursor cursor = HikeConversationsDatabase.getInstance().getCursorForStickerShop();
+			Cursor cursor = HikeConversationsDatabase.getInstance()
+					.getCursorFromStickerCategoryTable(StickerManager.getInstance().moreDataAvailableForStickerShop() ? 0 : Integer.MAX_VALUE);
+			currentCategoriesCount = cursor != null ? cursor.getCount() : 0;
 
 			return new Pair(cursor, dr);
 		}
@@ -156,14 +157,13 @@ public class StickerShopFragment extends StickerShopBaseFragment implements OnSc
 			listview.addFooterView(loadingFooterView);
 		}
 
-		StickerShopDownloadTask stickerShopDownloadTask = new StickerShopDownloadTask(currentCategoriesCount);
-		stickerShopDownloadTask.execute();
+		StickerManager.getInstance().executeFetchShopPackTask(currentCategoriesCount + StickerManager.SHOP_PAGE_SIZE);
 	}
 
 	@Override
 	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount)
 	{
-		if (downloadState == NOT_DOWNLOADING && (!mAdapter.isEmpty()) && (firstVisibleItem + visibleItemCount) > (totalItemCount - 5)
+		if (downloadState == NOT_DOWNLOADING && (!mAdapter.isEmpty()) && (firstVisibleItem + visibleItemCount) > (totalItemCount - (StickerManager.SHOP_PAGE_SIZE/2))
 				&& StickerManager.getInstance().moreDataAvailableForStickerShop())
 		{
 			downLoadStickerData();
@@ -229,7 +229,11 @@ public class StickerShopFragment extends StickerShopBaseFragment implements OnSc
 			return;
 		}
 
-		Cursor reloadedCursor = HikeConversationsDatabase.getInstance().getCursorForStickerShop();
+		Cursor reloadedCursor = HikeConversationsDatabase.getInstance().getCursorFromStickerCategoryTable(currentCategoriesCount + StickerManager.SHOP_PAGE_SIZE);
+		if (reloadedCursor != null)
+		{
+			currentCategoriesCount = reloadedCursor.getCount();
+		}
 		mAdapter.changeCursor(reloadedCursor);
 		mAdapter.notifyDataSetChanged();
 	}
