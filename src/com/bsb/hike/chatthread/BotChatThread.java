@@ -17,6 +17,7 @@ import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.MessagingBotConfiguration;
 import com.bsb.hike.bots.MessagingBotMetadata;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.Conversation.BotConversation;
 import com.bsb.hike.models.Conversation.Conversation;
@@ -444,7 +445,25 @@ public class BotChatThread extends OneToOneChatThread
 	{
 		if (configuration.isAddBlockStripEnabled())
 		{
-			super.addUnkownContactBlockHeader();
+			if (mContactInfo == null || !mContactInfo.isUnknownContact())
+			{
+				return;
+			}
+
+			if(unknownContactInfoView == null)
+			{
+				unknownContactInfoView = LayoutInflater.from(activity.getApplicationContext()).inflate(R.layout.block_add_unknown_contact_mute_bot, null);
+				CustomFontButton addButton = (CustomFontButton) unknownContactInfoView.findViewById(R.id.add_unknown_contact);
+				CustomFontButton blockButton = (CustomFontButton) unknownContactInfoView.findViewById(R.id.block_unknown_contact);
+				blockButton.setText(R.string.bot_overlay_block_title);
+				addButton.setTag(R.string.mute);
+				addButton.setText(mConversation.isMuted() ? R.string.unmute : R.string.mute);
+				unknownContactInfoView.setTag(R.string.mute);
+				unknownContactInfoView.findViewById(R.id.unknown_user_info_view).setVisibility(View.GONE);
+				addButton.setOnClickListener(this);
+				unknownContactInfoView.findViewById(R.id.block_unknown_contact).setOnClickListener(this);
+				checkAndAddListViewHeader(unknownContactInfoView);
+			}
 		}
 	}
 	
@@ -515,5 +534,18 @@ public class BotChatThread extends OneToOneChatThread
 	protected void addFavoriteTypeTypeFromContactInfo(JSONObject json)
 	{
 		return; //Do nothing
+	}
+
+	@Override
+	protected void checkAndAddListViewHeader(View headerView)
+	{
+		super.checkAndAddListViewHeader(headerView);
+	}
+
+	@Override
+	protected void onBlockClicked()
+	{
+		this.dialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.BLOCK_CHAT_CONFIRMATION_DIALOG, this, false);
+		HAManager.getInstance().recordCallerChatSpamAnalytics(AnalyticsConstants.CHAT_THREAD_BLOCK, AnalyticsConstants.BLOCK, msisdn, null);
 	}
 }

@@ -240,8 +240,8 @@ import com.bsb.hike.voip.VoIPUtils;
 
 	private CallerContentModel callerContentModel;
 
-	private View unknownContactInfoView;
-	
+	protected View unknownContactInfoView;
+
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * 
@@ -587,23 +587,12 @@ import com.bsb.hike.voip.VoIPUtils;
 			return;
 		}
 
-		if(unknownContactInfoView == null)
+		if (unknownContactInfoView == null)
 		{
 			unknownContactInfoView = LayoutInflater.from(activity.getApplicationContext()).inflate(R.layout.block_add_unknown_contact_mute_bot, null);
 			CustomFontButton addButton = (CustomFontButton) unknownContactInfoView.findViewById(R.id.add_unknown_contact);
-			if (mConversation instanceof BotConversation)
-			{
-				addButton.setTag(R.string.mute);
-				addButton.setText(mConversation.isMuted() ? R.string.unmute : R.string.mute);
-				unknownContactInfoView.setTag(R.string.mute);
-				unknownContactInfoView.findViewById(R.id.unknown_user_info_view).setVisibility(View.GONE);
-			}
-			else
-			{
-				addButton.setTag(R.string.save_unknown_contact);
-				unknownContactInfoView.findViewById(R.id.unknown_user_info_view).setVisibility(View.VISIBLE);
-			}
-
+			addButton.setTag(R.string.save_unknown_contact);
+			unknownContactInfoView.findViewById(R.id.unknown_user_info_view).setVisibility(View.VISIBLE);
 			addButton.setOnClickListener(this);
 			unknownContactInfoView.findViewById(R.id.block_unknown_contact).setOnClickListener(this);
 			checkAndAddListViewHeader(unknownContactInfoView);
@@ -614,15 +603,11 @@ import com.bsb.hike.voip.VoIPUtils;
 	/**
 	 * This shows Unknown User (Name, location)
 	 */
-	private void showUknownUserInfoView()
+	protected void showUknownUserInfoView()
 	{
-		if(mConversation instanceof BotConversation)
-		{
-			return;
-		}
 		try
 		{
-			if(mConversation.getMetadata() == null)
+			if (mConversation.getMetadata() == null)
 			{
 				Logger.d("c_spam", "null metadata, so setting new one");
 				mConversation.setMetadata(new OneToOneConversationMetadata(null));
@@ -2896,7 +2881,7 @@ import com.bsb.hike.voip.VoIPUtils;
 			break;
 
 		case R.id.add_unknown_contact:
-			if ( null != v.getTag() && v.getTag().equals(R.string.save_unknown_contact))
+			if (null != v.getTag() && v.getTag().equals(R.string.save_unknown_contact))
 			{
 				Utils.addToContacts(activity, msisdn);
 				HAManager.getInstance().recordCallerChatSpamAnalytics(AnalyticsConstants.CHAT_THREAD_SAVE, AnalyticsConstants.SAVE, msisdn, null);
@@ -2995,9 +2980,9 @@ import com.bsb.hike.voip.VoIPUtils;
 		setupH20TipViews();
 	}
 
-	private void onBlockClicked()
+	protected void onBlockClicked()
 	{
-		this.dialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.BLOCK_CHAT_CONFIRMATION_DIALOG, this, !BotUtils.isBot(mConversation.getMsisdn()));
+		this.dialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.BLOCK_CHAT_CONFIRMATION_DIALOG, this, true);
 		HAManager.getInstance().recordCallerChatSpamAnalytics(AnalyticsConstants.CHAT_THREAD_BLOCK, AnalyticsConstants.BLOCK, msisdn, null);
 	}
 
@@ -3197,11 +3182,12 @@ import com.bsb.hike.voip.VoIPUtils;
 		case HikeDialogFactory.BLOCK_CHAT_CONFIRMATION_DIALOG:
 			dialog.dismiss();
 			HikeMessengerApp.getPubSub().publish(HikePubSub.BLOCK_USER, msisdn);
-			if(((CustomAlertDialog)dialog).isChecked())
+			if (((CustomAlertDialog) dialog).isChecked())
 			{
 				sendUIMessage(SPAM_UNSPAM_USER, true);
 			}
-			HAManager.getInstance().recordCallerChatSpamAnalytics(AnalyticsConstants.CHAT_THREAD_FLAG, AnalyticsConstants.YES, msisdn, String.valueOf(((CustomAlertDialog) dialog).isChecked()));
+			HAManager.getInstance().recordCallerChatSpamAnalytics(AnalyticsConstants.CHAT_THREAD_FLAG, AnalyticsConstants.YES, msisdn,
+					String.valueOf(((CustomAlertDialog) dialog).isChecked()));
 			break;
 
 		default:
@@ -3223,7 +3209,8 @@ import com.bsb.hike.voip.VoIPUtils;
 		case HikeDialogFactory.BLOCK_CHAT_CONFIRMATION_DIALOG:
 			dialog.dismiss();
 			this.dialog = null;
-			HAManager.getInstance().recordCallerChatSpamAnalytics(AnalyticsConstants.CHAT_THREAD_FLAG, AnalyticsConstants.NO, msisdn, String.valueOf(((CustomAlertDialog) dialog).isChecked()));
+			HAManager.getInstance().recordCallerChatSpamAnalytics(AnalyticsConstants.CHAT_THREAD_FLAG, AnalyticsConstants.NO, msisdn,
+					String.valueOf(((CustomAlertDialog) dialog).isChecked()));
 			break;
 
 		default:
@@ -3938,8 +3925,7 @@ import com.bsb.hike.voip.VoIPUtils;
 			else
 			{
 				callerContentModel = (CallerContentModel) object;
-				if (callerContentModel.getExpiryTime() == 0
-						|| System.currentTimeMillis() - callerContentModel.getExpiryTime() > HikeConstants.NO_OF_MILISECONDS_IN_1_DAY)
+				if (callerContentModel.getExpiryTime() == 0 || System.currentTimeMillis() - callerContentModel.getExpiryTime() > HikeConstants.NO_OF_MILISECONDS_IN_1_DAY)
 				{
 					Logger.d("c_spam", "http call fail + 0/> 24 hr, showing old data " + callerContentModel);
 					//unknownContactInfoView.findViewById(R.id.unknown_user_info_view).setVisibility(View.GONE);
@@ -4463,7 +4449,7 @@ import com.bsb.hike.voip.VoIPUtils;
 	 *
 	 * @param headerView
 	 */
-	private void checkAndAddListViewHeader(View headerView)
+	protected void checkAndAddListViewHeader(View headerView)
 	{
 
 		if (mAdapter != null)
