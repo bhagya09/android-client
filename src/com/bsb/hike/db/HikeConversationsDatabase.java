@@ -8033,24 +8033,26 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 	public long updateStickerCategoryRanks(JSONArray array, boolean isUpdate)
 	{
 		ContentValues contentValues;
-		long count = 0;
+		long rank = 0;
 		try
 		{
 			mDb.beginTransaction();
 			if (!isUpdate)
 			{
+				rank = 0;
 				mDb.delete(DBConstants.STICKER_CATEGORY_RANK_TABLE, null, null);
+			}
+			else
+			{
+				rank = getRankCountFromCategoryTable();
 			}
 			for (int i = 0; i < array.length(); i++)
 			{
 				contentValues = new ContentValues();
-				contentValues.put(DBConstants.RANK, i);
+				contentValues.put(DBConstants.RANK, rank);
 				contentValues.put(DBConstants.UCID, array.optInt(i, -1));
-				if (mDb.insertWithOnConflict(DBConstants.STICKER_CATEGORY_RANK_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_IGNORE) > 0)
-				{
-					count++;
-				}
-
+				mDb.insertWithOnConflict(DBConstants.STICKER_CATEGORY_RANK_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_IGNORE);
+				rank++;
 			}
 			mDb.setTransactionSuccessful();
 		}
@@ -8062,7 +8064,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		{
 			mDb.endTransaction();
 		}
-		return count;
+		return rank;
 	}
 
 	/*
