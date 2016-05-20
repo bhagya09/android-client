@@ -2294,7 +2294,7 @@ public class HikeConstants
 
         public static final String SEARCHED_CATEGORY_RESPONSE = "shpSrchRept";
 
-        public static final String STICKER_CLICKED = "sClick";
+        public static final String STICKER_CLICKED = "stickerClick";
 
         public static final String SHOP_SEARCH = "shpSrch";
 
