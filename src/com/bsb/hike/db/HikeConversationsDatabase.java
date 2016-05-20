@@ -399,6 +399,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 
 		sql = getRecentStickersTableCreateQuery();
 		db.execSQL(sql);
+		
+		sql = "DROP TABLE IF EXISTS " + DBConstants.STICKER_SHOP_TABLE;
+		db.execSQL(sql);
+
 	}
 
 	private void createIndexOverServerIdField(SQLiteDatabase db)
@@ -1102,6 +1106,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				String alter3 = "ALTER TABLE " + DBConstants.STICKER_TABLE + " ADD COLUMN " + DBConstants.LAST_QUICK_SUGGESTION_REFRESH_TIME + " INTEGER DEFAULT 0";
 				db.execSQL(alter3);
 			}
+		}
+		if (oldVersion < 52)
+		{
+			String sql = "DROP TABLE IF EXISTS " + DBConstants.STICKER_SHOP_TABLE;
+			db.execSQL(sql);
 		}
 	}
 
