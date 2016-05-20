@@ -717,6 +717,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	{
 		lastClickedCategoryIndex = position;
 
+		// making chat head ui modifictaions only if this is a ChatHeadStickerPicker
 		if (isChatHeadStickerPicker)
 		{
 			mViewPager.setVisibility(View.VISIBLE);
