@@ -1563,7 +1563,7 @@
     <string name="block_dialog_title">Block User</string>
     <string name="block_dialog_body">Are you sure you want to block this user ?</string>
     <string name="spam_info_in_dialog">Mark as spam and block</string>
-    <string name="unknown_user_spam_info"><![CDATA[ <font color="#ff8f8f">%1$d</font><font color="#ffffff"> Reported as Spam</font> ]]></string>
+    <string name="unknown_user_spam_info"><![CDATA[ <font color="#ff5f5f"> Marked as Spam by %1$d people</font> ]]></string>
     <string name="restore_failed">Restore failed</string>
     <string name="ADD_FRIEND">ADD FRIEND</string>
     <string name="ACCEPT_REQUEST">ACCEPT REQUEST</string>
@@ -1607,6 +1607,7 @@
     <string name="edit_profile_birthday">Birth Date</string>
 
     <string name="file_size_invalid_error">The file size which you are trying to share is invalid</string>
-    <string name="overlay_block_title">BLOCK</string>
-    <string name="overlay_add_title">SAVE</string>
+    <string name="overlay_block_title">BLOCK | SPAM</string>
+    <string name="bot_overlay_block_title">BLOCK</string>
+    <string name="overlay_add_title">ADD CONTACT</string>
 </resources>
