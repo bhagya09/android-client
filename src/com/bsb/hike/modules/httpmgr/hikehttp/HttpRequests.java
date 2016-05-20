@@ -1558,6 +1558,7 @@ public class HttpRequests
 			requestToken = new JSONObjectRequest.Builder().setUrl(url).setRetryPolicy(new BasicRetryPolicy(noOfRetry, retryDelay, backOffMultiplier))
 					.setRequestListener(requestListener).setRequestType(REQUEST_TYPE_SHORT).get().build();
 		}
+		return requestToken;
 	}
 
 	public static RequestToken fetchBdaysForCCA(IRequestListener requestListener) {

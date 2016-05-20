@@ -4290,9 +4290,8 @@ public class HikeConstants
 
 	public static final String IS_ATOMIC_TIP = "isAtomicTip";
 
-<<<<<<< HEAD
 	public static final String SHOW_USER_INFO_VIEW = "showUserInfoView";
-=======
+
 	public static final String SHOW_QUICK_STICKER_SUGGESTION_ON_STICKER_RECEIVE = "shqssosr";
 
 	public static final String SHOW_QUICK_STICKER_SUGGESTION_ON_STICKER_SENT = "shqssoss";
@@ -4326,5 +4325,4 @@ public class HikeConstants
 	public static final String BIRTHDAY_DATA = "bdata";
 
 	public static final String DISABLE_QUICK_UPLOAD = "disable_md5";
->>>>>>> 52986c808e72c27c310a6ff18e2558e31f5d274f
 }

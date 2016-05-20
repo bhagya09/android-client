@@ -179,14 +179,12 @@ import com.bsb.hike.voip.VoIPUtils;
 
 	private static final int HIDE_FRIENDS_VIEW = 121;
 
-<<<<<<< HEAD
 	private static final int UPDATE_UNKNOWN_USER_INFO = 122;
 	
 	private static final int SHOW_UNKNOWN_USER_OVERLAY = 123;
-=======
-	private static final int SHOW_BDAY_UI = 122;
->>>>>>> 52986c808e72c27c310a6ff18e2558e31f5d274f
-	
+
+	private static final int SHOW_BDAY_UI = 124;
+
 	private static short H2S_MODE = 0; // Hike to SMS Mode
 
 	private static short H2H_MODE = 1; // Hike to Hike Mode
