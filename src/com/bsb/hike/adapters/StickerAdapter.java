@@ -113,7 +113,6 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 		miniStickerLoader = new StickerLoader.Builder()
 				.downloadMiniStickerIfNotFound(true)
 				.loadMiniStickerIfNotFound(true)
-				.setDefaultBitmap(HikeBitmapFactory.decodeResource(mContext.getResources(), R.drawable.shop_placeholder))
 				.build();
 
 		stickerOtherIconLoader = new StickerOtherIconLoader(mContext, true);
