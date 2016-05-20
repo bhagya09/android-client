@@ -81,6 +81,8 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	private boolean showQuickSuggestions;
 
 	private int lastClickedCategoryIndex = -1;
+
+	private boolean isChatHeadStickerPicker;
 	/**
 	 * Constructor
 	 * 
@@ -106,6 +108,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		this.listener = listener;
 		this.currentConfig = context.getResources().getConfiguration().orientation;
 		this.shopIconClickedCallback = shopIconClickedCallback;
+		StickerIconPageIndicator.registerChatHeadTabClickListener(this);
 	}
 
 	/**
@@ -725,9 +728,13 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	public void onTabClick(int position)
 	{
 		lastClickedCategoryIndex = position;
-		mViewPager.setVisibility(View.VISIBLE);
-		chatHeadInfoIconButton.setSelected(false);
-		chatHeadInfoIconLayout.setVisibility(View.GONE);
+
+		if (isChatHeadStickerPicker)
+		{
+			mViewPager.setVisibility(View.VISIBLE);
+			chatHeadInfoIconButton.setSelected(false);
+			chatHeadInfoIconLayout.setVisibility(View.GONE);
+		}
 	}
 
 	public void stoppingChatHeadActivity()
