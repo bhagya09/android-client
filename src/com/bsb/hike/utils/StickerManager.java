@@ -3900,22 +3900,23 @@ public class StickerManager
 
                 try
 				{
-                    JSONObject metadata = new JSONObject();
+					JSONObject metadata = new JSONObject();
 					metadata.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_STICKER_LOGS);
 					metadata.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
 					metadata.put(AnalyticsConstants.V2.UNIQUE_KEY, HikeConstants.LogEvent.STICKER_CLICKED);
 					metadata.put(AnalyticsConstants.V2.GENUS, sticker.getCategoryId());
-                    metadata.put(AnalyticsConstants.V2.BREED, sticker.getStickerId());
-					metadata.put(AnalyticsConstants.V2.SOURCE, convMessage.isOneToNChat()?HikeConstants.GROUP_CONVERSATION:HikeConstants.ONE_TO_ONE_CONVERSATION);
-                    metadata.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
-                    metadata.put(AnalyticsConstants.V2.FROM_USER, convMessage.getSenderMsisdn());
-                    metadata.put(AnalyticsConstants.V2.TO_USER, convMessage.getMsisdn());
-                    metadata.put(AnalyticsConstants.TYPE, type);
-                    metadata.put(AnalyticsConstants.V2.FORM, isSent);
+					metadata.put(AnalyticsConstants.V2.SPECIES, sticker.getStickerId());
+					metadata.put(AnalyticsConstants.V2.SOURCE, convMessage.isOneToNChat() ? HikeConstants.GROUP_CONVERSATION : HikeConstants.ONE_TO_ONE_CONVERSATION);
+					metadata.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
+					metadata.put(AnalyticsConstants.V2.FROM_USER, convMessage.getSenderMsisdn());
+					metadata.put(AnalyticsConstants.V2.TO_USER, convMessage.getMsisdn());
+					metadata.put(AnalyticsConstants.TYPE, type);
+					metadata.put(AnalyticsConstants.V2.FORM, isSent);
+					HAManager.getInstance().recordV2(metadata);
 				}
 				catch (JSONException e)
 				{
-					e.printStackTrace();
+					Logger.e(TAG, "sendStickerClickedLogs() : Exception while parsing JSON");
 				}
 			}
 		});
@@ -3942,14 +3943,14 @@ public class StickerManager
 
 					String visibilitySrc = selectedByTap ? HikeConstants.CLICK_COUNT : HikeConstants.SCROLL_COUNT;
 
-					categoryVisibility.put(visibilitySrc, (catList.optInt(visibilitySrc, 0) + 1));
+					categoryVisibility.put(visibilitySrc, (categoryVisibility.optInt(visibilitySrc, 0) + 1));
 					catList.put(category.getCategoryId(), categoryVisibility);
 
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.VIEWED_IN_PALLETE_CATEGORY_LIST, catList.toString());
 				}
 				catch (JSONException e)
 				{
-					e.printStackTrace();
+					Logger.e(TAG, "sendStickerClickedLogs() : Exception while parsing JSON");
 				}
 			}
 		});
