@@ -3178,7 +3178,13 @@ public class MqttMessagesManager
 			long bdayHttpTimeGap = data.getLong(HikeConstants.BDAY_HTTP_CALL_TIME_GAP);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BDAY_HTTP_CALL_TIME_GAP, bdayHttpTimeGap);
 		}
-		
+
+		if (data.has(HikeConstants.DISABLE_QUICK_UPLOAD))
+		{
+			boolean disableQuickUpload = data.getBoolean(HikeConstants.DISABLE_QUICK_UPLOAD);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.DISABLE_QUICK_UPLOAD, disableQuickUpload);
+		}
+
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 
