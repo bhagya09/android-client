@@ -13,11 +13,11 @@ public class HttpRequestConstants
 
 	private static final String HTTP = "http://";
 
-	private static final String HTTPS = "https://";
+	private static final String HTTPS = "http://";
 
 	public static final String PRODUCTION_API = "api.im.hike.in";
 
-	public static final String STAGING_API = "52.76.190.255";
+	public static final String STAGING_API = "52.76.190.143:8080";
 
 	public static final String PLATFORM_PRODUCTION_API = "platform.hike.in";
 
@@ -35,7 +35,7 @@ public class HttpRequestConstants
 
 	public static final int PRODUCTION_PORT_SSL = 443;
 
-	public static final int STAGING_PORT = 80;
+	public static final int STAGING_PORT = 8080;
 
 	public static final int STAGING_PORT_SSL = 443;
 
