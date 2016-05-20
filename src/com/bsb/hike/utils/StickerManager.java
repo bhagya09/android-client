@@ -2578,15 +2578,15 @@ public class StickerManager
 					index = -1;
 				}
 
-				int scrollVisibility = 0, tapVisibility = 0;
+				int scrollVisibilityMagnitude = 0, tapVisibilityMagnitude = 0;
 				if (catList.has(stickerCategory.getCategoryId()))
 				{
 					JSONObject categoryVisibility = catList.getJSONObject(stickerCategory.getCategoryId());
-					scrollVisibility = categoryVisibility.optInt(HikeConstants.SCROLL_COUNT);
-					tapVisibility = categoryVisibility.optInt(HikeConstants.CLICK_COUNT);
+					scrollVisibilityMagnitude = categoryVisibility.optInt(HikeConstants.SCROLL_COUNT);
+					tapVisibilityMagnitude = categoryVisibility.optInt(HikeConstants.CLICK_COUNT);
 				}
 
-				stickerPackAndOrderList.put(stickerCategory.getCategoryId() + STRING_DELIMETER + index + STRING_DELIMETER + scrollVisibility + STRING_DELIMETER + tapVisibility);
+				stickerPackAndOrderList.put(stickerCategory.getCategoryId() + STRING_DELIMETER + index + STRING_DELIMETER + scrollVisibilityMagnitude + STRING_DELIMETER + tapVisibilityMagnitude);
 			}
 
 			JSONObject metadata = new JSONObject();
