@@ -8087,11 +8087,11 @@ public class Utils
         argIntent.putExtra(HikeConstants.Extras.SPECIES, argSpecies);
     }
 
-	public static void setBackground(ImageView imgView, Drawable drawable){
+	public static void setBackground(View view, Drawable drawable){
 		if (isJellybeanOrHigher()) {
-			imgView.setBackground(drawable);
+			view.setBackground(drawable);
 		} else {
-			imgView.setBackgroundDrawable(drawable);
+			view.setBackgroundDrawable(drawable);
 		}
 	}
 

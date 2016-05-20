@@ -2186,8 +2186,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				statusHolder.messageInfo.setTextColor(context.getResources().getColor(R.color.white));
 				statusHolder.messageTextView.setTextColor(context.getResources().getColor(R.color.white));
 			}
-			statusHolder.container.setBackground(ChatThemeManager.getInstance().
-												 getDrawableForTheme(chatThemeId, HikeChatThemeConstants.ASSET_INDEX_INLINE_STATUS_MSG_BG));
+			Utils.setBackground(statusHolder.container, ChatThemeManager.getInstance().getDrawableForTheme(chatThemeId, HikeChatThemeConstants.ASSET_INDEX_INLINE_STATUS_MSG_BG));
 
 			if (viewType == ViewType.STATUS_MESSAGE)
 			{
@@ -2674,8 +2673,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			}
 			else
 			{
-				messageContainer.setBackground(ChatThemeManager.getInstance().
-											   getDrawableForTheme(chatThemeId, HikeChatThemeConstants.ASSET_INDEX_CHAT_BUBBLE_BG));
+				Utils.setBackground(messageContainer, ChatThemeManager.getInstance().getDrawableForTheme(chatThemeId, HikeChatThemeConstants.ASSET_INDEX_CHAT_BUBBLE_BG));
 			}
 		}
 		messageContainer.setPadding(leftPad, topPad, rightPad, bottomPad);
@@ -2709,8 +2707,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				/*
 				 * If a message has been selected then background of selected state overlay will change to selected state color. otherwise this overlay will be transparent
 				 */
-				overlay.setBackground(ChatThemeManager.getInstance().
-									  getDrawableForTheme(chatThemeId, HikeChatThemeConstants.ASSET_INDEX_MULTISELECT_CHAT_BUBBLE_BG));
+				Utils.setBackground(overlay, ChatThemeManager.getInstance().getDrawableForTheme(chatThemeId, HikeChatThemeConstants.ASSET_INDEX_MULTISELECT_CHAT_BUBBLE_BG));
 				Logger.d("sticker", "colored");
 			}
 			else
