@@ -1,12 +1,16 @@
 package com.bsb.hike.modules.httpmgr.hikehttp;
 
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.filetransfer.FileTransferManager;
-import com.bsb.hike.modules.httpmgr.DefaultHeaders;
+import com.bsb.hike.models.Sticker;
+import com.bsb.hike.modules.gcmnetworkmanager.Config;
+import com.bsb.hike.modules.gcmnetworkmanager.GcmNwMgrService;
+import com.bsb.hike.modules.gcmnetworkmanager.tasks.GcmTaskConstants;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -44,6 +48,7 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+import com.google.android.gms.gcm.Task;
 import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.MultipartBuilder;
@@ -61,9 +66,13 @@ import java.util.List;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.authSDKBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.bulkLastSeenUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.deleteAccountBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.editDOBBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.editProfileAvatarBase;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.editProfileEmailGenderBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.editProfileNameBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getActionsUpdateUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getAvatarBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getBDPrefUpdateUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getBaseCodeGCAcceptUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getBotdiscoveryTableUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getDeleteAvatarBaseUrl;
@@ -73,6 +82,7 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getForc
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getGroupBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getGroupBaseUrlForLinkSharing;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getHikeJoinTimeBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getHistoricalStatusUpdatesUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getPostImageSUUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getStaticAvatarBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getStatusBaseUrl;
@@ -90,6 +100,7 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.postAdd
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.postDeviceDetailsBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.postGreenBlueDetailsBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.preActivationBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.quickSuggestionUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.registerAccountBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.registerViewActionUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.sendDeviceDetailBaseUrl;
@@ -99,6 +110,7 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.signUpP
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.singleStickerDownloadBase;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.singleStickerImageDownloadBase;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.singleStickerTagsUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerCategoryDetailsUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerCategoryFetchPrefOrderUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerPalleteImageDownloadUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerPreviewImageDownloadUrl;
@@ -106,19 +118,16 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.sticker
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerShopFetchCategoryTagsUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerShopFetchCategoryUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerSignupUpgradeUrl;
-import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerCategoryDetailsUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.unlinkAccountBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.updateAddressbookBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.updateLoveLinkUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.updateUnLoveLinkUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.validateNumberBaseUrl;
-import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getHistoricalStatusUpdatesUrl;
 import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_HIGH;
 import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_LOW;
 import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_NORMAL;
 import static com.bsb.hike.modules.httpmgr.request.Request.REQUEST_TYPE_LONG;
 import static com.bsb.hike.modules.httpmgr.request.Request.REQUEST_TYPE_SHORT;
-
 
 public class HttpRequests
 {
@@ -135,8 +144,17 @@ public class HttpRequests
 		return requestToken;
 	}
 
-	public static RequestToken singleStickerImageDownloadRequest(String requestId, String stickerId, String categoryId, boolean miniStk, IRequestListener requestListener)
+	public static RequestToken singleStickerImageDownloadRequest(String requestId, String stickerId, String categoryId, boolean miniStk, IRequestListener requestListener, Bundle extras)
 	{
+		Config config = new Config.Builder()
+				.setExecutionWindow(0, 1)
+				.setPersisted(true)
+				.setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
+				.setTag(GcmTaskConstants.SINGLE_STICKER_GCM_TASK + HikeConstants.DELIMETER + stickerId + HikeConstants.DELIMETER + categoryId)
+				.setService(GcmNwMgrService.class)
+				.setExtras(extras)
+				.build();
+
 		miniStk = miniStk & StickerManager.getInstance().isMiniStickersEnabled();
 		String url = singleStickerImageDownloadBase() + "?catId=" + categoryId + "&stId=" + stickerId + "&resId=" + Utils.getResolutionId() + "&mini_stk=" + miniStk;
 		RequestToken requestToken = new JSONObjectRequest.Builder()
@@ -145,6 +163,7 @@ public class HttpRequests
 				.setRequestListener(requestListener)
 				.setRequestType(REQUEST_TYPE_SHORT)
 				.setPriority(PRIORITY_HIGH)
+				.setGcmTaskConfig(config)
 				.build();
 		return requestToken;
 	}
@@ -650,6 +669,36 @@ public class HttpRequests
 		return requestToken;
 	}
 
+	public static RequestToken quickSuggestionsForSingleStickerRequest(String requestId, Sticker sticker, String langList, int setId, IRequestListener requestListener)
+	{
+
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setId(requestId)
+				.setUrl((quickSuggestionUrl() + "?catId=" + sticker.getCategoryId() + "&stkId=" + sticker.getStickerId() + "&gender=" + HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.GENDER, 0) + "&lang=" + langList + "&setId=" + setId))
+				.setRequestListener(requestListener)
+				.setRequestType(REQUEST_TYPE_SHORT)
+				.setPriority(PRIORITY_HIGH)
+				.build();
+		return requestToken;
+	}
+
+	public static RequestToken quickSuggestionsForMultiStickerRequest(String requestId, JSONObject json, IRequestListener requestListener)
+	{
+		JsonBody body = new JsonBody(json);
+
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setId(requestId)
+				.setUrl(quickSuggestionUrl())
+				.setRequestListener(requestListener)
+				.setRequestType(REQUEST_TYPE_SHORT)
+				.post(body)
+				.setPriority(PRIORITY_NORMAL)
+				.build();
+
+		//requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
+		return requestToken;
+	}
+
 	public static RequestToken productPopupRequest(String url, IRequestListener requestListener, String requestType)
 	{
 		ByteArrayRequest.Builder builder = new ByteArrayRequest.Builder().
@@ -760,19 +809,32 @@ public class HttpRequests
 		return requestToken;
 	}
 
+	private static  JSONObjectRequest.Builder addPreActivationHeaders(JSONObjectRequest.Builder jsonRequestBuilder )
+	{
+		if (!Utils.isUserAuthenticated(HikeMessengerApp.getInstance().getApplicationContext()))
+		{
+			Header customHeader;
+			String paUid = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Preactivation.UID, "");
+			String paToken = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Preactivation.TOKEN, "");
+			customHeader = new Header(HttpHeaderConstants.COOKIE_HEADER_NAME, HikeConstants.Preactivation.TOKEN + "=" + paToken + "; " + HikeConstants.Preactivation.UID + "=" + paUid);
+			jsonRequestBuilder.addHeader(customHeader);
+		}
+		return jsonRequestBuilder;
+	}
+
 	public static RequestToken sendUserLogInfoRequest(String logKey, JSONObject json, IRequestListener requestListener)
 	{
-		String pa_uid = HikeSharedPreferenceUtil.getInstance().getData("pa_uid","");
-		String pa_token = HikeSharedPreferenceUtil.getInstance().getData("pa_token","");
-		Header hdr =new Header(HttpHeaderConstants.COOKIE_HEADER_NAME, "pa_token" + "=" + pa_token + "; " + "pa_uid" + "=" + pa_uid);
+
 		JsonBody body = new JsonBody(json);
-		RequestToken requestToken = new JSONObjectRequest.Builder()
+
+		JSONObjectRequest.Builder sendUserLogJsonRequestBuilder = new JSONObjectRequest.Builder()
 				.setUrl(sendUserLogsInfoBaseUrl() + logKey)
 				.setRequestListener(requestListener)
-				.addHeader(hdr)
-				.setRetryPolicy(new BasicRetryPolicy(Integer.MAX_VALUE,BasicRetryPolicy.DEFAULT_RETRY_DELAY,4f))
-				.post(body)
-				.build();
+				.setRetryPolicy(new BasicRetryPolicy(Integer.MAX_VALUE, BasicRetryPolicy.DEFAULT_RETRY_DELAY, 4f))
+				.post(body);
+		addPreActivationHeaders(sendUserLogJsonRequestBuilder);
+
+		RequestToken requestToken = sendUserLogJsonRequestBuilder.build();
 		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
 		return requestToken;
 	}
@@ -1109,7 +1171,7 @@ public class HttpRequests
 	{
 
 		String botAvatarUrl = getAvatarBaseUrl() + "/" + msisdn;
-		Logger.v("BotUtils", botAvatarUrl );
+		Logger.v("BotUtils", botAvatarUrl);
 
 		RequestToken requestToken = new ByteArrayRequest.Builder().setUrl(botAvatarUrl).setRequestType(Request.REQUEST_TYPE_SHORT).setRequestListener(listener).get().build();
 
@@ -1302,12 +1364,13 @@ public class HttpRequests
 
 	}
 	
-	public static RequestToken validateFileKey(String fileKey, IRequestListener requestListener)
+	public static RequestToken validateFileKey(String fileKey, long msgId, IRequestListener requestListener)
 	{
 		RequestToken requestToken = new ByteArrayRequest.Builder()
 				.setUrl(getValidateFileKeyBaseUrl() + fileKey)
 				.setRequestType(Request.REQUEST_TYPE_SHORT)
 				.setRequestListener(requestListener)
+				.setId(String.valueOf(msgId))
 				.head()
 				.setRetryPolicy(new BasicRetryPolicy(FileTransferManager.MAX_RETRY_COUNT, 0, 1))
 				.build();
@@ -1328,7 +1391,7 @@ public class HttpRequests
 		return requestToken;
 	}
 
-	public static RequestToken uploadContactOrLocation(String fileName, JSONObject json, String fileType, IRequestListener requestListener, IRequestInterceptor interceptor)
+	public static RequestToken uploadContactOrLocation(String fileName, JSONObject json, String fileType, IRequestListener requestListener, IRequestInterceptor interceptor, long msgId)
 	{
 		List<Header> headers = new ArrayList<>();
 		headers.add(new Header("Content-Name", fileName));
@@ -1340,6 +1403,7 @@ public class HttpRequests
  		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setUrl(getUploadContactOrLocationBaseUrl())
 				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setId(String.valueOf(msgId))
 				.setRequestListener(requestListener)
 				.addHeader(headers)
 				.put(body)
@@ -1369,6 +1433,7 @@ public class HttpRequests
 				.setUrl(url)
 				.addHeader(new Header("X-SESSION-ID", sessionId))
 				.setAsynchronous(false)
+				.setId(sessionId)
 				.setRetryPolicy(new BasicRetryPolicy(1, FileTransferManager.RETRY_DELAY, 1))
 				.setRequestListener(listener)
 				.build();
@@ -1474,14 +1539,11 @@ public class HttpRequests
 	}
 
 	//http://private-9fd63-chatspam.apiary-mock.com/v1/userinfo?msisdn=%2B918011284664&spaminfo=1
-	public static RequestToken fetchUnknownChatUserInfo(String msisdn, boolean newRow, IRequestListener requestListener, int noOfRetry, int retryDelay, float backOffMultiplier)
-	{
+	public static RequestToken fetchUnknownChatUserInfo(String msisdn, boolean newRow, IRequestListener requestListener, int noOfRetry, int retryDelay, float backOffMultiplier) {
 		RequestToken requestToken = null;
 
-		if (!TextUtils.isEmpty(msisdn))
-		{
-			if(msisdn.contains("+"))
-			{
+		if (!TextUtils.isEmpty(msisdn)) {
+			if (msisdn.contains("+")) {
 				msisdn = msisdn.substring(1);
 			}
 
@@ -1491,12 +1553,84 @@ public class HttpRequests
 				int spaminfo = newRow == true ? 1 : 0;
 				url = url + "&spaminfo=" + spaminfo;
 			}
-			
+
 			Logger.d("c_spam", "The url is --------> " + url);
 			requestToken = new JSONObjectRequest.Builder().setUrl(url).setRetryPolicy(new BasicRetryPolicy(noOfRetry, retryDelay, backOffMultiplier))
 					.setRequestListener(requestListener).setRequestType(REQUEST_TYPE_SHORT).get().build();
 		}
+	}
 
+	public static RequestToken fetchBdaysForCCA(IRequestListener requestListener) {
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(HttpRequestConstants.getFetchBdayUrl())
+				.setRequestListener(requestListener)
+				.get()
+				.build();
+		return requestToken;
+	}
+
+	public static RequestToken editProfileNameRequest(JSONObject json, IRequestListener requestListener)
+	{
+		JsonBody body = new JsonBody(json);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(editProfileNameBaseUrl())
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(requestListener)
+				.setResponseOnUIThread(true)
+				.post(body)
+				.build();
+		return requestToken;
+	}
+
+	public static RequestToken editGroupProfileNameRequest(JSONObject json, IRequestListener requestListener, String groupId)
+	{
+		JsonBody body = new JsonBody(json);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(groupProfileBaseUrl() + groupId + "/name")
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(requestListener)
+				.setResponseOnUIThread(true)
+				.post(body)
+				.build();
+		return requestToken;
+	}
+
+	public static RequestToken editProfileEmailGenderRequest(JSONObject json, IRequestListener requestListener)
+	{
+		JsonBody body = new JsonBody(json);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(editProfileEmailGenderBaseUrl())
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(requestListener)
+				.setResponseOnUIThread(true)
+				.post(body)
+				.build();
+		return requestToken;
+	}
+
+	public static RequestToken editDOBRequest(JSONObject json, IRequestListener requestListener)
+	{
+		JsonBody body = new JsonBody(json);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(editDOBBaseUrl())
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(requestListener)
+				.setResponseOnUIThread(true)
+				.post(body)
+				.build();
+		return requestToken;
+	}
+
+	public static RequestToken getBDPrefUpdateRequest(@NonNull JSONObject payload, IRequestListener requestListener)
+	{
+		JsonBody jsonBody = new JsonBody(payload);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(getBDPrefUpdateUrl())
+				.setRequestType(REQUEST_TYPE_SHORT)
+				.setResponseOnUIThread(true)
+				.setRequestListener(requestListener)
+				.post(jsonBody)
+				.build();
 		return requestToken;
 	}
 }

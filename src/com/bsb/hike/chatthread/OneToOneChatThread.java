@@ -179,9 +179,13 @@ import com.bsb.hike.voip.VoIPUtils;
 
 	private static final int HIDE_FRIENDS_VIEW = 121;
 
+<<<<<<< HEAD
 	private static final int UPDATE_UNKNOWN_USER_INFO = 122;
 	
 	private static final int SHOW_UNKNOWN_USER_OVERLAY = 123;
+=======
+	private static final int SHOW_BDAY_UI = 122;
+>>>>>>> 52986c808e72c27c310a6ff18e2558e31f5d274f
 	
 	private static short H2S_MODE = 0; // Hike to SMS Mode
 
@@ -279,6 +283,11 @@ import com.bsb.hike.voip.VoIPUtils;
 			{
 				sendUIMessage(SHOW_OVERFLOW_MENU, 500, null);
 			}
+		}
+		else if (activity.getIntent().getBooleanExtra(HikeConstants.Extras.HIKE_BDAY_MODE, false))
+		{
+			activity.getIntent().removeExtra(HikeConstants.Extras.HIKE_BDAY_MODE);
+			sendUIMessage(SHOW_BDAY_UI, 1000, null);
 		}
 	}
 
@@ -1091,6 +1100,9 @@ import com.bsb.hike.voip.VoIPUtils;
 			break;
 		case SHOW_UNKNOWN_USER_OVERLAY:
 			addUnkownContactBlockHeader();
+			break;
+		case SHOW_BDAY_UI:
+			updateUIForBdayChat();
 			break;
 		default:
 			Logger.d(TAG, "Did not find any matching event in OneToOne ChatThread. Calling super class' handleUIMessage");
@@ -2877,11 +2889,13 @@ import com.bsb.hike.voip.VoIPUtils;
 			break;
 			
 		case R.id.block_unknown_contact:
+			if(isWalkieTalkieShowing()) return; //CE-184
 			onBlockClicked();
 			break;
 
 		case R.id.add_unknown_contact:
-			if (null != v.getTag() && v.getTag().equals(R.string.save_unknown_contact))
+			if(isWalkieTalkieShowing()) return; //CE-184
+			if ( null != v.getTag() && v.getTag().equals(R.string.add))
 			{
 				Utils.addToContacts(activity, msisdn);
 				HAManager.getInstance().recordCallerChatSpamAnalytics(AnalyticsConstants.CHAT_THREAD_SAVE, AnalyticsConstants.SAVE, msisdn, null);
@@ -4449,19 +4463,22 @@ import com.bsb.hike.voip.VoIPUtils;
 	 *
 	 * @param headerView
 	 */
-	protected void checkAndAddListViewHeader(View headerView)
-	{
+	protected void checkAndAddListViewHeader(View headerView) {
 
-		if (mAdapter != null)
-		{
+		if (mAdapter != null) {
 			mConversationsView.setAdapter(null);
 			mConversationsView.addHeaderView(headerView);
 			mConversationsView.setAdapter(mAdapter);
-		}
-
-		else
-		{
+		} else {
 			mConversationsView.addHeaderView(headerView);
+		}
+	}
+
+	private void updateUIForBdayChat()
+	{
+		if (mComposeView != null)
+		{
+			mComposeView.setText(getString(R.string.composeview_bday));
 		}
 	}
 }

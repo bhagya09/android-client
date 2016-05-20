@@ -21,10 +21,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.media.StickerPickerListener;
+import com.bsb.hike.modules.quickstickersuggestions.model.QuickSuggestionStickerCategory;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.models.StickerPageAdapterItem;
@@ -60,6 +62,8 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 	private StickerLoader worker;
 	
 	private StickerOtherIconLoader stickerOtherIconLoader;
+
+	private StickerLoader miniStickerLoader;
 	
 	private StickerPickerListener mStickerPickerListener;
 
@@ -105,6 +109,11 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
                 .downloadLargeStickerIfNotFound(true)
                 .setDefaultBitmap(HikeBitmapFactory.decodeResource(mContext.getResources(), R.drawable.shop_placeholder))
                 .build();
+
+		miniStickerLoader = new StickerLoader.Builder()
+				.downloadMiniStickerIfNotFound(true)
+				.loadMiniStickerIfNotFound(true)
+				.build();
 
 		stickerOtherIconLoader = new StickerOtherIconLoader(mContext, true);
 		registerListener();
@@ -168,6 +177,7 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 		filter.addAction(StickerManager.RECENTS_UPDATED);
 		filter.addAction(StickerManager.STICKERS_PROGRESS);
 		filter.addAction(StickerManager.MORE_STICKERS_DOWNLOADED);
+		filter.addAction(StickerManager.QUICK_STICKER_SUGGESTION_FETCHED);
 		LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiver, filter);
 
         HikeMessengerApp.getPubSub().addListeners(this, pubSubListeners);
@@ -183,6 +193,28 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
                 Sticker st = (Sticker) intent.getSerializableExtra(StickerManager.RECENT_STICKER_SENT);
                 refreshRecents(st);
             }
+			else if(intent.getAction().equals(StickerManager.QUICK_STICKER_SUGGESTION_FETCHED))
+			{
+				Logger.d(TAG, "fetched quick suggestion intent received ");
+
+				Bundle bundle = intent.getBundleExtra(HikeConstants.BUNDLE);
+				StickerCategory category = QuickSuggestionStickerCategory.fromBundle(bundle);
+
+
+
+				if(category == null)
+				{
+					Logger.wtf(TAG, "null category received");
+					return;
+				}
+				Logger.d(TAG, " fetched quick suggestion category : " + category.getCategoryId() + " sticker list size : " + category.getStickerList().size());
+
+				if(category.equals(stickerCategoryList.get(0)))
+				{
+					updateQuickSuggestionCategoryInlList((QuickSuggestionStickerCategory) category);
+					initStickers(stickerCategoryList.get(0));
+				}
+			}
 			/**
 			 * More stickers downloaded case
 			 */
@@ -270,8 +302,16 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 		View empty;
 		if (category.isCustom())
 		{
-			// Set Recents EmptyView
-			empty = LayoutInflater.from(mContext).inflate(R.layout.recent_empty_view, emptyView);
+			if(category.getCategoryId().equals(StickerManager.RECENT))
+			{
+				// Set Recents EmptyView
+				empty = LayoutInflater.from(mContext).inflate(R.layout.recent_empty_view, emptyView);
+			}
+			else
+			{
+				// Set Quick Suggestions EmptyView
+				empty = LayoutInflater.from(mContext).inflate(R.layout.quick_suggestions_empty_view, emptyView);
+			}
 		}
 
 		else
@@ -423,7 +463,8 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 		}
 		else
 		{
-			final StickerPageAdapter stickerPageAdapter = new StickerPageAdapter(mContext, stickerPageList, category, worker, spo.getStickerGridView(), mStickerPickerListener);
+			StickerLoader stickerLoader = StickerManager.getInstance().isQuickSuggestionCategory(category.getCategoryId()) ? miniStickerLoader : worker;
+			final StickerPageAdapter stickerPageAdapter = new StickerPageAdapter(mContext, stickerPageList, category, stickerLoader, spo.getStickerGridView(), mStickerPickerListener);
 			spo.setStickerPageAdapter(stickerPageAdapter);
 			spo.getStickerGridView().setAdapter(stickerPageAdapter);
 		}
@@ -457,6 +498,11 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 	public StickerOtherIconLoader getStickerOtherIconLoader()
 	{
 		return stickerOtherIconLoader;
+	}
+
+	public StickerLoader getMiniStickerLoader()
+	{
+		return miniStickerLoader;
 	}
 
 	/**
@@ -517,6 +563,8 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
                 }
 
                 refreshRecents(null);
+				refreshQuickSuggestionCategory();
+
                 break;
             default:
                 Logger.d(TAG, "Did not find any matching event for msg.what : " + msg.what);
@@ -550,4 +598,43 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
         }
     }
 
+	private void refreshQuickSuggestionCategory()
+	{
+		StickerPageObjects spo = stickerObjMap.get(StickerManager.QUICK_SUGGESTIONS);
+		if (spo != null)
+		{
+			final StickerPageAdapter stickerPageAdapter = spo.getStickerPageAdapter();
+			if (stickerPageAdapter != null)
+			{
+				stickerPageAdapter.notifyDataSetChanged();
+			}
+		}
+	}
+
+	private void updateQuickSuggestionCategoryInlList(QuickSuggestionStickerCategory newCategory)
+	{
+		QuickSuggestionStickerCategory presentCategory = (QuickSuggestionStickerCategory) stickerCategoryList.get(0);
+		presentCategory.setSentStickers(newCategory.getSentStickers());
+		presentCategory.setReplyStickers(newCategory.getReplyStickers());
+		presentCategory.setLastRefreshTime(newCategory.getLastRefreshTime());
+	}
+
+	public void addQuickSuggestionCategory(StickerCategory quickSuggestionCategory)
+	{
+		removeQuickSuggestionCategory();
+		stickerCategoryList.add(0, quickSuggestionCategory);
+	}
+
+	public boolean removeQuickSuggestionCategory()
+	{
+		if(getCount() > 0 && StickerManager.getInstance().isQuickSuggestionCategory(stickerCategoryList.get(0).getCategoryId()))
+		{
+			stickerCategoryList.remove(0);
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
 }

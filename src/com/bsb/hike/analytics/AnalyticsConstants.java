@@ -279,6 +279,8 @@ public class AnalyticsConstants
 
 		public static final String REC_ID = "ri";
 
+		public static final String SECTION = "sec";
+
 		public static final String TO_USER = "tu";
 
 		public static final String USER_STATE = "us";
@@ -824,7 +826,7 @@ public class AnalyticsConstants
 
 		public static final String SWIPED = "swiped";
 
-		public static final String ACT_INTERCEPT = "act_intrcpt";
+		public static final String ACT_INTERCEPT = "act_intercept";
 	}
 
     public static final String DISK_CONSUMPTION_ANALYTICS = "disk_consumption";
@@ -932,5 +934,24 @@ public class AnalyticsConstants
 	public static final String BLOCK = "block";
 
 	public static final String SAVE = "save";
+
+	public static final class JoinGroupViaLinkSharingAnalyticsConstants
+	{
+		public static final String WA = "wa";
+
+		public static final String CLICKED_WA = "click_add_wa";
+
+		public static final String CLICKED_HIKE = "click_add_hike";
+
+		public static final String CLICKED_OTHER = "click_add_others";
+
+		public static final String FUNNEL = "funnel";
+
+		public static final String CLICKED_ADD = "click_add";
+
+		public static final String ACT_GROUP = "act_grp";
+
+		public static final String GROUP_CREATE = "create";
+	}
 
 }

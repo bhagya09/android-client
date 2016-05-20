@@ -56,12 +56,10 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.analytics.HomeAnalyticsConstants;
 import com.bsb.hike.backup.AccountBackupRestore;
-import com.bsb.hike.backup.HikeCloudSettingsManager;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.AccountRestoreAsyncTask;
@@ -108,13 +106,17 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Listener, HikeDialogListener,
 		AccountRestoreAsyncTask.IRestoreCallback
@@ -216,6 +218,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	private AccountRestoreAsyncTask restoreAsyncTask;
 
 	private boolean wasFragmentRemoved = false;
+
+	private static final Long DEFAULT_CACHE_TIME_FOR_BDAY_CALL = 1* 60 * 60 * 1000l;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -325,8 +329,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		FTApkManager.removeApkIfNeeded();
 		moveToComposeChatScreen();
 
-
-		HikeCloudSettingsManager.getInstance().doRestore(null);
+		fetchAndUpdateBdayList();
     }
 	
 	@Override
@@ -2683,5 +2686,82 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			e.toString();
 		}
 	}
+
+	private void fetchAndUpdateBdayList()
+	{
+		if(!Utils.isBDayInNewChatEnabled())
+		{
+			return;
+		}
+
+		final HikeSharedPreferenceUtil sharedPreferenceUtil = HikeSharedPreferenceUtil.getInstance();
+
+		final long ts = sharedPreferenceUtil.getData(HikeConstants.BDAY_HTTP_CALL_TS, 0l);
+
+		if(System.currentTimeMillis() - ts > sharedPreferenceUtil.getData(HikeConstants.BDAY_HTTP_CALL_TIME_GAP, DEFAULT_CACHE_TIME_FOR_BDAY_CALL)) {
+			RequestToken requestToken = HttpRequests.fetchBdaysForCCA(new IRequestListener() {
+
+				@Override
+				public void onRequestSuccess(Response result)
+				{
+					JSONObject response = (JSONObject) result.getBody().getContent();
+					Logger.d("bday_HTTP_Sucess", "The result from server is " + response);
+
+					if(!Utils.isResponseValid(response))
+					{
+						Logger.d("bday_HTTP_Sucess", "as stat fail so returning " + response);
+						return;
+					}
+
+					Set<String> bdayMsisdnSet = null;
+					try
+					{
+						final JSONArray bdayJSONArray = response.getJSONArray(HikeConstants.BIRTHDAY_DATA);
+
+						if (bdayJSONArray == null || bdayJSONArray.length() == 0)
+						{
+							Logger.d("bday_HTTP_Sucess", "No list in server responce ");
+						}
+						else
+						{
+							bdayMsisdnSet = new HashSet<String>();
+							for (int i = 0; i < bdayJSONArray.length(); i++)
+							{
+								JSONObject bdayInfo = (JSONObject) bdayJSONArray.get(i);
+								bdayMsisdnSet.add(bdayInfo.getString(HikeConstants.MSISDN));
+							}
+						}
+
+						Logger.d("bday_HTTP_Sucess", "Updating time and list in Sp " + bdayMsisdnSet);
+						sharedPreferenceUtil.saveData(HikeConstants.BDAY_HTTP_CALL_TS, System.currentTimeMillis());
+						HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeConstants.BDAYS_LIST, bdayMsisdnSet);
+					}
+					catch (JSONException e)
+					{
+						e.printStackTrace();
+					}
+				}
+
+				@Override
+				public void onRequestProgressUpdate(float progress)
+				{
+				}
+
+				@Override
+				public void onRequestFailure(HttpException httpException)
+				{
+					Date currentDate = new Date(System.currentTimeMillis());
+					Date previousDate = new Date(ts);
+					if (!currentDate.equals(previousDate))
+					{
+						Logger.d("bday_HTTP_FAIL", "As Date is changed and call failed, so emptying the bday list");
+						sharedPreferenceUtil.saveData(HikeConstants.BDAYS_LIST, null);
+					}
+				}
+			});
+			requestToken.execute();
+		}
+	}
+
 
 }

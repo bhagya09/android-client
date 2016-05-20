@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -75,6 +76,7 @@ import com.bsb.hike.models.HikeSharedFile;
 import com.bsb.hike.models.MessageEvent;
 import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.Protip;
+import com.bsb.hike.modules.quickstickersuggestions.model.QuickSuggestionStickerCategory;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -105,8 +107,10 @@ import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+import static com.bsb.hike.db.DBConstants.*;
+import static com.bsb.hike.db.DBConstants.HIKE_CONV_DB.*;
 
-public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBConstants, HIKE_CONV_DB
+public class HikeConversationsDatabase extends SQLiteOpenHelper
 {
 
 	private static volatile SQLiteDatabase mDb;
@@ -1094,6 +1098,27 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 			sql = getRecentStickersTableCreateQuery();
 			db.execSQL(sql);
+		}
+
+		if(oldVersion < 51)
+		{
+			if(!Utils.isColumnExistsInTable(db, DBConstants.STICKER_TABLE, DBConstants.QUICK_SUGGESTED_REPLY_STICKERS))
+			{
+				String alter1 = "ALTER TABLE " + DBConstants.STICKER_TABLE + " ADD COLUMN " + DBConstants.QUICK_SUGGESTED_REPLY_STICKERS + " TEXT";
+				db.execSQL(alter1);
+			}
+
+			if(!Utils.isColumnExistsInTable(db, DBConstants.STICKER_TABLE, DBConstants.QUICK_SUGGESTED_SENT_STICKERS))
+			{
+				String alter2 = "ALTER TABLE " + DBConstants.STICKER_TABLE + " ADD COLUMN " + DBConstants.QUICK_SUGGESTED_SENT_STICKERS + " TEXT";
+				db.execSQL(alter2);
+			}
+
+			if(!Utils.isColumnExistsInTable(db, DBConstants.STICKER_TABLE, DBConstants.LAST_QUICK_SUGGESTION_REFRESH_TIME))
+			{
+				String alter3 = "ALTER TABLE " + DBConstants.STICKER_TABLE + " ADD COLUMN " + DBConstants.LAST_QUICK_SUGGESTION_REFRESH_TIME + " INTEGER DEFAULT 0";
+				db.execSQL(alter3);
+			}
 		}
 	}
 
@@ -2244,6 +2269,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.SMALL_STICKER_PATH + " TEXT, "
 				+ DBConstants.IS_ACTIVE + " INTEGER DEFAULT " + DBConstants.DEFAULT_ACTIVE_STATE + ", "
                 + DBConstants.TYPE + " INTEGER DEFAULT " + StickerConstants.StickerType.LARGE.ordinal() + ", "
+				+ DBConstants.QUICK_SUGGESTED_REPLY_STICKERS + " TEXT, "
+				+ DBConstants.QUICK_SUGGESTED_SENT_STICKERS + " TEXT, "
+				+ DBConstants.LAST_QUICK_SUGGESTION_REFRESH_TIME + " INTEGER DEFAULT 0, "
 				+ "PRIMARY KEY ("+DBConstants.CATEGORY_ID +" , "+ DBConstants.STICKER_ID +" )"
 				+ " )";
 
@@ -3512,6 +3540,66 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			}
 		}
 
+	}
+
+	/**
+	 *
+	 * @param msgId of the convmessage we are fetching
+	 * @return
+     */
+
+	public ConvMessage getConvMessageForMsgId(long msgId)
+	{
+		// msgid cant be negative so returning null here
+		
+		if(msgId < 0)
+		{
+			return null;
+		}
+		Cursor c = null;
+
+		try
+		{
+			c = mDb.query(DBConstants.MESSAGES_TABLE, null, DBConstants.MESSAGE_ID + " =? ", new String[] { Long.toString(msgId) }, null, null, null , null);
+
+			if (c.moveToFirst())
+			{
+				final int msisdnColumn = c.getColumnIndex(DBConstants.MSISDN);
+				final int msgColumn = c.getColumnIndex(DBConstants.MESSAGE);
+				final int msgStatusColumn = c.getColumnIndex(DBConstants.MSG_STATUS);
+				final int tsColumn = c.getColumnIndex(DBConstants.TIMESTAMP);
+				final int mappedMsgIdColumn = c.getColumnIndex(DBConstants.MAPPED_MSG_ID);
+				final int metadataColumn = c.getColumnIndex(DBConstants.MESSAGE_METADATA);
+				final int groupParticipantColumn = c.getColumnIndex(DBConstants.GROUP_PARTICIPANT);
+				final int sortingIdColumn = c.getColumnIndex(DBConstants.SORTING_ID);
+
+				ConvMessage message = new ConvMessage(c.getString(msgColumn), c.getString(msisdnColumn), c.getInt(tsColumn), ConvMessage.stateValue(c.getInt(msgStatusColumn)),
+						msgId, c.getLong(mappedMsgIdColumn), c.getString(groupParticipantColumn), c.getLong(sortingIdColumn));
+				String metadata = c.getString(metadataColumn);
+				try
+				{
+					message.setMetadata(metadata);
+				}
+				catch (JSONException e)
+				{
+					Logger.e(HikeConversationsDatabase.class.getName(), "Invalid JSON metadata", e);
+				}
+
+				return message;
+			}
+		}
+		catch (Exception e)
+		{
+			Logger.e(HikeConversationsDatabase.class.getName(), "exception in fetching convmessage for msgId : " + msgId , e);
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+		return null;
 	}
 
 	public Conversation getConversation(String msisdn, int limit)
@@ -9991,5 +10079,99 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		{
 			mDb.endTransaction();
 		}
+	}
+
+	public QuickSuggestionStickerCategory getQuickStickerSuggestionsForSticker(QuickSuggestionStickerCategory quickSuggestionCategory)
+	{
+		Sticker quickSuggestSticker = quickSuggestionCategory.getQuickSuggestSticker();
+		Cursor c = null;
+		try
+		{
+			c = mDb.query(
+					DBConstants.STICKER_TABLE,
+					new String[] { DBConstants.QUICK_SUGGESTED_REPLY_STICKERS, DBConstants.QUICK_SUGGESTED_SENT_STICKERS, DBConstants.LAST_QUICK_SUGGESTION_REFRESH_TIME },
+					DBConstants.CATEGORY_ID + "=?" + " AND " + DBConstants.STICKER_ID + "=?",
+					new String[] { quickSuggestSticker.getCategoryId(), quickSuggestSticker.getStickerId() },
+					null, null, null, null);
+
+			int replyStickerSetStringIndex = c.getColumnIndex(QUICK_SUGGESTED_REPLY_STICKERS);
+			int sentStickerSetStringIndex = c.getColumnIndex(QUICK_SUGGESTED_SENT_STICKERS);
+			int lastRefreshTimeIdx = c.getColumnIndex(LAST_QUICK_SUGGESTION_REFRESH_TIME);
+
+			if(c.moveToFirst())
+			{
+					quickSuggestionCategory.setReplyStickers(QuickSuggestionStickerCategory.replyStickerSetFromString(c.getString(replyStickerSetStringIndex)));
+					quickSuggestionCategory.setSentStickers(QuickSuggestionStickerCategory.sentStickerSetFromSting(c.getString(sentStickerSetStringIndex)));
+					quickSuggestionCategory.setLastRefreshTime(c.getLong(lastRefreshTimeIdx));
+			}
+		}
+		finally
+		{
+			if(null != c)
+			{
+				c.close();
+			}
+		}
+		return quickSuggestionCategory;
+	}
+
+	public void insertQuickSuggestionData(List<StickerCategory> stickerCategoryList)
+	{
+		try
+		{
+			mDb.beginTransaction();
+			ContentValues contentValues = new ContentValues();
+			for(StickerCategory stickerCategory : stickerCategoryList)
+			{
+				contentValues.clear();
+
+				QuickSuggestionStickerCategory quickSuggestionStickerCategory = (QuickSuggestionStickerCategory) stickerCategory;
+				Sticker quickSuggestionSticker = quickSuggestionStickerCategory.getQuickSuggestSticker();
+
+				String replySetString = quickSuggestionStickerCategory.replyStickerSetToString();
+				String sentSetString = quickSuggestionStickerCategory.sentStickerSetToSting();
+				Logger.d(getClass().getSimpleName(), "reply string for sticker " + quickSuggestionSticker + " is : " + replySetString);
+				Logger.d(getClass().getSimpleName(), "sent string for sticker " + quickSuggestionSticker + " is : " + sentSetString);
+				contentValues.put(DBConstants.QUICK_SUGGESTED_REPLY_STICKERS, replySetString);
+				contentValues.put(DBConstants.QUICK_SUGGESTED_SENT_STICKERS, sentSetString);
+				contentValues.put(DBConstants.LAST_QUICK_SUGGESTION_REFRESH_TIME, System.currentTimeMillis());
+				int updatesRows = mDb.update(DBConstants.STICKER_TABLE, contentValues, DBConstants.CATEGORY_ID + "=?" + " AND " + DBConstants.STICKER_ID + "=?", new String[] {quickSuggestionSticker.getCategoryId(), quickSuggestionSticker.getStickerId()});
+ 				Logger.d(getClass().getSimpleName(), updatesRows + " rows are updated during quick suggestions insert");
+			}
+			mDb.setTransactionSuccessful();
+		}
+		finally
+		{
+			mDb.endTransaction();
+		}
+	}
+	
+	public Set<Sticker> getAllStickers()
+	{
+		Cursor c = null;
+		Set<Sticker> stickerSet = null;
+		try
+		{
+			c = mDb.query(DBConstants.STICKER_TABLE, new String[] { DBConstants.CATEGORY_ID, DBConstants.STICKER_ID }, null, null, null, null, null, null);
+
+			stickerSet = new HashSet<>(c.getCount());
+
+			int categoryIdIdx = c.getColumnIndex(DBConstants.CATEGORY_ID);
+			int stickerIdIdx = c.getColumnIndex(DBConstants.STICKER_ID);
+
+			while(c.moveToNext())
+			{
+				Sticker sticker = new Sticker(c.getString(categoryIdIdx), c.getString(stickerIdIdx));
+				stickerSet.add(sticker);
+			}
+		}
+		finally
+		{
+			if (null != c)
+			{
+				c.close();
+			}
+		}
+		return stickerSet;
 	}
 }

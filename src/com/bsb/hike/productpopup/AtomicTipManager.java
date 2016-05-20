@@ -23,8 +23,10 @@ import static com.bsb.hike.analytics.AnalyticsConstants.AtomicTipsAnalyticsConst
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
@@ -35,6 +37,7 @@ import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -342,7 +345,16 @@ public class AtomicTipManager
      */
     private boolean createAndCacheIcon(AtomicTipContentModel tipContentModel)
     {
-        BitmapDrawable iconDrawable = drawableFromString(tipContentModel.getIcon());
+        BitmapDrawable iconDrawable;
+        try
+        {
+            iconDrawable = drawableFromString(tipContentModel.getIcon());
+        }
+        catch (IllegalArgumentException iae)
+        {
+            Logger.d(TAG, "exception while creating tip icon. possibly invalid base64");
+            return false;
+        }
         if(iconDrawable != null)
         {
             Logger.d(TAG, "caching atomic tip icon");
@@ -363,7 +375,16 @@ public class AtomicTipManager
      */
     private boolean createAndCacheBgImage(AtomicTipContentModel tipContentModel)
     {
-        BitmapDrawable bgImageDrawable = drawableFromString(tipContentModel.getBgImage());
+        BitmapDrawable bgImageDrawable;
+        try
+        {
+            bgImageDrawable = drawableFromString(tipContentModel.getBgImage());
+        }
+        catch (IllegalArgumentException iae)
+        {
+            Logger.d(TAG, "exception while creating tip bg image. possibly invalid base64");
+            return false;
+        }
         if(bgImageDrawable != null)
         {
             cacheTipAsset(tipContentModel.getBgImgKey(), bgImageDrawable);
@@ -683,6 +704,11 @@ public class AtomicTipManager
                 removeTipFromView();
                 break;
 
+            case ProductPopupsConstants.PopUpAction.MAKE_FRIEND:
+                actionMakeFriend(context, metadata);
+                removeTipFromView();
+                break;
+
             case NO_CTA_ACTION:
                 removeTipFromView();
                 break;
@@ -831,7 +857,20 @@ public class AtomicTipManager
         @Override
         public void onRequestSuccess(Response result)
         {
-            Logger.d(TAG, "atmoic tip http call response code " + result.getStatusCode());
+            Logger.d(TAG, "atomic tip http call response code: " + result.getStatusCode());
+            //getting response body to check for custom toast message
+            JSONObject response = (JSONObject) result.getBody().getContent();
+            if (response != null)
+            {
+                if(response.optBoolean(HikeConstants.TOAST, false))
+                {
+                    String toastMsg = response.optString(HikeConstants.Toast.TOAST_MESSAGE, "");
+                    if(!TextUtils.isEmpty(toastMsg))
+                    {
+                        showHttpToast(toastMsg);
+                    }
+                }
+            }
             removeTipFromView();
         }
 
@@ -844,18 +883,23 @@ public class AtomicTipManager
         public void onRequestFailure(HttpException httpException)
         {
             Logger.d(TAG, "atomic tip http call  error code " + httpException.getErrorCode());
-            final Context hikeAppContext = HikeMessengerApp.getInstance().getApplicationContext();
-            Handler uiHandler = new Handler(hikeAppContext.getMainLooper());
-            uiHandler.post(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    Toast.makeText(hikeAppContext, hikeAppContext.getString(R.string.atomic_tip_http_failure), Toast.LENGTH_SHORT).show();
-                }
-            });
+            String toastMsg = HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.atomic_tip_http_failure);
+            showHttpToast(toastMsg);
         }
     };
+
+    public void showHttpToast(final String toastMsg)
+    {
+        Handler uiHandler = new Handler(HikeMessengerApp.getInstance().getApplicationContext().getMainLooper());
+        uiHandler.post(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), toastMsg, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
     public JSONObject getJSONForTipAnalytics(String unqKey, String cls, String family, boolean genus, String species, String variety)
     {
@@ -923,6 +967,48 @@ public class AtomicTipManager
         {
             AtomicTipContentModel currentModel = (AtomicTipContentModel) tipIterator.next();
             recordTipsAnalytics(getJSONForTipAnalytics(TIP_FLUSH, EXIT, currentModel.getTipId(), currentModel.isCancellable(), null, null));
+        }
+    }
+
+    private void actionMakeFriend(Context context, String metadata)
+    {
+        Logger.d(TAG, "processing makefriend action, metadata is " + metadata);
+        JSONObject mmObject;
+        int counter = 0;
+        try
+        {
+            mmObject = new JSONObject(metadata);
+            JSONArray msisdns = mmObject.optJSONArray(HikeConstants.MSISDNS);
+            if(msisdns == null || msisdns.length() == 0)
+            {
+                return;
+            }
+            for(int i = 0; i < msisdns.length(); i++)
+            {
+                JSONObject msisdnObj = msisdns.optJSONObject(i);
+                if(msisdnObj != null)
+                {
+                    String msisdn = msisdnObj.optString(HikeConstants.MSISDN);
+                    if(!TextUtils.isEmpty(msisdn))
+                    {
+                        ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, false, false);
+                        Utils.toggleFavorite(context, contactInfo, false, null, false);
+                        counter++;
+                    }
+                }
+            }
+            if(counter == 1)
+            {
+                showHttpToast(context.getString(R.string.friend_request_sent));
+            }
+            else if(counter > 1)
+            {
+                showHttpToast(context.getString(R.string.friend_request_sent_multiple));
+            }
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
         }
     }
 }
