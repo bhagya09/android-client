@@ -422,6 +422,14 @@ public class PlatformUtils
 						ChatThreadActivity.ChatThreadOpenSources.MICRO_APP);
 				if (in != null)
 				{
+					if(mmObject.has(HikeConstants.Extras.MSG))
+					{
+						String preTypedText = mmObject.optString(HikeConstants.Extras.MSG);
+						if(!TextUtils.isEmpty(preTypedText))
+						{
+							in.putExtra(HikeConstants.Extras.MSG, preTypedText);
+						}
+					}
 					context.startActivity(in);
 				}
 				else
