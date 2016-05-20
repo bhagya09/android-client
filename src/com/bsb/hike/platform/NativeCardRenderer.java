@@ -230,6 +230,7 @@ public class NativeCardRenderer implements View.OnLongClickListener, View.OnClic
 
 	private void populateMediaComponent(View v, ConvMessage convMessage, HikeFile hikeFile)
 	{
+		//TODO: honor the auto download settings.
 		FileSavedState fss = null;
 		MessagesAdapter.FTViewHolder ftViewHolder = new MessagesAdapter.FTViewHolder();
 		if (convMessage.isSent())
