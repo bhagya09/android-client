@@ -5,5 +5,7 @@
     @drawable/ic_mumbai*, @drawable/ic_kolkata*, @drawable/ic_gujarat*, @drawable/ic_bangalore*, @drawable/ic_hyderabad*, @drawable/ic_bhopal*,
     @drawable/ic_chennai*, @drawable/ic_bihar*, @drawable/ic_kerala*, @drawable/ic_guwahati*, @drawable/ic_indian*, @drawable/ic_expressions*,
     @drawable/ic_love*, @drawable/ic_bollywood*, @drawable/ic_rageface*, @drawable/ic_doggy*, @drawable/ic_jelly*, @drawable/ic_sports*,
-    @drawable/ic_humanoid2*, @drawable/ic_avtars*, @drawable/ic_avtars_selected*, @drawable/ic_smileyexpression*, @drawable/ic_kitty* "
+    @drawable/ic_humanoid2*, @drawable/ic_avtars*, @drawable/ic_avtars_selected*, @drawable/ic_smileyexpression*, @drawable/ic_kitty*,
+    @drawable/bg_ct*, @drawable/bg_header*, @drawable/bg_sms_toggle*, @drawable/bg_status_chat_thread_*, @drawable/ic_bubble*, @drawable/ic_ct_*, @drawable/ic_nudge_hike*,
+    @drawable/ic_nudge_receive*, @drawable/ic_nudge_sent*, @drawable/nudge_sent*, @drawable/nudge_received*"
     tools:discard="@drawable/common_signin_*"/>
