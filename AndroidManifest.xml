@@ -4,7 +4,7 @@
     package="com.bsb.hike"
     android:installLocation="auto"
     android:versionCode="1715"
-    android:versionName="4.2.5.82.106.18.mute" >
+    android:versionName="4.2.5.82.106.19.mute" >
 
    <uses-sdk
         android:minSdkVersion="14"
