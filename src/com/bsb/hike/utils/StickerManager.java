@@ -3922,6 +3922,7 @@ public class StickerManager
 					metadata.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_STICKER_LOGS);
 					metadata.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
 					metadata.put(AnalyticsConstants.V2.UNIQUE_KEY, HikeConstants.LogEvent.STICKER_CLICKED);
+					metadata.put(AnalyticsConstants.V2.ORDER, HikeConstants.LogEvent.STICKER_CLICKED);
 					metadata.put(AnalyticsConstants.V2.GENUS, sticker.getCategoryId());
 					metadata.put(AnalyticsConstants.V2.SPECIES, sticker.getStickerId());
 					metadata.put(AnalyticsConstants.V2.SOURCE, convMessage.isOneToNChat() ? HikeConstants.GROUP_CONVERSATION : HikeConstants.ONE_TO_ONE_CONVERSATION);
