@@ -8034,11 +8034,20 @@ public class Utils
 
 			if (mute.isMute() && muteApproach)
 			{
+				int convHash = convInfohashCode(mute.getMsisdn());
 				Intent intent = IntentFactory.getIntentForMuteAlarm(mute);
-				HikeAlarmManager.setAlarmwithIntentPersistance(context.getApplicationContext(), mute.getMuteEndTime(), HikeAlarmManager.REQUESTCODE_END_CONVERSATION_MUTE, true, intent, true);
+				HikeAlarmManager.setAlarmwithIntentPersistanceMute(context.getApplicationContext(), mute.getMuteEndTime(), HikeAlarmManager.REQUESTCODE_END_CONVERSATION_MUTE, true, intent, true, convHash);
 			}
-
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, mute);
 		}
+	}
+
+	public static int convInfohashCode(String msisdn)
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + msisdn.hashCode();
+
+		return result;
 	}
 }

@@ -4063,6 +4063,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				if (muteApproach && mute != null && mute.isMute() && mute.getMuteEndTime() < System.currentTimeMillis())
 				{
 					mute.setIsMute(false);
+					mute.setShowNotifInMute(true);
 					HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, mute);
 				}
 
