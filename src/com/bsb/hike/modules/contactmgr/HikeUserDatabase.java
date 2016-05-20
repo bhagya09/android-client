@@ -2722,6 +2722,11 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		ContentValues cv = new ContentValues();
 		cv.put(DBConstants.MSISDN, msisdn);
 		cv.put(DBConstants.ONHIKE, convInfo.isOnHike() ? 1 : 0);
+		ContactInfo ci= ContactManager.getInstance().getContact(msisdn);
+		if(!TextUtils.isEmpty(ci.getUid()))
+		{
+			cv.put(DBConstants.HIKE_UID, ci.getUid());
+		}
 
 		mDb.insertWithOnConflict(DBConstants.USERS_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
 	}

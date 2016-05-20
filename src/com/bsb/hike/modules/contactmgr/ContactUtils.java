@@ -179,7 +179,7 @@ public class ContactUtils
 				return null;
 			}
 			Logger.d("AccountUtils", "Reply from addressbook:" + obj.toString());
-			favourites = obj.getJSONArray("favourites");
+			favourites = obj.getJSONArray("favorites");
 		} catch (JSONException e) {
 			Logger.e("AccountUtils", "Invalid json object", e);
 			return null;
