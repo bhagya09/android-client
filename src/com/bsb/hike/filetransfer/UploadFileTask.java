@@ -33,6 +33,7 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.request.requestbody.FileTransferChunkSizePolicy;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.utils.FileTransferCancelledException;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.PairModified;
@@ -524,6 +525,11 @@ public class UploadFileTask extends FileTransferBase
 			@Override
 			public void onRequestSuccess(Response result)
 			{
+				if(!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PRODUCTION, true) && HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DISABLE_QUICK_UPLOAD, false))
+				{
+					uploadFile(selectedFile);
+					return;
+				}
 				FTAnalyticEvents.sendQuickUploadEvent(1);
 				JSONObject responseJson = new JSONObject();
 				try

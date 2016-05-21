@@ -2,10 +2,13 @@ package com.bsb.hike.media;
 
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -17,14 +20,23 @@ import android.widget.TextView;
 
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
-import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
+import com.bsb.hike.chatthemes.ChatThemeManager;
+import com.bsb.hike.chatthemes.HikeChatThemeConstants;
 import com.bsb.hike.chatthread.BackPressListener;
-import com.bsb.hike.utils.ChatTheme;
+import com.bsb.hike.chatthread.ChatThreadUtils;
+import com.bsb.hike.models.HikeChatTheme;
+import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
+import com.bsb.hike.view.CustomFontTextView;
+
+import java.util.ArrayList;
 
 public class ThemePicker implements BackPressListener, OnDismissListener, OnClickListener
 {
@@ -33,9 +45,9 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 
 	public static interface ThemePickerListener
 	{
-		public void themeClicked(ChatTheme theme);
+		public void themeClicked(String themeId);
 
-		public void themeSelected(ChatTheme theme);
+		public void themeSelected(String themeId);
 
 		public void themeCancelled();
 	}
@@ -46,8 +58,8 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 
 	private ActionMode actionMode;
 
-	/* It contains the currently selected ChatTheme in ThemePicker and an index of that ChatTheme according to ChatTheme.THEME_PICKER array */
-	private Pair<ChatTheme, Integer> userSelection;
+	// It contains the currently selected ChatThemeId in the current chat thread
+	private String userSelection;
 	
 	private ThemePickerListener listener;
 
@@ -56,10 +68,14 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 	private PopUpLayout popUpLayout;
 	
 	private int currentConfig = Configuration.ORIENTATION_PORTRAIT;
+
+	private ArrayList<String> availableThemes;
+
+	private ArrayAdapter<String> gridAdapter = null;
 	
-	public ThemePicker(AppCompatActivity appCompatActivity, ThemePickerListener listener, ChatTheme currentTheme)
+	public ThemePicker(AppCompatActivity appCompatActivity, ThemePickerListener listener, String currentThemeId)
 	{
-		this.userSelection = new Pair<ChatTheme, Integer>(currentTheme, ChatTheme.getPositionForTheme(currentTheme));
+		this.userSelection = currentThemeId;
 		this.appCompatActivity = appCompatActivity;
 		this.listener = listener;
 		this.popUpLayout = new PopUpLayout(appCompatActivity.getApplicationContext());
@@ -69,9 +85,9 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 	/**
 	 * This method calls {@link #showThemePicker(int, int, View, ChatTheme)} with offset as 0
 	 */
-	public void showThemePicker(View anchor, ChatTheme currentTheme, int footerTextResId, int orientation)
+	public void showThemePicker(View anchor, String currentThemeId, int footerTextResId, int orientation)
 	{
-		showThemePicker(0, 0, anchor, currentTheme, footerTextResId, orientation);
+		showThemePicker(0, 0, anchor, currentThemeId, footerTextResId, orientation);
 	}
 
 	/**
@@ -82,10 +98,10 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 	 * @param anchor
 	 * @param currentTheme
 	 */
-	public void showThemePicker(int xoffset, int yoffset, View anchor, ChatTheme currentTheme, int footerTextResId, int orientation)
+	public void showThemePicker(int xoffset, int yoffset, View anchor, String currentThemeId, int footerTextResId, int orientation)
 	{
 		Logger.i(TAG, "show theme picker");
-		this.userSelection = new Pair<ChatTheme, Integer>(currentTheme, ChatTheme.getPositionForTheme(currentTheme));
+		this.userSelection = currentThemeId;
 		appCompatActivity.startSupportActionMode(actionmodeCallback);
 		initView(footerTextResId, orientation);
 		popUpLayout.showPopUpWindowNoDismiss(xoffset, yoffset, anchor, getView());
@@ -121,7 +137,12 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 
 		attachmentsGridView.setNumColumns(getNumColumnsChatThemes());
 
-		final ArrayAdapter<ChatTheme> gridAdapter = new ArrayAdapter<ChatTheme>(appCompatActivity.getApplicationContext(), -1, ChatTheme.THEME_PICKER)
+		availableThemes = ChatThemeManager.getInstance().getAvailableThemeIds();
+		if(ChatThreadUtils.isCustomChatThemeEnabled()) {
+			availableThemes.add(0, HikeChatThemeConstants.THEME_PALETTE_CAMERA_ICON);
+		}
+
+		gridAdapter = new ArrayAdapter<String>(appCompatActivity.getApplicationContext(), -1, availableThemes)
 		{
 
 			@Override
@@ -131,37 +152,64 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 				{
 					convertView = LayoutInflater.from(appCompatActivity).inflate(R.layout.chat_bg_item, parent, false);
 				}
-				ChatTheme chatTheme = getItem(position);
-
-				ImageView theme = (ImageView) convertView.findViewById(R.id.theme);
 				ImageView animatedThemeIndicator = (ImageView) convertView.findViewById(R.id.animated_theme_indicator);
+				ImageView theme = (ImageView) convertView.findViewById(R.id.theme);
+				View animatedBackground = convertView.findViewById(R.id.theme_animated_backgroud);
 
-				animatedThemeIndicator.setVisibility(chatTheme.isAnimated() ? View.VISIBLE : View.GONE);
-				theme.setBackgroundResource(chatTheme.previewResId());
-				theme.setEnabled(userSelection.first == chatTheme);
+				theme.clearAnimation();
+				animatedThemeIndicator.setVisibility(View.GONE);
+				animatedBackground.setVisibility(View.GONE);
+
+				if(getItem(position).equalsIgnoreCase(HikeChatThemeConstants.THEME_PALETTE_CAMERA_ICON)) {
+					theme.setBackgroundResource(R.drawable.ic_ct_camera);
+
+					if (HikeSharedPreferenceUtil.getInstance().getData(HikeChatThemeConstants.SHARED_PREF_CT_SHOW_FTUE_ANIMATION, true)){
+						animatedBackground.setVisibility(View.VISIBLE);
+						Animation anim = AnimationUtils.loadAnimation(appCompatActivity, R.anim.scale_out_from_mid);
+						animatedBackground.startAnimation(anim);
+						theme.setAnimation(HikeAnimationFactory.getStickerShopIconAnimation(appCompatActivity));
+					}
+				} else {
+					HikeChatTheme chatTheme = ChatThemeManager.getInstance().getTheme(getItem(position));
+					animatedThemeIndicator.setVisibility(chatTheme.isAnimated() ? View.VISIBLE : View.GONE);
+					Utils.setBackground(theme, ChatThemeManager.getInstance().getDrawableForTheme(chatTheme.getThemeId(), HikeChatThemeConstants.ASSET_INDEX_THUMBNAIL));
+					theme.setEnabled(userSelection.equals(chatTheme.getThemeId()));
+				}
 
 				return convertView;
 			}
 		};
 
 		attachmentsGridView.setAdapter(gridAdapter);
-		if (userSelection != null && userSelection.first != null)
+
+		//BugFix CE-763, Making the userSelection defaulted to Camera icon in Theme Palette
+		if(gridAdapter.getItem(0).equalsIgnoreCase(HikeChatThemeConstants.THEME_PALETTE_CAMERA_ICON))
 		{
-			attachmentsGridView.setSelection(userSelection.second);
+			attachmentsGridView.setSelection(0);
 		}
+		else
+		{
+			if (userSelection != null)
+			{
+				attachmentsGridView.setSelection(getThemePosition(availableThemes, userSelection));
+			}
+		}
+
 		attachmentsGridView.setOnItemClickListener(new OnItemClickListener()
 		{
 
 			@Override
 			public void onItemClick(AdapterView<?> adapterView, View view, int position, long id)
 			{
-				ChatTheme selected = ChatTheme.THEME_PICKER[position];
 				gridAdapter.notifyDataSetChanged();
-				if (selected != userSelection.first)
+				if (availableThemes.get(position) != userSelection)
 				{
-					listener.themeClicked(selected);
+					listener.themeClicked(availableThemes.get(position));
 				}
-				userSelection = new Pair<ChatTheme, Integer>(selected, position);
+				userSelection = availableThemes.get(position);
+				if(gridAdapter.getItem(position).equalsIgnoreCase(HikeChatThemeConstants.THEME_PALETTE_CAMERA_ICON)) {
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeChatThemeConstants.SHARED_PREF_CT_SHOW_FTUE_ANIMATION, false);
+				}
 			}
 		});
 
@@ -306,7 +354,7 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 	{
 		if (arg0.getId() == R.id.done_container)
 		{
-			listener.themeSelected(userSelection.first);
+			listener.themeSelected(userSelection);
 			listenerInvoked = true;
 			popUpLayout.dismiss();
 		}
@@ -324,7 +372,17 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 	{
 		GridView grid = (GridView) viewToDisplay.findViewById(R.id.attachment_grid);
 		grid.setNumColumns(getNumColumnsChatThemes());
-		((ArrayAdapter<ChatTheme>) grid.getAdapter()).notifyDataSetChanged();
+
+		availableThemes = ChatThemeManager.getInstance().getAvailableThemeIds();
+		if(ChatThreadUtils.isCustomChatThemeEnabled()) {
+			availableThemes.add(0, HikeChatThemeConstants.THEME_PALETTE_CAMERA_ICON);
+		}
+		if(gridAdapter != null) {
+			gridAdapter.clear();
+			gridAdapter.addAll(availableThemes);
+			grid.setAdapter(gridAdapter);
+			gridAdapter.notifyDataSetChanged();
+		}
 	}
 	
 	public void setOrientation(int orientation)
@@ -332,7 +390,21 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 		if(orientation != currentConfig)
 		{
 			this.currentConfig = orientation;
-			refreshViews();
 		}
+		refreshViews();
+
 	}
+
+	public int getThemePosition(ArrayList<String> themeIds, String searchTheme)
+	{
+		for(int i=0;i<themeIds.size();i++)
+		{
+			if(themeIds.get(i).equals(searchTheme))
+			{
+				return i;
+			}
+		}
+		return 0; // error code
+	}
+
 }

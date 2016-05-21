@@ -901,4 +901,23 @@ public class AnalyticsConstants
 
 	public static final String OVERFLOW_MENU_CLICKED = "ctOvrFlw";
 
+	public static final class JoinGroupViaLinkSharingAnalyticsConstants
+	{
+		public static final String WA = "wa";
+
+		public static final String CLICKED_WA = "click_add_wa";
+
+		public static final String CLICKED_HIKE = "click_add_hike";
+
+		public static final String CLICKED_OTHER = "click_add_others";
+
+		public static final String FUNNEL = "funnel";
+
+		public static final String CLICKED_ADD = "click_add";
+
+		public static final String ACT_GROUP = "act_grp";
+
+		public static final String GROUP_CREATE = "create";
+	}
+
 }

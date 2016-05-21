@@ -170,6 +170,9 @@ import com.bsb.hike.analytics.TrafficsStatsFile;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.ChatHeadUtils;
+import com.bsb.hike.chatHead.StickyCaller;
+import com.bsb.hike.chatthemes.ChatThemeManager;
+import com.bsb.hike.chatthemes.HikeChatThemeConstants;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -3963,6 +3966,11 @@ public class Utils
 
 	public static FavoriteType toggleFavorite(Context context, ContactInfo contactInfo, boolean isFtueContact, String addFavSource)
 	{
+		return toggleFavorite(context, contactInfo, isFtueContact, addFavSource, true);
+	}
+
+	public static FavoriteType toggleFavorite(Context context, ContactInfo contactInfo, boolean isFtueContact, String addFavSource, boolean showToast)
+	{
 		FavoriteType favoriteType;
 		boolean isRequestSent = false;
 		if (contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED)
@@ -3973,7 +3981,10 @@ public class Utils
 		{
 			favoriteType = FavoriteType.REQUEST_SENT;
 			isRequestSent = true;
-			Toast.makeText(context, Utils.isFavToFriendsMigrationAllowed() ? R.string.friend_request_sent : R.string.favorite_request_sent, Toast.LENGTH_SHORT).show();
+			if(showToast)
+			{
+				Toast.makeText(context, Utils.isFavToFriendsMigrationAllowed() ? R.string.friend_request_sent : R.string.favorite_request_sent, Toast.LENGTH_SHORT).show();
+			}
 		}
 
 		// 2-way friendship established. Get Historical updates here!
@@ -4680,29 +4691,22 @@ public class Utils
 		context.startActivity(intent);
 	}
 
-	public static Drawable getChatTheme(ChatTheme chatTheme, Context context)
+	public static Drawable getChatTheme(String chatThemeId, Context context)
 	{
-		/*
-		 * for xhdpi and above we should not scale down the chat theme nodpi asset for hdpi and below to save memory we should scale it down
-		 */
-		int inSampleSize = 1;
-		if (!chatTheme.isTiled() && Utils.scaledDensityMultiplier < 2)
-		{
-			inSampleSize = 2;
+		byte asset = HikeChatThemeConstants.ASSET_INDEX_BG_PORTRAIT;
+		if(context.getResources().getConfiguration().orientation == context.getResources().getConfiguration().ORIENTATION_LANDSCAPE) {
+			asset = HikeChatThemeConstants.ASSET_INDEX_BG_LANDSCAPE;
 		}
-
-		Bitmap b = HikeBitmapFactory.decodeSampledBitmapFromResource(context.getResources(), chatTheme.bgResId(), inSampleSize);
-
-		BitmapDrawable bd = HikeBitmapFactory.getBitmapDrawable(context.getResources(), b);
-
-		Logger.d(context.getClass().getSimpleName(), "chat themes bitmap size= " + BitmapUtils.getBitmapSize(b));
-
-		if (bd != null && chatTheme.isTiled())
-		{
-			bd.setTileModeXY(TileMode.REPEAT, TileMode.REPEAT);
+		Drawable drawable = ChatThemeManager.getInstance().getDrawableForTheme(chatThemeId, asset);
+		if(drawable instanceof BitmapDrawable) {
+			BitmapDrawable bd = (BitmapDrawable) drawable;
+			Logger.d(context.getClass().getSimpleName(), "chat themes bitmap size= " + BitmapUtils.getBitmapSize(bd.getBitmap()));
+			if (bd != null && ChatThemeManager.getInstance().getTheme(chatThemeId).isTiled()) {
+				bd.setTileModeXY(TileMode.REPEAT, TileMode.REPEAT);
+			}
+			return bd;
 		}
-
-		return bd;
+		return drawable;
 	}
 
 	public static void resetPinUnreadCount(OneToNConversation conv)
@@ -8044,6 +8048,14 @@ public class Utils
 		return bestLocation;
 	}
 
+	public static String repeatString(String repeat, int repeatCount) {
+		StringBuilder repeatedString = new StringBuilder();
+
+		for (int i = 0; i < repeatCount; i++)
+			repeatedString.append(repeat);
+
+		return repeatedString.toString();
+	}
 
 	public static String formatDOB(String dobString) {
 		if (TextUtils.isEmpty(dobString)) {
@@ -8074,6 +8086,14 @@ public class Utils
 
         argIntent.putExtra(HikeConstants.Extras.SPECIES, argSpecies);
     }
+
+	public static void setBackground(View view, Drawable drawable){
+		if (isJellybeanOrHigher()) {
+			view.setBackground(drawable);
+		} else {
+			view.setBackgroundDrawable(drawable);
+		}
+	}
 
 	public static boolean isBDayInNewChatEnabled() {
 		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();

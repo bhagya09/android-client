@@ -69,6 +69,12 @@ public final class Cache implements DiskLruCache.EvictListener
 		public boolean isKeyExists(String key) {
 			return Cache.this.isKeyExists(key);
 		}
+
+		@Override
+		public boolean isClosed()
+		{
+			return Cache.this.isClosed();
+		}
 	};
 
 	private final Runnable cleanupRunnable = new Runnable()
