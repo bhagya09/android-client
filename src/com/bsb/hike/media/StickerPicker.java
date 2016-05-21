@@ -1,8 +1,5 @@
 package com.bsb.hike.media;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import android.content.Context;
 import android.content.res.Configuration;
 import android.support.v4.view.ViewPager;
@@ -82,7 +79,10 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	private StickerCategory quickSuggetionCategory;
 
 	private boolean showQuickSuggestions;
-	
+
+	private int lastClickedCategoryIndex = -1;
+
+	private boolean isChatHeadStickerPicker;
 	/**
 	 * Constructor
 	 * 
@@ -108,6 +108,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		this.listener = listener;
 		this.currentConfig = context.getResources().getConfiguration().orientation;
 		this.shopIconClickedCallback = shopIconClickedCallback;
+		StickerIconPageIndicator.registerChatHeadTabClickListener(this);
 	}
 
 	/**
@@ -419,6 +420,9 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 			{
 				category.setState(StickerCategory.NONE);
 			}
+
+			StickerManager.getInstance().logCategoryPalleteVisibilityAnalytics(category, (pageNum == lastClickedCategoryIndex));
+			lastClickedCategoryIndex = -1;
 		}
 
 		@Override
@@ -688,21 +692,9 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		}
 		setOnClick();
 		StickerIconPageIndicator.registerChatHeadTabClickListener(this);
+        isChatHeadStickerPicker = true;
 	}
 	
-	public void createExternalStickerPicker(LinearLayout layout)
-	{
-//		chatHeadstickerPickerView = getView(context.getResources().getConfiguration().orientation);
-//		findindViewById();
-//		layout.addView(chatHeadstickerPickerView);
-//		if (ChatHeadViewManager.dismissed > ChatHeadUtils.maxDismissLimit || ChatHeadUtils.shareCount >= ChatHeadUtils.shareLimit)
-//		{
-//			infoIconClick();
-//		}
-//		setOnClick();
-//		StickerEmoticonIconPageIndicator.registerChatHeadTabClickListener(this);	
-	}
-
 	private void findindViewById()
 	{
 		chatHeadDisableButton = (TextView)chatHeadstickerPickerView.findViewById(R.id.disable);
@@ -721,11 +713,17 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	}
 
 	@Override
-	public void onTabClick()
+	public void onTabClick(int position)
 	{
-		mViewPager.setVisibility(View.VISIBLE);
-		chatHeadInfoIconButton.setSelected(false);
-		chatHeadInfoIconLayout.setVisibility(View.GONE);
+		lastClickedCategoryIndex = position;
+
+		// making chat head ui modifictaions only if this is a ChatHeadStickerPicker
+		if (isChatHeadStickerPicker)
+		{
+			mViewPager.setVisibility(View.VISIBLE);
+			chatHeadInfoIconButton.setSelected(false);
+			chatHeadInfoIconLayout.setVisibility(View.GONE);
+		}
 	}
 
 	public void stoppingChatHeadActivity()

@@ -207,7 +207,8 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 					Logger.wtf(TAG, "null category received");
 					return;
 				}
-				Logger.d(TAG, " fetched quick suggestion category : " + category.getCategoryId() + " sticker list size : " + category.getStickerList().size());
+				Logger.d(TAG, " fetched quick suggestion category : " + ((QuickSuggestionStickerCategory) category).getQuickSuggestSticker().getStickerCode()
+						+ " sticker list size : " + category.getStickerList().size());
 
 				if(category.equals(stickerCategoryList.get(0)))
 				{

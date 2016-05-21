@@ -2294,6 +2294,8 @@ public class HikeConstants
 
         public static final String SEARCHED_CATEGORY_RESPONSE = "shpSrchRept";
 
+        public static final String STICKER_CLICKED = "stickerClick";
+
         public static final String SHOP_SEARCH = "shpSrch";
 
         public static final String SEARCHED_CATEGORY_RESPONSE_DATA = "scRepD";
@@ -4292,6 +4294,12 @@ public class HikeConstants
 	public static final String CLICK_COUNT = "click_count";
 
 	public static final String VISIBLE_COUNT = "visible_count";
+
+	public static final int LONG_TAP = 2;
+
+	public static final int SINGLE_TAP = 1;
+
+	public static final String SCROLL_COUNT = "scroll_count";
 
 	public static final String ENABLE_BDAY_IN_CCA = "e_bd_cca";
 
