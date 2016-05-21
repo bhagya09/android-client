@@ -163,6 +163,11 @@ public class StickerShopFragment extends StickerShopBaseFragment implements OnSc
 	@Override
 	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount)
 	{
+		if (firstVisibleItem > maxIndexShown)
+		{
+			maxIndexShown = firstVisibleItem;
+		}
+
 		if (downloadState == NOT_DOWNLOADING && (!mAdapter.isEmpty()) && (firstVisibleItem + visibleItemCount) > (totalItemCount - (StickerManager.SHOP_PAGE_SIZE/2))
 				&& StickerManager.getInstance().moreDataAvailableForStickerShop())
 		{

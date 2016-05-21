@@ -57,6 +57,8 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 
 	protected int currentCategoriesCount;
 
+	protected int maxIndexShown;
+
 	private static final String TAG = StickerShopBaseFragment.class.getSimpleName();
 
 	protected View headerView;
@@ -219,7 +221,7 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 					loadingEmptyState.setVisibility(View.GONE);
 					loadingFailedEmptyState.setVisibility(View.GONE);
 					searchFailedState.setVisibility(View.GONE);
-					if (count > currentCategoriesCount)
+					if ((count > currentCategoriesCount) && ((currentCategoriesCount - maxIndexShown) < StickerManager.SHOP_PAGE_SIZE))
 					{
 						reloadAdapter();
 					}
