@@ -27,7 +27,7 @@ public class BirthdayUtils
 
     private static final String INVALID_PREF_VALUE = "-1";
 
-    public static void updateBDPrivacy(String bdSelectedPrefId)
+    public static void updateBDPrivacy(String bdSelectedPrefId, boolean isDueToFavToFriends)
     {
         if(bdSelectedPrefId.equals(INVALID_PREF_VALUE))
         {
@@ -42,7 +42,7 @@ public class BirthdayUtils
         try
         {
             payload.put(HikeConstants.Extras.PREF, Integer.valueOf(bdSelectedPrefId));
-            sendBDPrefToServer(bdSelectedPrefId, payload);
+            sendBDPrefToServer(bdSelectedPrefId, payload, isDueToFavToFriends);
         }
         catch (JSONException jse)
         {
@@ -55,8 +55,9 @@ public class BirthdayUtils
      * Method to notify server of birthday privacy pref update via HTTP
      * @param bdSelectedPrefId
      * @param payload
+     * @param isDueToFavToFriends
      */
-    private static void sendBDPrefToServer(final String bdSelectedPrefId, JSONObject payload)
+    private static void sendBDPrefToServer(final String bdSelectedPrefId, JSONObject payload, final boolean isDueToFavToFriends)
     {
         Logger.d(TAG, "dob update payload: " + payload.toString());
 
