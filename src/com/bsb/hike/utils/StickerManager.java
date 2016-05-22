@@ -344,6 +344,17 @@ public class StickerManager
 
 	public String getStickerExternalDirFilePath()
 	{
+		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, false))
+		{
+			String externalDir = getOldStickerExternalDirFilePath();
+			return externalDir;
+		}
+
+		return getNewStickerDirFilePath();
+	}
+
+	public String getNewStickerDirFilePath()
+	{
 		String stickerExternalDir = HikeConstants.HIKE_DIRECTORY_ROOT + HikeConstants.STICKERS_ROOT;
 		return stickerExternalDir;
 	}
@@ -3533,24 +3544,35 @@ public class StickerManager
 	 */
 	public boolean migrateStickerAssets(String fromPath, String toPath)
 	{
+		if (isStickerFolderError())
+		{
+			recordStickerMigrationFailure("Got Sticker Folder error! Failed to migrate stickers");
+			return false;
+		}
+
+		int oldCount = TextUtils.isEmpty(fromPath) ? 0 : Utils.getFilesCountRecursive(new File(fromPath));
+
 		boolean isMoved = moveStickersFolder(fromPath, toPath);
 
 		if (isMoved)
 		{
-			HikeConversationsDatabase.getInstance().clearTable(DBConstants.STICKER_TABLE); // Need to wipe off the table as well and then populate the new one
-
 			// Assets migrated successfully
 			// Update stickers path
-			stickerExternalDir = getStickerExternalDirFilePath(); // We need to re-init this path to the new path now
+			stickerExternalDir = HikeConstants.HIKE_DIRECTORY_ROOT + HikeConstants.STICKERS_ROOT; // We need to re-init this path to the new path now
+
+			int newCount = TextUtils.isEmpty(toPath) ? 0 : Utils.getFilesCountRecursive(new File(toPath));
+
+			Logger.d("StickerMigration", " Old Count : " + oldCount + " New Count : " + newCount);
 
 			if (HikeConversationsDatabase.getInstance().upgradeForStickerTable())
 			{
+				recordStickerMigrationSuccess("Stickers Successfully Moved. Old Count : " + oldCount + " New Count : " + newCount);
 				doInitialSetup();
 				return true;
 			}
 			else
 			{
-				recordStickerMigrationFailure("failed to upgrade for sticker table");
+				recordStickerMigrationFailure("failed to upgrade for sticker table. Old Count : " + oldCount + " New Count : " + newCount);
 				return false;
 			}
 		}
@@ -3579,6 +3601,7 @@ public class StickerManager
 		}
 		else
 		{
+			recordStickerMigrationFailure("Either fromPath is null or toPath is null ");
 			return false;
 		}
 	}
@@ -3973,5 +3996,25 @@ public class StickerManager
 				}
 			}
 		});
+	}
+
+	public void recordStickerMigrationSuccess(String successString)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, "backup");
+			json.put(AnalyticsConstants.V2.KINGDOM, "act_hs");
+			json.put(AnalyticsConstants.V2.ORDER, "stk_rstr_success");
+			if (!TextUtils.isEmpty(successString))
+			{
+				json.put(AnalyticsConstants.V2.GENUS, successString);
+			}
+			HAManager.getInstance().recordV2(json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
 	}
 }

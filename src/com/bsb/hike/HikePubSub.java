@@ -521,6 +521,10 @@ public class HikePubSub extends Handler implements Runnable
 
 	public static final String OPEN_COMPOSE_CHAT_SCREEN = "openComposeChatScreen";
 
+	public static final String CHATTHEME_CONTENT_DOWNLOAD_SUCCESS = "chatThemeContentDownloadSuccess";
+
+	public static final String CHATTHEME_CONTENT_DOWNLOAD_FAILURE = "chatThemeContentDownloadFailure";
+
 	public static final String FILE_OPENED = "fileOpened";
 
 	public static final String DB_CORRUPT = "db_corrupt";
@@ -534,6 +538,12 @@ public class HikePubSub extends Handler implements Runnable
 	public static final String CLOUD_SETTINGS_RESTORE_FAILED = "cldSetRestoreFailed";
 
 	public static final String ADD_INLINE_FRIEND_MSG = "inline_friend_msg";
+
+	public static final String CHATTHEME_DOWNLOAD_SUCCESS = "chatThemeDownloadSuccess";
+
+	public static final String CHATTHEME_CUSTOM_IMAGE_UPLOAD_SUCCESS = "chatThemeCustomImageUploadSuccess";
+
+	public static final String CHATTHEME_CUSTOM_IMAGE_UPLOAD_FAILED = "chatThemeCustomImageUploadFailed";
 
 	public static final String DISMISS_EDIT_PROFILE_DIALOG = "dismiss_edit_profile_dialog";
 
