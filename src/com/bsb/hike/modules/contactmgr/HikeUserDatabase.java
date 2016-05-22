@@ -693,6 +693,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 				} else {
 					Logger.d(TAG, "MSISDN BLOCKED" + msisdn + "result -->" + value + "UPDATE EXECUTED");
 				}
+				cv.clear();
 
 			}
 			mDb.setTransactionSuccessful();
