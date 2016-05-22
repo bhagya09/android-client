@@ -4882,7 +4882,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 					if (!TextUtils.isEmpty(groupParticipant.getUid()))
 						insertStatement.bindString(ih.getColumnIndex(DBConstants.HIKE_UID), groupParticipant.getUid());
 					insertStatement.executeInsert();
-
+					insertStatement.clearBindings();
 					newParticipants.put(participant.getKey(), new PairModified<GroupParticipant, String>(groupParticipant, participant.getValue().getSecond()));
 				}
 				ContactManager.getInstance().addGroupParticipants(groupId, newParticipants);
