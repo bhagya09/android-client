@@ -35,11 +35,8 @@ public class AddedMeFragment extends ListFragment {
 
     private FriendRequestAdapter mAdapter;
 
-    public AddedMeFragment() {
-        mAdapter = new FriendRequestAdapter(getAddedMeContactList(), getActivity());
-    }
-
     private List<ContactInfo> getAddedMeContactList() {
+
         HashSet<ContactInfo.FavoriteType> set = new HashSet<>();
         set.add(ContactInfo.FavoriteType.REQUEST_RECEIVED);
         set.add(ContactInfo.FavoriteType.REQUEST_RECEIVED_REJECTED);
@@ -63,8 +60,8 @@ public class AddedMeFragment extends ListFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setHasOptionsMenu(true);
         View parent = inflater.inflate(R.layout.fragment_friend_request, null);
+        mAdapter = new FriendRequestAdapter(getAddedMeContactList(), getActivity());
         return parent;
-
     }
 
     @Override

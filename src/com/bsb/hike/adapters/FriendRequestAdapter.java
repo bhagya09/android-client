@@ -1,7 +1,10 @@
 package com.bsb.hike.adapters;
 
 import android.content.Context;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.TextUtils;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +38,8 @@ public class FriendRequestAdapter extends BaseAdapter {
 
     private ContactFilter contactFilter;
 
+    private Context context;
+
     private static class ViewHolder {
         // each data item is just a string in this case
         public TextView name;
@@ -63,6 +68,7 @@ public class FriendRequestAdapter extends BaseAdapter {
         iconLoader.setImageFadeIn(false);
         iconLoader.setDefaultAvatarIfNoCustomIcon(false);
         iconLoader.setDefaultDrawableNull(false);
+        this.context = context;
     }
 
     @Override
@@ -92,7 +98,8 @@ public class FriendRequestAdapter extends BaseAdapter {
             viewHolder = (ViewHolder) convertView.getTag();
         }
         ContactInfo info = this.displayList.get(position);
-        viewHolder.name.setText(info.getNameOrMsisdn());
+        String displayName = info.getNameOrMsisdn();
+        viewHolder.name.setText(displayName);
         viewHolder.number.setText(info.getMsisdn());
         viewHolder.avatar.setTag(info.getMsisdn());
         iconLoader.loadImage(info.getMsisdn(), viewHolder.avatar, false, false, true, info);
@@ -102,6 +109,17 @@ public class FriendRequestAdapter extends BaseAdapter {
         } else {
             viewHolder.addedFriend.setVisibility(View.GONE);
             viewHolder.addFriend.setVisibility(View.VISIBLE);
+        }
+
+        if (!TextUtils.isEmpty(searchText)) {
+            int start = displayName.toLowerCase().indexOf(searchText);
+            int end = start + searchText.length();
+            if (start >= 0 && end <= displayName.length()) {
+                SpannableString spanName = new SpannableString(displayName);
+                spanName.setSpan(new ForegroundColorSpan(context.getResources().getColor(R.color.blue_color_span)), start, end,
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                viewHolder.name.setText(spanName, TextView.BufferType.SPANNABLE);
+            }
         }
         return convertView;
     }
@@ -138,6 +156,10 @@ public class FriendRequestAdapter extends BaseAdapter {
                 filterList(displayList, resultList, query);
             } else if (query.length() < searchText.length()){
                 filterList(completeList, resultList, query);
+            }
+            else
+            {
+                resultList = displayList;
             }
             results.values = resultList;
             return results;

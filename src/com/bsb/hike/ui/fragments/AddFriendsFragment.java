@@ -34,10 +34,6 @@ public class AddFriendsFragment extends ListFragment {
 
     private FriendRequestAdapter mAdapter;
 
-    public AddFriendsFragment() {
-        mAdapter = new FriendRequestAdapter(getToAddContactList(), getActivity());
-    }
-
     private List<ContactInfo> getToAddContactList() {
         List<ContactInfo> allContacts = ContactManager.getInstance().getAllContacts(true);
         List<ContactInfo> toAddcontacts = new ArrayList<>();
@@ -56,8 +52,8 @@ public class AddFriendsFragment extends ListFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setHasOptionsMenu(true);
         View parent = inflater.inflate(R.layout.fragment_friend_request, null);
+        mAdapter = new FriendRequestAdapter(getToAddContactList(), getActivity());
         return parent;
-
     }
 
     @Override
