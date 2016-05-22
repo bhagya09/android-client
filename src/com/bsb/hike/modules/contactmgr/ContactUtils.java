@@ -134,7 +134,7 @@ public class ContactUtils
 		for (int i = 0; i < blocklist.length(); i++) {
 			try {
 				blockData = blocklist.getJSONObject(i);
-				blockListMsisdns.add(new PairModified<>(blockData.getString("m"), blockData.getString("u")));
+				blockListMsisdns.add(new PairModified<>(blockData.optString("m"), blockData.optString("u",null)));
 			} catch (JSONException e) {
 				Logger.e("AccountUtils", "Invalid json object", e);
 				return null;
