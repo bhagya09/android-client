@@ -28,6 +28,7 @@ import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.ServicesActivity;
 import com.bsb.hike.ui.SettingsActivity;
 import com.bsb.hike.utils.EmoticonConstants;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
 
@@ -173,12 +174,13 @@ public class MyFragment extends Fragment {
             switch(v.getId())
             {
                 case R.id.ic_add_friends:
+                    getActivity().startActivity(IntentFactory.getFriendReqActivityAddFriendsIntent(getContext()));
                     break;
                 case R.id.ic_added_me:
+                    getActivity().startActivity(IntentFactory.getFriendReqActivityAddedMeIntent(getContext()));
                     break;
                 case R.id.ic_services:
-                    Intent i1 = new Intent(getContext(), ServicesActivity.class);
-                    getActivity().startActivity(i1);
+                    getActivity().startActivity(IntentFactory.getServicesActivityIntent(getContext()));
                     break;
             }
         }
