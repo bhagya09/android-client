@@ -88,7 +88,6 @@ import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.service.MqttMessagesManager;
 import com.bsb.hike.snowfall.SnowFallView;
@@ -2661,51 +2660,17 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
                             // If bot exists already on device, open that only
                             if(BotUtils.isBot(msisdn))
                             {
-                                ConvInfo convInfo = new ConvInfo.ConvInfoBuilder(msisdn)
-                                        .setConvName(botInfo.getConversationName())
-                                        .setSortingTimeStamp(System.currentTimeMillis()).build();
-                                Intent chatThreadIntent = IntentFactory.createChatThreadIntentFromConversation(HomeActivity.this, convInfo,
-                                        ChatThreadActivity.ChatThreadOpenSources.INITIATE_BOT);
-
-                                startActivity(chatThreadIntent);
+                                initiateBotChatThread(msisdn,botInfo);
                                 return;
                             }
 
-                            String type = messagingBotJson.optString(HikePlatformConstants.BOT_TYPE);
-
                             boolean isSuccess = response.optBoolean(HikePlatformConstants.SUCCESS);
                             JSONObject botIntroJson = response.optJSONObject(HikePlatformConstants.INTRO);
-
                             if (isSuccess)
                             {
-                                // Scenario where bot initiate service responded with success
-                                String botChatTheme = messagingBotJson.optString(HikeConstants.BOT_CHAT_THEME);
-                                String thumbnailString = messagingBotJson.optString(HikeConstants.BOT_THUMBNAIL);
-                                if (!TextUtils.isEmpty(thumbnailString))
-                                {
-                                    BotUtils.createAndInsertBotDp(msisdn, thumbnailString);
-                                }
-
-                                String notifType = messagingBotJson.optString(HikeConstants.PLAY_NOTIFICATION, HikeConstants.OFF);
-                                if (type.equals(HikeConstants.MESSAGING_BOT))
-                                {
-                                    PlatformUtils.botCreationSuccessHandling(botInfo, true, botChatTheme, notifType);
-                                }
-                                else
-                                {
-                                    return;
-                                }
-
+                                BotUtils.createBot(messagingBotJson,Utils.getNetworkShortinOrder(Utils.getNetworkTypeAsString(HikeMessengerApp.getInstance().getApplicationContext())));
                                 MqttMessagesManager.getInstance(HomeActivity.this).saveMessage(botIntroJson);
-
-                                ConvInfo convInfo = new ConvInfo.ConvInfoBuilder(msisdn)
-                                        .setConvName(botInfo.getConversationName())
-                                        .setSortingTimeStamp(System.currentTimeMillis()).build();
-
-                                Intent chatThreadIntent = IntentFactory.createChatThreadIntentFromConversation(HomeActivity.this, convInfo,
-                                        ChatThreadActivity.ChatThreadOpenSources.INITIATE_BOT);
-
-                                startActivity(chatThreadIntent);
+                                initiateBotChatThread(msisdn,botInfo);
                             }
                             else
                             {
@@ -2739,6 +2704,26 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
             e.printStackTrace();
         }
     }
+    
+	/**
+	 * Start chat thread by providing that intent.
+	 *
+	 * @param msisdn
+	 *            the msisdn
+	 * @param botInfo
+	 *            the bot info
+	 */
+	private void initiateBotChatThread(String msisdn, BotInfo botInfo)
+    {
+        ConvInfo convInfo = new ConvInfo.ConvInfoBuilder(msisdn)
+                .setConvName(botInfo.getConversationName())
+                .setSortingTimeStamp(System.currentTimeMillis()).build();
+        Intent chatThreadIntent = IntentFactory.createChatThreadIntentFromConversation(HomeActivity.this, convInfo,
+                ChatThreadActivity.ChatThreadOpenSources.INITIATE_BOT);
+
+        startActivity(chatThreadIntent);
+    }
+    
 	private void recordOverFlowMenuClick()
 	{
 		try
