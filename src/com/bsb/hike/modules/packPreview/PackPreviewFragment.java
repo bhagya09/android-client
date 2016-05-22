@@ -18,6 +18,7 @@ import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -27,7 +28,9 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.media.StickerPreviewContainer;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
@@ -40,6 +43,9 @@ import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontButton;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,7 +53,7 @@ import java.util.List;
  * Created by anubhavgupta on 04/01/16.
  */
 public class PackPreviewFragment extends Fragment implements HikePubSub.Listener, PackPreviewFragmentScrollListener.OnVerticalScrollListener,
-		PackPreviewRecyclerView.TouchListener, View.OnClickListener
+		PackPreviewRecyclerView.TouchListener, View.OnClickListener, OnLongClickListener
 {
 
 	private static final String TAG = PackPreviewFragment.class.getSimpleName();
@@ -238,7 +244,7 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 		layoutManager = new GridLayoutManager(getActivity(), NUM_COLUMNS, LinearLayoutManager.VERTICAL, false);
 		List<Sticker> stickerList = stickerCategory.getAllStickers();
 		stickerList = Utils.isEmpty(stickerList) || stickerList.size() < NUM_INITIALLY_VISIBLE_STICKERS ? stickerList : stickerList.subList(0, NUM_INITIALLY_VISIBLE_STICKERS);
-		mAdapter = new PackPreviewAdapter(getActivity(), this);
+		mAdapter = new PackPreviewAdapter(getActivity(), this, this);
 		mAdapter.setLists(stickerList, getHeaderList(), getFooterList());
 		rvGrid.setLayoutManager(layoutManager);
 		rvGrid.setAdapter(mAdapter);
@@ -334,7 +340,7 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 			downloadButtonClicked();
 			break;
 		default:
-			stickerClicked(v);
+			stickerClicked(v, HikeConstants.SINGLE_TAP);
 			break;
 		}
 	}
@@ -622,19 +628,23 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 	}
 
 
-	private void stickerClicked(View v)
+	private void stickerClicked(View v, int clickType)
 	{
+		int position = rvGrid.getChildAdapterPosition(v) - mAdapter.getHeaderListSize();
+		if (position < 0 || position >= stickerCategory.getAllStickers().size())
+		{
+			return;
+		}
+
+		Sticker sticker = stickerCategory.getAllStickers().get(position);
+
 		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_STICKER_PREVIEW, false))
 		{
-			int position = rvGrid.getChildAdapterPosition(v) - mAdapter.getHeaderListSize();
-			if (position < 0 || position >= stickerCategory.getAllStickers().size())
-			{
-				return;
-			}
-
-			Sticker sticker = stickerCategory.getAllStickers().get(position);
 			stickerPreviewContainer.show(v, sticker);
 		}
+
+		sendStickerClickedAnalytics(sticker, clickType);
+
 	}
 
 	private void viewAllClicked()
@@ -693,5 +703,38 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 	private boolean isViewAllClicked()
 	{
 		return viewAllButton.getVisibility() == View.GONE;
+	}
+
+	private void sendStickerClickedAnalytics(final Sticker sticker, final int clickType)
+	{
+		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+
+				try
+				{
+					JSONObject metadata = new JSONObject();
+					metadata.put(AnalyticsConstants.V2.GENUS, sticker.getCategoryId());
+					metadata.put(AnalyticsConstants.V2.SPECIES, sticker.getStickerId());
+					metadata.put(AnalyticsConstants.V2.SOURCE, AnalyticsConstants.PACK_PREVIEW);
+					metadata.put(AnalyticsConstants.TYPE, clickType);
+					metadata.put(AnalyticsConstants.V2.FORM, false);
+					StickerManager.getInstance().sendStickerClickedLogs(metadata);
+				}
+				catch (JSONException e)
+				{
+					Logger.e(TAG, "sendStickerClickedAnalytics() : Exception while parsing JSON");
+				}
+			}
+		});
+	}
+
+	@Override
+	public boolean onLongClick(View v)
+	{
+		stickerClicked(v, HikeConstants.LONG_TAP);
+		return false;
 	}
 }
