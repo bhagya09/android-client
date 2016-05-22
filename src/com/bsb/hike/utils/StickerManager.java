@@ -3942,19 +3942,14 @@ public class StickerManager
                 try
 				{
 					JSONObject metadata = new JSONObject();
-					metadata.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_STICKER_LOGS);
-					metadata.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
-					metadata.put(AnalyticsConstants.V2.UNIQUE_KEY, HikeConstants.LogEvent.STICKER_CLICKED);
-					metadata.put(AnalyticsConstants.V2.ORDER, HikeConstants.LogEvent.STICKER_CLICKED);
 					metadata.put(AnalyticsConstants.V2.GENUS, sticker.getCategoryId());
 					metadata.put(AnalyticsConstants.V2.SPECIES, sticker.getStickerId());
 					metadata.put(AnalyticsConstants.V2.SOURCE, convMessage.isOneToNChat() ? HikeConstants.GROUP_CONVERSATION : HikeConstants.ONE_TO_ONE_CONVERSATION);
-					metadata.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
 					metadata.put(AnalyticsConstants.V2.FROM_USER, convMessage.getSenderMsisdn());
 					metadata.put(AnalyticsConstants.V2.TO_USER, convMessage.getMsisdn());
 					metadata.put(AnalyticsConstants.TYPE, type);
 					metadata.put(AnalyticsConstants.V2.FORM, isSent);
-					HAManager.getInstance().recordV2(metadata);
+					sendStickerClickedLogs(metadata);
 				}
 				catch (JSONException e)
 				{
@@ -3962,6 +3957,28 @@ public class StickerManager
 				}
 			}
 		});
+	}
+
+	public void sendStickerClickedLogs(final JSONObject clickedStickerMetadata)
+	{
+		if (clickedStickerMetadata == null)
+		{
+			return;
+		}
+
+		try
+		{
+			clickedStickerMetadata.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_STICKER_LOGS);
+			clickedStickerMetadata.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			clickedStickerMetadata.put(AnalyticsConstants.V2.UNIQUE_KEY, HikeConstants.LogEvent.STICKER_CLICKED);
+			clickedStickerMetadata.put(AnalyticsConstants.V2.ORDER, HikeConstants.LogEvent.STICKER_CLICKED);
+			clickedStickerMetadata.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
+			HAManager.getInstance().recordV2(clickedStickerMetadata);
+		}
+		catch (JSONException e)
+		{
+			Logger.e(TAG, "sendStickerClickedLogs() : Exception while parsing JSON");
+		}
 	}
 
 	public void logCategoryPalleteVisibilityAnalytics(final StickerCategory category, final boolean selectedByTap)
