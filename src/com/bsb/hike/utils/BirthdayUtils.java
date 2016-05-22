@@ -110,4 +110,16 @@ public class BirthdayUtils
                 hikeAppContext.getString(R.string.privacy_favorites) : hikeAppContext.getString(R.string.privacy_my_contacts);
         return PreferenceManager.getDefaultSharedPreferences(hikeAppContext).getString(HikeConstants.BIRTHDAY_PRIVACY_PREF, defValue);
     }
+
+    public static void modifyBDPrefForFavToFriends(boolean favToFriends)
+    {
+        Context hikeAppContext = HikeMessengerApp.getInstance().getApplicationContext();
+        String currPref = getCurrentBDPref();
+        if(favToFriends && (currPref.equals(hikeAppContext.getString(R.string.privacy_my_contacts))
+                || currPref.equals(hikeAppContext.getString(R.string.privacy_everyone))))
+        {
+            currPref = hikeAppContext.getString(R.string.privacy_favorites);
+        }
+        updateBDPrivacy(currPref, true);
+    }
 }
