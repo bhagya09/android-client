@@ -84,7 +84,7 @@ import com.bsb.hike.view.IconPreference;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 
 public class HikePreferences extends HikeAppStateBasePreferenceActivity implements OnPreferenceClickListener, 
-							OnPreferenceChangeListener, DeleteAccountListener, BackupAccountListener, RingtoneFetchListener
+							OnPreferenceChangeListener, DeleteAccountListener, BackupAccountListener, RingtoneFetchListener, HikePubSub.UiListener
 {
 	private enum BlockingTaskType
 	{
@@ -107,7 +107,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	
 	private boolean isSettingChanged = false;
 
-	private static final String INVALID_PREF_VALUE = "-1";
+	String[] hikePubSubListeners = {HikePubSub.BD_PRIVACY_PREF_UPDATED};
 
 	@Override
 	public Object onRetainNonConfigurationInstance()
@@ -120,6 +120,8 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.hikepreferences);
+
+		HikeMessengerApp.getPubSub().addUiListener(this, hikePubSubListeners);
 
 		Intent intent = getIntent();
 		int preferences = intent.getIntExtra(HikeConstants.Extras.PREF, -1);
@@ -2342,5 +2344,14 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	private void recordNotificationTonesclick(boolean newValue)
 	{
 		recordPreferencesAnalytics("notif_conv_tone", newValue ? "on" : "off");
+	}
+
+	@Override
+	public void onUiEventReceived(String type, Object object)
+	{
+		if(type.equals(HikePubSub.BD_PRIVACY_PREF_UPDATED) && object != null && object instanceof Boolean)
+		{
+			updateBDPrefUI((boolean) object);
+		}
 	}
 }

@@ -7,6 +7,7 @@ import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -75,6 +76,7 @@ public class BirthdayUtils
             {
                 Logger.d(getClass().getSimpleName(), "http request result code: " + result.getStatusCode());
                 saveBDPrivacyPref(bdSelectedPrefId);
+                HikeMessengerApp.getPubSub().publishOnUI(HikePubSub.BD_PRIVACY_PREF_UPDATED, isDueToFavToFriends);
             }
 
             @Override
