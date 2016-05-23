@@ -1106,6 +1106,8 @@ public class HikeConstants
 
 	public static final String HIKE_BACKUP_DIRECTORY_ROOT = Environment.getExternalStorageDirectory() + "/Hike/Backup";
 
+	public static final String HIKE_CHATTHEME_DIRECTORY_ROOT = Environment.getExternalStorageDirectory() + "/Hike/ChatTheme";
+
 	public static final String PROFILE_ROOT = "/hike Profile Images";
 
 	public static final String IMAGE_ROOT = "/hike Images";
@@ -1388,6 +1390,10 @@ public class HikeConstants
 
 	public static final String WT_1_REVAMP_ENABLED = "wt_1";
 
+	public static final String CUSTOM_CHATTHEME_ENABLED = "ct_1";
+
+	public static final String CUSTOM_CHATTHEME_DISABLE_OVERLAY = "cct_disable_overlay";
+
 	public static final String LARGE_VIDEO_SHARING_ENABLED = "big_video";
 
 	public static final class Preactivation
@@ -1462,6 +1468,8 @@ public class HikeConstants
 		public static final int CONFIRM_LOCK_PATTERN_CHANGE_PREF = 4007;
 
 		public static final int PHOTOS_REQUEST_CODE = 739;
+
+		public static final int CHATTHEME_GALLERY_REQUEST_CODE = 4008;
 	}
 
 	public static final class Extras
@@ -4245,7 +4253,7 @@ public class HikeConstants
 
 	public static final String CHUNK_SIZE_POLICY = "chunkSizePolicy";
 
-	public static final String NUMBER_OF_ROWS_FOR_ORDER = "orderRowsCount";
+    public static final String NUMBER_OF_ROWS_FOR_ORDER = "orderRowsCount";
 
 	public static final String PACK_UPDATION_PAGE_SIZE = "packUpdatePageSize";
 
@@ -4302,4 +4310,6 @@ public class HikeConstants
 	public static final String BDAY_HTTP_CALL_TIME_GAP = "b_c_g";
 
 	public static final String BIRTHDAY_DATA = "bdata";
+
+	public static final String DISABLE_QUICK_UPLOAD = "disable_md5";
 }
