@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.bsb.hike.R;
 
@@ -87,6 +88,11 @@ public class CustomTabsBar {
         }
     }
 
+    public Tab getTab(int id)
+    {
+        return tabs.get(id);
+    }
+
     public class Tab {
 
         int id;
@@ -98,6 +104,14 @@ public class CustomTabsBar {
         Drawable iconDrawable;
 
         int iconResId;
+
+        Drawable badgeCounterBG;
+
+        int badgeCounterBGResId;
+
+        ImageView icon;
+
+        TextView badgeCounter;
 
         CustomTabListener customTabListener;
 
@@ -135,10 +149,17 @@ public class CustomTabsBar {
         private View getDefaultView() {
             if (mView == null) {
                 mView = inflater.inflate(R.layout.custom_tab, actionBar, false);
+                icon = (ImageView)mView.findViewById(R.id.tab_icon);
+                badgeCounter = (TextView) mView.findViewById(R.id.txt_counter);
                 if (iconResId > 0)
-                    ((ImageView)mView.findViewById(R.id.tab_icon)).setImageResource(iconResId);
+                    icon.setImageResource(iconResId);
                 else if (iconDrawable != null)
-                    ((ImageView)mView.findViewById(R.id.tab_icon)).setImageDrawable(iconDrawable);
+                    icon.setImageDrawable(iconDrawable);
+
+                if (badgeCounterBGResId > 0)
+                    badgeCounter.setBackgroundResource(badgeCounterBGResId);
+                else if (badgeCounterBG != null)
+                    badgeCounter.setBackground(badgeCounterBG);
             }
             return mView;
         }
@@ -165,6 +186,36 @@ public class CustomTabsBar {
         public void reselect() {
             if (customTabListener != null)
                 customTabListener.onTabReselected(this);
+        }
+
+        public CustomTabsBar.Tab setBadgeCounterBG(int resId)
+        {
+            this.badgeCounterBGResId = resId;
+            return this;
+        }
+
+        public CustomTabsBar.Tab setBadgeCounterBG(Drawable drawable)
+        {
+            this.badgeCounterBG = drawable;
+            return this;
+        }
+
+        public void updateBadgeCounter(Integer newCount)
+        {
+            if (getCustomView() != null)
+                return;
+
+            if (newCount > 0)
+            {
+                badgeCounter.setText(newCount.toString());
+                badgeCounter.setVisibility(View.VISIBLE);
+                icon.setVisibility(View.GONE);
+            }
+            else
+            {
+                badgeCounter.setVisibility(View.GONE);
+                icon.setVisibility(View.VISIBLE);
+            }
         }
     }
 
