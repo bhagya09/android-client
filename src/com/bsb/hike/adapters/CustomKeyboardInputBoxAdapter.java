@@ -94,7 +94,7 @@ public class CustomKeyboardInputBoxAdapter implements OnClickListener
 
 		verticalLayout = (LinearLayout) viewToDisplay.findViewById(R.id.ll_custom_keyboard);
 
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
 
 		View view;
 
@@ -106,14 +106,14 @@ public class CustomKeyboardInputBoxAdapter implements OnClickListener
 			{
 				view = inflater.inflate(R.layout.custom_keyboard_text, null);
 				TextView textView = (TextView) view.findViewById(R.id.text);
-                FrameLayout relativeLayout = (FrameLayout) view.findViewById(R.id.text_container_layout);
+				FrameLayout frameLayout = (FrameLayout) view.findViewById(R.id.text_container_layout);
 
 				textView.setText(tk.getV());
 				textView.setSingleLine(true);
 				params.setMargins((int) (4 * Utils.densityMultiplier), (int) (8 * Utils.densityMultiplier), (int) (4 * Utils.densityMultiplier),
 						(int) (8 * Utils.densityMultiplier));
 
-                relativeLayout.setLayoutParams(params);
+				frameLayout.setLayoutParams(params);
 
 				view.setOnClickListener(this);
 
