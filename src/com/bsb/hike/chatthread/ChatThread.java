@@ -303,6 +303,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	private long lastNudgeTime = -1;
     
     private int NUDGE_TOAST_OCCURENCE = 2;
+
+	private int AUDIO_PLAYING=0;
     
     private int currentNudgeCount = 0;
     
@@ -3645,7 +3647,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	@Override
 	public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id)
 	{
-		if(isWalkieTalkieShowing()) return true;
+		if(isWalkieTalkieShowing()||mAdapter.getVoiceMessagePlayerState()==AUDIO_PLAYING) return true;
 		return showMessageContextMenu(mAdapter.getItem(position - mConversationsView.getHeaderViewsCount()), view);
 	}
 
