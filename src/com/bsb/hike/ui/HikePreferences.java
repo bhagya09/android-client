@@ -693,6 +693,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			mDialog = null;
 		}
 		mTask = null;
+		HikeMessengerApp.getPubSub().removeUiListener(this, hikeUiPubSubListeners);
 	}
 
 	public void setBlockingTask(ActivityCallableTask task)
