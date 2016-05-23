@@ -1140,6 +1140,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				if (themePicker != null && themePicker.isShowing()) {
 					themePicker.dismiss();
 				}
+				setCustomThemeBackground();
 				if(ChatThemeManager.getInstance().customThemeTempUploadImagePath != null) {
 					if(Utils.isUserOnline(activity)) {
 						FileTransferManager.getInstance(activity).uploadCustomThemeBackgroundImage(ChatThemeManager.getInstance().customThemeTempUploadImagePath);
@@ -1849,6 +1850,20 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			backgroundImage.setOverLay(true);
 		}
 		backgroundImage.setImageDrawable(drawable);
+	}
+
+	private void setCustomThemeBackground() {
+		if(ChatThemeManager.getInstance().customThemeTempUploadImagePath == null) {
+			return;
+		}
+		CustomBGRecyclingImageView backgroundImage = (CustomBGRecyclingImageView) activity.findViewById(R.id.background);
+		backgroundImage.setOverLay(false);
+		int height = DrawUtils.displayMetrics.heightPixels;
+		int width = DrawUtils.displayMetrics.widthPixels;
+		Bitmap bmp = HikeBitmapFactory.decodeSampledBitmapFromFile(ChatThemeManager.getInstance().customThemeTempUploadImagePath, width, height);
+		Drawable drawable = new BitmapDrawable(getResources(), bmp);
+
+		setThemeBackground(backgroundImage, drawable, false, true);
 	}
 
 	@Override
