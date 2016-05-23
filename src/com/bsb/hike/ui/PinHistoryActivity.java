@@ -195,6 +195,8 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 			menu.findItem(R.id.forward_msgs).setVisible(false);
 			
 			menu.findItem(R.id.copy_msgs).setVisible(true);
+
+			menu.findItem(R.id.message_info).setVisible(false);
 		}else
 			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		return true;
