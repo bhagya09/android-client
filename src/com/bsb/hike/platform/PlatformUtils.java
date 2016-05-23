@@ -38,6 +38,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -419,10 +420,10 @@ public class PlatformUtils
 					Logger.e(TAG, "Msisdn is missing in the packet");
 					return;
 				}
-				if(StealthModeManager.getInstance().isStealthMsisdn(msisdn))
+				if(StealthModeManager.getInstance().isStealthMsisdn(msisdn) && !StealthModeManager.getInstance().isActive() &&
+						PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.STEALTH_INDICATOR_ENABLED, false))
 				{
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STEALTH_INDICATOR_SHOW_REPEATED, true);
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STEALTH_INDICATOR_SHOW_ONCE, true);
 					HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_INDICATOR, null);
 					return;
 				}
