@@ -142,11 +142,9 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 
 	private List<ContactInfo> contactsInfo;
 
-<<<<<<< HEAD
 	private List<String> composeExcludeList;
-=======
+
 	private boolean showBdaySection;
->>>>>>> origin/internal_release
 
 	public FetchFriendsTask(FriendsAdapter friendsAdapter, Context context, List<ContactInfo> friendsList, List<ContactInfo> hikeContactsList, List<ContactInfo> smsContactsList,
 							List<ContactInfo> recentContactsList, List<ContactInfo> recentlyJoinedHikeContactsList, List<ContactInfo> friendsStealthList,
@@ -238,11 +236,7 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 			List<ContactInfo> filteredRecentsList, List<ContactInfo> filteredRecentlyJoinedContactsList, Map<String, ContactInfo> selectedPeople, String sendingMsisdn,
 			boolean fetchGroups, String existingGroupId, boolean creatingOrEditingGrou, boolean fetchSmsContacts, boolean checkFavTypeInComparision, boolean fetchRecents,
 			boolean fetchRecentlyJoined, boolean showDefaultEmptyList, boolean fetchHikeContacts, boolean fetchFavContacts, boolean fetchRecommendedContacts,
-<<<<<<< HEAD
-			boolean filterHideList, List<BotInfo> microappShowcaseList, List<BotInfo> filteredMicroAppShowcaseList, boolean showMicroappShowcase, List<String> composeExcludeList)
-=======
-			boolean filterHideList, List<BotInfo> microappShowcaseList, List<BotInfo> filteredMicroAppShowcaseList, boolean showMicroappShowcase, boolean showBdaySection)
->>>>>>> origin/internal_release
+			boolean filterHideList, List<BotInfo> microappShowcaseList, List<BotInfo> filteredMicroAppShowcaseList, boolean showMicroappShowcase, List<String> composeExcludeList, boolean showBdaySection)
 	{
 		this.friendsAdapter = friendsAdapter;
 
@@ -294,13 +288,9 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 
 		this.microappShowcaseList = microappShowcaseList;
 		this.filteredMicroAppShowcaseList = filteredMicroAppShowcaseList;
-<<<<<<< HEAD
-
 		this.composeExcludeList = composeExcludeList;
 
-=======
 		this.showBdaySection = showBdaySection;
->>>>>>> origin/internal_release
 	}
 
 	public void addOtherFeaturesList(List<ContactInfo> otherFeaturesList, List<ContactInfo> filteredOtherFeaturesList)
@@ -329,14 +319,11 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		if (showFilteredContacts && !TextUtils.isEmpty(msisdnList))
 		{
 			contactsInfo = ContactManager.getInstance().getContactInfoListForMsisdnFilter(msisdnList);
-<<<<<<< HEAD
 			removeExcludedParticipants(contactsInfo, composeExcludeList);
-=======
 			/**
 			 * Removing Birthday users from contacts list
 			 */
 			contactsInfo.removeAll(bdayContactList);
->>>>>>> origin/internal_release
 			suggestedContactsList.addAll(contactsInfo);
 			filteredSuggestedContactsList.addAll(contactsInfo);
 		}

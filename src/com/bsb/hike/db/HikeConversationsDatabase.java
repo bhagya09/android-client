@@ -112,8 +112,6 @@ import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
 import java.util.LinkedHashSet;
-<<<<<<< HEAD
-=======
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -121,7 +119,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import static com.bsb.hike.db.DBConstants.*;
 import static com.bsb.hike.db.DBConstants.HIKE_CONV_DB.*;
->>>>>>> origin/internal_release
 
 import static com.bsb.hike.chatthemes.HikeChatThemeConstants.*;
 
@@ -1090,15 +1087,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
         }
 		if (oldVersion < 50)
 		{
-<<<<<<< HEAD
-			String alter = "ALTER TABLE " + DBConstants.MESSAGE_EVENT_TABLE + " ADD COLUMN " + DBConstants.EVENT_PARENT_MSISDN + " TEXT";
-			db.execSQL(alter);
-
-			String alter1 = "ALTER TABLE " + DBConstants.MESSAGE_EVENT_TABLE + " ADD COLUMN " + DBConstants.EVENT_FROM_USER_MSISDN + " TEXT";
-			db.execSQL(alter1);
-
-			String sql = getRecentStickersTableCreateQuery();
-=======
 			if (!Utils.isColumnExistsInTable(db, DBConstants.STICKER_CATEGORIES_TABLE, DBConstants.UCID))
 			{
 				String alter1 = "ALTER TABLE " + DBConstants.STICKER_CATEGORIES_TABLE + " ADD COLUMN " + DBConstants.UCID + " INTEGER ";
@@ -1121,7 +1109,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 			}
 
 			String sql = getStickerCategoryRankTableCreateQuery();
->>>>>>> origin/internal_release
 			db.execSQL(sql);
 
 			sql = getUCIDIndexOnStickerCategoryTable();
@@ -1170,6 +1157,20 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 
 			String themeTableQuery = getThemeTableCreateQuery();
 			db.execSQL(themeTableQuery);
+		}
+
+		if(oldVersion < 52)
+		{
+			if (!Utils.isColumnExistsInTable(db, DBConstants.MESSAGE_EVENT_TABLE, DBConstants.EVENT_PARENT_MSISDN))
+			{
+				String alter1 = "ALTER TABLE " + DBConstants.MESSAGE_EVENT_TABLE + " ADD COLUMN " + DBConstants.EVENT_PARENT_MSISDN + " TEXT";
+				db.execSQL(alter1);
+			}
+			if (!Utils.isColumnExistsInTable(db, DBConstants.MESSAGE_EVENT_TABLE, DBConstants.EVENT_FROM_USER_MSISDN))
+			{
+				String alter2 = "ALTER TABLE " + DBConstants.MESSAGE_EVENT_TABLE + " ADD COLUMN " + DBConstants.EVENT_FROM_USER_MSISDN + " TEXT";
+				db.execSQL(alter2);
+			}
 		}
 	}
 

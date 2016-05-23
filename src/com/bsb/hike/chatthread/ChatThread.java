@@ -301,11 +301,9 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	protected static final int FILE_OPENED = 41;
 
-<<<<<<< HEAD
-	protected static final int GENERAL_EVENT_STATE_CHANGE = 42;
-=======
+	protected static final int GENERAL_EVENT_STATE_CHANGE = 43;
+
 	protected static final int SEND_CUSTOM_THEME_MESSAGE = 42;
->>>>>>> origin/internal_release
 
 	protected static final int REMOVE_CHAT_BACKGROUND = 0;
 
