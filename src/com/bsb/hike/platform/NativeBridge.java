@@ -980,4 +980,15 @@ public class NativeBridge
 		return "{}";
 	}
 
+	/**
+	 * Platform Version 12
+	 * Method to get server time offset. It will return the difference in the client and server
+	 * timestamp
+	 */
+	public String getServerTimeOffset()
+	{
+		long offset = Utils.getServerTimeOffsetInMsec(activity);
+		return String.valueOf(offset);
+	}
+
 }
