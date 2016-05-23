@@ -3009,10 +3009,25 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		 */
 		if (intent.hasExtra(HikeConstants.Extras.MSG))
 		{
-			String msg = intent.getStringExtra(HikeConstants.Extras.MSG);
+			final String msg = intent.getStringExtra(HikeConstants.Extras.MSG);
 			mComposeView.setText(msg);
 			mComposeView.setSelection(mComposeView.length());
 			SmileyParser.getInstance().addSmileyToEditable(mComposeView.getText(), false);
+			/**
+			 * sticker recommendation view requires that keyboard should be open
+			 */
+			if(activity.getIntent().getBooleanExtra(HikeConstants.Extras.SHOW_KEYBOARD, false))
+			{
+				activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+				uiHandler.postDelayed(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						stickerTagWatcher.onTextChanged(msg, 0, 0, msg.length());
+					}
+				}, activity.getIntent().getLongExtra(HikeConstants.STICKER_TAG_REFRESH_TIME_INTERVAL, HikeConstants.DEFAULT_STICKER_SEARCH_TRIGGER_DELAY));
+			}
 		}
 
 		/**

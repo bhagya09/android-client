@@ -3123,16 +3123,25 @@ public class Utils
 		return convMessage.getMessage();
 	}
 
-	public static void deleteFile(File file)
+	public static boolean deleteFile(File file)
 	{
+		boolean result = true;
+
+		if (!file.exists())
+		{
+			return false;
+		}
+
 		if (file.isDirectory())
 		{
 			for (File f : file.listFiles())
 			{
-				deleteFile(f);
+				result = result && deleteFile(f);
 			}
 		}
-		file.delete();
+		result = result && file.delete();
+
+		return result;
 	}
 
 	public static void deleteFile(Context context, String filename, HikeFileType type)
@@ -7502,10 +7511,12 @@ public class Utils
 		if (isFavToFriendsMigrationAllowed())
 		{
 			changeFavToFriends();
+			BirthdayUtils.modifyBDPrefForFavToFriends(true);
 		}
 		else
 		{
 			revertFavToFriendsChange();
+			BirthdayUtils.modifyBDPrefForFavToFriends(false);
 		}
 	}
 
@@ -7888,13 +7899,22 @@ public class Utils
 
 		if (!newRootDir.exists())
 		{
-			result = result && newRootDir.mkdirs();
+			result = newRootDir.mkdirs();
+		}
+
+		else // newRootDir exists, but can it be a simple file instead of DIR ?
+		{
+			if (!newRootDir.isDirectory())
+			{
+				result = deleteFile(newRootDir) && newRootDir.mkdirs();
+			}
 		}
 
 		if (!oldRootDir.exists() || (oldRootDir.listFiles() == null))
 		{
 			Logger.d("StickerMigration", "Migration unsuccessful but new folder created");
-			return true; // Migration unsuccessful but new folder created
+			StickerManager.getInstance().recordStickerMigrationFailure("Migration unsuccessful but new folder created, The oldDir was absent or listFiles were null");
+			return result; // Migration unsuccessful but new folder created
 		}
 
 		if (result)
@@ -7904,6 +7924,10 @@ public class Utils
 				if (f.isDirectory())
 				{
 					File newDir = new File(newRootDir, f.getName());
+					if (!newDir.exists())
+					{
+						newDir.mkdirs();
+					}
 					result = result && moveDirectoryByRename(f, newDir);
 				}
 				else
@@ -7911,8 +7935,9 @@ public class Utils
 					File newFile = new File(newRootDir, f.getName());
 					if (newFile.exists())
 					{
-						result = result && newFile.delete();
+						result = result && Utils.deleteFile(newFile);
 					}
+
 					result = result && f.renameTo(newFile);
 				}
 			}
@@ -8087,11 +8112,11 @@ public class Utils
         argIntent.putExtra(HikeConstants.Extras.SPECIES, argSpecies);
     }
 
-	public static void setBackground(ImageView imgView, Drawable drawable){
+	public static void setBackground(View view, Drawable drawable){
 		if (isJellybeanOrHigher()) {
-			imgView.setBackground(drawable);
+			view.setBackground(drawable);
 		} else {
-			imgView.setBackgroundDrawable(drawable);
+			view.setBackgroundDrawable(drawable);
 		}
 	}
 
@@ -8206,5 +8231,44 @@ public class Utils
 	public static boolean isEmpty(byte[] argument)
 	{
 		return (argument == null) || argument.length == 0;
+	}
+
+	public static int getFilesCountRecursive(File file)
+	{
+		if (file == null)
+		{
+			return 0;
+		}
+
+		try
+		{
+			if (!file.exists() || file.listFiles() == null)
+			{
+				return 0;
+			}
+
+			int count = 0;
+
+			for (File newFile : file.listFiles())
+			{
+				if (newFile.isDirectory())
+				{
+					count += getFilesCountRecursive(newFile);
+				}
+
+				else
+				{
+					count++;
+				}
+			}
+
+			return count;
+		}
+
+		catch (Exception e) // To prevent any File I/O exceptions!
+		{
+			return 0;
+		}
+
 	}
 }

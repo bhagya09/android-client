@@ -28,12 +28,7 @@ import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.localisation.LocalLanguage;
 import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.Conversation.ConversationTip;
-import com.bsb.hike.modules.httpmgr.RequestToken;
-import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
-import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
-import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
-import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerSettingsTask;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.offline.OfflineController;
@@ -47,6 +42,7 @@ import com.bsb.hike.tasks.RingtoneFetcherTask;
 import com.bsb.hike.tasks.RingtoneFetcherTask.RingtoneFetchListener;
 import com.bsb.hike.triggers.InterceptUtils;
 import com.bsb.hike.ui.utils.LockPattern;
+import com.bsb.hike.utils.BirthdayUtils;
 import com.bsb.hike.utils.HikeAppStateBasePreferenceActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
@@ -59,6 +55,7 @@ import com.bsb.hike.view.NotificationToneListPreference;
 import com.bsb.hike.view.PreferenceWithSubText;
 import com.bsb.hike.view.SwitchPreferenceCompat;
 
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -88,7 +85,7 @@ import com.bsb.hike.view.IconPreference;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 
 public class HikePreferences extends HikeAppStateBasePreferenceActivity implements OnPreferenceClickListener, 
-							OnPreferenceChangeListener, DeleteAccountListener, BackupAccountListener, RingtoneFetchListener
+							OnPreferenceChangeListener, DeleteAccountListener, BackupAccountListener, RingtoneFetchListener, HikePubSub.UiListener
 {
 	private enum BlockingTaskType
 	{
@@ -111,7 +108,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	
 	private boolean isSettingChanged = false;
 
-	private static final String INVALID_PREF_VALUE = "-1";
+	String[] hikeUiPubSubListeners = {HikePubSub.BD_PRIVACY_PREF_UPDATED};
 
 	@Override
 	public Object onRetainNonConfigurationInstance()
@@ -124,6 +121,8 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.hikepreferences);
+
+		HikeMessengerApp.getPubSub().addUiListener(this, hikeUiPubSubListeners);
 
 		Intent intent = getIntent();
 		int preferences = intent.getIntExtra(HikeConstants.Extras.PREF, -1);
@@ -695,6 +694,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			mDialog = null;
 		}
 		mTask = null;
+		HikeMessengerApp.getPubSub().removeUiListener(this, hikeUiPubSubListeners);
 	}
 
 	public void setBlockingTask(ActivityCallableTask task)
@@ -1275,7 +1275,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		{
 			Logger.d(getClass().getSimpleName(), "calling update bd pref");
 			String bdPrefValue = String.valueOf(newValue);
-			updateBirthdayPrivacyPref(preference, bdPrefValue);
+			updateBirthdayPrivacyPref(bdPrefValue);
 			/**
 			 * we are updating pref on server via http. we want value on client to update only on request success so always
 			 * returning false here and updating value in HTTP's onRequestSuccess callback here {@link #sendBDPrefToServer}
@@ -1779,7 +1779,22 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	private void setupBirthdayPrivacyPref()
 	{
 		Logger.d(getClass().getSimpleName(), "setting up birthday privacy pref");
+
 		IconListPreference bdListPref = (IconListPreference) getPreferenceScreen().findPreference(HikeConstants.BIRTHDAY_PRIVACY_PREF);
+		setBDPrefKeys(bdListPref);
+		bdListPref.setNegativeButtonText(R.string.CANCEL);
+		bdListPref.setOnPreferenceChangeListener(this);
+
+		//adding preference title and summary text
+		updateBDPrefUI(false);
+	}
+
+	/**
+	 * Method to set the keys for birthday privacy icon list pref
+	 * @param bdListPref
+     */
+	private void setBDPrefKeys(IconListPreference bdListPref)
+	{
 		//adding entries on basis of friends experiment
 		if (Utils.isFavToFriendsMigrationAllowed())
 		{
@@ -1792,15 +1807,30 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			bdListPref.setEntries(R.array.privacyPrefKeys);
 			bdListPref.setEntryValues(R.array.privacyPrefValues);
 		}
+	}
 
-		bdListPref.setNegativeButtonText(R.string.CANCEL);
-		bdListPref.setOnPreferenceChangeListener(this);
-
-		//adding preference title and summary text
-		bdListPref.setTitle(getString(R.string.birthday_privacy_header) + ": " + bdListPref.getEntry());
-		String defValue = getApplicationContext().getString(R.string.privacy_my_contacts);
-		String selectedValue = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString(HikeConstants.BIRTHDAY_PRIVACY_PREF, defValue);
-		bdListPref.setSummary(getBDPrefText(selectedValue, true));
+	/**
+	 * Method to update the birthday privacy pref view with title and summary based on current selection
+	 * @param isDueToFavToFriends
+	 */
+	private void updateBDPrefUI(boolean isDueToFavToFriends)
+	{
+		Logger.d(getClass().getSimpleName(), "setting new bd pref");
+		IconListPreference bdListPref = (IconListPreference) getPreferenceScreen().findPreference(HikeConstants.BIRTHDAY_PRIVACY_PREF);
+		if(isDueToFavToFriends)
+		{
+			setBDPrefKeys(bdListPref);
+			Dialog bdPrefDialog = bdListPref.getDialog();
+			if(bdPrefDialog != null && bdPrefDialog.isShowing())
+			{
+				Logger.d(getClass().getSimpleName(), "dismissing list pref dialog due to fav to friends");
+				bdPrefDialog.dismiss();
+			}
+		}
+		String bdPrefValue = BirthdayUtils.getCurrentBDPref();
+		bdListPref.setTitle(getString(R.string.birthday_privacy_header) + ": " + getBDPrefText(bdPrefValue, false));
+		bdListPref.setSummary(getBDPrefText(bdPrefValue, true));
+		bdListPref.setValue(String.valueOf(bdPrefValue));
 	}
 
 	/**
@@ -1851,86 +1881,11 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 
 	/**
 	 * Method to handle privacy pref update for birthday visibility
-	 * @param bdPref
 	 * @param bdSelectedPrefId
-     */
-	private void updateBirthdayPrivacyPref(Preference bdPref, String bdSelectedPrefId)
+	 */
+	private void updateBirthdayPrivacyPref(final String bdSelectedPrefId)
 	{
-		if(bdSelectedPrefId.equals(INVALID_PREF_VALUE))
-		{
-			showBDUpdateStatusToast(getString(R.string.bd_change_failed));
-			return;
-		}
-
-		Logger.d(getClass().getSimpleName(), "new birthday privacy id: " + bdSelectedPrefId);
-
-		JSONObject payload = new JSONObject();
-
-		try
-		{
-			payload.put(HikeConstants.Extras.PREF, Integer.valueOf(bdSelectedPrefId));
-			sendBDPrefToServer(bdPref, bdSelectedPrefId, payload);
-		}
-		catch (JSONException jse)
-		{
-			Logger.d(getClass().getSimpleName(), "error in forming request object for birthday privacy update");
-			showBDUpdateStatusToast(getString(R.string.bd_change_failed));
-		}
-	}
-
-	/**
-	 * Method to notify server of birthday privacy pref update via HTTP
-	 * @param bdPref
-	 * @param bdSelectedPrefId
-	 * @param payload
-     */
-	private void sendBDPrefToServer(final Preference bdPref, final String bdSelectedPrefId, JSONObject payload)
-	{
-		Logger.d(getClass().getSimpleName(), "dob update payload: " + payload.toString());
-
-		RequestToken bdPrefUpdateRequest = HttpRequests.getBDPrefUpdateRequest(payload, new IRequestListener()
-		{
-			@Override
-			public void onRequestFailure(HttpException httpException)
-			{
-				Logger.d(getClass().getSimpleName(), "updating bd pref http failure code: " + httpException.getErrorCode());
-				showBDUpdateStatusToast(getString(R.string.bd_change_failed));
-			}
-
-			@Override
-			public void onRequestSuccess(Response result)
-			{
-				Logger.d(getClass().getSimpleName(), "http request result code: " + result.getStatusCode());
-				setNewBDPrefValue(bdPref, bdSelectedPrefId);
-			}
-
-			@Override
-			public void onRequestProgressUpdate(float progress)
-			{
-				//doing nothing here
-			}
-		});
-
-		bdPrefUpdateRequest.execute();
-	}
-
-	private void setNewBDPrefValue(Preference bdPref, String bdPrefValue)
-	{
-		Logger.d(getClass().getSimpleName(), "setting new bd pref");
-		IconListPreference bdListPref = (IconListPreference) bdPref;
-		bdListPref.setTitle(getString(R.string.birthday_privacy_header) + ": " + getBDPrefText(bdPrefValue, false));
-		bdListPref.setSummary(getBDPrefText(bdPrefValue, true));
-		bdListPref.setValue(String.valueOf(bdPrefValue));
-		PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString(HikeConstants.BIRTHDAY_PRIVACY_PREF, bdPrefValue).commit();
-	}
-
-
-	private void showBDUpdateStatusToast(String toastMsg)
-	{
-		if(!TextUtils.isEmpty(toastMsg))
-		{
-			Toast.makeText(getApplicationContext(), toastMsg, Toast.LENGTH_SHORT).show();
-		}
+		BirthdayUtils.updateBDPrivacy(bdSelectedPrefId, false);
 	}
 
 	private void updateAccountBackupPrefView()
@@ -2401,5 +2356,14 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	private void recordNotificationTonesclick(boolean newValue)
 	{
 		recordPreferencesAnalytics("notif_conv_tone", newValue ? "on" : "off");
+	}
+
+	@Override
+	public void onUiEventReceived(String type, Object object)
+	{
+		if(type.equals(HikePubSub.BD_PRIVACY_PREF_UPDATED) && object != null && object instanceof Boolean)
+		{
+			updateBDPrefUI((boolean) object);
+		}
 	}
 }

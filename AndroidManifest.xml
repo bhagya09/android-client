@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1721"
-    android:versionName="4.2.6.82.104.1.ota_chatthemes_v1_1" >
+    android:versionCode="1731"
+    android:versionName="4.2.6.82.111" >
 
    <uses-sdk
         android:minSdkVersion="14"
