@@ -17,6 +17,7 @@ import com.bsb.hike.DragSortListView.DragSortListView;
 import com.bsb.hike.DragSortListView.DragSortListView.DragSortListener;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
+import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
@@ -35,11 +36,6 @@ import java.util.Set;
 
 public class StickerSettingsAdapter extends BaseAdapter implements DragSortListener, OnClickListener
 {
-	/**
-	 * Index is ListView position, value is ArrayList position ( which is to be interpreted as stickerCategoryIndex - 1 )
-	 */
-	private int[] mListMapping;
-
 	private List<StickerCategory> stickerCategories;
 
 	private Context mContext;
@@ -48,9 +44,7 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 
 	private boolean isListFlinging;
 
-	private Set<StickerCategory> stickerSet = new HashSet<StickerCategory>();  //Stores the categories which have been reordered
-	
-	private int lastVisibleIndex = 0;   //gives the index of last visible category in the stickerCategoriesList
+	private Set<StickerCategory> stickerSet = new HashSet<StickerCategory>();  //Stores the categories which have been reordered or their visibility changed
 	
 	private StickerOtherIconLoader stickerOtherIconLoader;
 	
@@ -68,17 +62,37 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 
 	private final int RETRY = 3;
 
+	private int maxCatIdxInDb;
+
 	public StickerSettingsAdapter(Context context, List<StickerCategory> stickerCategories, StickerSettingsTask stickerSettingsTask, ItemButtonClickListener clickListener)
 	{
 		this.mContext = context;
 		this.stickerCategories = stickerCategories;
 		this.mInflater = LayoutInflater.from(mContext);
-		mListMapping = new int[stickerCategories.size()];
 		this.stickerOtherIconLoader = new StickerOtherIconLoader(context, true);
 		this.stickerSettingsTask = stickerSettingsTask;
 		this.clickListener = clickListener;
-		initialiseMapping(mListMapping, stickerCategories);
-		
+		maxCatIdxInDb = HikeConversationsDatabase.getInstance().getMaxStickerCategoryIndex();
+		if(stickerSettingsTask == StickerSettingsTask.STICKER_REORDER_TASK)
+		{
+			checkAndSetCategoryIdx();
+		}
+	}
+
+	/**
+	 * The method sets the category index of packs as per their position in list
+	 */
+	private void checkAndSetCategoryIdx()
+	{
+		for (int i = 0; i < stickerCategories.size(); i++)
+		{
+			StickerCategory category = stickerCategories.get(i);
+			if (category.getCategoryIndex() != (i+1))
+			{
+				category.setCategoryIndex(i+1);
+				stickerSet.add(category);
+			}
+		}
 	}
 
 	public interface ItemButtonClickListener
@@ -88,66 +102,25 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 		void onDelete(StickerCategory stickerCategory);
 	}
 
-	/**
-	 * Initialising the initial array mapping as well as we set the category index of those categories for which the indexes are != (position in arraylist + 1), i.e. the categories are randomly ordered. 
-	 * This is a one time overhead to ensure that next time user comes on this screen, we are able to show visible and invisible categories based on their appropriate order without any extra overhead.
-	 * @param mListMapping
-	 * @param stickerCategoryList
-	 */
-	private void initialiseMapping(int[] mListMapping, List<StickerCategory> stickerCategoryList)
-	{
-		for(int i=0; i< stickerCategoryList.size(); i++)
-		{
-			StickerCategory category = stickerCategoryList.get(i);
-			mListMapping[i] = i+1;
-			if(category.getCategoryIndex() != (mListMapping[i]))
-			{
-				category.setCategoryIndex(mListMapping[i]);
-				stickerSet.add(category);
-			}
-			if(category.isVisible())
-			{
-				lastVisibleIndex = i;
-			}
-		}
-	}
-
 	@Override
 	public int getCount()
 	{
-		if (stickerCategories != null)
-		{
-			return stickerCategories.size();
-		}
-		return 0;
+		if (Utils.isEmpty(stickerCategories))
+			return 0;
+
+		return stickerCategories.size();
 	}
 
 	@Override
 	public StickerCategory getItem(int position)
 	{
-		return stickerCategories.get(mListMapping[position] - 1);
+		return stickerCategories.get(position);
 	}
 
 	@Override
 	public long getItemId(int position)
 	{
-		return mListMapping[position] - 1;
-	}
-
-	//Mwthod to check if all the packs in update list have got updated
-	private boolean areAllUpdated()
-	{
-		int count = 0;
-
-		for (StickerCategory category: stickerCategories)
-		{
-			if ((category.getState() == StickerCategory.DONE) || (category.getState() == StickerCategory.DONE_SHOP_SETTINGS))
-			{
-				count++;
-			}
-		}
-
-		return count==stickerCategories.size();
+		return position;
 	}
 
 	@Override
@@ -301,78 +274,53 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 	@Override
 	public void drop(int from, int to)
 	{
-		StickerCategory category = getItem(from);
-		draggedCategory = category;
-		if ((from == to) || (!category.isVisible())) // Dropping at the same position. No need to perform Drop.
+		if (from == to)
 		{
 			return;
 		}
 
-		if (from > lastVisibleIndex)
-		{
-			if(to > lastVisibleIndex+1)
-			{
-			   return;
-			}
-			else
-			{
-				lastVisibleIndex++;
-			}
-		}
+		draggedCategory = getItem(from);
 
-		int cursorFrom = mListMapping[from];
+		//shifting the categories in list
 		if (from > to)
 		{
-			for (int i = from; i > to; --i)
+			for (int i = from; i > to; i--)
 			{
-				mListMapping[i] = mListMapping[i - 1];
+				stickerCategories.set(i, stickerCategories.get(i-1));
 			}
 		}
-
 		else
 		{
-			for (int i = from; i < to; ++i)
+			for (int i = from; i < to; i++)
 			{
-				mListMapping[i] = mListMapping[i + 1];
+				stickerCategories.set(i, stickerCategories.get(i+1));
 			}
 		}
+		stickerCategories.set(to, draggedCategory);
 
-		mListMapping[to] = cursorFrom;
+		//changing the catIdx of packs according to their new shifted positions
+		if (from > to)
+		{
+			for (int i = from; i >= to; i--)
+			{
+				StickerCategory sc = stickerCategories.get(i);
+				sc.setCategoryIndex(i + 1);
+				stickerSet.add(sc);
+			}
+		}
+		else
+		{
+			for (int i = from; i <= to; i++)
+			{
+				StickerCategory sc = stickerCategories.get(i);
+				sc.setCategoryIndex(i + 1);
+				stickerSet.add(sc);
+			}
+		}
 
 		notifyDataSetChanged();
-
-		if (from > to)
-		{
-			for (int i = from; i >= to; --i)
-			{
-				addToStickerSet(i);
-			}
-		}
-		else
-		{
-			for (int i = from; i <= to; ++i)
-			{
-				addToStickerSet(i);
-			}
-		}
 	}
 	
-	/**
-	 * Adds to Categories to stickerSet and also changes it's categoryIndex
-	 * @param categoryPos
-	 */
-	public void addToStickerSet(int categoryPos)
-	{
-		StickerCategory category = getItem(categoryPos);
-		int oldCategoryIndex = mListMapping[categoryPos];
-		int newCategoryIndex = categoryPos + 1;  // new stickerCategoryIndex is categoryPos + 1
-		if(oldCategoryIndex != newCategoryIndex)
-		{
-			category.setCategoryIndex(newCategoryIndex); 
-			stickerSet.add(category);
-		}
-	}
-
 	@Override
 	public void drag(int from, int to)
 	{
@@ -426,9 +374,6 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 		}
 		stickerCategories.remove(category);								//removing sticker pack from sticker categories list
 		stickerSet.remove(category);									//removing sticker pack from sticker set
-		mListMapping = null;
-		mListMapping = new int[stickerCategories.size()];
-		initialiseMapping(mListMapping, stickerCategories);				//reinitialising mapping
 		this.notifyDataSetChanged();
 		sendDeleteClicked(category);
 		StickerManager.getInstance().sendPackDeleteAnalytics(HikeConstants.LogEvent.PACK_DELETE_SUCCESS, category.getCategoryId());
@@ -440,11 +385,14 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 		Toast.makeText(mContext, visibility ? mContext.getResources().getString(R.string.pack_visible) : mContext.getResources().getString(R.string.pack_hidden), Toast.LENGTH_SHORT).show();;
 		ImageButton checkBox = (ImageButton) v;
 		category.setVisible(visibility);
+		//change catIdx to max+1 when pack is made visible; no changes required in case of hiding pack
+		if (visibility)
+		{
+			category.setCategoryIndex(++maxCatIdxInDb);
+		}
 		StickerManager.getInstance().sendPackHideAnalytics(category.getCategoryId(), visibility);
 		checkBox.setSelected(visibility);
 		stickerSet.add(category);
-		int categoryIdx = stickerCategories.indexOf(category);
-		updateLastVisibleIndex(categoryIdx, category);
 		StickerManager.getInstance().checkAndSendAnalytics(visibility);
 	}
 
@@ -524,23 +472,6 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 		}
 	}
 
-	/**
-	 * Updates the lastVisible Category Index in the list based on the category whose visibility has just been toggled.
-	 * @param categoryIdx
-	 * @param category
-	 */
-	private void updateLastVisibleIndex(int categoryIdx, StickerCategory category)
-	{
-		if(categoryIdx == lastVisibleIndex && (!category.isVisible()))
-		{
-			lastVisibleIndex --;
-		}
-		else if((categoryIdx == lastVisibleIndex + 1) && (category.isVisible()))
-		{
-			lastVisibleIndex ++;
-		}
-	}
-
 	public Set<StickerCategory> getStickerSet()
 	{
 		return stickerSet;
@@ -551,9 +482,13 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 		return stickerOtherIconLoader;
 	}
 
+	/**
+	 * The method is called in case of reorder of packs to get last visible index in list
+	 * @return
+	 */
 	public int getLastVisibleIndex()
 	{
-		return lastVisibleIndex;
+		return stickerCategories.size()-1;
 	}
 	
 	public StickerCategory getDraggedCategory()
