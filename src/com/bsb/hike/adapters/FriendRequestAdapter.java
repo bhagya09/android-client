@@ -77,7 +77,7 @@ public class FriendRequestAdapter extends BaseAdapter {
     }
 
     @Override
-    public Object getItem(int position) {
+    public ContactInfo getItem(int position) {
         return displayList.get(position);
     }
 
@@ -94,6 +94,7 @@ public class FriendRequestAdapter extends BaseAdapter {
             convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.friend_request_item, parent, false);
             viewHolder = new ViewHolder(convertView);
             convertView.setTag(viewHolder);
+            viewHolder.addFriend.setOnClickListener(onAddButtonClickListener);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
@@ -109,6 +110,7 @@ public class FriendRequestAdapter extends BaseAdapter {
         } else {
             viewHolder.addedFriend.setVisibility(View.GONE);
             viewHolder.addFriend.setVisibility(View.VISIBLE);
+            viewHolder.addFriend.setTag(position);
         }
 
         if (!TextUtils.isEmpty(searchText)) {
@@ -197,13 +199,12 @@ public class FriendRequestAdapter extends BaseAdapter {
         }
     }
 
-    public AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
+    View.OnClickListener onAddButtonClickListener = new View.OnClickListener() {
         @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            ContactInfo info = displayList.get(position);
+        public void onClick(View v) {
+            ContactInfo contact = displayList.get((Integer) v.getTag());
 
         }
     };
-
 
 }

@@ -1376,7 +1376,8 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 	}
 
 	@Override
-	public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id)
+	public boolean
+	onItemLongClick(AdapterView<?> adapterView, View view, int position, long id)
 	{
 
 		if (position < getListView().getHeaderViewsCount())

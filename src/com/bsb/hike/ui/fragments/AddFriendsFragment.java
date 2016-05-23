@@ -1,5 +1,6 @@
 package com.bsb.hike.ui.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ListFragment;
@@ -12,12 +13,15 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.FriendRequestAdapter;
+import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Utils;
 
 import java.util.ArrayList;
@@ -61,8 +65,17 @@ public class AddFriendsFragment extends ListFragment {
         super.onViewCreated(view, savedInstanceState);
         listView = getListView();
         listView.setAdapter(mAdapter);
-        listView.setOnItemClickListener(mAdapter.onItemClickListener);
+        listView.setOnItemClickListener(onItemClickListener);
     }
+
+    private AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            ContactInfo contact = mAdapter.getItem(position);
+            Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(getContext(), contact, false, false, ChatThreadActivity.ChatThreadOpenSources.ADD_FRIEND_FRAG);
+            startActivity(intent);
+        }
+    };
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
