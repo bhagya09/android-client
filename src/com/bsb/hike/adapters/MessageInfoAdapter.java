@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import android.animation.Animator;
 import android.animation.AnimatorSet;
@@ -15,9 +16,12 @@ import android.graphics.Color;
 import android.support.v7.app.AlertDialog;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
@@ -66,6 +70,8 @@ public class MessageInfoAdapter extends BaseAdapter
 
 	public static final int MESSAGE_INFO_EMPTY = 7;
 
+    public static final int MIN_ITEMS_FOR_NO_EMPTY_VIEW=12;
+
 	private Context context;
 
 	private IconLoader iconLoader;
@@ -82,6 +88,11 @@ public class MessageInfoAdapter extends BaseAdapter
 
 	public String whichChatThread;
 
+    private MessageInfoViewListener messageInfoViewListener;
+
+    private boolean isScrollPositionSet;
+
+
 	public View view;
 	private final LayoutParams MATCH_PARENT = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 	private final LayoutParams WRAP_CONTENT = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
@@ -94,9 +105,12 @@ public class MessageInfoAdapter extends BaseAdapter
 		iconLoader.setDefaultAvatarIfNoCustomIcon(true);
 		this.completeitemList = completeitemList;
 		this.convMessage = convMessage;
+        isScrollPositionSet=false;
 
 	}
-
+    public void setMessageInfoViewListener(MessageInfoViewListener messageInfoViewListener){
+        this.messageInfoViewListener=messageInfoViewListener;
+    }
 	public void setMessageInfoView(MessageInfoView messageInfoView)
 	{
 		this.messageInfoView = messageInfoView;
@@ -150,7 +164,7 @@ public class MessageInfoAdapter extends BaseAdapter
 
 		MessageInfoItem messageInfoItem = getItem(position);
 		View v = convertView;
-
+        final View  v1;
 		ViewHolder viewHolder = null;
 
 		if (v == null)
@@ -199,8 +213,25 @@ public class MessageInfoAdapter extends BaseAdapter
 				v.setTag(viewHolder);
 				break;
 			case MESSAGE_INFO_VIEW:
-
 				v = messageInfoView.getView(v, convMessage);
+				if (!isScrollPositionSet)
+				{
+					v1 = v;
+					ViewTreeObserver vto = v1.getViewTreeObserver();
+					vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener()
+					{
+						@Override
+						public void onGlobalLayout()
+						{
+							v1.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+							int height = v1.getMeasuredHeight();
+							if (messageInfoViewListener != null)
+								messageInfoViewListener.onMessageInfoViewDrawn(v1.getHeight());
+
+						}
+					});
+					isScrollPositionSet = true;
+				}
 				break;
 			case MESSAGE_INFO_SMS:
 				v = inflater.inflate(R.layout.messageinfo_sms_item, null);
@@ -211,7 +242,16 @@ public class MessageInfoAdapter extends BaseAdapter
 				v.setTag(viewHolder);
 				break;
 			case MESSAGE_INFO_EMPTY:
-				v = inflater.inflate(R.layout.messageinfo_empty_item, null);
+				LinearLayout ll = new LinearLayout(context);
+                AbsListView.LayoutParams params=new AbsListView.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,getLastItemHeight());
+
+                ll.setLayoutParams(params);
+                ll.setMinimumHeight(getLastItemHeight());
+                v=ll;
+                ll.setBackgroundColor(context.getResources().getColor(R.color.white));
+
+                ll.requestLayout();
+
 				break;
 
 			}
@@ -271,6 +311,8 @@ public class MessageInfoAdapter extends BaseAdapter
 			break;
 		case MESSAGE_INFO_VIEW:
 			v = messageInfoView.getView(v, convMessage);
+            int padding=context.getResources().getDimensionPixelSize(R.dimen.messageinfoview_padding);
+            v.setPadding(0,padding,0,padding);
 			break;
 		case MESSAGE_INFO_NOTAPPLICABLE:
 			viewHolder=(ViewHolder)v.getTag();
@@ -462,6 +504,7 @@ public class MessageInfoAdapter extends BaseAdapter
 	@Override
 	public void notifyDataSetChanged() {
 		super.notifyDataSetChanged();
+
 		//notifyDataSetInvalidated();
 	}
 	public void setConversation(Conversation conversation){
@@ -471,5 +514,22 @@ public class MessageInfoAdapter extends BaseAdapter
 		this.msisdn=msisdn;
         this.whichChatThread=ChatThreadUtils.getChatThreadType(msisdn);
 	}
+
+    private int getLastItemHeight(){
+        if(completeitemList.size()>MIN_ITEMS_FOR_NO_EMPTY_VIEW)
+            return 0;
+        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        Display display = wm.getDefaultDisplay();
+        int screenHeight = display.getHeight();
+        int listHeightApprox=completeitemList.size()*MessageInfoItem.getSize();
+        return Math.max(0,screenHeight-listHeightApprox);
+    }
+
+	public  interface MessageInfoViewListener
+	{
+		void onMessageInfoViewDrawn(int height);
+	}
+
+
 
 }

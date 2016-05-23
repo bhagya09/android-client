@@ -82,6 +82,11 @@ public abstract class MessageInfoItem
 		return text;
 	}
 
+	public static int getSize(){
+
+		return HikeMessengerApp.getInstance().getApplicationContext().getResources().getDimensionPixelSize(R.dimen.icon_picture_size_messageinfo);
+	}
+
 	public static class MessageStatusHeader extends MessageInfoItem
 	{
 
