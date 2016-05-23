@@ -12,6 +12,10 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.ChatAnalyticConstants;
+import com.bsb.hike.ces.CesConstants;
+import com.bsb.hike.ces.CesDataInfoFormatBuilder;
+import com.bsb.hike.ces.CustomerExperienceScore;
+import com.bsb.hike.ces.ft.FTDataInfoFormatBuilder;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
@@ -32,6 +36,7 @@ import com.bsb.hike.modules.httpmgr.interceptor.IRequestInterceptor;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.request.requestbody.FileTransferChunkSizePolicy;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.FileTransferCancelledException;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
@@ -77,6 +82,8 @@ public class UploadFileTask extends FileTransferBase
 	private String vidCompressionRequired = "0";
 
 	private int retryCount = 0;
+
+	private long startTime;
 
 	public UploadFileTask(Context ctx, ConvMessage convMessage, String fileKey)
 	{
@@ -389,6 +396,7 @@ public class UploadFileTask extends FileTransferBase
 
 	public void startFileUploadProcess()
 	{
+		startTime = System.nanoTime() / 1000;
 		validateFileKey();
 	}
 
@@ -447,9 +455,27 @@ public class UploadFileTask extends FileTransferBase
 				else
 				{
 					postFileUploadMsgProcessing();
+					logCesData(CesConstants.FT_STATUS_COMPLETE, true);
 				}
 			}
 		};
+	}
+
+	private void logCesData(int state, boolean isQuickUpload)
+	{
+		CesDataInfoFormatBuilder<?> builder = new FTDataInfoFormatBuilder<FTDataInfoFormatBuilder>()
+				.setNetType(FTUtils.getNetworkTypeString(context))
+				.setFileSize(fileSize)
+				.setFileAvailability(isQuickUpload)
+				//.setManualRetry(false)
+				.setFileType(fileType)
+				.setFTStatus(state)
+				.setFTTaskType(CesConstants.FT_UPLOAD)
+				//.setNetProcTime((System.currentTimeMillis() - time))
+				.setProcTime((System.currentTimeMillis() - startTime))
+				.setUniqueId(msgId + "_" + AccountUtils.mUid)
+				.setModule(CesConstants.FT_MODULE);
+		CustomerExperienceScore.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).recordCesData(CesConstants.CESModule.FT, builder);
 	}
 
 	public void verifyMd5(final boolean isFileKeyValid)
@@ -560,6 +586,7 @@ public class UploadFileTask extends FileTransferBase
 					}
 					responseJson.put(HikeConstants.DATA_2, resData);
 					handleSuccessJSON(responseJson);
+					logCesData(CesConstants.FT_STATUS_COMPLETE, true);
 				}
 				catch (JSONException ex)
 				{
