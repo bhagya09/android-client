@@ -22,7 +22,7 @@ public class RequestRunner extends RequestRunnerBase
 
 	protected IClient getDefaultClient(ClientOptions options)
 	{
-		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TP_ENABLE,0)==1)
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TP_ENABLE, 0) == 1)
 		{
 			return new TwinPrimeOkClient(options);
 		}

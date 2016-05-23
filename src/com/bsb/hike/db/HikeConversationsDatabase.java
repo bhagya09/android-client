@@ -1,6 +1,25 @@
 package com.bsb.hike.db;
 
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.net.MalformedURLException;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.Set;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences.Editor;
@@ -29,6 +48,7 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthread.ChatThreadUtils;
+import com.bsb.hike.chatthemes.ChatThemeManager;
 import com.bsb.hike.db.DBConstants.HIKE_CONV_DB;
 import com.bsb.hike.db.DatabaseErrorHandlers.ConversationDatabaseErrorHandler;
 import com.bsb.hike.db.dbcommand.SetPragmaModeCommand;
@@ -51,6 +71,8 @@ import com.bsb.hike.models.Conversation.OneToOneConversation;
 import com.bsb.hike.models.CustomStickerCategory;
 import com.bsb.hike.models.FileListItem;
 import com.bsb.hike.models.GroupParticipant;
+import com.bsb.hike.models.HikeChatTheme;
+import com.bsb.hike.models.HikeChatThemeAsset;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeSharedFile;
@@ -58,6 +80,7 @@ import com.bsb.hike.models.MessageEvent;
 import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.Mute;
 import com.bsb.hike.models.Protip;
+import com.bsb.hike.modules.quickstickersuggestions.model.QuickSuggestionStickerCategory;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -80,7 +103,6 @@ import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.timeline.model.TimelineActions;
 import com.bsb.hike.timeline.view.TimelineActivity;
-import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
@@ -109,6 +131,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import static com.bsb.hike.db.DBConstants.*;
 import static com.bsb.hike.db.DBConstants.HIKE_CONV_DB.*;
+
+import static com.bsb.hike.chatthemes.HikeChatThemeConstants.*;
 
 public class HikeConversationsDatabase extends SQLiteOpenHelper
 {
@@ -365,6 +389,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		// to be aware of the users for whom db upgrade should not be done in future to fix AND-704
 		saveCurrentConvDbVersionToPrefs();
 
+
 		String sqlIndex = "CREATE UNIQUE INDEX IF NOT EXISTS " + DBConstants.FEED_INDEX + " ON " + DBConstants.FEED_TABLE + " ( " + DBConstants.FEED_ACTION_ID + ", "
 				+ DBConstants.FEED_OBJECT_ID + ", " + DBConstants.FEED_ACTOR + " ) ";
 		db.execSQL(sqlIndex);
@@ -383,6 +408,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 
 		sql = getRecentStickersTableCreateQuery();
 		db.execSQL(sql);
+
+		//creating tables for OTA ChatThemes
+		String assetTableQuery = getAssetTableCreateQuery();
+		db.execSQL(assetTableQuery);
+
+		String themeTableQuery = getThemeTableCreateQuery();
+		db.execSQL(themeTableQuery);
 	}
 
 	private void createIndexOverServerIdField(SQLiteDatabase db)
@@ -689,9 +721,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		 */
 		if (oldVersion < 22)
 		{
-			String sql = "CREATE TABLE IF NOT EXISTS " + DBConstants.CHAT_BG_TABLE + " (" + DBConstants.MSISDN + " TEXT UNIQUE, " + DBConstants.BG_ID + " TEXT)";
+			String sql = "CREATE TABLE IF NOT EXISTS " + DBConstants.ChatThemes.CHAT_BG_TABLE + " (" + DBConstants.MSISDN + " TEXT UNIQUE, " + DBConstants.ChatThemes.THEME_COL_BG_ID + " TEXT)";
 			db.execSQL(sql);
-			sql = "CREATE INDEX IF NOT EXISTS " + DBConstants.CHAT_BG_INDEX + " ON " + DBConstants.CHAT_BG_TABLE + " (" + DBConstants.MSISDN + ")";
+			sql = "CREATE INDEX IF NOT EXISTS " + DBConstants.ChatThemes.CHAT_BG_INDEX + " ON " + DBConstants.ChatThemes.CHAT_BG_TABLE + " (" + DBConstants.MSISDN + ")";
 			db.execSQL(sql);
 		}
 
@@ -700,7 +732,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		 */
 		if (oldVersion < 23)
 		{
-			String alter = "ALTER TABLE " + DBConstants.CHAT_BG_TABLE + " ADD COLUMN " + DBConstants.TIMESTAMP + " INTEGER";
+			String alter = "ALTER TABLE " + DBConstants.ChatThemes.CHAT_BG_TABLE + " ADD COLUMN " + DBConstants.TIMESTAMP + " INTEGER";
 			db.execSQL(alter);
 		}
 
@@ -1096,9 +1128,48 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 
 			sql = getRecentStickersTableCreateQuery();
 			db.execSQL(sql);
+
 		}
 
 		if(oldVersion < 51)
+		{
+			if(!Utils.isColumnExistsInTable(db, DBConstants.STICKER_TABLE, DBConstants.QUICK_SUGGESTED_REPLY_STICKERS))
+			{
+				String alter1 = "ALTER TABLE " + DBConstants.STICKER_TABLE + " ADD COLUMN " + DBConstants.QUICK_SUGGESTED_REPLY_STICKERS + " TEXT";
+				db.execSQL(alter1);
+			}
+
+			if(!Utils.isColumnExistsInTable(db, DBConstants.STICKER_TABLE, DBConstants.QUICK_SUGGESTED_SENT_STICKERS))
+			{
+				String alter2 = "ALTER TABLE " + DBConstants.STICKER_TABLE + " ADD COLUMN " + DBConstants.QUICK_SUGGESTED_SENT_STICKERS + " TEXT";
+				db.execSQL(alter2);
+			}
+
+			if(!Utils.isColumnExistsInTable(db, DBConstants.STICKER_TABLE, DBConstants.LAST_QUICK_SUGGESTION_REFRESH_TIME))
+			{
+				String alter3 = "ALTER TABLE " + DBConstants.STICKER_TABLE + " ADD COLUMN " + DBConstants.LAST_QUICK_SUGGESTION_REFRESH_TIME + " INTEGER DEFAULT 0";
+				db.execSQL(alter3);
+			}
+		}
+		if(oldVersion < 52)
+		{
+			//creating tables for OTA ChatThemes
+			//adding a prevThemeId column to the chat_bg_table
+			if(!Utils.isColumnExistsInTable(db, DBConstants.ChatThemes.CHAT_BG_TABLE, ChatThemes.PREV_THEME_ID_COL))
+			{
+				String addPrevThemeIdCol = "ALTER TABLE " + DBConstants.ChatThemes.CHAT_BG_TABLE + " ADD COLUMN "
+						+ ChatThemes.PREV_THEME_ID_COL + COLUMN_TYPE_TEXT + " DEFAULT '0'";
+				db.execSQL(addPrevThemeIdCol);
+			}
+
+			String assetTableQuery = getAssetTableCreateQuery();
+			db.execSQL(assetTableQuery);
+
+			String themeTableQuery = getThemeTableCreateQuery();
+			db.execSQL(themeTableQuery);
+		}
+
+		if(oldVersion < 53)
 		{
 			String create = getChatPropertiesTableCreateStatement();
 			db.execSQL(create);
@@ -1197,8 +1268,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		return "CREATE TABLE IF NOT EXISTS " + DBConstants.CHAT_PROPERTIES_TABLE
 				+ " ("
 				+ DBConstants.MSISDN + " TEXT UNIQUE, " // Msisdn or group id
-				+ DBConstants.BG_ID + " TEXT, " // Chat theme id
+				+ DBConstants.ChatThemes.THEME_COL_BG_ID + " TEXT, " // Chat theme id
 				+ DBConstants.BG_TIMESTAMP + " INTEGER, " // Timestamp when this theme was changed.
+				+ DBConstants.ChatThemes.PREV_THEME_ID_COL + COLUMN_TYPE_TEXT + " DEFAULT '0', " // Prev theme id set for the chat
 				+ DBConstants.IS_MUTE + " INTEGER DEFAULT 0, "  // conv mute or not
 				+ DBConstants.MUTE_TIMESTAMP + " INTEGER DEFAULT 0, " // Timestamp when this mute pref was changed.
 				+ DBConstants.MUTE_DURATION + " INTEGER DEFAULT 0, " //Time duration for which this msisdn is muted
@@ -2275,6 +2347,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				+ DBConstants.SMALL_STICKER_PATH + " TEXT, "
 				+ DBConstants.IS_ACTIVE + " INTEGER DEFAULT " + DBConstants.DEFAULT_ACTIVE_STATE + ", "
                 + DBConstants.TYPE + " INTEGER DEFAULT " + StickerConstants.StickerType.LARGE.ordinal() + ", "
+				+ DBConstants.QUICK_SUGGESTED_REPLY_STICKERS + " TEXT, "
+				+ DBConstants.QUICK_SUGGESTED_SENT_STICKERS + " TEXT, "
+				+ DBConstants.LAST_QUICK_SUGGESTION_REFRESH_TIME + " INTEGER DEFAULT 0, "
 				+ "PRIMARY KEY ("+DBConstants.CATEGORY_ID +" , "+ DBConstants.STICKER_ID +" )"
 				+ " )";
 
@@ -3542,6 +3617,66 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 			}
 		}
 
+	}
+
+	/**
+	 *
+	 * @param msgId of the convmessage we are fetching
+	 * @return
+     */
+
+	public ConvMessage getConvMessageForMsgId(long msgId)
+	{
+		// msgid cant be negative so returning null here
+		
+		if(msgId < 0)
+		{
+			return null;
+		}
+		Cursor c = null;
+
+		try
+		{
+			c = mDb.query(DBConstants.MESSAGES_TABLE, null, DBConstants.MESSAGE_ID + " =? ", new String[] { Long.toString(msgId) }, null, null, null , null);
+
+			if (c.moveToFirst())
+			{
+				final int msisdnColumn = c.getColumnIndex(DBConstants.MSISDN);
+				final int msgColumn = c.getColumnIndex(DBConstants.MESSAGE);
+				final int msgStatusColumn = c.getColumnIndex(DBConstants.MSG_STATUS);
+				final int tsColumn = c.getColumnIndex(DBConstants.TIMESTAMP);
+				final int mappedMsgIdColumn = c.getColumnIndex(DBConstants.MAPPED_MSG_ID);
+				final int metadataColumn = c.getColumnIndex(DBConstants.MESSAGE_METADATA);
+				final int groupParticipantColumn = c.getColumnIndex(DBConstants.GROUP_PARTICIPANT);
+				final int sortingIdColumn = c.getColumnIndex(DBConstants.SORTING_ID);
+
+				ConvMessage message = new ConvMessage(c.getString(msgColumn), c.getString(msisdnColumn), c.getInt(tsColumn), ConvMessage.stateValue(c.getInt(msgStatusColumn)),
+						msgId, c.getLong(mappedMsgIdColumn), c.getString(groupParticipantColumn), c.getLong(sortingIdColumn));
+				String metadata = c.getString(metadataColumn);
+				try
+				{
+					message.setMetadata(metadata);
+				}
+				catch (JSONException e)
+				{
+					Logger.e(HikeConversationsDatabase.class.getName(), "Invalid JSON metadata", e);
+				}
+
+				return message;
+			}
+		}
+		catch (Exception e)
+		{
+			Logger.e(HikeConversationsDatabase.class.getName(), "exception in fetching convmessage for msgId : " + msgId , e);
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+		return null;
 	}
 
 	public Conversation getConversation(String msisdn, int limit)
@@ -6444,11 +6579,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		mDb.delete(DBConstants.PROTIP_TABLE, DBConstants.ID + "< ?", new String[] { Long.toString(id) });
 	}
 
-	public void setChatBackground(String msisdn, String bgId, long timeStamp)
+	public void setChatBackground(String msisdn, String newBgId, long timeStamp)
 	{
 		ContentValues values = new ContentValues();
 		values.put(DBConstants.MSISDN, msisdn);
-		values.put(DBConstants.BG_ID, bgId);
+		values.put(DBConstants.ChatThemes.THEME_COL_BG_ID, newBgId);
+		values.put(ChatThemes.PREV_THEME_ID_COL, getChatThemeIdForMsisdn(msisdn));
 		values.put(DBConstants.BG_TIMESTAMP, timeStamp);
 
 		int id = (int) mDb.insertWithOnConflict(DBConstants.CHAT_PROPERTIES_TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
@@ -6458,19 +6594,24 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		}
 	}
 
-	public Pair<ChatTheme, Long> getChatThemeAndTimestamp(String msisdn)
+	/**
+	 * this method returns the currentTheme for the chat irrespective of whether it is downloaded or not
+	 * @param msisdn
+	 * @return
+	 */
+	public Pair<String, Long> getChatThemeIdAndTimestamp(String msisdn)
 	{
 		Cursor c = null;
 		try
 		{
-			c = mDb.query(DBConstants.CHAT_PROPERTIES_TABLE, new String[] { DBConstants.BG_TIMESTAMP, DBConstants.BG_ID }, DBConstants.MSISDN + "=?", new String[] { msisdn }, null, null,
+			c = mDb.query(DBConstants.CHAT_PROPERTIES_TABLE, new String[] { DBConstants.BG_TIMESTAMP, DBConstants.ChatThemes.THEME_COL_BG_ID }, DBConstants.MSISDN + "=?", new String[] { msisdn }, null, null,
 					null);
 			if (c.moveToFirst())
 			{
-				ChatTheme chatTheme = ChatTheme.getThemeFromId(c.getString(c.getColumnIndex(DBConstants.BG_ID)));
+				String chatThemeId = c.getString(c.getColumnIndex(DBConstants.ChatThemes.THEME_COL_BG_ID));
 				Long timeStamp = c.getLong(c.getColumnIndex(DBConstants.BG_TIMESTAMP));
 
-				return new Pair<ChatTheme, Long>(chatTheme, timeStamp);
+				return new Pair<String, Long>(chatThemeId, timeStamp);
 			}
 			return null;
 		}
@@ -6483,27 +6624,42 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		}
 	}
 
-	public ChatTheme getChatThemeForMsisdn(String msisdn)
+	/**
+	 * the method returns the currentTheme for the chat if the assets for it are downloaded.
+	 * else, returns the most recent chat theme for this chat which is completely downloaded
+	 * @param msisdn
+	 * @return
+	 */
+	public String getChatThemeIdForMsisdn(String msisdn)
 	{
 		Cursor c = null;
 		try
 		{
-			c = mDb.query(DBConstants.CHAT_PROPERTIES_TABLE, new String[] { DBConstants.BG_ID }, DBConstants.MSISDN + "=?", new String[] { msisdn }, null, null, null);
+			c = mDb.query(DBConstants.CHAT_PROPERTIES_TABLE, new String[] { ChatThemes.THEME_COL_BG_ID, ChatThemes.PREV_THEME_ID_COL }, DBConstants.MSISDN + "=?", new String[] { msisdn }, null, null, null);
 			if (c.moveToFirst())
 			{
 				try
 				{
-					return ChatTheme.getThemeFromId(c.getString(c.getColumnIndex(DBConstants.BG_ID)));
+					String currentThemeId = c.getString(c.getColumnIndex(DBConstants.ChatThemes.THEME_COL_BG_ID));
+					String prevThemeId = c.getString(c.getColumnIndex(ChatThemes.PREV_THEME_ID_COL));
+					if(ChatThemeManager.getInstance().isThemeAvailable(currentThemeId))
+					{
+						return currentThemeId;
+					}
+					else
+					{
+						return prevThemeId;
+					}
 				}
 				catch (IllegalArgumentException e)
 				{
 					/*
 					 * For invalid theme id, we return the default id.
 					 */
-					return ChatTheme.DEFAULT;
+					return ChatThemeManager.getInstance().defaultChatThemeId;
 				}
 			}
-			return ChatTheme.DEFAULT;
+			return ChatThemeManager.getInstance().defaultChatThemeId;
 		}
 		finally
 		{
@@ -6517,11 +6673,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 	public Object[] getChatProperties(String msisdn)
 	{
 		Mute mute = new Mute.InitBuilder(msisdn).build();
-		ChatTheme chatTheme = ChatTheme.DEFAULT;
+		String chatThemeId = ChatThemeManager.getInstance().defaultChatThemeId;
 		Cursor c = null;
 		try
 		{
-			c = mDb.query(DBConstants.CHAT_PROPERTIES_TABLE, new String[] { DBConstants.IS_MUTE, DBConstants.MUTE_TIMESTAMP, DBConstants.MUTE_DURATION, DBConstants.BG_ID }, DBConstants.MSISDN + " =? ", new String[] { msisdn }, null, null, null);
+			c = mDb.query(DBConstants.CHAT_PROPERTIES_TABLE, new String[] { DBConstants.IS_MUTE, DBConstants.MUTE_TIMESTAMP, DBConstants.MUTE_DURATION, ChatThemes.THEME_COL_BG_ID, ChatThemes.PREV_THEME_ID_COL }, DBConstants.MSISDN + " =? ", new String[] { msisdn }, null, null, null);
 
 			if (c.moveToNext())
 			{
@@ -6530,30 +6686,30 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				long muteTimestamp;
 				mute.setIsMute(isMute);
 				mute.setMuteDuration(muteDuration);
+				mute.setMuteTimestamp(c.getLong(c.getColumnIndex(DBConstants.MUTE_TIMESTAMP)));
 
 				try
 				{
-					muteTimestamp = c.getLong(c.getColumnIndex(DBConstants.MUTE_TIMESTAMP));
-				}
-				catch (IllegalArgumentException e)
-				{
-					muteTimestamp = 0;
-				}
-				mute.setMuteTimestamp(muteTimestamp);
-
-				try
-				{
-					chatTheme = ChatTheme.getThemeFromId(c.getString(c.getColumnIndex(DBConstants.BG_ID)));
+					String currentThemeId = c.getString(c.getColumnIndex(DBConstants.ChatThemes.THEME_COL_BG_ID));
+					String prevThemeId = c.getString(c.getColumnIndex(ChatThemes.PREV_THEME_ID_COL));
+					if(ChatThemeManager.getInstance().isThemeAvailable(currentThemeId))
+					{
+						chatThemeId = currentThemeId;
+					}
+					else
+					{
+						chatThemeId = prevThemeId;
+					}
 				}
 				catch (IllegalArgumentException e)
 				{
 					/*
 					 * For invalid theme id, we return the default id.
 					 */
-					chatTheme = ChatTheme.DEFAULT;
+					chatThemeId = ChatThemeManager.getInstance().defaultChatThemeId;
 				}
 			}
-			return new Object[] {chatTheme, mute};
+			return new Object[] {chatThemeId, mute};
 		}
 		finally
 		{
@@ -6566,16 +6722,17 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 
 	public void removeChatThemeForMsisdn(String msisdn)
 	{
+
 		ContentValues values = new ContentValues();
-		values.put(DBConstants.BG_ID, "");
+		values.put(ChatThemes.THEME_COL_BG_ID, "");
 		values.put(DBConstants.BG_TIMESTAMP, 0);
+		values.put(ChatThemes.PREV_THEME_ID_COL, "0");
 
 		mDb.update(DBConstants.CHAT_PROPERTIES_TABLE, values, DBConstants.MSISDN + "=?", new String[] { msisdn });
 	}
 
 	public void setChatThemesFromArray(JSONArray chatBackgroundArray)
 	{
-
 		ContentValues contentValues = new ContentValues();
 
 		if (chatBackgroundArray == null || chatBackgroundArray.length() == 0)
@@ -6599,8 +6756,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				continue;
 			}
 
-			ChatTheme chatTheme = null;
-
 			try
 			{
 				/*
@@ -6611,7 +6766,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 					throw new IllegalArgumentException();
 				}
 
-				chatTheme = ChatTheme.getThemeFromId(bgId);
 			}
 			catch (IllegalArgumentException e)
 			{
@@ -6619,7 +6773,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 			}
 
 			contentValues.put(DBConstants.MSISDN, msisdn);
-			contentValues.put(DBConstants.BG_ID, bgId);
+			contentValues.put(ChatThemes.THEME_COL_BG_ID, bgId);
 
 			int id = (int) mDb.insertWithOnConflict(DBConstants.CHAT_PROPERTIES_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_IGNORE);
 			if (id < 0)
@@ -6627,8 +6781,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				mDb.update(DBConstants.CHAT_PROPERTIES_TABLE, contentValues, DBConstants.MSISDN + "=?", new String[] { msisdn });
 			}
 
-			HikeMessengerApp.getPubSub().publish(HikePubSub.CHAT_BACKGROUND_CHANGED, new Pair<String, ChatTheme>(msisdn, chatTheme));
+			HikeMessengerApp.getPubSub().publish(HikePubSub.CHAT_BACKGROUND_CHANGED, new Pair<String, String>(msisdn, bgId));
 		}
+
 	}
 
 	public void changeGroupOwner(String groupId, String msisdn)
@@ -9350,7 +9505,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 
 		//Add object type (su,card, channel)
 		selection.append(" AND " + DBConstants.ACTION_OBJECT_TYPE + " = " +
-                DatabaseUtils.sqlEscapeString(objectType));
+				DatabaseUtils.sqlEscapeString(objectType));
 
 		Cursor c = null;
 		try
@@ -9803,7 +9958,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 	}
 
 	// Function to get URL and returns decrypted URL
-
 	public Cursor getURL(String urlKey)
 	{
 		Cursor c = null;
@@ -9822,7 +9976,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 			e.printStackTrace();
 			Logger.e(getClass().getSimpleName(), "Exception in getURL", e);
 		}
-	
+
 		return c;
 
 
@@ -9879,15 +10033,15 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 
 			int largestickerpathIdx = c.getColumnIndex(DBConstants.LARGE_STICKER_PATH);
 			int smallstickerpathIdx = c.getColumnIndex(DBConstants.SMALL_STICKER_PATH);
-            int stickerWidthIdx = c.getColumnIndex(DBConstants.WIDTH);
-            int stickerHeightIdx = c.getColumnIndex(DBConstants.HEIGHT);
+			int stickerWidthIdx = c.getColumnIndex(DBConstants.WIDTH);
+			int stickerHeightIdx = c.getColumnIndex(DBConstants.HEIGHT);
 
 			if (c.moveToFirst())
 			{
 				sticker.setSmallStickerPath(c.getString(smallstickerpathIdx));
 				sticker.setLargeStickerPath(c.getString(largestickerpathIdx));
-                sticker.setWidth(c.getInt(stickerWidthIdx));
-                sticker.setHeight(c.getInt(stickerHeightIdx));
+				sticker.setWidth(c.getInt(stickerWidthIdx));
+				sticker.setHeight(c.getInt(stickerHeightIdx));
 			}
 		}
 		finally
@@ -9908,11 +10062,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		try
 		{
 			c = mDb.query(
-                    DBConstants.STICKER_TABLE,
-                    new String[] { DBConstants.STICKER_ID },
-                    DBConstants.CATEGORY_ID + "=?" + " AND " + DBConstants.IS_ACTIVE + "=?" + " AND " + DBConstants.TYPE + "=?",
-                    new String[] { catId, Integer.toString(DBConstants.DEFAULT_ACTIVE_STATE),Integer.toString(stickerType.ordinal())},
-                    null, null, null, null);
+					DBConstants.STICKER_TABLE,
+					new String[] { DBConstants.STICKER_ID },
+					DBConstants.CATEGORY_ID + "=?" + " AND " + DBConstants.IS_ACTIVE + "=?" + " AND " + DBConstants.TYPE + "=?",
+					new String[] { catId, Integer.toString(DBConstants.DEFAULT_ACTIVE_STATE),Integer.toString(stickerType.ordinal())},
+					null, null, null, null);
 
 			int stidIdx = c.getColumnIndex(DBConstants.STICKER_ID);
 
@@ -9947,15 +10101,15 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				contentValues.put(DBConstants.STICKER_ID, sticker.getStickerId());
 				contentValues.put(DBConstants.CATEGORY_ID, sticker.getCategoryId());
 
-                if(!TextUtils.isEmpty(sticker.getLargeStickerPath(true)))
-                {
-                    contentValues.put(DBConstants.LARGE_STICKER_PATH, sticker.getLargeStickerPath());
-                    contentValues.put(DBConstants.SMALL_STICKER_PATH, sticker.getSmallStickerPath());
-                }
+				if(!TextUtils.isEmpty(sticker.getLargeStickerPath(true)))
+				{
+					contentValues.put(DBConstants.LARGE_STICKER_PATH, sticker.getLargeStickerPath());
+					contentValues.put(DBConstants.SMALL_STICKER_PATH, sticker.getSmallStickerPath());
+				}
 
 				contentValues.put(DBConstants.WIDTH, sticker.getWidth());
 				contentValues.put(DBConstants.HEIGHT, sticker.getHeight());
-                contentValues.put(DBConstants.TYPE,stickerType.ordinal());
+				contentValues.put(DBConstants.TYPE, stickerType.ordinal());
 
 				long rowId = mDb.insertWithOnConflict(DBConstants.STICKER_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
 			}
@@ -10001,7 +10155,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 			{
 				contentValues.clear();
 				contentValues.put(DBConstants.IS_ACTIVE, DBConstants.DEFAULT_INACTIVE_STATE);
-				mDb.update(DBConstants.STICKER_TABLE, contentValues, DBConstants.CATEGORY_ID + "=?", new String[] { category.getCategoryId() });
+				mDb.update(DBConstants.STICKER_TABLE, contentValues, DBConstants.CATEGORY_ID + "=?", new String[]{category.getCategoryId()});
 			}
 			mDb.setTransactionSuccessful();
 		}
@@ -10020,7 +10174,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 			ContentValues contentValues = new ContentValues();
 			for (StickerCategory category : categories)
 			{
-				mDb.delete(DBConstants.STICKER_TABLE, DBConstants.CATEGORY_ID + "=?", new String[] { category.getCategoryId() });
+				mDb.delete(DBConstants.STICKER_TABLE, DBConstants.CATEGORY_ID + "=?", new String[]{category.getCategoryId()});
 			}
 			mDb.setTransactionSuccessful();
 		}
@@ -10045,11 +10199,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 			String insert = "INSERT INTO " + DBConstants.CHAT_PROPERTIES_TABLE
 					+ "( "
 					+ DBConstants.MSISDN + ", "
-					+ DBConstants.BG_ID + ", "
+					+ ChatThemes.THEME_COL_BG_ID + ", "
+					+ ChatThemes.PREV_THEME_ID_COL + ", "
 					+ DBConstants.BG_TIMESTAMP
 					+ " ) SELECT "
 					+ DBConstants.MSISDN + ", "
-					+ DBConstants.BG_ID + ", "
+					+ ChatThemes.THEME_COL_BG_ID + ", "
+					+ ChatThemes.PREV_THEME_ID_COL + ", "
 					+ DBConstants.TIMESTAMP
 					+ " FROM " + DBConstants.CHAT_BG_TABLE;
 
@@ -10204,8 +10360,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		return stickerSet;
 	}
 
-	public void saveRecentStickers(Set<Sticker> recentStickers) {
-		if (Utils.isEmpty(recentStickers)) {
+	public void saveRecentStickers(Set<Sticker> recentStickers)
+	{
+		if(Utils.isEmpty(recentStickers))
+		{
 			Logger.d("recent sticker", "empty or null recent sticker set. cant save to table");
 			return;
 		}
@@ -10233,5 +10391,794 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		{
 			mDb.endTransaction();
 		}
+	}
+
+	public QuickSuggestionStickerCategory getQuickStickerSuggestionsForSticker(QuickSuggestionStickerCategory quickSuggestionCategory)
+	{
+		Sticker quickSuggestSticker = quickSuggestionCategory.getQuickSuggestSticker();
+		Cursor c = null;
+		try
+		{
+			c = mDb.query(
+					DBConstants.STICKER_TABLE,
+					new String[] { DBConstants.QUICK_SUGGESTED_REPLY_STICKERS, DBConstants.QUICK_SUGGESTED_SENT_STICKERS, DBConstants.LAST_QUICK_SUGGESTION_REFRESH_TIME },
+					DBConstants.CATEGORY_ID + "=?" + " AND " + DBConstants.STICKER_ID + "=?",
+					new String[] { quickSuggestSticker.getCategoryId(), quickSuggestSticker.getStickerId() },
+					null, null, null, null);
+
+			int replyStickerSetStringIndex = c.getColumnIndex(QUICK_SUGGESTED_REPLY_STICKERS);
+			int sentStickerSetStringIndex = c.getColumnIndex(QUICK_SUGGESTED_SENT_STICKERS);
+			int lastRefreshTimeIdx = c.getColumnIndex(LAST_QUICK_SUGGESTION_REFRESH_TIME);
+
+			if(c.moveToFirst())
+			{
+					quickSuggestionCategory.setReplyStickers(QuickSuggestionStickerCategory.replyStickerSetFromString(c.getString(replyStickerSetStringIndex)));
+					quickSuggestionCategory.setSentStickers(QuickSuggestionStickerCategory.sentStickerSetFromSting(c.getString(sentStickerSetStringIndex)));
+					quickSuggestionCategory.setLastRefreshTime(c.getLong(lastRefreshTimeIdx));
+			}
+		}
+		finally
+		{
+			if(null != c)
+			{
+				c.close();
+			}
+		}
+		return quickSuggestionCategory;
+	}
+
+	public void insertQuickSuggestionData(List<StickerCategory> stickerCategoryList)
+	{
+		try
+		{
+			mDb.beginTransaction();
+			ContentValues contentValues = new ContentValues();
+			for(StickerCategory stickerCategory : stickerCategoryList)
+			{
+				contentValues.clear();
+
+				QuickSuggestionStickerCategory quickSuggestionStickerCategory = (QuickSuggestionStickerCategory) stickerCategory;
+				Sticker quickSuggestionSticker = quickSuggestionStickerCategory.getQuickSuggestSticker();
+
+				String replySetString = quickSuggestionStickerCategory.replyStickerSetToString();
+				String sentSetString = quickSuggestionStickerCategory.sentStickerSetToSting();
+				Logger.d(getClass().getSimpleName(), "reply string for sticker " + quickSuggestionSticker + " is : " + replySetString);
+				Logger.d(getClass().getSimpleName(), "sent string for sticker " + quickSuggestionSticker + " is : " + sentSetString);
+				contentValues.put(DBConstants.QUICK_SUGGESTED_REPLY_STICKERS, replySetString);
+				contentValues.put(DBConstants.QUICK_SUGGESTED_SENT_STICKERS, sentSetString);
+				contentValues.put(DBConstants.LAST_QUICK_SUGGESTION_REFRESH_TIME, System.currentTimeMillis());
+				int updatesRows = mDb.update(DBConstants.STICKER_TABLE, contentValues, DBConstants.CATEGORY_ID + "=?" + " AND " + DBConstants.STICKER_ID + "=?", new String[] {quickSuggestionSticker.getCategoryId(), quickSuggestionSticker.getStickerId()});
+ 				Logger.d(getClass().getSimpleName(), updatesRows + " rows are updated during quick suggestions insert");
+			}
+			mDb.setTransactionSuccessful();
+		}
+		finally
+		{
+			mDb.endTransaction();
+		}
+	}
+
+
+	public Set<Sticker> getAllStickers()
+	{
+		Cursor c = null;
+		Set<Sticker> stickerSet = null;
+		try
+		{
+			c = mDb.query(DBConstants.STICKER_TABLE, new String[] { DBConstants.CATEGORY_ID, DBConstants.STICKER_ID }, null, null, null, null, null, null);
+
+			stickerSet = new HashSet<>(c.getCount());
+
+			int categoryIdIdx = c.getColumnIndex(DBConstants.CATEGORY_ID);
+			int stickerIdIdx = c.getColumnIndex(DBConstants.STICKER_ID);
+
+			while(c.moveToNext())
+			{
+				Sticker sticker = new Sticker(c.getString(categoryIdIdx), c.getString(stickerIdIdx));
+				stickerSet.add(sticker);
+			}
+		}
+		finally
+		{
+			if (null != c)
+			{
+				c.close();
+			}
+		}
+		return stickerSet;
+	}
+
+	//Methods to create the query for table creation for OTA Chat Themes
+	/**
+	 * Method to create a query for creating CHAT_THEME_ASSET_TABLE in the database
+	 * @return string containing a sql query that creates the CHAT_THEME_ASSET_TABLE
+	 */
+	private static String getAssetTableCreateQuery()
+	{
+		StringBuilder createAssetTableQuery = new StringBuilder();
+		createAssetTableQuery = createAssetTableQuery.append(CREATE_TABLE + ChatThemes.CHAT_THEME_ASSET_TABLE + " (")
+				.append(ChatThemes.ASSET_COL_ID 				+ COLUMN_TYPE_TEXT 		+ " PRIMARY KEY" + COMMA_SEPARATOR)
+				.append(ChatThemes.ASSET_COL_TYPE 				+ COLUMN_TYPE_INTEGER 	+ COMMA_SEPARATOR)
+				.append(ChatThemes.ASSET_COL_VAL 				+ COLUMN_TYPE_TEXT 		+ COMMA_SEPARATOR)
+				.append(ChatThemes.ASSET_COL_IS_DOWNLOADED 	+ COLUMN_TYPE_INTEGER 	+ COMMA_SEPARATOR)
+				.append(ChatThemes.ASSET_COL_SIZE				+ COLUMN_TYPE_INTEGER	+ COMMA_SEPARATOR)
+				.append(ChatThemes.CHAT_THEME_TIMESTAMP_COL + COLUMN_TYPE_INTEGER)
+				.append(")");
+
+		return createAssetTableQuery.toString();
+	}
+
+	/**
+	 * Method to create a query for creating CHAT_THEME_TABLE in the database
+	 * @return string containing a sql query that create the CHAT_THEME_TABLE
+	 */
+	private static String getThemeTableCreateQuery()
+	{
+		StringBuilder createThemeTableQuery = new StringBuilder();
+		createThemeTableQuery = createThemeTableQuery.append(CREATE_TABLE + ChatThemes.CHAT_THEME_TABLE + " (")
+				.append(ChatThemes.THEME_COL_BG_ID + COLUMN_TYPE_TEXT + " PRIMARY KEY" + COMMA_SEPARATOR)
+				.append(ChatThemes.THEME_COL_TYPE                        + COLUMN_TYPE_INTEGER 				+ COMMA_SEPARATOR)
+				.append(ChatThemes.THEME_COL_BG_PORTRAIT                 + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
+				.append(ChatThemes.THEME_COL_BG_LANDSCAPE                + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
+				.append(ChatThemes.THEME_COL_BUBBLE                      + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
+				.append(ChatThemes.THEME_COL_HEADER                      + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
+				.append(ChatThemes.THEME_COL_SEND_NUDGE 				  + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
+				.append(ChatThemes.THEME_COL_RECEIVE_NUDGE 			  + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
+				.append(ChatThemes.THEME_COL_INLINE_UPDATE_BG 			  + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
+				.append(ChatThemes.THEME_COL_SMS_BG 					  + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
+				.append(ChatThemes.THEME_COL_MULTI_SELECT_BUBBLE_COLOR	  + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
+				.append(ChatThemes.THEME_COL_OFFLINE_MESSAGE_TEXT_COLOR  + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
+				.append(ChatThemes.THEME_COL_THUMBNAIL 				  + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
+				.append(ChatThemes.CHAT_THEME_TIMESTAMP_COL			  + COLUMN_TYPE_INTEGER					+ COMMA_SEPARATOR)
+				.append(ChatThemes.THEME_COL_STATUS_BAR_COL 			+ COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
+				.append(ChatThemes.THEME_COL_BUBBLE_BG 					+ COLUMN_TYPE_TEXT					 + COMMA_SEPARATOR)
+				.append(ChatThemes.THEME_COL_SYSTEM_MESSAGE 			+ COLUMN_TYPE_INTEGER					 + COMMA_SEPARATOR)
+				.append(ChatThemes.THEME_COL_VISIBLE 				+ COLUMN_TYPE_INTEGER 						+ COMMA_SEPARATOR)
+				.append(ChatThemes.THEME_COL_ORDER 					+ COLUMN_TYPE_INTEGER					 + COMMA_SEPARATOR)
+				.append(ChatThemes.THEME_COL_METADATA + COLUMN_TYPE_TEXT)
+				.append(")");
+
+		return createThemeTableQuery.toString();
+	}
+
+	//Saving objects to database for Chat Themes and Chat Theme Assets.
+
+	/**
+	 * method to store an asset object in the asset table
+	 * @param saveAsset the asset object which is to be saved in the DB
+	 * @param insertPrepStmt a compiled statement for inserting a row in asset table
+	 * @param updatePrepStmt a compiled statement for updating a row in asset table
+	 * @return true if the asset sent is saved or updated successfully in the table, else false
+	 */
+	private boolean saveChatThemeAsset(HikeChatThemeAsset saveAsset, SQLiteStatement insertPrepStmt, SQLiteStatement updatePrepStmt)
+	{
+		if(mDb == null || saveAsset == null)
+			return false;
+
+		updatePrepStmt.bindString(1, saveAsset.getAssetId());
+		updatePrepStmt.bindLong(2, saveAsset.getType());
+
+		if(saveAsset.getValue() != null)
+			updatePrepStmt.bindString(3, saveAsset.getValue());
+		else
+			updatePrepStmt.bindNull(3);
+
+		updatePrepStmt.bindLong(4, saveAsset.getSize());
+		updatePrepStmt.bindLong(5, saveAsset.getAssetDownloadStatus());
+		updatePrepStmt.bindString(6, saveAsset.getAssetId());
+
+		long rowsAffected = updatePrepStmt.executeUpdateDelete();
+		updatePrepStmt.clearBindings();
+
+		if(rowsAffected == 0) // asset is not present
+		{
+			insertPrepStmt.bindString(1, saveAsset.getAssetId());
+			insertPrepStmt.bindLong(2, saveAsset.getType());
+
+			if(saveAsset.getValue() != null)
+				insertPrepStmt.bindString(3, saveAsset.getValue());
+			else
+				insertPrepStmt.bindNull(3);
+
+			insertPrepStmt.bindLong(4, saveAsset.getSize());
+			insertPrepStmt.bindLong(5, saveAsset.getAssetDownloadStatus());
+
+			long rowInserted = insertPrepStmt.executeInsert();
+			insertPrepStmt.clearBindings();
+
+			if(rowInserted == -1) // insertion didn't happen
+				return false;
+		}
+		return true;
+	}
+
+	/**
+	 * method to insert a list of asset objects in the asset table
+	 * @param saveAssets a list of asset objects to be saved
+	 * @return true if all the assets were inserted or updated successfully, else false
+	 */
+	public boolean saveChatThemeAssets(ArrayList<HikeChatThemeAsset> saveAssets)
+	{
+		SQLiteStatement insertPrepStmt = null, updatePrepStmt = null;
+
+		insertPrepStmt = prepStmtForChatThemeAssetInsert();
+		updatePrepStmt = prepStmtForChatThemeAssetUpdate();
+
+		if(insertPrepStmt == null || updatePrepStmt == null)
+			return false;
+
+		boolean allSaved = true;
+		mDb.beginTransaction();
+		try
+		{
+			for (HikeChatThemeAsset saveAsset : saveAssets)
+				allSaved = allSaved && saveChatThemeAsset(saveAsset, insertPrepStmt, updatePrepStmt);
+			mDb.setTransactionSuccessful();
+		}
+		finally
+		{
+			mDb.endTransaction();
+		}
+
+		return allSaved;
+	}
+
+	/**
+	 * method to save a single asset in the CHAT_THEME_ASSET_TABLE
+	 * @param saveAsset
+	 * @return true if the asset has been stored successfully, else false
+	 */
+	public boolean saveChatThemeAsset(HikeChatThemeAsset saveAsset)
+	{
+		SQLiteStatement insertPrepStmt = null, updatePrepStmt = null;
+
+		insertPrepStmt = prepStmtForChatThemeAssetInsert();
+		updatePrepStmt = prepStmtForChatThemeAssetUpdate();
+
+		if(insertPrepStmt == null || updatePrepStmt == null)
+			return false;
+
+		boolean isSaved = saveChatThemeAsset(saveAsset, insertPrepStmt, updatePrepStmt);
+
+		return isSaved;
+	}
+
+	/**
+	 * method to create a compiled sql query for inserting an asset object into the table
+	 * @return a SQLiteStatement object which stores a compiled query to insert an asset
+	 */
+	private SQLiteStatement prepStmtForChatThemeAssetInsert()
+	{
+		String sqlQuery = "INSERT INTO " + ChatThemes.CHAT_THEME_ASSET_TABLE + "("
+				+ ChatThemes.ASSET_COL_ID + COMMA_SEPARATOR
+				+ ChatThemes.ASSET_COL_TYPE + COMMA_SEPARATOR
+				+ ChatThemes.ASSET_COL_VAL + COMMA_SEPARATOR
+				+ ChatThemes.ASSET_COL_SIZE + COMMA_SEPARATOR
+				+ ChatThemes.ASSET_COL_IS_DOWNLOADED
+				+ ") VALUES (" ;
+
+		//placeholders for values
+		String insertValues = Utils.repeatString("?,", ChatThemes.CHAT_THEME_ASSET_TABLE_COL_COUNT);
+		insertValues = insertValues.substring(0, insertValues.length() - 1);
+
+		sqlQuery += insertValues + ");";
+
+		if(mDb == null)
+			return null;
+
+		SQLiteStatement stmt = mDb.compileStatement(sqlQuery);
+		return stmt;
+	}
+
+	/**
+	 * method to create a compiled sql query for updating an asset object into the table
+	 * @return a SQLiteStatement object which stores a compiled query to update an asset
+	 */
+	private SQLiteStatement prepStmtForChatThemeAssetUpdate()
+	{
+		String sqlQuery = "UPDATE " + ChatThemes.CHAT_THEME_ASSET_TABLE + " SET "
+				+ ChatThemes.ASSET_COL_ID 			 +  " = ?" + COMMA_SEPARATOR
+				+ ChatThemes.ASSET_COL_TYPE 		 +  " = ?" + COMMA_SEPARATOR
+				+ ChatThemes.ASSET_COL_VAL 			 +  " = ?" + COMMA_SEPARATOR
+				+ ChatThemes.ASSET_COL_SIZE			 +  " = ?" + COMMA_SEPARATOR
+				+ ChatThemes.ASSET_COL_IS_DOWNLOADED +  " = ?"
+				+ " WHERE " + ChatThemes.ASSET_COL_ID + " = ?;";
+
+		if(mDb == null)
+			return null;
+
+		SQLiteStatement stmt = mDb.compileStatement(sqlQuery);
+		return stmt;
+	}
+
+	/**
+	 * method to save a chat theme object to the theme table
+	 * @param saveTheme
+	 * @return true if the theme has been saved/updated successfully, false otherwise
+	 */
+	private boolean saveChatTheme(HikeChatTheme saveTheme, SQLiteStatement insertPrepStmt, SQLiteStatement updatePrepStmt)
+	{
+		if(mDb == null || saveTheme == null)
+			return false;
+
+		updatePrepStmt.bindString(1, saveTheme.getThemeId());
+
+		if(saveTheme.getAssetId(ASSET_INDEX_BG_LANDSCAPE) == null)
+			updatePrepStmt.bindNull(2);
+		else
+			updatePrepStmt.bindString(2, saveTheme.getAssetId(ASSET_INDEX_BG_LANDSCAPE));
+
+		if(saveTheme.getAssetId(ASSET_INDEX_BG_PORTRAIT) == null)
+			updatePrepStmt.bindNull(3);
+		else
+			updatePrepStmt.bindString(3, saveTheme.getAssetId(ASSET_INDEX_BG_PORTRAIT));
+
+		if(saveTheme.getAssetId(ASSET_INDEX_BUBBLE_COLOR) == null)
+			updatePrepStmt.bindNull(4);
+		else
+			updatePrepStmt.bindString(4, saveTheme.getAssetId(ASSET_INDEX_BUBBLE_COLOR));
+
+		if(saveTheme.getAssetId(ASSET_INDEX_CHAT_BUBBLE_BG) == null)
+			updatePrepStmt.bindNull(5);
+		else
+			updatePrepStmt.bindString(5, saveTheme.getAssetId(ASSET_INDEX_CHAT_BUBBLE_BG));
+
+		if(saveTheme.getAssetId(ASSET_INDEX_ACTION_BAR_BG) == null)
+			updatePrepStmt.bindNull(6);
+		else
+			updatePrepStmt.bindString(6, saveTheme.getAssetId(ASSET_INDEX_ACTION_BAR_BG));
+
+		if(saveTheme.getAssetId(ASSET_INDEX_INLINE_STATUS_MSG_BG) == null)
+			updatePrepStmt.bindNull(7);
+		else
+			updatePrepStmt.bindString(7, saveTheme.getAssetId(ASSET_INDEX_INLINE_STATUS_MSG_BG));
+
+		if(saveTheme.getMetadata() == null)
+			updatePrepStmt.bindNull(8);
+		else
+			updatePrepStmt.bindString(8, saveTheme.getMetadata());
+
+		if(saveTheme.getAssetId(ASSET_INDEX_MULTISELECT_CHAT_BUBBLE_BG) == null)
+			updatePrepStmt.bindNull(9);
+		else
+			updatePrepStmt.bindString(9, saveTheme.getAssetId(ASSET_INDEX_MULTISELECT_CHAT_BUBBLE_BG));
+
+		if(saveTheme.getAssetId(ASSET_INDEX_OFFLINE_MESSAGE_BG) == null)
+			updatePrepStmt.bindNull(10);
+		else
+			updatePrepStmt.bindString(10, saveTheme.getAssetId(ASSET_INDEX_OFFLINE_MESSAGE_BG));
+
+		if(saveTheme.getAssetId(ASSET_INDEX_RECEIVED_NUDGE_BG) == null)
+			updatePrepStmt.bindNull(11);
+		else
+			updatePrepStmt.bindString(11, saveTheme.getAssetId(ASSET_INDEX_RECEIVED_NUDGE_BG));
+
+		if(saveTheme.getAssetId(ASSET_INDEX_SENT_NUDGE_BG) == null)
+			updatePrepStmt.bindNull(12);
+		else
+			updatePrepStmt.bindString(12, saveTheme.getAssetId(ASSET_INDEX_SENT_NUDGE_BG));
+
+		if(saveTheme.getAssetId(ASSET_INDEX_SMS_TOGGLE_BG) == null)
+			updatePrepStmt.bindNull(13);
+		else
+			updatePrepStmt.bindString(13, saveTheme.getAssetId(ASSET_INDEX_SMS_TOGGLE_BG));
+
+		if(saveTheme.getAssetId(ASSET_INDEX_THUMBNAIL) == null)
+			updatePrepStmt.bindNull(14);
+		else
+			updatePrepStmt.bindString(14, saveTheme.getAssetId(ASSET_INDEX_THUMBNAIL));
+
+		if(saveTheme.getAssetId(ASSET_INDEX_STATUS_BAR_BG) == null)
+			updatePrepStmt.bindNull(15);
+		else
+			updatePrepStmt.bindString(15, saveTheme.getAssetId(ASSET_INDEX_STATUS_BAR_BG));
+
+		updatePrepStmt.bindLong(16, saveTheme.getThemeType());
+		updatePrepStmt.bindLong(17, System.currentTimeMillis());
+		updatePrepStmt.bindLong(18, saveTheme.isVisible() ? 1 : 0);
+		updatePrepStmt.bindLong(19, saveTheme.getThemeOrderIndex());
+		updatePrepStmt.bindLong(20, saveTheme.getSystemMessageType());
+		updatePrepStmt.bindString(21, saveTheme.getThemeId());
+
+		long rowsAffected = updatePrepStmt.executeUpdateDelete();
+		updatePrepStmt.clearBindings();
+
+		if(rowsAffected == 0) // new theme
+		{
+			insertPrepStmt.bindString(1, saveTheme.getThemeId());
+
+			if(saveTheme.getAssetId(ASSET_INDEX_BG_LANDSCAPE) == null)
+				insertPrepStmt.bindNull(2);
+			else
+				insertPrepStmt.bindString(2, saveTheme.getAssetId(ASSET_INDEX_BG_LANDSCAPE));
+
+			if(saveTheme.getAssetId(ASSET_INDEX_BG_PORTRAIT) == null)
+				insertPrepStmt.bindNull(3);
+			else
+				insertPrepStmt.bindString(3, saveTheme.getAssetId(ASSET_INDEX_BG_PORTRAIT));
+
+			if(saveTheme.getAssetId(ASSET_INDEX_BUBBLE_COLOR) == null)
+				insertPrepStmt.bindNull(4);
+			else
+				insertPrepStmt.bindString(4, saveTheme.getAssetId(ASSET_INDEX_BUBBLE_COLOR));
+
+			if(saveTheme.getAssetId(ASSET_INDEX_CHAT_BUBBLE_BG) == null)
+				insertPrepStmt.bindNull(5);
+			else
+				insertPrepStmt.bindString(5, saveTheme.getAssetId(ASSET_INDEX_CHAT_BUBBLE_BG));
+
+			if(saveTheme.getAssetId(ASSET_INDEX_ACTION_BAR_BG) == null)
+				insertPrepStmt.bindNull(6);
+			else
+				insertPrepStmt.bindString(6, saveTheme.getAssetId(ASSET_INDEX_ACTION_BAR_BG));
+
+			if(saveTheme.getAssetId(ASSET_INDEX_INLINE_STATUS_MSG_BG) == null)
+				insertPrepStmt.bindNull(7);
+			else
+				insertPrepStmt.bindString(7, saveTheme.getAssetId(ASSET_INDEX_INLINE_STATUS_MSG_BG));
+
+			if(saveTheme.getMetadata() == null)
+				insertPrepStmt.bindNull(8);
+			else
+				insertPrepStmt.bindString(8, saveTheme.getMetadata());
+
+			if(saveTheme.getAssetId(ASSET_INDEX_MULTISELECT_CHAT_BUBBLE_BG) == null)
+				insertPrepStmt.bindNull(9);
+			else
+				insertPrepStmt.bindString(9, saveTheme.getAssetId(ASSET_INDEX_MULTISELECT_CHAT_BUBBLE_BG));
+
+			if(saveTheme.getAssetId(ASSET_INDEX_OFFLINE_MESSAGE_BG) == null)
+				insertPrepStmt.bindNull(10);
+			else
+				insertPrepStmt.bindString(10, saveTheme.getAssetId(ASSET_INDEX_OFFLINE_MESSAGE_BG));
+
+			if(saveTheme.getAssetId(ASSET_INDEX_RECEIVED_NUDGE_BG) == null)
+				insertPrepStmt.bindNull(11);
+			else
+				insertPrepStmt.bindString(11, saveTheme.getAssetId(ASSET_INDEX_RECEIVED_NUDGE_BG));
+
+			if(saveTheme.getAssetId(ASSET_INDEX_SENT_NUDGE_BG) == null)
+				insertPrepStmt.bindNull(12);
+			else
+				insertPrepStmt.bindString(12, saveTheme.getAssetId(ASSET_INDEX_SENT_NUDGE_BG));
+
+			if(saveTheme.getAssetId(ASSET_INDEX_SMS_TOGGLE_BG) == null)
+				insertPrepStmt.bindNull(13);
+			else
+				insertPrepStmt.bindString(13, saveTheme.getAssetId(ASSET_INDEX_SMS_TOGGLE_BG));
+
+			if(saveTheme.getAssetId(ASSET_INDEX_THUMBNAIL) == null)
+				insertPrepStmt.bindNull(14);
+			else
+				insertPrepStmt.bindString(14, saveTheme.getAssetId(ASSET_INDEX_THUMBNAIL));
+
+			if(saveTheme.getAssetId(ASSET_INDEX_STATUS_BAR_BG) == null)
+				insertPrepStmt.bindNull(15);
+			else
+				insertPrepStmt.bindString(15, saveTheme.getAssetId(ASSET_INDEX_STATUS_BAR_BG));
+
+			insertPrepStmt.bindLong(16, saveTheme.getThemeType());
+			insertPrepStmt.bindLong(17, System.currentTimeMillis());
+			insertPrepStmt.bindLong(18, saveTheme.isVisible() ? 1 : 0);
+			insertPrepStmt.bindLong(19, saveTheme.getThemeOrderIndex());
+			insertPrepStmt.bindLong(20, saveTheme.getSystemMessageType());
+
+			long rowInserted = insertPrepStmt.executeInsert();
+			insertPrepStmt.clearBindings();
+
+			if(rowInserted == -1)
+				return false;
+		}
+		return true;
+
+	}
+
+	/**
+	 * method to store a list of theme objects into the theme table
+	 * @param saveThemes list of themes to be stored
+	 * @return true if all the themes in the list are successfully inserted or updated in the table, else false
+	 */
+	public boolean saveChatThemes(ArrayList<HikeChatTheme> saveThemes)
+	{
+		SQLiteStatement insertPrepStmt = null, updatePrepStmt = null;
+
+		insertPrepStmt = prepStmtForChatThemeInsert();
+		updatePrepStmt = prepStmtForChatThemeUpdate();
+
+		if(insertPrepStmt == null || updatePrepStmt == null)
+			return false;
+
+		boolean allSaved = true;
+
+		mDb.beginTransaction();
+		try
+		{
+			for(HikeChatTheme saveTheme : saveThemes)
+				allSaved = allSaved && saveChatTheme(saveTheme, insertPrepStmt, updatePrepStmt);
+
+			mDb.setTransactionSuccessful();
+		}
+		finally
+		{
+			mDb.endTransaction();
+		}
+
+		return allSaved;
+	}
+
+	public boolean saveChatTheme(HikeChatTheme theme)
+	{
+		SQLiteStatement insertPrepStmt = null, updatePrepStmt = null;
+
+		insertPrepStmt = prepStmtForChatThemeInsert();
+		updatePrepStmt = prepStmtForChatThemeUpdate();
+
+		if(insertPrepStmt == null || updatePrepStmt == null)
+			return false;
+
+		return saveChatTheme(theme, insertPrepStmt, updatePrepStmt);
+	}
+
+	/**
+	 * method to create a compiled sql query for inserting an asset object into the table
+	 * @return a SQLiteStatement object which stores a compiled query to insert an asset
+	 */
+	private SQLiteStatement prepStmtForChatThemeInsert()
+	{
+		String sqlQuery = "INSERT INTO " + ChatThemes.CHAT_THEME_TABLE + "("
+				+ ChatThemes.THEME_COL_BG_ID + COMMA_SEPARATOR
+				+ ChatThemes.THEME_COL_BG_LANDSCAPE + COMMA_SEPARATOR
+				+ ChatThemes.THEME_COL_BG_PORTRAIT + COMMA_SEPARATOR
+				+ ChatThemes.THEME_COL_BUBBLE + COMMA_SEPARATOR
+				+ ChatThemes.THEME_COL_BUBBLE_BG + COMMA_SEPARATOR
+				+ ChatThemes.THEME_COL_HEADER + COMMA_SEPARATOR
+				+ ChatThemes.THEME_COL_INLINE_UPDATE_BG + COMMA_SEPARATOR
+				+ ChatThemes.THEME_COL_METADATA + COMMA_SEPARATOR
+				+ ChatThemes.THEME_COL_MULTI_SELECT_BUBBLE_COLOR + COMMA_SEPARATOR
+				+ ChatThemes.THEME_COL_OFFLINE_MESSAGE_TEXT_COLOR + COMMA_SEPARATOR
+				+ ChatThemes.THEME_COL_RECEIVE_NUDGE + COMMA_SEPARATOR
+				+ ChatThemes.THEME_COL_SEND_NUDGE + COMMA_SEPARATOR
+				+ ChatThemes.THEME_COL_SMS_BG + COMMA_SEPARATOR
+				+ ChatThemes.THEME_COL_THUMBNAIL + COMMA_SEPARATOR
+				+ ChatThemes.THEME_COL_STATUS_BAR_COL + COMMA_SEPARATOR
+				+ ChatThemes.THEME_COL_TYPE + COMMA_SEPARATOR
+				+ ChatThemes.CHAT_THEME_TIMESTAMP_COL + COMMA_SEPARATOR
+				+ ChatThemes.THEME_COL_VISIBLE + COMMA_SEPARATOR
+				+ ChatThemes.THEME_COL_ORDER + COMMA_SEPARATOR
+				+ ChatThemes.THEME_COL_SYSTEM_MESSAGE
+				+ ") VALUES (" ;
+
+		//placeholders for values
+		String insertValues = Utils.repeatString("?,", ChatThemes.CHAT_THEME_TABLE_COL_COUNT);
+		insertValues = insertValues.substring(0, insertValues.length() - 1);
+
+		sqlQuery += insertValues + ");";
+
+		if(mDb == null)
+			return null;
+
+		SQLiteStatement stmt = mDb.compileStatement(sqlQuery);
+		return stmt;
+	}
+
+	/**
+	 * method to make a compiled query for updating a row in the theme table
+	 * @return a compiled statement for the query to update an existing row in the table
+	 */
+	private SQLiteStatement prepStmtForChatThemeUpdate()
+	{
+		String sqlQuery = "UPDATE " + ChatThemes.CHAT_THEME_TABLE + " SET "
+				+ ChatThemes.THEME_COL_BG_ID 						+  " = ?" + COMMA_SEPARATOR
+				+ ChatThemes.THEME_COL_BG_LANDSCAPE 				+  " = ?" + COMMA_SEPARATOR
+				+ ChatThemes.THEME_COL_BG_PORTRAIT 					+  " = ?" + COMMA_SEPARATOR
+				+ ChatThemes.THEME_COL_BUBBLE 						+  " = ?" + COMMA_SEPARATOR
+				+ ChatThemes.THEME_COL_BUBBLE_BG 					+  " = ?" + COMMA_SEPARATOR
+				+ ChatThemes.THEME_COL_HEADER 						+  " = ?" + COMMA_SEPARATOR
+				+ ChatThemes.THEME_COL_INLINE_UPDATE_BG 			+  " = ?" + COMMA_SEPARATOR
+				+ ChatThemes.THEME_COL_METADATA 					+  " = ?" + COMMA_SEPARATOR
+				+ ChatThemes.THEME_COL_MULTI_SELECT_BUBBLE_COLOR 	+  " = ?" + COMMA_SEPARATOR
+				+ ChatThemes.THEME_COL_OFFLINE_MESSAGE_TEXT_COLOR 	+  " = ?" + COMMA_SEPARATOR
+				+ ChatThemes.THEME_COL_RECEIVE_NUDGE 				+  " = ?" + COMMA_SEPARATOR
+				+ ChatThemes.THEME_COL_SEND_NUDGE 					+  " = ?" + COMMA_SEPARATOR
+				+ ChatThemes.THEME_COL_SMS_BG 						+  " = ?" + COMMA_SEPARATOR
+				+ ChatThemes.THEME_COL_THUMBNAIL 					+  " = ?" + COMMA_SEPARATOR
+				+ ChatThemes.THEME_COL_STATUS_BAR_COL				+  " = ?" + COMMA_SEPARATOR
+				+ ChatThemes.THEME_COL_TYPE 						+  " = ?" + COMMA_SEPARATOR
+				+ ChatThemes.CHAT_THEME_TIMESTAMP_COL 				+  " = ?" + COMMA_SEPARATOR
+				+ ChatThemes.THEME_COL_VISIBLE						+  " = ?" + COMMA_SEPARATOR
+				+ ChatThemes.THEME_COL_ORDER						+  " = ?" + COMMA_SEPARATOR
+				+ ChatThemes.THEME_COL_SYSTEM_MESSAGE 				+  " = ?"
+				+ " WHERE " + ChatThemes.THEME_COL_BG_ID + " = ?;";
+
+		if(mDb == null)
+			return null;
+
+		SQLiteStatement stmt = mDb.compileStatement(sqlQuery);
+		return stmt;
+	}
+
+	/**
+	 * method to load all the chat themes from the DB to memory
+	 * @return a map of chat theme objects each of which represents a row in the theme table with key as the unique theme id
+	 * and value as the HikeChatTheme object
+	 */
+	public LinkedHashMap<String, HikeChatTheme> getAllChatThemes()
+	{
+		LinkedHashMap<String, HikeChatTheme> themes = new LinkedHashMap<>();
+
+		String getThemesQuery = "SELECT * FROM " + ChatThemes.CHAT_THEME_TABLE +" ORDER BY "+ChatThemes.THEME_COL_ORDER+" ASC, "+ChatThemes.CHAT_THEME_TIMESTAMP_COL+" DESC";
+		Cursor themeListCursor = mDb.rawQuery(getThemesQuery, null);
+		try {
+			if (themeListCursor.moveToFirst()) {
+				//loading all themes (theme id and assets) from the datsabase to the memory
+				while (!themeListCursor.isAfterLast()) {
+					HikeChatTheme chatTheme = makeChatThemeFromDbRow(themeListCursor);
+					themes.put(chatTheme.getThemeId(), chatTheme);
+					themeListCursor.moveToNext();
+				}
+			}
+		}
+		finally
+		{
+			if (themeListCursor != null)
+			{
+				themeListCursor.close();
+			}
+		}
+		return themes;
+	}
+
+	/**
+	 * method to make a chat theme object from a row cursor of theme table
+	 * @param themeDbRow a cursor to a row in the theme table
+	 * @return a chat theme object made from the row
+	 */
+	private HikeChatTheme makeChatThemeFromDbRow(Cursor themeDbRow)
+	{
+		String themeId = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_BG_ID));
+
+		String landscapeBg = null;
+		if(!themeDbRow.isNull(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_BG_LANDSCAPE)))
+			landscapeBg = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_BG_LANDSCAPE));
+
+		String portraitBg = null;
+		if(!themeDbRow.isNull(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_BG_PORTRAIT)))
+			portraitBg = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_BG_PORTRAIT));
+
+		String bubble = null;
+		if(!themeDbRow.isNull(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_BUBBLE)))
+			bubble = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_BUBBLE));
+
+		String bubbleBg = null;
+		if(!themeDbRow.isNull(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_BUBBLE_BG)))
+			bubbleBg = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_BUBBLE_BG));
+
+		String header = null;
+		if(!themeDbRow.isNull(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_HEADER)))
+			header = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_HEADER));
+
+		String inlineBackground = null;
+		if(!themeDbRow.isNull(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_INLINE_UPDATE_BG)))
+			inlineBackground = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_INLINE_UPDATE_BG));
+
+		String meta = null;
+		if(!themeDbRow.isNull(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_METADATA)))
+			meta = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_METADATA));
+
+		String multiSelBubble = null;
+		if(!themeDbRow.isNull(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_MULTI_SELECT_BUBBLE_COLOR)))
+			multiSelBubble = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_MULTI_SELECT_BUBBLE_COLOR));
+
+		String offMsg = null;
+		if(!themeDbRow.isNull(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_OFFLINE_MESSAGE_TEXT_COLOR)))
+			offMsg = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_OFFLINE_MESSAGE_TEXT_COLOR));
+
+		String sendNudge = null;
+		if(!themeDbRow.isNull(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_SEND_NUDGE)))
+			sendNudge = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_SEND_NUDGE));
+
+		String recNudge = null;
+		if(!themeDbRow.isNull(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_RECEIVE_NUDGE)))
+			recNudge = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_RECEIVE_NUDGE));
+
+		String smsBackground = null;
+		if(!themeDbRow.isNull(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_SMS_BG)))
+			smsBackground = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_SMS_BG));
+
+		String statusBarCol = null;
+		if(!themeDbRow.isNull(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_STATUS_BAR_COL)))
+			statusBarCol = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_STATUS_BAR_COL));
+
+		String thumbnail = null;
+		if(!themeDbRow.isNull(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_THUMBNAIL)))
+			thumbnail = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_THUMBNAIL));
+
+		int type = themeDbRow.getInt(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_TYPE));
+		long timestamp = themeDbRow.getLong(themeDbRow.getColumnIndex(ChatThemes.CHAT_THEME_TIMESTAMP_COL));
+		boolean isVisible = (themeDbRow.getInt(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_VISIBLE)) == 1) ? true : false;
+		int order = themeDbRow.getInt(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_ORDER));
+		int messageType = themeDbRow.getInt(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_SYSTEM_MESSAGE));
+
+		//loading into the object
+		HikeChatTheme chatTheme = new HikeChatTheme();
+		chatTheme.setThemeId(themeId);
+		chatTheme.setAsset(ASSET_INDEX_BG_LANDSCAPE, landscapeBg);
+		chatTheme.setAsset(ASSET_INDEX_BG_PORTRAIT, portraitBg);
+		chatTheme.setAsset(ASSET_INDEX_BUBBLE_COLOR, bubble);
+		chatTheme.setAsset(ASSET_INDEX_CHAT_BUBBLE_BG, bubbleBg);
+		chatTheme.setAsset(ASSET_INDEX_ACTION_BAR_BG, header);
+		chatTheme.setAsset(ASSET_INDEX_INLINE_STATUS_MSG_BG, inlineBackground);
+		chatTheme.setAsset(ASSET_INDEX_MULTISELECT_CHAT_BUBBLE_BG, multiSelBubble);
+		chatTheme.setAsset(ASSET_INDEX_OFFLINE_MESSAGE_BG, offMsg);
+		chatTheme.setAsset(ASSET_INDEX_SENT_NUDGE_BG, sendNudge);
+		chatTheme.setAsset(ASSET_INDEX_RECEIVED_NUDGE_BG, recNudge);
+		chatTheme.setAsset(ASSET_INDEX_SMS_TOGGLE_BG, smsBackground);
+		chatTheme.setAsset(ASSET_INDEX_STATUS_BAR_BG, statusBarCol);
+		chatTheme.setAsset(ASSET_INDEX_THUMBNAIL, thumbnail);
+		chatTheme.setThemeType(type);
+		chatTheme.setMetadata(meta);
+		chatTheme.setVisibilityStatus(isVisible);
+		chatTheme.setThemeOrderIndex(order);
+		chatTheme.setSystemMessageType(messageType);
+
+		return chatTheme;
+	}
+
+	/**
+	 * method to load all assets from the db to memory
+	 * @return a map of assets with the key as the UUID of the asset
+	 */
+	public ConcurrentHashMap<String, HikeChatThemeAsset> getAllChatThemeAssets()
+	{
+		ConcurrentHashMap<String, HikeChatThemeAsset> assetMap = new ConcurrentHashMap<>();
+
+		String getThemesQuery = "SELECT * FROM " + ChatThemes.CHAT_THEME_ASSET_TABLE;
+		Cursor assetListCursor = mDb.rawQuery(getThemesQuery, null);
+		try
+		{
+			if (assetListCursor.moveToFirst())
+			{
+				//loading all assets from the database to the memory
+				while (!assetListCursor.isAfterLast())
+				{
+					HikeChatThemeAsset asset = makeAssetFromDbRow(assetListCursor);
+					if(asset != null)
+					{
+						assetMap.put(asset.getAssetId(), asset);
+					}
+					assetListCursor.moveToNext();
+				}
+			}
+		}
+		finally
+		{
+			if (assetListCursor != null)
+			{
+				assetListCursor.close();
+			}
+		}
+		return assetMap;
+	}
+
+	/**
+	 * method to make a chat theme asset from a row in the asset table
+	 * @param assetDbCursor cursor to the asset to be loaded
+	 * @return a chat theme asset object corresponding to the row the cursor points to
+	 */
+	private HikeChatThemeAsset makeAssetFromDbRow(Cursor assetDbCursor) {
+		String assetId = assetDbCursor.getString(assetDbCursor.getColumnIndex(ChatThemes.ASSET_COL_ID));
+		int assetType = assetDbCursor.getInt(assetDbCursor.getColumnIndex(ChatThemes.ASSET_COL_TYPE));
+
+		String assetVal = null;
+		if (!assetDbCursor.isNull(assetDbCursor.getColumnIndex(ChatThemes.ASSET_COL_VAL)))
+			assetVal = assetDbCursor.getString(assetDbCursor.getColumnIndex(ChatThemes.ASSET_COL_VAL));
+
+		int assetSize = assetDbCursor.getInt(assetDbCursor.getColumnIndex(ChatThemes.ASSET_COL_SIZE));
+		int isDownloaded = assetDbCursor.getInt(assetDbCursor.getColumnIndex(ChatThemes.ASSET_COL_IS_DOWNLOADED));
+
+		HikeChatThemeAsset asset = new HikeChatThemeAsset(assetId, assetType, assetVal, assetSize);
+		asset.setIsDownloaded((byte) isDownloaded);
+
+		return asset;
 	}
 }

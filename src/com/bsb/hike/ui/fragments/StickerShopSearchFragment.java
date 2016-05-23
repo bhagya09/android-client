@@ -71,7 +71,6 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
 		stickerCategoriesMap = new HashMap<String, StickerCategory>();
 		stickerCategoriesMap.putAll(StickerManager.getInstance().getStickerCategoryMap());
 
-		// to fix
 		mAdapter = new StickerShopSearchAdapter(getActivity(), stickerCategoriesMap);
 
 		listview.setAdapter(mAdapter);
@@ -237,6 +236,10 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
 		searchWatcher.releaseResources();
 	}
 
+    /**
+     * Method writes the default no match found combined with the query
+     * @param query
+     */
 	private void setSearchEmptyState(String query)
 	{
 		String emptyText = String.format(HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.no_sticker_pack_match_found), query);

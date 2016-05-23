@@ -1422,7 +1422,6 @@
     <string name="recording_help_text">പരമാവധി ദൈർഘ്യം രേഖപ്പെടുത്തിയിട്ടുണ്ട്</string>
     <string name="max_duration_recorded">പരമാവധി ദൈർഘ്യത്തിൽ റെക്കോർഡിംഗ് ചെയ്തു</string>
     <string name="stream_volume_muted_or_low">ദയവായി ശബ്ദം കൂട്ടുക</string>
-
     <string name="group_mute_dialog_title">ഗ്രൂപ്പ് നിശ്ശബ്ദമാക്കുക</string>
     <string name="chat_mute_dialog_title">ചാറ്റ് നിശ്ശബ്ദമാക്കുക</string>
     <string name="mute_chat_eight_hrs">8 മണിക്കൂർ</string>
@@ -1431,4 +1430,12 @@
     <string name="show_notif">നോട്ടിഫിക്കേഷൻ കാണിക്കുക</string>
     <string name="mute_chat">ചാറ്റ് നിശ്ശബ്ദമാക്കുക</string>
     <string name="unmute_chat">ചാറ്റ്  അൺമ്യൂട്ട്  ചെയ്യുക</string>
+    <string name="shop_search_hint">പ്രണയം, ഹിന്ദി, ബോളിവുഡ് , തുടങ്ങിയവ</string>
+    <string name="no_sticker_pack_match_found">നിങ്ങൾ തിരഞ്ഞ \'%1$s\' ഒരു സ്റ്റിക്കർ പായ്ക്കുമായി സാമ്യമല്ല</string>
+    <string name="pack_search_again_hint">പ്രണയം, ഹിന്ദി, ബോളിവുഡ്, തുടങ്ങിയ പൂർണ്ണമായ പദങ്ങൾ ടൈപ്പുചെയ്യുകें</string>
+    <string name="edit_profile_birthday">ജനന തീയതി</string>
+    <string name="atomic_tip_http_failure">ചില പിഴക്  സംഭവിച്ചു. പിന്നീട് വീണ്ടും ശ്രമിക്കുക</string>
+    <string name="my_location">എന്റെ സ്ഥലം</string>
+    <string name="custom_location">ഇച്ഛാനുസൃത സ്ഥലം</string>
+
 </resources>

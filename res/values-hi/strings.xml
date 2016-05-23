@@ -1422,7 +1422,6 @@
     <string name="recording_help_text">रिकॉर्डिंग के लिए दबा कर रखें, भेजने के लिए छोड़ें</string>
     <string name="max_duration_recorded">अधिकतम अवधि तक रिकॉर्डिंग की गई</string>
     <string name="stream_volume_muted_or_low">कृप्या आवाज़ बढ़ाएँ</string>
-
     <string name="group_mute_dialog_title">ग्रुप शांत करें</string>
     <string name="chat_mute_dialog_title">चैट शांत करें</string>
     <string name="mute_chat_eight_hrs">8 घंटों के लिए</string>
@@ -1430,6 +1429,13 @@
     <string name="mute_chat_one_yr">1 वर्ष के लिए</string>
     <string name="show_notif">सूचनाएं दिखाएं</string>
     <string name="mute_chat">चैट शांत करें</string>
-
     <string name="unmute_chat">म्यूट हटाएं</string>
+    <string name="shop_search_hint">प्यार, हिंदी, बॉलीवुड इत्यादि</string>
+    <string name="no_sticker_pack_match_found">सर्च किया गया शब्द  \'%1$s\' हमारे किसी स्टिकर पैक से मेल नहीं खाता</string>
+    <string name="pack_search_again_hint">कृपया प्यार, हिंदी, बॉलीवुड इत्यादि की तरह पूरे पूरे शब्द लिखें</string>
+    <string name="edit_profile_birthday">जन्मदिन</string>
+    <string name="atomic_tip_http_failure">कुछ त्रुटि हुई। कृपया कुछ देर बाद प्रयत्न करें</string>
+    <string name="my_location">मेरा स्थान</string>
+    <string name="custom_location">मेरा कस्टम स्थान</string>
+
 </resources>

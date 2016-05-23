@@ -11,6 +11,8 @@ import android.content.SharedPreferences.Editor;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.chatthemes.ChatThemeManager;
+import com.bsb.hike.chatthemes.HikeChatThemeConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.platform.content.PlatformContentConstants;
@@ -120,6 +122,14 @@ public class UpgradeIntentService extends IntentService
             scheduleHikeMicroAppsMigrationAlarm(getBaseContext());
         }
 
+		if (!prefs.getBoolean(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, false))
+		{
+			StickerManager.getInstance().markAllCategoriesAsDownloaded();
+			Editor editor = prefs.edit();
+			editor.putBoolean(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, true);
+			editor.apply();
+		}
+
 		if((!prefs.getBoolean(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, false)) && Utils
 				.doesExternalDirExists())
 		{
@@ -143,6 +153,10 @@ public class UpgradeIntentService extends IntentService
 			}
 		}
 
+		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeChatThemeConstants.MIGRATE_CHAT_THEMES_DATA_TO_DB, false)) {
+			ChatThemeManager.getInstance().migrateChatThemesToDB();
+		}
+
 		if(prefs.getInt(HikeConstants.CHAT_BG_TABLE_MIGRATION, 0) == 0)
 		{
 			migrateChatBgTableData();
@@ -150,14 +164,6 @@ public class UpgradeIntentService extends IntentService
 			Editor editor = prefs.edit();
 			editor.putInt(HikeConstants.CHAT_BG_TABLE_MIGRATION, 1);
 			editor.commit();
-		}
-
-		if (!prefs.getBoolean(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, false))
-		{
-			StickerManager.getInstance().markAllCategoriesAsDownloaded();
-			Editor editor = prefs.edit();
-			editor.putBoolean(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, true);
-			editor.apply();
 		}
 
 		// Set block notifications as false in shared preference i.e allow notifications to occur once Upgrade intent completes

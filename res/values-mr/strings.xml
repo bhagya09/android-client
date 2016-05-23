@@ -1426,7 +1426,6 @@
     <string name="recording_help_text"> रेकॉर्ड करण्यासाठी टॅप धरून ठेवा</string>
     <string name="max_duration_recorded">जास्तीत जास्त कालावधीसाठी रेकॉर्डिंग केले</string>
     <string name="stream_volume_muted_or_low">कृप्या आवाज वाढवा</string>
-
     <string name="group_mute_dialog_title">ग्रुप निशब्द करा</string>
     <string name="chat_mute_dialog_title">चैट निशब्द करा</string>
     <string name="mute_chat_eight_hrs">8 तासांसाठी</string>
@@ -1435,4 +1434,12 @@
     <string name="show_notif">सूचना दाखवा</string>
     <string name="mute_chat">चैट निशब्द करा</string>
     <string name="unmute_chat">चैट सशब्द करा</string>
+    <string name="shop_search_hint">प्रेम, हिंदी, बॉलीवुड इत्यादी</string>
+    <string name="no_sticker_pack_match_found">सर्च केलेला शब्द \'%1$s\' आमच्या  कोणत्याही स्टिकर पॅकशी जुळत नाहीી</string>
+    <string name="pack_search_again_hint">कृपया प्रेम, हिंदी, बॉलीवुड इत्यादि सारखे पुर्ण शब्द लिहा</string>
+    <string name="edit_profile_birthday">जन्म दिवस</string>
+    <string name="atomic_tip_http_failure">काही त्रुटी आली. कृपया नंतर प्रयत्न करा</string>
+    <string name="my_location">माझे स्थान</string>
+    <string name="custom_location">माझे सानुकूल स्थान</string>
+
 </resources>

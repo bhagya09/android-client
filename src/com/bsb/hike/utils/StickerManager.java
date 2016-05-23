@@ -35,13 +35,17 @@ import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.quickstickersuggestions.QuickStickerSuggestionController;
+import com.bsb.hike.modules.quickstickersuggestions.tasks.FetchForAllStickerQuickSuggestionTask;
 import com.bsb.hike.modules.stickerdownloadmgr.FetchCategoryRanksTask;
 import com.bsb.hike.modules.stickerdownloadmgr.DefaultTagDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.FetchCategoryMetadataTask;
 import com.bsb.hike.modules.stickerdownloadmgr.FetchCategoryTagDataTask;
 import com.bsb.hike.modules.stickerdownloadmgr.MultiStickerDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.MultiStickerImageDownloadTask;
+import com.bsb.hike.modules.stickerdownloadmgr.MultiStickerQuickSuggestionDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerDownloadTask;
+import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerQuickSuggestionDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerCategoryDataUpdateTask;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
@@ -136,6 +140,8 @@ public class StickerManager
 
 	public static final String STICKER_PREVIEW_DOWNLOADED = "stickerPreviewDownloaded";
 
+	public static final String QUICK_STICKER_SUGGESTION_FETCHED = "quickStickerSuggestionFetched";
+
 	public static final String ADD_NO_MEDIA_FILE_FOR_STICKERS = "addNoMediaFileForStickers";
 
 	public static final String ADD_NO_MEDIA_FILE_FOR_STICKER_OTHER_FOLDERS = "addNoMediaFileForStickerOtherFolders";
@@ -195,6 +201,8 @@ public class StickerManager
 	public static final String HUMANOID = "humanoid";
 
 	public static final String LOVE = "love";
+
+	public static final String QUICK_SUGGESTIONS = "quick_suggestions";
 
 	public static final String OTHER_STICKER_ASSET_ROOT = "/other";
 
@@ -410,6 +418,12 @@ public class StickerManager
 
 	public void initiateFetchCategoryRanksAndDataTask()
 	{
+		if(!Utils.isUserSignedUp(HikeMessengerApp.getInstance(), false) || Utils.isUpgradeIntentServiceRunning())
+		{
+			Logger.d(TAG, "user not signed up or user is upgrading");
+			return;
+		}
+
 		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
 		{
 			@Override
@@ -1458,14 +1472,28 @@ public class StickerManager
 		switch (type)
 		{
 		case PALLATE_ICON_TYPE:
-			baseFilePath += PALLATE_ICON + OTHER_ICON_TYPE;
-			bitmap = HikeBitmapFactory.decodeFile(baseFilePath);
-			defaultIconResId = R.drawable.misc_sticker_placeholder;
+			if(isQuickSuggestionCategory(categoryId))
+			{
+				bitmap = HikeBitmapFactory.decodeResource(ctx.getResources(), R.drawable.ic_thunderbolt_inactive);
+			}
+			else
+			{
+				baseFilePath += PALLATE_ICON + OTHER_ICON_TYPE;
+				bitmap = HikeBitmapFactory.decodeFile(baseFilePath);
+				defaultIconResId = R.drawable.misc_sticker_placeholder;
+			}
 			break;
 		case PALLATE_ICON_SELECTED_TYPE:
-			baseFilePath += PALLATE_ICON_SELECTED + OTHER_ICON_TYPE;
-			bitmap = HikeBitmapFactory.decodeFile(baseFilePath);
-			defaultIconResId = R.drawable.misc_sticker_placeholder_selected;
+			if(isQuickSuggestionCategory(categoryId))
+			{
+				bitmap = HikeBitmapFactory.decodeResource(ctx.getResources(), R.drawable.ic_thunderbolt);
+			}
+			else
+			{
+				baseFilePath += PALLATE_ICON_SELECTED + OTHER_ICON_TYPE;
+				bitmap = HikeBitmapFactory.decodeFile(baseFilePath);
+				defaultIconResId = R.drawable.misc_sticker_placeholder_selected;
+			}
 			break;
 		case PREVIEW_IMAGE_EMPTY_PALETTE_TYPE:
 		case PREVIEW_IMAGE_SHOP_TYPE:
@@ -1681,6 +1709,28 @@ public class StickerManager
 			MultiStickerImageDownloadTask multiStickerImageDownloadTask = new MultiStickerImageDownloadTask(category, downloadType, bodyJson);
 			multiStickerImageDownloadTask.execute();
 		}
+	}
+
+	public void initiateSingleStickerQuickSuggestionDownloadTask(Sticker quickSuggestSticker)
+	{
+		if(!QuickStickerSuggestionController.getInstance().isQuickSuggestionEnabled())
+		{
+			return ;
+		}
+		QuickStickerSuggestionController.getInstance().saveInRetrySet(quickSuggestSticker);
+		SingleStickerQuickSuggestionDownloadTask singleStickerQuickSuggestionDownloadTask = new SingleStickerQuickSuggestionDownloadTask(quickSuggestSticker);
+		singleStickerQuickSuggestionDownloadTask.execute();
+	}
+
+	public void initiateMultiStickerQuickSuggestionDownloadTask(Set<Sticker> quickSuggestStickerSet)
+	{
+		if(!QuickStickerSuggestionController.getInstance().isQuickSuggestionEnabled())
+		{
+			return ;
+		}
+		QuickStickerSuggestionController.getInstance().saveInRetrySet(quickSuggestStickerSet);
+		MultiStickerQuickSuggestionDownloadTask multiStickerQuickSuggestionDownloadTask = new MultiStickerQuickSuggestionDownloadTask(quickSuggestStickerSet);
+		multiStickerQuickSuggestionDownloadTask.execute();
 	}
 
 	public StickerCategory parseStickerCategoryMetadata(JSONObject jsonObj)
@@ -2107,6 +2157,17 @@ public class StickerManager
 					StickerLanguagesManager.getInstance().getLanguageSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE));
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LAST_STICKER_TAG_REFRESH_TIME, System.currentTimeMillis());
 		}
+	}
+
+	public Set<Sticker> getStickerSetFromStickerStringSet(Set<String> stickerStringSet)
+	{
+		Set<Sticker> stickerSet = new HashSet<>(stickerStringSet.size());
+		for (String info : stickerStringSet)
+		{
+			Pair<String, String> pair = getStickerInfoFromSetString(info);
+			stickerSet.add(new Sticker(pair.first, pair.second));
+		}
+		return stickerSet;
 	}
 
 	public Sticker getStickerFromSetString(String info)
@@ -3404,6 +3465,11 @@ public class StickerManager
 			{
 				HikeConversationsDatabase.getInstance().clearTable(DBConstants.STICKER_TABLE);
 			}
+
+			if (oldBackupVersion < AccountBackupRestore.STICKER_CATEGORY_TABLE_UPDATE_VERSION)
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, false); // Need to mark already downloaded categories as downloaded
+			}
 		}
 
 		HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1);
@@ -3781,7 +3847,7 @@ public class StickerManager
 			json.put(AnalyticsConstants.V2.UNIQUE_KEY, "backup");
 			json.put(AnalyticsConstants.V2.KINGDOM, "act_hs");
 			json.put(AnalyticsConstants.V2.ORDER, "stk_rstr_error");
-			if(!TextUtils.isEmpty(errorString))
+			if (!TextUtils.isEmpty(errorString))
 			{
 				json.put(AnalyticsConstants.V2.GENUS, errorString);
 			}
@@ -3791,5 +3857,19 @@ public class StickerManager
 		{
 			e.printStackTrace();
 		}
+	}
+	
+	public void fetchQuickSuggestionForAllStickers()
+	{
+		if (!QuickStickerSuggestionController.getInstance().isQuickSuggestionEnabled())
+		{
+			return;
+		}
+		HikeHandlerUtil.getInstance().postRunnable(new FetchForAllStickerQuickSuggestionTask());
+	}
+
+	public boolean isQuickSuggestionCategory(String categotyId)
+	{
+		return (TextUtils.isEmpty(categotyId) || !categotyId.equalsIgnoreCase(QUICK_SUGGESTIONS)) ? false : true;
 	}
 }
