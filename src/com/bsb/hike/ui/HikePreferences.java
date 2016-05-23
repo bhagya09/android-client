@@ -107,7 +107,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	
 	private boolean isSettingChanged = false;
 
-	String[] hikePubSubListeners = {HikePubSub.BD_PRIVACY_PREF_UPDATED};
+	String[] hikeUiPubSubListeners = {HikePubSub.BD_PRIVACY_PREF_UPDATED};
 
 	@Override
 	public Object onRetainNonConfigurationInstance()
@@ -121,7 +121,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.hikepreferences);
 
-		HikeMessengerApp.getPubSub().addUiListener(this, hikePubSubListeners);
+		HikeMessengerApp.getPubSub().addUiListener(this, hikeUiPubSubListeners);
 
 		Intent intent = getIntent();
 		int preferences = intent.getIntExtra(HikeConstants.Extras.PREF, -1);
