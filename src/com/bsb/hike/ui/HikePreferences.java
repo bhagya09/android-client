@@ -1787,6 +1787,10 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		updateBDPrefUI(false);
 	}
 
+	/**
+	 * Method to set the keys for birthday privacy icon list pref
+	 * @param bdListPref
+     */
 	private void setBDPrefKeys(IconListPreference bdListPref)
 	{
 		//adding entries on basis of friends experiment

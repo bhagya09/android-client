@@ -28,10 +28,18 @@ public class BirthdayUtils
 
     private static final String INVALID_PREF_VALUE = "-1";
 
+    /**
+     * Method to update birthday privacy pref. Calls {@link #sendBDPrefToServer(String, JSONObject, boolean)}
+     * to make HTTP call for update
+     * @param bdSelectedPrefId
+     * @param isDueToFavToFriends
+     */
     public static void updateBDPrivacy(String bdSelectedPrefId, boolean isDueToFavToFriends)
     {
+        Logger.d(TAG, "initiating update of birthday privacy: pref=" + bdSelectedPrefId + " isDueToFavToFriends:" + isDueToFavToFriends);
         if(bdSelectedPrefId.equals(INVALID_PREF_VALUE))
         {
+            Logger.d(TAG, "invalid birthday privacy pref value");
             showBDUpdateFailureToast();
             return;
         }
@@ -67,14 +75,14 @@ public class BirthdayUtils
             @Override
             public void onRequestFailure(HttpException httpException)
             {
-                Logger.d(getClass().getSimpleName(), "updating bd pref http failure code: " + httpException.getErrorCode());
+                Logger.d(TAG, "updating bd pref http failure code: " + httpException.getErrorCode());
                 showBDUpdateFailureToast();
             }
 
             @Override
             public void onRequestSuccess(Response result)
             {
-                Logger.d(getClass().getSimpleName(), "http request result code: " + result.getStatusCode());
+                Logger.d(TAG, "http request result code: " + result.getStatusCode());
                 saveBDPrivacyPref(bdSelectedPrefId);
                 HikeMessengerApp.getPubSub().publishOnUI(HikePubSub.BD_PRIVACY_PREF_UPDATED, isDueToFavToFriends);
             }
@@ -89,6 +97,9 @@ public class BirthdayUtils
         bdPrefUpdateRequest.execute();
     }
 
+    /**
+     * Method to show toast in case of any failure in updating birthday privacy
+     */
     private static void showBDUpdateFailureToast()
     {
         Context hikeAppContext = HikeMessengerApp.getInstance().getApplicationContext();
@@ -96,13 +107,22 @@ public class BirthdayUtils
         Toast.makeText(hikeAppContext, toastMsg, Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     * Method to save birthday privacy pref in shared pref
+     * @param bdPrefValue
+     */
     public static void saveBDPrivacyPref(String bdPrefValue)
     {
+        Logger.d(TAG, "saving new birthday privacy setting: " + bdPrefValue);
         Context hikeAppContext = HikeMessengerApp.getInstance().getApplicationContext();
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(hikeAppContext);
         settings.edit().putString(HikeConstants.BIRTHDAY_PRIVACY_PREF, bdPrefValue).commit();
     }
 
+    /**
+     * Method to fetch current/default birthday privacy from shared pref
+     * @return
+     */
     public static String getCurrentBDPref()
     {
         Context hikeAppContext = HikeMessengerApp.getInstance().getApplicationContext();
@@ -111,8 +131,13 @@ public class BirthdayUtils
         return PreferenceManager.getDefaultSharedPreferences(hikeAppContext).getString(HikeConstants.BIRTHDAY_PRIVACY_PREF, defValue);
     }
 
+    /**
+     * Method to toggle update birthday privacy based on whether favToFriends is switched on
+     * @param favToFriends
+     */
     public static void modifyBDPrefForFavToFriends(boolean favToFriends)
     {
+        Logger.d(TAG, "modifying birthday privacy for favToFriends");
         Context hikeAppContext = HikeMessengerApp.getInstance().getApplicationContext();
         String currPref = getCurrentBDPref();
         if(favToFriends && (currPref.equals(hikeAppContext.getString(R.string.privacy_my_contacts))
