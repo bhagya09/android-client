@@ -275,6 +275,13 @@ public class PlatformUtils
 					context.startActivity(IntentFactory.getComposeChatIntent(context));
 				}
 			}
+			if (activityName.equals(HIKESCREEN.COMPOSE_CHAT_WITH_BDAY.toString()))
+			{
+				if (mmObject.has(HikeConstants.MSISDNS)) {
+					ChatHeadUtils.saveBirthdaysFromTip(mmObject);
+				}
+				context.startActivity(IntentFactory.getComposeChatIntent(context));
+			}
 			if (activityName.equals(HIKESCREEN.INVITE_SMS.toString()))
 			{
 				boolean selectAll = mmObject.optBoolean(ProductPopupsConstants.SELECTALL, false);
@@ -415,6 +422,14 @@ public class PlatformUtils
 						ChatThreadActivity.ChatThreadOpenSources.MICRO_APP);
 				if (in != null)
 				{
+					if(mmObject.has(HikeConstants.Extras.MSG))
+					{
+						String preTypedText = mmObject.optString(HikeConstants.Extras.MSG);
+						if(!TextUtils.isEmpty(preTypedText))
+						{
+							in.putExtra(HikeConstants.Extras.MSG, preTypedText);
+						}
+					}
 					context.startActivity(in);
 				}
 				else

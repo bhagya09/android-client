@@ -805,7 +805,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		boolean fetchRecentlyJoined = pref.getData(HikeConstants.SHOW_RECENTLY_JOINED_DOT, false) || pref.getData(HikeConstants.SHOW_RECENTLY_JOINED, false);
 		fetchRecentlyJoined = fetchRecentlyJoined && !isForwardingMessage && showNujNotif;
 		boolean showMicroappShowcase = BotUtils.isBotDiscoveryEnabled();
-		boolean showBdaySection = pref.getData(HikeConstants.ENABLE_BDAY_IN_CCA, true) && (pref.getStringSet(HikeConstants.BDAYS_LIST, new HashSet<String>()).size() > 0);
+		boolean showBdaySection = Utils.isBDayInNewChatEnabled() && (pref.getStringSet(HikeConstants.BDAYS_LIST, new HashSet<String>()).size() > 0);
 		
 		switch (composeMode)
 		{
@@ -821,10 +821,14 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent), isContactChooserFilter, isShowTimeline(), false);
 			break;
 		case START_CHAT_MODE:
-		default:
 			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId,
 					sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent), isContactChooserFilter, isShowTimeline(),
 					showBdaySection);
+			break;
+
+		default:
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId,
+					sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent), isContactChooserFilter, isShowTimeline(), false);
 			break;
 		}
 

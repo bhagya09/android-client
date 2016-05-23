@@ -234,6 +234,8 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
     private String msisdnList;
 
+	protected boolean showBdaySection;
+
 	public FriendsAdapter(Context context, ListView listView, FriendsListFetchedCallback friendsListFetchedCallback, LastSeenComparator lastSeenComparator)
 	{
 		this.listView = listView;
@@ -323,7 +325,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
         msisdnList = showFilteredContacts ? (msisdnList) : "";
 
         fetchFriendsTask = new FetchFriendsTask(this, context, friendsList, hikeContactsList, smsContactsList, recentContactsList, recentlyJoinedHikeContactsList,friendsStealthList, hikeStealthContactsList,
-                smsStealthContactsList, recentStealthContactsList, filteredFriendsList, filteredHikeContactsList, filteredSmsContactsList,suggestedContactsList,filteredSuggestedContactsList, false, true, false, false, false,true,true,showFilteredContacts,msisdnList);
+                smsStealthContactsList, recentStealthContactsList, filteredFriendsList, filteredHikeContactsList, filteredSmsContactsList,suggestedContactsList,filteredSuggestedContactsList, false, true, false, false, false,true,true,showFilteredContacts,msisdnList, showBdaySection);
 		fetchFriendsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 
@@ -1186,7 +1188,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		{
 			return ViewType.HIKE_FEATURES.ordinal();
 		}
-		else if (isBirthdayContact(contactInfo))
+		else if (showBdaySection && isBirthdayContact(contactInfo))
 		{
 			return ViewType.BDAY_CONTACT.ordinal();
 		}

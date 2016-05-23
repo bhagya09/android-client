@@ -46,6 +46,7 @@ import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+import com.edmodo.cropper.CropImageView;
 
 /**
  * The activity can crop specific region of interest from an image.
@@ -65,6 +66,10 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 	public static final String ALLOW_EDITING = "AllowEdit";
 
 	public static final String FIXED_ASPECT_RATIO = "FixAspRatio";
+
+	public static final String ASPECT_RATIO_X = "aspectRatioX";
+
+	public static final String ASPECT_RATIO_Y = "aspectRatioY";
 
 	private final String INTERIM_IMG_PATH = "InterimImgPath";
 
@@ -176,6 +181,11 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 		if (extras != null)
 		{
 			mCropFragment.setAspectRatioFixed(extras.getBoolean(FIXED_ASPECT_RATIO, false));
+
+			int aspectRatioX = extras.getInt(ASPECT_RATIO_X, CropImageView.DEFAULT_ASPECT_RATIO_X);
+			int aspectRatioY = extras.getInt(ASPECT_RATIO_Y, CropImageView.DEFAULT_ASPECT_RATIO_Y);
+			mCropFragment.setAspectWidthAndHeight(aspectRatioX, aspectRatioY);
+
 			allowEditing = extras.getBoolean(ALLOW_EDITING, false);
 		}
 
