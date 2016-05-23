@@ -106,18 +106,15 @@ public class Mute
         switch(muteDuration)
         {
             case MuteDuration.DURATION_EIGHT_HOURS:
-//                muteEndTime = muteTimestamp + (8 * 60 * 60 * 1000);
-                muteEndTime = muteTimestamp + (1 * 60 * 1000);
+                muteEndTime = muteTimestamp + (8 * 60 * 60 * 1000);
                 break;
 
             case MuteDuration.DURATION_ONE_WEEK:
-//                muteEndTime = muteTimestamp + (7 * 24 * 60 * 60 * 1000);
-                muteEndTime = muteTimestamp + (2 * 60 * 1000);
+                muteEndTime = muteTimestamp + (7 * 24 * 60 * 60 * 1000);
                 break;
 
             case MuteDuration.DURATION_ONE_YEAR:
-//                muteEndTime = muteTimestamp + (365 * 24 * 60 * 60 * 1000);
-                muteEndTime = muteTimestamp + (3 * 60 * 1000);
+                muteEndTime = muteTimestamp + (365 * 24 * 60 * 60 * 1000);
                 break;
         }
         return muteEndTime;
