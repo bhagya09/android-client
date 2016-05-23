@@ -55,6 +55,7 @@ import com.bsb.hike.view.NotificationToneListPreference;
 import com.bsb.hike.view.PreferenceWithSubText;
 import com.bsb.hike.view.SwitchPreferenceCompat;
 
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -1819,6 +1820,12 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		if(isDueToFavToFriends)
 		{
 			setBDPrefKeys(bdListPref);
+			Dialog bdPrefDialog = bdListPref.getDialog();
+			if(bdPrefDialog != null && bdPrefDialog.isShowing())
+			{
+				Logger.d(getClass().getSimpleName(), "dismissing list pref dialog due to fav to friends");
+				bdPrefDialog.dismiss();
+			}
 		}
 		String bdPrefValue = BirthdayUtils.getCurrentBDPref();
 		bdListPref.setTitle(getString(R.string.birthday_privacy_header) + ": " + getBDPrefText(bdPrefValue, false));
