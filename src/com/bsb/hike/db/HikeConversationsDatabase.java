@@ -407,6 +407,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		sql = getRecentStickersTableCreateQuery();
 		db.execSQL(sql);
 
+		sql = "DROP TABLE IF EXISTS " + DBConstants.STICKER_SHOP_TABLE;
+		db.execSQL(sql);
+
 		//creating tables for OTA ChatThemes
 		String assetTableQuery = getAssetTableCreateQuery();
 		db.execSQL(assetTableQuery);
@@ -1133,6 +1136,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 
 			String themeTableQuery = getThemeTableCreateQuery();
 			db.execSQL(themeTableQuery);
+		}
+		if (oldVersion < 52)
+		{
+			String sql = "DROP TABLE IF EXISTS " + DBConstants.STICKER_SHOP_TABLE;
+			db.execSQL(sql);
 		}
 	}
 
@@ -7564,9 +7572,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		 * This will fetch the top categories from the order table and the corresponding ts of the categories from the categories in sorted order based on order table whose pack
 		 * metadata is not updated
 		 */
-		String query = "Select * from " + DBConstants.STICKER_CATEGORY_RANK_TABLE + " LEFT OUTER JOIN " + DBConstants.STICKER_CATEGORIES_TABLE + " ON "
-				+ DBConstants.STICKER_CATEGORY_RANK_TABLE + "." + DBConstants.UCID + "=" + DBConstants.STICKER_CATEGORIES_TABLE + "." + DBConstants.UCID +" order by " + DBConstants.STICKER_CATEGORY_RANK_TABLE
-				+ "." + DBConstants.RANK + " asc " + " limit " + limit;
+		String query = "Select " + DBConstants._ID + ", " + DBConstants.CATEGORY_NAME + ", " + DBConstants.TOTAL_NUMBER + ", " + DBConstants.CATEGORY_SIZE + " from "
+				+ DBConstants.STICKER_CATEGORY_RANK_TABLE + " LEFT OUTER JOIN " + DBConstants.STICKER_CATEGORIES_TABLE + " ON " + DBConstants.STICKER_CATEGORY_RANK_TABLE + "."
+				+ DBConstants.UCID + "=" + DBConstants.STICKER_CATEGORIES_TABLE + "." + DBConstants.UCID + " order by " + DBConstants.STICKER_CATEGORY_RANK_TABLE + "."
+				+ DBConstants.RANK + " asc " + " limit " + limit;
 		Cursor cursor = mDb.rawQuery(query, null);
 		return cursor;
 	}
@@ -8073,24 +8082,26 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 	public long updateStickerCategoryRanks(JSONArray array, boolean isUpdate)
 	{
 		ContentValues contentValues;
-		long count = 0;
+		long rank = 0;
 		try
 		{
 			mDb.beginTransaction();
 			if (!isUpdate)
 			{
+				rank = 0;
 				mDb.delete(DBConstants.STICKER_CATEGORY_RANK_TABLE, null, null);
+			}
+			else
+			{
+				rank = getRankCountFromCategoryTable();
 			}
 			for (int i = 0; i < array.length(); i++)
 			{
 				contentValues = new ContentValues();
-				contentValues.put(DBConstants.RANK, i);
+				contentValues.put(DBConstants.RANK, rank);
 				contentValues.put(DBConstants.UCID, array.optInt(i, -1));
-				if (mDb.insertWithOnConflict(DBConstants.STICKER_CATEGORY_RANK_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_IGNORE) > 0)
-				{
-					count++;
-				}
-
+				mDb.insertWithOnConflict(DBConstants.STICKER_CATEGORY_RANK_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_IGNORE);
+				rank++;
 			}
 			mDb.setTransactionSuccessful();
 		}
@@ -8102,7 +8113,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		{
 			mDb.endTransaction();
 		}
-		return count;
+		return rank;
 	}
 
 	/*
