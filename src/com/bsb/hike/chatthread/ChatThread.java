@@ -1,23 +1,5 @@
 package com.bsb.hike.chatthread;
 
-import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
-
-import java.io.File;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -83,6 +65,7 @@ import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
@@ -199,7 +182,25 @@ import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.view.CustomFontEditText.BackKeyListener;
 import com.bsb.hike.view.CustomLinearLayout;
 import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
-import android.widget.FrameLayout;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
+
+import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 
 
@@ -1420,21 +1421,26 @@ import android.widget.FrameLayout;
 		}
 	}
 
-	protected void sendButtonClicked()
-	{
-		if (!useWTRevamped && TextUtils.isEmpty(mComposeView.getText()))
-		{
-			audioRecordClicked();
-		} else
-		{
-			sendMessageForStickerRecommendLearning();
-			sendMessage();
-			dismissStickerRecommendationPopup();
-			dismissTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
-		}
-	}
+    protected void sendButtonClicked()
+    {
+        if (!useWTRevamped && TextUtils.isEmpty(mComposeView.getText()))
+        {
+            if (BotUtils.isBot(msisdn) && CustomKeyboardManager.getInstance().shouldShowInputBox(msisdn))
+                inputBoxClicked();
+            else
+                audioRecordClicked();
+        }
+        else
+        {
+            sendMessageForStickerRecommendLearning();
+            sendMessage();
+            dismissStickerRecommendationPopup();
+            dismissTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
+        }
+    }
 
-	/**
+
+    /**
 	 * This function gets text from compose edit text and makes a message and uses {@link ChatThread#sendMessage(ConvMessage)} to send message
 	 * 
 	 * In addition, it calls {@link ComposeViewWatcher#onMessageSent()}
@@ -6850,19 +6856,18 @@ import android.widget.FrameLayout;
 	{
 		CustomKeyboardManager customKeyboardManager = CustomKeyboardManager.getInstance();
 
-        if(isKeyboardOpen())
-            Utils.hideSoftKeyboard(activity,mComposeView);
+        setComposeViewCustomKeyboardState();
 
 		if (!customKeyboardManager.isInputBoxButtonShowing(msisdn))
 		{
-            setComposeViewCustomKeyboardState();
             customKeyboardManager.setInputBoxButtonShowing(msisdn,true);
         }
 
 		CustomKeyboard customKeyboard = CustomKeyboardManager.getInstance().getCustomKeyboardObject(msisdn);
 		int customKeyBoardHeight = CustomKeyboardInputBoxAdapter.getCustomKeyBoardHeight(customKeyboard);
 
-		mShareablePopupLayout.showPopup(CustomKeyboardManager.getInstance(), activity.getResources().getConfiguration().orientation, customKeyBoardHeight);
+		if(mShareablePopupLayout != null)
+            mShareablePopupLayout.showPopup(CustomKeyboardManager.getInstance(), activity.getResources().getConfiguration().orientation, customKeyBoardHeight);
 
         if(customKeyboard.isHidden())
         {

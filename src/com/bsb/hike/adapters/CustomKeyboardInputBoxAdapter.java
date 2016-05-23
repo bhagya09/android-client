@@ -1,21 +1,20 @@
 package com.bsb.hike.adapters;
 
 import android.content.Context;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.R;
 import com.bsb.hike.bots.CustomKeyboard;
 import com.bsb.hike.bots.Sk;
-import com.bsb.hike.bots.Tk;
 import com.bsb.hike.bots.TextPickerListener;
+import com.bsb.hike.bots.Tk;
 import com.bsb.hike.media.StickerPickerListener;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerPageAdapterItem;
@@ -95,30 +94,26 @@ public class CustomKeyboardInputBoxAdapter implements OnClickListener
 
 		verticalLayout = (LinearLayout) viewToDisplay.findViewById(R.id.ll_custom_keyboard);
 
-		LinearLayout.LayoutParams verticalLayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-
-		verticalLayoutParams.gravity = Gravity.TOP;
-
 		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
 
 		View view;
 
-		for (ArrayList<Tk> tkArrayList : customKeyboardTextKeys)
+		for (ArrayList<Tk> tkList : customKeyboardTextKeys)
 		{
 			horizontalLayout = new LinearLayout(mContext);
 
-			for (Tk tk : tkArrayList)
+			for (Tk tk : tkList)
 			{
 				view = inflater.inflate(R.layout.custom_keyboard_text, null);
 				TextView textView = (TextView) view.findViewById(R.id.text);
-				RelativeLayout relativeLayout = (RelativeLayout) view.findViewById(R.id.text_container_layout);
+				FrameLayout frameLayout = (FrameLayout) view.findViewById(R.id.text_container_layout);
 
 				textView.setText(tk.getV());
 				textView.setSingleLine(true);
 				params.setMargins((int) (4 * Utils.densityMultiplier), (int) (8 * Utils.densityMultiplier), (int) (4 * Utils.densityMultiplier),
 						(int) (8 * Utils.densityMultiplier));
 
-				relativeLayout.setLayoutParams(params);
+				frameLayout.setLayoutParams(params);
 
 				view.setOnClickListener(this);
 
@@ -128,7 +123,6 @@ public class CustomKeyboardInputBoxAdapter implements OnClickListener
 			}
 
 			verticalLayout.addView(horizontalLayout);
-			verticalLayout.setLayoutParams(verticalLayoutParams);
 		}
 		return viewToDisplay;
 	}
