@@ -164,7 +164,7 @@ public class FTDataInfoFormatBuilder < B extends FTDataInfoFormatBuilder<B> > ex
 	 *   “ManualRetryCount” : 0 , “iSquickUpload” : 1, “ft_status” : 0, “networkTime” : 23, “StackTrace”:”IOException”, “chunkSize” : 232, “chunkNumber”:1, “connType”:1}}}
 
 	Final format: {"v": "m1" <module>, "vs": "VWXuGJkrTHXe8ojo"<uniqueId>, "c": "upload"<“ft_type”> "nw": 1 <connType>, "f": "jpeg"<“fileType”>, 
-	"vi": 1203<fileSize>, "us": 100<“someTime”>, "t": 23<networkTime>, "r": "XGSB6377"<“sessionId”>,  "b"; 0<“ManualRetryCount”>, "d": 0<“ft_status”>, 
+	"vi": 1203<fileSize>, "us": 100<“someTime”>, "t": 23<networkTime>, "ra": "XGSB6377"<“sessionId”>,  "b"; 0<“ManualRetryCount”>, "d": 0<“ft_status”>, 
 	"sec": 1<“iSquickUpload”>, "pop": 232<“chunkSize”>, "cs": 1<“chunkNumber”> , "ser": "IOException"<“StackTrace”>, "s" : "l2" }
 	
 	"k":"act_rel"
@@ -194,7 +194,7 @@ public class FTDataInfoFormatBuilder < B extends FTDataInfoFormatBuilder<B> > ex
 			l2Data.put(AnalyticsConstants.V2.VAL_INT, this.fileSize);
 			l2Data.put(AnalyticsConstants.V2.USER_STATE, this.procTime);
 			l2Data.put(CesConstants.AnalyticsV2.TRIBE, this.networkProcTime); // TRIBE
-			l2Data.put(CesConstants.AnalyticsV2.SES_ID, this.ftSessionId);//RECORD_ID
+			l2Data.put(AnalyticsConstants.V2.RACE, this.ftSessionId);//RECORD_ID
 			l2Data.put(AnalyticsConstants.V2.BREED, this.isManualRetry ? 1 : 0);
 			l2Data.put(CesConstants.AnalyticsV2.DIVISON, this.ft_status);//Divison
 			l2Data.put(AnalyticsConstants.V2.SECTION, this.file_available_on_server ? 1 : 0);

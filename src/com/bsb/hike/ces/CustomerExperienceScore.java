@@ -11,8 +11,12 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.Context;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.ces.CesConstants.CESModule;
 import com.bsb.hike.ces.ft.CesFtTask;
 import com.bsb.hike.ces.ft.FTScoreComputation;
@@ -25,6 +29,8 @@ import com.bsb.hike.utils.Utils;
  *
  */
 public class CustomerExperienceScore {
+
+	private final String TAG = "CustomerExperienceScore";
 
 	private final int CPU_COUNT = Runtime.getRuntime().availableProcessors();
 
@@ -121,8 +127,49 @@ public class CustomerExperienceScore {
 			@Override
 			public void run()
 			{
-				ScoreComputationImpl mCompute = new FTScoreComputation();
-				mCompute.getLevelOneInfo();
+				JSONObject cesScore_data = null;
+				JSONObject sData = null;
+				try {
+					cesScore_data = new JSONObject();
+					sData = new JSONObject();
+
+					ScoreComputationImpl ftCompute = new FTScoreComputation();
+					JSONObject ft_score = ftCompute.computeScore();
+
+					if(ft_score != null)
+					{
+						sData.put(CesConstants.CES_SCORE, ft_score);
+					}
+					cesScore_data.put(CesUtils.getDayBeforeUTCDate(), sData);
+					
+					CesTransport transport = new CesTransport();
+					JSONObject response = transport.sendCesScore(cesScore_data);
+					if(response != null && response.has(CesConstants.L1_DATA_REQUIRED))
+					{
+						JSONObject respData = response.getJSONObject(CesConstants.L1_DATA_REQUIRED);
+						String date = CesUtils.getDayBeforeUTCDate();
+						if(respData.has(date))
+						{
+							JSONObject requiredData = respData.getJSONObject(date);
+							JSONObject cesl1Data = new JSONObject();
+							JSONObject allModuleData = new JSONObject();
+							if(requiredData.has(CesConstants.FT_MODULE))
+							{
+								JSONObject ftModuleData = ftCompute.getL1Data(requiredData.getJSONArray(CesConstants.FT_MODULE));
+								if(ftModuleData != null)
+								{
+									allModuleData.put(CesConstants.FT_MODULE, ftModuleData);
+								}
+							}
+							cesl1Data.put(CesUtils.getDayBeforeUTCDate(), allModuleData);
+							boolean isUploaded = transport.sendCesLevelOneInfo(cesl1Data);
+						}
+					}
+				} catch (JSONException e)
+				{
+					Logger.e(TAG, "Parsing error : ", e);
+					e.printStackTrace();
+				}
 			}
 		});
 	}
