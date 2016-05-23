@@ -287,8 +287,8 @@ public class HikeContentDatabase extends SQLiteOpenHelper
 		}
 		if(oldVersion < 9)
 		{
-			String alter = "ALTER TABLE " + POPUPDATA + " ADD COLUMN " + PID + " TEXT ";
-			queries.add(alter);
+			String alterPopupTable = "ALTER TABLE " + POPUPDATA + " ADD COLUMN " + PID + " TEXT ";
+			queries.add(alterPopupTable);
 		}
 		return queries.toArray(new String[]{});
 	}
