@@ -175,4 +175,8 @@ public class CustomTabsBar {
 
         void onTabReselected(Tab var1);
     }
+
+    public interface CustomTabBadgeCounterListener {
+        void onBadgeCounterUpdated(int newCount);
+    }
 }

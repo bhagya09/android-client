@@ -24,6 +24,7 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ImageViewerInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.ui.CustomTabsBar;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.ServicesActivity;
 import com.bsb.hike.ui.SettingsActivity;
@@ -48,6 +49,8 @@ public class MyFragment extends Fragment {
     private TextView statusView;
 
     private ContactInfo contactInfo;
+
+    private CustomTabsBar.CustomTabBadgeCounterListener badgeCounterListener;
 
     @Nullable
     @Override
@@ -185,4 +188,9 @@ public class MyFragment extends Fragment {
             }
         }
     };
+
+    public void setCustomTabBadgeCounterListener(CustomTabsBar.CustomTabBadgeCounterListener listener)
+    {
+        this.badgeCounterListener = listener;
+    }
 }

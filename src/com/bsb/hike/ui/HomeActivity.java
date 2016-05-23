@@ -606,6 +606,27 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		tabsBar.selectTab(DEAFULT_FRAGMENT_POSITION);
 	}
 
+	CustomTabsBar.CustomTabBadgeCounterListener suFragCounterListener = new CustomTabsBar.CustomTabBadgeCounterListener() {
+		@Override
+		public void onBadgeCounterUpdated(int newCount) {
+
+		}
+	};
+
+	CustomTabsBar.CustomTabBadgeCounterListener convFragCounterListener = new CustomTabsBar.CustomTabBadgeCounterListener() {
+		@Override
+		public void onBadgeCounterUpdated(int newCount) {
+
+		}
+	};
+
+	CustomTabsBar.CustomTabBadgeCounterListener myFragCounterListener = new CustomTabsBar.CustomTabBadgeCounterListener() {
+		@Override
+		public void onBadgeCounterUpdated(int newCount) {
+
+		}
+	};
+
 	private CustomTabsBar.CustomTabListener tabsListener = new CustomTabsBar.CustomTabListener() {
 		@Override
 		public void onTabSelected(CustomTabsBar.Tab tab) {
@@ -668,6 +689,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		if (updatesFragment == null)
 		{
 			updatesFragment = new UpdatesFragment();
+			updatesFragment.setCustomTabBadgeCounterListener(suFragCounterListener);
 		}
 		return updatesFragment;
 	}
@@ -677,6 +699,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		if (conversationFragment == null)
 		{
 			conversationFragment = new ConversationFragment();
+			conversationFragment.setCustomTabBadgeCounterListener(convFragCounterListener);
 		}
 		return conversationFragment;
 	}
@@ -686,6 +709,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		if (myFragment == null)
 		{
 			myFragment = new MyFragment();
+			myFragment.setCustomTabBadgeCounterListener(myFragCounterListener);
 		}
 		return myFragment;
 	}
