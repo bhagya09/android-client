@@ -604,7 +604,6 @@ import com.bsb.hike.voip.VoIPUtils;
 		{
 			unknownContactInfoView = LayoutInflater.from(activity.getApplicationContext()).inflate(R.layout.block_add_unknown_contact_mute_bot, null);
 			CustomFontButton addButton = (CustomFontButton) unknownContactInfoView.findViewById(R.id.add_unknown_contact);
-			addButton.setTag(R.string.save_unknown_contact);
 			unknownContactInfoView.findViewById(R.id.unknown_user_info_view).setVisibility(View.VISIBLE);
 			addButton.setOnClickListener(this);
 			unknownContactInfoView.findViewById(R.id.block_unknown_contact).setOnClickListener(this);
@@ -2899,7 +2898,7 @@ import com.bsb.hike.voip.VoIPUtils;
 
 		case R.id.add_unknown_contact:
 			if(isWalkieTalkieShowing()) return; //CE-184
-			if ( null != v.getTag() && v.getTag().equals(R.string.add))
+			if ( null != v.getTag() && v.getTag().equals(getString(R.string.add)))
 			{
 				Utils.addToContacts(activity, msisdn);
 				HAManager.getInstance().recordCallerChatSpamAnalytics(AnalyticsConstants.CHAT_THREAD_SAVE, AnalyticsConstants.SAVE, msisdn, null);
