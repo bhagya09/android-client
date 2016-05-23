@@ -931,18 +931,18 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
-		switch (item.getItemId())
+		if (item.getItemId() == android.R.id.home)
 		{
-			case android.R.id.home:
-				hikeLogoClicked();
-				break;
-			case R.id.search:
-				showProductPopup(ProductPopupsConstants.PopupTriggerPoints.SEARCH.ordinal());
-				if (hiButton != null)
-				{
-					hiButton.clearAnimation();
-				}
-				break;
+			hikeLogoClicked();
+			return true;
+		}
+		if (item.getItemId() == R.id.search)
+		{
+			showProductPopup(ProductPopupsConstants.PopupTriggerPoints.SEARCH.ordinal());
+			if (hiButton != null)
+			{
+				hiButton.clearAnimation();
+			}
 		}
 		return super.onOptionsItemSelected(item);
 	}
