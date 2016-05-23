@@ -410,7 +410,7 @@ public class BotChatThread extends OneToOneChatThread
 		JSONObject json = new JSONObject();
 		try
 		{
-			json.put(HikeConstants.BG_ID, currentTheme.bgId());
+			json.put(HikeConstants.BG_ID, currentThemeId);
 			BotConversation.analyticsForBots(msisdn, HikePlatformConstants.BOT_CHAT_THEME_PICKER, HikePlatformConstants.OVERFLOW_MENU, AnalyticsConstants.CLICK_EVENT, json);
 		}
 		catch (JSONException e)

@@ -66,9 +66,10 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MessageType;
 import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.CallerContentModel;
 import com.bsb.hike.chatHead.ChatHeadUtils;
+import com.bsb.hike.chatthemes.ChatThemeManager;
+import com.bsb.hike.chatthemes.HikeChatThemeConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.db.HikeMqttPersistence;
 import com.bsb.hike.dialog.CustomAlertDialog;
@@ -82,7 +83,6 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
-import com.bsb.hike.models.Conversation.BotConversation;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.OneToOneConversation;
 import com.bsb.hike.models.Conversation.OneToOneConversationMetadata;
@@ -105,7 +105,6 @@ import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.ui.fragments.OfflineAnimationFragment;
 import com.bsb.hike.ui.fragments.OfflineDisconnectFragment;
 import com.bsb.hike.ui.fragments.OfflineDisconnectFragment.OfflineConnectionRequestListener;
-import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.LastSeenScheduler;
@@ -282,11 +281,6 @@ import com.bsb.hike.voip.VoIPUtils;
 				sendUIMessage(SHOW_OVERFLOW_MENU, 500, null);
 			}
 		}
-		else if (activity.getIntent().getBooleanExtra(HikeConstants.Extras.HIKE_BDAY_MODE, false))
-		{
-			activity.getIntent().removeExtra(HikeConstants.Extras.HIKE_BDAY_MODE);
-			sendUIMessage(SHOW_BDAY_UI, 1000, null);
-		}
 	}
 
 	/**
@@ -391,7 +385,7 @@ import com.bsb.hike.voip.VoIPUtils;
 			if (OfflineUtils.isConnectedToSameMsisdn(msisdn))
 			{
 				activity.updateActionBarColor(new ColorDrawable(Color.BLACK));
-				setStatusBarColor(R.color.black);
+				setStatusBarColorValue(getResources().getColor(R.color.black));
 				setLastSeen(getString(R.string.connection_established),true);
 			}
 			break;
@@ -498,9 +492,9 @@ import com.bsb.hike.voip.VoIPUtils;
 			mConversation.setMessages(HikeConversationsDatabase.getInstance().getConversationThread(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, mConversation, -1, -1));
 		}
 
-		ChatTheme chatTheme = mConversationDb.getChatThemeForMsisdn(msisdn);
+		String chatThemeId = mConversationDb.getChatThemeIdForMsisdn(msisdn);
 		Logger.d(TAG, "Calling setchattheme from createConversation");
-		mConversation.setChatTheme(chatTheme);
+		mConversation.setChatThemeId(chatThemeId);
 
 		mConversation.setBlocked(ContactManager.getInstance().isBlocked(msisdn));
 		mCredits = activity.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getInt(HikeMessengerApp.SMS_SETTING, 0);
@@ -1130,7 +1124,7 @@ import com.bsb.hike.voip.VoIPUtils;
 	{
 		mActionBar.updateOverflowMenuItemString(R.string.scan_free_hike,getString(R.string.disconnect_offline));
 		activity.updateActionBarColor(new ColorDrawable(Color.BLACK));
-		setStatusBarColor(R.color.black);
+		setStatusBarColorValue(getResources().getColor(R.color.black));
 		setLastSeen(message,true);
 		activity.invalidateOptionsMenu();
 		showNetworkError(ChatThreadUtils.checkNetworkError());
@@ -1141,11 +1135,14 @@ import com.bsb.hike.voip.VoIPUtils;
 	{
 		prevLastSeen=null;
 		hideLastSeenText();
-		mActionBar.updateOverflowMenuItemString(R.string.scan_free_hike,getString(R.string.scan_free_hike));
+		mActionBar.updateOverflowMenuItemString(R.string.scan_free_hike, getString(R.string.scan_free_hike));
 		fetchLastSeen();
 		showNetworkError(ChatThreadUtils.checkNetworkError());
-		activity.updateActionBarColor(getCurrentlTheme().headerBgResId());
-		setStatusBarColor(getCurrentlTheme().statusBarColor());
+		activity.updateActionBarColor(ChatThemeManager.getInstance().getDrawableForTheme(getCurrentlThemeId(), HikeChatThemeConstants.ASSET_INDEX_ACTION_BAR_BG));
+
+		ColorDrawable statusBarColor = (ColorDrawable) ChatThemeManager.getInstance().getDrawableForTheme(getCurrentlThemeId(), HikeChatThemeConstants.ASSET_INDEX_STATUS_BAR_BG);
+		setStatusBarColorValue(statusBarColor.getColor());
+
 		showCallIcon();
 		activity.invalidateOptionsMenu();
 	}
@@ -1642,9 +1639,9 @@ import com.bsb.hike.voip.VoIPUtils;
 	}
 
 	@Override
-	protected void updateUIAsPerTheme(ChatTheme theme)
+	protected void updateUIAsPerTheme(String themeId)
 	{
-		super.updateUIAsPerTheme(theme);
+		super.updateUIAsPerTheme(themeId);
 		if (!mContactInfo.isUnknownContact())
 		{
 			setupSMSToggleLayout();
@@ -1653,7 +1650,7 @@ import com.bsb.hike.voip.VoIPUtils;
 		if (OfflineUtils.isConnectedToSameMsisdn(msisdn))
 		{
 			activity.updateActionBarColor(new ColorDrawable(Color.BLACK));
-			setStatusBarColor(R.color.black);
+			setStatusBarColorValue(getResources().getColor(R.color.black));
 		}
 	}
 
@@ -1698,9 +1695,9 @@ import com.bsb.hike.voip.VoIPUtils;
 		TextView hikeSmsText = (TextView) activity.findViewById(R.id.hike_text);
 		TextView regularSmsText = (TextView) activity.findViewById(R.id.sms_text);
 
-		ChatTheme theme = getCurrentlTheme();
+		String themeId = getCurrentlThemeId();
 
-		if (theme == ChatTheme.DEFAULT)
+		if (themeId.equals(ChatThemeManager.getInstance().defaultChatThemeId))
 		{
 			hikeSmsText.setTextColor(this.getResources().getColor(R.color.sms_choice_unselected));
 			regularSmsText.setTextColor(this.getResources().getColor(R.color.sms_choice_unselected));
@@ -1714,7 +1711,7 @@ import com.bsb.hike.voip.VoIPUtils;
 			regularSmsText.setTextColor(this.getResources().getColor(R.color.white));
 			smsToggleSubtext.setTextColor(this.getResources().getColor(R.color.white));
 			smsToggle.setButtonDrawable(R.drawable.sms_checkbox_custom_theme);
-			activity.findViewById(R.id.sms_toggle_button).setBackgroundResource(theme.smsToggleBgRes());
+			activity.findViewById(R.id.sms_toggle_button).setBackground(ChatThemeManager.getInstance().getDrawableForTheme(themeId, HikeChatThemeConstants.ASSET_INDEX_SMS_TOGGLE_BG));
 		}
 
 		boolean smsToggleOn = Utils.getSendSmsPref(activity.getApplicationContext());

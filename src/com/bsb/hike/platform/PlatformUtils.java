@@ -104,6 +104,7 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.PairModified;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
@@ -418,6 +419,13 @@ public class PlatformUtils
 					Logger.e(TAG, "Msisdn is missing in the packet");
 					return;
 				}
+				if(StealthModeManager.getInstance().isStealthMsisdn(msisdn))
+				{
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STEALTH_INDICATOR_SHOW_REPEATED, true);
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STEALTH_INDICATOR_SHOW_ONCE, true);
+					HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_INDICATOR, null);
+					return;
+				}
 				Intent in = IntentFactory.getIntentForAnyChatThread(context, msisdn, mmObject.optBoolean("isBot"),
 						ChatThreadActivity.ChatThreadOpenSources.MICRO_APP);
 				if (in != null)
@@ -428,6 +436,8 @@ public class PlatformUtils
 						if(!TextUtils.isEmpty(preTypedText))
 						{
 							in.putExtra(HikeConstants.Extras.MSG, preTypedText);
+							in.putExtra(HikeConstants.Extras.SHOW_KEYBOARD, true);
+							in.putExtra(HikeConstants.STICKER_TAG_REFRESH_TIME_INTERVAL, mmObject.optLong(HikeConstants.STICKER_TAG_REFRESH_TIME_INTERVAL, HikeConstants.DEFAULT_STICKER_SEARCH_TRIGGER_DELAY));
 						}
 					}
 					context.startActivity(in);

@@ -34,7 +34,6 @@ import com.bsb.hike.productpopup.AtomicTipContentModel;
 import com.bsb.hike.productpopup.AtomicTipManager;
 import com.bsb.hike.productpopup.ProductContentModel;
 import com.bsb.hike.productpopup.ProductInfoManager;
-import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
