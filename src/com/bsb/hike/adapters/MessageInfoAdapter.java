@@ -32,6 +32,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.ChatAnalyticConstants;
+import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.messageinfo.MessageInfoDataModel;
 import com.bsb.hike.messageinfo.MessageInfoItem;
 import com.bsb.hike.messageinfo.MessageInfoView;
@@ -43,6 +45,7 @@ import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.ui.MessageInfoActivity;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 public class MessageInfoAdapter extends BaseAdapter
 {
@@ -75,6 +78,9 @@ public class MessageInfoAdapter extends BaseAdapter
 
 	private MessageInfoView messageInfoView;
 
+	public String msisdn;
+
+	public String whichChatThread;
 
 	public View view;
 	private final LayoutParams MATCH_PARENT = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
@@ -309,8 +315,12 @@ public class MessageInfoAdapter extends BaseAdapter
 			MessageInfoItem.MesageInfoRemainingItem remainingItem = ((ViewHolder) v.getTag()).remainingItem;
 			if (remainingItem != null)
 			{
-				if (remainingItem.shouldshowList())
-					showRemainingItemDialog(remainingItem);
+				if (remainingItem.shouldshowList()){
+					//showRemainingItemDialog(remainingItem);
+					Utils.recordCoreAnalyticsForShare(ChatAnalyticConstants.MessageInfoEvents.MESSAGE_INFO_REMAINING_EVENT, whichChatThread, msisdn, conversation.isStealth(),
+						remainingItem.getType(), null);
+				}
+
 			}
 		}
 	};
@@ -324,8 +334,10 @@ public class MessageInfoAdapter extends BaseAdapter
 
 			ViewHolder viewHolder = (ViewHolder) v.getTag();
 			MessageInfoItem.MesageInfoParticipantItem participantItem = viewHolder.messageInfoParticipantItem;
-			if (participantItem == null)
+			if (participantItem == null&&!participantItem.hasRead())
 				return;
+            Utils.recordCoreAnalyticsForShare(ChatAnalyticConstants.MessageInfoEvents.MESSAGE_INFO_READ_TAP_EVENT, whichChatThread, msisdn, conversation.isStealth(),
+               null, null);
 			int currentHashCode = participantItem.getHashCode();
 
 			if (!expandSet.contains(currentHashCode) && !collapseSet.contains(currentHashCode)) {
@@ -452,4 +464,12 @@ public class MessageInfoAdapter extends BaseAdapter
 		super.notifyDataSetChanged();
 		//notifyDataSetInvalidated();
 	}
+	public void setConversation(Conversation conversation){
+		this.conversation=conversation;
+	}
+	public void setMsisdn(String msisdn){
+		this.msisdn=msisdn;
+        this.whichChatThread=ChatThreadUtils.getChatThreadType(msisdn);
+	}
+
 }

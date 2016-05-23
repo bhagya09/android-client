@@ -38,6 +38,7 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
+import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.MovingList;
 import com.bsb.hike.models.Sticker;
@@ -208,13 +209,13 @@ public class ChatThreadUtils
 	
 	protected static void uploadFile(Context context, String msisdn, String filePath, HikeFileType fileType, boolean isConvOnHike, int attachmentType)
 	{
-		uploadFile(context, msisdn, filePath, fileType, isConvOnHike, attachmentType,null);
+		uploadFile(context, msisdn, filePath, fileType, isConvOnHike, attachmentType, null);
 	}
 
 	protected static void uploadFile(Context context, String msisdn, String filePath, HikeFileType fileType, boolean isConvOnHike, int attachmentType, String caption)
 	{
 		Logger.i(TAG, "upload file , filepath " + filePath + " filetype " + fileType);
-		initialiseFileTransfer(context, msisdn, filePath, null, fileType, null, false, -1, false, isConvOnHike, attachmentType,caption);
+		initialiseFileTransfer(context, msisdn, filePath, null, fileType, null, false, -1, false, isConvOnHike, attachmentType, caption);
 	}
 	
 	protected static void initiateFileTransferFromIntentData(Context context, String msisdn, String fileType, String filePath, boolean convOnHike, int attachmentType)
@@ -764,5 +765,73 @@ public class ChatThreadUtils
 	{
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.LARGE_VIDEO_SHARING_ENABLED, false);
 	}
+	/**
+	 * @param convMessage
+	 */
+	public static  String getMessageType(ConvMessage convMessage)
+	{
+		if (convMessage == null)
+		{
+			return null;
+		}
+
+		if (convMessage.isStickerMessage())
+		{
+			return AnalyticsConstants.MessageType.STICKER;
+		}
+		/**
+		 * If NO Metadata ===> It was a "Text" Msg in 1-1 Conv
+		 */
+		else if (convMessage.getMetadata() != null)
+		{
+			if (convMessage.getMetadata().isPokeMessage())
+			{
+				return AnalyticsConstants.MessageType.NUDGE;
+			}
+
+			List<HikeFile> list = convMessage.getMetadata().getHikeFiles();
+			/**
+			 * If No HikeFile List ====> It was a "Text" Msg in gc
+			 */
+			if (list != null)
+			{
+				final HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
+				HikeFileType fileType = hikeFile.getHikeFileType();
+				switch (fileType)
+				{
+					case CONTACT:
+						return AnalyticsConstants.MessageType.CONTACT;
+
+					case LOCATION:
+						return AnalyticsConstants.MessageType.LOCATION;
+
+					case AUDIO:
+					case AUDIO_RECORDING:
+						return hikeFile.getAttachmentSharedAs();
+
+					case VIDEO:
+						return AnalyticsConstants.MessageType.VEDIO;
+
+					case IMAGE:
+						return AnalyticsConstants.MessageType.IMAGE;
+
+					case APK:
+						return ChatAnalyticConstants.MessageInfoEvents.APK;
+
+					default:
+						return ChatAnalyticConstants.MessageInfoEvents.MESSAGE_INFO_FILE_TYPE_OTHER;
+
+				}
+			}
+			else
+			{
+				return AnalyticsConstants.MessageType.TEXT;
+			}
+		}
+
+		return AnalyticsConstants.MessageType.TEXT;
+
+	}
+
 
 }

@@ -6,6 +6,7 @@ import android.view.View;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.MessageInfoAdapter;
+import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.utils.Logger;
@@ -399,6 +400,12 @@ public abstract class MessageInfoItem
 
 		public boolean shouldshowList(){
 			return remainingItemList.size()!=countTotal||listType==DELIVERED_REMAINING;
+		}
+		public String getType(){
+			if(listType==READ_REMAINING)
+				return ChatAnalyticConstants.MessageInfoEvents.READ_REMAINING_ANALYTICS;
+			else
+				return ChatAnalyticConstants.MessageInfoEvents.DELIVERED_REMAINING_ANALYTICS;
 		}
 
 

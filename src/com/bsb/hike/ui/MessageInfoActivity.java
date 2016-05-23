@@ -222,6 +222,8 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 		{
 			chatTheme = HikeConversationsDatabase.getInstance().getChatThemeForMsisdn(msisdn);
 			mConversation = HikeConversationsDatabase.getInstance().getConversation(msisdn, 1, true);
+			messageInfoAdapter.setConversation(mConversation);
+			messageInfoAdapter.setMsisdn(msisdn);
 			// getSupportLoaderManager().initLoader(1,null,this).forceLoad();
 			// dataModel.fetchAllParticipantsInfo();
 			getSupportLoaderManager().initLoader(1, null, this).forceLoad();

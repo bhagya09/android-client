@@ -7977,8 +7977,12 @@ public class Utils
 
 		return result;
 	}
+	public static void recordCoreAnalyticsForShare(String uniqueKey_order, String species, String toUser_msisdn, boolean isStealth, String genus, String family) {
+		recordCoreAnalyticsForShare(uniqueKey_order, species, toUser_msisdn, isStealth, genus, family, null);
+	}
 
-	public static void recordCoreAnalyticsForShare(String uniqueKey_order, String species, String toUser_msisdn, boolean isStealth, String genus, String family)
+
+	public static void recordCoreAnalyticsForShare(String uniqueKey_order, String species, String toUser_msisdn, boolean isStealth, String genus, String family, String form)
 	{
 		try
 		{
@@ -7997,7 +8001,8 @@ public class Utils
 				json.put(AnalyticsConstants.V2.GENUS, genus);
 			if (!TextUtils.isEmpty(family))
 				json.put(AnalyticsConstants.V2.FAMILY, family);
-
+			if (!TextUtils.isEmpty(form))
+				json.put(AnalyticsConstants.V2.FORM, form);
 			HAManager.getInstance().recordV2(json);
 		}
 		catch (JSONException e)
@@ -8005,6 +8010,7 @@ public class Utils
 			e.printStackTrace();
 		}
 	}
+
 
 	public static void recordEventMaxSizeToastShown(String uniqueKey_order, String species, String toUser_msisdn, long fileSize)
 	{

@@ -5846,7 +5846,10 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				if(selectedMessagesMap.size()==1){
 					ConvMessage convMessage=selectedMessagesMap.values().iterator().next();
 					if(convMessage.isSent()){
-						openMessageInfoScreen(convMessage);
+					openMessageInfoScreen(convMessage);
+					String species = activity.getIntent().getStringExtra(HikeConstants.Extras.WHICH_CHAT_THREAD);
+					Utils.recordCoreAnalyticsForShare(ChatAnalyticConstants.MessageInfoEvents.MESSAGE_INFO_EVENT, species, msisdn, mConversation.isStealth(),
+							ChatThreadUtils.getMessageType(convMessage), null, ChatAnalyticConstants.MessageInfoEvents.MESSAGE_INFO_TAP);
 					}
 					mActionMode.finish();
 				}
