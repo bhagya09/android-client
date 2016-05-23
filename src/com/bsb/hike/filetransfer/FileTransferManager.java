@@ -11,6 +11,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatthemes.UploadCustomChatThemeBackgroundTask;
 import com.bsb.hike.filetransfer.FileTransferBase.FTState;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
@@ -30,6 +31,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -80,7 +82,7 @@ public class FileTransferManager
 			@Override
 			public int getMinChunkSize()
 			{
-				return 256 * 1024;
+				return 512 * 1024;
 			}
 		},
 		FOUR_G
@@ -94,7 +96,7 @@ public class FileTransferManager
 			@Override
 			public int getMinChunkSize()
 			{
-				return 128 * 1024;
+				return 256 * 1024;
 			}
 		},
 		THREE_G
@@ -116,13 +118,13 @@ public class FileTransferManager
 			@Override
 			public int getMaxChunkSize()
 			{
-				return 32 * 1024;
+				return 80 * 1024;
 			}
 
 			@Override
 			public int getMinChunkSize()
 			{
-				return 16 * 1024;
+				return 50 * 1024;
 			}
 		},
 		NO_NETWORK
@@ -317,6 +319,11 @@ public class FileTransferManager
 		downloadFile(destinationFile, fileKey, -100L, hikeFileType, null, false);
 	}
 
+	public void uploadCustomThemeBackgroundImage(String filepath){
+		UploadCustomChatThemeBackgroundTask cit = new UploadCustomChatThemeBackgroundTask(filepath, UUID.randomUUID().toString());
+		cit.execute();
+	}
+
 	/**
 	 *
 	 * @param convMessage
@@ -441,7 +448,7 @@ public class FileTransferManager
 			}
 			FTAnalyticEvents analyticEvent = FTAnalyticEvents.getAnalyticEvents(getAnalyticFile(mFile, msgId));
 			String network = analyticEvent.mNetwork + "/" + FTUtils.getNetworkTypeString(context);
-			analyticEvent.sendFTSuccessFailureEvent(network, fileSize, FTAnalyticEvents.FT_FAILED, attachmentShardeAs);
+			analyticEvent.sendFTSuccessFailureEvent(network, fileSize, FTAnalyticEvents.FT_FAILED, attachmentShardeAs, hikeFile.getAttachementType());
 			deleteLogFile(msgId, mFile);
 		}
 	}
@@ -727,8 +734,8 @@ public class FileTransferManager
 			hikefile = ((ConvMessage) userContext).getMetadata().getHikeFiles().get(0);
 		}
 		FTAnalyticEvents analyticEvent = FTAnalyticEvents.getAnalyticEvents(getAnalyticFile(hikefile.getFile(), msgId));
-		String network = analyticEvent.mNetwork + "/" + FTUtils.getNetworkTypeString(context);
-		analyticEvent.sendFTSuccessFailureEvent(network, hikefile.getFileSize(), FTAnalyticEvents.FT_SUCCESS, hikefile.getAttachmentSharedAs());
+		String network = FTUtils.getNetworkTypeString(context);
+		analyticEvent.sendFTSuccessFailureEvent(network, hikefile.getFileSize(), FTAnalyticEvents.FT_SUCCESS, hikefile.getAttachmentSharedAs(), hikefile.getAttachementType());
 		if (userContext != null && BotUtils.isBot(((ConvMessage) userContext).getMsisdn()) && isDownloadTask)
 		{
 			FTAnalyticEvents.platformAnalytics(((ConvMessage) userContext).getMsisdn(), ((ConvMessage) userContext).getMetadata().getHikeFiles().get(0).getFileKey(),

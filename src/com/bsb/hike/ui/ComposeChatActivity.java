@@ -1,16 +1,5 @@
 package com.bsb.hike.ui;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -28,6 +17,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.SearchView;
+import android.support.v7.widget.SearchView.OnQueryTextListener;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -67,6 +58,7 @@ import com.bsb.hike.adapters.FriendsAdapter;
 import com.bsb.hike.adapters.FriendsAdapter.FriendsListFetchedCallback;
 import com.bsb.hike.adapters.FriendsAdapter.ViewType;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.bots.BotInfo;
@@ -122,8 +114,16 @@ import com.bsb.hike.view.TagEditText;
 import com.bsb.hike.view.TagEditText.Tag;
 import com.bsb.hike.view.TagEditText.TagEditorListener;
 
-import android.support.v7.widget.SearchView;
-import android.support.v7.widget.SearchView.OnQueryTextListener;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implements TagEditorListener, OnItemClickListener, HikePubSub.Listener, OnScrollListener,ConvertToJsonArrayTask.ConvertToJsonArrayCallback
 {
@@ -805,6 +805,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		boolean fetchRecentlyJoined = pref.getData(HikeConstants.SHOW_RECENTLY_JOINED_DOT, false) || pref.getData(HikeConstants.SHOW_RECENTLY_JOINED, false);
 		fetchRecentlyJoined = fetchRecentlyJoined && !isForwardingMessage && showNujNotif;
 		boolean showMicroappShowcase = BotUtils.isBotDiscoveryEnabled();
+		boolean showBdaySection = Utils.isBDayInNewChatEnabled() && (pref.getStringSet(HikeConstants.BDAYS_LIST, new HashSet<String>()).size() > 0);
 		
 		switch (composeMode)
 		{
@@ -813,6 +814,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		case PICK_CONTACT_AND_SEND_MODE:
 		case PICK_CONTACT_MODE:
 			//We do not show sms contacts in broadcast mode
+<<<<<<< HEAD
 			// read intent to find if group chat is enabled or not. also read to find out if any chats are excluded
 			boolean isGroupFirst = getIntent().getBooleanExtra(HikeConstants.Extras.IS_GROUP_FIRST, false);
 			boolean isRecentJoined = getIntent().getBooleanExtra(HikeConstants.Extras.IS_RECENT_JOINED, fetchRecentlyJoined);
@@ -821,10 +823,23 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 			adapter.setGroupFirst(isGroupFirst);
 			adapter.setComposeExcludeList(excludeGroupList);
+=======
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false, false,isContactChooserFilter,isShowTimeline(), false);
+>>>>>>> origin/internal_release
 			break;
 		case CREATE_GROUP_MODE:
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId,
+					sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent), isContactChooserFilter, isShowTimeline(), false);
+			break;
+		case START_CHAT_MODE:
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId,
+					sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent), isContactChooserFilter, isShowTimeline(),
+					showBdaySection);
+			break;
+
 		default:
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent),isContactChooserFilter,isShowTimeline());
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId,
+					sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent), isContactChooserFilter, isShowTimeline(), false);
 			break;
 		}
 
@@ -977,7 +992,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
             ArrayList<ContactInfo> contactInfos = new ArrayList<>(1);
             contactInfos.add(contactInfo);
             ConvertToJsonArrayTask convertToJsonArrayTask = new ConvertToJsonArrayTask(this,contactInfos,true);
-            Utils.executeJSONArrayResultTask(convertToJsonArrayTask);
+			convertToJsonArrayTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             return;
         }
 
@@ -1124,6 +1139,14 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				{
 					Intent in=IntentFactory.createChatThreadIntentFromContactInfo(this, contactInfo, false, false, ChatThreadActivity.ChatThreadOpenSources.NEW_COMPOSE);
 					in.putExtra(HikeConstants.Extras.HIKE_DIRECT_MODE, true);
+					startActivity(in);
+				}
+				else if (adapter.isBirthdayContact(contactInfo))
+				{
+					Intent in = IntentFactory.createChatThreadIntentFromContactInfo(this, contactInfo, false, false, ChatThreadActivity.ChatThreadOpenSources.NEW_COMPOSE);
+					in.putExtra(HikeConstants.Extras.MSG, getString(R.string.composeview_bday));
+					in.putExtra(HikeConstants.Extras.SHOW_KEYBOARD, true);
+					in.putExtra(HikeConstants.STICKER_TAG_REFRESH_TIME_INTERVAL, HikeConstants.DEFAULT_STICKER_SEARCH_TRIGGER_DELAY);
 					startActivity(in);
 				}
 				else
@@ -1720,6 +1743,15 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				else if (composeMode == CREATE_GROUP_MODE)
 				{
 					OneToNConversationUtils.createGroupOrBroadcast(ComposeChatActivity.this, adapter.getAllSelectedContacts(), oneToNConvName, oneToNConvId, gcSettings);
+
+					/*
+					 *	oneToNConvId is null when we're adding members to an existing group chat. We need to send this data only for group "creation" flow.
+					 */
+					if (!TextUtils.isEmpty(oneToNConvId))
+					{
+						ArrayList<String> selectedContacts = (ArrayList<String>) adapter.getAllSelectedContactsMsisdns();
+						HikeAnalyticsEvent.recordAnalyticsForGCFlow(ChatAnalyticConstants.GCEvents.GC_CLICK_CREATE_GROUP, oneToNConvName, ContactManager.getInstance().hasIcon(oneToNConvId) ? 1: 0, gcSettings, selectedContacts.size(), selectedContacts);
+					}
 				}
 				else if(composeMode == PICK_CONTACT_MODE)
 				{
@@ -1809,7 +1841,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		dialog.setTitle(getResources().getString(R.string.please_wait));
 		dialog.setMessage(getResources().getString(R.string.loading_data));
 		ConvertToJsonArrayTask task = new ConvertToJsonArrayTask(this,adapter.getAllSelectedContacts(), dialog, thumbnailsRequired);
-		Utils.executeJSONArrayResultTask(task);
+		task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 	
 	private void forwardConfirmation(final ArrayList<ContactInfo> arrayList)
@@ -2328,7 +2360,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 							{
 								fileTransferTask = new InitiateMultiFileTransferTask(getApplicationContext(), fileTransferList, msisdn, onHike, FTAnalyticEvents.OTHER_ATTACHEMENT,
 										intent);
-								Utils.executeAsyncTask(fileTransferTask);
+								fileTransferTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
 								progressDialog = ProgressDialog.show(this, null, getResources().getString(R.string.multi_file_creation));
 
@@ -2336,7 +2368,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 							else if (!fileTransferList.isEmpty())
 							{
 								prefileTransferTask = new PreFileTransferAsycntask(fileTransferList, intent, null, false, FILE_TRANSFER);
-								Utils.executeAsyncTask(prefileTransferTask);
+								prefileTransferTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 							}
 						}
 				
@@ -2545,7 +2577,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				platformAnalyticsJson.put(HikePlatformConstants.CARD_TYPE, platformCards);
 				if(!fileTransferList.isEmpty()){
 					prefileTransferTask = new PreFileTransferAsycntask(fileTransferList,intent,null, false,FILE_TRANSFER);
-					Utils.executeAsyncTask(prefileTransferTask);
+					prefileTransferTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 				}else{
 					// if file trasfer started then it will show toast
 					Toast.makeText(getApplicationContext(), getString(R.string.messages_sent_succees), Toast.LENGTH_LONG).show();
@@ -2737,7 +2769,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				if (!fileTransferList.isEmpty() && ((offlineContact != null && arrayList.size() == 1) || (arrayList.size() > 1)))
 				{
 					prefileTransferTask = new PreFileTransferAsycntask(fileTransferList, intent, null, false, FILE_TRANSFER);
-					Utils.executeAsyncTask(prefileTransferTask);
+					prefileTransferTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 				}
 				
 			}
@@ -3249,8 +3281,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		
 		prefileTransferTask = new PreFileTransferAsycntask(arrayList,null,
 				contactJson, newConvIfnotExist,CONTACT_TRANSFER);
-		Utils.executeAsyncTask(prefileTransferTask);
-
+		prefileTransferTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 
 	

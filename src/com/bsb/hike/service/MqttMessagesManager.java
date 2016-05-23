@@ -1,21 +1,5 @@
 package com.bsb.hike.service;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -49,11 +33,13 @@ import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickyCaller;
+import com.bsb.hike.chatthemes.ChatThemeManager;
+import com.bsb.hike.chatthemes.HikeChatThemeConstants;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.filetransfer.FTUtils;
 import com.bsb.hike.db.dbcommand.GetSqliteVersionCommand;
 import com.bsb.hike.filetransfer.FTApkManager;
+import com.bsb.hike.filetransfer.FTUtils;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.filetransfer.FileTransferManager.NetworkType;
 import com.bsb.hike.imageHttp.HikeImageDownloader;
@@ -85,9 +71,13 @@ import com.bsb.hike.models.WhitelistDomain;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.contactmgr.ContactUtils;
 import com.bsb.hike.modules.httpmgr.HttpManager;
+import com.bsb.hike.modules.quickstickersuggestions.QuickStickerSuggestionController;
+import com.bsb.hike.modules.signupmgr.PostAddressBookTask;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
+import com.bsb.hike.modules.stickersearch.provider.db.CategorySearchManager;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.notifications.HikeNotification;
@@ -104,7 +94,6 @@ import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.productpopup.AtomicTipManager;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.spaceManager.StorageSpecUtils;
-import com.bsb.hike.modules.signupmgr.PostAddressBookTask;
 import com.bsb.hike.timeline.TimelineActionsManager;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 import com.bsb.hike.timeline.model.FeedDataModel;
@@ -114,7 +103,6 @@ import com.bsb.hike.triggers.InterceptUtils;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.userlogs.UserLogInfo;
 import com.bsb.hike.utils.AccountUtils;
-import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.ClearGroupTypingNotification;
 import com.bsb.hike.utils.ClearTypingNotification;
 import com.bsb.hike.utils.FestivePopup;
@@ -131,6 +119,22 @@ import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.VoIPUtils;
 import com.google.android.gcm.GCMRegistrar;
 import com.hike.abtest.ABTest;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  *
@@ -560,11 +564,14 @@ public class MqttMessagesManager
 					 */
 					if (chatBgJson.optBoolean(HikeConstants.CUSTOM))
 					{
-						throw new IllegalArgumentException();
+						//throw new IllegalArgumentException();
+						//putting request to download the asset ids for the theme
+						ChatThemeManager.getInstance().downloadThemeAssetsMetadata(bgId, true);
 					}
 
-					ChatTheme chatTheme = ChatTheme.getThemeFromId(bgId);
-					convDb.setChatBackground(groupId, chatTheme.bgId(), 0);
+					String chatThemeId = bgId;
+					convDb.setChatBackground(groupId, bgId, 0);
+
 				}
 				catch (IllegalArgumentException e)
 				{
@@ -1836,7 +1843,7 @@ public class MqttMessagesManager
 			int val = data.getInt(HikeConstants.VOIP_RATINGS_LEFT);
 			editor.putInt(HikeConstants.VOIP_RATINGS_LEFT, val);
 		}
-		if (data.has(HikeConstants.VOIP_RELAY_IPS) && Utils.isHoneycombOrHigher())
+		if (data.has(HikeConstants.VOIP_RELAY_IPS))
 		{
 			JSONArray array = data.getJSONArray(HikeConstants.VOIP_RELAY_IPS);
 			Set<String> ips = new HashSet<>();
@@ -2150,6 +2157,12 @@ public class MqttMessagesManager
 		{
 			boolean enAb = data.getBoolean(HikeMessengerApp.ENABLE_ADDRESSBOOK_THROUGH_HTTP_MGR);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.ENABLE_ADDRESSBOOK_THROUGH_HTTP_MGR, enAb);
+		}
+
+		if (data.has(HikeMessengerApp.EDIT_PROFILE_THROUGH_HTTP_MGR))
+		{
+			boolean editProfileHttpMgr = data.getBoolean(HikeMessengerApp.EDIT_PROFILE_THROUGH_HTTP_MGR);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.EDIT_PROFILE_THROUGH_HTTP_MGR, editProfileHttpMgr);
 		}
 
 		if (data.has(HikeConstants.Extras.CHANGE_MAX_MESSAGE_PROCESS_TIME))
@@ -2984,6 +2997,10 @@ public class MqttMessagesManager
 			boolean enableAnalytics = data.getBoolean(HikeConstants.NET_BLOCKED_STATE_ANALYTICS);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NET_BLOCKED_STATE_ANALYTICS, enableAnalytics);
 		}
+	//1-->TWIN PRIME CLIENT,0-->OKCLIENT
+		if (data.has(HikeConstants.TP_ENABLE)) {
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TP_ENABLE, data.optInt(HikeConstants.TP_ENABLE, 1));
+		}
 		if (data.has(HikeConstants.ADD_URL))
 		{
 			try
@@ -3031,6 +3048,21 @@ public class MqttMessagesManager
 		{
 			boolean enabled = data.getBoolean(HikeConstants.WT_1_REVAMP_ENABLED);
 			editor.putBoolean(HikeConstants.WT_1_REVAMP_ENABLED, enabled);
+		}
+		if (data.has(HikeConstants.CUSTOM_CHATTHEME_ENABLED))
+		{
+			boolean enabled = data.getBoolean(HikeConstants.CUSTOM_CHATTHEME_ENABLED);
+			editor.putBoolean(HikeConstants.CUSTOM_CHATTHEME_ENABLED, enabled);
+		}
+		if (data.has(HikeConstants.CUSTOM_CHATTHEME_DISABLE_OVERLAY))
+		{
+			boolean disabled = data.getBoolean(HikeConstants.CUSTOM_CHATTHEME_DISABLE_OVERLAY);
+			editor.putBoolean(HikeConstants.CUSTOM_CHATTHEME_DISABLE_OVERLAY, disabled);
+		}
+		if (data.has(HikeConstants.LARGE_VIDEO_SHARING_ENABLED))
+		{
+			boolean enabled = data.getBoolean(HikeConstants.LARGE_VIDEO_SHARING_ENABLED);
+			editor.putBoolean(HikeConstants.LARGE_VIDEO_SHARING_ENABLED, enabled);
 		}
 		if (data.has(HikeConstants.FAV_TO_FRIENDS_MIGRATION))
 		{
@@ -3088,6 +3120,69 @@ public class MqttMessagesManager
 		{
 			boolean showRecommendedPacks = data.getBoolean(HikeConstants.SHOW_RECOMMENDED_PACKS);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_RECOMMENDED_PACKS, showRecommendedPacks);
+		}
+
+		if (data.has(HikeConstants.CHUNK_SIZE_POLICY))
+		{
+			int chunkSizePolicy = data.getInt(HikeConstants.CHUNK_SIZE_POLICY);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CHUNK_SIZE_POLICY, chunkSizePolicy);
+		}
+
+		if(data.has(HikeConstants.NUMBER_OF_ROWS_FOR_ORDER))
+		{
+			int orderRowsCount = data.optInt(HikeConstants.NUMBER_OF_ROWS_FOR_ORDER, StickerConstants.DEFAULT_NUMBER_OF_ROWS_FOR_ORDER);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NUMBER_OF_ROWS_FOR_ORDER, orderRowsCount);
+		}
+
+		if(data.has(HikeConstants.PACK_UPDATION_PAGE_SIZE))
+		{
+			int packUpdationPageSize = data.optInt(HikeConstants.PACK_UPDATION_PAGE_SIZE, StickerConstants.DEFAULT_PAGE_SIZE_FOR_CATEGORY_UPDATION_METADATA);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.PACK_UPDATION_PAGE_SIZE, packUpdationPageSize);
+		}
+
+		if(data.has(HikeConstants.PACK_CREATION_PAGE_SIZE))
+		{
+			int packCreationPageSize = data.optInt(HikeConstants.PACK_CREATION_PAGE_SIZE, StickerConstants.DEFAULT_PAGE_SIZE_FOR_CATEGORY_CREATION_METADATA);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.PACK_CREATION_PAGE_SIZE, packCreationPageSize);
+		}
+
+		if(data.has(HikeConstants.FETCH_METADATA_PACK_COUNT))
+		{
+			int fetchMetadataPackCount = data.optInt(HikeConstants.FETCH_METADATA_PACK_COUNT, StickerConstants.DEFAULT_CATEGORIES_TO_FETCH_DATA);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FETCH_METADATA_PACK_COUNT, fetchMetadataPackCount);
+		}
+
+		if(data.has(HikeConstants.SHOW_QUICK_STICKER_SUGGESTION_ON_STICKER_RECEIVE))
+		{
+			QuickStickerSuggestionController.getInstance().toggleQuickSuggestionOnReceive(data.optBoolean(HikeConstants.SHOW_QUICK_STICKER_SUGGESTION_ON_STICKER_RECEIVE));
+		}
+
+		if(data.has(HikeConstants.SHOW_QUICK_STICKER_SUGGESTION_ON_STICKER_SENT))
+		{
+			QuickStickerSuggestionController.getInstance().toggleQuickSuggestionOnSent(data.optBoolean(HikeConstants.SHOW_QUICK_STICKER_SUGGESTION_ON_STICKER_SENT));
+		}
+
+		if(data.has(HikeConstants.QUICK_SUGGESTED_STICKERS_TTL))
+		{
+			QuickStickerSuggestionController.getInstance().refreshQuickSuggestionTtl(data.optLong(HikeConstants.QUICK_SUGGESTED_STICKERS_TTL));
+		}
+
+		if (data.has(HikeConstants.ENABLE_BDAY_IN_CCA))
+		{
+			boolean showBdayInCCA = data.getBoolean(HikeConstants.ENABLE_BDAY_IN_CCA);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_BDAY_IN_CCA, showBdayInCCA);
+		}
+
+		if (data.has(HikeConstants.BDAY_HTTP_CALL_TIME_GAP))
+		{
+			long bdayHttpTimeGap = data.getLong(HikeConstants.BDAY_HTTP_CALL_TIME_GAP);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BDAY_HTTP_CALL_TIME_GAP, bdayHttpTimeGap);
+		}
+
+		if (data.has(HikeConstants.DISABLE_QUICK_UPLOAD))
+		{
+			boolean disableQuickUpload = data.getBoolean(HikeConstants.DISABLE_QUICK_UPLOAD);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.DISABLE_QUICK_UPLOAD, disableQuickUpload);
 		}
 
 		editor.commit();
@@ -3552,15 +3647,47 @@ public class MqttMessagesManager
 		}
 		else if (HikeConstants.LOG_EMOTICON_USAGE_SWITCH.equals(subType))
 		{
-			boolean showBadge = data.optBoolean(HikeConstants.BADGE, false);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LOG_EMOTICON_USAGE_SWITCH, showBadge);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LOG_EMOTICON_USAGE_SWITCH, data.optBoolean(HikeConstants.BADGE, false));
 		}
         else if(HikeConstants.STICKER_SIZE.equals(subType))
         {
             int stickerSize = data.optInt(HikeConstants.STICKER_SIZE,-1);
             HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_SIZE, stickerSize);
         }
-
+        else if(HikeConstants.SHOW_STICKER_SHOP_SEARCH_FTUE_LIMIT.equals(subType))
+        {
+            int limit = data.optInt(HikeConstants.LIMIT_KEY, HikeConstants.DEFAULT_SEARCH_FTUE_LIMIT);
+            HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_STICKER_SHOP_SEARCH_FTUE_LIMIT, limit);
+        }
+        else if(HikeConstants.STICKER_SHOP_SEARCH_TOGGLE.equals(subType))
+        {
+            HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_SHOP_SEARCH_TOGGLE, data.optBoolean(HikeConstants.BADGE, false));
+        }
+        else if(CategorySearchManager.SHOP_SEARCH_WEIGHTS.equals(subType))
+        {
+            String weightString = data.optString(HikeConstants.STICKER_SCORE_WEIGHTAGE, CategorySearchManager.DEFAULT_WEIGHTS_INPUT);
+            HikeSharedPreferenceUtil.getInstance().saveData(CategorySearchManager.SHOP_SEARCH_WEIGHTS, weightString);
+        }
+        else if(CategorySearchManager.SEARCH_RESULTS_LIMIT.equals(subType))
+        {
+            int limit = data.optInt(HikeConstants.LIMIT_KEY, CategorySearchManager.DEFAULT_SEARCH_RESULTS_LIMIT);
+            HikeSharedPreferenceUtil.getInstance().saveData(CategorySearchManager.SEARCH_RESULTS_LIMIT, limit);
+        }
+        else if(CategorySearchManager.SEARCH_QUERY_LENGTH_THRESHOLD.equals(subType))
+        {
+            int limit = data.optInt(HikeConstants.LIMIT_KEY, CategorySearchManager.DEFAULT_SEARCH_QUERY_LENGTH_THRESHOLD);
+            HikeSharedPreferenceUtil.getInstance().saveData(CategorySearchManager.SEARCH_QUERY_LENGTH_THRESHOLD, limit);
+        }
+        else if(CategorySearchManager.AUTO_SEARCH_TIME.equals(subType))
+        {
+            long limit = data.optLong(HikeConstants.LIMIT_KEY, CategorySearchManager.DEFAULT_AUTO_SEARCH_TIME);
+            HikeSharedPreferenceUtil.getInstance().saveData(CategorySearchManager.AUTO_SEARCH_TIME, limit);
+        }
+        else if(CategorySearchManager.SEARCH_RESULTS_LOG_LIMIT.equals(subType))
+        {
+            int limit = data.optInt(HikeConstants.LIMIT_KEY, CategorySearchManager.DEFAULT_SEARCH_RESULTS_LOG_LIMIT);
+            HikeSharedPreferenceUtil.getInstance().saveData(CategorySearchManager.SEARCH_RESULTS_LOG_LIMIT, limit);
+        }
 	}
 
 	private void saveBulkLastSeen(JSONObject jsonObj) throws JSONException
@@ -3757,6 +3884,10 @@ public class MqttMessagesManager
 
 	public void saveChatBackground(JSONObject jsonObj) throws JSONException
 	{
+		if(saveChatThemeSignals(jsonObj))
+		{
+			return;
+		}
 		String from = jsonObj.optString(HikeConstants.FROM);
 		String to = jsonObj.optString(HikeConstants.TO);
 
@@ -3770,7 +3901,7 @@ public class MqttMessagesManager
 		}
 		String id = isGroupConversation ? to : from;
 
-		Pair<ChatTheme, Long> chatThemedata = convDb.getChatThemeAndTimestamp(id);
+		Pair<String, Long> chatThemedata = convDb.getChatThemeIdAndTimestamp(id);
 
 		if (chatThemedata != null)
 		{
@@ -3787,7 +3918,7 @@ public class MqttMessagesManager
 				JSONObject data = jsonObj.getJSONObject(HikeConstants.DATA);
 				String bgId = data.optString(HikeConstants.BG_ID);
 
-				if (bgId.equals(chatThemedata.first.bgId()))
+				if (bgId.equals(chatThemedata.first))
 				{
 					/*
 					 * Duplicate theme.
@@ -3805,16 +3936,15 @@ public class MqttMessagesManager
 			/*
 			 * If this is a custom theme, we should show it as not supported.
 			 */
-			if (data.optBoolean(HikeConstants.CUSTOM))
-			{
-				throw new IllegalArgumentException();
+			if (data.optBoolean(HikeConstants.CUSTOM)) {
+				//throw new IllegalArgumentException();
+				//putting a request to downlaod the asset ids for the theme
+				ChatThemeManager.getInstance().downloadThemeAssetsMetadata(bgId, true);
+			}else {
+				String chatThemeId = bgId;
+				this.pubSub.publish(HikePubSub.CHAT_BACKGROUND_CHANGED, new Pair<String, String>(id, bgId));
 			}
-
-			ChatTheme chatTheme = ChatTheme.getThemeFromId(bgId);
 			convDb.setChatBackground(id, bgId, timestamp);
-
-			this.pubSub.publish(HikePubSub.CHAT_BACKGROUND_CHANGED, new Pair<String, ChatTheme>(id, chatTheme));
-
 			saveStatusMsg(jsonObj, id);
 		}
 		catch (IllegalArgumentException e)
@@ -3824,6 +3954,34 @@ public class MqttMessagesManager
 			 * will keep on current applied theme.
 			 */
 		}
+	}
+
+	private boolean saveChatThemeSignals(JSONObject jsonObj)
+	{
+		try
+		{
+			if(jsonObj.has(HikeConstants.SUB_TYPE)) {
+				String type = jsonObj.getString(HikeConstants.SUB_TYPE);
+				if (type.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_NEW_THEME))//New Theme Signal
+				{
+					JSONObject data = jsonObj.getJSONObject(HikeConstants.DATA);
+					JSONArray themeData = data.getJSONArray(HikeChatThemeConstants.JSON_SIGNAL_THEME_DATA);
+					//TODO CHATTHEME, Enable if it OTA Themes
+					//ChatThemeManager.getInstance().processNewThemeSignal(themeData, false);
+					return true;
+				} else if (type.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_DEL_THEME))//Delete Theme Packet
+				{
+					JSONObject data = jsonObj.getJSONObject(HikeConstants.DATA);
+					ChatThemeManager.getInstance().processDeleteThemeSignal(data);
+					return true;
+				}
+			}
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		return false;
 	}
 
 	private void saveGroupOwnerChange(JSONObject jsonObj) throws JSONException

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/compose_item_height"
+    android:background="@drawable/conversation_list_item"
+    android:paddingLeft="@dimen/conv_item_padding"
+    android:paddingRight="@dimen/conv_item_padding" >
+
+    <RelativeLayout
+        android:id="@+id/action_container"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/compose_item_height"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:gravity="right">
+
+        <CheckBox
+            android:id="@+id/checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:background="@android:color/transparent"
+            android:button="@drawable/hike_list_item_checkbox"
+            android:clickable="false"
+            android:focusable="false"
+            android:visibility="gone" />
+    </RelativeLayout>
+
+    <com.bsb.hike.view.RoundedImageView
+        android:id="@+id/contact_image"
+        style="@style/RoundedStyle"
+        android:layout_width="@dimen/compose_avatar_dimen"
+        android:layout_height="@dimen/compose_avatar_dimen"
+        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="true" />
+
+
+    <ImageView
+        android:id="@+id/bday_icon"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginLeft="20dp"
+        android:background="@drawable/ic_birthday"/>
+
+    <LinearLayout
+        android:id="@+id/name_num_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/contact_image"
+        android:layout_toLeftOf="@id/action_container"
+        android:orientation="vertical"
+        style="@style/compose_name_container_margins">
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/name"
+            style="@style/ListItemHeaderTextView" />
+
+        <LinearLayout
+            android:id="@+id/bday_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="1.5dp" >
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:text="@string/bday_list_view_subheading"
+                style="@style/ListItemSubHeaderTextView"/>
+        </LinearLayout>
+    </LinearLayout>
+
+</RelativeLayout>

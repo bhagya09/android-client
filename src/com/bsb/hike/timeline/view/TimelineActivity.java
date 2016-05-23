@@ -172,15 +172,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		}
 
 		FetchUnreadFeedsTask fetchUnreadFeedsTask = new FetchUnreadFeedsTask();
-
-		if (Utils.isHoneycombOrHigher())
-		{
-			fetchUnreadFeedsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-		}
-		else
-		{
-			fetchUnreadFeedsTask.execute();
-		}
+		fetchUnreadFeedsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
 		sendTimeLineOpenAnalytics();
 	}

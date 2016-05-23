@@ -118,7 +118,7 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity
 		requestWindowFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.gallery);
-		statusBarColorID=R.color.black;
+		statusBarColorValue=getResources().getColor(R.color.black);
 		selectedSharedFileItems = new HashSet<Long>();
 		sharedFilesList = null;
 
@@ -397,15 +397,7 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity
 				loadingMoreItems = false;
 			}
 		};
-
-		if (Utils.isHoneycombOrHigher())
-		{
-			asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-		}
-		else
-		{
-			asyncTask.execute();
-		}
+		asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 
 	private void handleItemClick(int position)

@@ -1,15 +1,21 @@
 package com.bsb.hike.modules.httpmgr.requeststate;
 
-import org.json.JSONException;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Bundle;
 
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.modules.gcmnetworkmanager.Config;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
+
+import org.json.JSONException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Singleton class for database calls on http request state db used for storing http request states for upload and download requests. This will be later used for persistent retries
@@ -21,13 +27,19 @@ public class HttpRequestStateDB extends SQLiteOpenHelper
 
 	public static final String HTTP_REQUEST_STATE_DATABASE_NAME = "httpReqStateDB";
 
-	public static final int HTTP_REQUEST_STATE_DATABASE_VERSION = 1;
+	public static final int HTTP_REQUEST_STATE_DATABASE_VERSION = 2;
 
 	public static final String HTTP_REQUEST_STATE_TABLE = "requestStateTable";
+
+	public static final String GCM_NETWORK_MANAGER_TABLE = "gcmNetworkManagerTable";
 
 	public static final String REQUEST_ID = "reqId";
 
 	public static final String METADATA = "metadata";
+
+	public static final String REQUEST_TAG = "request_tag";
+
+	public static final String BUNDLE = "bundle";
 
 	private static volatile HttpRequestStateDB httpRequestStateDB;
 
@@ -72,12 +84,29 @@ public class HttpRequestStateDB extends SQLiteOpenHelper
 	{
 		String sql = "CREATE TABLE IF NOT EXISTS " + HTTP_REQUEST_STATE_TABLE + " ( " + REQUEST_ID + " TEXT PRIMARY KEY, " + METADATA + " TEXT" + " )";
 		db.execSQL(sql);
+
+		sql  = getGcmNwMgrTableCreateQuery();
+		db.execSQL(sql);
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
 	{
+		if(oldVersion < 2)
+		{
+			String sql = getGcmNwMgrTableCreateQuery();
+			db.execSQL(sql);
+		}
+	}
 
+	private String getGcmNwMgrTableCreateQuery()
+	{
+		String sql = "CREATE TABLE IF NOT EXISTS " + GCM_NETWORK_MANAGER_TABLE
+				+ " ( "
+				+ REQUEST_TAG + " TEXT PRIMARY KEY, "
+				+ BUNDLE + " TEXT"
+				+ " )";
+		return sql;
 	}
 
 	/**
@@ -174,8 +203,97 @@ public class HttpRequestStateDB extends SQLiteOpenHelper
 		mDb.delete(HTTP_REQUEST_STATE_TABLE, REQUEST_ID + "=?", new String[] { id });
 	}
 
+	public Config getConfigFromDb(Config config)
+	{
+		Cursor c = null;
+		Config configFromDb = null;
+		try
+		{
+			c = mDb.query(GCM_NETWORK_MANAGER_TABLE, null, REQUEST_TAG + "=?", new String[] { config.getTag() }, null, null, null);
+
+			int bundleIdx = c.getColumnIndex(BUNDLE);
+			if (c.moveToFirst())
+			{
+				byte[] bundleBytes = c.getBlob(bundleIdx);
+				configFromDb = Config.fromBundle(Utils.getBundleFromBytes(bundleBytes));
+			}
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+
+		return (configFromDb == null ? config : configFromDb);
+	}
+
+	public void insertBundleToDb(String requestTag, Bundle bundle)
+	{
+		byte[] bundleBytes = Utils.getBytesFromBundle(bundle);
+
+		ContentValues contentValues = new ContentValues();
+		contentValues.put(REQUEST_TAG, requestTag);
+		contentValues.put(BUNDLE, bundleBytes);
+
+		mDb.insertWithOnConflict(GCM_NETWORK_MANAGER_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_IGNORE);
+	}
+
+	public void update(String requestTag, Bundle bundle)
+	{
+		byte[] bundleBytes = Utils.getBytesFromBundle(bundle);
+
+		ContentValues contentValues = new ContentValues();
+		contentValues.put(BUNDLE, bundleBytes);
+
+		mDb.update(GCM_NETWORK_MANAGER_TABLE, contentValues, REQUEST_TAG + "=?", new String[] {requestTag});
+	}
+
+	public void deleteBundleForTag(String requestTag)
+	{
+		mDb.delete(GCM_NETWORK_MANAGER_TABLE, REQUEST_TAG + "=?", new String[] { requestTag });
+	}
+
 	public void deleteAll()
 	{
 		mDb.delete(HTTP_REQUEST_STATE_TABLE, null, null);
+		mDb.delete(GCM_NETWORK_MANAGER_TABLE, null, null);
+	}
+
+	public List<Config> getPendingGcmTaskConfigs()
+	{
+		List<Config> pendingConfigs = null;
+
+		Cursor c = null;
+
+		try
+		{
+			c = mDb.query(GCM_NETWORK_MANAGER_TABLE, null, null, null, null, null, null);
+
+			if (null != c)
+			{
+				pendingConfigs = new ArrayList<Config>(c.getCount());
+
+				int bundleIdx = c.getColumnIndex(BUNDLE);
+
+				while (c.moveToNext())
+				{
+					byte[] bundleBytes = c.getBlob(bundleIdx);
+
+					pendingConfigs.add(Config.fromBundle(Utils.getBundleFromBytes(bundleBytes)));
+				}
+			}
+		}
+
+		finally
+		{
+			if (null != c)
+			{
+				c.close();
+			}
+		}
+
+		return pendingConfigs;
 	}
 }

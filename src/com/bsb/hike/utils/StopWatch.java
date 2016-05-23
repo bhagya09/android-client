@@ -16,10 +16,6 @@ public class StopWatch
 
 	public void stop()
 	{
-		if (time < 0l)
-		{
-			throw new IllegalStateException("StopWatch was not started");
-		}
 		time = (System.currentTimeMillis() - time);
 	}
 
@@ -30,11 +26,6 @@ public class StopWatch
 
 	public long getElapsedTime()
 	{
-		if (time < 0l)
-		{
-			throw new IllegalStateException(
-					"StopWatch was not started! Cannot determine elapsed time");
-		}
 		return time;
 	}
 

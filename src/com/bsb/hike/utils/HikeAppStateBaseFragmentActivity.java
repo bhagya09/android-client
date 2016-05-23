@@ -143,7 +143,6 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 	protected void onPause()
 	{
 		isActivityVisible = false;
-		HikeAppStateUtils.onPause(this);
 		super.onPause();
 	}
 

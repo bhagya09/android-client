@@ -13,6 +13,7 @@ import android.content.SharedPreferences.Editor;
 import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
@@ -64,9 +65,15 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.StringUtils;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotUtils;
+<<<<<<< HEAD
 import com.bsb.hike.chatthread.ChatThread;
+=======
+import com.bsb.hike.chatthemes.ChatThemeManager;
+import com.bsb.hike.chatthemes.HikeChatThemeConstants;
+>>>>>>> origin/internal_release
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.ContactDialog;
@@ -138,7 +145,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import com.bsb.hike.chatthread.ChatThreadActivity;
 
 
 public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnLongClickListener, OnCheckedChangeListener
@@ -327,7 +333,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 	private boolean isOneToNChat;
 
-	private ChatTheme chatTheme;
+	private String chatThemeId;
 
 	private boolean isDefaultTheme = true;
 
@@ -383,7 +389,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		this.voiceMessagePlayer = new VoiceMessagePlayer();
 		this.preferences = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		this.isOneToNChat = OneToNConversationUtils.isOneToNConversation(conversation.getMsisdn());
-		this.chatTheme = ChatTheme.DEFAULT;
+		this.chatThemeId = ChatThemeManager.getInstance().defaultChatThemeId;
 		this.mSelectedItemsIds = new HashSet<Long>();
 		setLastSentMessagePosition();
 		this.shownSdrIntroTip = preferences.getBoolean(HikeMessengerApp.SHOWN_SDR_INTRO_TIP, false);
@@ -417,21 +423,21 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		notifyDataSetChanged();
 	}
 
-	public void setChatTheme(ChatTheme theme)
+	public void setChatThemeId(String themeId)
 	{
-		if (theme == null)
+		if (themeId == null)
 		{
-			Logger.d("MessageAdapter", "ChatTheme is null in setChatTheme Method");
+			Logger.d("MessageAdapter", "ChatThemeId is null in setChatTheme Method");
 			return;
 		}
-		chatTheme = theme;
-		isDefaultTheme = chatTheme == ChatTheme.DEFAULT;
+		chatThemeId = themeId;
+		isDefaultTheme = chatThemeId.equals(ChatThemeManager.getInstance().defaultChatThemeId);
 		notifyDataSetChanged();
 	}
 
-	public ChatTheme getChatTheme()
+	public String getChatThemeId()
 	{
-		return chatTheme;
+		return chatThemeId;
 	}
 
 	public boolean isDefaultTheme()
@@ -534,7 +540,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				notifyDataSetChanged();
 			}
 		};
-		Utils.executeAsyncTask(getLastSentMessagePositionTask);
+		getLastSentMessagePositionTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 
 	/**
@@ -934,6 +940,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				}
 			}
 
+			stickerHolder.placeHolder.setTag(convMessage);
+			stickerHolder.placeHolder.setOnClickListener(mOnClickListener);
+			stickerHolder.placeHolder.setOnLongClickListener(this);
 			displayMessageIndicator(convMessage, stickerHolder.broadcastIndicator, false);
 			setTimeNStatus(position, stickerHolder, true, stickerHolder.placeHolder);
 			setSelection(convMessage, stickerHolder.selectedStateOverlay);
@@ -990,20 +999,20 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			}
 			dayHolder = nudgeHolder;
 			setSenderDetails(convMessage, position, nudgeHolder, true);
-			if (!chatTheme.isAnimated())
+			if (!ChatThemeManager.getInstance().getTheme(chatThemeId).isAnimated())
 			{
 				nudgeHolder.nudge.setVisibility(View.VISIBLE);
-				setNudgeImageResource(chatTheme, nudgeHolder.nudge, convMessage.isSent());
+				setNudgeImageResource(chatThemeId, nudgeHolder.nudge, convMessage.isSent());
 			}
 			else
 			{
 				nudgeHolder.nudge.setVisibility(View.VISIBLE);
 
-				setNudgeImageResource(chatTheme, nudgeHolder.nudge, convMessage.isSent());
+				setNudgeImageResource(chatThemeId, nudgeHolder.nudge, convMessage.isSent());
 				if (metadata.getNudgeAnimationType() != NudgeAnimationType.NONE)
 				{
 					metadata.setNudgeAnimationType(NudgeAnimationType.NONE);
-					int animId = chatTheme.getAnimationId();
+					int animId = getChatThemeAnimationId(chatThemeId); // TODO CHATTHEME
 					if(animId != -1)
 					{
 						nudgeHolder.nudge.startAnimation(AnimationUtils.loadAnimation(context, animId));
@@ -1106,13 +1115,15 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				if (convMessage.isSent())
 				{
 					/* label outgoing hike conversations in green */
-					if (chatTheme == ChatTheme.DEFAULT)
+					if (chatThemeId.equals(ChatThemeManager.getInstance().defaultChatThemeId))
 					{
 						circle.getPaint().setColor(context.getResources().getColor(!convMessage.isSMS() ? R.color.bubble_blue : R.color.bubble_green));
 					}
 					else
 					{
-						circle.getPaint().setColor(context.getResources().getColor(chatTheme.bubbleColor()));
+						ColorDrawable statusBarColor = (ColorDrawable) ChatThemeManager.getInstance().
+														getDrawableForTheme(chatThemeId, HikeChatThemeConstants.ASSET_INDEX_BUBBLE_COLOR);
+						circle.getPaint().setColor(statusBarColor.getColor());
 					}
 
 				}
@@ -2104,7 +2115,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				infoHolder.text.setTextColor(context.getResources().getColor(R.color.white));
 				infoHolder.messageInfo.setTextColor(context.getResources().getColor(R.color.white));
 			}
-			((View) v.findViewById(R.id.voip_details)).setBackgroundResource(chatTheme.systemMessageBackgroundId());
+			int sysMsgType = ChatThemeManager.getInstance().getTheme(chatThemeId).getSystemMessageType();
+			((View) v.findViewById(R.id.voip_details)).setBackgroundResource(ChatThemeManager.getInstance().getSystemMessageBackgroundLayout(sysMsgType));
 			int duration = metadata.getDuration();
 			boolean initiator = metadata.isVoipInitiator();
 
@@ -2178,7 +2190,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				statusHolder.messageInfo.setTextColor(context.getResources().getColor(R.color.white));
 				statusHolder.messageTextView.setTextColor(context.getResources().getColor(R.color.white));
 			}
-			statusHolder.container.setBackgroundResource(chatTheme.inLineUpdateBGResId());
+			Utils.setBackground(statusHolder.container, ChatThemeManager.getInstance().getDrawableForTheme(chatThemeId, HikeChatThemeConstants.ASSET_INDEX_INLINE_STATUS_MSG_BG));
+
 			if (viewType == ViewType.STATUS_MESSAGE)
 			{
 				fillStatusMessageData(statusHolder, convMessage, v);
@@ -2213,8 +2226,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			int right = 0;
 			int bottom = positiveMargin;
 
-			int layoutRes = chatTheme.systemMessageTextViewLayoutId();
-
+			int sysMsgType = ChatThemeManager.getInstance().getTheme(chatThemeId).getSystemMessageType();
+			int layoutRes = ChatThemeManager.getInstance().getSystemMessageTextViewLayout(sysMsgType);
+			
 			if(infoState == ParticipantInfoState.OFFLINE_INLINE_MESSAGE)
 			{
 				TextView mainMessage = (TextView) inflater.inflate(layoutRes, null);
@@ -2542,7 +2556,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				participantInfoHolder = (ParticipantInfoHolder) v.getTag();
 			}
 			dayHolder = participantInfoHolder;
-			int layoutRes = chatTheme.systemMessageTextViewLayoutId();
+			int sysMsgType = ChatThemeManager.getInstance().getTheme(chatThemeId).getSystemMessageType();
+			int layoutRes = ChatThemeManager.getInstance().getSystemMessageTextViewLayout(sysMsgType);
 			TextView participantInfo = (TextView) inflater.inflate(layoutRes, null);
 			if (convMessage.getUnreadCount() == 1)
 			{
@@ -2637,6 +2652,16 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		}
 	}
 
+	// TODO CHATTHEME, The animation id is currently hard coded, need to rework on Chat theme framework for animations
+	private int getChatThemeAnimationId(String chatThemeId){
+		if(chatThemeId.equalsIgnoreCase(ChatTheme.VALENTINES_2.bgId())) {//VALENTINES_2
+			return R.anim.valetines_nudge_anim;
+		} else if(chatThemeId.equalsIgnoreCase(ChatTheme.VALENTINES_2016.bgId())) {//VALENTINES_2016
+			return R.anim.valentines_2016_nudge_anim;
+		}
+		return -1;
+	}
+
 
 	private void setBubbleColor(ConvMessage convMessage, ViewGroup messageContainer)
 	{
@@ -2646,13 +2671,13 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		int bottomPad = messageContainer.getPaddingBottom();
 		if (convMessage.isSent() && messageContainer != null)
 		{
-			if (chatTheme == ChatTheme.DEFAULT)
+			if (chatThemeId.equals(ChatThemeManager.getInstance().defaultChatThemeId))
 			{
 				messageContainer.setBackgroundResource(!convMessage.isSMS() ? R.drawable.ic_bubble_blue_selector : R.drawable.ic_bubble_green_selector);
 			}
 			else
 			{
-				messageContainer.setBackgroundResource(chatTheme.bubbleResId());
+				Utils.setBackground(messageContainer, ChatThemeManager.getInstance().getDrawableForTheme(chatThemeId, HikeChatThemeConstants.ASSET_INDEX_CHAT_BUBBLE_BG));
 			}
 		}
 		messageContainer.setPadding(leftPad, topPad, rightPad, bottomPad);
@@ -2686,7 +2711,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				/*
 				 * If a message has been selected then background of selected state overlay will change to selected state color. otherwise this overlay will be transparent
 				 */
-				overlay.setBackgroundColor(context.getResources().getColor(chatTheme.multiSelectBubbleColor()));
+				Utils.setBackground(overlay, ChatThemeManager.getInstance().getDrawableForTheme(chatThemeId, HikeChatThemeConstants.ASSET_INDEX_MULTISELECT_CHAT_BUBBLE_BG));
 				Logger.d("sticker", "colored");
 			}
 			else
@@ -2744,9 +2769,18 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		iconLoader.loadImage(msisdn, imageView, false, true, false, name);
 	}
 
-	private void setNudgeImageResource(ChatTheme chatTheme, ImageView iv, boolean isMessageSent)
+	private void setNudgeImageResource(String chatThemeId, ImageView iv, boolean isMessageSent)
 	{
-		iv.setImageResource(isMessageSent ? chatTheme.sentNudgeResId() : chatTheme.receivedNudgeResId());
+		if(isMessageSent)
+		{
+			iv.setImageDrawable(ChatThemeManager.getInstance().
+								getDrawableForTheme(chatThemeId, HikeChatThemeConstants.ASSET_INDEX_SENT_NUDGE_BG));
+		}
+		else
+		{
+			iv.setImageDrawable(ChatThemeManager.getInstance().
+								getDrawableForTheme(chatThemeId, HikeChatThemeConstants.ASSET_INDEX_RECEIVED_NUDGE_BG));
+		}
 	}
 
 	private void inflateNSetDay(ConvMessage convMessage, final DayHolder dayHolder)
@@ -2810,13 +2844,15 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			setGroupParticipantName(convMessage, detailHolder.senderDetails, detailHolder.senderName, detailHolder.senderNameUnsaved, firstMessageFromParticipant);
 			if (isNameExternal)
 			{
+				ColorDrawable offlineMsgTextColor = (ColorDrawable) ChatThemeManager.getInstance().
+						getDrawableForTheme(chatThemeId, HikeChatThemeConstants.ASSET_INDEX_OFFLINE_MESSAGE_BG);
 				if (detailHolder.senderName != null)
 				{
-					detailHolder.senderName.setTextColor(context.getResources().getColor(chatTheme.offlineMsgTextColor()));
+					detailHolder.senderName.setTextColor(offlineMsgTextColor.getColor());
 				}
 				if (detailHolder.senderNameUnsaved != null)
 				{
-					detailHolder.senderNameUnsaved.setTextColor(context.getResources().getColor(chatTheme.offlineMsgTextColor()));
+					detailHolder.senderNameUnsaved.setTextColor(offlineMsgTextColor.getColor());
 				}
 			}
 			else
@@ -3068,15 +3104,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			{
 				animatedProgress = getTargetProgress(chunkSize, fss.getTotalSize(), 0);
 			}
-			if (Utils.isHoneycombOrHigher())
-			{
-				holder.circularProgress.stopAnimation();
-				holder.circularProgress.setAnimatedProgress(fakeProgress, (int) (animatedProgress * 100), FileTransferManager.FAKE_PROGRESS_DURATION);
-			}
-			else
-			{
-				holder.circularProgress.setProgress(animatedProgress);
-			}
+
+			holder.circularProgress.stopAnimation();
+			holder.circularProgress.setAnimatedProgress(fakeProgress, (int) (animatedProgress * 100), FileTransferManager.FAKE_PROGRESS_DURATION);
 			holder.circularProgress.setVisibility(View.VISIBLE);
 			holder.circularProgressBg.setVisibility(View.VISIBLE);
 		}
@@ -3084,8 +3114,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		{
 			if (progress <= 100)
 				holder.circularProgress.setProgress(fakeProgress * 0.01f);
-			if (Utils.isHoneycombOrHigher())
-				holder.circularProgress.stopAnimation();
+			holder.circularProgress.stopAnimation();
 			if (fss.getFTState() == FTState.IN_PROGRESS)
 			{
 				float animatedProgress = 5 * 0.01f;
@@ -3093,26 +3122,23 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				{
 					animatedProgress = getTargetProgress(chunkSize, fss.getTotalSize(), progress);
 				}
-				if (Utils.isHoneycombOrHigher())
+				if (holder.circularProgress.getCurrentProgress() < (0.95f) && progress == 100)
 				{
-					if (holder.circularProgress.getCurrentProgress() < (0.95f) && progress == 100)
+					holder.circularProgress.setAnimatedProgress(fakeProgress, progress, 300);
+				}
+				else if(progress == 100)
+				{
+					holder.circularProgress.setAnimatedProgress(fakeProgress, progress, 200);
+				}
+				else
+				{
+					if((progress + (int) (animatedProgress * 100)) > 100)
 					{
-						holder.circularProgress.setAnimatedProgress(fakeProgress, progress, 300);
-					}
-					else if(progress == 100)
-					{
-						holder.circularProgress.setAnimatedProgress(fakeProgress, progress, 200);
+						holder.circularProgress.setAnimatedProgress(fakeProgress, 100, FileTransferManager.FAKE_PROGRESS_DURATION);
 					}
 					else
 					{
-						if((progress + (int) (animatedProgress * 100)) > 100)
-						{
-							holder.circularProgress.setAnimatedProgress(fakeProgress, 100, FileTransferManager.FAKE_PROGRESS_DURATION);
-						}
-						else
-						{
-							holder.circularProgress.setAnimatedProgress(fakeProgress, progress + (int) (animatedProgress * 100), FileTransferManager.FAKE_PROGRESS_DURATION);
-						}
+						holder.circularProgress.setAnimatedProgress(fakeProgress, progress + (int) (animatedProgress * 100), FileTransferManager.FAKE_PROGRESS_DURATION);
 					}
 				}
 			}
@@ -3634,16 +3660,16 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						if (fss.getFTState() == FTState.IN_PROGRESS)
 						{
 							if(hikeFile.getHikeFileType() == HikeFileType.VIDEO) {
-								sendImageVideoRelatedAnalytic(AnalyticsConstants.VIDEO_UPLOAD_PAUSE_MANUALLY);
+								sendImageVideoRelatedAnalytic(ChatAnalyticConstants.VIDEO_UPLOAD_PAUSE_MANUALLY);
 							}
 							FileTransferManager.getInstance(context).pauseTask(convMessage.getMsgID());
 						}
 						else if (fss.getFTState() != FTState.INITIALIZED)
 						{
 							if(hikeFile.getHikeFileType() == HikeFileType.VIDEO) {
-								sendImageVideoRelatedAnalytic(AnalyticsConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.VEDIO, AnalyticsConstants.UPLOAD_MEDIA);
+								sendImageVideoRelatedAnalytic(ChatAnalyticConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.VEDIO, ChatAnalyticConstants.UPLOAD_MEDIA);
 							} else if(hikeFile.getHikeFileType() == HikeFileType.IMAGE){
-								sendImageVideoRelatedAnalytic(AnalyticsConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.IMAGE, AnalyticsConstants.UPLOAD_MEDIA);
+								sendImageVideoRelatedAnalytic(ChatAnalyticConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.IMAGE, ChatAnalyticConstants.UPLOAD_MEDIA);
 							}
 							FileTransferManager.getInstance(context).uploadFile(convMessage, null);
 						}
@@ -3691,13 +3717,13 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					{
 						if (hikeFile.getHikeFileType() == HikeFileType.VIDEO) {
 							if (fss.getFTState() == FTState.NOT_STARTED) {
-								sendImageVideoRelatedAnalytic(AnalyticsConstants.VIDEO_RECEIVER_DOWNLOAD_MANUALLY);
+								sendImageVideoRelatedAnalytic(ChatAnalyticConstants.VIDEO_RECEIVER_DOWNLOAD_MANUALLY);
 							} else if (fss.getFTState() == FTState.ERROR) {
-								sendImageVideoRelatedAnalytic(AnalyticsConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.VEDIO, AnalyticsConstants.DOWNLOAD_MEDIA);
+								sendImageVideoRelatedAnalytic(ChatAnalyticConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.VEDIO, ChatAnalyticConstants.DOWNLOAD_MEDIA);
 							}
 						} else if (hikeFile.getHikeFileType() == HikeFileType.IMAGE) {
 							if (fss.getFTState() == FTState.ERROR) {
-								sendImageVideoRelatedAnalytic(AnalyticsConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.IMAGE, AnalyticsConstants.DOWNLOAD_MEDIA);
+								sendImageVideoRelatedAnalytic(ChatAnalyticConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.IMAGE, ChatAnalyticConstants.DOWNLOAD_MEDIA);
 							}
 						}
 						FileTransferManager.getInstance(context).downloadFile(receivedFile, hikeFile.getFileKey(), convMessage.getMsgID(), hikeFile.getHikeFileType(), convMessage,
@@ -4069,6 +4095,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			try
 			{
 				mediaPlayer = new MediaPlayer();
+				mediaPlayer.setAudioStreamType(AudioManager.STREAM_VOICE_CALL);
+				mActivity.setVolumeControlStream(AudioManager.STREAM_VOICE_CALL);
 				mediaPlayer.setDataSource(hikeFile.getFilePath());
 				mediaPlayer.prepare();
 				//CE-415:First ~1.5 seconds of audio recording are clipped for both sender & receiver
@@ -4122,7 +4150,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		public void informUserIfVolumeLowOrMuted() {
 			/* int maxVolume = audioManager.getStreamMaxVolume(audioManager.getMode());
 			   we can use maxVolume to notify user when currentVol is very low but not muted (0) */
-			int currentVol = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+			int currentVol = audioManager.getStreamVolume(AudioManager.STREAM_VOICE_CALL);
 			if(currentVol == 0){
 				Toast.makeText(context, R.string.stream_volume_muted_or_low, Toast.LENGTH_SHORT).show();
 			}
@@ -4180,6 +4208,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 			unregisterProximitySensor();
 			unregisterHeadserReceiver();
+			mActivity.setVolumeControlStream(AudioManager.USE_DEFAULT_STREAM_TYPE);
 		}
 
 		@Override
@@ -4353,6 +4382,11 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	public void resetPlayerIfRunning()
 	{
 		voiceMessagePlayer.resetPlayer();
+	}
+
+	public void pausetPlayerIfPlaying()
+	{
+		voiceMessagePlayer.pausePlayer();
 	}
 
 	public IconLoader getIconImageLoader()
@@ -4657,8 +4691,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		{
 			if (progress < 100)
 				holder.circularProgress.setProgress(progress * 0.01f);
-			if (Utils.isHoneycombOrHigher())
-				holder.circularProgress.stopAnimation();
+			holder.circularProgress.stopAnimation();
 
 			Logger.d("Spinner", "Msg Id is......... " + msgId + ".........holder.circularProgress="
 					+ holder.circularProgress.getCurrentProgress() * 100 + " Progress=" + progress);
@@ -4669,15 +4702,13 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				animatedProgress = (float) OfflineConstants.CHUNK_SIZE;
 				animatedProgress = animatedProgress / fss.getTotalSize();
 			}
-			if (Utils.isHoneycombOrHigher())
+			if (holder.circularProgress.getCurrentProgress() < (0.95f) && progress == 100)
 			{
-				if (holder.circularProgress.getCurrentProgress() < (0.95f) && progress == 100)
-				{
-					holder.circularProgress.setAnimatedProgress( (int) (holder.circularProgress.getCurrentProgress() * 100), (int) progress, 300);
-				}
-				else
-					holder.circularProgress.setAnimatedProgress((int) progress, (int) progress + (int) (animatedProgress * 100), 6 * 1000);
+				holder.circularProgress.setAnimatedProgress( (int) (holder.circularProgress.getCurrentProgress() * 100), (int) progress, 300);
 			}
+			else
+				holder.circularProgress.setAnimatedProgress((int) progress, (int) progress + (int) (animatedProgress * 100), 6 * 1000);
+
 			holder.circularProgress.setVisibility(View.VISIBLE);
 			holder.circularProgressBg.setVisibility(View.VISIBLE);
 		}

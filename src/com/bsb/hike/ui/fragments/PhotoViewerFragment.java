@@ -199,10 +199,8 @@ public class PhotoViewerFragment extends Fragment implements OnPageChangeListene
 			}
 		});
 		
-		if(Utils.isHoneycombOrHigher())  //The method setPageTransformer works only on API 11+. For lower devices, we can add margin to the view pager to show gap between adjacent views. 
-			selectedPager.setPageTransformer(true, new DepthPageTransformer());
-		else
-			selectedPager.setPageMargin((int) getResources().getDimension(R.dimen.horizontal_page_margin));
+
+		selectedPager.setPageTransformer(true, new DepthPageTransformer());
 	}
 
 	@Override
@@ -426,14 +424,8 @@ public class PhotoViewerFragment extends Fragment implements OnPageChangeListene
 	//function called to load items to the left of viewpager
 	public void loadItems(boolean reachedEnd, long msgId, int limit, boolean itemsToRight)
 	{
-		if (Utils.isHoneycombOrHigher())
-		{
-			new GetMoreItemsTask(reachedEnd, msgId, limit, itemsToRight).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-		}
-		else
-		{
-			 new GetMoreItemsTask(reachedEnd, msgId, limit, itemsToRight).execute();
-		}
+
+		new GetMoreItemsTask(reachedEnd, msgId, limit, itemsToRight).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 	
 	/*
@@ -737,7 +729,7 @@ public class PhotoViewerFragment extends Fragment implements OnPageChangeListene
 			smAdapter.onDestroy();
 		}
 		
-		StatusBarColorChanger.setStatusBarColor(getActivity(),((HikeBaseActivity)getActivity()).statusBarColorID);
+		StatusBarColorChanger.setStatusBarColorValue(getActivity(),((HikeBaseActivity)getActivity()).statusBarColorValue);
 		super.onDestroy();
 	}
 }
