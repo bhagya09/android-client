@@ -428,6 +428,8 @@ public class PlatformUtils
 						if(!TextUtils.isEmpty(preTypedText))
 						{
 							in.putExtra(HikeConstants.Extras.MSG, preTypedText);
+							in.putExtra(HikeConstants.Extras.SHOW_KEYBOARD, true);
+							in.putExtra(HikeConstants.STICKER_TAG_REFRESH_TIME_INTERVAL, mmObject.optLong(HikeConstants.STICKER_TAG_REFRESH_TIME_INTERVAL, HikeConstants.DEFAULT_STICKER_SEARCH_TRIGGER_DELAY));
 						}
 					}
 					context.startActivity(in);
