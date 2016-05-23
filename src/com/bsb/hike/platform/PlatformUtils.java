@@ -2458,11 +2458,9 @@ public class PlatformUtils
 		}
 		HikeHandlerUtil handler = HikeHandlerUtil.getInstance();
 		handler.startHandlerThread();
-		handler.postRunnable(new Runnable()
-		{
+		handler.postRunnable(new Runnable() {
 			@Override
-			public void run()
-			{
+			public void run() {
 				HikeContentDatabase.getInstance().updatePlatformDownloadState(name, mAppVersionCode, newState);
 			}
 		});
@@ -2728,5 +2726,43 @@ public class PlatformUtils
             e.printStackTrace();
         }
     }
-    
+	public static boolean getBoolean(JSONObject json, String key)
+	{
+		if (json.has(key))
+		{
+			try
+			{
+				return json.getBoolean(key);
+			}
+			catch (JSONException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return false;
+	}
+	public static int getInt(JSONObject json, String key) {
+		if (json.has(key)) {
+			try {
+				return json.getInt(key);
+			} catch (JSONException e) {
+// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return 0;
+	}
+
+	public static String getString(JSONObject json, String key) {
+		if (json.has(key)) {
+			try {
+				return json.getString(key);
+			} catch (JSONException e) {
+// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
 }

@@ -10,7 +10,6 @@ public interface HikePlatformConstants
 	String ASSETS = "assets";
 	String TEXTS = "textLinks";
 	String IMAGES = "images";
-	String VIDEOS = "videos";
 	String ACTION = "action";
 	String ACTION_TEXT = "text";
 	String ACTION_EXTRA = "extra";
@@ -22,7 +21,6 @@ public interface HikePlatformConstants
 	String VERSION = "version";
 	String TAG = "tag";
 	String KEY = "key";
-	String SUBTYPE = "st";
 	String TEXT = "title";
 	String TEXT_COLOR = "color";
 	String TEXT_SIZE = "size";
@@ -37,13 +35,10 @@ public interface HikePlatformConstants
 	String BACKGROUND = "bg";
 	String SHOW_SHARE = "showActionContainer";
 	String CARD_ACTION = "cardAction";
+	String CARDS = "cards";
 	String NOTIF_TEXT = "summary";
-	String LOVE_ID = "loveID";
 	String RECEPIENT = "to";
 	String MESSAGE_TYPE = "t";
-	String ANDROID_INTENT = "android";
-	String CHANNEL_SOURCE = "channelSource";
-	String CLICK_TRACK_URL = "clickTrackURL";
 	public static final String GAME_SDK_ID = "gamesdk";
 	String MESSAGE = "message";
 	String SOURCE = "clientPkgName";

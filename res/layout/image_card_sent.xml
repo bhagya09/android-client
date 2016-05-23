@@ -39,7 +39,8 @@
                 android:id="@+id/card_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true">
+                android:layout_centerHorizontal="true"
+                android:background="@android:color/white">
                 <!--<LinearLayout-->
                 <!--android:layout_width="match_parent"-->
                 <!--android:layout_height="wrap_content"-->
@@ -80,7 +81,6 @@
                     android:tag="T1"
                     android:textColor="#FFFFFF"
                     android:textSize="14sp"
-                    android:textStyle="italic"
                     android:visibility="gone" />
 
                 <com.bsb.hike.view.CustomFontTextView
