@@ -102,7 +102,7 @@ public class NativeCardUtils
 		}else if(actionComponent.getAction().equals(ActionType.SHARE.getAction())){
 			shareCard(context,shareView);
 		}else if(actionComponent.getAction().equals(ActionType.OPEN_URL.getAction())){
-            Intent intent = IntentFactory.getWebViewActivityIntent(context, actionComponent.getActionUrl().getString(HikeConstants.URL), null);
+            Intent intent = IntentFactory.getWebViewActivityIntent(context, actionComponent.getActionUrl().getString(HikeConstants.URL), actionComponent.getActionUrl().optString(HikeConstants.TITLE));
 			context.startActivity(intent);
 		}else if(actionComponent.getAction().equals(ActionType.OPEN_CAMERA.getAction())){
 

@@ -27,9 +27,11 @@ public class NativeCardImageLoader extends ImageWorker {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        //TODO: add the recycling logic for the bitmap
         // Decode Bitmap
         Bitmap bitmap = BitmapFactory.decodeStream(input);
-        Bitmap resizedBitmap = HikeBitmapFactory.createBitmap(bitmap, 0,0,width, height);
+        Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap,width,height,false);
         return resizedBitmap;
     }
 

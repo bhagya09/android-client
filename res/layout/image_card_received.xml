@@ -47,14 +47,14 @@
             android:layout_toRightOf="@id/avatar_container"
             android:background="@drawable/card_container"
             android:elevation="5dp"
-            android:minHeight="90dp"
             android:tag="@string/content_card_tag">
 
             <RelativeLayout
                 android:id="@+id/card_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true">
+                android:layout_centerHorizontal="true"
+                android:background="@android:color/white">
                 <!--<LinearLayout-->
                 <!--android:layout_width="match_parent"-->
                 <!--android:layout_height="wrap_content"-->
@@ -85,8 +85,8 @@
                 </RelativeLayout>
 
                 <com.bsb.hike.view.CustomFontTextView
-                    android:id="@+id/quote"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/text1"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/image_container"
                     android:layout_marginBottom="4dp"
@@ -95,15 +95,14 @@
                     android:tag="T1"
                     android:textColor="#FFFFFF"
                     android:textSize="14sp"
-                    android:textStyle="italic"
                     android:visibility="gone" />
 
                 <com.bsb.hike.view.CustomFontTextView
-                    android:id="@+id/author"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/text2"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_below="@id/quote"
-                    android:layout_marginLeft="12.5dp"
+                    android:layout_below="@id/text1"
+                    android:layout_marginLeft="12dp"
                     android:paddingBottom="13.5dp"
                     android:tag="T2"
                     android:textColor="#FFFFFF"
@@ -133,7 +132,7 @@
             android:layout_height="wrap_content"
             android:layout_alignRight="@+id/message_container"
             android:layout_below="@id/message_container"
-            android:layout_marginTop="8dp" />
+            android:layout_marginTop="4dp" />
     </RelativeLayout>
 
     <View

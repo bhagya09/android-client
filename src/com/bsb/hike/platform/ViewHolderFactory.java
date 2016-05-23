@@ -128,12 +128,12 @@ public class ViewHolderFactory
 
 		public void initializeHolder(View view, final ConvMessage convMessage)
 		{
-			List<CardComponent.TextComponent> textComponents = convMessage.platformMessageMetadata.textComponents;
-			List<CardComponent.MediaComponent> mediaComponents = convMessage.platformMessageMetadata.mediaComponents;
-			List<CardComponent.ActionComponent> actionComponents = convMessage.platformMessageMetadata.actionComponents;
-			List<CardComponent.ImageComponent> imageComponents = convMessage.platformMessageMetadata.imageComponents;
-			ViewHolderFactory.ViewHolder viewHolder;
-			boolean showShare = convMessage.platformMessageMetadata.showShare;
+			List<CardComponent.TextComponent> textComponents = convMessage.platformMessageMetadata.cards.get(0).textComponents;
+			List<CardComponent.MediaComponent> mediaComponents = convMessage.platformMessageMetadata.cards.get(0).mediaComponents;
+			List<CardComponent.ActionComponent> actionComponents = convMessage.platformMessageMetadata.cards.get(0).actionComponents;
+			List<CardComponent.ImageComponent> imageComponents = convMessage.platformMessageMetadata.cards.get(0).imageComponents;
+
+
 			boolean isSent = convMessage.isSent();
 			viewHashMap = new HashMap<String, View>();
 			time = (TextView) view.findViewById(R.id.time);
@@ -183,7 +183,7 @@ public class ViewHolderFactory
 			}
 			cardContainer = view.findViewById(R.id.card_container);
 			showActionContainer(view, cardContainer, actionComponents);
-			final CardComponent.ActionComponent cardAction = convMessage.platformMessageMetadata.cardAction;
+			final CardComponent.ActionComponent cardAction = convMessage.platformMessageMetadata.cards.get(0).cardAction;
 			if(cardAction != null){
                 cardContainer.setOnClickListener(new View.OnClickListener() {
 					@Override
@@ -207,7 +207,6 @@ public class ViewHolderFactory
 
 		public void initializeHolderForReceiver(View view)
 		{
-
 			senderDetails = view.findViewById(R.id.sender_details);
 			senderName = (TextView) view.findViewById(R.id.sender_name);
 			senderNameUnsaved = (TextView) view.findViewById(R.id.sender_unsaved_name);
@@ -245,12 +244,12 @@ public class ViewHolderFactory
 		@Override
 		public void processViewHolder(final View view)
 		{
-			String foregraoundColor = convMessage.platformMessageMetadata.backgroundColor != null?convMessage.platformMessageMetadata.backgroundColor:"#ffffffff";
+			String foregraoundColor = convMessage.platformMessageMetadata.cards.get(0).backgroundColor != null?convMessage.platformMessageMetadata.cards.get(0).backgroundColor:"#ffffffff";
 			Drawable backgroundDrawable = null;
 			final View containerView = view.findViewById(R.id.card_container);
 
 
-			if (convMessage.platformMessageMetadata.background != null)
+			if (convMessage.platformMessageMetadata.cards.get(0).background != null)
 			{
 				ColorDrawable colorDrawable = new ColorDrawable(Color.parseColor(foregraoundColor));
 				backgroundDrawable = new LayerDrawable(new Drawable[]{
@@ -258,13 +257,12 @@ public class ViewHolderFactory
 				});
 				containerView.setBackground(backgroundDrawable);
 				hikeDailyCardImageLoader = new HikeDailyCardImageLoader();
-//				hikeDailyCardImageLoader.setResource(mContext);
 				hikeDailyCardImageLoader.setImageFadeIn(false);
 				hikeDailyCardImageLoader.setDefaultDrawableNull(false);
 				hikeDailyCardImageLoader.setDefaultDrawable(backgroundDrawable);
 				hikeDailyCardImageLoader.setDontSetBackground(true);
-				hikeDailyCardImageLoader.setForeGroundColor(convMessage.platformMessageMetadata.backgroundColor != null ? convMessage.platformMessageMetadata.backgroundColor : null);
-				hikeDailyCardImageLoader.loadImage(convMessage.platformMessageMetadata.background, containerView, false, false, null);
+				hikeDailyCardImageLoader.setForeGroundColor(convMessage.platformMessageMetadata.cards.get(0).backgroundColor != null ? convMessage.platformMessageMetadata.cards.get(0).backgroundColor : null);
+				hikeDailyCardImageLoader.loadImage(convMessage.platformMessageMetadata.cards.get(0).background, containerView, false, false, null);
 			}else
 			{
 				backgroundDrawable = new LayerDrawable(new Drawable[] { ContextCompat.getDrawable(mContext, R.drawable.hike_daily_bg),

@@ -31,47 +31,75 @@
             android:layout_alignParentRight="true"
             android:tag="@string/content_card_tag"
             android:layout_marginRight="10dp"
+            android:background="@drawable/card_container"
             android:layout_marginTop="3dp"
             android:elevation="5dp"
             >
             <RelativeLayout
-                android:layout_width="match_parent"
                 android:id="@+id/card_container"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                >
+                android:layout_centerHorizontal="true"
+                android:background="@android:color/white">
                 <!--<LinearLayout-->
                 <!--android:layout_width="match_parent"-->
                 <!--android:layout_height="wrap_content"-->
                 <!--android:background="@null"-->
                 <!--android:id="@+id/text_container"-->
                 <!--android:orientation="vertical">-->
-                <com.bsb.hike.view.CustomFontTextView
-                    android:id="@+id/quote"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:tag="T1"
-                    android:layout_marginLeft="24dp"
-                    android:layout_marginTop="22.5dp"
-                    android:textSize="20sp"
-                    android:textStyle="italic"
-                    android:textColor="#FFFFFF"
-                    android:visibility="gone"
-                    android:layout_marginBottom="8.5dp"
-                    />
+                <RelativeLayout
+                    android:id="@+id/image_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/native_card_image_height"
+                    android:gravity="center">
+
+                    <ImageView
+                        android:id="@+id/placeholder"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:src="@drawable/ic_platform_loading" />
+
+                    <ImageView
+                        android:id="@+id/image"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center"
+                        android:scaleType="centerCrop"
+                        android:tag="i1"
+                        android:visibility="gone" />
+                </RelativeLayout>
 
                 <com.bsb.hike.view.CustomFontTextView
-                    android:id="@+id/author"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/text1"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="12sp"
-                    android:visibility="gone"
-                    android:tag="T2"
-                    app:maxLines ="1"
-                    android:paddingBottom="24dp"
-                    android:layout_marginLeft="24dp"
-                    android:layout_below="@id/quote"
+                    android:layout_below="@+id/image_container"
+                    android:layout_marginBottom="4dp"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="8dp"
+                    android:tag="T1"
                     android:textColor="#FFFFFF"
-                    />
+                    android:textSize="14sp"
+                    android:visibility="gone" />
+
+                <com.bsb.hike.view.CustomFontTextView
+                    android:id="@+id/text2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/text1"
+                    android:layout_marginLeft="12dp"
+                    android:paddingBottom="13.5dp"
+                    android:tag="T2"
+                    android:textColor="#FFFFFF"
+                    android:textSize="11sp"
+                    android:visibility="gone"
+                    app:maxLines="1" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0.5dp"
+                    android:background="#0d000000" />
                 <!--</LinearLayout>-->
             </RelativeLayout>
             <ViewStub

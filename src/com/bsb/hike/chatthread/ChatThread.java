@@ -4298,18 +4298,13 @@ import android.widget.FrameLayout;
 	
 	private void onStickerRecommendPreferenceChanged()
 	{
-		activity.runOnUiThread(new Runnable()
-		{
-			
+		activity.runOnUiThread(new Runnable() {
+
 			@Override
-			public void run()
-			{
-				if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMEND_PREF, true))
-				{
+			public void run() {
+				if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMEND_PREF, true)) {
 					setupStickerSearch();
-				}
-				else
-				{
+				} else {
 					dismissStickerRecommendationPopup();
 					releaseStickerSearchResources();
 					StickerEventSearchManager.getInstance().clearNowCastEvents();
@@ -5280,10 +5275,10 @@ import android.widget.FrameLayout;
 
 		if (convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.CONTENT)
 		{
-			int numberOfMediaComponents = convMessage.platformMessageMetadata.mediaComponents.size();
+			int numberOfMediaComponents = convMessage.platformMessageMetadata.cards.get(0).mediaComponents.size();
 			for (int i = 0; i < numberOfMediaComponents; i++)
 			{
-				CardComponent.MediaComponent mediaComponent = convMessage.platformMessageMetadata.mediaComponents.get(i);
+				CardComponent.MediaComponent mediaComponent = convMessage.platformMessageMetadata.cards.get(0).mediaComponents.get(i);
 				HikeConversationsDatabase.getInstance().reduceRefCount(mediaComponent.getKey());
 			}
 		}

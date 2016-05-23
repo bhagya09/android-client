@@ -83,7 +83,6 @@ public class NativeCardRenderer implements View.OnLongClickListener, View.OnClic
 
 	private boolean isListFlinging;
 
-	private NativeCardImageLoader nativeCardImageLoader;
 
 	public NativeCardRenderer(Context context, Conversation conversation, BaseAdapter baseAdapter, HighQualityThumbLoader hqThumbLoader, boolean isListFlinging)
 	{
@@ -132,7 +131,7 @@ public class NativeCardRenderer implements View.OnLongClickListener, View.OnClic
 
 	private void cardDataFiller(final ConvMessage convMessage, final ViewHolderFactory.ViewHolder viewHolder)
 	{
-		for (CardComponent.TextComponent textComponent : convMessage.platformMessageMetadata.textComponents)
+		for (CardComponent.TextComponent textComponent : convMessage.platformMessageMetadata.cards.get(0).textComponents)
 		{
 			String tag = textComponent.getTag();
 			if (!TextUtils.isEmpty(tag))
@@ -164,7 +163,7 @@ public class NativeCardRenderer implements View.OnLongClickListener, View.OnClic
 
 		}
 
-		for (CardComponent.MediaComponent mediaComponent : convMessage.platformMessageMetadata.mediaComponents)
+		for (CardComponent.MediaComponent mediaComponent : convMessage.platformMessageMetadata.cards.get(0).mediaComponents)
 		{
 			String tag = mediaComponent.getTag();
 
@@ -185,7 +184,7 @@ public class NativeCardRenderer implements View.OnLongClickListener, View.OnClic
 				}
 			}
 		}
-		for (CardComponent.ImageComponent imageComponent : convMessage.platformMessageMetadata.imageComponents)
+		for (CardComponent.ImageComponent imageComponent : convMessage.platformMessageMetadata.cards.get(0).imageComponents)
 		{
 			String tag = imageComponent.getTag();
 
@@ -230,6 +229,7 @@ public class NativeCardRenderer implements View.OnLongClickListener, View.OnClic
 
 	private void populateMediaComponent(View v, ConvMessage convMessage, HikeFile hikeFile)
 	{
+		//TODO: honor the auto download settings.
 		FileSavedState fss = null;
 		MessagesAdapter.FTViewHolder ftViewHolder = new MessagesAdapter.FTViewHolder();
 		if (convMessage.isSent())
