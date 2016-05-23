@@ -5583,25 +5583,6 @@ public class Utils
 		return viewToBitmap(view);
 	}
 
-	public static boolean isConversationMuted(String msisdn)
-	{
-		if ((OneToNConversationUtils.isGroupConversation(msisdn)))
-		{
-			if (HikeConversationsDatabase.getInstance().isGroupMuted(msisdn))
-			{
-				return true;
-			}
-		}
-		else if (BotUtils.isBot(msisdn))
-		{
-			if (HikeConversationsDatabase.getInstance().isBotMuted(msisdn))
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-
 	public static boolean isLastSeenSetToFavorite()
 	{
 		Context appContext = HikeMessengerApp.getInstance().getApplicationContext();
