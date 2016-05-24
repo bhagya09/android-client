@@ -58,7 +58,8 @@ public class MessageInfoAdapter extends BaseAdapter
 
 	public static final int LIST_REMAINING_GROUP = 1;
 
-	public static final int LIST_ONE_TO_N_CONTACT = 2;
+	public static final int LIST_ONE_TO_N_CONTACT_READ = 2;
+	public static final int LIST_ONE_TO_N_CONTACT_DELIVERED = 8;
 
 	public static final int LIST_ONE_TO_ONE = 3;
 
@@ -152,7 +153,7 @@ public class MessageInfoAdapter extends BaseAdapter
 	@Override
 	public int getViewTypeCount()
 	{
-		return 8;
+		return 9;
 	}
 
 	@Override
@@ -186,22 +187,22 @@ public class MessageInfoAdapter extends BaseAdapter
 				v.setOnClickListener(remainingItemonClick);
 				v.setTag(viewHolder);
 				break;
-
-			case LIST_ONE_TO_N_CONTACT:
+			case LIST_ONE_TO_N_CONTACT_DELIVERED:
+			case LIST_ONE_TO_N_CONTACT_READ:
 				v = new LinearLayout(context);
 				viewHolder.parent = inflater.inflate(R.layout.messageinfo_item_contact, (LinearLayout) v, false);
 				viewHolder.contactName = (TextView) viewHolder.parent.findViewById(R.id.contact);
 				viewHolder.contactAvatar = (ImageView) viewHolder.parent.findViewById(R.id.avatar);
 				viewHolder.timeStamp = (TextView) viewHolder.parent.findViewById(R.id.timestamp);
-				viewHolder.defaulttimestampLayout=viewHolder.parent.findViewById(R.id.default_timestamp);
-				viewHolder.expandedReadLayout=viewHolder.parent.findViewById(R.id.expandedReadLayout);
-				viewHolder.expandedDeliveredLayout=viewHolder.parent.findViewById(R.id.expandedDeliveredLayout);
-				viewHolder.expandedReadTimeStamp=(TextView)viewHolder.parent.findViewById(R.id.read_message_timestamp);
-				viewHolder.expandedDeliveredTimeStamp=(TextView)viewHolder.parent.findViewById(R.id.delivered_message_timestamp);
-				viewHolder.expandedReadDescription=(TextView)viewHolder.parent.findViewById(R.id.expand_read_text);
-				viewHolder.expandedDeliveredDescription=(TextView)viewHolder.parent.findViewById(R.id.expand_delivered_text);
-				viewHolder.divider=viewHolder.parent.findViewById(R.id.dividermiddle);
-				viewHolder.dividerend=viewHolder.parent.findViewById(R.id.dividerend);
+				viewHolder.defaulttimestampLayout = viewHolder.parent.findViewById(R.id.default_timestamp);
+				viewHolder.expandedReadLayout = viewHolder.parent.findViewById(R.id.expandedReadLayout);
+				viewHolder.expandedDeliveredLayout = viewHolder.parent.findViewById(R.id.expandedDeliveredLayout);
+				viewHolder.expandedReadTimeStamp = (TextView) viewHolder.parent.findViewById(R.id.read_message_timestamp);
+				viewHolder.expandedDeliveredTimeStamp = (TextView) viewHolder.parent.findViewById(R.id.delivered_message_timestamp);
+				viewHolder.expandedReadDescription = (TextView) viewHolder.parent.findViewById(R.id.expand_read_text);
+				viewHolder.expandedDeliveredDescription = (TextView) viewHolder.parent.findViewById(R.id.expand_delivered_text);
+				viewHolder.divider = viewHolder.parent.findViewById(R.id.dividermiddle);
+				viewHolder.dividerend = viewHolder.parent.findViewById(R.id.dividerend);
 				v.setTag(viewHolder);
 				break;
 
@@ -269,7 +270,7 @@ public class MessageInfoAdapter extends BaseAdapter
 			Logger.d("refresh", "adapter LISTNAME " + messageInfoItem + " position " + position);
 			break;
 
-		case LIST_ONE_TO_N_CONTACT:
+		case LIST_ONE_TO_N_CONTACT_READ:
 			viewHolder = (ViewHolder) v.getTag();
 			LinearLayout parentView = (LinearLayout) v;
 			parentView.removeAllViews();
@@ -292,6 +293,21 @@ public class MessageInfoAdapter extends BaseAdapter
 			v.setOnClickListener(readListItemonClick);
 
 			break;
+			case LIST_ONE_TO_N_CONTACT_DELIVERED:
+				viewHolder = (ViewHolder) v.getTag();
+				LinearLayout parentViewD = (LinearLayout) v;
+				parentViewD.removeAllViews();
+				MessageInfoItem.MesageInfoParticipantItem participantD = (MessageInfoItem.MesageInfoParticipantItem) messageInfoItem;
+				parentViewD.setBackgroundColor(Color.WHITE);
+				participantD.applyDividerBehavior(viewHolder.parent);
+				ContactInfo contactInfod = participantD.getContactInfo();
+				viewHolder.contactName.setText(contactInfod.getNameOrMsisdn());
+				setAvatar(contactInfod.getMsisdn(), viewHolder.contactAvatar);
+				viewHolder.timeStamp.setText(participantD.getDisplayedTimeStamp());
+				Logger.d("refresh", "Adapter parent" + viewHolder.parent);
+				parentViewD.addView(viewHolder.parent);
+				
+				break;
 		case LIST_REMAINING_GROUP:
 			viewHolder = (ViewHolder) v.getTag();
 			MessageInfoItem.MesageInfoRemainingItem remainingItem = ((MessageInfoItem.MesageInfoRemainingItem) messageInfoItem);

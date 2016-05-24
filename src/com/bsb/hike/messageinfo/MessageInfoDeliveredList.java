@@ -24,7 +24,7 @@ public class MessageInfoDeliveredList extends MessageInfoList {
 
     public void addParticipant(MessageInfoDataModel.MessageInfoParticipantData participantData){
         if(participantData.hasBeenDelivered()&&!participantData.hasRead()){
-            allDisplayedContactItems.add(new MessageInfoItem.MesageInfoParticipantItem(participantData, MessageInfoItem.MesageInfoParticipantItem.DELIVERED_CONTACT, MessageInfoAdapter.LIST_ONE_TO_N_CONTACT));
+            allDisplayedContactItems.add(new MessageInfoItem.MesageInfoParticipantItem(participantData, MessageInfoItem.MesageInfoParticipantItem.DELIVERED_CONTACT, MessageInfoAdapter.LIST_ONE_TO_N_CONTACT_DELIVERED));
         }else if(!participantData.hasBeenDelivered())
         {
             remainingItem.remainingItemList.add(participantData);
