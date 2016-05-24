@@ -27,6 +27,7 @@ public class Mute {
         this.isMute = builder.isMute;
         this.showNotification = builder.showNotification;
         this.muteDuration = builder.muteDuration;
+        this.muteTimestamp = builder.muteTimestamp;
     }
 
     public String getMsisdn() {
@@ -118,6 +119,8 @@ public class Mute {
 
         private int muteDuration;
 
+        private long muteTimestamp;
+
         public InitBuilder(String msisdn) {
             this.msisdn = msisdn;
         }
@@ -134,6 +137,11 @@ public class Mute {
 
         public InitBuilder setMuteDuration(int muteDuration) {
             this.muteDuration = muteDuration;
+            return getSelfObject();
+        }
+
+        public InitBuilder setMuteTimestamp(long muteTimestamp) {
+            this.muteTimestamp = muteTimestamp;
             return getSelfObject();
         }
 

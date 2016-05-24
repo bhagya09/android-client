@@ -1156,7 +1156,11 @@ class PersistenceCache extends ContactsCache
 		readLock.lock();
 		try
 		{
-			return mutePersistence.get(msisdn);
+			if (mutePersistence.containsKey(msisdn))
+			{
+				return mutePersistence.get(msisdn);
+			}
+			return HikeConversationsDatabase.getInstance().getMuteForMsisdn(msisdn);
 		}
 		finally
 		{

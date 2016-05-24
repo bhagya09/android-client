@@ -11180,4 +11180,37 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 
 		return asset;
 	}
+
+	/**
+	 *
+	 * @param msisdn
+	 * @return the Mute object for a given msisdn
+     */
+	public Mute getMuteForMsisdn(String msisdn) {
+		Cursor c = null;
+		try {
+			c = mDb.query(DBConstants.CHAT_PROPERTIES_TABLE, null, DBConstants.MSISDN + "=?", new String[]{msisdn}, null, null, null);
+
+			int isMuteIdx = c.getColumnIndex(DBConstants.IS_MUTE);
+			int muteDurationIdx = c.getColumnIndex(DBConstants.MUTE_DURATION);
+			int muteNotificationIdx = c.getColumnIndex(DBConstants.MUTE_NOTIFICATION);
+			int muteTimestampIdx = c.getColumnIndex(DBConstants.MUTE_TIMESTAMP);
+
+			if (c.moveToFirst()) {
+				boolean isMute = c.getInt(isMuteIdx) == 1 ? true : false;
+				int muteDuration = c.getInt(muteDurationIdx);
+				boolean muteNotification = c.getInt(muteNotificationIdx) == 0 ? false : true;
+				long muteTimestamp = c.getLong(muteTimestampIdx);
+
+				Mute mute = new Mute.InitBuilder(msisdn).setIsMute(isMute).setMuteDuration(muteDuration).setShowNotifInMute(muteNotification).setMuteTimestamp(muteTimestamp).build();
+				return mute;
+			}
+		} finally {
+			if (c != null) {
+				c.close();
+			}
+		}
+
+		return null;
+	}
 }
