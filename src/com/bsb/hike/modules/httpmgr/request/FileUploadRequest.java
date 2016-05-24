@@ -379,6 +379,7 @@ public class FileUploadRequest extends Request<JSONObject>
 				.setFTTaskType(CesConstants.FT_UPLOAD)
 				.setNetProcTime(networkTime)
 				.setProcTime(0)
+				.setSessionId(X_SESSION_ID)
 				.setUniqueId(getCustomId() + "_" + AccountUtils.mUid);
 
 		if (!TextUtils.isEmpty(stackTrace))
