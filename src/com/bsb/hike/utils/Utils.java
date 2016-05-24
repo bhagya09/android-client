@@ -8123,27 +8123,36 @@ public class Utils
 		{
 			return 0;
 		}
-		File listFiles[] = file.listFiles();
-		if (!file.exists() || listFiles == null)
+
+		try
+		{
+			if (!file.exists() || file.listFiles() == null)
+			{
+				return 0;
+			}
+
+			int count = 0;
+
+			for (File newFile : file.listFiles())
+			{
+				if (newFile.isDirectory())
+				{
+					count += getFilesCountRecursive(newFile);
+				}
+
+				else
+				{
+					count++;
+				}
+			}
+
+			return count;
+		}
+
+		catch (Exception e) // To prevent any File I/O exceptions!
 		{
 			return 0;
 		}
 
-		int count = 0;
-
-		for (File newFile : listFiles)
-		{
-			if (newFile.isDirectory())
-			{
-				count += getFilesCountRecursive(newFile);
-			}
-
-			else
-			{
-				count ++;
-			}
-		}
-
-		return count;
 	}
 }
