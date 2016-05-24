@@ -7,6 +7,7 @@ import android.content.Intent;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.analytics.AnalyticsSender;
+import com.bsb.hike.ces.CustomerExperienceScore;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.backup.AccountBackupRestore;
 import com.bsb.hike.db.HikeContentDatabase;
@@ -308,6 +309,7 @@ public class HikeAlarmManager
 		case HikeAlarmManager.REQUESTCODE_PERIODIC_BACKUP:
 			AccountBackupRestore.getInstance(context).backup();
 			AccountBackupRestore.getInstance(context).scheduleNextAutoBackup();
+			CustomerExperienceScore.getInstance().processCesScoreAndL1Data();
 			break;
 		case HikeAlarmManager.REQUESTCODE_PRODUCT_POPUP:
 			Logger.d("ProductPopup","Alarm recieved in process Tasks");

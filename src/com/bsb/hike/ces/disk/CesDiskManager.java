@@ -286,6 +286,7 @@ public class CesDiskManager
 				}
 			}
 		}
+		Logger.d(TAG, "Space used by CES = " + result);
 		return result;
 	}
 

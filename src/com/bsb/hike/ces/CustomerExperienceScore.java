@@ -62,7 +62,7 @@ public class CustomerExperienceScore {
 		return _instance;
 	}
 
-	public static RejectedExecutionHandler rejectedExecutionHandler()
+	private RejectedExecutionHandler rejectedExecutionHandler()
 	{
 		return new RejectedExecutionHandler()
 		{

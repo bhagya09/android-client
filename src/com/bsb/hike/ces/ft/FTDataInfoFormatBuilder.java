@@ -187,20 +187,20 @@ public class FTDataInfoFormatBuilder < B extends FTDataInfoFormatBuilder<B> > ex
 		try {
 			l2Data = new JSONObject();
 			l2Data.put(AnalyticsConstants.V2.VARIETY, CesConstants.FT_MODULE);
-			l2Data.put(AnalyticsConstants.V2.VAL_STR, this.ft_unique_Id);
+			l2Data.put(AnalyticsConstants.V2.VAL_STR, this.ft_unique_Id == null ? "" : this.ft_unique_Id);
 			l2Data.put(AnalyticsConstants.V2.CLASS, this.ft_type);
 			l2Data.put(AnalyticsConstants.V2.NETWORK, this.netType);
-			l2Data.put(AnalyticsConstants.V2.FORM, this.fileType);
+			l2Data.put(AnalyticsConstants.V2.FORM, this.fileType == null ? "" : this.fileType);
 			l2Data.put(AnalyticsConstants.V2.VAL_INT, this.fileSize);
 			l2Data.put(AnalyticsConstants.V2.USER_STATE, this.procTime);
-			l2Data.put(CesConstants.AnalyticsV2.TRIBE, this.networkProcTime); // TRIBE
-			l2Data.put(AnalyticsConstants.V2.RACE, this.ftSessionId);//RECORD_ID
+			l2Data.put(CesConstants.AnalyticsV2.TRIBE, this.networkProcTime);
+			l2Data.put(AnalyticsConstants.V2.RACE, this.ftSessionId == null ? "" : this.ftSessionId);
 			l2Data.put(AnalyticsConstants.V2.BREED, this.isManualRetry ? 1 : 0);
-			l2Data.put(CesConstants.AnalyticsV2.DIVISON, this.ft_status);//Divison
+			l2Data.put(CesConstants.AnalyticsV2.DIVISON, this.ft_status);
 			l2Data.put(AnalyticsConstants.V2.SECTION, this.file_available_on_server ? 1 : 0);
 			l2Data.put(AnalyticsConstants.V2.POPULATION, this.chunkSize);
 			l2Data.put(AnalyticsConstants.V2.CENSUS, this.chunk_number);
-			l2Data.put(AnalyticsConstants.V2.SERIES, this.stackTrace);
+			l2Data.put(AnalyticsConstants.V2.SERIES, this.stackTrace == null ? "" : this.stackTrace);
 			l2Data.put(AnalyticsConstants.V2.KINGDOM, CesConstants.CES_ACT_REL);
 			l2Data.put(AnalyticsConstants.V2.ORDER, CesConstants.CES_L2_DATA);
 			l2Data.put(AnalyticsConstants.V2.PHYLUM, CesConstants.CES);
