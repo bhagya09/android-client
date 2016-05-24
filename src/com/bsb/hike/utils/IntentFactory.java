@@ -338,7 +338,12 @@ public class IntentFactory
 
 	public static void openTimeLine(Context context)
 	{
-		context.startActivity(new Intent(context, TimelineActivity.class));
+		context.startActivity(getTimelineIntent(context));
+	}
+
+	public static Intent getTimelineIntent(Context context)
+	{
+		return new Intent(context, TimelineActivity.class);
 	}
 	
 	public static void openHikeExtras(Context context)
@@ -1609,4 +1614,5 @@ public class IntentFactory
 		}
 		hikeAppContext.startService(storageSpecIntent);
 	}
+
 }

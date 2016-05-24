@@ -89,8 +89,8 @@ import com.bsb.hike.snowfall.SnowFallView;
 import com.bsb.hike.tasks.DownloadAndInstallUpdateAsyncTask;
 import com.bsb.hike.tasks.SendLogsTask;
 import com.bsb.hike.timeline.view.StatusUpdate;
+import com.bsb.hike.timeline.view.StoryFragment;
 import com.bsb.hike.timeline.view.TimelineActivity;
-import com.bsb.hike.timeline.view.UpdatesFragment;
 import com.bsb.hike.ui.fragments.ConversationFragment;
 import com.bsb.hike.ui.fragments.MyFragment;
 import com.bsb.hike.ui.utils.LockPattern;
@@ -172,7 +172,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private FetchContactsTask fetchContactsTask;
 
-	private UpdatesFragment updatesFragment;
+	private StoryFragment storyFragment;
 
 	private ConversationFragment conversationFragment;
 
@@ -631,7 +631,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		public Fragment getItem(int position) {
 			switch (position) {
 				case SU_FRAGMENT_POSITION:
-					return getStatusFragment();
+					return getStoryFragment();
 				case CONV_FRAGMENT_POSITION:
 					return getConversationFragment();
 				case MY_FRAGMENT_POSITION:
@@ -663,13 +663,13 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 	};
 
-	private Fragment getStatusFragment()
+	private Fragment getStoryFragment()
 	{
-		if (updatesFragment == null)
+		if (storyFragment == null)
 		{
-			updatesFragment = new UpdatesFragment();
+			storyFragment = StoryFragment.newInstance(null);
 		}
-		return updatesFragment;
+		return storyFragment;
 	}
 
 	private Fragment getConversationFragment()
