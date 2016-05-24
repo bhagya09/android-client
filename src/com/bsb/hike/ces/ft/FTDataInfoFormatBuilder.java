@@ -201,6 +201,10 @@ public class FTDataInfoFormatBuilder < B extends FTDataInfoFormatBuilder<B> > ex
 			l2Data.put(AnalyticsConstants.V2.POPULATION, this.chunkSize);
 			l2Data.put(AnalyticsConstants.V2.CENSUS, this.chunk_number);
 			l2Data.put(AnalyticsConstants.V2.SERIES, this.stackTrace);
+			l2Data.put(AnalyticsConstants.V2.KINGDOM, CesConstants.CES_ACT_REL);
+			l2Data.put(AnalyticsConstants.V2.ORDER, CesConstants.CES_L2_DATA);
+			l2Data.put(AnalyticsConstants.V2.PHYLUM, CesConstants.CES);
+			l2Data.put(AnalyticsConstants.V2.UNIQUE_KEY, CesConstants.CES_L2_DATA);
 			l2Data.put(AnalyticsConstants.V2.SPECIES, CesConstants.LEVEL_TWO);
 			Logger.d(TAG, "Ces l2 data = " + l2Data.toString());
 		} catch (JSONException e)

@@ -32,6 +32,9 @@ public final class CesConstants {
 	public static final String LEVEL_TWO = "l2";
 	public static final String L1_DATA_REQUIRED = "l1_data_required";
 	public static final String CES_SCORE = "s";
+	public static final String CES = "ces";
+	public static final String CES_L2_DATA = "ces_l2";
+	public static final String CES_ACT_REL = "act_rel";
 
 	public static final int FT_STATUS_COMPLETE = 0;
 	public static final int FT_STATUS_INCOMPLETE = 1;
