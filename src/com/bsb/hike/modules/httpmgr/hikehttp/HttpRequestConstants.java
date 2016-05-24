@@ -660,7 +660,7 @@ public class HttpRequestConstants
 
 	public static String fetchUIDForMissingMsisdnUrl()
 	{
-		return BASE_URL + BASE_V2 + "/user-identifier-update-graph";
+		return BASE_URL + BASE_V2 +BASE_ACCOUNT+ "/user-identifier-update-graph";
 	}
 		public static String getSettingsUploadUrl()
 	{
