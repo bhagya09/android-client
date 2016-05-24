@@ -20,10 +20,11 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.bsb.hike.R;
+import com.bsb.hike.chatthemes.ChatThemeManager;
+import com.bsb.hike.chatthemes.HikeChatThemeConstants;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.ui.PinHistoryActivity;
-import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
@@ -50,16 +51,16 @@ public class PinHistoryAdapter extends BaseAdapter implements OnLongClickListene
 	
 	private PinHistoryActivity pinHistory;
 	
-	private ChatTheme chatTheme;
+	private String chatThemeId;
 
-	public PinHistoryAdapter(Activity context, List<ConvMessage> textPins, String userMsisdn, long convId, OneToNConversation conversation, boolean addDateInbetween, ChatTheme theme, PinHistoryActivity pinHistory)
+	public PinHistoryAdapter(Activity context, List<ConvMessage> textPins, String userMsisdn, long convId, OneToNConversation conversation, boolean addDateInbetween, String themeId, PinHistoryActivity pinHistory)
 	{
 		this.context = context;
-		this.isDefaultTheme = theme == ChatTheme.DEFAULT;
+		this.isDefaultTheme = themeId.equals(ChatThemeManager.getInstance().defaultChatThemeId);
 		this.addDateInBetween = addDateInbetween;
 		this.mConversation = conversation;		
 		this.pinHistory = pinHistory;
-		this.chatTheme = theme;
+		this.chatThemeId = themeId;
 		
 		this.textPins = textPins;
 		addDateInBetween();
@@ -449,7 +450,9 @@ public class PinHistoryAdapter extends BaseAdapter implements OnLongClickListene
 
 			if (isSelected(convMessage))
 			{
-				overlay.setBackgroundColor(context.getResources().getColor(chatTheme.multiSelectBubbleColor()));
+				//calling multi select color for the theme
+				overlay.setBackground(ChatThemeManager.getInstance().
+						getDrawableForTheme(chatThemeId, HikeChatThemeConstants.ASSET_INDEX_MULTISELECT_CHAT_BUBBLE_BG));
 			}
 			else
 			{

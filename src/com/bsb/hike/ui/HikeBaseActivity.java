@@ -34,7 +34,7 @@ public abstract class HikeBaseActivity extends AppCompatActivity
 	private ArrayList<Intent> destinationIntents;
 
 	private final String TAG = HikeBaseActivity.class.getSimpleName();
-	public int statusBarColorID;
+	public int statusBarColorValue;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -42,7 +42,7 @@ public abstract class HikeBaseActivity extends AppCompatActivity
 		super.onCreate(savedInstanceState);
 
 		Intent intent = getIntent();
-		statusBarColorID=com.bsb.hike.R.color.blue_hike_status_bar_m;
+		statusBarColorValue=getResources().getColor(com.bsb.hike.R.color.blue_hike_status_bar_m);
 		setStatusBarColor(getWindow(), HikeConstants.STATUS_BAR_BLUE);
 		if (!intent.hasExtra(HikeBaseActivity.DESTINATION_INTENT))
 		{

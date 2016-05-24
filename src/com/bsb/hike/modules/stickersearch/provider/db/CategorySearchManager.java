@@ -36,6 +36,9 @@ import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
 /**
+ *
+ * This class mainly handles interaction of the CategorySearchwatcher with the HikeStickerSearchDatabase
+ *
  * Created by akhiltripathi on 13/04/16.
  */
 public class CategorySearchManager
@@ -43,21 +46,21 @@ public class CategorySearchManager
 
 	private static volatile CategorySearchManager instance;
 
-	public static final String SHOP_SEARCH_WEIGHTS = "s_srcW";
+	public static final String SHOP_SEARCH_WEIGHTS = "s_srcW"; // Server Controlled Feature weights String {Syntax : fw1:fw2:fw3:...fwN} where fwN is the weight for the Nth feature
 
-	public static final String SEARCH_QUERY_LENGTH_THRESHOLD = "s_q_l_t";
+	public static final String SEARCH_QUERY_LENGTH_THRESHOLD = "s_q_l_t"; // Server Controlled Query Min Length threshold. The CategorySearchTask gives no results if query length is <= this threshold
 
-	public static final String SEARCH_RESULTS_LIMIT = "s_s_limit";
+	public static final String SEARCH_RESULTS_LIMIT = "s_s_limit"; // Server Controlled Limit on the number of results shown in Shop Search
 
-	public static final String SEARCH_RESULTS_LOG_LIMIT = "s_s_l_limit";
+	public static final String SEARCH_RESULTS_LOG_LIMIT = "s_s_l_limit"; //  Server Controlled Limit on the number of top results full search data to send to analytics
 
-	public static final String AUTO_SEARCH_TIME = "a_s_tm";
+	public static final String AUTO_SEARCH_TIME = "a_s_tm"; //  Server Controlled Auto search Wait Time threshold in milliseconds. The auto search for packs is triggered only after this given time
 
-	public static final String CATEGORIES_SEARCHED_DAILY_REPORT = "cat_srch_report";
+	public static final String CATEGORIES_SEARCHED_DAILY_REPORT = "cat_srch_report"; // Pref key that stores categories wise search report in a JSON string
 
-	public static final long DEFAULT_AUTO_SEARCH_TIME = 1250L;
+	public static final long DEFAULT_AUTO_SEARCH_TIME = 1250L; // in milliseconds
 
-	public static final String DEFAULT_WEIGHTS_INPUT = "0:1:0:2";
+	public static final String DEFAULT_WEIGHTS_INPUT = "0:1:0:2"; //Default Weight Strings [ genderMatchScoreWeight : packStateScoreWeight : stickerCountScoreWeight : nameMatchScoreWeight ]
 
 	public static final int DEFAULT_SEARCH_RESULTS_LIMIT = -1;
 
@@ -67,18 +70,19 @@ public class CategorySearchManager
 
 	public static final String TAG = CategorySearchManager.class.getSimpleName();
 
-	private static Map<String, SortedSet<CategorySearchData>> mCacheForShopSearchKeys;
+	private static Map<String, SortedSet<CategorySearchData>> mCacheForShopSearchKeys; // cache to store shop search results per query
 
-	private static Map<String, Float> mCacheForLocalAnalogousScore;
+	private static Map<String, Float> mCacheForLocalAnalogousScore; // cache to score TextDifference score for two strings. Key Syntax : String1*String2
 
-	private static Map<Integer, StickerCategory> mCacheForSearchedCategories;
+	private static Map<Integer, StickerCategory> mCacheForSearchedCategories; // cache to store all pack metadata from stickerCategoryTable in HikeConverstaionDatabase
 
-	private static Map<Integer, List<Float>> mCacheForCategoryScore;
+	private static Map<Integer, List<Float>> mCacheForCategoryScore; // cache to store all category scores that are independent of the search query [ genderMatchScore : packStateScore : stickerCountScore ]
 
-	private SearchEngine categorySearchEngine;
+	private SearchEngine categorySearchEngine; // SerachEngine Model instance to manage various search threads executors
 
 	private float[] weights;
 
+    //initialises caches with defaults
 	private CategorySearchManager()
 	{
 		mCacheForShopSearchKeys = new HashMap<String, SortedSet<CategorySearchData>>();
@@ -116,6 +120,13 @@ public class CategorySearchManager
 		return categorySearchEngine;
 	}
 
+    /**
+     *
+     * @param query : Pre-Processed query string to search packs
+     * @param sendLogs : boolean if to send result analytics as soon as searched
+     *
+     * @return StickerCategory model List of the categories searched on the basis of given user query
+     */
 	public List<StickerCategory> searchForPacks(String query, boolean sendLogs)
 	{
 		Set<CategorySearchData> resultCategories = getCategorySearchDataForKey(query);
@@ -124,6 +135,19 @@ public class CategorySearchManager
 
 		return getOrderedCategoryList(resultCategories);
 	}
+
+    /**
+     *
+     * This method looks for search results in the mCacheForShopSearchKeys Cache first
+     * If results not found in cache then searches the ShopSearchVirtualTable in HikeStickerSearchDatabase and stores them in the cache
+     *
+     * @param key : Pre-Processed query string to search packs
+     * @return   SortedSet of categories Searched for the given match key
+     *           The searched categories are sorted based on comparator of CategorySearchedData model
+     *           Considering pack attributes [Targeted_Gender ; Pack_Downloaded_State ; Pack_stickersAvailable_Count] including the text match score of the match key with the pack name
+     *
+     *           The pack data are sorted using a TreeSet implementation which ensure uniqueness along with order
+     */
 
 	private SortedSet<CategorySearchData> getCategorySearchDataForKey(String key)
 	{
@@ -146,6 +170,13 @@ public class CategorySearchManager
 		return result;
 	}
 
+    /**
+     *
+     * Clears all Caches
+     * Shuts down the Search Engine [Closes the executors and releases them]
+     *
+     * Deletes the CastegorySearchManager instance as well
+     */
 	public void clearTransientResources()
 	{
 		mCacheForLocalAnalogousScore.clear();
@@ -163,6 +194,15 @@ public class CategorySearchManager
 		instance = null;
 	}
 
+    /**
+     * This is called in case of user triggered search {keyboard search button press}
+     * Analytics are send as soon as search is completed in a different thread
+     *
+     * CategorySearchTask carries out the search in the search thread of the Category SearchEngine
+     *
+     * @param query : Un-Processed query string to search packs
+     * @param listener : CategorySearchListener to handle the search results
+     */
 	public boolean onQueryTextSubmit(String query, CategorySearchListener listener)
 	{
 		CategorySearchTask categorySearchTask = new CategorySearchTask(query, listener, true);
@@ -170,6 +210,14 @@ public class CategorySearchManager
 		return true;
 	}
 
+    /**
+     * This is called in case of auto triggered search
+     *
+     * CategorySearchTask carries out the search in the search thread of the Category SearchEngine
+     *
+     * @param query : Un-Processed query string to search packs
+     * @param listener : CategorySearchListener to handle the search results
+     */
 	public boolean onQueryTextChange(String query, CategorySearchListener listener)
 	{
 		CategorySearchTask categorySearchTask = new CategorySearchTask(query, listener, false);
@@ -177,6 +225,13 @@ public class CategorySearchManager
 		return true;
 	}
 
+    /**
+     *
+     * @param querySet :  Sorted Set of categories represented in CategorySearchData model
+     * @return : List of valid categories represented in StickerCategory model
+     *           If the Search Results count limit is set from the server to N [>0] then this adds only top N valid categories to return List else tall the valid categories
+     *
+     */
 	private List<StickerCategory> getOrderedCategoryList(Set<CategorySearchData> querySet)
 	{
 		if (Utils.isEmpty(querySet))
@@ -216,6 +271,12 @@ public class CategorySearchManager
 		categorySearchEngine.runOnQueryThread(categoryTagInsertTask);
 	}
 
+    /**
+     *
+     * @param searchKey
+     * @param tag
+     * @return float score of the text distance difference btw searchKey and tag
+     */
 	public float computeStringMatchScore(String searchKey, String tag)
 	{
 		String cacheKey = searchKey + StickerSearchConstants.STRING_PREDICATE + tag;
@@ -231,6 +292,9 @@ public class CategorySearchManager
 		return result;
 	}
 
+    /**
+     * Loads all pack metadata from stickerCategoryTable in HikeConverstaionDatabase into mCacheForSearchedCategories
+     */
 	public void loadCategoriesForShopSearch()
 	{
 		Map<Integer, StickerCategory> loadMap = HikeConversationsDatabase.getInstance().getCategoriesForShopSearch();
@@ -240,6 +304,11 @@ public class CategorySearchManager
 		}
 	}
 
+    /**
+     *
+     * @param ucid
+     * @return StickerCategory model of the given category ucid from mCacheForSearchedCategories
+     */
 	public StickerCategory getSearchedCategoriesFromCache(int ucid)
 	{
 		return mCacheForSearchedCategories.get(ucid);
@@ -267,11 +336,23 @@ public class CategorySearchManager
 		return weights;
 	}
 
+    /**
+     *
+     * @param categoryUcid
+     * @return List of all category scores that are independent of the search query [ genderMatchScore : packStateScore : stickerCountScore ] of the given category ucid from mCacheForCategoryScore cache
+     */
 	public List<Float> getCategoryScores(int categoryUcid)
 	{
 		return mCacheForCategoryScore.get(categoryUcid);
 	}
 
+    /**
+     *
+     * @param categoryUcid
+     * @param categoryScores
+     *
+     * @saves List of all category scores that are independent of the search query [ genderMatchScore : packStateScore : stickerCountScore ] of the given category ucid to mCacheForCategoryScore cache
+     */
 	public void saveCategoryScores(int categoryUcid, List<Float> categoryScores)
 	{
 		mCacheForCategoryScore.put(categoryUcid, categoryScores);
@@ -289,6 +370,43 @@ public class CategorySearchManager
 		});
 	}
 
+    /**
+     *
+     * This method saves the searched info of all categories searched within a time period to shared preference in a Json String
+     *
+     * @param categorySearchData  : Search Data of the category represented in the CategorySearchData model
+     * @param index : the position where the category was shown in search result in an instance
+     * @param totalResults : the total number of search result in an search instance
+     * @throws JSONException
+     *
+     * JSON Example :
+     *
+        {
+            "ek":"c_s_rep",
+            "csrd":[
+                {
+                    "ucid":"142",
+                    "rCnt":3,
+                    "rnkAvg":3,
+                    "n_rnkAvg":0.25338164251207734,
+                    "top5":2,
+                    "top10":1,
+                    "top20":0
+                },
+                {
+                    "ucid":"117",
+                    "rCnt":1,
+                    "rnkAvg":2,
+                    "n_rnkAvg":0.08695652173913043,
+                    "top5":1,
+                    "top10":0,
+                    "top20":0
+                },
+                ...
+            ]
+        }
+     *
+     */
 	public static void logSearchedCategoryToDailyReport(CategorySearchData categorySearchData, int index, int totalResults) throws JSONException
 	{
 		if (categorySearchData == null || totalResults == 0)
@@ -320,6 +438,36 @@ public class CategorySearchManager
 		HikeSharedPreferenceUtil.getInstance().saveData(CATEGORIES_SEARCHED_DAILY_REPORT, searchReportMetadata.toString());
 	}
 
+    /**
+     * This method sends the searched info of all categories searched within a time period stored in a shared preference as a Json String
+     *
+     * This method sends one analytic packet per category
+     *
+     * JSON example (For a single category):
+     *
+         {
+             "b":0,
+             "ver":"v2",
+             "fu":"VIhUB-V-iw4mSom0",
+             "g":"264",
+             "cts":1463041332530,
+             "msisdn":"+912233223322",
+             "vi":10,
+             "k":"act_stck",
+             "di":"and:6c2b5d9cb39413790e1c6edb700d797288c33aba",
+             "ts":1463041347,
+             "o":"shpSrchAggRept",
+             "p":"shpSrch",
+             "s":0.07734500805152977,
+             "r":1464719341936,
+             "av":"android-4.2.6.81.25.Custom_Dev_Flavor",
+             "us":2.6,
+             "uk":"shpSrchAggRept",
+             "v":6,
+             "ov":"5.1",
+             "ra":4
+         }
+     */
 	public static void sendSearchedCategoryDailyReport()
 	{
 		String searchReport = HikeSharedPreferenceUtil.getInstance().getData(CATEGORIES_SEARCHED_DAILY_REPORT, "");
@@ -341,6 +489,7 @@ public class CategorySearchManager
 				metadata.put(AnalyticsConstants.V2.PHYLUM, HikeConstants.LogEvent.SHOP_SEARCH);
 				metadata.put(AnalyticsConstants.V2.ORDER, HikeConstants.LogEvent.CATEGORY_SEARCHED_REPORT);
 				metadata.put(AnalyticsConstants.V2.UNIQUE_KEY, HikeConstants.LogEvent.CATEGORY_SEARCHED_REPORT);
+				metadata.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
 
 				String catUcid = iterator.next();
 				JSONObject categoryReportJson = searchReportJSON.getJSONObject(catUcid);
@@ -372,6 +521,37 @@ public class CategorySearchManager
 		}
 	}
 
+    /**
+     *
+     * Method sends the complete feature JSON for the Top N searched category.
+     * Where N is decided from the Server Controlled value stored in SEARCH_RESULTS_LOG_LIMIT pref
+     *
+     * This method sends one analytic packet per category
+     *
+     * @param source : action source of the search result {Search button press; Cross Button Press; Back Button press; Searched Category Clicked}
+     *
+     * JSON example :
+
+            {
+                "src":"crsBtn",
+                "ver":"v2",
+                "fu":"VIhUB-V-iw4mSom0",
+                "cts":1463041055297,
+                "msisdn":"+912233223322",
+                "vi":"0",
+                "k":"act_stck",
+                "di":"and:6c2b5d9cb39413790e1c6edb700d797288c33aba",
+                "ts":1463041073,
+                "o":"shpSrchRept",
+                "p":"shpSrch",
+                "vs":"byw",
+                "uk":"shpSrchRept",
+                "av":"android-4.2.6.81.25.Custom_Dev_Flavor",
+                "ov":"5.1",
+                "r":1464711731733
+            }
+
+     */
 	public static void sendCategorySearchResultResponseAnalytics(final String source)
 	{
 		final String recordedReportString = HikeSharedPreferenceUtil.getInstance().getData(CategorySearchAnalyticsTask.SHOP_SEARCH_RESULTS_ANALYTICS_LOG, "");
@@ -405,6 +585,7 @@ public class CategorySearchManager
 						metadata.put(AnalyticsConstants.V2.UNIQUE_KEY, HikeConstants.LogEvent.SEARCHED_CATEGORY_RESPONSE);
 						metadata.put(AnalyticsConstants.V2.VAL_STR, recordedReport.optString(CategorySearchAnalyticsTask.QUERY_KEY));
 						metadata.put(AnalyticsConstants.V2.VAL_INT, recordedReport.optString(CategorySearchAnalyticsTask.RESULTS_COUNT));
+						metadata.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
 
 						HAManager.getInstance().recordV2(metadata);
 						return;
@@ -421,6 +602,7 @@ public class CategorySearchManager
 						metadata.put(AnalyticsConstants.V2.UNIQUE_KEY, HikeConstants.LogEvent.SEARCHED_CATEGORY_RESPONSE);
 						metadata.put(AnalyticsConstants.V2.VAL_STR, recordedReport.optString(CategorySearchAnalyticsTask.QUERY_KEY));
 						metadata.put(AnalyticsConstants.V2.VAL_INT, recordedReport.optString(CategorySearchAnalyticsTask.RESULTS_COUNT));
+						metadata.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
 
 						JSONObject categoryReport = categoriesReport.getJSONObject(i);
 						metadata.put(AnalyticsConstants.V2.GENUS, categoryReport.optString(HikeConstants.UCID));
