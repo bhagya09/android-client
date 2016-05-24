@@ -493,6 +493,7 @@ public class PlatformUtils
 
                     // In case of assoc mapp failure, remove entry from hashmap
                     assocMappRequestStatusMap.remove(botInfo.getMsisdn());
+					removeFromPlatformDownloadStateTable(botMetadata.getAppName(),botInfo.getMAppVersionCode());
 					microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOAD_FAILED, platformContentModel, jsonObject);
 					Logger.wtf(TAG, "microapp download packet failed.Because it is" + event.toString());
 				}
@@ -658,6 +659,7 @@ public class PlatformUtils
 		if (rqst.getContentData() == null)
 		{
             invalidDataBotAnalytics(botInfo);
+			removeFromPlatformDownloadStateTable(botMetadata.getAppName(),botMetadata.getmAppVersionCode());
             Logger.e(TAG, "Stop the micro app download flow for incorrect request");
 			return;
 		}
