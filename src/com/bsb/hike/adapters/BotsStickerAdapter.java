@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.BaseAdapter;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -175,7 +176,7 @@ public class BotsStickerAdapter extends BaseAdapter implements View.OnClickListe
 		ViewType viewType = ViewType.values()[getItemViewType(position)];
 		StickerPageAdapterItem item = getItem(position);
 		ViewHolder viewHolder;
-		AbsListView.LayoutParams ll = new AbsListView.LayoutParams(sizeEachImage, sizeEachImage);
+        FrameLayout.LayoutParams ll = new FrameLayout.LayoutParams(sizeEachImage, sizeEachImage);
 
 		if (convertView == null)
 		{
