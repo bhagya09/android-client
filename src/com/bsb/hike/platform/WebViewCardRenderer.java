@@ -350,7 +350,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 				viewHolder.platformJavaScriptBridge.eventReceived(event);
 				events.remove(mId);
 			}
-			if(downloadProgress!=null)
+			if(!TextUtils.isEmpty(downloadProgress))
 			{
 				try {
 					JSONObject jsonObject = new JSONObject(downloadProgress);
@@ -594,7 +594,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 						holder.platformJavaScriptBridge.eventReceived(event);
 						events.remove((int) convMessage.getMsgID());
 					}
-					if (downloadProgress != null)
+					if (!TextUtils.isEmpty(downloadProgress))
 					{
 						try
 						{

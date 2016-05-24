@@ -1147,16 +1147,16 @@ public class BotUtils
 	public static JSONObject getBotInfoAsString(BotInfo botInfo) throws JSONException, IOException
 	{
 		JSONObject jsonObject = new JSONObject();
-		jsonObject.put("botDescription", botInfo.getBotDescription());
-		jsonObject.put("botType", botInfo.getBotType());
-		jsonObject.put("helperData", botInfo.getHelperData());
-		jsonObject.put("metadata", botInfo.getMetadata());
-		jsonObject.put("namespace", botInfo.getNamespace());
-		jsonObject.put("msisdn", botInfo.getMsisdn());
-		jsonObject.put("mAppVersionCode", botInfo.getMAppVersionCode());
-		jsonObject.put("version", botInfo.getVersion());
-		jsonObject.put("conversationName", botInfo.getConversationName());
-		jsonObject.put("type", botInfo.getType());
+		jsonObject.put(HikePlatformConstants.BOT_DESCRIPTION, botInfo.getBotDescription());
+		jsonObject.put(HikePlatformConstants.BOT_TYPE, botInfo.getBotType());
+		jsonObject.put(HikePlatformConstants.HELPER_DATA, botInfo.getHelperData());
+		jsonObject.put(HikePlatformConstants.METADATA, botInfo.getMetadata());
+		jsonObject.put(HikePlatformConstants.NAMESPACE, botInfo.getNamespace());
+		jsonObject.put(HikePlatformConstants.MSISDN, botInfo.getMsisdn());
+		jsonObject.put(HikePlatformConstants.MAPP_VERSION_CODE, botInfo.getMAppVersionCode());
+		jsonObject.put(HikePlatformConstants.VERSION, botInfo.getVersion());
+		jsonObject.put(HikePlatformConstants.NAME, botInfo.getConversationName());
+		jsonObject.put(HikePlatformConstants.TYPE, botInfo.getType());
 		BitmapDrawable bitmap = HikeMessengerApp.getLruCache().getIconFromCache(botInfo.getMsisdn());
 		if(bitmap !=null)
 		{
