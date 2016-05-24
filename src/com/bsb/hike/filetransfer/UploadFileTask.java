@@ -420,7 +420,7 @@ public class UploadFileTask extends FileTransferBase
 
 	public void startFileUploadProcess()
 	{
-		startTime = System.nanoTime() / 1000;
+		startTime = System.nanoTime() / (1000 * 1000);
 		validateFileKey();
 	}
 
