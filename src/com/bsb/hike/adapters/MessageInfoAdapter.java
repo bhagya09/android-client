@@ -326,21 +326,18 @@ public class MessageInfoAdapter extends BaseAdapter
 	}
 	public void animateViews(ViewHolder viewHolder,View v,MessageInfoItem.MesageInfoParticipantItem participant) {
 
-		if (participant.getType() != MessageInfoItem.READ_CONTACT)
-			return;
 
 		final View expandedReadLayout = viewHolder.expandedReadLayout;
 		final View expandedDeliveredLayout = viewHolder.expandedDeliveredLayout;
 		final View defaultTimeStampLayout = viewHolder.defaulttimestampLayout;
-		int currentHashCode = participant.getHashCode();
 
-		if (expandSet.contains(currentHashCode)) {
+		if (expandSet.contains(participant.getHashCode())) {
 
 			defaultTimeStampLayout.setVisibility(View.GONE);
 			expandedReadLayout.setVisibility(View.VISIBLE);
 			expandedDeliveredLayout.setVisibility(View.VISIBLE);
 
-		} else if (collapseSet.contains(currentHashCode)) {
+		} else  {
 
 			defaultTimeStampLayout.setVisibility(View.VISIBLE);
 			expandedReadLayout.setVisibility(View.GONE);
