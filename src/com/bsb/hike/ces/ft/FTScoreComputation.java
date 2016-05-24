@@ -22,6 +22,7 @@ import com.bsb.hike.ces.CesConstants.CESModule;
 import com.bsb.hike.ces.CesUtils;
 import com.bsb.hike.ces.ScoreComputationImpl;
 import com.bsb.hike.ces.disk.CesDiskManager;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 
 /**
@@ -32,11 +33,11 @@ public class FTScoreComputation implements ScoreComputationImpl{
 
 	private final String TAG = "FTScoreComputation";
 	private JSONObject l1Data;
-	private final byte MEAN90_SCORE = 0;
-	private final byte MEAN80_SCORE = 1;
-	private final byte MEAN10_SCORE = 2;
-	private final byte MEDIAN_SCORE = 3;
-	private final byte AVERAGE_SCORE = 4;
+	private final int MEAN90_SCORE = 0;
+	private final int MEAN80_SCORE = 1;
+	private final int MEAN10_SCORE = 2;
+	private final int MEDIAN_SCORE = 3;
+	private final int AVERAGE_SCORE = 4;
 
 	/*
 	 * {
@@ -120,7 +121,7 @@ public class FTScoreComputation implements ScoreComputationImpl{
 		{
 			return score;
 		}
-		byte mType = MEDIAN_SCORE;
+		int mType = HikeSharedPreferenceUtil.getInstance().getData(CesConstants.ConfigureKey.COMPUTE_SCORE_ALGO, MEDIAN_SCORE);
 		Collections.sort(list);
 		switch (mType)
 		{

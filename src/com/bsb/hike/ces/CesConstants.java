@@ -73,12 +73,12 @@ public final class CesConstants {
 		public static final String SES_ID = "sid";
 	}
 
-	public static final int NET_2G = 2;
-	public static final int NET_3G = 3;
-	public static final int NET_4G = 4;
-	public static final int NET_WIFI = 1;
-	public static final int NET_UNKNOWN = 0;
-	public static final int NET_NONE = -1;
+	public static final String NET_2G = "2";
+	public static final String NET_3G = "3";
+	public static final String NET_4G = "4";
+	public static final String NET_WIFI = "1";
+	public static final String NET_UNKNOWN = "0";
+	public static final String NET_NONE = "-1";
 	
 	public static final int MAX_SPEED_ON_2G = 64;
 	public static final int MAX_SPEED_ON_3G = 128;
@@ -86,4 +86,12 @@ public final class CesConstants {
 	public static final int MAX_SPEED_ON_WIFI = 512;
 	public static final int MAX_SPEED_ON_UNKNOWN = 32;
 	public static final int MAX_SPEED_ON_NO_NET = 32;
+
+	public static final class ConfigureKey
+	{
+		public static final String FETCH_L2_DATA = "fetch_l2";
+		public static final String MAX_NET_SPEED = "max_nw_speed";
+		public static final String COMPUTE_SCORE_ALGO = "cs_algo";
+		public static final String UTILIZE_DISK_PERCENT = "udc";
+	}
 }
