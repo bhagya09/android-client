@@ -325,7 +325,7 @@ public class HostInfo
 
 	public String getServerUri()
 	{
-		return protocol + "staging.im.hike.in" + COLON + port;
+		return protocol + host + COLON + port;
 	}
 	
 	private String getIp()

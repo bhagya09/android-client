@@ -17,7 +17,7 @@ public class HttpRequestConstants
 
 	public static final String PRODUCTION_API = "api.im.hike.in";
 
-	public static final String STAGING_API = "52.76.190.255";
+	public static final String STAGING_API = "staging.im.hike.in";
 
 	public static final String PLATFORM_PRODUCTION_API = "platform.hike.in";
 
