@@ -65,7 +65,9 @@ public class RequestExecuter
 	private boolean allInterceptorsExecuted;
 
 	private String trackId;
-	
+
+	private long networkTimeIncludingRetries;
+
 	public RequestExecuter(IClient client, HttpEngine engine, Request<?> request, IResponseListener listener)
 	{
 		this.client = client;
@@ -183,6 +185,7 @@ public class RequestExecuter
 				{
 					if (firstTry)
 					{
+						networkTimeIncludingRetries = 0;
 						preProcess();
 					}
 					else
@@ -245,15 +248,16 @@ public class RequestExecuter
 			response = request.executeRequest(client);
 			long timeTakenNs = System.nanoTime() - startTimeNs;
 
+			networkTimeIncludingRetries += timeTakenNs;
+			addResponseTimeIncludingAllRetriesHeader(response, networkTimeIncludingRetries);
+
 			if (response.getStatusCode() < 200 || response.getStatusCode() > 299)
 			{
 				throw new IOException();
 			}
 
 			LogFull.d(request.toString() + " completed");
-
 			addResponseTimeHeader(response, timeTakenNs);
-
 			notifyResponseToRequestRunner();
 		}
 		catch (SocketTimeoutException ex)
@@ -439,5 +443,10 @@ public class RequestExecuter
 	private void addResponseTimeHeader(Response response, long timeTakenNs)
 	{
 		response.replaceOrAddHeader(HttpHeaderConstants.NETWORK_TIME, Long.toString(timeTakenNs));
+	}
+
+	private void addResponseTimeIncludingAllRetriesHeader(Response response, long timeTakenNs)
+	{
+		response.replaceOrAddHeader(HttpHeaderConstants.NETWORK_TIME_INCLUDING_RETRIES, Long.toString(timeTakenNs));
 	}
 }
