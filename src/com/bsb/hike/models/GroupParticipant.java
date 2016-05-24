@@ -20,7 +20,11 @@ public class GroupParticipant implements Comparable<GroupParticipant>
 	private int type;
 
 	private ContactInfo contactInfo;
-	
+
+	public String getUid() {
+		return contactInfo.getUid();
+	}
+
 	public static final class Participant_Type
 	{
 		public static final int MEMBER = 0;

@@ -60,6 +60,10 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
 
 	private void setupShopFragment(Bundle savedInstanceState)
 	{
+        /**
+         * if activity is being recreated the we need to force recreation of all existing fragments as well.
+         * Activity will restart as if started for the first time
+         */
 		if (savedInstanceState != null)
 		{
 			getSupportFragmentManager().popBackStack(0, android.support.v4.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
@@ -90,7 +94,7 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
 		}
 
 		getSupportFragmentManager().beginTransaction().add(R.id.sticker_shop_parent, stickerShopSearchFragment, StickerShopSearchFragment.TAG).addToBackStack(null).commit();
-        getSupportFragmentManager().executePendingTransactions();
+        getSupportFragmentManager().executePendingTransactions();//Done to ensure already added fragment is not added again in case of frequent searches
 
 	}
 
@@ -228,6 +232,7 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
 			setResult(ChatThread.RESULT_CODE_STICKER_SHOP_ACTIVITY);
 		}
 
+        // If search view is expanded then we collapse and pop the search fragment
 		if (shopSearchMenuItem != null && shopSearchMenuItem.isActionViewExpanded())
 		{
 			CategorySearchManager.sendCategorySearchResultResponseAnalytics(CategorySearchAnalyticsTask.SHOP_SEARCH_BACK_BUTTON_TRIGGER);

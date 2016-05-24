@@ -1432,4 +1432,7 @@
     <string name="pack_search_again_hint">સંપૂર્ણ શબ્દો લખો જેમ પ્રેમ,હિન્દી,બોલિવૂડ આદિें</string>
     <string name="edit_profile_birthday">જન્મદિવસ</string>
     <string name="atomic_tip_http_failure">કોઈ ત્રુટિ થઇ છે. કૃપા કરી થોડા સમય પછી પ્રયન્ત કરો</string>
+    <string name="my_location">મારું સ્થાન</string>
+    <string name="custom_location">મારુંકસ્ટમ  સ્થાન</string>
+
 </resources>

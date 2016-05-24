@@ -6,6 +6,25 @@
 
 package com.bsb.hike.modules.stickersearch.provider.db;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -17,11 +36,9 @@ import android.util.Pair;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.DatabaseErrorHandlers.CustomDatabaseErrorHandler;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.Sticker;
-import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
@@ -38,25 +55,6 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.ExecutionDurationLogger;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 {
@@ -323,6 +321,19 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
     }
 
+	/**
+	 * Create fixed table: TABLE_CATEGORY_TAG_MAPPING
+     *
+     * Primary key : UCID [INTEGER]
+     * NAME : Category Display Name [TEXT]
+     * FOR_GENDER : Category Targeted Gender [TEXT] { Male : 1; Female : 2; Both : 0}
+     * THEME : Category level Theme/Mood [TEXT] { Comma Separated Multi-Value }
+     * LANGUAGE : Language / Script of the pack [TEXT] { Comma Separated Multi-Value }
+     * KEYWORDS : Keywords / Tags describing the pack [TEXT] { Comma Separated Multi-Value }
+     * LAST_UPDATED_TIMESTAMP : Timestamp in millis since last updated [INTEGER]
+     *
+     * @return : SQL syntax create table query string
+     */
     private String getCategoryTagMappingTableCreateQuery()
     {
 		return "CREATE TABLE IF NOT EXISTS " + HikeStickerSearchBaseConstants.TABLE_CATEGORY_TAG_MAPPING + "("
@@ -353,6 +364,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				createStickerVirtualTable(getVirtualTableNameForChar(mExistingVirtualTablesList.charAt(i)));
 			}
 
+            //creating virtual table to store category keywords with an FTS index
             createCategoryVirtualTable(HikeStickerSearchBaseConstants.DEFAULT_VT_SHOP_SEARCH);
 
 			mDb.setTransactionSuccessful();
@@ -398,7 +410,11 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 	}
 
-    /* Create virtual table used for searching pack tags */
+    /**
+     * Create virtual table used for searching pack tags
+     *
+     * Stores all pack keywords,name,themes in a single document per pack ucid
+     */
     private void createCategoryVirtualTable(String tableName)
     {
         String sql;
@@ -434,6 +450,17 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		return tableName;
 	}
 
+    /**
+     * Loads the existing virtual table list onto a map
+     *
+     * Currently table are created dynamically when needed.
+     * Tags are stored virtual table having the name beginning with teh first character of the tag
+     *
+     * Map Structure : [Character, Boolean]
+     * where key is the char, representing the table name and value is boolean representing if the virtual table for given char exists or not
+     *
+     **/
+
 	private void loadTableMap()
 	{
 		mExistingVirtualTableMap = new HashMap<Character, Boolean>();
@@ -445,6 +472,12 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 	}
 
+    /**
+     *
+     * @param c : first char of the tag for which the virtual table searched
+     *
+     * @return : boolean representing if the table for the given char exists in db or not
+     */
 	private boolean tableForCharExists(Character c)
 	{
 		if (mExistingVirtualTableMap.get(c) == null)
@@ -455,6 +488,13 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		return mExistingVirtualTableMap.get(c).booleanValue();
 	}
 
+
+    /**
+     *
+     * @param suffix : Character of the first char of the tags in the virtual table
+     *
+     * @return : String with the complete virtual table name : stickerTagSearchData_ + suffix
+     */
 	private String getVirtualTableNameForChar(Character suffix)
 	{
 		if (suffix == StickerSearchConstants.CHAR_EMPTY)
@@ -531,6 +571,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 	}
 
+    // Deletes the Shop Search / Category Tags virtual table
     private void deleteShopSearchData()
     {
         if (Utils.isTableExists(mDb, HikeStickerSearchBaseConstants.DEFAULT_VT_SHOP_SEARCH))
@@ -872,6 +913,14 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				+ Utils.getExecutionTimeLog(0, sInsertionTimePerSession, ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND));
 	}
 
+    /**
+     *
+     * Method to insert/update entries in TABLE_CATEGORY_TAG_MAPPING table
+     *
+     * On successful insertion/updation the method also updates the SHOP_SEARCH virtual table regarding the same
+     *
+     * @param categoryTagDataList : list of CategoryTagData to be inserted into TABLE_CATEGORY_TAG_MAPPING table
+     */
     public void insertCategoryTagDataList(List<CategoryTagData> categoryTagDataList)
     {
         if(Utils.isEmpty(categoryTagDataList))
@@ -933,6 +982,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
     }
 
+    /* Deletes entries for the given Category UCIDs from the TABLE_CATEGORY_TAG_MAPPING table */
     public void deleteCategoryTagFromCategorySearchTable(Set<Integer> categoryUcids)
     {
         try
@@ -1029,6 +1079,10 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		}
 	}
 
+    /** Inserts the provided Category Tag Data with CONFLICT_REPLACE
+     *  Replaces the existing entry with the provided one in case of a table constraint conflict
+     *
+     **/
 	private void insertIntoCategoryVirtualTable(List<CategoryTagData> categoryTagDataList)
 	{
 		Logger.i(TAG, "insertIntoCategoryVirtualTable()");
@@ -1300,6 +1354,17 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		return list;
 	}
 
+    /**
+     *
+     * @param matchKey : the match key for which the packs are to be searched
+     * @param referenceArgs : List of UCIDs returned from the shop search Virtual table reverse index
+     *
+     * @return : SortedSet of categories Searched for the given match key as per the referenceArgs[UCIDs] provided
+     *           The searched categories are sorted based on comparator of CategorySearchedData model
+     *           which considers other pack attributes including the text match score of the match key with the pack name
+     *
+     *           The pack data are sorted using a TreeSet implementation which ensure uniqueness along with order
+     */
 	private SortedSet<CategorySearchData> searchIntoCategoryPrimaryTable(String matchKey, String[] referenceArgs)
 	{
 		SortedSet<CategorySearchData> list = null;
@@ -1477,6 +1542,13 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		return list;
 	}
 
+    /**
+     * @param Cursor c : Cursor containing a DB Dump for the categories searched for the given match key
+     * @param matchKey : the match key for which the packs were searched
+     *
+     * @return SortedSet of categories Searched for the given match key
+     */
+
     private SortedSet<CategorySearchData> loadCategorySearchData(String matchKey, Cursor c)
     {
         SortedSet<CategorySearchData> list = new TreeSet<CategorySearchData>();
@@ -1650,6 +1722,16 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		return result;
 	}
 
+	/**
+	 * @param matchKey
+	 *            : the match key for which the packs are to be searched
+	 * 
+	 * @return : SortedSet of categories Searched for the given match key 
+     *           The searched categories are sorted based on comparator of CategorySearchedData model
+     *           Considering pack attributes [Targeted_Gender ; Pack_Downloaded_State ; Pack_stickersAvailable_Count] including the text match score of the match key with the pack name
+	 *
+	 *           The pack data are sorted using a TreeSet implementation which ensure uniqueness along with order
+	 */
     public SortedSet<CategorySearchData> searchIntoFTSAndFindCategoryDataList(String matchKey)
     {
         
@@ -1755,6 +1837,13 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 		return tempReferences;
 	}
+
+    /**
+     * @param Cursor c : Cursor containing ucids of categories searched for the given match key from the shop search virtual table
+     * @param matchKey : the match key for which the packs were searched
+     *
+     * @return Array of Category UCIDs Searched for the given match key
+     */
 
     private String[] selectReferencesForCategoryTags(String matchKey, Cursor c)
     {
@@ -2720,6 +2809,15 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		return true;
 	}
 
+    /**
+     *  Method to re-balance Undownloaded Sticker [stickers with only tags(not image) downloaded]
+     *  Is executed if tag cache size limit is reached for undownloaded stickers
+     *
+     *  Undownloaded Stickers are deleted until the count of sticker is less than the tag cache limit
+     *  Oldest stickers having the maximum frequency are deleted first, since they would have had the maximum visibility to the user and still not downloaded
+     *
+     *  All entries of all such stickers are removed from the stickerSearchDatabase
+     */
 	public void rebalanceUndownloadedStickers()
 	{
 
@@ -2827,6 +2925,9 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 	}
 
+    /**
+    *  Method stores the count of Undownloaded Sticker [stickers with only tags(not image) downloaded] to pref after reading TABLE_STICKER_TAG_MAPPING table
+    */
     private void setUndownloadedTagsCount()
     {
 
@@ -2866,6 +2967,14 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
         
     }
 
+    /**
+     * @param categoryUcids : UCID list of the categories to be updated
+     * @return :  CategoryTagData object for the given categoryUcids
+     *            If the entry for a ucid is present in then the TABLE_CATEGORY_TAG_MAPPING table
+     *            CategoryTagData model is initialised from the table entry
+     *            Otherwise a default model object is created for the given UCID
+     *
+     */
 	public List<CategoryTagData> getStickerCategoriesForTagDataUpdate(List<String> categoryUcids)
 	{
 		if(Utils.isEmpty(categoryUcids))
