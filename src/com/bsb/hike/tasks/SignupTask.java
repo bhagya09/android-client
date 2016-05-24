@@ -515,7 +515,8 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 				Logger.d("Signup", "Starting AB scanning");
 				Map<String, List<ContactInfo>> contacts = conMgr.convertToMap(contactinfos);
 
-				boolean addressBookPosted = new PostAddressBookTask(contacts).execute();
+			//	boolean addressBookPosted = new PostAddressBookTask(contacts).execute();
+				boolean addressBookPosted = true;
 				if (addressBookPosted == false)
 				{
 					publishProgress(new StateValue(State.ERROR, HikeConstants.ADDRESS_BOOK_ERROR));
