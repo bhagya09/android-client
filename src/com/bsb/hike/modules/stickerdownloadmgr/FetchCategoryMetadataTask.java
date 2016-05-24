@@ -87,6 +87,11 @@ public class FetchCategoryMetadataTask implements IHikeHTTPTask, IHikeHttpTaskRe
 				{
 					JSONObject response = (JSONObject) result.getBody().getContent();
 
+					if (response != null)
+					{
+						Logger.d(TAG, "ucids:" + ucids + "response:" + response.toString());
+					}
+
 					if (!Utils.isResponseValid(response))
 					{
 						Logger.e(TAG, "Sticker Category fetch download failed null response");
