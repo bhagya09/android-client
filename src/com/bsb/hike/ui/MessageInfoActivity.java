@@ -112,7 +112,7 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 
 	private String[] pubSubListeners = { HikePubSub.MESSAGE_RECEIVED, HikePubSub.BULK_MESSAGE_RECEIVED };
 
-	private boolean isGroupChat, isOnetoOne, isBroadCast,isSMSMessage;
+	private boolean isGroupChat, isOnetoOne, isBroadCast,isSMSMessage,wasSMSMessage;
 
 	private MessageInfoController controller;
 
@@ -132,7 +132,7 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 		messageID = getIntent().getExtras().getLong(HikeConstants.MESSAGE_ID);
 		convMessage = HikeConversationsDatabase.getInstance().getMessageFromID(messageID, msisdn);
 		isSMSMessage=getIntent().getBooleanExtra(HikeConstants.SMS_MESSAGE,false);
-
+		wasSMSMessage=isSMSMessage;
 		initializeListViewandAdapters();
 		setDataModelsandControllers();
 
@@ -335,6 +335,7 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 			Logger.d("MessageInfo", "Adding Items One to One");
 			messageMap.clear();
 			participantTreeMap = dataModel.participantTreeMap;
+			if(wasSMSMessage)
 			isSMSMessage=!dataModel.areAnyReceiptsReceived();
 			messageMap.add(new MessageInfoItem.MessageInfoViewItem(convMessage));
 			if(isNotApplicable()){
