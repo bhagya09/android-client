@@ -3124,7 +3124,12 @@ public class Utils
 	{
 		if (file.isDirectory())
 		{
-			for (File f : file.listFiles())
+			File listFiles[] = file.listFiles();
+			if(listFiles == null)
+			{
+				return;
+			}
+			for (File f : listFiles)
 			{
 				deleteFile(f);
 			}
@@ -7894,8 +7899,9 @@ public class Utils
 		{
 			result = result && newRootDir.mkdirs();
 		}
+		File listFiles[] = oldRootDir.listFiles();
 
-		if (!oldRootDir.exists() || (oldRootDir.listFiles() == null))
+		if (!oldRootDir.exists() || (listFiles == null))
 		{
 			Logger.d("StickerMigration", "Migration unsuccessful but new folder created");
 			return true; // Migration unsuccessful but new folder created
@@ -7903,7 +7909,7 @@ public class Utils
 
 		if (result)
 		{
-			for (File f : oldRootDir.listFiles())
+			for (File f : listFiles)
 			{
 				if (f.isDirectory())
 				{
