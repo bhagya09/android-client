@@ -770,4 +770,13 @@ public class ChatThreadUtils
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.LARGE_VIDEO_SHARING_ENABLED, false);
 	}
 
+	public static boolean isMaxSizeUploadableFile(HikeFileType hikeFileType, Context context){
+		boolean skipMaxSizeCheck = (isBigVideoSharingEnabled() && hikeFileType == HikeFileType.VIDEO);
+		//Do pre-compression size check as before if compression have been turned off by the user.
+		if(skipMaxSizeCheck && (android.os.Build.VERSION.SDK_INT < 18
+				|| !PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.COMPRESS_VIDEO, true))) {
+			skipMaxSizeCheck = false;
+		}
+		return skipMaxSizeCheck;
+	}
 }
