@@ -8,6 +8,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.TreeMap;
 import android.content.Context;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -31,6 +32,8 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.MessageInfoAdapter;
+import com.bsb.hike.chatthemes.ChatThemeManager;
+import com.bsb.hike.chatthemes.HikeChatThemeConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.messageinfo.GroupChatDataModel;
 import com.bsb.hike.messageinfo.MessageInfo;
@@ -45,6 +48,7 @@ import com.bsb.hike.messageinfo.MessageInfoView;
 import com.bsb.hike.messageinfo.OnetoOneDataModel;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.models.HikeChatTheme;
 import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
@@ -112,7 +116,7 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 
 	private MessageInfoController controller;
 
-	private ChatTheme chatTheme;
+	private HikeChatTheme chatTheme;
 
 	private MessageInfoDataModel dataModel;
 
@@ -132,7 +136,8 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 		initializeListViewandAdapters();
 		setDataModelsandControllers();
 
-		chatTheme = HikeConversationsDatabase.getInstance().getChatThemeForMsisdn(msisdn);
+		String chatThemeID = HikeConversationsDatabase.getInstance().getChatThemeIdForMsisdn(msisdn);
+		chatTheme=ChatThemeManager.getInstance().getTheme(chatThemeID);
 		setupActionBar();
 		setChatTheme();
 		// parentListView.smoothScrollToPosition(2);
@@ -207,8 +212,7 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 
 		Conversation mConversation;
 
-		ChatTheme chatTheme;
-
+		HikeChatTheme chatTheme;
 		MessageInfoView messageInfoView;
 
 		View mView;
@@ -221,7 +225,8 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 
 		void init()
 		{
-			chatTheme = HikeConversationsDatabase.getInstance().getChatThemeForMsisdn(msisdn);
+			String chatThemeID = HikeConversationsDatabase.getInstance().getChatThemeIdForMsisdn(msisdn);
+			chatTheme= ChatThemeManager.getInstance().getTheme(chatThemeID);
 			mConversation = HikeConversationsDatabase.getInstance().getConversation(msisdn, 1, true);
 			messageInfoAdapter.setConversation(mConversation);
 			messageInfoAdapter.setMsisdn(msisdn);
@@ -483,12 +488,14 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 	private void setChatTheme()
 	{
 
-		StatusBarColorChanger.setStatusBarColor(this, chatTheme.statusBarColor());
+		ColorDrawable statusBarColor = (ColorDrawable) ChatThemeManager.getInstance().
+			getDrawableForTheme(chatTheme.getThemeId(), HikeChatThemeConstants.ASSET_INDEX_STATUS_BAR_BG);
+		StatusBarColorChanger.setStatusBarColorValue(this, statusBarColor.getColor());
 		ImageView backgroundImage = (ImageView) findViewById(R.id.background);
-		if (chatTheme != ChatTheme.DEFAULT)
+		if (!chatTheme.getThemeId().equals(ChatThemeManager.getInstance().defaultChatThemeId))
 		{
 			backgroundImage.setScaleType(chatTheme.isTiled() ? ImageView.ScaleType.FIT_XY : ImageView.ScaleType.CENTER_CROP);
-			backgroundImage.setImageDrawable(Utils.getChatTheme(chatTheme, this));
+			backgroundImage.setImageDrawable(Utils.getChatTheme(chatTheme.getThemeId(), this));
 		}
 		else
 		{
@@ -501,8 +508,8 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 	{
 		ActionBar actionBar = getSupportActionBar();
 
-		if (chatTheme != ChatTheme.DEFAULT)
-			actionBar.setBackgroundDrawable(getResources().getDrawable(chatTheme.headerBgResId()));
+		if (!chatTheme.getThemeId().equals(ChatThemeManager.getInstance().defaultChatThemeId))
+			actionBar.setBackgroundDrawable(ChatThemeManager.getInstance().getDrawableForTheme(chatTheme.getThemeId(), HikeChatThemeConstants.ASSET_INDEX_ACTION_BAR_BG));
 		else
 			actionBar.setBackgroundDrawable(getResources().getDrawable(R.color.blue_hike));
 		actionBar.setDisplayShowTitleEnabled(true);
