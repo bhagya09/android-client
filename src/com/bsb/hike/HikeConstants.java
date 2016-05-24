@@ -3074,6 +3074,8 @@ public class HikeConstants
 
 		public static final int DURATION_ONE_YEAR = 2;
 
+		public static final int DURATION_FOREVER = 3;
+
 		public static final int DURATION_DEFAULT = DURATION_EIGHT_HOURS;
 	}
 

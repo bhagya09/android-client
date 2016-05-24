@@ -313,7 +313,7 @@ public class GroupChatThread extends OneToNChatThread
 				}
 				else
 				{
-					Mute mute = new Mute.InitBuilder(mConversation.getMsisdn()).setIsMute(false).setMuteDuration(MuteDuration.DURATION_ONE_YEAR).setShowNotifInMute(false).build();
+					Mute mute = new Mute.InitBuilder(mConversation.getMsisdn()).setIsMute(false).setMuteDuration(MuteDuration.DURATION_FOREVER).setShowNotifInMute(false).build();
 					mConversation.setMute(mute);
 					Utils.toggleMuteChat(activity.getApplicationContext(), mConversation.getMute());
 				}
