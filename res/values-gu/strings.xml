@@ -1426,4 +1426,7 @@
     <string name="slide_to_cancel"> રદ કરવા માટે સ્લાઇડ કરો</string>
     <string name="recording_help_text">રેકોર્ડ કરવા માટે ટેપ અને હોલ્ડ કરો, મોકલવા માટે છોડો</string>
     <string name="max_duration_recorded">મહત્તમ સમયગાળા માટે રેકોર્ડિંગ પૂર્ણ</string>
+    <string name="stream_volume_muted_or_low">કૃપા કરીને અવાજ વધારો</string>
+    <string name="edit_profile_birthday">જન્મદિવસ</string>
+    <string name="atomic_tip_http_failure">કોઈ ત્રુટિ થઇ છે. કૃપા કરી થોડા સમય પછી પ્રયન્ત કરો</string>
 </resources>

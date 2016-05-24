@@ -1,6 +1,8 @@
 package com.bsb.hike.triggers;
 
 import java.io.File;
+
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.utils.Logger;
 import android.os.FileObserver;
@@ -51,6 +53,7 @@ public class InterceptFileObserver extends FileObserver
             {
                 Logger.d(TAG, "event:" + event + " lastevent:" + lastEvent + " secondLastEvent:" + secondLastEvent
                         + " thirdLastEvent:" + thirdLastEvent + " path:" + absolutePath + File.separator + path);
+                InterceptUtils.recordInterceptEventV2(AnalyticsConstants.InterceptEvents.INTERCEPT_SCREENSHOT, AnalyticsConstants.InterceptEvents.SCREENSHOT_CAPTURE, AnalyticsConstants.InterceptEvents.CAPTURE);
                 HikeNotification.getInstance().notifyIntercept(null, absolutePath + File.separator, path, interceptType);
             }
             thirdLastEvent = secondLastEvent;

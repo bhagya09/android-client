@@ -7,7 +7,6 @@ import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.modules.httpmgr.request.listener.IProgressListener;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestCancellationListener;
 
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -102,47 +101,13 @@ public class RequestProcessor
 		return false;
 	}
 
-	/**
-	 * This method calculates the id of the request and compares it with previous calculated request id (this is needed because headers can be added inside the interceptors and
-	 * original id calculated during request build up don't know about these headers added in interceptors, So we calculate again to see if this type of request is already in the
-	 * http manager system or not). If request is already in system then we add the listeners of request to previous request object and also update the
-	 * {@link RequestProcessor#requestMap} accordingly
-	 * 
-	 * @param request
-	 * @return
-	 */
-	public static boolean isRequestDuplicateAfterInterceptorsProcessing(Request<?> request)
-	{
-		String reqId = request.getId();
-		String newRequestId = request.generateId();
-		if (reqId.equals(newRequestId))
-		{
-			return false;
-		}
-
-		request.setId(newRequestId);
-		if (requestMap.containsKey(newRequestId))
-		{
-			LogFull.i(request.toString() + " already exists");
-			Request<?> req = requestMap.get(newRequestId);
-			req.addRequestListeners(request.getRequestListeners());
-			requestMap.remove(reqId);
-			return true;
-		}
-		else
-		{
-			requestMap.put(newRequestId, request);
-		}
-		requestMap.remove(reqId);
-		return false;
-	}
-
 	public static void removeRequest(Request<?> request)
 	{
-		if (request.getId() != null)
+		String id = request.getId();
+		if (id != null)
 		{
             LogFull.i(request.toString() + " removing key in map");
-			requestMap.remove(request.getId());
+			requestMap.remove(id);
 		}
 	}
 

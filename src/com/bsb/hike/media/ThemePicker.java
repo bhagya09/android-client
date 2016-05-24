@@ -2,7 +2,6 @@ package com.bsb.hike.media;
 
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.view.ActionMode.Callback;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -16,7 +15,6 @@ import android.widget.ImageView;
 import android.widget.PopupWindow.OnDismissListener;
 import android.widget.TextView;
 
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
 import android.util.Pair;
@@ -42,7 +40,7 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 		public void themeCancelled();
 	}
 
-	private AppCompatActivity sherlockFragmentActivity;
+	private AppCompatActivity appCompatActivity;
 
 	private View viewToDisplay;
 
@@ -59,13 +57,13 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 	
 	private int currentConfig = Configuration.ORIENTATION_PORTRAIT;
 	
-	public ThemePicker(AppCompatActivity sherlockFragmentActivity, ThemePickerListener listener, ChatTheme currentTheme)
+	public ThemePicker(AppCompatActivity appCompatActivity, ThemePickerListener listener, ChatTheme currentTheme)
 	{
 		this.userSelection = new Pair<ChatTheme, Integer>(currentTheme, ChatTheme.getPositionForTheme(currentTheme));
-		this.sherlockFragmentActivity = sherlockFragmentActivity;
+		this.appCompatActivity = appCompatActivity;
 		this.listener = listener;
-		this.popUpLayout = new PopUpLayout(sherlockFragmentActivity.getApplicationContext());
-		this.currentConfig = sherlockFragmentActivity.getResources().getConfiguration().orientation;
+		this.popUpLayout = new PopUpLayout(appCompatActivity.getApplicationContext());
+		this.currentConfig = appCompatActivity.getResources().getConfiguration().orientation;
 	}
 
 	/**
@@ -88,7 +86,7 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 	{
 		Logger.i(TAG, "show theme picker");
 		this.userSelection = new Pair<ChatTheme, Integer>(currentTheme, ChatTheme.getPositionForTheme(currentTheme));
-		sherlockFragmentActivity.startSupportActionMode(actionmodeCallback);
+		appCompatActivity.startSupportActionMode(actionmodeCallback);
 		initView(footerTextResId, orientation);
 		popUpLayout.showPopUpWindowNoDismiss(xoffset, yoffset, anchor, getView());
 		popUpLayout.setOnDismissListener(this);
@@ -113,7 +111,7 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 			return;
 		}
 		
-		View parentView = viewToDisplay = sherlockFragmentActivity.getLayoutInflater().inflate(R.layout.chat_backgrounds, null);
+		View parentView = viewToDisplay = appCompatActivity.getLayoutInflater().inflate(R.layout.chat_backgrounds, null);
 
 		GridView attachmentsGridView = (GridView) parentView.findViewById(R.id.attachment_grid);
 
@@ -123,7 +121,7 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 
 		attachmentsGridView.setNumColumns(getNumColumnsChatThemes());
 
-		final ArrayAdapter<ChatTheme> gridAdapter = new ArrayAdapter<ChatTheme>(sherlockFragmentActivity.getApplicationContext(), -1, ChatTheme.THEME_PICKER)
+		final ArrayAdapter<ChatTheme> gridAdapter = new ArrayAdapter<ChatTheme>(appCompatActivity.getApplicationContext(), -1, ChatTheme.THEME_PICKER)
 		{
 
 			@Override
@@ -131,7 +129,7 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 			{
 				if (convertView == null)
 				{
-					convertView = LayoutInflater.from(sherlockFragmentActivity).inflate(R.layout.chat_bg_item, parent, false);
+					convertView = LayoutInflater.from(appCompatActivity).inflate(R.layout.chat_bg_item, parent, false);
 				}
 				ChatTheme chatTheme = getItem(position);
 
@@ -215,11 +213,11 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 		{
 			Logger.i(TAG, "on create action mode");
 			actionMode = mode;
-			mode.setCustomView(LayoutInflater.from(sherlockFragmentActivity).inflate(R.layout.hike_action_mode, null));
+			mode.setCustomView(LayoutInflater.from(appCompatActivity).inflate(R.layout.hike_action_mode, null));
 			
 			View saveThemeBtn = mode.getCustomView().findViewById(R.id.done_container);
 
-			saveThemeBtn.startAnimation(AnimationUtils.loadAnimation(sherlockFragmentActivity, R.anim.scale_in));
+			saveThemeBtn.startAnimation(AnimationUtils.loadAnimation(appCompatActivity, R.anim.scale_in));
 
 			saveThemeBtn.setOnClickListener(ThemePicker.this);
 			
@@ -273,7 +271,7 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 				@Override
 				public void run()
 				{
-					sherlockFragmentActivity.startSupportActionMode((ActionMode.Callback) actionmodeCallback);
+					appCompatActivity.startSupportActionMode((ActionMode.Callback) actionmodeCallback);
 				}
 			});
 		}
@@ -282,7 +280,7 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 
 	private int getNumColumnsChatThemes()
 	{
-		Resources resources = sherlockFragmentActivity.getResources();
+		Resources resources = appCompatActivity.getResources();
 		int width = resources.getDisplayMetrics().widthPixels;
 
 		int chatThemePaletteMargin = 2 * resources.getDimensionPixelSize(R.dimen.chat_theme_palette_margin);

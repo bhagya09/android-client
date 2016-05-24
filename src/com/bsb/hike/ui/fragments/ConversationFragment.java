@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -94,6 +95,7 @@ import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.productpopup.AtomicTipManager;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.tasks.EmailConversationsAsyncTask;
 import com.bsb.hike.ui.HikeFragmentable;
@@ -126,6 +128,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import com.bsb.hike.ui.utils.LockPattern;
 
 public class ConversationFragment extends ListFragment implements OnItemLongClickListener, Listener, OnScrollListener, HikeFragmentable, OnClickListener,
 		ConversationTipClickedListener, FilterListener
@@ -301,38 +304,16 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		Logger.d("footer", "changeFooterState");
 		if (!NUXManager.getInstance().isReminderReceived())
 		{
-			if (!Utils.isHoneycombOrHigher())
+			llInviteOptions.post(new Runnable()
 			{
-				llChatReward.setVisibility(View.GONE);
-				llInviteOptions.setVisibility(View.GONE);
-			}
-			else
-			{
-				/**
-				 * Adding an Global Listener to close the footer on opening ...
-				 */
-				// llInviteOptions.addOnLayoutChangeListener(new OnLayoutChangeListener()
-				// {
-				//
-				// @Override
-				// public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom)
-				// {
-				// ObjectAnimator.ofFloat(llNuxFooter, "translationY", llChatReward.getHeight() + llInviteOptions.getHeight()).setDuration(0).start();
-				// llInviteOptions.removeOnLayoutChangeListener(this);
-				// }
-				// });
 
-				llInviteOptions.post(new Runnable()
+				@Override
+				public void run()
 				{
+					ObjectAnimator.ofFloat(llNuxFooter, "translationY", llChatReward.getHeight() + llInviteOptions.getHeight()).setDuration(0).start();
 
-					@Override
-					public void run()
-					{
-						ObjectAnimator.ofFloat(llNuxFooter, "translationY", llChatReward.getHeight() + llInviteOptions.getHeight()).setDuration(0).start();
-
-					}
-				});
-			}
+				}
+			});
 		}
 		else
 		{
@@ -490,44 +471,16 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 	{
 		if (footerState.getEnum() == footerState.OPEN)
 		{
-			if (Utils.isHoneycombOrHigher())
-
+			llInviteOptions.post(new Runnable()
 			{
 
-				// This is done to handle the footer on home button pressed when the view is already inflated.
-				// if (llInviteOptions.getHeight()>0)
-				// ObjectAnimator.ofFloat(llNuxFooter, "translationY", llInviteOptions.getHeight()).setDuration(0).start();
-				// else
-				// {
-				// llInviteOptions.addOnLayoutChangeListener(new OnLayoutChangeListener()
-				// {
-				//
-				// @Override
-				// public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom)
-				// {
-				// ObjectAnimator.ofFloat(llNuxFooter, "translationY", llInviteOptions.getHeight()).setDuration(0).start();
-				//
-				// llInviteOptions.removeOnLayoutChangeListener(this);
-				// }
-				// });
-				// }
-
-				llInviteOptions.post(new Runnable()
+				@Override
+				public void run()
 				{
+					ObjectAnimator.ofFloat(llNuxFooter, "translationY", llInviteOptions.getHeight()).setDuration(0).start();
 
-					@Override
-					public void run()
-					{
-						ObjectAnimator.ofFloat(llNuxFooter, "translationY", llInviteOptions.getHeight()).setDuration(0).start();
-
-					}
-				});
-			}
-
-			else
-			{
-				llInviteOptions.setVisibility(View.GONE);
-			}
+				}
+			});
 
 			chatProgress.setText(NUXManager.getInstance().getNuxChatRewardPojo().getDetailsText());
 
@@ -556,15 +509,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				 */
 				Logger.d("Footer", "open");
 
-				if (Utils.isHoneycombOrHigher())
-				{
-					ObjectAnimator.ofFloat(llNuxFooter, "translationY", llChatReward.getHeight() + llInviteOptions.getHeight()).start();
-				}
-				else
-				{
-					llChatReward.setVisibility(View.GONE);
-					llInviteOptions.setVisibility(View.GONE);
-				}
+				ObjectAnimator.ofFloat(llNuxFooter, "translationY", llChatReward.getHeight() + llInviteOptions.getHeight()).start();
 
 				footerState.setEnumState(footerState.CLOSED);
 				changeFooterControllerBackground(footerState.CLOSED);
@@ -577,19 +522,13 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				}
 				catch (JSONException e)
 				{
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 
 				break;
 			case HALFOPEN:
 
-				if (Utils.isHoneycombOrHigher())
-					ObjectAnimator.ofFloat(llNuxFooter, "translationY", llNuxFooter.getHeight() - footercontroller.getHeight() - llShadow.getHeight()).start();
-				else
-				{
-					llChatReward.setVisibility(View.GONE);
-				}
+				ObjectAnimator.ofFloat(llNuxFooter, "translationY", llNuxFooter.getHeight() - footercontroller.getHeight() - llShadow.getHeight()).start();
 				footerState.setEnumState(footerState.CLOSED);
 				changeFooterControllerBackground(footerState.CLOSED);
 
@@ -624,13 +563,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 					}
 					progressNux.setProgress(NUXManager.getInstance().getCountUnlockedContacts() / mmDetails.getMin());
 				}
-				if (Utils.isHoneycombOrHigher())
-					ObjectAnimator.ofFloat(llNuxFooter, "translationY", llInviteOptions.getHeight()).start();
-				else
-				{
-					llChatReward.setVisibility(View.VISIBLE);
-					llInviteOptions.setVisibility(View.GONE);
-				}
+				ObjectAnimator.ofFloat(llNuxFooter, "translationY", llInviteOptions.getHeight()).start();
 
 				footerState.setEnumState(footerState.HALFOPEN);
 				changeFooterControllerBackground(footerState.HALFOPEN);
@@ -665,15 +598,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			else
 			{
 				chatProgress.setText(NUXManager.getInstance().getNuxChatRewardPojo().getDetailsText());
-
-				if (Utils.isHoneycombOrHigher())
-				{
-					ObjectAnimator.ofFloat(llNuxFooter, "translationY", 0).start();
-				}
-				else
-				{
-					llInviteOptions.setVisibility(View.VISIBLE);
-				}
+				ObjectAnimator.ofFloat(llNuxFooter, "translationY", 0).start();
 
 				footerState.setEnumState(footerState.OPEN);
 				changeFooterControllerBackground(footerState.OPEN);
@@ -1236,7 +1161,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		{
 			searchText = null;
 			mAdapter.removeSearch();
-			ShowTipIfNeeded(displayedConversations.isEmpty());
+			ShowTipIfNeeded(displayedConversations.isEmpty(), false, ConversationTip.NO_TIP);
 			searchMode = false;
 		}
 	}
@@ -1261,6 +1186,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				@Override
 				public void positiveClicked(HikeDialog dialog)
 				{
+					LockPattern.recordResetPopupButtonClick("confirm", "home");
 					HikeAnalyticsEvent.sendStealthReset();
 					resetStealthMode();
 					dialog.dismiss();
@@ -1275,6 +1201,8 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				@Override
 				public void negativeClicked(HikeDialog dialog)
 				{
+					LockPattern.recordResetPopupButtonClick("cancel", "home");
+
 					StealthModeManager.getInstance().setTipVisibility(false, ConversationTip.RESET_STEALTH_TIP);
 
 					Utils.cancelScheduledStealthReset();
@@ -1652,7 +1580,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				else if (getString(R.string.email_conversations).equals(option))
 				{
 					EmailConversationsAsyncTask task = new EmailConversationsAsyncTask(getActivity(), ConversationFragment.this);
-					Utils.executeConvAsyncTask(task, conv);
+					task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, conv);
 
 					if (BotUtils.isBot(conv.getMsisdn()))
 					{
@@ -1843,7 +1771,14 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			mAdapter.clear();
 		}
 
-		ShowTipIfNeeded(displayedConversations.isEmpty());
+		if(getActivity().getIntent().getBooleanExtra(HikeConstants.Extras.HAS_TIP, false))
+		{
+			processTipFromNotif(getActivity().getIntent().getExtras());
+		}
+		else
+		{
+			ShowTipIfNeeded(displayedConversations.isEmpty(), false, ConversationTip.NO_TIP);
+		}
 
 		mAdapter = new ConversationsAdapter(getActivity(), displayedConversations, stealthConversations, getListView(), this);
 
@@ -1869,7 +1804,18 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		startActivityForResult(intent, requestCode);
 	}
 
-	private void ShowTipIfNeeded(boolean hasNoConversation)
+	private void processTipFromNotif(Bundle bundle)
+	{
+		int tipId = bundle.getInt(HikeConstants.TIP_ID, ConversationTip.NO_TIP);
+		if(bundle.getBoolean(HikeConstants.IS_ATOMIC_TIP, false))
+		{
+			AtomicTipManager.getInstance().processAtomicTipFromNotif(tipId);
+			tipId = ConversationTip.ATOMIC_TIP;
+		}
+		ShowTipIfNeeded(displayedConversations.isEmpty(), true, tipId);
+	}
+
+	private void ShowTipIfNeeded(boolean hasNoConversation, boolean isFromNewIntent, int tipFromNotifId)
 	{
 
 		if (convTip == null)
@@ -1882,7 +1828,15 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		String tip = pref.getData(HikeMessengerApp.ATOMIC_POP_UP_TYPE_MAIN, "");
 		Logger.i("tip", "#" + tip + "#-currenttype");
 
-		if(shouldShowUpdateTip())
+		if(isFromNewIntent)
+		{
+			tipType = tipFromNotifId;
+		}
+		else if(AtomicTipManager.getInstance().doesUnseenTipExist() || AtomicTipManager.getInstance().doesHighPriorityTipExist())
+		{
+			tipType = ConversationTip.ATOMIC_TIP;
+		}
+		else if(shouldShowUpdateTip())
 		{
 			tipType = whichUpdateTip();
 			Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "Preparing to show tip:"+tipType);
@@ -1936,6 +1890,10 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		else if (tip.equals(HikeMessengerApp.ATOMIC_POP_UP_APP_GENERIC))
 		{
 			tipType = ConversationTip.ATOMIC_APP_GENERIC_TIP;
+		}
+		else if(AtomicTipManager.getInstance().doesAtomicTipExist())
+		{
+			tipType = ConversationTip.ATOMIC_TIP;
 		}
 
 		// to prevent more than one tip to display at a time , it can happen at time of onnewintent
@@ -3043,9 +3001,9 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 					// If this convInfo is coming from the memory map, then we do not need to set mute here, WebViewActivity has already taken care of that.
 					// If the source is not memory map, then we're in trouble.
 					BotInfo botinfo=BotUtils.getBotInfoForBotMsisdn(mMsisdn); // Taking out of trouble hopefully.
-					convInfo.setMute(botinfo.isMute());
-					if (convInfo != null)
+					if (convInfo != null && botinfo !=null)
 					{
+						convInfo.setMute(botinfo.isMute());
 						View parentView = getParenViewForConversation(convInfo);
 						if (parentView == null)
 						{
@@ -3838,6 +3796,9 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
                     AnalyticsConstants.INVITE_TIP_DISMISSED, AnalyticsConstants.CLICK_EVENT);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_INVITE_TIP, false);
 			break;
+		case ConversationTip.ATOMIC_TIP:
+			AtomicTipManager.getInstance().onAtomicTipClosed();
+			break;
 		case ConversationTip.RESET_STEALTH_TIP:
 			if (convTip != null)
 			{
@@ -3873,7 +3834,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		Logger.d("footer", "onNewIntent");
 		if (intent.getBooleanExtra(HikeConstants.Extras.HAS_TIP, false))
 		{
-			ShowTipIfNeeded(displayedConversations.isEmpty());
+			processTipFromNotif(intent.getExtras());
 		}
 
 		final NUXManager nm = NUXManager.getInstance();
@@ -3936,6 +3897,10 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 	{
 		if (tipView != null && tipType == whichTip)
 		{
+			if(whichTip == ConversationTip.ATOMIC_TIP)
+			{
+				AtomicTipManager.getInstance().tipUiEventAnalytics(AnalyticsConstants.AtomicTipsAnalyticsConstants.TIP_CROSSED);
+			}
 			removeTipIfExists(whichTip);
 
 			JSONObject metadata = new JSONObject();
@@ -3988,6 +3953,10 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_INVITE_TIP, false);
 				Intent sendInvite = new Intent(getContext(), HikeListActivity.class);
 				startActivityForResult(sendInvite, ConversationTip.REQUEST_CODE_SEND_INVITE);
+				break;
+			case ConversationTip.ATOMIC_TIP:
+				AtomicTipManager.getInstance().tipUiEventAnalytics(AnalyticsConstants.AtomicTipsAnalyticsConstants.TIP_CLICKED);
+				AtomicTipManager.getInstance().onAtomicTipClicked(getActivity());
 				break;
 			default:
 				break;

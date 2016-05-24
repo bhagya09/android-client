@@ -21,6 +21,11 @@ public class ByteArrayRequest extends Request<byte[]>
 
 	protected static abstract class Init<S extends Init<S>> extends Request.Init<S>
 	{
+		ByteArrayRequest buildRequest()
+		{
+			return new ByteArrayRequest(this);
+		}
+
 		public RequestToken build()
 		{
 			ByteArrayRequest request = new ByteArrayRequest(this);

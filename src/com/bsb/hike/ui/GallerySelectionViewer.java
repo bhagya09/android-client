@@ -48,11 +48,15 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.GalleryAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.ChatAnalyticConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatthread.ChatThreadActivity;
+import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
+import com.bsb.hike.filetransfer.FTUtils;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.GalleryItem;
 import com.bsb.hike.models.HikeFile.HikeFileType;
@@ -70,6 +74,7 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.ParcelableSparseArray;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.edmodo.cropper.CropImageView;
 
@@ -80,6 +85,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 	public static final String FROM_CAMERA_CAPTURE = "from_camera_capture";
 
 	public static final String EDIT_IMAGES_LIST = "edit_images_list";
+
 
 	public static final int MULTI_EDIT_REQUEST_CODE = 12309;
 
@@ -519,8 +525,9 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 						@Override
 						public void positiveClicked(HikeDialog hikeDialog)
 						{
+							recordImageShareAnalyticEvent(msisdn);
 							fileTransferTask = new InitiateMultiFileTransferTask(getApplicationContext(), ftDataList, msisdn, onHike, FTAnalyticEvents.GALLERY_ATTACHEMENT, intent);
-							Utils.executeAsyncTask(fileTransferTask);
+							fileTransferTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 							if(!OfflineUtils.isConnectedToSameMsisdn(msisdn))
 								progressDialog = ProgressDialog.show(GallerySelectionViewer.this, null, getResources().getString(R.string.multi_file_creation));
 							hikeDialog.dismiss();
@@ -535,8 +542,9 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 				}
 				else
 				{
+					recordImageShareAnalyticEvent(msisdn);
 					fileTransferTask = new InitiateMultiFileTransferTask(getApplicationContext(), ftDataList, msisdn, onHike, FTAnalyticEvents.GALLERY_ATTACHEMENT, intent);
-					Utils.executeAsyncTask(fileTransferTask);
+					fileTransferTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 					progressDialog = ProgressDialog.show(GallerySelectionViewer.this, null, getResources().getString(R.string.multi_file_creation));
 				}
 			}
@@ -550,6 +558,52 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		StatusBarColorChanger.setStatusBarColor(getWindow(),HikeConstants.STATUS_BAR_TRANSPARENT);
 	}
 
+	private void recordImageShareAnalyticEvent(String msisdn){
+		String species = ChatThreadUtils.getChatThreadType(msisdn);
+		ArrayList<Uri> selectedFiles = getSelectedFilesAsUri();
+		int numberTotal = Utils.isEmpty(selectedFiles) ? 0 : selectedFiles.size();
+		int numOfImagesCaptions = (captions != null) ? captions.size() : 0;
+		try {
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, ChatAnalyticConstants.SHARE_IMAGES);
+			json.put(AnalyticsConstants.V2.KINGDOM, ChatAnalyticConstants.ACT_CORE_LOGS);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, ChatAnalyticConstants.SHARE_IMAGES);
+			if (StealthModeManager.getInstance().isStealthMsisdn(msisdn)) {
+				json.put(AnalyticsConstants.V2.VARIETY, ChatAnalyticConstants.STEALTH_CHAT_THREAD);
+			}
+			json.put(AnalyticsConstants.V2.SPECIES, species);
+			json.put(AnalyticsConstants.V2.CENSUS, FTUtils.getImageQuality());
+			json.put(AnalyticsConstants.V2.RACE, numberTotal);
+			json.put(AnalyticsConstants.V2.BREED, getNumberOfEditedImages());
+			json.put(AnalyticsConstants.V2.POPULATION, numOfImagesCaptions);
+			json.put(AnalyticsConstants.V2.SOURCE, ChatAnalyticConstants.IMAGE_SOURCE_GALLERY);
+			json.put(AnalyticsConstants.V2.TO_USER, msisdn);
+			json.put(AnalyticsConstants.V2.NETWORK, Utils.getNetworkTypeAsString(
+					HikeMessengerApp.getInstance().getApplicationContext()));
+
+			HAManager.getInstance().recordV2(json);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private int getNumberOfEditedImages(){
+		int actualEditedImageSize = 0;
+		if (!Utils.isEmpty(editedImages))
+		{
+			for (String image : editedImages)
+			{
+				if (!TextUtils.isEmpty(image))
+				{
+					++actualEditedImageSize;
+				}
+			}
+		}
+		return actualEditedImageSize;
+	}
+
 	private void sendAnalyticsEditSend()
 	{
 		try
@@ -558,18 +612,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			json.put(AnalyticsConstants.EVENT_KEY, HikeConstants.LogEvent.EDIT_SEND);
 			ArrayList<Uri> selectedFiles = getSelectedFilesAsUri();
 
-			int actualEditedImageSize = 0;
-
-			if (!Utils.isEmpty(editedImages))
-			{
-				for (String image : editedImages)
-				{
-					if (!TextUtils.isEmpty(image))
-					{
-						++actualEditedImageSize;
-					}
-				}
-			}
+			int actualEditedImageSize = getNumberOfEditedImages();
 
 			int numberEdited = actualEditedImageSize;
 			int numberTotal = Utils.isEmpty(selectedFiles) ? 0 : selectedFiles.size();

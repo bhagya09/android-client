@@ -1,86 +1,7 @@
 package com.bsb.hike.ui;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.bsb.hike.BitmapModule.BitmapUtils;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
-import com.bsb.hike.HikePubSub.Listener;
-import com.bsb.hike.MqttConstants;
-import com.bsb.hike.R;
-import com.bsb.hike.adapters.ProfileAdapter;
-import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.analytics.AnalyticsConstants.ProfileImageActions;
-import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.bots.BotUtils;
-import com.bsb.hike.chatthread.ChatThreadActivity;
-import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.dialog.CustomAlertDialog;
-import com.bsb.hike.dialog.HikeDialog;
-import com.bsb.hike.dialog.HikeDialogFactory;
-import com.bsb.hike.dialog.HikeDialogListener;
-import com.bsb.hike.http.HikeHttpRequest;
-import com.bsb.hike.http.HikeHttpRequest.RequestType;
-import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.models.ContactInfo.FavoriteType;
-import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.models.GroupParticipant;
-import com.bsb.hike.models.HikeSharedFile;
-import com.bsb.hike.models.ImageViewerInfo;
-import com.bsb.hike.models.ProfileItem;
-import com.bsb.hike.models.ProfileItem.ProfileStatusItem;
-import com.bsb.hike.models.Conversation.BroadcastConversation;
-import com.bsb.hike.models.Conversation.Conversation;
-import com.bsb.hike.models.Conversation.GroupConversation;
-import com.bsb.hike.models.Conversation.OneToNConversation;
-import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
-import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.modules.httpmgr.RequestToken;
-import com.bsb.hike.modules.httpmgr.exception.HttpException;
-import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
-import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
-import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.offline.OfflineUtils;
-import com.bsb.hike.productpopup.ProductPopupsConstants;
-import com.bsb.hike.service.HikeMqttManagerNew;
-import com.bsb.hike.smartImageLoader.IconLoader;
-import com.bsb.hike.tasks.FinishableEvent;
-import com.bsb.hike.tasks.GetHikeJoinTimeTask;
-import com.bsb.hike.tasks.HikeHTTPTask;
-import com.bsb.hike.timeline.model.StatusMessage;
-import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
-import com.bsb.hike.timeline.view.StatusUpdate;
-import com.bsb.hike.timeline.view.UpdatesFragment;
-import com.bsb.hike.ui.fragments.ImageViewerFragment;
-import com.bsb.hike.ui.fragments.PhotoViewerFragment;
-import com.bsb.hike.ui.utils.StatusBarColorChanger;
-import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
-import com.bsb.hike.utils.EmoticonConstants;
-import com.bsb.hike.utils.IntentFactory;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.OneToNConversationUtils;
-import com.bsb.hike.utils.PairModified;
-import com.bsb.hike.utils.SmileyParser;
-import com.bsb.hike.utils.StealthModeManager;
-import com.bsb.hike.utils.Utils;
-import com.bsb.hike.view.CustomFontEditText;
-import com.bsb.hike.view.TextDrawable;
-import com.bsb.hike.voip.VoIPUtils;
-
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
@@ -124,6 +45,7 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -132,6 +54,91 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.bsb.hike.BitmapModule.BitmapUtils;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
+import com.bsb.hike.HikePubSub.Listener;
+import com.bsb.hike.MqttConstants;
+import com.bsb.hike.R;
+import com.bsb.hike.adapters.ProfileAdapter;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.AnalyticsConstants.ProfileImageActions;
+import com.bsb.hike.analytics.ChatAnalyticConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HomeAnalyticsConstants;
+import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatthread.ChatThreadActivity;
+import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.dialog.CustomAlertDialog;
+import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
+import com.bsb.hike.http.HikeHttpRequest;
+import com.bsb.hike.http.HikeHttpRequest.RequestType;
+import com.bsb.hike.models.Birthday;
+import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.ContactInfo.FavoriteType;
+import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.Conversation.BroadcastConversation;
+import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.models.Conversation.GroupConversation;
+import com.bsb.hike.models.Conversation.OneToNConversation;
+import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
+import com.bsb.hike.models.GroupParticipant;
+import com.bsb.hike.models.HikeSharedFile;
+import com.bsb.hike.models.ImageViewerInfo;
+import com.bsb.hike.models.ProfileItem;
+import com.bsb.hike.models.ProfileItem.ProfileStatusItem;
+import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.offline.OfflineUtils;
+import com.bsb.hike.productpopup.ProductPopupsConstants;
+import com.bsb.hike.service.HikeMqttManagerNew;
+import com.bsb.hike.smartImageLoader.IconLoader;
+import com.bsb.hike.tasks.FinishableEvent;
+import com.bsb.hike.tasks.GetHikeJoinTimeTask;
+import com.bsb.hike.tasks.HikeHTTPTask;
+import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
+import com.bsb.hike.timeline.view.StatusUpdate;
+import com.bsb.hike.timeline.view.UpdatesFragment;
+import com.bsb.hike.ui.fragments.ImageViewerFragment;
+import com.bsb.hike.ui.fragments.PhotoViewerFragment;
+import com.bsb.hike.ui.utils.StatusBarColorChanger;
+import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
+import com.bsb.hike.utils.EmoticonConstants;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
+import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
+import com.bsb.hike.utils.PairModified;
+import com.bsb.hike.utils.SmileyParser;
+import com.bsb.hike.utils.StealthModeManager;
+import com.bsb.hike.utils.Utils;
+import com.bsb.hike.view.CustomFontEditText;
+import com.bsb.hike.view.CustomFontTextView;
+import com.bsb.hike.view.TextDrawable;
+import com.bsb.hike.voip.VoIPUtils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public class ProfileActivity extends ChangeProfileImageBaseActivity implements FinishableEvent, Listener, OnLongClickListener, OnItemLongClickListener, OnScrollListener,
 		View.OnClickListener
@@ -187,6 +194,14 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	private CustomFontEditText mEmailEdit;
 
 	private String emailTxt;
+
+	private CustomFontTextView savedDOB;
+
+	private String dobTxt;
+
+	private boolean dobEdited = false;
+
+	private boolean extrasClearedOut = false;
 
 	private Map<String, PairModified<GroupParticipant, String>> participantMap;
 
@@ -314,8 +329,22 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		{
 			Utils.hideSoftKeyboard(getApplicationContext(), mNameEdit);			
 		}
+		if(getIntent().hasExtra(HikeConstants.Extras.PROFILE_DOB))
+		{
+			extrasClearedOut = true;
+			getIntent().removeExtra(HikeConstants.Extras.PROFILE_DOB);
+		}
 	}
-	
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState)
+	{
+		//saving the extrasClearedOut value to be used in onCreate, in case the activity is destroyed and re-spawned using old Intent
+		Logger.d(TAG," setting value  of EXTRTA  " + extrasClearedOut);
+		outState.putBoolean(HikeConstants.Extras.CLEARED_OUT, extrasClearedOut);
+		super.onSaveInstanceState(outState);
+	}
+
 	@Override
 	protected void onDestroy()
 	{
@@ -399,6 +428,22 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			mActivityState = new ProfileActivityState();
 		}
 
+		if (savedInstanceState != null && savedInstanceState.getBoolean(HikeConstants.Extras.CLEARED_OUT, false))
+		{
+
+			Logger.d(TAG, " making extra TRUE");
+			//this means that singleTop activity has been re-spawned after being destroyed
+			extrasClearedOut = true;
+		}
+
+		if(extrasClearedOut)
+		{
+			Logger.d(TAG, "clearing all data");
+			//removing unwanted EXTRA becoz every time a singleTop activity is re-spawned,
+			//android system uses the old intent to fire it, and it will contain unwanted extras.
+			getIntent().removeExtra(HikeConstants.Extras.PROFILE_DOB);
+		}
+
 		if (getIntent().hasExtra(HikeConstants.Extras.EXISTING_GROUP_CHAT) || getIntent().hasExtra(HikeConstants.Extras.EXISTING_BROADCAST_LIST))
 		{
 			setContentView(R.layout.profile);
@@ -437,6 +482,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			//SO that if activity is recreated we do not send it to DP Flow again.
 			if(Intent.ACTION_ATTACH_DATA.equals(getIntent().getAction()) && savedInstanceState == null)
 			{
+				super.mActivityState.species = getSourceSpecies();
 				super.onActivityResult(HikeConstants.GALLERY_RESULT, RESULT_OK, getIntent());
 			}
 			if (getIntent().getBooleanExtra(HikeConstants.Extras.EDIT_PROFILE, false))
@@ -448,6 +494,10 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				setupEditScreen();
 				HikeMessengerApp.getPubSub().addListeners(this, profilEditPubSubListeners);
 				triggerPointPopup=ProductPopupsConstants.PopupTriggerPoints.EDIT_PROFILE.ordinal();
+				if(getIntent().getBooleanExtra(HikeConstants.Extras.PROFILE_DOB, false))
+				{
+					showDatePickerDialog();
+				}
 			}
 			else
 			{
@@ -1400,19 +1450,70 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			sharedMediaItem.addSharedMediaFiles((List<HikeSharedFile>) hCDB.getSharedMedia(mLocalMSISDN, maxMediaToShow * MULTIPLIER , -1, true));
 	}
 
+	private DatePickerDialog.OnDateSetListener dobDateListener = new DatePickerDialog.OnDateSetListener()
+	{
+		@Override
+		public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth)
+		{
+			Birthday dobEntered = new Birthday(dayOfMonth, monthOfYear +1, year);
+			dobTxt = dobEntered.toJsonString();
+			savedDOB.setText(Utils.formatDOB(dobTxt));
+			dobEdited = true;
+		}
+	};
+
+	private void showDatePickerDialog()
+	{
+		Logger.d(getClass().getSimpleName(), "creating date picker dialog");
+		int year, month, day;
+		if(TextUtils.isEmpty(dobTxt))
+		{
+			year = Birthday.DEFAULT_YEAR;
+			month = Birthday.DEFAULT_MONTH;
+			day = Birthday.DEFAULT_DAY;
+		}
+		else
+		{
+			Birthday currDOB = new Birthday(dobTxt);
+			year = currDOB.year;
+			month = currDOB.month - 1;
+			day = currDOB.day;
+		}
+		DatePickerDialog dialog = new DatePickerDialog(this, dobDateListener, year, month, day);
+		Logger.d(getClass().getSimpleName(), "overriding negative button on date picker dialog");
+		dialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.cancel), new DialogInterface.OnClickListener()
+		{
+			@Override
+			public void onClick(DialogInterface dialog, int which)
+			{
+				if(which == DialogInterface.BUTTON_NEGATIVE)
+				{
+					Logger.d(TAG, "cancelling date picker dialog");
+					dialog.dismiss();
+					dobEdited = false;
+				}
+			}
+		});
+		Logger.d(getClass().getSimpleName(), "calling show on date picker dialog");
+		dialog.show();
+	}
+
 	private void setupEditScreen()
 	{
 		ViewGroup name = (ViewGroup) findViewById(R.id.name);
 		ViewGroup phone = (ViewGroup) findViewById(R.id.phone);
+		ViewGroup birthday = (ViewGroup) findViewById(R.id.birthday);
 		ViewGroup email = (ViewGroup) findViewById(R.id.email);
 		ViewGroup gender = (ViewGroup) findViewById(R.id.gender);
 		ViewGroup picture = (ViewGroup) findViewById(R.id.photo);
 
 		mNameEdit = (CustomFontEditText) name.findViewById(R.id.name_input);
 		mEmailEdit = (CustomFontEditText) email.findViewById(R.id.email_input);
+		savedDOB = ((CustomFontTextView) birthday.findViewById(R.id.birthday_stored));
 		
 		((TextView) name.findViewById(R.id.name_edit_field)).setText(R.string.name);
 		((TextView) phone.findViewById(R.id.phone_edit_field)).setText(R.string.phone_num);
+		((TextView) birthday.findViewById(R.id.birthday_edit_field)).setText(R.string.edit_profile_birthday);
 		((TextView) email.findViewById(R.id.email_edit_field)).setText(R.string.email);
 		((TextView) gender.findViewById(R.id.gender_edit_field)).setText(R.string.gender);
 		((TextView) picture.findViewById(R.id.photo_edit_field)).setText(R.string.edit_picture);
@@ -1425,6 +1526,15 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			public void onClick(View v)
 			{				
 				changeProfilePicture();
+			}
+		});
+
+		savedDOB.setOnClickListener(new OnClickListener()
+		{
+			@Override
+			public void onClick(View v)
+			{
+				showDatePickerDialog();
 			}
 		});
 		
@@ -1440,6 +1550,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 		mNameEdit.setText(nameTxt);
 		mEmailEdit.setText(emailTxt);
+		savedDOB.setText(Utils.formatDOB(dobTxt));
 
 		mNameEdit.setSelection(nameTxt.length());
 		mEmailEdit.setSelection(emailTxt.length());
@@ -1580,14 +1691,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				}
 
 			};
-			if (Utils.isHoneycombOrHigher())
-			{
-				asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-			}
-			else
-			{
-				asyncTask.execute();
-			}
+
+			asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		}
 	}
 
@@ -1599,12 +1704,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			Logger.d(getClass().getSimpleName(), "CentralTimeline Adapter Scrolled State: " + scrollState);
 			profileAdapter.setIsListFlinging(velocity > HikeConstants.MAX_VELOCITY_FOR_LOADING_TIMELINE_IMAGES && scrollState == OnScrollListener.SCROLL_STATE_FLING);
 		}
-		/*
-		 * // Pause fetcher to ensure smoother scrolling when flinging if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_FLING) { // Before Honeycomb pause image loading
-		 * on scroll to help with performance if (!Utils.hasHoneycomb()) { if (profileAdapter != null) { profileAdapter.getTimelineImageLoader().setPauseWork(true);
-		 * profileAdapter.getIconImageLoader().setPauseWork(true); } } } else { if (profileAdapter != null) { profileAdapter.getTimelineImageLoader().setPauseWork(false);
-		 * profileAdapter.getIconImageLoader().setPauseWork(false); } }
-		 */
 	}
 
 	private void fetchPersistentData()
@@ -1614,6 +1713,17 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		emailTxt = preferences.getString(HikeConstants.Extras.EMAIL, "");
 		lastSavedGender = preferences.getInt(HikeConstants.Extras.GENDER, 0);
 		mActivityState.genderType = mActivityState.genderType == 0 ? lastSavedGender : mActivityState.genderType;
+		dobTxt = preferences.getString(HikeConstants.DOB, "");
+		if(TextUtils.isEmpty(dobTxt))
+		{
+			int day = preferences.getInt(HikeConstants.SERVER_BIRTHDAY_DAY, 0);
+			int month = preferences.getInt(HikeConstants.SERVER_BIRTHDAY_MONTH, 0);
+			int year = preferences.getInt(HikeConstants.SERVER_BIRTHDAY_YEAR, 0);
+			if(day != 0 && month != 0 && year != 0)
+			{
+				dobTxt = new Birthday(day, month, year).toJsonString();
+			}
+		}
 	}
 
 	@Override
@@ -1769,13 +1879,59 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			requests.add(request);
 		}
 
+		if(dobEdited)
+		{
+			HikeHttpRequest request = new HikeHttpRequest(httpRequestURL + "/dob", RequestType.OTHER, new HikeHttpRequest.HikeHttpCallback()
+			{
+				public void onFailure()
+				{
+					if (isBackPressed)
+					{
+						Logger.d(getClass().getSimpleName(), "DoB update request failed");
+						HikeMessengerApp.getPubSub().publish(HikePubSub.PROFILE_UPDATE_FINISH, null);
+					}
+				}
+
+				public void onSuccess(JSONObject response)
+				{
+					Logger.d(getClass().getSimpleName(), "DoB updated request successful");
+					Editor editor = preferences.edit();
+					editor.putString(HikeConstants.DOB, dobTxt);
+					editor.commit();
+					if (isBackPressed)
+					{
+						// finishEditing();
+						HikeMessengerApp.getPubSub().publish(HikePubSub.PROFILE_UPDATE_FINISH, null);
+					}
+				}
+			});
+			JSONObject payload = new JSONObject();
+			try
+			{
+				Logger.d(getClass().getSimpleName(), "Profile details DOB: " + savedDOB.getText());
+				Birthday updatedDOB = new Birthday(dobTxt);
+				JSONObject dobJSON = new JSONObject();
+				dobJSON.put(HikeConstants.DAY, updatedDOB.day);
+				dobJSON.put(HikeConstants.MONTH, (updatedDOB.month));
+				dobJSON.put(HikeConstants.YEAR, updatedDOB.year);
+				payload.put(HikeConstants.DOB, dobJSON);
+				Logger.d(getClass().getSimpleName(), "JSON to be sent is: " + payload.toString());
+				request.setJSONData(payload);
+			}
+			catch (JSONException e)
+			{
+				Logger.e(getClass().getSimpleName(), "Could not update DoB");
+			}
+			requests.add(request);
+		}
+
 		if (!requests.isEmpty() && this.profileType != ProfileType.USER_PROFILE)
 		{
 			mDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_profile));
 			mActivityState.task = new HikeHTTPTask(this, R.string.update_profile_failed);
 			HikeHttpRequest[] r = new HikeHttpRequest[requests.size()];
 			requests.toArray(r);
-			Utils.executeHttpTask(mActivityState.task, r);
+			mActivityState.task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, r);
 		}
 		else if (isBackPressed)
 		{
@@ -3435,6 +3591,23 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	}
 
 	@Override
+	protected String getSourceSpecies()
+	{
+		if(Intent.ACTION_ATTACH_DATA.equals(getIntent().getAction()))
+		{
+			return HomeAnalyticsConstants.DP_SPECIES_EXTERNAL_APP;
+		}
+		else if (this.profileType == ProfileType.USER_PROFILE_EDIT)
+		{
+			return HomeAnalyticsConstants.DP_SPECIES_EDIT_PROFILE;
+		}
+		else
+		{
+			return HomeAnalyticsConstants.DP_SPECIES_MY_PROFILE;
+		}
+	}
+
+	@Override
 	public boolean onKeyUp(int keyCode, KeyEvent event)
 	{
 		if (Build.VERSION.SDK_INT <= 10 || (Build.VERSION.SDK_INT >= 14 && ViewConfiguration.get(this).hasPermanentMenuKey()))
@@ -3475,6 +3648,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				intent.setClass(ProfileActivity.this, PinHistoryActivity.class);
 				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				intent.putExtra(HikeConstants.TEXT_PINS, mLocalMSISDN);
+				HikeAnalyticsEvent.recordAnalyticsForGCPins(ChatAnalyticConstants.GCEvents.GC_PIN_HISTORY, null, ChatAnalyticConstants.GCEvents.GC_PIN_HISTORY_SRC_GROUPINFO, null);
 				startActivity(intent);
 				return;
 			}

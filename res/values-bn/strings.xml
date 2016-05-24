@@ -1432,4 +1432,7 @@
     <string name="slide_to_cancel">বাতিল করতে স্লাইড করুন</string>
     <string name="recording_help_text">রেকর্ড করতে স্পর্শ করুন, পাঠাতে ছেড়ে দিন</string>
     <string name="max_duration_recorded">সর্বোচ্চ সময়ের জন্য রেকর্ড সম্পন্ন হয়েছে</string>
+    <string name="stream_volume_muted_or_low">প্লিস আওয়াজ বাড়ান</string>
+    <string name="edit_profile_birthday">জন্ম দিন</string>
+    <string name="atomic_tip_http_failure">কিছু ত্রুটি ঘটেছে অনুগ্রহ করে একটু পরে আবার চেষ্টা করুন</string>
 </resources>

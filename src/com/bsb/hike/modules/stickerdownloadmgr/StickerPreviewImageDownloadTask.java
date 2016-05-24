@@ -81,7 +81,7 @@ public class StickerPreviewImageDownloadTask implements IHikeHTTPTask, IHikeHttp
 		{
 
 			@Override
-			public void intercept(Chain chain)
+			public void intercept(Chain chain) throws Exception
 			{
 				String dirPath = StickerManager.getInstance().getStickerDirectoryForCategoryId(categoryId);
 				if (dirPath == null)
