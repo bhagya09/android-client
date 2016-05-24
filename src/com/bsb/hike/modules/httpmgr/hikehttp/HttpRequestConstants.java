@@ -25,6 +25,9 @@ public class HttpRequestConstants
 	
 	public static final String STICKERS_PRODUCTION_API = "stickers.im.hike.in";
 
+	//TODO CHATTHEME Revisit PRODUCTION URL
+	public static final String CHATTHEME_PRODUCTION_API = "";
+
 	public static final String FT_PRODUCTION_API = "ft.im.hike.in";
 
 	public static final String STICKERS_CDN_PRODUCTION_API = "staticstickers.im.hike.in";
@@ -49,6 +52,9 @@ public class HttpRequestConstants
 
 	private static String BASE_STICKERS_CDN_URL = HTTP + STICKERS_CDN_PRODUCTION_API;
 
+	//TODO CHATTHEME change the URL to Production
+	private static String BASE_CHATTHEME_URL = HTTP + STAGING_API;
+
 	private static final String BASE_V1 = "/v1";
 
 	private static final String BASE_V2 = "/v2";
@@ -64,6 +70,8 @@ public class HttpRequestConstants
 	private static final String BASE_USER = "/user";
 
 	private static final String BASE_STICKER = "/stickers";
+
+	private static final String BASE_CHATTHEME = "/cbg";
 
 	private static final String BASE_SHOP = "/shop";
 
@@ -107,6 +115,10 @@ public class HttpRequestConstants
 
 	private static final String HIKE_SETTINGS = "/hikesettings";
 
+	private static final String  FETCH_TODAYS_BIRTHDAY_URL = "/events/birthday";
+
+	private static final String PREF_PATH = "/pref";
+
 	public static synchronized void setUpBase()
 	{
 		toggleStaging();
@@ -120,6 +132,7 @@ public class HttpRequestConstants
 		changeBasePlatformUrl();
 		changeBaseStickersUrl();
 		changeBaseAuthUrl();
+		changeChatThemeUrl();
 	}
 
 	public static synchronized void toggleSSL()
@@ -129,6 +142,7 @@ public class HttpRequestConstants
 		changeBasePlatformUrl();
 		changeBaseStickersUrl();
 		changeBaseAuthUrl();
+		changeChatThemeUrl();
 	}
 
 	private static void changeBaseAuthUrl()
@@ -191,10 +205,31 @@ public class HttpRequestConstants
 		BASE_STICKERS_CDN_URL += (isSSL) ? HTTPS : HTTP;
 		BASE_STICKERS_CDN_URL += (isProduction) ? STICKERS_CDN_PRODUCTION_API : STAGING_API;
 	}
-	
-	
-	
+
+	//TODO CHATTHEME Revisit PRODUCTION URL
+	private static void changeChatThemeUrl()
+	{
+		BASE_CHATTHEME_URL = "";
+		BASE_CHATTHEME_URL += HTTP;
+		//BASE_CHATTHEME_URL += (isProduction) ? CHATTHEME_PRODUCTION_API : CHATTHEME_STAGING_API;
+		BASE_CHATTHEME_URL += STAGING_API;
+	}
+
 	/*********************************************************************************************************************************************/
+	public static String chatThemeBgImgUploadBase()
+	{
+		return BASE_CHATTHEME_URL + BASE_V1 + BASE_CHATTHEME + "/custom";
+	}
+
+	public static String chatThemeAssetsDownloadBase()
+	{
+		return BASE_CHATTHEME_URL + BASE_V1 + BASE_CHATTHEME + "/assets";
+	}
+
+	public static String chatThemeAssetIdDownloadBase()
+	{
+		return BASE_CHATTHEME_URL + BASE_V1 + BASE_CHATTHEME + "/prop";
+	}
 
 	public static String singleStickerDownloadBase()
 	{
@@ -275,6 +310,11 @@ public class HttpRequestConstants
 	public static String stickerCategoryDetailsUrl()
 	{
 		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER + "/categories";
+	}
+
+	public static String quickSuggestionUrl()
+	{
+		return HTTP + "54.251.141.175:8080" + "/quickSuggestions";
 	}
 
 	public static String lastSeenUrl()
@@ -615,5 +655,30 @@ public class HttpRequestConstants
 	public static String getSettingsDownloadUrl()
 	{
 		return  BASE_URL + BASE_V5 + HIKE_SETTINGS;
+	}
+
+	public static String getFetchBdayUrl()
+	{
+		return BASE_URL + BASE_V1 + FETCH_TODAYS_BIRTHDAY_URL;
+	}
+
+	public static String editProfileNameBaseUrl()
+	{
+		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/name";
+	}
+
+	public static String editProfileEmailGenderBaseUrl()
+	{
+		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/profile";
+	}
+
+	public static String editDOBBaseUrl()
+	{
+		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/dob";
+	}
+
+	public static String getBDPrefUpdateUrl()
+	{
+		return editDOBBaseUrl() + PREF_PATH;
 	}
 }

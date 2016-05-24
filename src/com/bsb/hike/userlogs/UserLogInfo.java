@@ -1,21 +1,8 @@
 package com.bsb.hike.userlogs;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.app.Activity;
 import android.app.KeyguardManager;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -25,9 +12,8 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
 import android.location.Location;
-import android.location.LocationManager;
 import android.net.Uri;
-import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.provider.CallLog;
 import android.text.TextUtils;
 
@@ -53,6 +39,20 @@ import com.google.android.gms.ads.identifier.AdvertisingIdClient.Info;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
 public class UserLogInfo {
 
 	public static final int START = 0;
@@ -73,6 +73,7 @@ public class UserLogInfo {
 	public static final int PHONE_SPEC = 32;
 	public static final int DEVICE_DETAILS = 64;
 	public static final int ACCOUNT_ANALYTICS_FLAG = 128;
+	public static final int SHARED_PREF_ANALYTICS_FLAG = 256;
 	
 	
 	private static final long milliSecInDay = 1000 * 60 * 60 * 24;
@@ -108,7 +109,7 @@ public class UserLogInfo {
 	
 	private final static byte RUNNING_PROCESS_BIT = 0;
 	private final static byte FOREGROUND_TASK_BIT = 1;
-	
+
 	private static int flags;
 
 	private static HikeHandlerUtil mHikeHandler = HikeHandlerUtil.getInstance();
@@ -310,6 +311,7 @@ public class UserLogInfo {
 			case (PHONE_SPEC): jsonKey = HikeConstants.PHONE_SPEC; break;
 			case (DEVICE_DETAILS): jsonKey = HikeConstants.DEVICE_DETAILS; break;
 			case (ACCOUNT_ANALYTICS_FLAG): jsonKey = HikeConstants.ACCOUNT_LOG_ANALYTICS; break;
+			case (SHARED_PREF_ANALYTICS_FLAG): jsonKey = HikeConstants.SHARED_PREF_ANALYTICS; break;
 			
 		}
 		return jsonKey;
@@ -345,6 +347,10 @@ public class UserLogInfo {
 
 		try {
 			Info adInfo = AdvertisingIdClient.getAdvertisingIdInfo(HikeMessengerApp.getInstance().getApplicationContext());
+			if(adInfo == null)
+			{
+				return null;
+			}
 			return new JSONArray().put(new JSONObject().putOpt(HikeConstants.ADVERTSING_ID_ANALYTICS, adInfo.getId()));
 		} catch (IOException e) {
 			Logger.d(TAG, "IOException" + e.toString());
@@ -352,6 +358,8 @@ public class UserLogInfo {
 			Logger.d(TAG, "play service repairable exception" + e.toString());
 		} catch (GooglePlayServicesNotAvailableException e) {
 			Logger.d(TAG, "play services not found Exception" + e.toString());
+		} catch (IllegalStateException e) {
+			Logger.d(TAG, "IllegalStateException" + e.toString());
 		}
 		return null;
 	}
@@ -379,10 +387,41 @@ public class UserLogInfo {
 			case PHONE_SPEC:  return PhoneSpecUtils.getPhoneSpec();
 			case DEVICE_DETAILS:  return getDeviceDetails();
 			case ACCOUNT_ANALYTICS_FLAG : return getJSONAccountArray(getAccountLogs());
+			case SHARED_PREF_ANALYTICS_FLAG : return getSharedPrefLogs();
 			default : return null;
 		}
 	}
-	
+
+	private static JSONArray getSharedPrefLogs()
+	{
+		JSONObject sharedPrefJSONObject = new JSONObject();
+		JSONArray sharedPrefJSONArray = new JSONArray();
+		Map<String, ?> prefs = PreferenceManager.getDefaultSharedPreferences(HikeMessengerApp.getInstance().getApplicationContext()).getAll();
+
+		try
+		{
+			loadPreferences(sharedPrefJSONObject, prefs);
+			prefs = HikeMessengerApp.getInstance().getApplicationContext().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Activity.MODE_PRIVATE).getAll();
+			loadPreferences(sharedPrefJSONObject, prefs);
+			sharedPrefJSONArray.put(sharedPrefJSONObject);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		return sharedPrefJSONArray;
+	}
+
+	public static void loadPreferences(JSONObject jsonObject, Map<String, ?> prefs) throws JSONException
+	{
+		for (String key : prefs.keySet())
+		{
+			Object pref = prefs.get(key);
+			jsonObject.put(key, pref);
+			Logger.d("log_usr_setting", "Key:- " + key + " , value :- " + pref);
+		}
+	}
+
 	private static JSONArray getJSONLogArray(List<SessionLogPojo> sessionLogPojo) throws JSONException 
 	{
 		if (sessionLogPojo == null || sessionLogPojo.isEmpty())
@@ -477,7 +516,7 @@ public class UserLogInfo {
 
 		final JSONArray jsonLogArray = collectLogs(flags);
 		// if nothing is logged we do not send anything
-		if (jsonLogArray != null)
+		if (jsonLogArray != null && jsonLogArray.length() > 0)
 		{
 			final JSONObject jsonLogObj = getEncryptedJSON(jsonLogArray, flags);
 
@@ -636,6 +675,10 @@ public class UserLogInfo {
 		if(data.optBoolean(HikeConstants.ACCOUNT_LOG_ANALYTICS))
 		{
 			flags |= UserLogInfo.ACCOUNT_ANALYTICS_FLAG;
+		}
+		if(data.optBoolean(HikeConstants.SHARED_PREF_ANALYTICS))
+		{
+			flags |= UserLogInfo.SHARED_PREF_ANALYTICS_FLAG;
 		}
 		
 		if(flags == 0) 
@@ -871,5 +914,7 @@ public class UserLogInfo {
 			Logger.d(TAG, "time : " + sessionTime + " of " + packageName);
 		}	
 	}
+
+
 	
 }
