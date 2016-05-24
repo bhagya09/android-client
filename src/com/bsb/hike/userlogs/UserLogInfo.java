@@ -347,6 +347,10 @@ public class UserLogInfo {
 
 		try {
 			Info adInfo = AdvertisingIdClient.getAdvertisingIdInfo(HikeMessengerApp.getInstance().getApplicationContext());
+			if(adInfo == null)
+			{
+				return null;
+			}
 			return new JSONArray().put(new JSONObject().putOpt(HikeConstants.ADVERTSING_ID_ANALYTICS, adInfo.getId()));
 		} catch (IOException e) {
 			Logger.d(TAG, "IOException" + e.toString());
@@ -354,6 +358,8 @@ public class UserLogInfo {
 			Logger.d(TAG, "play service repairable exception" + e.toString());
 		} catch (GooglePlayServicesNotAvailableException e) {
 			Logger.d(TAG, "play services not found Exception" + e.toString());
+		} catch (IllegalStateException e) {
+			Logger.d(TAG, "IllegalStateException" + e.toString());
 		}
 		return null;
 	}
@@ -510,7 +516,7 @@ public class UserLogInfo {
 
 		final JSONArray jsonLogArray = collectLogs(flags);
 		// if nothing is logged we do not send anything
-		if (jsonLogArray != null)
+		if (jsonLogArray != null && jsonLogArray.length() > 0)
 		{
 			final JSONObject jsonLogObj = getEncryptedJSON(jsonLogArray, flags);
 

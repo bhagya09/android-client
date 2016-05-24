@@ -36,6 +36,7 @@ import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.tasks.FetchFriendsTask;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.ui.HomeActivity;
+import com.bsb.hike.utils.BirthdayUtils;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.LastSeenComparator;
@@ -234,6 +235,8 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
     private String msisdnList;
 
+	protected boolean showBdaySection;
+
 	public FriendsAdapter(Context context, ListView listView, FriendsListFetchedCallback friendsListFetchedCallback, LastSeenComparator lastSeenComparator)
 	{
 		this.listView = listView;
@@ -280,7 +283,8 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 		if(Utils.isBDayInNewChatEnabled())
 		{
-			hikeBdayContactList = ChatHeadUtils.getSortedBdayContactListFromSharedPref();
+			hikeBdayContactList = BirthdayUtils.getSortedBdayContactListFromSharedPref();
+			BirthdayUtils.removeHiddenMsisdn(hikeBdayContactList);
 		}
 		else
 		{
@@ -323,7 +327,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
         msisdnList = showFilteredContacts ? (msisdnList) : "";
 
         fetchFriendsTask = new FetchFriendsTask(this, context, friendsList, hikeContactsList, smsContactsList, recentContactsList, recentlyJoinedHikeContactsList,friendsStealthList, hikeStealthContactsList,
-                smsStealthContactsList, recentStealthContactsList, filteredFriendsList, filteredHikeContactsList, filteredSmsContactsList,suggestedContactsList,filteredSuggestedContactsList, false, true, false, false, false,true,true,showFilteredContacts,msisdnList);
+                smsStealthContactsList, recentStealthContactsList, filteredFriendsList, filteredHikeContactsList, filteredSmsContactsList,suggestedContactsList,filteredSuggestedContactsList, false, true, false, false, false,true,true,showFilteredContacts,msisdnList, showBdaySection);
 		fetchFriendsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 
@@ -663,13 +667,13 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
         if(!showFilteredContacts)
         {
-            friendsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredFriendsList.size()), context.getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.friends_upper_case : R.string.favorites_upper_case), FRIEND_PHONE_NUM);
+            friendsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredFriendsList.size()), context.getString(R.string.friends_upper_case), FRIEND_PHONE_NUM);
             updateFriendsList(friendsSection, true, true);
         }
 
         if (isHikeContactsPresent())
 		{
-			hikeContactsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredHikeContactsList.size()), context.getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.add_frn_upper_case : R.string.add_favorites_upper_case), CONTACT_PHONE_NUM);
+			hikeContactsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredHikeContactsList.size()), context.getString(R.string.add_frn_upper_case), CONTACT_PHONE_NUM);
 			updateHikeContactList(hikeContactsSection);
 		}
 		if (showSMSContacts)
@@ -786,18 +790,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 		if (hideSuggestions)
 		{
-			if (!Utils.isFavToFriendsMigrationAllowed() && showAddFriendView && friendsList.isEmpty())
-			{
-				if (TextUtils.isEmpty(queryText))
-				{
-					completeList.add(new ContactInfo(EMPTY_ID, null, null, null));
-				}
-			}
-			else
-			{
-
-				completeList.addAll(filteredFriendsList);
-			}
+			completeList.addAll(filteredFriendsList);
 		}
 	}
 
@@ -1186,7 +1179,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		{
 			return ViewType.HIKE_FEATURES.ordinal();
 		}
-		else if (isBirthdayContact(contactInfo))
+		else if (showBdaySection && isBirthdayContact(contactInfo))
 		{
 			return ViewType.BDAY_CONTACT.ordinal();
 		}
@@ -1470,14 +1463,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 					{
 						lastSeen.setVisibility(View.VISIBLE);
 						String infoSubText = context.getString(Utils.isLastSeenSetToFavorite() ? R.string.both_ls_status_update : R.string.status_updates_proper_casing);
-						if (Utils.isFavToFriendsMigrationAllowed())
-						{
-							lastSeen.setText(context.getString(R.string.sent_you_friend_req));
-						}
-						else
-						{
-							lastSeen.setText(context.getString(R.string.sent_favorite_request_tab, infoSubText));
-						}
+						lastSeen.setText(context.getString(R.string.sent_you_friend_req));
 
 						ImageView acceptBtn = viewHolder.acceptBtn;
 						ImageView rejectBtn = viewHolder.rejectBtn;
@@ -1488,16 +1474,13 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 						acceptBtn.setOnClickListener(acceptOnClickListener);
 						rejectBtn.setOnClickListener(rejectOnClickListener);
 
-						if (Utils.isFavToFriendsMigrationAllowed())
-						{
-							rejectBtn.setVisibility(View.GONE);
-						}
+						rejectBtn.setVisibility(View.GONE);
 
 					}
 					else if (viewType == ViewType.FTUE_CONTACT)
 					{
 						lastSeen.setVisibility(View.VISIBLE);
-						lastSeen.setText(Utils.isFavToFriendsMigrationAllowed() ? R.string.ftue_frn_subtext : R.string.ftue_favorite_subtext);
+						lastSeen.setText(R.string.ftue_frn_subtext);
 
 						TextView addBtn = viewHolder.addBtn;
 
@@ -1516,7 +1499,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 				if (viewType == ViewType.NOT_FRIEND_HIKE)
 				{
 					ImageView addFriend = viewHolder.addFriend;
-					viewHolder.addFriend.setImageResource(Utils.isFavToFriendsMigrationAllowed() ? R.drawable.ic_add_friend : R.drawable.ic_add_favourite );
+					viewHolder.addFriend.setImageResource(R.drawable.ic_add_friend);
 					addFriend.setTag(contactInfo);
 					addFriend.setOnClickListener(this);
 				}
@@ -1552,7 +1535,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 				switch (contactInfo.getPhoneNum())
 				{
 				case FRIEND_PHONE_NUM:
-					headerName.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(Utils.isFavToFriendsMigrationAllowed() ? R.drawable.ic_section_header_friends : R.drawable.ic_section_header_favorite), null, null, null);
+					headerName.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(R.drawable.ic_section_header_friends), null, null, null);
 					break;
 
 				case CONTACT_PHONE_NUM:
