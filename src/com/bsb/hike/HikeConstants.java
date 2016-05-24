@@ -4315,5 +4315,4 @@ public class HikeConstants
 
 	public static final String DISABLE_QUICK_UPLOAD = "disable_md5";
 
-	public static final long DEFAULT_STICKER_SEARCH_TRIGGER_DELAY = 1500;
 }
