@@ -3132,10 +3132,10 @@ public class Utils
 		{
 			return false;
 		}
-
-		if (file.isDirectory())
+        File listFiles[] = file.listFiles();
+		if (file.isDirectory()  && listFiles != null)
 		{
-			for (File f : file.listFiles())
+			for (File f : listFiles)
 			{
 				result = result && deleteFile(f);
 			}
@@ -8126,14 +8126,15 @@ public class Utils
 
 		try
 		{
-			if (!file.exists() || file.listFiles() == null)
+			File[] listFiles = file.listFiles();
+			if (!file.exists() || listFiles == null)
 			{
 				return 0;
 			}
 
 			int count = 0;
 
-			for (File newFile : file.listFiles())
+			for (File newFile : listFiles)
 			{
 				if (newFile.isDirectory())
 				{

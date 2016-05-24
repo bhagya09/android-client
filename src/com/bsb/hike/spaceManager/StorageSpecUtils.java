@@ -60,7 +60,12 @@ public class StorageSpecUtils
         }
         else
         {
-            if(reqDir.listFiles().length == 0)
+            File listFiles[] = reqDir.listFiles();
+            if(listFiles == null)
+            {
+                return directorySizeMap;
+            }
+            if(listFiles.length == 0)
             {
                 directorySizeMap.put(path, Long.toString(0));
                 return directorySizeMap;
@@ -68,7 +73,7 @@ public class StorageSpecUtils
             else
             {
                 long dirSize = 0;
-                for(File currFile : reqDir.listFiles())
+                for(File currFile : listFiles)
                 {
                     long currFileSize;
 
