@@ -31,7 +31,7 @@
                 android:layout_alignParentTop="true"
                 android:layout_marginTop="@dimen/st__action_bar_default_height" />
 
-            <com.bsb.hike.ui.utils.RecyclingImageView
+            <com.bsb.hike.chatthemes.CustomBGRecyclingImageView
                 android:id="@+id/background"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
