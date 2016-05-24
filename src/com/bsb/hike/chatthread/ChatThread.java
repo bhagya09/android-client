@@ -6911,7 +6911,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
         CustomFontEditText composeTextView = (CustomFontEditText) activity.findViewById(R.id.msg_compose);
         composeTextView.setHint(getResources().getString(R.string.select_options));
-        composeTextView.setPadding((int)(10 * Utils.densityMultiplier),(int)(6 * Utils.densityMultiplier),0,0);
+        composeTextView.setPadding((int)(16 * Utils.densityMultiplier),(int)(6 * Utils.densityMultiplier),0,0);
         composeTextView.setEnabled(false);
         composeTextView.setClickable(false);
 
