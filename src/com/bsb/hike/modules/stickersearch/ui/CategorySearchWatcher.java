@@ -11,6 +11,14 @@ import com.bsb.hike.modules.stickersearch.provider.db.CategorySearchManager;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 
+/**
+ * @author akhiltripathi
+ *
+ * This is a watcher model class which captures text changes on searchView ,
+ * Communicates the search result to CategorySearchListener provided
+ * As per urrent design implementation there is one CategorySearchListener per watcher object
+ */
+
 public class CategorySearchWatcher implements CategorySearchListener, SearchView.OnQueryTextListener
 {
 	public static final String TAG = CategorySearchWatcher.class.getSimpleName();
@@ -95,6 +103,13 @@ public class CategorySearchWatcher implements CategorySearchListener, SearchView
 		return CategorySearchManager.getInstance().onQueryTextSubmit(query, this);
 	}
 
+    /**
+     * Starts a timer to see if there is a possibility to trigger auto search
+     * The timer is of time period defined in the AUTO_SEARCH_TIME pref [Server Controlled] [in milliseconds]
+     * After the time period it checks if the user query has changed in the given time period. If not then the auto search for packs is triggered
+     *
+     * @param query
+     */
 	@Override
 	public boolean onQueryTextChange(final String query)
 	{

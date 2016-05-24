@@ -1431,4 +1431,7 @@
     <string name="pack_search_again_hint">कृपया प्रेम, हिंदी, बॉलीवुड इत्यादि सारखे पुर्ण शब्द लिहा</string>
     <string name="edit_profile_birthday">जन्म दिवस</string>
     <string name="atomic_tip_http_failure">काही त्रुटी आली. कृपया नंतर प्रयत्न करा</string>
+    <string name="my_location">माझे स्थान</string>
+    <string name="custom_location">माझे सानुकूल स्थान</string>
+
 </resources>
