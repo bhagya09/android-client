@@ -16,6 +16,7 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.TransitionDrawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -1826,11 +1827,14 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		{
 			setChatBackground(REMOVE_CHAT_BACKGROUND);
 			Drawable drawable = Utils.getChatTheme(themeId, activity);
-			setThemeBackground(backgroundImage, drawable, ChatThemeManager.getInstance().getTheme(themeId).isTiled(), ChatThemeManager.getInstance().getTheme(themeId).isCustomTheme());
+
+			//we have already shown the transistion effect while setting the preview time for custom theme, causing flicker, hence disabled here.
+			boolean showTransistionEffect = ChatThemeManager.getInstance().getTheme(themeId).isCustomTheme() ? false : true;
+			setThemeBackground(backgroundImage, drawable, ChatThemeManager.getInstance().getTheme(themeId).isTiled(), ChatThemeManager.getInstance().getTheme(themeId).isCustomTheme(), showTransistionEffect);
 		}
 	}
 
-	private void setThemeBackground(CustomBGRecyclingImageView backgroundImage, Drawable drawable, boolean isTiled, boolean isCustom) {
+	private void setThemeBackground(CustomBGRecyclingImageView backgroundImage, Drawable drawable, boolean isTiled, boolean isCustom, boolean showTransistionEffect) {
 		if((drawable == null) || (backgroundImage == null)){
 			return;
 		}
@@ -1849,7 +1853,14 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		if(isCustom && !ChatThreadUtils.disableOverlayEffectForCCT()) {
 			backgroundImage.setOverLay(true);
 		}
-		backgroundImage.setImageDrawable(drawable);
+
+		if(showTransistionEffect) {
+			TransitionDrawable td = new TransitionDrawable(new Drawable[]{new ColorDrawable(activity.getResources().getColor(android.R.color.transparent)), drawable});
+			backgroundImage.setImageDrawable(td);
+			td.startTransition(HikeChatThemeConstants.CHATTHEME_FADE_IN_TIME);
+		} else {
+			backgroundImage.setImageDrawable(drawable);
+		}
 	}
 
 	private void setCustomThemeBackground() {
@@ -1863,7 +1874,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		Bitmap bmp = HikeBitmapFactory.decodeSampledBitmapFromFile(ChatThemeManager.getInstance().customThemeTempUploadImagePath, width, height);
 		Drawable drawable = new BitmapDrawable(getResources(), bmp);
 
-		setThemeBackground(backgroundImage, drawable, false, true);
+		setThemeBackground(backgroundImage, drawable, false, true, true);
 	}
 
 	@Override

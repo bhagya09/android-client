@@ -189,4 +189,6 @@ public class HikeChatThemeConstants {
     public static final String SHARED_PREF_CT_SHOW_FTUE_ANIMATION = "showCTFTUEAnim";
 
     public static final int CHATTHEME_CUSTOM_THUMBNAIL_SIZE = 120;
+
+    public static final int CHATTHEME_FADE_IN_TIME = 200;
 }
