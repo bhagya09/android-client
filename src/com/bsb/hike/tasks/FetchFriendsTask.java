@@ -307,6 +307,7 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		if(showBdaySection)
 		{
 			bdayContactList = BirthdayUtils.getSortedBdayContactListFromSharedPref();
+			BirthdayUtils.removeHiddenMsisdn(bdayContactList);
 		}
 		else
 		{

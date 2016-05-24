@@ -313,4 +313,25 @@ public class BirthdayUtils
         }
     }
 
+    /**
+     * Iterates List of Contacts and removes any hidden mode contact from list
+     * if hidden mode is inactive
+     *
+     * @param bdayContactList
+     */
+    public static void removeHiddenMsisdn(List<ContactInfo> bdayContactList)
+    {
+        boolean isActive = StealthModeManager.getInstance().isActive();
+        if(!isActive)
+        {
+            for(ContactInfo contactInfo : bdayContactList)
+            {
+                if(StealthModeManager.getInstance().isStealthMsisdn(contactInfo.getMsisdn()))
+                {
+                    bdayContactList.remove(contactInfo);
+                }
+            }
+        }
+    }
+
 }

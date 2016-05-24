@@ -284,6 +284,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		if(Utils.isBDayInNewChatEnabled())
 		{
 			hikeBdayContactList = BirthdayUtils.getSortedBdayContactListFromSharedPref();
+			BirthdayUtils.removeHiddenMsisdn(hikeBdayContactList);
 		}
 		else
 		{
