@@ -79,4 +79,23 @@ public class ChatAnalyticConstants {
         public static final String CANCEL_SRC_OTHERS = "others";
 
     }
+    public static final class MessageInfoEvents{
+
+        public static final String MESSAGE_INFO_EVENT = "msgInfo";
+
+        public static final String MESSAGE_INFO_TAP = "tap";
+
+        public static final String APK="apk";
+
+        public static final String MESSAGE_INFO_REMAINING_EVENT="miRem";
+
+        public static final String READ_REMAINING_ANALYTICS="read";
+
+        public static final String DELIVERED_REMAINING_ANALYTICS="delivered";
+
+        public static final String MESSAGE_INFO_READ_TAP_EVENT="miReadUsr";
+
+        public static final String MESSAGE_INFO_FILE_TYPE_OTHER="other";
+
+    }
 }

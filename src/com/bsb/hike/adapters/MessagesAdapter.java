@@ -4735,4 +4735,13 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			((ChatThreadActivity)mActivity).recordMediaShareEvent(uniqueKey_Order, genus, family);
 		}
 	}
+	public int getVoiceMessagePlayerState(){
+		if(voiceMessagePlayer.getPlayerState()!=null)
+		return voiceMessagePlayer.getPlayerState().ordinal();
+		else
+			return VoiceMessagePlayerState.STOPPED.ordinal();
+	}
+	public String getVoiceMessagePlayerFileKey(){
+		return voiceMessagePlayer.getFileKey();
+	}
 }

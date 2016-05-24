@@ -1864,6 +1864,7 @@ import java.util.Map;
 		Intent intent=IntentFactory.messageInfoIntent(activity,convMessage.getMsgID());
 		intent.putExtra(HikeConstants.MESSAGE_INFO.MESSAGE_INFO_TYPE,HikeConstants.MESSAGE_INFO.ONE_TO_ONE);
 		intent.putExtra(HikeConstants.MSISDN,msisdn);
+		intent.putExtra(HikeConstants.SMS_MESSAGE,convMessage.isSMS());
 		activity.startActivity(intent);
 	}
 	/**

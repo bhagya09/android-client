@@ -22,7 +22,7 @@ public class MessageInfoReadList extends MessageInfoList {
 
     public void addParticipant(MessageInfoDataModel.MessageInfoParticipantData participantData){
         if(participantData.hasRead()){
-            allDisplayedContactItems.add(new MessageInfoItem.MesageInfoParticipantItem(participantData,MessageInfoItem.MesageInfoParticipantItem.READ_CONTACT, MessageInfoAdapter.LIST_ONE_TO_N_CONTACT));
+            allDisplayedContactItems.add(new MessageInfoItem.MesageInfoParticipantItem(participantData,MessageInfoItem.MesageInfoParticipantItem.READ_CONTACT, MessageInfoAdapter.LIST_ONE_TO_N_CONTACT_READ));
         }else
         {
             remainingItem.remainingItemList.add(participantData);

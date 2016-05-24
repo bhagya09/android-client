@@ -15,11 +15,13 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -106,7 +108,7 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 
 	private String[] pubSubListeners = { HikePubSub.MESSAGE_RECEIVED, HikePubSub.BULK_MESSAGE_RECEIVED };
 
-	private boolean isGroupChat, isOnetoOne, isBroadCast;
+	private boolean isGroupChat, isOnetoOne, isBroadCast,isSMSMessage;
 
 	private MessageInfoController controller;
 
@@ -125,6 +127,7 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 		msisdn = getIntent().getExtras().getString(HikeConstants.MSISDN);
 		messageID = getIntent().getExtras().getLong(HikeConstants.MESSAGE_ID);
 		convMessage = HikeConversationsDatabase.getInstance().getMessageFromID(messageID, msisdn);
+		isSMSMessage=getIntent().getBooleanExtra(HikeConstants.SMS_MESSAGE,false);
 
 		initializeListViewandAdapters();
 		setDataModelsandControllers();
@@ -183,7 +186,7 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 
 	}
 
-	private abstract class MessageInfoController implements HikePubSub.Listener, LoaderManager.LoaderCallbacks<MessageInfoLoaderData>
+	private abstract class MessageInfoController implements HikePubSub.Listener, LoaderManager.LoaderCallbacks<MessageInfoLoaderData>,MessageInfoAdapter.MessageInfoViewListener
 	{
 		MessageInfoDataModel dataModel;
 
@@ -201,8 +204,6 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 		ConvMessage convMessage;
 
 		public abstract void refreshData();
-
-		public abstract void setScrollPosition();
 
 		Conversation mConversation;
 
@@ -222,10 +223,13 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 		{
 			chatTheme = HikeConversationsDatabase.getInstance().getChatThemeForMsisdn(msisdn);
 			mConversation = HikeConversationsDatabase.getInstance().getConversation(msisdn, 1, true);
+			messageInfoAdapter.setConversation(mConversation);
+			messageInfoAdapter.setMsisdn(msisdn);
 			// getSupportLoaderManager().initLoader(1,null,this).forceLoad();
 			// dataModel.fetchAllParticipantsInfo();
 			getSupportLoaderManager().initLoader(1, null, this).forceLoad();
 			HikeMessengerApp.getPubSub().addListeners(this, listeners);
+			messageInfoAdapter.setMessageInfoViewListener(this);
 
 		}
 
@@ -241,16 +245,11 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 			participantTreeMap = data.participantTreeMap;
 			convMessage = data.convMessage;
 			areAnyReceiptsReceived=data.areAnyReceiptsReceived;
-
 			messageInfoView = new MessageInfoView(convMessage, chatTheme, MessageInfoActivity.this, mConversation, messageInfoAdapter);
 			readListString = messageInfoView.getReadListHeaderString(controllerType);
 			messageInfoAdapter.setMessageInfoView(messageInfoView);
-
 			addItems();
 			notifyAdapter();
-			setScrollPosition();
-
-
 		}
 
 		@Override
@@ -310,30 +309,12 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 
 		@Override
-		public void refreshData()
-		{
+		public void refreshData() {
 			dataModel.fetchAllParticipantsInfo();
 			addItems();
 			notifyAdapter();
 
-		}
 
-		@Override
-		public void setScrollPosition() {
-			parentListView.postDelayed(new Runnable() {
-				@Override
-				public void run() {
-					int first = parentListView.getFirstVisiblePosition();
-					int last = parentListView.getLastVisiblePosition();
-					Logger.d("listvis", " first visible " + first);
-					Logger.d("listvis", " last visible " + last);
-					if (last < 2) {
-						parentListView.setSelection(2);
-					}
-					;
-
-				}
-			}, 500);
 		}
 
 		@Override
@@ -349,10 +330,11 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 			Logger.d("MessageInfo", "Adding Items One to One");
 			messageMap.clear();
 			participantTreeMap = dataModel.participantTreeMap;
+			isSMSMessage=!dataModel.areAnyReceiptsReceived();
 			messageMap.add(new MessageInfoItem.MessageInfoViewItem(convMessage));
 			if(isNotApplicable()){
 				messageMap.add(new MessageInfoItem.MessageInfoNotApplicableItem());
-			}else if(convMessage.isSMS()){
+			}else if(isSMSMessage){
 				messageMap.add(new MessageInfoItem.MessageInfoSMSItem());
 			}
 			else
@@ -390,6 +372,15 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 
 		}
 
+		@Override
+		public void onMessageInfoViewDrawn(int height) {
+			WindowManager wm = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
+			Display display = wm.getDefaultDisplay();
+			int screenHeight = display.getHeight();
+			if(height>screenHeight){
+				parentListView.setSelectionFromTop(1,screenHeight/2);
+			}
+		}
 	}
 
 	private class MessageInfoControllerGroup extends MessageInfoController
@@ -413,24 +404,6 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 			}
 			notifyAdapter();
 
-		}
-
-		@Override
-		public void setScrollPosition() {
-			parentListView.postDelayed(new Runnable() {
-				@Override
-				public void run() {
-					int first=parentListView.getFirstVisiblePosition();
-					int last =	parentListView.getLastVisiblePosition();
-					Logger.d("listvis", " first visible " +first );
-					Logger.d("listvis", " last visible " + last);
-					if(last<1){
-						parentListView.setSelection(1);
-					}
-					;
-
-				}
-			}, 500);
 		}
 
 		@Override
@@ -494,6 +467,17 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 
 		}
 
+		@Override
+		public void onMessageInfoViewDrawn(int height) {
+			WindowManager wm = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
+			Display display = wm.getDefaultDisplay();
+			int screenHeight = display.getHeight();
+			if(height>screenHeight){
+				//parentListView.setSelection(1);
+				//parentListView.smoothScrollByOffset(-screenHeight/2);
+				parentListView.setSelectionFromTop(1,screenHeight/2);
+			}
+		}
 	}
 
 	private void setChatTheme()

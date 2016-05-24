@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import android.animation.Animator;
 import android.animation.AnimatorSet;
@@ -15,9 +16,12 @@ import android.graphics.Color;
 import android.support.v7.app.AlertDialog;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
@@ -32,6 +36,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.ChatAnalyticConstants;
+import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.messageinfo.MessageInfoDataModel;
 import com.bsb.hike.messageinfo.MessageInfoItem;
 import com.bsb.hike.messageinfo.MessageInfoView;
@@ -43,6 +49,7 @@ import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.ui.MessageInfoActivity;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 public class MessageInfoAdapter extends BaseAdapter
 {
@@ -51,7 +58,8 @@ public class MessageInfoAdapter extends BaseAdapter
 
 	public static final int LIST_REMAINING_GROUP = 1;
 
-	public static final int LIST_ONE_TO_N_CONTACT = 2;
+	public static final int LIST_ONE_TO_N_CONTACT_READ = 2;
+	public static final int LIST_ONE_TO_N_CONTACT_DELIVERED = 8;
 
 	public static final int LIST_ONE_TO_ONE = 3;
 
@@ -62,6 +70,8 @@ public class MessageInfoAdapter extends BaseAdapter
 	public static final int MESSAGE_INFO_NOTAPPLICABLE = 6;
 
 	public static final int MESSAGE_INFO_EMPTY = 7;
+
+    public static final int MIN_ITEMS_FOR_NO_EMPTY_VIEW=12;
 
 	private Context context;
 
@@ -74,6 +84,14 @@ public class MessageInfoAdapter extends BaseAdapter
 	public ConvMessage convMessage;
 
 	private MessageInfoView messageInfoView;
+
+	public String msisdn;
+
+	public String whichChatThread;
+
+    private MessageInfoViewListener messageInfoViewListener;
+
+    private boolean isScrollPositionSet;
 
 
 	public View view;
@@ -88,9 +106,12 @@ public class MessageInfoAdapter extends BaseAdapter
 		iconLoader.setDefaultAvatarIfNoCustomIcon(true);
 		this.completeitemList = completeitemList;
 		this.convMessage = convMessage;
+        isScrollPositionSet=false;
 
 	}
-
+    public void setMessageInfoViewListener(MessageInfoViewListener messageInfoViewListener){
+        this.messageInfoViewListener=messageInfoViewListener;
+    }
 	public void setMessageInfoView(MessageInfoView messageInfoView)
 	{
 		this.messageInfoView = messageInfoView;
@@ -132,7 +153,7 @@ public class MessageInfoAdapter extends BaseAdapter
 	@Override
 	public int getViewTypeCount()
 	{
-		return 8;
+		return 9;
 	}
 
 	@Override
@@ -144,7 +165,7 @@ public class MessageInfoAdapter extends BaseAdapter
 
 		MessageInfoItem messageInfoItem = getItem(position);
 		View v = convertView;
-
+        final View  v1;
 		ViewHolder viewHolder = null;
 
 		if (v == null)
@@ -166,22 +187,22 @@ public class MessageInfoAdapter extends BaseAdapter
 				v.setOnClickListener(remainingItemonClick);
 				v.setTag(viewHolder);
 				break;
-
-			case LIST_ONE_TO_N_CONTACT:
+			case LIST_ONE_TO_N_CONTACT_DELIVERED:
+			case LIST_ONE_TO_N_CONTACT_READ:
 				v = new LinearLayout(context);
 				viewHolder.parent = inflater.inflate(R.layout.messageinfo_item_contact, (LinearLayout) v, false);
 				viewHolder.contactName = (TextView) viewHolder.parent.findViewById(R.id.contact);
 				viewHolder.contactAvatar = (ImageView) viewHolder.parent.findViewById(R.id.avatar);
 				viewHolder.timeStamp = (TextView) viewHolder.parent.findViewById(R.id.timestamp);
-				viewHolder.defaulttimestampLayout=viewHolder.parent.findViewById(R.id.default_timestamp);
-				viewHolder.expandedReadLayout=viewHolder.parent.findViewById(R.id.expandedReadLayout);
-				viewHolder.expandedDeliveredLayout=viewHolder.parent.findViewById(R.id.expandedDeliveredLayout);
-				viewHolder.expandedReadTimeStamp=(TextView)viewHolder.parent.findViewById(R.id.read_message_timestamp);
-				viewHolder.expandedDeliveredTimeStamp=(TextView)viewHolder.parent.findViewById(R.id.delivered_message_timestamp);
-				viewHolder.expandedReadDescription=(TextView)viewHolder.parent.findViewById(R.id.expand_read_text);
-				viewHolder.expandedDeliveredDescription=(TextView)viewHolder.parent.findViewById(R.id.expand_delivered_text);
-				viewHolder.divider=viewHolder.parent.findViewById(R.id.dividermiddle);
-				viewHolder.dividerend=viewHolder.parent.findViewById(R.id.dividerend);
+				viewHolder.defaulttimestampLayout = viewHolder.parent.findViewById(R.id.default_timestamp);
+				viewHolder.expandedReadLayout = viewHolder.parent.findViewById(R.id.expandedReadLayout);
+				viewHolder.expandedDeliveredLayout = viewHolder.parent.findViewById(R.id.expandedDeliveredLayout);
+				viewHolder.expandedReadTimeStamp = (TextView) viewHolder.parent.findViewById(R.id.read_message_timestamp);
+				viewHolder.expandedDeliveredTimeStamp = (TextView) viewHolder.parent.findViewById(R.id.delivered_message_timestamp);
+				viewHolder.expandedReadDescription = (TextView) viewHolder.parent.findViewById(R.id.expand_read_text);
+				viewHolder.expandedDeliveredDescription = (TextView) viewHolder.parent.findViewById(R.id.expand_delivered_text);
+				viewHolder.divider = viewHolder.parent.findViewById(R.id.dividermiddle);
+				viewHolder.dividerend = viewHolder.parent.findViewById(R.id.dividerend);
 				v.setTag(viewHolder);
 				break;
 
@@ -193,8 +214,25 @@ public class MessageInfoAdapter extends BaseAdapter
 				v.setTag(viewHolder);
 				break;
 			case MESSAGE_INFO_VIEW:
-
 				v = messageInfoView.getView(v, convMessage);
+				if (!isScrollPositionSet)
+				{
+					v1 = v;
+					ViewTreeObserver vto = v1.getViewTreeObserver();
+					vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener()
+					{
+						@Override
+						public void onGlobalLayout()
+						{
+							v1.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+							int height = v1.getMeasuredHeight();
+							if (messageInfoViewListener != null)
+								messageInfoViewListener.onMessageInfoViewDrawn(v1.getHeight());
+
+						}
+					});
+					isScrollPositionSet = true;
+				}
 				break;
 			case MESSAGE_INFO_SMS:
 				v = inflater.inflate(R.layout.messageinfo_sms_item, null);
@@ -205,7 +243,16 @@ public class MessageInfoAdapter extends BaseAdapter
 				v.setTag(viewHolder);
 				break;
 			case MESSAGE_INFO_EMPTY:
-				v = inflater.inflate(R.layout.messageinfo_empty_item, null);
+				LinearLayout ll = new LinearLayout(context);
+                AbsListView.LayoutParams params=new AbsListView.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,getLastItemHeight());
+
+                ll.setLayoutParams(params);
+                ll.setMinimumHeight(getLastItemHeight());
+                v=ll;
+                ll.setBackgroundColor(context.getResources().getColor(R.color.white));
+
+                ll.requestLayout();
+
 				break;
 
 			}
@@ -223,7 +270,7 @@ public class MessageInfoAdapter extends BaseAdapter
 			Logger.d("refresh", "adapter LISTNAME " + messageInfoItem + " position " + position);
 			break;
 
-		case LIST_ONE_TO_N_CONTACT:
+		case LIST_ONE_TO_N_CONTACT_READ:
 			viewHolder = (ViewHolder) v.getTag();
 			LinearLayout parentView = (LinearLayout) v;
 			parentView.removeAllViews();
@@ -246,6 +293,21 @@ public class MessageInfoAdapter extends BaseAdapter
 			v.setOnClickListener(readListItemonClick);
 
 			break;
+			case LIST_ONE_TO_N_CONTACT_DELIVERED:
+				viewHolder = (ViewHolder) v.getTag();
+				LinearLayout parentViewD = (LinearLayout) v;
+				parentViewD.removeAllViews();
+				MessageInfoItem.MesageInfoParticipantItem participantD = (MessageInfoItem.MesageInfoParticipantItem) messageInfoItem;
+				parentViewD.setBackgroundColor(Color.WHITE);
+				participantD.applyDividerBehavior(viewHolder.parent);
+				ContactInfo contactInfod = participantD.getContactInfo();
+				viewHolder.contactName.setText(contactInfod.getNameOrMsisdn());
+				setAvatar(contactInfod.getMsisdn(), viewHolder.contactAvatar);
+				viewHolder.timeStamp.setText(participantD.getDisplayedTimeStamp());
+				Logger.d("refresh", "Adapter parent" + viewHolder.parent);
+				parentViewD.addView(viewHolder.parent);
+				
+				break;
 		case LIST_REMAINING_GROUP:
 			viewHolder = (ViewHolder) v.getTag();
 			MessageInfoItem.MesageInfoRemainingItem remainingItem = ((MessageInfoItem.MesageInfoRemainingItem) messageInfoItem);
@@ -265,6 +327,8 @@ public class MessageInfoAdapter extends BaseAdapter
 			break;
 		case MESSAGE_INFO_VIEW:
 			v = messageInfoView.getView(v, convMessage);
+            int padding=context.getResources().getDimensionPixelSize(R.dimen.messageinfoview_padding);
+            v.setPadding(0,padding,0,padding);
 			break;
 		case MESSAGE_INFO_NOTAPPLICABLE:
 			viewHolder=(ViewHolder)v.getTag();
@@ -278,21 +342,18 @@ public class MessageInfoAdapter extends BaseAdapter
 	}
 	public void animateViews(ViewHolder viewHolder,View v,MessageInfoItem.MesageInfoParticipantItem participant) {
 
-		if (participant.getType() != MessageInfoItem.READ_CONTACT)
-			return;
 
 		final View expandedReadLayout = viewHolder.expandedReadLayout;
 		final View expandedDeliveredLayout = viewHolder.expandedDeliveredLayout;
 		final View defaultTimeStampLayout = viewHolder.defaulttimestampLayout;
-		int currentHashCode = participant.getHashCode();
 
-		if (expandSet.contains(currentHashCode)) {
+		if (expandSet.contains(participant.getHashCode())) {
 
 			defaultTimeStampLayout.setVisibility(View.GONE);
 			expandedReadLayout.setVisibility(View.VISIBLE);
 			expandedDeliveredLayout.setVisibility(View.VISIBLE);
 
-		} else if (collapseSet.contains(currentHashCode)) {
+		} else  {
 
 			defaultTimeStampLayout.setVisibility(View.VISIBLE);
 			expandedReadLayout.setVisibility(View.GONE);
@@ -309,8 +370,12 @@ public class MessageInfoAdapter extends BaseAdapter
 			MessageInfoItem.MesageInfoRemainingItem remainingItem = ((ViewHolder) v.getTag()).remainingItem;
 			if (remainingItem != null)
 			{
-				if (remainingItem.shouldshowList())
-					showRemainingItemDialog(remainingItem);
+				if (remainingItem.shouldshowList()){
+					//showRemainingItemDialog(remainingItem);
+					Utils.recordCoreAnalyticsForShare(ChatAnalyticConstants.MessageInfoEvents.MESSAGE_INFO_REMAINING_EVENT, whichChatThread, msisdn, conversation.isStealth(),
+						remainingItem.getType(), null);
+				}
+
 			}
 		}
 	};
@@ -324,8 +389,10 @@ public class MessageInfoAdapter extends BaseAdapter
 
 			ViewHolder viewHolder = (ViewHolder) v.getTag();
 			MessageInfoItem.MesageInfoParticipantItem participantItem = viewHolder.messageInfoParticipantItem;
-			if (participantItem == null)
+			if (participantItem == null&&!participantItem.hasRead())
 				return;
+            Utils.recordCoreAnalyticsForShare(ChatAnalyticConstants.MessageInfoEvents.MESSAGE_INFO_READ_TAP_EVENT, whichChatThread, msisdn, conversation.isStealth(),
+               null, null);
 			int currentHashCode = participantItem.getHashCode();
 
 			if (!expandSet.contains(currentHashCode) && !collapseSet.contains(currentHashCode)) {
@@ -450,6 +517,32 @@ public class MessageInfoAdapter extends BaseAdapter
 	@Override
 	public void notifyDataSetChanged() {
 		super.notifyDataSetChanged();
+
 		//notifyDataSetInvalidated();
 	}
+	public void setConversation(Conversation conversation){
+		this.conversation=conversation;
+	}
+	public void setMsisdn(String msisdn){
+		this.msisdn=msisdn;
+        this.whichChatThread=ChatThreadUtils.getChatThreadType(msisdn);
+	}
+
+    private int getLastItemHeight(){
+        if(completeitemList.size()>MIN_ITEMS_FOR_NO_EMPTY_VIEW)
+            return 0;
+        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        Display display = wm.getDefaultDisplay();
+        int screenHeight = display.getHeight();
+        int listHeightApprox=completeitemList.size()*MessageInfoItem.getSize();
+        return Math.max(0,screenHeight-listHeightApprox);
+    }
+
+	public  interface MessageInfoViewListener
+	{
+		void onMessageInfoViewDrawn(int height);
+	}
+
+
+
 }
