@@ -465,6 +465,7 @@ public class HikeDialogFactory
 
 		final Mute mute = (Mute) data[0];
 		mute.setShowNotifInMute(checkBox.isChecked);
+		mute.setMuteDuration(MuteDuration.DURATION_DEFAULT);
 
 		final CustomAlertRadioButtonCheckboxDialog hikeDialog = new CustomAlertRadioButtonCheckboxDialog(context, dialogId, radioButtons, new RadioButtonItemCheckedListener() {
 
