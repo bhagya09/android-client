@@ -8256,17 +8256,14 @@ public class Utils
 	/**
 	 * Used to toggle mute and unmute for chat
 	 */
-	public static void toggleMuteChat(Context context, Mute mute)
-	{
-		if (mute != null)
-		{
+	public static void toggleMuteChat(Context context, Mute mute) {
+		if (mute != null) {
 			mute.setIsMute(!(mute.isMute()));
 
 			boolean muteApproach = HikeSharedPreferenceUtil.getInstance().getData(
 					(OneToNConversationUtils.isOneToNConversation(mute.getMsisdn()) ? HikeConstants.MUTE_GC_SERVER_SWITCH : HikeConstants.MUTE_ONE_TO_ONE_SERVER_SWITCH), true);
 
-			if (mute.isMute() && muteApproach)
-			{
+			if (mute.isMute() && muteApproach) {
 				int convHash = convInfohashCode(mute.getMsisdn());
 				Intent intent = IntentFactory.getIntentForMuteAlarm(mute);
 				HikeAlarmManager.setAlarmwithIntentPersistanceMute(context.getApplicationContext(), mute.getMuteEndTime(), HikeAlarmManager.REQUESTCODE_END_CONVERSATION_MUTE, true, intent, true, convHash);
@@ -8275,8 +8272,7 @@ public class Utils
 		}
 	}
 
-	public static int convInfohashCode(String msisdn)
-	{
+	public static int convInfohashCode(String msisdn) {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + msisdn.hashCode();

@@ -6,11 +6,10 @@ import com.bsb.hike.R;
 
 /**
  * This class contains the Mute object which is used by the ConvInfo object.
- *
+ * <p/>
  * Created by anubansal on 13/04/16.
  */
-public class Mute
-{
+public class Mute {
     private String msisdn;
 
     private boolean isMute = false;
@@ -23,64 +22,52 @@ public class Mute
 
     private long muteTimestamp;
 
-    private Mute(InitBuilder builder)
-    {
+    private Mute(InitBuilder builder) {
         this.msisdn = builder.msisdn;
         this.isMute = builder.isMute;
         this.showNotification = builder.showNotification;
         this.muteDuration = builder.muteDuration;
     }
 
-    public String getMsisdn()
-    {
+    public String getMsisdn() {
         return msisdn;
     }
 
-    public void setMsisdn(String msisdn)
-    {
+    public void setMsisdn(String msisdn) {
         this.msisdn = msisdn;
     }
 
-    public boolean isMute()
-    {
+    public boolean isMute() {
         return isMute;
     }
 
-    public void setIsMute(boolean isMute)
-    {
+    public void setIsMute(boolean isMute) {
         this.isMute = isMute;
-        if (isMute)
-        {
+        if (isMute) {
             this.muteTimestamp = System.currentTimeMillis();
         }
     }
 
     /**
-     *
      * @return the time when the conversation was muted in seconds
      */
-    public long getMuteTimestamp()
-    {
+    public long getMuteTimestamp() {
         return this.muteTimestamp;
     }
 
-    public boolean shouldShowNotifInMute()
-    {
+    public boolean shouldShowNotifInMute() {
         return showNotification;
     }
 
-    public void setShowNotifInMute(boolean muteNotification)
-    {
+    public void setShowNotifInMute(boolean muteNotification) {
         this.showNotification = muteNotification;
     }
 
-    public int getMuteDuration()
-    {
+    public int getMuteDuration() {
         return muteDuration;
     }
 
-    public void setMuteDuration(int muteDuration)
-    {
+    public void setMuteDuration(int muteDuration) {
         this.muteDuration = muteDuration;
     }
 
@@ -98,13 +85,10 @@ public class Mute
     }
 
     /**
-     *
      * @return muteEndTime in milliseconds for the following durations : 8 hours, 1 week, 1 year
      */
-    public long getMuteEndTime()
-    {
-        switch(muteDuration)
-        {
+    public long getMuteEndTime() {
+        switch (muteDuration) {
             case MuteDuration.DURATION_EIGHT_HOURS:
                 muteEndTime = muteTimestamp + (8 * 60 * 60 * 1000);
                 break;
@@ -120,13 +104,11 @@ public class Mute
         return muteEndTime;
     }
 
-    public void setMuteTimestamp(long muteTimestamp)
-    {
+    public void setMuteTimestamp(long muteTimestamp) {
         this.muteTimestamp = muteTimestamp;
     }
 
-    public static class InitBuilder
-    {
+    public static class InitBuilder {
 
         private String msisdn;
 
@@ -136,36 +118,30 @@ public class Mute
 
         private int muteDuration;
 
-        public InitBuilder(String msisdn)
-        {
+        public InitBuilder(String msisdn) {
             this.msisdn = msisdn;
         }
 
-        public InitBuilder setIsMute(boolean isMute)
-        {
+        public InitBuilder setIsMute(boolean isMute) {
             this.isMute = isMute;
             return getSelfObject();
         }
 
-        public InitBuilder setShowNotifInMute(boolean muteNotification)
-        {
+        public InitBuilder setShowNotifInMute(boolean muteNotification) {
             this.showNotification = muteNotification;
             return getSelfObject();
         }
 
-        public InitBuilder setMuteDuration(int muteDuration)
-        {
+        public InitBuilder setMuteDuration(int muteDuration) {
             this.muteDuration = muteDuration;
             return getSelfObject();
         }
 
-        protected InitBuilder getSelfObject()
-        {
+        protected InitBuilder getSelfObject() {
             return this;
         }
 
-        public Mute build()
-        {
+        public Mute build() {
             return new Mute(this);
         }
     }
