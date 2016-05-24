@@ -5,7 +5,11 @@ import android.webkit.MimeTypeMap;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.ces.CesConstants;
+import com.bsb.hike.ces.CustomerExperienceScore;
+import com.bsb.hike.ces.ft.FTDataInfoFormatBuilder;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
+import com.bsb.hike.filetransfer.FTUtils;
 import com.bsb.hike.filetransfer.FileSavedState;
 import com.bsb.hike.filetransfer.FileTransferBase.FTState;
 import com.bsb.hike.modules.httpmgr.Header;
@@ -18,6 +22,7 @@ import com.bsb.hike.modules.httpmgr.log.LogFull;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.request.requestbody.FileTransferChunkSizePolicy;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -251,7 +256,8 @@ public class FileUploadRequest extends Request<JSONObject>
 						String fileExtension = Utils.getFileExtension(filePath);
 						String fileType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
 						FTAnalyticEvents.logFTProcessingTime(FTAnalyticEvents.UPLOAD_FILE_TASK, X_SESSION_ID, isCompleted, fileBytes.length, (System.currentTimeMillis() - time), contentRange, netType, fileType);
-						LogFull.d("content range  : " + contentRange + " time taken : " + time);
+						logCesData(CesConstants.FT_STATUS_IN_PROGRESS, false, null, (System.currentTimeMillis() - time));
+						LogFull.d("content range  : " + contentRange + " time taken : " + (System.currentTimeMillis() - time));
 					}
 				}
 
@@ -356,6 +362,28 @@ public class FileUploadRequest extends Request<JSONObject>
 				raf.close();
 			}
 		}
+	}
+
+	private void logCesData(int state, boolean isQuickUpload, String stackTrace, long networkTime)
+	{
+		FTDataInfoFormatBuilder<?> builder = new FTDataInfoFormatBuilder<FTDataInfoFormatBuilder>()
+				.setNetType(FTUtils.getNetworkTypeString(HikeMessengerApp.getInstance()))
+				.setFileSize(new File(filePath).length())
+				.setFileAvailability(isQuickUpload)
+				.setFileType(fileType)
+				.setFTStatus(state)
+				.setFTTaskType(CesConstants.FT_UPLOAD)
+				.setNetProcTime(networkTime)
+				.setProcTime(0)
+				.setUniqueId(getCustomId() + "_" + AccountUtils.mUid);
+
+		if (!TextUtils.isEmpty(stackTrace))
+		{
+			builder.setStackTrace(stackTrace);
+		}
+
+		builder.setModule(CesConstants.FT_MODULE);
+		CustomerExperienceScore.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).recordCesData(CesConstants.CESModule.FT, builder);
 	}
 
 	private IRequestListener getUploadChunkRequestListener()
