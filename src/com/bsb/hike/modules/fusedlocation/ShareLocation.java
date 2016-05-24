@@ -186,6 +186,8 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements I
 				searchStr = savedInstanceState.getString(HikeConstants.Extras.HTTP_SEARCH_STR);
 				new GetPlaces().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, searchStr);
 			}
+		} else {
+			return;
 		}
 
 		Button fullScreenButton = (Button) findViewById(R.id.full_screen_button);
