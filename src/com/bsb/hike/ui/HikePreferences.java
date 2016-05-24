@@ -1787,17 +1787,8 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	private void setBDPrefKeys(IconListPreference bdListPref)
 	{
 		//adding entries on basis of friends experiment
-		if (Utils.isFavToFriendsMigrationAllowed())
-		{
-			bdListPref.setEntries(R.array.privacyPrefKeysFriendsExp);
-			bdListPref.setEntryValues(R.array.privacyPrefValuesFriendsExp);
-		}
-
-		else
-		{
-			bdListPref.setEntries(R.array.privacyPrefKeys);
-			bdListPref.setEntryValues(R.array.privacyPrefValues);
-		}
+		bdListPref.setEntries(R.array.privacyPrefKeysFriendsExp);
+		bdListPref.setEntryValues(R.array.privacyPrefValuesFriendsExp);
 	}
 
 	/**
@@ -1851,11 +1842,11 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				headerTxt = getApplicationContext().getString(R.string.privacy_everyone_key);
 				break;
 			case FAVORITES:
-				summaryTxt = getApplicationContext().getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.bd_friends_summary : R.string.bd_favorites_summary);
-				headerTxt = getApplicationContext().getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.privacy_friends_key : R.string.privacy_favorites_key);
+				summaryTxt = getApplicationContext().getString(R.string.bd_friends_summary);
+				headerTxt = getApplicationContext().getString(R.string.privacy_friends_key);
 				break;
 			case MY_CONTACTS:
-				summaryTxt = getApplicationContext().getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.bd_my_contacts_summary_frn : R.string.bd_my_contacts_summary);
+				summaryTxt = getApplicationContext().getString(R.string.bd_my_contacts_summary_frn);
 				headerTxt = getApplicationContext().getString(R.string.privacy_my_contacts_key);
 				break;
 		}
