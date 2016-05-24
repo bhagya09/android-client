@@ -31,6 +31,7 @@ import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.HttpManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.interceptor.IRequestInterceptor;
@@ -88,6 +89,8 @@ public class UploadFileTask extends FileTransferBase
 
 	private boolean isManualRetry;
 
+	private long networkTimeMs;
+
 	public UploadFileTask(Context ctx, ConvMessage convMessage, String fileKey, boolean isManualRetry)
 	{
 		super(ctx, null, -1, null);
@@ -142,6 +145,11 @@ public class UploadFileTask extends FileTransferBase
 								String range = header.getValue();
 								fileSize = Integer.valueOf(range.substring(range.lastIndexOf("/") + 1, range.length()));
 							}
+							else if (header.getName().equals(HttpHeaderConstants.NETWORK_TIME_INCLUDING_RETRIES))
+							{
+								String timeString = header.getValue();
+								networkTimeMs += (Integer.valueOf(timeString) / 1000);
+							}
 						}
 					}
 					catch (Exception e)
@@ -162,6 +170,11 @@ public class UploadFileTask extends FileTransferBase
 			@Override
 			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
+				if (errorResponse != null)
+				{
+					networkTimeMs += getNetworkTimeMsIncludingRetriesFromHeaders(errorResponse.getHeaders());
+				}
+
 				if (httpException.getErrorCode() == HttpException.REASON_CODE_NO_NETWORK)
 				{
 					saveNoNetworkState(fileKey);
@@ -487,7 +500,7 @@ public class UploadFileTask extends FileTransferBase
 				.setFileType(fileType)
 				.setFTStatus(state)
 				.setFTTaskType(CesConstants.FT_UPLOAD)
-				//.setNetProcTime((System.currentTimeMillis() - time))
+				.setNetProcTime(networkTimeMs)
 				.setProcTime((System.currentTimeMillis() - startTime))
 				.setUniqueId(msgId + "_" + AccountUtils.mUid);
 
@@ -513,6 +526,11 @@ public class UploadFileTask extends FileTransferBase
 			@Override
 			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
+				if (errorResponse != null)
+				{
+					networkTimeMs += getNetworkTimeMsIncludingRetriesFromHeaders(errorResponse.getHeaders());
+				}
+
 				FTAnalyticEvents.sendQuickUploadEvent(0);
 				if (httpException.getErrorCode() == HttpException.REASON_CODE_NO_NETWORK)
 				{
@@ -587,6 +605,9 @@ public class UploadFileTask extends FileTransferBase
 					uploadFile(selectedFile);
 					return;
 				}
+
+				networkTimeMs += getNetworkTimeMsIncludingRetriesFromHeaders(result.getHeaders());
+
 				FTAnalyticEvents.sendQuickUploadEvent(1);
 				JSONObject responseJson = new JSONObject();
 				try
@@ -677,6 +698,8 @@ public class UploadFileTask extends FileTransferBase
 				@Override
 				public void onRequestSuccess(Response result)
 				{
+					networkTimeMs += getNetworkTimeMsIncludingRetriesFromHeaders(result.getHeaders());
+
 					FTState state = getFileSavedState().getFTState();
 					if (state == FTState.COMPLETED)
 					{
@@ -714,6 +737,11 @@ public class UploadFileTask extends FileTransferBase
 				public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 				{
 					Logger.e("HttpResponseUpload", "  onprogress failure called : ", httpException.getCause());
+
+					if (errorResponse != null)
+					{
+						networkTimeMs += getNetworkTimeMsIncludingRetriesFromHeaders(errorResponse.getHeaders());
+					}
 
 					if (httpException.getErrorCode() == HttpException.REASON_CODE_REQUEST_PAUSED)
 					{
@@ -1053,5 +1081,24 @@ public class UploadFileTask extends FileTransferBase
 				}
 			});
 		}
+	}
+
+	private long getNetworkTimeMsIncludingRetriesFromHeaders(List<Header> headers)
+	{
+		if (headers == null || headers.isEmpty())
+		{
+			return 0;
+		}
+
+		long timeInNs = 0;
+		for (Header header : headers)
+		{
+			if (header.getName().equals(HttpHeaderConstants.NETWORK_TIME_INCLUDING_RETRIES))
+			{
+				String timeString = header.getValue();
+				timeInNs = Integer.valueOf(timeString);
+			}
+		}
+		return timeInNs / (1000 * 1000);
 	}
 }
