@@ -497,7 +497,7 @@ public class UploadFileTask extends FileTransferBase
 		}
 
 		builder.setModule(CesConstants.FT_MODULE);
-		CustomerExperienceScore.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).recordCesData(CesConstants.CESModule.FT, builder);
+		CustomerExperienceScore.getInstance().recordCesData(CesConstants.CESModule.FT, builder);
 	}
 
 	public void verifyMd5(final boolean isFileKeyValid)

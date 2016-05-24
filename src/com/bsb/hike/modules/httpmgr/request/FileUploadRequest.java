@@ -387,7 +387,7 @@ public class FileUploadRequest extends Request<JSONObject>
 		}
 
 		builder.setModule(CesConstants.FT_MODULE);
-		CustomerExperienceScore.getInstance(HikeMessengerApp.getInstance().getApplicationContext()).recordCesData(CesConstants.CESModule.FT, builder);
+		CustomerExperienceScore.getInstance().recordCesData(CesConstants.CESModule.FT, builder);
 	}
 
 	private IRequestListener getUploadChunkRequestListener()
