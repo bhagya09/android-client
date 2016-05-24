@@ -64,6 +64,8 @@ public class FileUploadRequest extends Request<JSONObject>
 
 	private long time;
 
+	private long cesNetworkStartTime;
+
 	private FileUploadRequest(Init<?> init)
 	{
 		super(init);
@@ -216,6 +218,7 @@ public class FileUploadRequest extends Request<JSONObject>
 			publishProgress((float) bytesTransferred / length);
 			while (end < length)
 			{
+				cesNetworkStartTime = System.currentTimeMillis();
 				FileSavedState st = getState();
 				LogFull.d("ft state in while loop file upload : " + st.getFTState().name());
 				if (st.getFTState() != FTState.IN_PROGRESS)
@@ -256,7 +259,7 @@ public class FileUploadRequest extends Request<JSONObject>
 						String fileExtension = Utils.getFileExtension(filePath);
 						String fileType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
 						FTAnalyticEvents.logFTProcessingTime(FTAnalyticEvents.UPLOAD_FILE_TASK, X_SESSION_ID, isCompleted, fileBytes.length, (System.currentTimeMillis() - time), contentRange, netType, fileType);
-						logCesData(CesConstants.FT_STATUS_IN_PROGRESS, false, null, (System.currentTimeMillis() - time));
+						logCesData(CesConstants.FT_STATUS_IN_PROGRESS, false, null, (System.currentTimeMillis() - cesNetworkStartTime));
 						LogFull.d("content range  : " + contentRange + " time taken : " + (System.currentTimeMillis() - time));
 					}
 				}
