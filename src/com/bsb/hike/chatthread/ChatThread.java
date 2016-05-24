@@ -1828,9 +1828,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			setChatBackground(REMOVE_CHAT_BACKGROUND);
 			Drawable drawable = Utils.getChatTheme(themeId, activity);
 
-			//we have already shown the transistion effect while setting the preview time for custom theme, causing flicker, hence disabled here.
-			boolean showTransistionEffect = ChatThemeManager.getInstance().getTheme(themeId).isCustomTheme() ? false : true;
-			setThemeBackground(backgroundImage, drawable, ChatThemeManager.getInstance().getTheme(themeId).isTiled(), ChatThemeManager.getInstance().getTheme(themeId).isCustomTheme(), showTransistionEffect);
+			setThemeBackground(backgroundImage, drawable, ChatThemeManager.getInstance().getTheme(themeId).isTiled(), ChatThemeManager.getInstance().getTheme(themeId).isCustomTheme(), true);
 		}
 	}
 
@@ -1874,7 +1872,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		Bitmap bmp = HikeBitmapFactory.decodeSampledBitmapFromFile(ChatThemeManager.getInstance().customThemeTempUploadImagePath, width, height);
 		Drawable drawable = new BitmapDrawable(getResources(), bmp);
 
-		setThemeBackground(backgroundImage, drawable, false, true, true);
+		setThemeBackground(backgroundImage, drawable, false, true, false);
 	}
 
 	@Override
