@@ -103,6 +103,7 @@ import com.bsb.hike.triggers.InterceptUtils;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.userlogs.UserLogInfo;
 import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.BirthdayUtils;
 import com.bsb.hike.utils.ClearGroupTypingNotification;
 import com.bsb.hike.utils.ClearTypingNotification;
 import com.bsb.hike.utils.FestivePopup;
@@ -3170,6 +3171,46 @@ public class MqttMessagesManager
 		{
 			boolean disableQuickUpload = data.getBoolean(HikeConstants.DISABLE_QUICK_UPLOAD);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.DISABLE_QUICK_UPLOAD, disableQuickUpload);
+		}
+
+		if(data.has(HikeConstants.BIRTHDAY_NOTIF_ID))
+		{
+			long id = data.getLong(HikeConstants.BIRTHDAY_NOTIF_ID);
+			long previousId = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.BIRTHDAY_NOTIF_ID, 0l);
+			if(previousId == 0l || previousId != id)
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BIRTHDAY_NOTIF_ID, id);
+
+				BirthdayUtils.fetchAndUpdateBdayList(true);
+			}
+			else
+			{
+				Logger.d("bday_notif_", "Duplicate packet received with id " + id);
+			}
+		}
+
+		if (data.has(HikeConstants.SINGLE_BDAY_NOTIF_TITLE))
+		{
+			String singleBdayNotifTitle = data.getString(HikeConstants.SINGLE_BDAY_NOTIF_TITLE);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SINGLE_BDAY_NOTIF_TITLE, singleBdayNotifTitle);
+		}
+
+		if (data.has(HikeConstants.SINGLE_BDAY_NOTIF_SUBTEXT))
+		{
+			String singleBdayNotifSubtext = data.getString(HikeConstants.SINGLE_BDAY_NOTIF_SUBTEXT);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SINGLE_BDAY_NOTIF_SUBTEXT, singleBdayNotifSubtext);
+		}
+
+		if (data.has(HikeConstants.MULTIPLE_BDAY_NOTIF_TITLE))
+		{
+			String multipleBdayNotifTitle = data.getString(HikeConstants.SINGLE_BDAY_NOTIF_TITLE);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SINGLE_BDAY_NOTIF_TITLE, multipleBdayNotifTitle);
+		}
+
+		if (data.has(HikeConstants.MULTIPLE_BDAY_NOTIF_SUBTEXT))
+		{
+			String multipleBdayNotifSubtext = data.getString(HikeConstants.MULTIPLE_BDAY_NOTIF_SUBTEXT);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MULTIPLE_BDAY_NOTIF_SUBTEXT, multipleBdayNotifSubtext);
 		}
 
 		editor.commit();
