@@ -24,6 +24,7 @@ import android.view.animation.AccelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
@@ -268,6 +269,17 @@ public class StickyCaller {
 		}
 	};
 
+	private static String getNumberFromCard()
+	{
+		if (stickyCallerView != null)
+		{
+			CharSequence text = ((TextView) stickyCallerView.findViewById(R.id.caller_number)).getText();
+			if (!TextUtils.isEmpty(text))
+				return text.toString();
+		}
+		return null;
+	}
+
 	private static void actionOnMotionUpEvent(final int movedOnXaxis) {
 		TimeInterpolator accelerateDecelerateInterpolator;
 		float alpha = 0.0f;
@@ -299,6 +311,8 @@ public class StickyCaller {
 				if (movedOnXaxis != 0) {
 					Logger.d(TAG, "making caller gone");
 					stickyCallerFrameHolder.setVisibility(View.GONE);
+					HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CLOSE_SWIPE, getNumberFromCard(),
+							AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
 				}
 			}
 
@@ -791,20 +805,20 @@ public class StickyCaller {
 						AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
 				break;
 			case R.id.block_contact:
+				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.BLOCK, getPhoneNumberFromTag(v),
+						AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
 				Intent intent = new Intent(HikeMessengerApp.getInstance().getApplicationContext(), BlockCallerActivity.class);
 				CallerContentModel contentModel = ContactManager.getInstance().getCallerContentModelFromMsisdn(v.getTag().toString());
 				if (v.getTag() != null && contentModel != null && contentModel.getFullName() != null)
 				{
 					intent.putExtra(HikeConstants.MSISDN, v.getTag().toString());
 					intent.putExtra(HikeConstants.NAME, contentModel.getFullName());
+					intent.putExtra(HikeConstants.CALL_TYPE, getCallEventFromCallType(CALL_TYPE));
 				}
 				ChatHeadUtils.insertHomeActivitBeforeStarting(intent);
 				IncomingCallReceiver.callReceived = true;
 				CALL_TYPE = NONE;
 				Utils.killCall();
-				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.BLOCK, getPhoneNumberFromTag(v),
-						AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
-
 				break;
 			}
 		}

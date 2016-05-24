@@ -1,6 +1,7 @@
 package com.bsb.hike.platform.bridge;
 
 import java.io.File;
+import java.net.HttpURLConnection;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -9,15 +10,16 @@ import org.json.JSONObject;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Message;
 import android.text.TextUtils;
 import android.webkit.JavascriptInterface;
 
-import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.adapters.ConversationsAdapter;
@@ -26,18 +28,29 @@ import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
+import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
-import com.bsb.hike.platform.*;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.platform.CustomWebView;
+import com.bsb.hike.platform.GpsLocation;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.NonMessagingBotAlarmManager;
+import com.bsb.hike.platform.PlatformHelper;
+import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.platform.auth.AuthListener;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.tasks.SendLogsTask;
-import com.bsb.hike.ui.GalleryActivity;
-import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.utils.CustomAnnotation.DoNotObfuscate;
-import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.Utils;
@@ -156,7 +169,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void forwardToChat(String json, String hikeMessage)
 	{
-		PlatformHelper.forwardToChat(json, hikeMessage,mBotInfo,weakActivity.get());
+		PlatformHelper.forwardToChat(json, hikeMessage, mBotInfo, weakActivity.get());
 	}
 
 	/**
@@ -189,7 +202,9 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			jsonObject.put(HikePlatformConstants.MUTE, Boolean.toString(mBotInfo.isMute()));
 			jsonObject.put(HikePlatformConstants.NETWORK_TYPE, Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
 			jsonObject.put(HikePlatformConstants.BOT_VERSION, mBotInfo.getVersion());
+            jsonObject.put(HikePlatformConstants.MAPP_VERSION_CODE, mBotInfo.getMAppVersionCode());
 			jsonObject.put(HikePlatformConstants.ASSOCIATE_MAPP,botMetadata.getAsocmapp());
+			jsonObject.put(HikeMessengerApp.PRODUCTION,HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PRODUCTION,true));
 
 			if (!TextUtils.isEmpty(extraData))
 			{
@@ -198,7 +213,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 
 			PlatformUtils.addLocaleToInitJSON(jsonObject);
 
-			mWebView.loadUrl("javascript:init('"+getEncodedDataForJS(jsonObject.toString())+"')");
+			mWebView.loadUrl("javascript:init('" + getEncodedDataForJS(jsonObject.toString()) + "')");
 		}
 		catch (JSONException e)
 		{
@@ -410,11 +425,9 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		{
 			return;
 		}
-		mHandler.post(new Runnable()
-		{
+		mHandler.post(new Runnable() {
 			@Override
-			public void run()
-			{
+			public void run() {
 				mWebView.loadUrl("javascript:notifDataReceived" + "('" + getEncodedDataForJS(notifData) + "')");
 			}
 		});
@@ -426,11 +439,9 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		{
 			return;
 		}
-		mHandler.post(new Runnable()
-		{
+		mHandler.post(new Runnable() {
 			@Override
-			public void run()
-			{
+			public void run() {
 				mWebView.loadUrl("javascript:eventReceived" + "('" + getEncodedDataForJS(event) + "')");
 			}
 		});
@@ -491,7 +502,11 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			{
 				String[] params = (String[]) msg.obj;
 				// checking for interceptUrl JSON String
-				if (params[2] != null)
+				if (params[3] != null)
+				{
+					mCallback.openFullPageWithTitle(params[1], params[0], params[2], params[3]); // Url, title, interceptUrlJson,back
+				}
+				else if (params[2] != null)
 				{
 					mCallback.openFullPageWithTitle(params[1], params[0], params[2]); // Url, title, interceptUrlJson
 				}
@@ -545,7 +560,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@Override
 	public void openFullPage(final String title, final String url)
 	{
-		openFullPage(title, url, null);
+		openFullPage(title, url, null, "false");
 	}
 	
 	/**
@@ -1065,7 +1080,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	{
 		if (weakActivity.get() != null)
 		{
-			Utils.createShortcut(weakActivity.get(), mBotInfo);
+			Utils.createShortcut(weakActivity.get(), mBotInfo, true);
 		}
 	}
 
@@ -1115,7 +1130,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void enableBot(String msisdn, String enable)
 	{
-		enableBot(msisdn,enable, Boolean.toString(false));
+		enableBot(msisdn, enable, Boolean.toString(false));
 	}
 	/**
 	 * Added in Platform Version:7
@@ -1129,28 +1144,23 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	public void getLocation()
 	{
 		final GpsLocation gps = GpsLocation.getInstance();
-		gps.getLocation(new LocationListener()
-		{
+		gps.getLocation(new LocationListener() {
 			@Override
-			public void onLocationChanged(Location location)
-			{
+			public void onLocationChanged(Location location) {
 				HikeMessengerApp.getPubSub().publish(HikePubSub.LOCATION_AVAILABLE, gps.getLocationManager());
 				gps.removeUpdates(this);
 			}
 
 			@Override
-			public void onProviderDisabled(String provider)
-			{
+			public void onProviderDisabled(String provider) {
 			}
 
 			@Override
-			public void onProviderEnabled(String provider)
-			{
+			public void onProviderEnabled(String provider) {
 			}
 
 			@Override
-			public void onStatusChanged(String provider, int status, Bundle extras)
-			{
+			public void onStatusChanged(String provider, int status, Bundle extras) {
 			}
 		});
 
@@ -1185,11 +1195,9 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		{
 			return;
 		}
-		mHandler.post(new Runnable()
-		{
+		mHandler.post(new Runnable() {
 			@Override
-			public void run()
-			{
+			public void run() {
 				mWebView.loadUrl("javascript:locationReceived" + "('" + getEncodedDataForJS(latLong) + "')");
 			}
 		});
@@ -1259,13 +1267,14 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void getBotVersion(String id, String msisdn)
 	{
-		if (!BotUtils.isSpecialBot(mBotInfo) || !BotUtils.isBot(msisdn))
+        BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+
+        if (botInfo == null || !BotUtils.isSpecialBot(mBotInfo) || !BotUtils.isBot(msisdn))
 		{
 			callbackToJS(id,"-1");
 			return;
 		}
 
-		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
 		callbackToJS(id, String.valueOf(botInfo.getVersion()));
 	}
 
@@ -1275,11 +1284,9 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		{
 			return;
 		}
-		mHandler.post(new Runnable()
-		{
+		mHandler.post(new Runnable() {
 			@Override
-			public void run()
-			{
+			public void run() {
 				mWebView.loadUrl("javascript:downloadStatus" + "('" + id + "','" + progress + "')");
 			}
 		});
@@ -1294,12 +1301,28 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void isMicroappExist(String id)
 	{
+        // Check for is Micro App exists in all of the directories path that are being used after the versioning release
+        String microAppUnzipDirectoryPath = PlatformUtils.getMicroAppContentRootFolder();
 		NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
-		File file = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + nonMessagingBotMetadata.getAppName());
-		if (file.exists())
-			callbackToJS(id, "true");
-		else
-			callbackToJS(id, "false");
+
+        File fileInMappsDirectory = new File(microAppUnzipDirectoryPath + PlatformContentConstants.HIKE_MAPPS + nonMessagingBotMetadata.getAppName());
+        File fileInGamesDirectory = new File(microAppUnzipDirectoryPath + PlatformContentConstants.HIKE_GAMES + nonMessagingBotMetadata.getAppName());
+        File fileInHikeWebMicroAppsDirectory = new File(microAppUnzipDirectoryPath + PlatformContentConstants.HIKE_WEB_MICRO_APPS + nonMessagingBotMetadata.getAppName());
+        File fileInHikePopupsDirectory = new File(microAppUnzipDirectoryPath + PlatformContentConstants.HIKE_ONE_TIME_POPUPS + nonMessagingBotMetadata.getAppName());
+        File fileInOldContentDirectory = new File(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + nonMessagingBotMetadata.getAppName());
+
+        if (fileInMappsDirectory.exists())
+            callbackToJS(id, "true");
+        else if(fileInGamesDirectory.exists())
+            callbackToJS(id, "true");
+        else if(fileInHikeWebMicroAppsDirectory.exists())
+            callbackToJS(id, "true");
+        else if(fileInHikePopupsDirectory.exists())
+            callbackToJS(id, "true");
+        else if(fileInOldContentDirectory.exists())
+            callbackToJS(id, "true");
+        else
+            callbackToJS(id, "false");
 	}
 
 	/**
@@ -1307,17 +1330,19 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
 	 * Call this method to cancel the request that the Bot has initiated to do some http /https call.
 	 * @param functionId : the id of the function that native will call to call the js .
-	 * @param url: the url of the call that needs to be cancelled.
+	 * @param appName: the app name of the call that needs to be cancelled.
 	 */
 	@JavascriptInterface
-	public void cancelRequest(String functionId, String url)
+	public void cancelRequest(String functionId, String appName)
 	{
 		if (!BotUtils.isSpecialBot(mBotInfo))
 		{
 			callbackToJS(functionId, "false");
 			return;
 		}
-		PairModified<RequestToken, Integer> tokenCountPair = PlatformZipDownloader.getCurrentDownloadingRequests().get(url);
+
+		PairModified<RequestToken, Integer> tokenCountPair = PlatformZipDownloader.getCurrentDownloadingRequests().get(appName);
+
 		if (null != tokenCountPair && null != tokenCountPair.getFirst())
 		{
 			callbackToJS(functionId, "true");
@@ -1357,37 +1382,51 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		if (!BotUtils.isSpecialBot(mBotInfo) || botInfo == null)
 			return;
 		NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
-		JSONObject json = new JSONObject();
-		try
-		{
-			JSONArray array = new JSONArray();
-			array.put(nonMessagingBotMetadata.getAppName());
-			json.put(HikePlatformConstants.APP_NAME, array);
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
-		BotUtils.removeMicroApp(json);
-		BotUtils.deleteBot(msisdn);
+
+        // Json to remove micro app code from old micro app content path and from new structured versioning path
+        JSONObject json = new JSONObject();
+        try
+        {
+            // Generating app Names json array
+            JSONArray appNameArray = new JSONArray();
+            appNameArray.put(nonMessagingBotMetadata.getAppName());
+
+            // Generating msisdn json array
+            JSONArray msisdnArray = new JSONArray();
+            msisdnArray.put(msisdn);
+
+            json.put(HikePlatformConstants.APP_NAME, appNameArray);
+            json.put(HikePlatformConstants.MSISDN, msisdnArray);
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
+        BotUtils.removeMicroAppByAppName(json);
+        BotUtils.removeMicroAppFromVersioningPathByMsisdn(json);
+
+        // code to delete bot from conversations
+        BotUtils.deleteBot(msisdn);
 	}
 	/**
 	 * Platform Version 9
 	 * Call this method to know if download request is currently running
 	 * Can only be called by special bots
-	 * @param url
+	 * @param appName
 	 * @param functionId
 	 * return true/false
 	 */
 	@JavascriptInterface
-	public void isRequestRunning(String functionId,String url)
+	public void isRequestRunning(String functionId,String appName)
 	{
 		if (!BotUtils.isSpecialBot(mBotInfo))
 		{
 			callbackToJS(functionId, "false");
 			return;
 		}
-		PairModified<RequestToken, Integer> tokenCountPair = PlatformZipDownloader.getCurrentDownloadingRequests().get(url);
+
+		PairModified<RequestToken, Integer> tokenCountPair = PlatformZipDownloader.getCurrentDownloadingRequests().get(appName);
+
 		if (null != tokenCountPair && null != tokenCountPair.getFirst() && tokenCountPair.getFirst().isRequestRunning())
 		{
 			callbackToJS(functionId, "true");
@@ -1407,7 +1446,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void chooseFile(final String id, final String displayCameraItem)
 	{
-		Logger.d("FileUpload","input Id chooseFile is "+ id);
+		Logger.d("FileUpload", "input Id chooseFile is " + id);
 
 		if (null == mHandler)
 		{
@@ -1415,29 +1454,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			return;
 		}
 
-		mHandler.post(new Runnable()
-		{
-			@Override
-			public void run()
-			{	Context weakActivityRef=weakActivity.get();
-				if (weakActivityRef != null)
-				{
-					int galleryFlags;
-					if (Boolean.valueOf(displayCameraItem))
-					{
-						galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS | GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
-					}
-					else
-					{
-						galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS;
-					}
-					Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(weakActivityRef, galleryFlags,null);
-					galleryPickerIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
-					galleryPickerIntent.putExtra(HikeConstants.CALLBACK_ID,id);
-					((WebViewActivity) weakActivityRef). startActivityForResult(galleryPickerIntent, HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST);
-				}
-			}
-		});
+		PlatformHelper.chooseFile(id,displayCameraItem,weakActivity.get());
 	}
 
 	/**
@@ -1459,9 +1476,38 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 *
 	 * 			    Type 1 : Closes the current WebView and opens the microapp that invoked it, with the URL parameters from the
 	 * 			    		 intercepted URL.
+	 * @param backToActivity TODO
 	 */
 	@JavascriptInterface
+	
 	public void openFullPage(String title, String url, String interceptUrlJson)
+	{
+		openFullPage( title,  url,  interceptUrlJson,"false");
+	}
+	/**
+	 * Platform bridge Version 11
+	 * Call this function to open a full page webView within hike. Calling this function will create full page with action bar
+	 * color specified by server, js injected to remove unwanted features from the full page, and URLs defined by the interceptUrlJson
+	 * will be intercepted when they start loading.
+	 * @param title
+	 *            : the title on the action bar.
+	 * @param url
+	 *            : the url that will be loaded.
+	 * @param interceptUrlJson
+	 * 			  : the JSON String that contains the interception URL and type.
+	 * 			    If a loading url contains the String value of the "url" field, it will be intercepted.
+	 * 			    eg - {"icpt_url":[{"url":"ndtv","type":1},{"url":"techinsider.com","type":1}]}
+	 * 			    URL http://www.ndtv.com/news?txId=1234&authId=12345&key1=val1&key2=val2
+	 * 			    will be intercepted and parameter String ?txId=1234&authId=12345&key1=val1&key2=val2 will be returned to the microapp
+	 * 			    in the urlIntercepted method.
+	 *
+	 * 			    Type 1 : Closes the current WebView and opens the microapp that invoked it, with the URL parameters from the
+	 * 			    		 intercepted URL.
+	 * @param backToActivity : "true"/"false"-- Depends whether on back press, activity wants to kill itself or not
+	 */
+	@JavascriptInterface
+	
+	public void openFullPage(String title, String url, String interceptUrlJson, String backToActivity)
 	{
 		if (TextUtils.isEmpty(title))
 		{
@@ -1469,11 +1515,11 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		}
 		else if (TextUtils.isEmpty(interceptUrlJson))
 		{
-			sendMessageToUiThread(OPEN_FULL_PAGE_WITH_TITLE, new String[] { title, url, null });
+			sendMessageToUiThread(OPEN_FULL_PAGE_WITH_TITLE, new String[] { title, url, null, null });
 		}
 		else
 		{
-			sendMessageToUiThread(OPEN_FULL_PAGE_WITH_TITLE, new String[] { title, url, interceptUrlJson });
+			sendMessageToUiThread(OPEN_FULL_PAGE_WITH_TITLE, new String[] { title, url, interceptUrlJson,backToActivity });
 		}
 	}
 
@@ -1530,57 +1576,296 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			return;
 		}
 		SendLogsTask logsTask = new SendLogsTask(mContext);
-		Utils.executeAsyncTask(logsTask);
+		logsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
+
 	/**
-	 * Platform Version 10
-	 *This function allows for a bot to send analytics via mqtt
+	 * Platform Version 11 This function is made to know, if any game is running and accordingly display the running status on games channel Call this method to get the current
+	 * game name running in hike. Gameid is empty, if no game is running
+	 * 
+	 * @param id
+	 *            : the id of the function that native will call to call the js .
 	 */
 	@JavascriptInterface
-	public void logAnalyticsMq(String isUI, String subType, String json)
+	public void getRunningGame(String id)
 	{
-		JSONObject jsonObject=null;
-		if(TextUtils.isEmpty(json)||TextUtils.isEmpty(isUI))
+		Activity context = weakActivity.get();
+		if (context != null)
 		{
-			return;
+			String gameId = PlatformUtils.getRunningGame(context);
+			callbackToJS(id, gameId);
 		}
-		try
+	}
+
+    /**
+     * Platform Version 11
+     * Call this function to get the bot mAppVersionCode.
+     * @param id: the id of the function that native will call to call the js .
+     */
+    @JavascriptInterface
+    public void getMicroAppVersionCode(String id)
+    {
+        callbackToJS(id, String.valueOf(mBotInfo.getMAppVersionCode()));
+    }
+
+    /**
+     * Platform Version 11
+     * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
+     * Call this function to get the mAppVersionCode for asked msisdn.
+     * @param id: the id of the function that native will call to call the js .
+     * @param msisdn: the msisdn of the bot for which micro app version code is required.
+     * returns -1 if bot not exists
+     */
+    @JavascriptInterface
+    public void getMicroAppVersionCode(String id, String msisdn)
+    {
+        BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+
+        if (botInfo == null || !BotUtils.isSpecialBot(mBotInfo) || !BotUtils.isBot(msisdn) )
+        {
+            callbackToJS(id,"-1");
+            return;
+        }
+
+        callbackToJS(id, String.valueOf(botInfo.getMAppVersionCode()));
+
+    }
+
+    /**
+     * Platform Version 11
+     * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
+     * Call this function to get the mAppVersionCode for asked appName.
+     * @param id: the id of the function that native will call to call the js .
+     * @param appName: the appName of the sdk that you require version code for.
+     * returns -1 if caller of the method is not a special bot
+     */
+    @JavascriptInterface
+    public void getSDKVersionCode(String id, String appName)
+    {
+        if (!BotUtils.isSpecialBot(mBotInfo))
+        {
+            callbackToJS(id,"-1");
+            return;
+        }
+
+        int gameEngineMappVersionCode = 0;
+
+        if(HikeMessengerApp.hikeMappInfo.containsKey(appName))
+            gameEngineMappVersionCode = HikeMessengerApp.hikeMappInfo.get(appName);
+
+        callbackToJS(id, String.valueOf(gameEngineMappVersionCode));
+    }
+
+
+	private class PlatformPostListener implements IRequestListener
+	{
+		String id;
+		String urlKey;
+		JSONObject data;
+		int current_count;
+		private int tokenLife;
+		public PlatformPostListener(String id, String urlKey, final JSONObject data, final int count, int tokenLife)
 		{
-			jsonObject=new JSONObject(json);
-			jsonObject.put(AnalyticsConstants.BOT_MSISDN, mBotInfo.getMsisdn());
-			jsonObject.put(AnalyticsConstants.BOT_NAME, mBotInfo.getConversationName());
-			jsonObject.put(AnalyticsConstants.SUB_TYPE,subType);
-		} catch (JSONException e)
-		{
-			e.printStackTrace();
-			return;
+			this.id =id;
+			this.urlKey =urlKey;
+			this.data=data;
+			this.current_count = count;
+			this.tokenLife = tokenLife;
 		}
-		if (Boolean.valueOf(isUI))
-		{
-			Utils.sendLogEvent(jsonObject,AnalyticsConstants.MICROAPP_UI_EVENT, null);
-		}
-		else
-		{
-			Utils.sendLogEvent(jsonObject, AnalyticsConstants.MICROAPP_NON_UI_EVENT, null);
+		@Override
+		public void onRequestFailure(HttpException httpException) {
+			Logger.e("NonMessagingJavascriptBridge", "Error while parsing success request: "+httpException.getErrorCode()+" : "+httpException.getMessage());
+			if (httpException.getErrorCode() == HttpURLConnection.HTTP_UNAUTHORIZED)
+			{
+				AuthListener authListener = new AuthListener()
+				{
+					@Override
+					public void onTokenResponse(String authToken)
+					{
+						Logger.d("NonMessagingJavascriptBridge", "Again trying infra url");
+						doInfraPost(id, urlKey, data, --current_count);
+					}
+
+					@Override
+					public void onTokenErrorResponse(String error)
+					{
+
+					}
+				};
+				PlatformUtils.requestAuthToken(mBotInfo, authListener, tokenLife);
+			}
 		}
 
+		@Override
+		public void onRequestSuccess(Response result) {
+			Logger.d("JavascriptBridge", "microapp request success with code " + result.getStatusCode());
+			JSONObject success = new JSONObject();
+			try
+			{
+				success.put(HikePlatformConstants.STATUS, HikePlatformConstants.SUCCESS);
+				success.put(HikePlatformConstants.STATUS_CODE, result.getStatusCode());
+				success.put(HikePlatformConstants.RESPONSE, result.getBody().getContent());
+			}
+			catch (JSONException e)
+			{
+				Logger.e("JavascriptBridge", "Error while parsing success request");
+				e.printStackTrace();
+			}
+			callbackToJS(id, String.valueOf(success));
+		}
+
+		@Override
+		public void onRequestProgressUpdate(float progress) {
+
+		}
 
 	}
 
-        /**
-         * Platform Version 11
-         * This function is made to know, if any game is running and accordingly display the running status on games channel
-         * Call this method to get the current game name running in hike. Gameid is empty, if no game is running
-         * @param id : the id of the function that native will call to call the js .
-         */
-        @JavascriptInterface
-        public void getRunningGame(String id)
-        {
-                Activity context = weakActivity.get();
-                if (context != null)
-                {
-                        String gameId = PlatformUtils.getRunningGame(context);
-                        callbackToJS(id, gameId);
-                }
-        }
+	/**
+	 * Platform Version 11
+	 */
+	@JavascriptInterface
+	public void doInfraPostinit(final String id, String urlKey, String data)
+	{
+		try
+		{
+			JSONObject jsonData = new JSONObject(data);
+			doInfraPost(id, urlKey, jsonData, MAX_COUNT);
+		}
+		catch (JSONException ex)
+		{
+
+		}
+	}
+
+	public void doInfraPost(final String id, final String urlKey, final JSONObject data, final int count)
+	{
+		if (count <= 0)
+		{
+			return;
+		}
+		Cursor cursor = HikeConversationsDatabase.getInstance().getURL(urlKey);
+		if(cursor == null){
+			callbackToJS(id, "Invalid Key");
+			return;
+		}
+		final String url  = Utils.decrypt(cursor.getString(cursor.getColumnIndex(DBConstants.URL)));
+		if (TextUtils.isEmpty(url))
+		{
+			callbackToJS(id, "Invalid Key");
+			return;
+		}
+		int tokenLife = cursor.getInt(cursor.getColumnIndex(DBConstants.LIFE));
+		if(tokenLife == DBConstants.LONG_LIVED) {
+			final String oAuth = HikeContentDatabase.getInstance().getTokenForMicroapp(mBotInfo.getMsisdn());
+			if (TextUtils.isEmpty(oAuth)) {
+				Logger.d("NonMessagingJavascriptBridge", "Fetching auth token as its not saved earlier");
+				fetchToken(id, urlKey, data, count, url,tokenLife);
+			} else {
+				makePlatformPostRequest(id, url, data, oAuth, urlKey, count,tokenLife);
+			}
+		}else{
+			Logger.d("NonMessagingJavascriptBridge", "Fetching auth token as its short lived");
+			fetchToken(id, urlKey, data, count, url,tokenLife);
+		}
+	}
+    private void fetchToken(final String id, final String urlKey, final JSONObject data, final int count, final String url, final int tokenLife){
+		AuthListener authListener = new AuthListener() {
+			@Override
+			public void onTokenResponse(String authToken) {
+				makePlatformPostRequest(id, url, data, authToken, urlKey, count,tokenLife);
+			}
+
+			@Override
+			public void onTokenErrorResponse(String error) {
+
+			}
+		};
+		PlatformUtils.requestAuthToken(mBotInfo, authListener,tokenLife);
+	}
+	private void makePlatformPostRequest(String id, String url, JSONObject json, String oAuth, String urlKey, int count, int tokenLife)
+	{
+		RequestToken token = HttpRequests.platformPostRequest(url, json, PlatformUtils.getHeaderForOauth(oAuth), new PlatformPostListener(id, urlKey, json, count,tokenLife));
+
+		if (!token.isRequestRunning())
+		{
+			token.execute();
+		}
+	}
+	/**
+	 * Call tis method to set alarm.
+	 * @param json {"notification_sound":true,"increase_unread":true,"alarm_data":{},"notification":"test notif","rearrange_chat":true}
+	 * @param timeInMills
+	 * @param persistent
+	 */
+	@JavascriptInterface
+	public void setAlarm(String inputJson, String timeInMills,String persistent)
+	{
+		JSONObject json = null;
+		try
+		{
+			json = new JSONObject(inputJson);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		String msisdn = mBotInfo.getMsisdn();
+		Activity mContext = weakActivity.get();
+		if(TextUtils.isEmpty(msisdn) || mContext == null)
+		{
+			return;
+		}
+		NonMessagingBotAlarmManager.setAlarm(mContext, json, msisdn, Long.valueOf(timeInMills).longValue(), Boolean.valueOf(persistent));
+	}
+
+	/**
+	 * Platform Version 11
+	 * Call this function to cancel the alarm data associtated with a particular alarm data
+	 * @param alarmData
+	 */
+	@JavascriptInterface
+	public void cancelAlarm(String alarmData)
+	{
+		if(mBotInfo ==  null || weakActivity == null || TextUtils.isEmpty(mBotInfo.getMsisdn()))
+		{
+			return;
+		}
+		HikeAlarmManager.cancelAlarm(weakActivity.get(), (mBotInfo.getMsisdn().hashCode() + alarmData.hashCode()));
+	}
+	/**
+	 * Platform Version 11
+	 * Method to update last message
+	 */
+	@JavascriptInterface
+	public void updateLastMessage(String message)
+	{
+		if (!TextUtils.isEmpty(message) && mBotInfo !=null)
+		{
+			HikeConversationsDatabase.getInstance().updateLastMessageForNonMessagingBot(mBotInfo.getMsisdn(), message);
+			HikeConversationsDatabase.getInstance().updateLastMessageStateAndCount(mBotInfo.getMsisdn(), ConvMessage.State.RECEIVED_READ.ordinal());
+			// Saving lastConvMessage in memory as well to refresh the UI
+			mBotInfo.setLastConversationMsg(Utils.makeConvMessage(mBotInfo.getMsisdn(), message, true, ConvMessage.State.RECEIVED_READ));
+		}
+	}
+	/**
+	 * Platform Version 12
+	 * Method to log analytics according to new taxonomy
+	 * unique key and kingdom are compulsory
+	 * @param json in the new taxonomy
+	 */
+	@JavascriptInterface
+	public void logAnalyticsV2(String json)
+	{
+		JSONObject jsonObject = null;
+		try
+		{
+			jsonObject = new JSONObject(json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		PlatformHelper.logAnaLyticsV2(json,mBotInfo.getConversationName(),mBotInfo.getMsisdn(),jsonObject.optString(AnalyticsConstants.V2.UNIQUE_KEY),jsonObject.optString(AnalyticsConstants.V2.KINGDOM),mBotInfo.getMAppVersionCode());
+	}
 }

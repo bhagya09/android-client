@@ -8,9 +8,8 @@ import android.widget.EditText;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.utils.Utils;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 
-public class CustomFontEditText extends AdaptxtEditText
+public class CustomFontEditText extends EditText
 {
 	private String fontName;
 	

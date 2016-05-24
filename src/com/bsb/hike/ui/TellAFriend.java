@@ -50,6 +50,7 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.analytics.HomeAnalyticsConstants;
 
 public class TellAFriend extends HikeAppStateBaseFragmentActivity implements Listener, OnItemClickListener
 {
@@ -379,7 +380,7 @@ public class TellAFriend extends HikeAppStateBaseFragmentActivity implements Lis
 		{
 
 			@Override
-			public void onSuccess(JSONObject response)
+			public void onImageWorkSuccess(JSONObject response)
 			{
 				HikeMessengerApp.getPubSub().publish(HikePubSub.DISMISS_POSTING_DIALOG, null);
 				parseResponse(response, facebook);
@@ -503,6 +504,7 @@ public class TellAFriend extends HikeAppStateBaseFragmentActivity implements Lis
 				break;*/
 	
 			case EMAIL:
+				recordEmailClickEvent();
 				Intent mailIntent = new Intent(Intent.ACTION_SENDTO);
 	
 				mailIntent.setData(Uri.parse("mailto:"));
@@ -512,6 +514,7 @@ public class TellAFriend extends HikeAppStateBaseFragmentActivity implements Lis
 				break;
 	
 			case OTHER:
+				recordOtherClickEvent();
 				Utils.logEvent(this, HikeConstants.LogEvent.DRAWER_INVITE);
 				Utils.startShareIntent(this, getReferralText(getString(R.string.invite_share_message), HikeConstants.REFERRAL_OTHER_TEXT));
 				break;
@@ -544,5 +547,36 @@ public class TellAFriend extends HikeAppStateBaseFragmentActivity implements Lis
 		Intent intent = new Intent(TellAFriend.this, HomeActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		startActivity(intent);
+	}
+
+	private void recordOtherClickEvent()
+	{
+		recordClickEventOnInviteScreen("othr");
+	}
+
+	private void recordEmailClickEvent()
+	{
+		recordClickEventOnInviteScreen("email");
+	}
+
+	private void recordClickEventOnInviteScreen(String family)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, HomeAnalyticsConstants.HOME_OVERFLOW_MENU_ITEM);
+			json.put(AnalyticsConstants.V2.KINGDOM, HomeAnalyticsConstants.HOMESCREEN_KINGDOM);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, HomeAnalyticsConstants.INVITE_FRIENDS);
+			json.put(AnalyticsConstants.V2.FAMILY, family);
+
+			HAManager.getInstance().recordV2(json);
+		}
+
+		catch (JSONException e)
+		{
+			e.toString();
+		}
 	}
 }

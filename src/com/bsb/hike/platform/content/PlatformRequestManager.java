@@ -1,16 +1,17 @@
 package com.bsb.hike.platform.content;
 
-import static com.bsb.hike.platform.PlatformContentLoader.getLoader;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-
 import android.os.Handler;
 import android.os.Looper;
 
 import com.bsb.hike.platform.PlatformContentRequest;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.utils.Logger;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+
+import static com.bsb.hike.platform.PlatformContentLoader.getLoader;
+
 
 public class PlatformRequestManager
 {
@@ -162,7 +163,7 @@ public class PlatformRequestManager
 
 				Logger.d(TAG, "remove request - " + argRequest.getContentData().getContentJSON());
 
-				PlatformZipDownloader.removeDownloadingRequest(argRequest.getContentData().getLayout_url());
+				PlatformZipDownloader.removeDownloadingRequest(argRequest.getContentData().getId());
 
 				requestQueue.remove(argRequest);
 

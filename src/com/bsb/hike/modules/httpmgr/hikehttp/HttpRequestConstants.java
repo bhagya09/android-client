@@ -25,7 +25,9 @@ public class HttpRequestConstants
 	
 	public static final String STICKERS_PRODUCTION_API = "stickers.im.hike.in";
 
-	public static final String STICKERS_CDN_PRODUCTION_API = "static-stickers.im.hike.in";
+	public static final String FT_PRODUCTION_API = "ft.im.hike.in";
+
+	public static final String STICKERS_CDN_PRODUCTION_API = "staticstickers.im.hike.in";
 	
 	public static final String BASE_LINK_SHARING_URL = HTTP + "hike.in";
 		
@@ -55,17 +57,27 @@ public class HttpRequestConstants
 
 	private static final String BASE_V4 = "/v4";
 
+	private static final String BASE_V5 = "/v5";
+
 	private static final String BASE_ACCOUNT = "/account";
 
 	private static final String BASE_USER = "/user";
 
 	private static final String BASE_STICKER = "/stickers";
 
+	private static final String BASE_SHOP = "/shop";
+
 	private static final String BASE_INVITE = "/invite";
 	
 	private static final String BASE_SDK_PROD = "oauth.hike.in/o/oauth2/";
 	
-	public static final String BASE_SDK_STAGING = "stagingoauth.im.hike.in/o/oauth2/";
+	public static final String BASE_SDK_STAGING = "http://stagingoauth.im.hike.in/o/oauth2/";
+	
+	public static final String BASE_AUTH_SDK_STAGING = "http://stagingoauth.im.hike.in/o/oauth2/";
+	
+	public static final String BASE_AUTH_SDK_PROD = "http://oauth.platform.hike.in/o/oauth2/";
+
+	private static String BASE_AUTH_SDK = HTTP + BASE_AUTH_SDK_PROD;
 	
 	private static String BASE_SDK = HTTP + BASE_SDK_PROD;
 
@@ -93,6 +105,12 @@ public class HttpRequestConstants
 
 	private static final String BASE_BLOCKED_LIST = "/blocked_list";
 
+	private static final String HIKE_SETTINGS = "/hikesettings";
+
+	private static final String  FETCH_TODAYS_BIRTHDAY_URL = "/events/birthday";
+
+	private static final String PREF_PATH = "/pref";
+
 	public static synchronized void setUpBase()
 	{
 		toggleStaging();
@@ -105,6 +123,7 @@ public class HttpRequestConstants
 		changeBaseUrl();
 		changeBasePlatformUrl();
 		changeBaseStickersUrl();
+		changeBaseAuthUrl();
 	}
 
 	public static synchronized void toggleSSL()
@@ -113,8 +132,15 @@ public class HttpRequestConstants
 		changeBaseUrl();
 		changeBasePlatformUrl();
 		changeBaseStickersUrl();
+		changeBaseAuthUrl();
 	}
 
+	private static void changeBaseAuthUrl()
+	{
+		BASE_AUTH_SDK = "";
+		BASE_AUTH_SDK += (isSSL) ? HTTPS : HTTP;
+		BASE_AUTH_SDK += (isProduction) ? BASE_AUTH_SDK_PROD : BASE_AUTH_SDK_STAGING;
+	}
 	private static void changeBaseUrl()
 	{
 		BASE_URL = "";
@@ -206,12 +232,33 @@ public class HttpRequestConstants
 	
 	public static String stickerShopDownloadUrl()
 	{
-		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER + "/shop";
+		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER + BASE_SHOP;
 	}
-	
-	public static String stickerSignupUpgradeUrl()
+
+
+	public static String stickerCategoryFetchPrefOrderUrl()
+	{
+		return BASE_STICKERS_URL + BASE_V4 + BASE_SHOP + "/fetch_shop_order";
+	}
+
+	public static String stickerShopFetchCategoryUrl()
+	{
+		return BASE_STICKERS_URL + BASE_V4 + BASE_SHOP + "/update_metadata";
+	}
+
+	public static String stickerShopFetchCategoryTagsUrl()
+	{
+		return BASE_STICKERS_URL + BASE_V4 + BASE_SHOP + "/update_tags";
+	}
+
+    public static String stickerSignupUpgradeUrl()
 	{
 		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER + "/categories";
+	}
+	
+	public static String latestApkInfoUrl()
+	{
+		return BASE_URL + BASE_V1 + "/latest-apk-info";
 	}
 	
 	public static String getStickerTagsUrl()
@@ -223,7 +270,22 @@ public class HttpRequestConstants
 	{
 		return BASE_STICKERS_URL + BASE_V4 + BASE_STICKER + "/tags";
 	}
+
+	public static String getForcedStickersUrl()
+	{
+		return BASE_STICKERS_URL + BASE_V4 + BASE_STICKER + "/force_stickers";
+	}
 	
+	public static String stickerCategoryDetailsUrl()
+	{
+		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER + "/categories";
+	}
+
+	public static String quickSuggestionUrl()
+	{
+		return HTTP + "54.251.141.175:8080" + "/quickSuggestions";
+	}
+
 	public static String lastSeenUrl()
 	{
 		return BASE_URL + BASE_V1 + BASE_USER + "/lastseen";
@@ -291,7 +353,14 @@ public class HttpRequestConstants
 
 	public static String sendUserLogsInfoBaseUrl()
 	{
-		return BASE_URL + BASE_V1 + "/";
+		if(!Utils.isUserAuthenticated(HikeMessengerApp.getInstance().getApplicationContext()))
+		{
+			return BASE_URL + BASE_V1 + "/pa/";
+		}
+		else
+		{
+			return BASE_URL + BASE_V1 +  "/";
+		}
 	}
 
 	public static String deleteAccountBaseUrl()
@@ -326,9 +395,24 @@ public class HttpRequestConstants
 
 	public static String authSDKBaseUrl()
 	{
-		return BASE_SDK;
+		return BASE_SDK_STAGING;
+	}
+	
+	
+	public static String authBaseUrl()
+	{
+		return BASE_AUTH_SDK+"authorize" + "?" ;
 	}
 
+	public static String registerBrandUrl()
+	{
+		return BASE_SDK_STAGING+"registerbrand";
+	}
+	
+	public static String clientIdUrl()
+	{
+		return BASE_SDK_STAGING+"createnewclientid";
+	}
 	public static String groupProfileBaseUrl()
 	{
 		return BASE_URL + BASE_V1 + "/group/";
@@ -362,6 +446,11 @@ public class HttpRequestConstants
 	public static String updateLoveLinkUrl()
 	{
 		return BASE_URL + BASE_V1 + "/status/love";
+	}
+
+	public static String registerViewActionUrl()
+	{
+		return BASE_URL + BASE_V1 + "/status/view";
 	}
 	
 	public static String getActionsUpdateUrl()
@@ -412,20 +501,6 @@ public class HttpRequestConstants
 		// TODO Add complete url here
 		return BASE_PLATFORM_URL;
 	}
-	
-	public static String getBotDownloadUrl()
-	{
-		String suffix = "/mapps/api" + BASE_V1 + "/apps/install.json";
-		
-		if (isProduction)
-		{
-			return HTTPS + "mapps." + PLATFORM_PRODUCTION_API + suffix;
-		}
-		else
-		{
-			return HTTPS + QA_CONTENT + suffix ;
-		}
-	}
 
 	public static String getLanguageDictionaryBaseUrl()
 	{
@@ -471,7 +546,7 @@ public class HttpRequestConstants
 
 	public static String getMicroAppLoggingUrl(boolean isSuccess)
 	{
-		String suffix = "/mapps/api" + BASE_V1 + "/apps/ack/" + (isSuccess ? "success" : "failure");
+		String suffix = "/mapps/api" + BASE_V2 + "/apps/ack/" + (isSuccess ? "success" : "failure");
 
 		if (isProduction)
 		{
@@ -493,7 +568,95 @@ public class HttpRequestConstants
             return HTTP + STAGING_API  + BASE_V1 + "/android";
         }
     }
-	public static String getAnalyticsUrl() {
+
+	public static String getUploadFileBaseUrl()
+	{
+		return AccountUtils.fileTransferBase + "/user/pft/";
+	}
+
+	public static String getValidateFileKeyBaseUrl()
+	{
+		return AccountUtils.fileTransferBaseDownloadUrl;
+	}
+
+	public static String getFastFileUploadBaseUrl()
+	{
+		return AccountUtils.fastFileUploadUrl;
+	}
+
+	public static String getUploadContactOrLocationBaseUrl()
+	{
+		return AccountUtils.fileTransferBase + "/user/ft";
+	}
+
+	public static String getAnalyticsUrl()
+	{
 		return  BASE_URL + BASE_V1 + ANALYTICS_UPLOAD_PATH;
+	}
+
+    /*
+     * Async Method to fetch latest micro app from server for forward card case
+     */
+    public static String getBotDownloadUrlV2()
+    {
+        String suffix = "/mapps/api" + BASE_V2 + "/apps/install.json";
+
+        if (isProduction)
+        {
+            return HTTPS + "mapps." + PLATFORM_PRODUCTION_API + suffix;
+        }
+        else
+        {
+            return HTTPS + QA_CONTENT + suffix ;
+        }
+    }
+
+	public static String getHistoricalStatusUpdatesUrl()
+	{
+		return  BASE_URL + BASE_V1 + "hsu/";
+	}
+
+	public static String getSettingsUploadUrl()
+	{
+		return  BASE_URL + BASE_V5 + HIKE_SETTINGS;
+	}
+
+	public static String getSettingsDownloadUrl()
+	{
+		return  BASE_URL + BASE_V5 + HIKE_SETTINGS;
+	}
+
+    public static String getBotInitiateUrl()
+    {
+        String suffix = "bots.hike.in/api" + BASE_V1 + "/manage/initiate";
+        if (isProduction)
+            return HTTPS + suffix;
+        else
+            return HTTPS + "dev-" + suffix;
+    }
+
+	public static String getFetchBdayUrl()
+	{
+		return BASE_URL + BASE_V1 + FETCH_TODAYS_BIRTHDAY_URL;
+	}
+
+	public static String editProfileNameBaseUrl()
+	{
+		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/name";
+	}
+
+	public static String editProfileEmailGenderBaseUrl()
+	{
+		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/profile";
+	}
+
+	public static String editDOBBaseUrl()
+	{
+		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/dob";
+	}
+
+	public static String getBDPrefUpdateUrl()
+	{
+		return editDOBBaseUrl() + PREF_PATH;
 	}
 }

@@ -8,6 +8,7 @@ import org.json.JSONObject;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.text.TextUtils;
 
 import com.bsb.hike.GCMIntentService;
 import com.bsb.hike.HikeConstants;
@@ -22,6 +23,7 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
 import com.bsb.hike.modules.httpmgr.request.requestbody.JsonBody;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.userlogs.UserLogInfo;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -155,9 +157,15 @@ public class SendGCMIdToServerTrigger extends BroadcastReceiver
 				requestBody = Utils.getPostDeviceDetails(context);
 				try
 				{
+					String oldGcmId = mprefs.getData(HikeConstants.OLD_GCM_ID,"");
 					requestBody.put(GCMIntentService.DEV_TOKEN, regId);
+					requestBody.put(GCMIntentService.OLD_DEV_TOKEN, oldGcmId);
+
+					Logger.d("pa","new gcm ID is : " + regId);
+
+					Logger.d("pa","old gcm ID is : " + oldGcmId);
 				}
-				catch (JSONException e)
+				catch (Exception e)
 				{
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -180,6 +188,11 @@ public class SendGCMIdToServerTrigger extends BroadcastReceiver
 			@Override
 			public void onRequestSuccess(Response result)
 			{
+				String newGcmID = mprefs.getData(HikeConstants.GCM_ID,"");
+				if(!TextUtils.isEmpty(newGcmID))
+				{
+					mprefs.saveData(HikeConstants.OLD_GCM_ID, newGcmID);
+				}
 				Logger.d(SendGCMIdToServerTrigger.this.getClass().getSimpleName(), "Send successful");
 				JSONObject response = (JSONObject) result.getBody().getContent();
 				switch (mprefs.getData(HikeConstants.REGISTER_GCM_SIGNUP, 0))
@@ -205,8 +218,27 @@ public class SendGCMIdToServerTrigger extends BroadcastReceiver
 						 * 
 						 * 
 						 */
+						try {
+							String paEncryptKey = response.getString(HikeConstants.Preactivation.ENCRYPT_KEY);
+							String paUid = response.getString(HikeConstants.Preactivation.UID);
+							String paToken = response.getString(HikeConstants.Preactivation.TOKEN);
 
-						Utils.disableNetworkListner(HikeMessengerApp.getInstance().getApplicationContext());
+							Logger.d("pa","paEncryptKey : " + paEncryptKey);
+							mprefs.saveData(HikeConstants.Preactivation.ENCRYPT_KEY, paEncryptKey);
+							Logger.d("pa","paUid : " + paUid);
+							mprefs.saveData(HikeConstants.Preactivation.UID, paUid);
+							Logger.d("pa","paToken : " + paToken);
+							mprefs.saveData(HikeConstants.Preactivation.TOKEN, paToken);
+
+						} catch (JSONException e) {
+							e.printStackTrace();
+						}
+						//Utils.disableNetworkListner(HikeMessengerApp.getInstance().getApplicationContext());
+					}
+					try {
+						UserLogInfo.requestUserLogs(255);
+					} catch (JSONException e) {
+						e.printStackTrace();
 					}
 					break;
 				case HikeConstants.REGISTEM_GCM_AFTER_SIGNUP:

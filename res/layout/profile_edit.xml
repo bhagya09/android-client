@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:atx="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    
-<ScrollView 
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/profile_sv"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -48,7 +43,6 @@
                 android:background="@null"
                  android:imeOptions="actionDone"
                 android:inputType="textCapWords"
-                atx:charInputMaxLength="@integer/max_length_name"
                 android:maxLength="@integer/max_length_name"
                 android:textColor="@color/subtext"
                 android:textSize="16sp"
@@ -98,6 +92,49 @@
                     android:textSize="16sp"
                     android:textStyle="italic"
                     android:visibility="visible" />
+            </LinearLayout>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/birthday"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical" >
+
+            <View
+                android:id="@+id/divider"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/ic_thread_divider_profile" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:orientation="horizontal" >
+
+                <com.bsb.hike.view.CustomFontTextView
+                    android:id="@+id/birthday_edit_field"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="15dp"
+                    android:layout_marginTop="15dp"
+                    android:layout_weight="1"
+                    android:paddingLeft="15dp"
+                    android:text="@string/name"
+                    android:textColor="@color/lightblack"
+                    android:textSize="16sp" />
+
+                <com.bsb.hike.view.CustomFontTextView
+                    android:id="@+id/birthday_stored"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:layout_weight="2"
+                    android:background="@null"
+                    android:textColor="@color/subtext"
+                    android:textSize="16sp"
+                    android:textStyle="italic"/>
             </LinearLayout>
         </RelativeLayout>
 
@@ -248,6 +285,3 @@
     </LinearLayout>
 
 </ScrollView>
-    <include layout="@layout/kpt_keyboard_viewholder" />
-
-</RelativeLayout>

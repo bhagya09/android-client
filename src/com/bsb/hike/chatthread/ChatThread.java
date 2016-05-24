@@ -1,124 +1,5 @@
 package com.bsb.hike.chatthread;
 
-import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
-
-import java.io.File;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeConstants.MESSAGE_TYPE;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
-import com.bsb.hike.HikePubSub.Listener;
-import com.bsb.hike.R;
-import com.bsb.hike.adapters.MessagesAdapter;
-import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
-import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.analytics.MsgRelLogManager;
-import com.bsb.hike.chatthread.HikeActionMode.ActionModeListener;
-import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.dialog.CustomAlertDialog;
-import com.bsb.hike.dialog.HikeDialog;
-import com.bsb.hike.dialog.HikeDialogFactory;
-import com.bsb.hike.dialog.HikeDialogListener;
-import com.bsb.hike.filetransfer.FTAnalyticEvents;
-import com.bsb.hike.filetransfer.FileTransferManager;
-import com.bsb.hike.localisation.LocalLanguage;
-import com.bsb.hike.localisation.LocalLanguageUtils;
-import com.bsb.hike.media.AttachmentPicker;
-import com.bsb.hike.media.AudioRecordView;
-import com.bsb.hike.media.AudioRecordView.AudioRecordListener;
-import com.bsb.hike.media.EmoticonPicker;
-import com.bsb.hike.media.HikeActionBar;
-import com.bsb.hike.media.ImageParser;
-import com.bsb.hike.media.ImageParser.ImageParserListener;
-import com.bsb.hike.media.OverFlowMenuItem;
-import com.bsb.hike.media.OverFlowMenuLayout.OverflowViewListener;
-import com.bsb.hike.media.OverflowItemClickListener;
-import com.bsb.hike.media.PickContactParser;
-import com.bsb.hike.media.PickFileParser;
-import com.bsb.hike.media.PickFileParser.PickFileListener;
-import com.bsb.hike.media.PopupListener;
-import com.bsb.hike.media.ShareablePopupLayout;
-import com.bsb.hike.media.StickerPicker;
-import com.bsb.hike.media.StickerPickerListener;
-import com.bsb.hike.media.ThemePicker;
-import com.bsb.hike.media.ThemePicker.ThemePickerListener;
-import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
-import com.bsb.hike.models.ConvMessage.State;
-import com.bsb.hike.models.HikeFile;
-import com.bsb.hike.models.HikeFile.HikeFileType;
-import com.bsb.hike.models.MovingList;
-import com.bsb.hike.models.MovingList.OnItemsFinishedListener;
-import com.bsb.hike.models.PhonebookContact;
-import com.bsb.hike.models.Sticker;
-import com.bsb.hike.models.TypingNotification;
-import com.bsb.hike.models.Unique;
-import com.bsb.hike.models.Conversation.Conversation;
-import com.bsb.hike.modules.kpt.HikeAdaptxtEditTextEventListner;
-import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
-import com.bsb.hike.modules.kpt.HikeAdaptxtKeyboardVisibilityStatusListner;
-import com.bsb.hike.modules.kpt.KptKeyboardManager;
-import com.bsb.hike.modules.kpt.KptUtils;
-import com.bsb.hike.modules.stickersearch.StickerSearchManager;
-import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
-import com.bsb.hike.modules.stickersearch.listeners.IStickerPickerRecommendationListener;
-import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
-import com.bsb.hike.notifications.HikeNotification;
-import com.bsb.hike.offline.IOfflineCallbacks;
-import com.bsb.hike.offline.OfflineConstants;
-import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
-import com.bsb.hike.offline.OfflineController;
-import com.bsb.hike.offline.OfflineUtils;
-import com.bsb.hike.platform.CardComponent;
-import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.platform.PlatformMessageMetadata;
-import com.bsb.hike.platform.WebMetadata;
-import com.bsb.hike.platform.content.PlatformContent;
-import com.bsb.hike.productpopup.ProductPopupsConstants;
-import com.bsb.hike.tasks.EmailConversationsAsyncTask;
-import com.bsb.hike.ui.ComposeViewWatcher;
-import com.bsb.hike.ui.GalleryActivity;
-import com.bsb.hike.ui.utils.LockPattern;
-import com.bsb.hike.ui.utils.StatusBarColorChanger;
-import com.bsb.hike.utils.ChatTheme;
-import com.bsb.hike.utils.HikeAnalyticsEvent;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.IntentFactory;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.PairModified;
-import com.bsb.hike.utils.SearchManager;
-import com.bsb.hike.utils.SmileyParser;
-import com.bsb.hike.utils.SoundUtils;
-import com.bsb.hike.utils.StealthModeManager;
-import com.bsb.hike.utils.StickerManager;
-import com.bsb.hike.utils.Utils;
-import com.bsb.hike.utils.Utils.ExternalStorageState;
-import com.bsb.hike.view.CustomFontEditText;
-import com.bsb.hike.view.CustomFontEditText.BackKeyListener;
-import com.bsb.hike.view.CustomLinearLayout;
-import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
-import com.kpt.adaptxt.beta.KPTAddonItem;
-import com.kpt.adaptxt.beta.util.KPTConstants;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText;
-
-import android.animation.Animator;
-import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -127,14 +8,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences.Editor;
-import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.net.wifi.ScanResult;
 import android.net.wifi.p2p.WifiP2pDeviceList;
@@ -161,32 +43,32 @@ import android.text.style.StyleSpan;
 import android.util.Pair;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
+import android.view.HapticFeedbackConstants;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.view.ViewStub;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.webkit.MimeTypeMap;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.PopupWindow.OnDismissListener;
@@ -194,15 +76,146 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeConstants.MESSAGE_TYPE;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
+import com.bsb.hike.HikePubSub.Listener;
+import com.bsb.hike.R;
+import com.bsb.hike.adapters.CustomKeyboardInputBoxAdapter;
+import com.bsb.hike.adapters.MessagesAdapter;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
+import com.bsb.hike.analytics.ChatAnalyticConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.MsgRelLogManager;
+import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.bots.CustomKeyboard;
+import com.bsb.hike.bots.CustomKeyboardManager;
+import com.bsb.hike.bots.TextPickerListener;
+import com.bsb.hike.chatthread.ChatThreadActivity.ChatThreadOpenSources;
+import com.bsb.hike.chatthread.HikeActionMode.ActionModeListener;
+import com.bsb.hike.chatthread.KeyboardOffBoarding.KeyboardShutdownListener;
+import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.dialog.CustomAlertDialog;
+import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
+import com.bsb.hike.filetransfer.FTAnalyticEvents;
+import com.bsb.hike.filetransfer.FTUtils;
+import com.bsb.hike.filetransfer.FileTransferManager;
+import com.bsb.hike.media.AttachmentPicker;
+import com.bsb.hike.media.AudioRecordView;
+import com.bsb.hike.media.EmoticonPicker;
+import com.bsb.hike.media.HikeActionBar;
+import com.bsb.hike.media.HikeAudioRecordListener;
+import com.bsb.hike.media.HikeAudioRecordView;
+import com.bsb.hike.media.HikeTipVisibilityAnimator;
+import com.bsb.hike.media.ImageParser;
+import com.bsb.hike.media.ImageParser.ImageParserListener;
+import com.bsb.hike.media.OverFlowMenuItem;
+import com.bsb.hike.media.OverFlowMenuLayout.OverflowViewListener;
+import com.bsb.hike.media.OverflowItemClickListener;
+import com.bsb.hike.media.PickContactParser;
+import com.bsb.hike.media.PickFileParser;
+import com.bsb.hike.media.PickFileParser.PickFileListener;
+import com.bsb.hike.media.PopupListener;
+import com.bsb.hike.media.ShareablePopupLayout;
+import com.bsb.hike.media.StickerPicker;
+import com.bsb.hike.media.StickerPickerListener;
+import com.bsb.hike.media.ThemePicker;
+import com.bsb.hike.media.ThemePicker.ThemePickerListener;
+import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
+import com.bsb.hike.models.ConvMessage.State;
+import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.models.GalleryItem;
+import com.bsb.hike.models.HikeFile;
+import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.MovingList;
+import com.bsb.hike.models.MovingList.OnItemsFinishedListener;
+import com.bsb.hike.models.PhonebookContact;
+import com.bsb.hike.models.Sticker;
+import com.bsb.hike.models.TypingNotification;
+import com.bsb.hike.models.Unique;
+import com.bsb.hike.modules.quickstickersuggestions.QuickStickerSuggestionController;
+import com.bsb.hike.modules.stickersearch.StickerSearchManager;
+import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
+import com.bsb.hike.modules.stickersearch.listeners.IStickerPickerRecommendationListener;
+import com.bsb.hike.modules.stickersearch.provider.StickerEventSearchManager;
+import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
+import com.bsb.hike.notifications.HikeNotification;
+import com.bsb.hike.offline.IOfflineCallbacks;
+import com.bsb.hike.offline.OfflineConstants;
+import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
+import com.bsb.hike.offline.OfflineController;
+import com.bsb.hike.offline.OfflineUtils;
+import com.bsb.hike.platform.CardComponent;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformMessageMetadata;
+import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.platform.WebMetadata;
+import com.bsb.hike.platform.content.PlatformContent;
+import com.bsb.hike.productpopup.ProductPopupsConstants;
+import com.bsb.hike.tasks.EmailConversationsAsyncTask;
+import com.bsb.hike.ui.ComposeViewWatcher;
+import com.bsb.hike.ui.GalleryActivity;
+import com.bsb.hike.ui.utils.LockPattern;
+import com.bsb.hike.ui.utils.StatusBarColorChanger;
+import com.bsb.hike.utils.ChatTheme;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.PairModified;
+import com.bsb.hike.utils.SearchManager;
+import com.bsb.hike.utils.SmileyParser;
+import com.bsb.hike.utils.SoundUtils;
+import com.bsb.hike.utils.StealthModeManager;
+import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.StopWatch;
+import com.bsb.hike.utils.Utils;
+import com.bsb.hike.utils.Utils.ExternalStorageState;
+import com.bsb.hike.view.CustomFontEditText;
+import com.bsb.hike.view.CustomFontEditText.BackKeyListener;
+import com.bsb.hike.view.CustomLinearLayout;
+import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
+
+import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
+
+
+
 /**
  * @generated
  */
 
 @SuppressLint("ResourceAsColor") public abstract class ChatThread extends SimpleOnGestureListener implements OverflowItemClickListener, View.OnClickListener, ThemePickerListener, ImageParserListener,
-		PickFileListener, StickerPickerListener, AudioRecordListener, LoaderCallbacks<Object>, OnItemLongClickListener, OnTouchListener, OnScrollListener,
+		PickFileListener, StickerPickerListener, HikeAudioRecordListener, LoaderCallbacks<Object>, OnItemLongClickListener, OnTouchListener, OnScrollListener,
 		Listener, ActionModeListener, HikeDialogListener, TextWatcher, OnDismissListener, OnEditorActionListener, OnKeyListener, PopupListener, BackKeyListener,
-		OverflowViewListener, OnSoftKeyboardListener, IStickerPickerRecommendationListener, IOfflineCallbacks
+		OverflowViewListener, OnSoftKeyboardListener, IStickerPickerRecommendationListener, IOfflineCallbacks, IShopIconClickedCallback,TextPickerListener
 {
+
+	private static boolean useWTRevamped;
+
 	private static final String TAG = ChatThread.class.getSimpleName();
 
 	protected static final int FETCH_CONV = 1;
@@ -283,7 +296,15 @@ import android.widget.Toast;
 	protected static final int SCROLL_LISTENER_ATTACH = 38;
 	
 	protected static final int MESSAGE_SENT = 39;
-	
+
+	protected static final int OPEN_PICKER = 40;
+
+	protected static final int FILE_OPENED = 41;
+
+    protected static final int SHOW_INPUT_BOX = 45;
+
+    protected static final int REMOVE_INPUT_BOX = 46;
+
 	protected static final int REMOVE_CHAT_BACKGROUND = 0;
 
 	protected final int NUDGE_COOLOFF_TIME = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NUDGE_SEND_COOLOFF_TIME, 300);
@@ -313,6 +334,7 @@ import android.widget.Toast;
 	protected ShareablePopupLayout mShareablePopupLayout;
 
 	protected AudioRecordView audioRecordView;
+	protected HikeAudioRecordView walkieView;
 
 	protected Conversation mConversation;
 
@@ -344,8 +366,6 @@ import android.widget.Toast;
 
 	protected CustomFontEditText mComposeView;
 
-	protected LinearLayout keyboardParentView;
-
 	private GestureDetector mGestureDetector;
 
 	protected View mActionBarView;
@@ -371,11 +391,9 @@ import android.widget.Toast;
 	private static final String NEW_LINE_DELIMETER = "\n";
 	
 	private int intentDataHash;
-	
+
 	protected HikeDialog dialog;
 	
-	protected HikeCustomKeyboard mCustomKeyboard;
-
 	protected IChannelSelector channelSelector;
 
 	private StickerTagWatcher stickerTagWatcher;
@@ -383,17 +401,20 @@ import android.widget.Toast;
 	protected int mCurrentActionMode;
 
 	private boolean shouldKeyboardPopupShow;
-	
-	protected int keyboardHeight;
 
-	protected KeyboardFtue keyboardFtue;
+	protected KeyboardOffBoarding keyboardOffBoarding;
 	
-	protected boolean changeKbdClicked = false;
+	public static final int RESULT_CODE_STICKER_SHOP_ACTIVITY = 100;
 
-	protected boolean keyboardSelectedLanguageChanged;
+	Callable<Conversation> callable=new Callable<Conversation>() {
+		@Override
+		public Conversation call() throws Exception {
+			return fetchConversation();
+		}
+	};
 
-	ObjectAnimator tipFadeInAnimation;
-	
+	private FutureTask<Conversation> conversationFuture=new FutureTask<>(callable);
+
 	private class ChatThreadBroadcasts extends BroadcastReceiver
 	{
 		@Override
@@ -406,7 +427,6 @@ import android.widget.Toast;
 			case StickerManager.STICKERS_DOWNLOADED:
 				if (mStickerPicker != null)
 				{
-					mStickerPicker.notifyDataSetChanged();
 					mStickerPicker.setRefreshStickers(true);
 				}
 				break;
@@ -549,8 +569,23 @@ import android.widget.Toast;
 		case SEARCH_RESULT:
 			updateUIforSearchResult((int) msg.obj);
 			break;
+		case FILE_OPENED:
+			removeKeyboardShutdownIfShowing();
+			break;
 		case SCROLL_LISTENER_ATTACH:
 			mConversationsView.setOnScrollListener(this);
+			break;
+		case SHOW_INPUT_BOX:
+			showInputBox();
+			break;
+		case REMOVE_INPUT_BOX:
+			dismissInputBox();
+			break;
+		case OPEN_PICKER:
+			mStickerPicker.setShowLastCategory(StickerManager.getInstance().getShowLastCategory());
+			StickerManager.getInstance().setShowLastCategory(false);
+			stickerButtonClicked();
+			break;
 		default:
 			Logger.d(TAG, "Did not find any matching event for msg.what : " + msg.what);
 			break;
@@ -599,6 +634,7 @@ import android.widget.Toast;
 	{
 		this.activity = activity;
 		this.msisdn = msisdn;
+		useWTRevamped = ChatThreadUtils.isWT1RevampEnabled(activity.getApplicationContext());
 	}
 
 	/**
@@ -621,32 +657,27 @@ import android.widget.Toast;
 
 	protected Bundle savedState;
 
+	FetchConversationAsyncTask fetchConversationAsyncTask=null;
+
 	public void onCreate(Bundle savedState)
 	{
 		Logger.i(TAG, "onCreate(" + savedState + ")");
-
+		//HikeHandlerUtil.getInstance().postRunnable(conversationFuture);
+		fetchConversationAsyncTask=new FetchConversationAsyncTask(new WeakReference<FutureTask<Conversation>>(conversationFuture));
+		fetchConversationAsyncTask.execute();
 		this.savedState = savedState;
+		StopWatch initTime=new StopWatch();
 		init();
+		initTime.start();
 		setContentView();
+		initTime.stop();
+		Logger.d(TAG,"Time taken to render view is "+initTime.getElapsedTime());
 		fetchConversation(false);
 		uiHandler.sendEmptyMessage(SET_WINDOW_BG);
 		StickerManager.getInstance().checkAndDownLoadStickerData();
-		mShareablePopupLayout.setCustomKeyBoard(!isSystemKeyboard(), (keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight);
-		// if the localization ftue is not yet done with the download and install(and then change keyboard), dont let it change the keyboard now.
-		// chat thread has its own change keyboard mechanism. External change keyboard calls messes up with chat thread
-		removeLocalisationFtueKeyboardDownloadCallback();
-		if (isSystemKeyboard())
-		{
-			changeKeyboard(isSystemKeyboard());
-		}
 		StickerSearchManager.getInstance().downloadTagsForCurrentLanguage();
 	}
 
-	private void removeLocalisationFtueKeyboardDownloadCallback()
-	{
-		KptKeyboardManager.getInstance().setInstallListener(null);
-	}
-	
 	/**
 	 * Setting window background as black to avoid jarring effect when keyboard or sticker or emoticon pallete is opened.
 	 * Source : http://android-developers.blogspot.ca/2009/03/window-backgrounds-ui-speed.html
@@ -676,7 +707,7 @@ import android.widget.Toast;
 		sharedPreference = HikeSharedPreferenceUtil.getInstance();
 		initMessageChannel();
 		shouldKeyboardPopupShow=HikeMessengerApp.keyboardApproach(activity);
-		keyboardFtue = new KeyboardFtue();
+		keyboardOffBoarding = new KeyboardOffBoarding();
 	}
 
 	
@@ -711,26 +742,21 @@ import android.widget.Toast;
 
 	}
 
-
 	/**
 	 * This function must be called after setting content view
 	 */
 	protected void initView()
 	{
 		mComposeView = (CustomFontEditText) activity.findViewById(R.id.msg_compose);
+		mComposeView.setOnClickListener(this);
 
-		keyboardParentView = (LinearLayout) activity.findViewById(R.id.keyboardView_holder);
-
-		if (!isSystemKeyboard())
-			initCustomKeyboard();
-		
-		audioRecordView = new AudioRecordView(activity, this);
+		audioRecordView = new AudioRecordView(activity,this);
+		walkieView = new HikeAudioRecordView(activity,this);
 
 		initShareablePopup();
 
 		initActionMode();
 
-		initKeyboardFtue();
 		addOnClickListeners();
 
 		showNetworkError(ChatThreadUtils.checkNetworkError());
@@ -738,22 +764,39 @@ import android.widget.Toast;
 		
 		setupStickerSearch();
 	}
-
-	protected void bindCustomKeyboard()
+	
+	protected void initKeyboardOffBoarding()
 	{
-		if(mCustomKeyboard!=null)
-		{
-			return;
+		if (shouldShowKeyboardOffBoardingUI()) {
+			keyboardOffBoarding.init(activity, (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE),
+					(ViewGroup)activity.findViewById(R.id.keyboard_shutdown_container), keyboardShutdownListener, activity.findViewById(R.id.chatThreadParentLayout));
+			showKeyboardOffboardingIfReady();
 		}
-		mCustomKeyboard= new HikeCustomKeyboard(activity, keyboardParentView, KPTConstants.MULTILINE_LINE_EDITOR, kptEditTextEventListener, kptKeyboardVisibilityStatusListner);
 	}
 
-	protected void initCustomKeyboard()
-	{
-		bindCustomKeyboard();
-		registerCustomKeyboardEditText(R.id.msg_compose);
-		mCustomKeyboard.init(mComposeView);
+	protected boolean shouldShowKeyboardOffBoardingUI() {
+
+		return (keyboardOffBoarding.shouldShowKeyboardOffBoardingUI() || Utils.kptDictionaryDownloaded(activity.getApplicationContext())) && !mActionMode.isActionModeOn();
 	}
+
+	protected KeyboardShutdownListener keyboardShutdownListener = new KeyboardShutdownListener() {
+
+//		AND-5182, dismissing shareable popup when keyboard offboarding view is shown
+		@Override
+		public void onShown() {
+			dismissShareablePopup();
+		}
+
+		@Override
+		public void onDestroyed() {
+			// TODO Auto-generated method stub
+			Utils.unblockOrientationChange(activity);
+			activity.findViewById(R.id.compose_container).setVisibility(View.VISIBLE);
+			Utils.showSoftKeyboard(activity.getApplicationContext(), mComposeView);
+			Utils.removeKptDictionaries(activity.getApplicationContext());
+		}
+	};
+	
 	private void defineEnterAction() {
 		
 		if (mComposeView != null) {
@@ -762,7 +805,7 @@ import android.widget.Toast;
 					activity.getApplicationContext()).getBoolean(
 					HikeConstants.SEND_ENTER_PREF, false))
 			{
-				mComposeView.setInputType(mComposeView.getInputType()| InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+				mComposeView.setInputType(mComposeView.getInputType() | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
 				mComposeView.setImeOptions(EditorInfo.IME_ACTION_UNSPECIFIED);
 			}
 			else if ((mComposeView.getInputType() & InputType.TYPE_TEXT_FLAG_MULTI_LINE) == InputType.TYPE_TEXT_FLAG_MULTI_LINE)
@@ -771,9 +814,9 @@ import android.widget.Toast;
 						^ InputType.TYPE_TEXT_FLAG_MULTI_LINE);
 				mComposeView.setImeOptions(EditorInfo.IME_ACTION_SEND);
 			}
-			mComposeView.setHorizontallyScrolling(false);		
-		    mComposeView.setMaxLines(4);
-
+			
+			mComposeView.setHorizontallyScrolling(false);
+			mComposeView.setMaxLines(4);
 		}
 	}
 
@@ -787,18 +830,17 @@ import android.widget.Toast;
 			int[] mEatOuterTouchIds =null;
 			if (shouldKeyboardPopupShow)
 			{
-				mEatOuterTouchIds = new int[] { R.id.sticker_btn, R.id.emoticon_btn, R.id.send_message, R.id.msg_compose, R.id.sticker_recommendation_parent };
+				mEatOuterTouchIds = new int[] { R.id.sticker_btn, R.id.emoticon_btn, R.id.send_message, R.id.send_message_audio, R.id.msg_compose, R.id.sticker_recommendation_parent };
 			}
 			else
 			{
-				mEatOuterTouchIds = new int[] { R.id.sticker_btn, R.id.emoticon_btn, R.id.send_message, R.id.sticker_recommendation_parent };
+				mEatOuterTouchIds = new int[] { R.id.sticker_btn, R.id.emoticon_btn, R.id.send_message, R.id.send_message_audio, R.id.sticker_recommendation_parent };
 			}
 
 			initStickerPicker();
 			initEmoticonPicker();
 			
-			int firstTimeHeight = (isSystemKeyboard()?((int) (activity.getResources().getDimension(R.dimen.emoticon_pallete))) : 
-					((keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight));
+			int firstTimeHeight = (int) (activity.getResources().getDimension(R.dimen.emoticon_pallete));
 
 			mShareablePopupLayout = new ShareablePopupLayout(activity.getApplicationContext(), activity.findViewById(R.id.chatThreadParentLayout),
 					
@@ -808,7 +850,6 @@ import android.widget.Toast;
 				mShareablePopupLayout.setWindowSystemBarBgFlag(Utils.isWindowFlagEnabled(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS, activity.getWindow()));
 			}
 			
-			mShareablePopupLayout.setCustomKeyBoard(!isSystemKeyboard(), (keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight);
 		}
 
 		else
@@ -829,61 +870,6 @@ import android.widget.Toast;
 		mActionMode = new HikeActionMode(activity, this);
 	}
 
-	private void initKeyboardFtue()
-	{
-		if (keyboardFtue.shouldShowFTUE())
-			keyboardFtue.init(activity, (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE),(ViewGroup)activity.findViewById(R.id.keyboard_ftue_container),keyboardFTUEdestroyedListener);
-	}
-
-	private KeyboardFtue.OnKeyboardFTUEStateChangeListener keyboardFTUEdestroyedListener = new KeyboardFtue.OnKeyboardFTUEStateChangeListener()
-	{
-		@Override
-		public void onStateChange(int state)
-		{
-			if (state == KeyboardFtue.LANGUAGE_SELECTION_COMPLETE)
-			{
-				if (KptKeyboardManager.getInstance().getInstalledLanguagesList().size() > 1)
-				{
-					if (isSystemKeyboard())
-					{
-						changeKeyboard(false);
-					}
-					else
-					{
-						//TODO::doing this because we need to show the arrows on the spacebar. These do not show up otherwise. Forceful hackish refresh
-						hideCustomKeyboard(mComposeView);
-						showCustomKeyboard(mComposeView);
-					}
-					//changeKeybaordSelectedLanguage();
-				}
-			}
-			else if (state == KeyboardFtue.COMPLETE)
-			{
-				//changeKeybaordSelectedLanguage();
-			}
-		}
-
-		@Override
-		public void onDestroyed()
-		{
-			Utils.unblockOrientationChange(activity);
-			showOverflowMenuKeyboardTipIfRequired();
-		}
-	};
-
-	private void changeKeybaordSelectedLanguage()
-	{
-		if (!keyboardSelectedLanguageChanged && KptKeyboardManager.getInstance().getInstalledLanguagesList().size() > 1)
-		{
-			if (LocalLanguageUtils.isLocalLanguageSelected() &&
-					!LocalLanguageUtils.getApplicationLocalLanguage(activity).getLocale().equals(LocalLanguage.English.getLocale())) {
-				KptKeyboardManager.getInstance().topPriorityForLanguage(LocalLanguageUtils.getApplicationLocalLanguage(activity).getLocale());
-			} else {
-				KptKeyboardManager.getInstance().topPriorityForLanguage(KptKeyboardManager.getInstance().getInstalledLanguagesList().get(1));
-			}
-			keyboardSelectedLanguageChanged = true;
-		}
-	}
 	/**
 	 * Updates the mainView for KeyBoard popup as well as updates the Picker Listeners for Emoticon and Stickers
 	 */
@@ -905,6 +891,7 @@ import android.widget.Toast;
 		activity.findViewById(R.id.sticker_btn).setOnClickListener(this);
 		activity.findViewById(R.id.emoticon_btn).setOnClickListener(this);
 		activity.findViewById(R.id.send_message).setOnClickListener(this);
+		activity.findViewById(R.id.send_message_audio).setOnTouchListener(this);
 		activity.findViewById(R.id.new_message_indicator).setOnClickListener(this);
 		activity.findViewById(R.id.scroll_bottom_indicator).setOnClickListener(this);
 		activity.findViewById(R.id.scroll_top_indicator).setOnClickListener(this);
@@ -913,7 +900,7 @@ import android.widget.Toast;
 	private void initStickerPicker()
 	{
 		
-		mStickerPicker = mStickerPicker != null ? mStickerPicker : (new StickerPicker(activity, this));
+		mStickerPicker = mStickerPicker != null ? mStickerPicker : (new StickerPicker(activity, this, this));
 	}
 
 	private void initEmoticonPicker()
@@ -928,117 +915,9 @@ import android.widget.Toast;
 			// overflow is common between all, one to one and group
 			MenuItemCompat.getActionView(menu.findItem(R.id.overflow_menu)).setOnClickListener(this);
 			mActionBar.setOverflowViewListener(this);
-			showOverflowMenuIndicatorsIfRequired();
 			return true;
 		}
 		return false;
-	}
-
-	private void showOverflowMenuIndicatorsIfRequired()
-	{
-		showOverflowMenuKeyboardTipIfRequired();
-	}
-
-	protected boolean showOverflowMenuKeyboardTipIfRequired()
-	{
-		// Show Ist keyboard change tip if:
-		// - it is not done yet
-		// - already the indicator is not in use
-		// - already the tip is not in use
-		// - user is Indian
-		// - keyboard ftue will not be shown in this session
-		// - if custom keyboard is enabled in the app
-		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CT_OVRFLW_KEYBOARD_TIP_1_DONE, false)
-				&& !mActionBar.isOverflowMenuIndicatorInUse()
-				&& !isOverflowTipShowing()
-				&& HikeMessengerApp.isIndianUser()
-				&& !keyboardFtue.isReadyForFTUE()
-				&& !HikeMessengerApp.isSystemKeyboard())
-		{
-			showOverflowTip(R.string.switch_to_old_key);
-			return true;
-		}
-		// Show IInd keyboard change tip if:
-		// - first keyboard tip is successfully done.
-		// - second keyboard tip is not yet done.
-		// - already the indicator is not in use
-		// - already the tip is not in use
-		// - keyboard ftue will not be shown in this session
-		// - system keyboard is selected.
-		else if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CT_OVRFLW_KEYBOARD_TIP_1_DONE, false)
-				&& !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CT_OVRFLW_KEYBOARD_TIP_2_DONE, false)
-				&& !mActionBar.isOverflowMenuIndicatorInUse()
-				&& !isOverflowTipShowing()
-				&& !keyboardFtue.isReadyForFTUE()
-				&& HikeMessengerApp.isSystemKeyboard())
-		{
-			showOverflowTip(R.string.switch_to_hike_key);
-			return true;
-		}
-		return false;
-	}
-
-	protected void showOverflowTip(final int stringResId)
-	{
-		final TextView tip = (TextView) activity.findViewById(R.id.overflow_tip);
-		tipFadeInAnimation = ObjectAnimator.ofFloat(tip, "alpha", 0.0f, 1.0f);
-		tipFadeInAnimation.setDuration(600);
-		tipFadeInAnimation.setStartDelay(1200);
-		tipFadeInAnimation.addListener(new Animator.AnimatorListener() {
-			@Override
-			public void onAnimationStart(Animator animation) {
-				if (activity == null || activity.isFinishing() || (mActionMode != null && mActionMode.isActionModeOn()))
-				{
-					return;
-				}
-				tip.setText(stringResId);
-				tip.setVisibility(View.VISIBLE);
-			}
-
-			@Override
-			public void onAnimationEnd(Animator animation) {}
-
-			@Override
-			public void onAnimationCancel(Animator animation) {}
-
-			@Override
-			public void onAnimationRepeat(Animator animation) {}
-		});
-		tipFadeInAnimation.start();
-
-		tip.setOnClickListener(this);
-	}
-
-	private boolean isOverflowTipShowing()
-	{
-		TextView tip = (TextView) activity.findViewById(R.id.overflow_tip);
-		if (tip != null && tip.getVisibility() == View.VISIBLE)
-			return true;
-
-		if (tipFadeInAnimation != null && tipFadeInAnimation.isStarted())
-			return true;
-
-		return false;
-	}
-	private void dismissOverflowTipIfShowing()
-	{
-		TextView tip = (TextView) activity.findViewById(R.id.overflow_tip);
-		if (isOverflowTipShowing())
-		{
-			tip.setVisibility(View.GONE);
-			tip.setOnClickListener(null);
-
-			if (!TextUtils.isEmpty(tip.getText()))
-			{
-				if (tip.getText().equals(getString(R.string.switch_to_old_key)))
-				{
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CT_OVRFLW_KEYBOARD_TIP_1_DONE, true);
-				} else if (tip.getText().equals(getString(R.string.switch_to_hike_key)))
-				{
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CT_OVRFLW_KEYBOARD_TIP_2_DONE, true);
-				}
-			}
-		}
 	}
 
 	public boolean onPrepareOptionsMenu(Menu menu)
@@ -1051,6 +930,7 @@ import android.widget.Toast;
 		switch (item.getItemId())
 		{
 		case R.id.attachment:
+			if(isWalkieTalkieShowing()) return true;
 			showAttchmentPicker();
 			activity.showProductPopup(ProductPopupsConstants.PopupTriggerPoints.ATCH_SCR.ordinal());
 			return true;
@@ -1077,7 +957,7 @@ import android.widget.Toast;
 			switch (overFlowMenuItem.id)
 			{
 			case R.string.search:
-				overFlowMenuItem.enabled = !isMessageListEmpty && !mConversation.isBlocked();
+				overFlowMenuItem.enabled = shouldEnableSearch();
 				if (!sharedPreference.getData(HikeMessengerApp.CT_SEARCH_CLICKED, false) && overFlowMenuItem.enabled)
 				{
 					overFlowMenuItem.drawableId = R.drawable.ic_overflow_item_indicator_search;
@@ -1089,21 +969,10 @@ import android.widget.Toast;
 				break;
 
 			case R.string.clear_chat:
-			case R.string.email_chat:
-				overFlowMenuItem.enabled = !isMessageListEmpty;
+				overFlowMenuItem.enabled = shouldEnableClearChat();
 				break;
-			case R.string.hike_keyboard:
-				if (!sharedPreference.getData(HikeConstants.CT_OVRFLW_KEYBOARD_CLICKED, false)
-						&& HikeMessengerApp.isIndianUser())
-				{
-					overFlowMenuItem.drawableId = R.drawable.ic_red_dot_overflow_item_key;
-				}
-				else
-				{
-					overFlowMenuItem.drawableId = 0;
-				}
-				overFlowMenuItem.enabled = !mConversation.isBlocked();
-				overFlowMenuItem.text=getString(isSystemKeyboard() ? R.string.hike_keyboard : R.string.system_keyboard);
+			case R.string.email_chat:
+				overFlowMenuItem.enabled = shouldEnableEmailChat();
 				break;
 			case R.string.hide_chat:
 				overFlowMenuItem.text = getString(StealthModeManager.getInstance().isActive() ?
@@ -1134,27 +1003,28 @@ import android.widget.Toast;
 		Logger.i(TAG, "on activity result " + requestCode + " result " + resultCode);
 		if (resultCode == Activity.RESULT_CANCELED)
 		{
+			if (requestCode == AttachmentPicker.LOCATION) { //CE-212
+				recordMediaShareAnalyticEvent(ChatAnalyticConstants.LOCATION_SHARING_CANCELLED);
+			}
 			return;
 		}
 		switch (requestCode)
 		{
 		case AttachmentPicker.CAMERA:
-			if(!Utils.isPhotosEditEnabled())
+
+			String filename = Utils.getCameraResultFile();
+			if(TextUtils.isEmpty(filename))
 			{
-				ImageParser.parseResult(activity, resultCode, data, this, true);
+				imageParseFailed();
+				return;
 			}
-			else
-			{
-				String filename = Utils.getCameraResultFile();
-				if(filename!=null)
-				{
-					activity.startActivityForResult(IntentFactory.getPictureEditorActivityIntent(activity, filename, false, filename, false), AttachmentPicker.EDITOR);
-				}
-				else
-				{
-					imageParseFailed();
-				}
-			}
+
+			ArrayList<String> filePathArrays = new ArrayList<String>();
+			filePathArrays.add(filename);
+			ArrayList<GalleryItem> galleryItemArrayList = GalleryItem.getGalleryItemsFromFilepaths(filePathArrays);
+
+			Intent selectionIntent = IntentFactory.getImageSelectionIntent(activity, galleryItemArrayList, true, true);
+			activity.startActivityForResult(selectionIntent, AttachmentPicker.GALLERY);
 			break;
 		case AttachmentPicker.AUDIO:
 		case AttachmentPicker.VIDEO:
@@ -1169,6 +1039,7 @@ import android.widget.Toast;
 			 */
 			if (data != null)
 			{
+				Logger.d("FileSelect", "Processing the request for file sharing.");
 				channelSelector.onShareFile(activity.getApplicationContext(), msisdn, data, mConversation.isOnHike());
 			}
 			break;
@@ -1176,6 +1047,62 @@ import android.widget.Toast;
 			onShareContact(resultCode, data);
 			break;
 		case AttachmentPicker.GALLERY:
+			if(resultCode == Activity.RESULT_OK)
+			{
+				final ArrayList<Uri> imagePathArrayList = data.getParcelableArrayListExtra(HikeConstants.IMAGE_PATHS);
+				final ArrayList<String> imageCaptions = data.getStringArrayListExtra(HikeConstants.CAPTION);
+
+				if(Utils.isEmpty(imagePathArrayList))
+				{
+					imageParseFailed();
+					return;
+				}
+				else
+				{
+					final int numOfImagesCaptioned = (imageCaptions != null) ? imageCaptions.size() : 0;
+					final ArrayList<String> editedImages = data.getStringArrayListExtra(HikeConstants.EDITED_IMAGE_PATHS);
+					final int numOfImagesEdited = (editedImages != null && !TextUtils.isEmpty(editedImages.get(0))) ? 1 : 0;
+
+					ImageParser.showSMODialog(activity, new File(imagePathArrayList.get(0).getPath()), new ImageParserListener()
+					{
+						@Override
+						public void imageParsed(Uri uri)
+						{
+
+							recordImageShareAnalyticEvent(imagePathArrayList.size(), numOfImagesCaptioned, numOfImagesEdited);
+							channelSelector.uploadFile(activity.getApplicationContext(), msisdn, uri.getPath(), HikeFileType.IMAGE, mConversation.isOnHike(),
+									FTAnalyticEvents.CAMERA_ATTACHEMENT, imageCaptions == null ? null : imageCaptions.get(0));
+						}
+
+						@Override
+						public void imageParsed(String imagePath)
+						{
+							recordImageShareAnalyticEvent(imagePathArrayList.size(), numOfImagesCaptioned, numOfImagesEdited);
+
+							channelSelector.uploadFile(activity.getApplicationContext(), msisdn, imagePath, HikeFileType.IMAGE, mConversation.isOnHike(),
+									FTAnalyticEvents.CAMERA_ATTACHEMENT, imageCaptions == null ? null : imageCaptions.get(0));
+						}
+
+						@Override
+						public void imageParseFailed()
+						{
+							ChatThread.this.imageParseFailed();
+						}
+					});
+
+				}
+			}
+			else if (resultCode == GalleryActivity.GALLERY_ACTIVITY_RESULT_CODE)
+			{
+				// This would be executed if photos is not enabled on the device
+				mConversationsView.requestFocusFromTouch();
+				mConversationsView.setSelection(messages.size() - 1);
+			}
+			else
+			{
+				imageParseFailed();
+			}
+			break;
 		case AttachmentPicker.EDITOR:
 			if(resultCode == Activity.RESULT_OK)
 			{
@@ -1202,10 +1129,41 @@ import android.widget.Toast;
 				}
 			}
 			break;
-		case HikeConstants.PLATFORM_REQUEST:
+			case RESULT_CODE_STICKER_SHOP_ACTIVITY:
+				uiHandler.sendEmptyMessage(OPEN_PICKER);
+				break;
+			case HikeConstants.PLATFORM_REQUEST:
 		case HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST:
 			mAdapter.onActivityResult(requestCode, resultCode, data);
 
+		}
+	}
+
+	private void recordImageShareAnalyticEvent(int numberTotal, int numOfImagesCaptions, int numOfEditedImages){
+		String species = ChatThreadUtils.getChatThreadType(msisdn);
+		try {
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, ChatAnalyticConstants.SHARE_IMAGES);
+			json.put(AnalyticsConstants.V2.KINGDOM, ChatAnalyticConstants.ACT_CORE_LOGS);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, ChatAnalyticConstants.SHARE_IMAGES);
+			if (mConversation.isStealth()) {
+				json.put(AnalyticsConstants.V2.VARIETY, ChatAnalyticConstants.STEALTH_CHAT_THREAD);
+			}
+			json.put(AnalyticsConstants.V2.SPECIES, activity.getIntent().getStringExtra(HikeConstants.Extras.WHICH_CHAT_THREAD));
+			json.put(AnalyticsConstants.V2.CENSUS, FTUtils.getImageQuality());
+			json.put(AnalyticsConstants.V2.RACE, numberTotal);
+			json.put(AnalyticsConstants.V2.BREED, numOfEditedImages);
+			json.put(AnalyticsConstants.V2.POPULATION, numOfImagesCaptions);
+			json.put(AnalyticsConstants.V2.SOURCE, ChatAnalyticConstants.IMAGE_SOURCE_CAMERA);
+			json.put(AnalyticsConstants.V2.TO_USER, msisdn);
+			json.put(AnalyticsConstants.V2.NETWORK, Utils.getNetworkTypeAsString(
+					HikeMessengerApp.getInstance().getApplicationContext()));
+
+			HAManager.getInstance().recordV2(json);
+		} catch (JSONException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -1214,23 +1172,6 @@ import android.widget.Toast;
 	{
 		switch (item.id)
 		{
-		case R.string.hike_keyboard:
-			changeKbdClicked = true;
-			if (!sharedPreference.getData(HikeConstants.CT_OVRFLW_KEYBOARD_CLICKED, false))
-			{
-				sharedPreference.saveData(HikeConstants.CT_OVRFLW_KEYBOARD_CLICKED, true);
-			}
-			recordKeyboardChangeEvent(item,isSystemKeyboard());
-			if (isSystemKeyboard() && isKeyboardOpen())
-			{
-				Utils.hideSoftKeyboard(activity, mComposeView);
-			}
-			else
-			{
-				onHidden();
-			}
-
-			return;
 		case R.string.clear_chat:
 			showClearConversationDialog();
 			break;
@@ -1287,15 +1228,9 @@ import android.widget.Toast;
 			}
 
 		};
-		Utils.executeAsyncTask(automateMessages);
+		automateMessages.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 
-	/**
-	 * //TODO
-	 * Please note here analytics event tag will change if language is changed since you are using
-	 * overflowmenu item 's text as key .This needs to be handled
-	 * @param item
-	 */
 	private void recordOverflowItemClicked(OverFlowMenuItem item)
 	{
 
@@ -1307,6 +1242,12 @@ import android.widget.Toast;
 		{
 			JSONObject metadata = new JSONObject();
 			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.CHAT_OVRFLW_ITEM).put(ITEM, itemText);
+			//CE-602 : Add new fields to existing overflow menu events
+			metadata.put(HikeConstants.SPECIES, activity.getIntent().getStringExtra(HikeConstants.Extras.WHICH_CHAT_THREAD));
+			if(mConversation.isStealth()) {
+				metadata.put(HikeConstants.FROM, ChatAnalyticConstants.STEALTH_CHAT_THREAD);
+			}
+			metadata.put(HikeConstants.TO, msisdn);
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 		}
 		catch (JSONException e)
@@ -1314,23 +1255,8 @@ import android.widget.Toast;
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 		}
 	}
-	protected void recordKeyboardChangeEvent(OverFlowMenuItem item, boolean systemKeyboardClicked)
-	{
 
-		// To track Analytics event for changing of keyboard even when language is changed since
-		// overflow menu item text was being converted to the local language and analytics key was being changed
-		if (item.text.equalsIgnoreCase(getString(R.string.hike_keyboard)) || item.text.equalsIgnoreCase(getString(R.string.system_keyboard)))
-		{
-			String analytics="";
-			if (systemKeyboardClicked)
-				analytics = HikeConstants.HIKE_KEYBOARD;
-			else
-				analytics = HikeConstants.SYSTEM_KEYBOARD;
-			recordOverflowItemClicked(analytics);
-		}
-
-	}
-	protected String getString(int stringId)
+    protected String getString(int stringId)
 	{
 		return activity.getString(stringId);
 	}
@@ -1343,6 +1269,10 @@ import android.widget.Toast;
 	public void setContentView()
 	{
 		activity.setContentView(getContentView());
+		if(!useWTRevamped) {
+			activity.findViewById(R.id.send_message).setVisibility(View.VISIBLE);
+			activity.findViewById(R.id.send_message_audio).setVisibility(View.GONE);
+		}
 		initView();
 	}
 
@@ -1352,8 +1282,6 @@ import android.widget.Toast;
 		listOverFlow.add(new OverFlowMenuItem(getString(R.string.hide_chat), 0, 0, R.string.hide_chat));
 		listOverFlow.add(new OverFlowMenuItem(getString(R.string.clear_chat), 0, 0, true, R.string.clear_chat));
 		listOverFlow.add(new OverFlowMenuItem(getString(R.string.email_chat), 0, 0, true, R.string.email_chat));
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CHANGE_KEYBOARD_CHAT_ENABLED, true) && HikeMessengerApp.isCustomKeyboardUsable())
-			listOverFlow.add(new OverFlowMenuItem(getString(isSystemKeyboard()?R.string.hike_keyboard:R.string.system_keyboard), 0, 0, R.string.hike_keyboard));
 
 		return listOverFlow;
 
@@ -1374,9 +1302,6 @@ import android.widget.Toast;
 		// Remove the indicator if any on the overflow menu.
 		mActionBar.updateOverflowMenuIndicatorImage(0,false);
 
-		// Dismiss Overflow Tip
-		dismissOverflowTipIfShowing();
-
 		/**
 		 * Hiding the softkeyboard if we are in landscape mode
 		 */
@@ -1390,31 +1315,49 @@ import android.widget.Toast;
 		mActionBar.showOverflowMenu(width, LayoutParams.WRAP_CONTENT, -rightMargin, -(int) (0.5 * Utils.scaledDensityMultiplier), activity.findViewById(R.id.overflow_anchor));
 	}
 
+	private void stickerClicked(ConvMessage convMessage)
+	{
+		boolean isSent = convMessage.isSent();
+		if(QuickStickerSuggestionController.getInstance().isStickerClickAllowed(isSent))
+		{
+			initStickerPicker();
+			mStickerPicker.showQuickSuggestionCategory(QuickStickerSuggestionController.getInstance().getQuickSuggestionCategory(convMessage));
+			stickerButtonClicked();
+		}
+	}
+
 	@Override
 	public void onClick(View v)
 	{
+		if(useWTRevamped) {
+			if(v.getId() == R.id.msg_compose && !isKeyboardOpen()){ //CE-492
+				inProcessOfShowingPopup = true;
+			}
+			// Eat/Discard the click event when the WT recording is in progress
+			if(isWalkieTalkieShowing()) {
+				if(inProcessOfShowingPopup) dismissWalkieTalkie();
+				return;
+			}
+		}
+
 		switch (v.getId())
 		{
 		case R.id.overflowmenu:
 			showOverflowMenu();
+			recordMediaShareAnalyticEvent(ChatAnalyticConstants.OVERFLOW_MENU_CLICKED);
 			break;
 		case R.id.sticker_btn:
-			if (mShareablePopupLayout.isBusyInOperations())
-			{//  previous task is running don't accept this event
-				return;
-			}
-			mShareablePopupLayout.setCustomKeyBoardHeight((keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight);
-			setEmoticonButtonSelected(false);
-			setStickerButtonSelected(true);
-			stickerClicked();
+			StickerManager.getInstance().initiateFetchCategoryRanksAndDataTask();
+			stickerButtonClicked();
 			break;
 		case R.id.emoticon_btn:
 			if (mShareablePopupLayout.isBusyInOperations())
 			{// previous task is running don't accept this event
 				return;
 			}
-			mShareablePopupLayout.setCustomKeyBoardHeight((keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight);
+			inProcessOfShowingPopup = true;
 			setStickerButtonSelected(false);
+            setInputBoxButtonSelected(false);
 			setEmoticonButtonSelected(true);
 			emoticonClicked();
 			break;
@@ -1453,13 +1396,9 @@ import android.widget.Toast;
 			break;
 		case R.id.search_clear_btn:
 			mComposeView.setText("");
-			customKeyboardUpdateCore();
 			break;
-		case R.id.search_text:
-			showKeyboard();
-			break;
-		case R.id.overflow_tip:
-			showOverflowMenu();
+		case R.id.placeholder:
+			onPlaceHolderClick(v);
 			break;
 		default:
 			Logger.e(TAG, "onClick Registered but not added in onClick : " + v.toString());
@@ -1468,23 +1407,40 @@ import android.widget.Toast;
 
 	}
 
-	protected void sendButtonClicked()
+
+	private void onPlaceHolderClick(View v)
 	{
-		if (TextUtils.isEmpty(mComposeView.getText()))
+		ConvMessage convMessage = (ConvMessage) v.getTag();
+
+		if(convMessage.isStickerMessage())
 		{
-			audioRecordClicked();
-		}
-		else
-		{
-			sendMessageForStickerRecommendLearning();
-			sendMessage();
-			customKeyboardUpdateCore();
-			dismissStickerRecommendationPopup();
-			dismissTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
+			if(convMessage.getMetadata() != null && convMessage.getMetadata().getSticker() != null)
+			{
+				stickerClicked(convMessage);
+			}
 		}
 	}
 
-	/**
+    protected void sendButtonClicked()
+    {
+        if (!useWTRevamped && TextUtils.isEmpty(mComposeView.getText()))
+        {
+            if (BotUtils.isBot(msisdn) && CustomKeyboardManager.getInstance().shouldShowInputBox(msisdn))
+                inputBoxClicked();
+            else
+                audioRecordClicked();
+        }
+        else
+        {
+            sendMessageForStickerRecommendLearning();
+            sendMessage();
+            dismissStickerRecommendationPopup();
+            dismissTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
+        }
+    }
+
+
+    /**
 	 * This function gets text from compose edit text and makes a message and uses {@link ChatThread#sendMessage(ConvMessage)} to send message
 	 * 
 	 * In addition, it calls {@link ComposeViewWatcher#onMessageSent()}
@@ -1495,23 +1451,6 @@ import android.widget.Toast;
 		sendMessage(convMessage);
 	}
 
-	protected void addLanguageAnalytics(ConvMessage convMessage)
-	{
-		JSONObject metadata = new JSONObject();
-		try 
-		{
-			if(!isSystemKeyboard()) {
-				metadata.put(HikeConstants.KEYBOARD_LANGUAGE, KptKeyboardManager.getInstance().getCurrentLanguageAddonItem().getlocaleName());
-				convMessage.setfromCustomKeyboard(true);
-				convMessage.setMetadata(metadata);
-			}
-		} 
-		catch (JSONException e) 
-		{
-			e.printStackTrace();
-		}
-	}
-	
 	protected ConvMessage createConvMessageFromCompose()
 	{
 		String message = mComposeView.getText().toString();
@@ -1521,7 +1460,6 @@ import android.widget.Toast;
 			return null; // Do not create message
 		}
 		ConvMessage convMessage = Utils.makeConvMessage(msisdn, message, mConversation.isOnHike());
-		addLanguageAnalytics(convMessage);
 
 		// TODO : PinShowing related code -gaurav
 		mComposeView.setText("");
@@ -1567,22 +1505,42 @@ import android.widget.Toast;
 	protected void audioRecordClicked()
 	{
 		showAudioRecordView();
+		sendWTClickedAnalytic();
+	}
+
+	private void sendWTClickedAnalytic() {
+		String species = activity.getIntent().getStringExtra(HikeConstants.Extras.WHICH_CHAT_THREAD);
+		JSONObject json = Utils.getCoreChatClickJSON(ChatAnalyticConstants.WT_CLICKED_TOUCHED, species, mConversation.isStealth());
+		if (json != null) HAManager.getInstance().recordV2(json);
 	}
 
 	protected void showAudioRecordView()
 	{
-		audioRecordView.show();
+		//CE-171: Avoid showing the old WT, when the new WT UI is enabled.
+		if(!useWTRevamped) audioRecordView.show();
+		else showRecordingErrorTip(R.string.recording_help_text);
 	}
 
-	protected void stickerClicked()
+	protected void stickerButtonClicked()
 	{
+		if (mShareablePopupLayout.isBusyInOperations()) {//  previous task is running don't accept this event
+			return;
+		}
+		inProcessOfShowingPopup = true;
+		setEmoticonButtonSelected(false);
+		setStickerButtonSelected(true);
+
 		Long time = System.currentTimeMillis();
 		initStickerPicker();
 		
 		closeStickerTip();
-		StickerManager.getInstance().sendStickerButtonClickAnalytics();
-		
-		if (mShareablePopupLayout.togglePopup(mStickerPicker, activity.getResources().getConfiguration().orientation))
+		StickerManager.getInstance().logStickerButtonsPressAnalytics(HikeMessengerApp.STICKER_PALLETE_BUTTON_CLICK_ANALYTICS);
+
+		if(mShareablePopupLayout.isShowing()) {
+			inProcessOfShowingPopup = false;
+		}
+
+		if (mShareablePopupLayout.togglePopup(mStickerPicker, activity.getResources().getConfiguration().orientation,false))
 		{
 			activity.showProductPopup(ProductPopupsConstants.PopupTriggerPoints.STKBUT_BUT.ordinal());
 		}
@@ -1590,6 +1548,7 @@ import android.widget.Toast;
 		{
 			if (!retryToInflateStickers())
 			{
+				inProcessOfShowingPopup = false;
 				setStickerButtonSelected(false);
 				Toast.makeText(activity.getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
 			}
@@ -1605,7 +1564,15 @@ import android.widget.Toast;
 			mTips.setTipSeen(ChatThreadTips.STICKER_TIP);
 		}
 	}
-	
+
+	protected void closeWTTip() {
+		if (mTips.isGivenTipShowing(ChatThreadTips.WT_RECOMMEND_TIP) || (!mTips.seenTip(ChatThreadTips.WT_RECOMMEND_TIP))) {
+			mTips.setTipSeen(ChatThreadTips.WT_RECOMMEND_TIP);
+			showRecordingErrorTip(R.string.recording_help_text);
+			mComposeViewWatcher.setSendBtnChangeListener(null);
+		}
+	}
+
 	public void showStickerRecommendTip()
 	{
 		mTips.showStickerRecommendFtueTip();
@@ -1654,15 +1621,22 @@ import android.widget.Toast;
 	{
 		Long time = System.currentTimeMillis();
 		initEmoticonPicker();
-		
-		if (!mShareablePopupLayout.togglePopup(mEmoticonPicker, activity.getResources().getConfiguration().orientation))
+
+		if(mShareablePopupLayout.isShowing()) {
+			inProcessOfShowingPopup = false;
+		}
+		if (!mShareablePopupLayout.togglePopup(mEmoticonPicker, activity.getResources().getConfiguration().orientation,false))
 		{
 			if (!retryToInflateEmoticons())
 			{
 				setEmoticonButtonSelected(false);
 				Toast.makeText(activity.getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
+				inProcessOfShowingPopup = false;
 			}
 		}
+
+        StickerManager.getInstance().logStickerButtonsPressAnalytics(HikeMessengerApp.EMOTICON_BUTTON_CLICK_ANALYTICS);
+
 		Logger.v(TAG, "Time taken to open emoticon pallete : " + (System.currentTimeMillis() - time));
 	}
 
@@ -1675,7 +1649,7 @@ import android.widget.Toast;
 		String errorMsg = "Inside method : retry to inflate emoticons. Houston!, something's not right here";
 		HAManager.sendStickerEmoticonStrangeBehaviourReport(errorMsg);
 		initShareablePopup();
-		return mShareablePopupLayout.togglePopup(mEmoticonPicker, activity.getResources().getConfiguration().orientation);
+		return mShareablePopupLayout.togglePopup(mEmoticonPicker, activity.getResources().getConfiguration().orientation,false);
 	}
 	
 	private boolean retryToInflateStickers()
@@ -1683,11 +1657,16 @@ import android.widget.Toast;
 		String errorMsg = "Inside method : retry to inflate stickers. Houston!, something's not right here";
 		HAManager.sendStickerEmoticonStrangeBehaviourReport(errorMsg);
 		initShareablePopup();
-		return mShareablePopupLayout.togglePopup(mStickerPicker, activity.getResources().getConfiguration().orientation);
+		return mShareablePopupLayout.togglePopup(mStickerPicker, activity.getResources().getConfiguration().orientation,false);
 	}
 
 	protected void setUpThemePicker()
 	{
+		/**
+		 * Dismissing emoticon panel, sticker panel or any shareable popup when chat theme palette is opened
+		 */
+		dismissShareablePopup();
+
 		/**
 		 * We can now dismiss the chatTheme tip if it is there or we can hide any other visible tip
 		 */
@@ -1735,7 +1714,7 @@ import android.widget.Toast;
 	public void themeClicked(ChatTheme theme)
 	{
 		Logger.i(TAG, "theme clicked " + theme);
-
+		postTrialsAnalytic(theme.bgId());
 		updateUIAsPerTheme(theme);
 	}
 
@@ -1760,6 +1739,23 @@ import android.widget.Toast;
 		}
 	}
 
+	private void postTrialsAnalytic(String themeId){
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_USERS);
+			metadata.put(AnalyticsConstants.V2.UNIQUE_KEY, ChatAnalyticConstants.CHAT_BACKGROUND_TRIAL);
+			metadata.put(AnalyticsConstants.V2.PHYLUM, HikeConstants.CHAT_BACKGROUND);
+			metadata.put(AnalyticsConstants.V2.SPECIES, themeId);
+			metadata.put(AnalyticsConstants.V2.FROM_USER, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, ""));
+			metadata.put(AnalyticsConstants.V2.FAMILY, Utils.applyOffsetToMakeTimeServerSync(activity, System.currentTimeMillis()));
+			HAManager.getInstance().recordV2(metadata);
+		} catch (JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+		}
+	}
+
 	protected void updateUIAsPerTheme(ChatTheme theme)
 	{
 		if (mAdapter.getChatTheme() == theme && theme == ChatTheme.DEFAULT)
@@ -1773,8 +1769,13 @@ import android.widget.Toast;
 		else if (mAdapter.getChatTheme() != theme)
 		{
 			Logger.i(TAG, "update ui for theme " + theme);
+
+			removeChatThemeFromCache();
+
 			if (mAdapter.getChatTheme() == ChatTheme.DEFAULT)
+			{
 				setChatBackground(REMOVE_CHAT_BACKGROUND);
+			}
 			else if (theme == ChatTheme.DEFAULT)
 				setChatBackground(R.color.chat_thread_default_bg);
 
@@ -1782,9 +1783,24 @@ import android.widget.Toast;
 			setStatusBarColor(theme.statusBarColor());
 		}
 	}
+
+	private void removeChatThemeFromCache()
+	{
+		if (HikeMessengerApp.getLruCache().getChatTheme(mAdapter.getChatTheme().bgId() + getOrientationPrefix()) != null)
+		{
+			Logger.d(TAG,"Removing from cache in case of chatThemeupdate .. ");
+			HikeMessengerApp.getLruCache().removeChatTheme(mAdapter.getChatTheme().bgId());
+		}
+	}
+
 	protected void setChatBackground(int colorResID){
 		View chatlayout=activity.findViewById(R.id.chatContentlayout);
 		chatlayout.setBackgroundResource(colorResID);
+	}
+
+	protected String getOrientationPrefix()
+	{
+		return getCurrentOrientation() == Configuration.ORIENTATION_LANDSCAPE ? HikeConstants.ORIENTATION_LANDSCAPE : HikeConstants.ORIENTATION_PORTRAIT;
 	}
 	protected void setBackground(ChatTheme theme)
 	{
@@ -1798,13 +1814,40 @@ import android.widget.Toast;
 		{
 			setChatBackground(REMOVE_CHAT_BACKGROUND);
 			backgroundImage.setScaleType(theme.isTiled() ? ScaleType.FIT_XY : ScaleType.MATRIX);
-			Drawable drawable = Utils.getChatTheme(theme, activity);
+
+			Drawable drawable = loadChatTheme(theme);
+
 			if(!theme.isTiled())
 			{
 				ChatThreadUtils.applyMatrixTransformationToImageView(drawable, backgroundImage);
 			}
 			backgroundImage.setImageDrawable(drawable);
 		}
+	}
+
+	/**
+	 *
+	 * @param theme
+	 * @return ChatTheme Drawable if found in cache good else load from apk bundled resources
+	 */
+	private Drawable loadChatTheme(ChatTheme theme)
+	{
+		// Now we are first fetching from Cache
+		Drawable drawable = HikeMessengerApp.getLruCache().getChatTheme(theme.bgId() + getOrientationPrefix());
+		if (drawable == null)
+		{
+			Logger.d(TAG, "Did not found in cached Fetching from APK");
+			// Not found in cache load from apk
+			drawable = Utils.getChatTheme(theme, activity);
+
+			// insert into cached
+			HikeMessengerApp.getLruCache().saveChatTheme(theme.bgId() + getOrientationPrefix(), (BitmapDrawable) drawable);
+		}
+		else
+		{
+			Logger.d(TAG, "Bitmap Chat Theme found in cache");
+		}
+		return drawable;
 	}
 
 	@Override
@@ -1819,15 +1862,11 @@ import android.widget.Toast;
 
 	public boolean onBackPressed()
 	{
-		boolean backPressedConsumed = false;
 		mShareablePopupLayout.onBackPressed();
-
-		// check if back pressed can be consumed by keyboardftue. Its not supposed to return from here as other objects are also using it.
-		// Prospect: there can be more requirements where you need share this callback with others instead of consuming it alone.
-		// Ex boolean backConsumedByXyzPopup.
-		boolean backConsumedByKeyboardFtue = removeKeyboardFtueIfShowing();
-
-		if(handleImageFragmentBackPressed()){
+		if (removeKeyboardShutdownIfShowing()) {
+			return true;
+		}
+		if(removeFragment(HikeConstants.IMAGE_FRAGMENT_TAG, true)){
 			return true;
 		}
 		
@@ -1835,64 +1874,50 @@ import android.widget.Toast;
 		{
 			return true;
 		}
-		
+
+		if(dismissWalkieTalkie()) return true;
+
 		if (mShareablePopupLayout.isShowing())
 		{
 			mShareablePopupLayout.dismiss();
 			return true;
 		}
-		
+
 		if (themePicker != null && themePicker.isShowing())
 		{
 			return themePicker.onBackPressed();
 		}
 		
-		if (isCustomKeyboardVisible())
-		{
-			hideKptKeyboard();
-			return true;
-		}
-		closeAnyCustomKeyboardDialogIfShowing();
-
 		if (mActionMode.isActionModeOn())
 		{
 			mActionMode.finish();
 			return true;
 		}
 
-		// there can be an 'OR' among all the backConsumptions.
-		// Ex: backPressedConsumed = (backConsumedByKeyboardFtue || backConsumedByXyzPopup)
-		backPressedConsumed = backConsumedByKeyboardFtue;
-		return backPressedConsumed;
-	}
-
-	private boolean handleImageFragmentBackPressed(){
-		if (removeFragment(HikeConstants.IMAGE_FRAGMENT_TAG, true))
-		{
-			if(mActionMode.isActionModeOn() && isCustomKeyboardVisible()){
-				if(mActionMode.whichActionModeIsOn() == this.SEARCH_ACTION_MODE) {
-					mActionMode.finish();
-					setupSearchMode(searchText);
-				}
-			}
-			return true;
-		}
 		return false;
 	}
-	
+
 	private void actionBarBackPressed()
 	{
+		if(dismissWalkieTalkie()) return;
+
 		if (mShareablePopupLayout.isShowing())
 		{
 			mShareablePopupLayout.dismiss();
 			return;
 		}
 
-		if(handleImageFragmentBackPressed()){
+		if(removeFragment(HikeConstants.IMAGE_FRAGMENT_TAG, true)){
 			return;
 		}
 
-		activity.backPressed();
+		if (isActivityVisible) {
+			activity.backPressed();
+		}
+		else {
+			// if activity is not visible then this is coming after onPause has been called and in next step app will crash
+			//with a illegal argument exception.It's okay to consume this event anyway as the actiivty is going to stop anyway
+		}
 	}
 
 	private void removeBroadcastReceiver()
@@ -1921,7 +1946,7 @@ import android.widget.Toast;
 	private void startHikeGallery(boolean onHike)
 	{
 		boolean editPic = Utils.isPhotosEditEnabled();
-		int galleryFlags = GalleryActivity.GALLERY_ALLOW_MULTISELECT|GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS|GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE;
+		int galleryFlags = GalleryActivity.GALLERY_ALLOW_MULTISELECT|GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS;
 		Intent imageIntent = IntentFactory.getHikeGalleryPickerIntent(activity.getApplicationContext(),galleryFlags,null);
 		imageIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
 		imageIntent.putExtra(HikeConstants.Extras.MSISDN, msisdn);
@@ -2004,11 +2029,13 @@ import android.widget.Toast;
 			return;
 		}
 
-		stickerTagWatcher = (stickerTagWatcher != null) ? (stickerTagWatcher) : (new StickerTagWatcher(activity, this, mComposeView, getResources().getColor(
-				R.color.sticker_recommend_highlight_text)));
+		stickerTagWatcher = (stickerTagWatcher != null) ? (stickerTagWatcher)
+				: (new StickerTagWatcher(activity, this, mComposeView, getResources().getColor(R.color.sticker_recommend_highlight_text)));
 
 		StickerSearchManager.getInstance().loadChatProfile(msisdn, !ChatThreadUtils.getChatThreadType(msisdn).equals(HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD),
 				activity.getLastMessageTimeStamp(), StickerSearchUtils.getCurrentLanguageISOCode());
+
+		StickerSearchManager.getInstance().loadStickerEvents();
 
 		mComposeView.addTextChangedListener(stickerTagWatcher);
 	}
@@ -2030,7 +2057,7 @@ import android.widget.Toast;
 	
 	protected void setupSearchMode(String text)
 	{
-		removeKeyboardFtueIfShowing();
+		removeKeyboardShutdownIfShowing();
 		searchText = text;
 		if (!sharedPreference.getData(HikeMessengerApp.CT_SEARCH_CLICKED, false))
 		{
@@ -2040,21 +2067,6 @@ import android.widget.Toast;
 		mActionMode.showActionMode(SEARCH_ACTION_MODE, R.layout.search_action_bar);
 		setUpSearchViews();
 
-		if (isSystemKeyboard())
-		{
-			mComposeView.requestFocus();
-			activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-			Utils.showSoftKeyboard(mComposeView, InputMethodManager.SHOW_FORCED);
-		}
-		else
-		{
-			registerCustomKeyboardEditText(R.id.search_text);
-			showCustomKeyboard(mComposeView);
-        	KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, (keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight);
-		}
-
-		mComposeView.setOnClickListener(this);
-		
 		// Creating new instance every time.
 		// No need to modify existing instance. It might still be in the process of exiting.
 		messageSearchManager = new SearchManager();
@@ -2068,24 +2080,34 @@ import android.widget.Toast;
 			mComposeView.setSelection(searchText.length());
 		}
 	}
-	
-	public void hideKeyboard(){
-		if(KptUtils.isSystemKeyboard()){
-			Utils.hideSoftKeyboard(activity, mComposeView);
-		}
-		else if (mCustomKeyboard!=null)
-		{
-			hideKptKeyboard();
-		}
-		removeKeyboardFtueIfShowing();
-	}
 
-	private void hideKptKeyboard()
+	protected boolean removeKeyboardShutdownIfShowing()
 	{
-		hideCustomKeyboard(mComposeView);
-		KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
+		if(keyboardOffBoarding != null && keyboardOffBoarding.isShowing()) {
+			activity.findViewById(R.id.compose_container).setVisibility(View.VISIBLE);
+			keyboardOffBoarding.hide();
+			return true;
+		}
+		return false;
 	}
+	
+	protected void showKeyboardOffboardingIfReady()
+	{
+//		Putting an NP check to make sure we don't try to show the keyboardOffBoarding UI when the object is null
+		if (keyboardOffBoarding != null && shouldShowKeyboardOffBoardingUI()) {
 
+			if (keyboardOffBoarding.showView()) {
+
+				Utils.hideSoftKeyboard(activity, mComposeView);
+				activity.findViewById(R.id.compose_container).setVisibility(View.INVISIBLE);
+
+			} else {
+
+				initKeyboardOffBoarding();
+			}
+		}
+	}
+	
 	private void setUpSearchViews()
 	{
 		int id = mComposeView.getId();
@@ -2093,6 +2115,7 @@ import android.widget.Toast;
 		mComposeView.setTag(id);
 
 		mComposeView.requestFocus();
+		Utils.showSoftKeyboard(activity.getApplicationContext(), mComposeView);
 		mComposeView.addTextChangedListener(searchTextWatcher);
 		mComposeView.setOnEditorActionListener(this);
 		activity.findViewById(R.id.next).setOnClickListener(this);
@@ -2100,18 +2123,16 @@ import android.widget.Toast;
 		activity.findViewById(R.id.search_clear_btn).setOnClickListener(this);
 		
 		View mBottomView = activity.findViewById(R.id.bottom_panel);
-		if (isSystemKeyboard())
+		if (mShareablePopupLayout.isKeyboardOpen())
+		{ 		
+			// ifkeyboard is not open, then keyboard will come which will make so much animation on screen		
+			mBottomView.startAnimation(AnimationUtils.loadAnimation(activity.getApplicationContext(), R.anim.up_down_lower_part));		
+		}		
+		else		
 		{
-			if (mShareablePopupLayout.isKeyboardOpen())
-			{ 
-				// ifkeyboard is not open, then keyboard will come which will make so much animation on screen
-				mBottomView.startAnimation(AnimationUtils.loadAnimation(activity.getApplicationContext(), R.anim.up_down_lower_part));
-			}
-			else
-			{
-				Utils.toggleSoftKeyboard(activity.getApplicationContext());
-			}
+			Utils.toggleSoftKeyboard(activity.getApplicationContext());
 		}
+
 		if (mShareablePopupLayout.isShowing())
 		{
 			mShareablePopupLayout.dismiss();
@@ -2119,76 +2140,6 @@ import android.widget.Toast;
 		mBottomView.setVisibility(View.GONE);
 	}
 
-	HikeAdaptxtEditTextEventListner kptEditTextEventListener = new HikeAdaptxtEditTextEventListner()
-	{
-		@Override
-		public void onReturnAction(int i, AdaptxtEditText adaptxtEditText)
-		{
-			switch (adaptxtEditText.getId())
-			{
-			case R.id.msg_compose:
-				if (!TextUtils.isEmpty(mComposeView.getText())) {
-					sendButtonClicked();
-				}
-				break;
-			case R.id.search_text:
-				searchMessage(false,true);
-				break;
-			}
-		}
-	};
-
-	HikeAdaptxtKeyboardVisibilityStatusListner kptKeyboardVisibilityStatusListner = new HikeAdaptxtKeyboardVisibilityStatusListner()
-	{
-		@Override
-		public void onInputviewVisbility(boolean kptVisible, int height)
-		{
-			if (kptVisible)
-			{
-				KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, height);
-				if (mShareablePopupLayout != null)
-				{
-					mShareablePopupLayout.setCustomKeyBoardHeight(height);
-				}
-				keyboardHeight = height;
-
-				if (activity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
-				{
-					mComposeView.setMaxLines(1);
-				}
-				else
-				{
-					mComposeView.setMaxLines(4);
-				}
-				onShown();
-			}
-			else
-			{
-				KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
-				mComposeView.setMaxLines(4);
-			}
-		}
-
-		@Override
-		public void analyticalData(KPTAddonItem kptAddonItem)
-		{
-			KptUtils.generateKeyboardAnalytics(kptAddonItem);
-			StickerSearchManager.getInstance().inputMethodChanged(StickerSearchUtils.getISOCodeFromLocale(new Locale(kptAddonItem.getlocaleName())));
-		}
-
-		@Override
-		public void showGlobeKeyView()
-		{
-			KptUtils.onGlobeKeyPressed(activity, mCustomKeyboard);
-		}
-
-		@Override
-		public void showQuickSettingView()
-		{
-			KptUtils.onGlobeKeyPressed(activity, mCustomKeyboard);
-		}
-	};
-	
 	TextWatcher searchTextWatcher = new TextWatcher()
 	{
 		
@@ -2233,8 +2184,8 @@ import android.widget.Toast;
 	private void searchMessage(boolean searchNext, boolean loop)
 	{
 		mConversationsView.setOnScrollListener(null);
-		
-		hideKeyboard();
+		Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
+
 		if (!TextUtils.isEmpty(searchText) &&
 				// For some devices like micromax A120, one can get multiple calls from one user-input.
 				// Check on the dialog is optimal here as it directly reflects the user intentions.
@@ -2283,7 +2234,6 @@ import android.widget.Toast;
 		{
 			mComposeView = (CustomFontEditText) activity.findViewById(R.id.msg_compose);
 			mComposeView.requestFocus();
-			mComposeView.setOnClickListener(mComposeChatOnClickListener);
 			mComposeView.removeTextChangedListener(searchTextWatcher);
 			if (mEmoticonPicker != null)
 			{
@@ -2342,6 +2292,7 @@ import android.widget.Toast;
 			channelSelector.sendAudio(activity.getApplicationContext(),msisdn,filePath,mConversation.isOnHike());
 			break;
 		case AttachmentPicker.VIDEO:
+			recordMediaShareAnalyticEvent(ChatAnalyticConstants.VIDEO_SENT);
 			channelSelector.sendVideo(activity.getApplicationContext(),msisdn,filePath,mConversation.isOnHike());
 			break;
 		}
@@ -2362,6 +2313,15 @@ import android.widget.Toast;
 			break;
 		}
 
+	}
+
+	private void recordMediaShareAnalyticEvent(String uniqueKey_order){
+		recordMediaShareAnalyticEvent(uniqueKey_order, null, null);
+	}
+
+	public void recordMediaShareAnalyticEvent(String uniqueKey_order, String genus, String family){
+		String species = activity.getIntent().getStringExtra(HikeConstants.Extras.WHICH_CHAT_THREAD);
+		Utils.recordCoreAnalyticsForShare(uniqueKey_order, species, msisdn, mConversation.isStealth(), genus, family);
 	}
 
 	protected void onShareLocation(Intent data)
@@ -2456,7 +2416,7 @@ import android.widget.Toast;
 
 	protected void setConversationTheme(ChatTheme theme)
 	{
-		System.gc();
+		//System.gc();
 		// messages theme changed, call adapter
 		mAdapter.setChatTheme(theme);
 		// action bar
@@ -2482,6 +2442,23 @@ import android.widget.Toast;
 		Logger.i(TAG, "sticker clicked " + sticker.getStickerId() + sticker.getCategoryId() + sourceOfSticker);
 		StickerSearchManager.getInstance().sentMessage(null, sticker, null, mComposeView.getText().toString());
 		sendSticker(sticker, sourceOfSticker);
+
+        // Added this code for custom bots keyboard , delete keyboard data only if we get keyboard data from shared pref for this msisdn and if the keyboard type is not persistent
+        String keyboardDataJson = HikeSharedPreferenceUtil.getInstance(CustomKeyboardManager.CUSTOM_INPUT_BOX_KEY).getData(CustomKeyboardManager.getKeyboardKey(msisdn),
+                HikePlatformConstants.KEYBOARD_DEFAULT_DATA);
+        try
+        {
+            if (!TextUtils.isEmpty(keyboardDataJson))
+            {
+                boolean isKeyBoardPersistent = new JSONObject(keyboardDataJson).optBoolean(HikePlatformConstants.IS_KEYBOARD_PERSISTENT, false);
+                if (!isKeyBoardPersistent)
+                    CustomKeyboardManager.getInstance().removeFromSharedPreferences(msisdn);
+            }
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
 	}
 	
 	@Override
@@ -2504,16 +2481,72 @@ import android.widget.Toast;
 	@Override
 	public void audioRecordSuccess(String filePath, long duration)
 	{
+		//CE-44: Incorrect time is shown in voice message
+		try {
+			MediaPlayer mediaPlayer = new MediaPlayer();
+			mediaPlayer.setDataSource(filePath);
+			mediaPlayer.prepare();
+			duration = mediaPlayer.getDuration()/1000;
+			mediaPlayer.release();
+			mediaPlayer = null;
+		} catch (Exception e){
+			e.printStackTrace();
+		}
 		Logger.i(TAG, "Audio Recorded " + filePath + "--" + duration);
 		channelSelector.sendAudioRecording(activity.getApplicationContext(),filePath,duration,msisdn,mConversation.isOnHike());
 	}
 
 	@Override
-	public void audioRecordCancelled()
+	public void audioRecordCancelled(int cause)
 	{
 		Logger.i(TAG, "Audio Recorded failed");
+		if(cause == HikeAudioRecordListener.AUDIO_CANCELLED_MINDURATION){
+			showRecordingErrorTip(R.string.recording_help_text);
+		} else if(cause == HikeAudioRecordListener.AUDIO_CANCELLED_BY_USER){
+			sendAnalyticsUserCancelledRecording();
+		}
 	}
 
+	private void sendAnalyticsUserCancelledRecording() {
+		try {
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.EVENT_KEY, HikeConstants.LogEvent.WT_RECORDING_CANCELLED_BY_USER);
+			json.put(HikeConstants.SPECIES, activity.getIntent().getStringExtra(HikeConstants.Extras.WHICH_CHAT_THREAD));
+			if(mConversation.isStealth()) {
+				json.put(HikeConstants.VARIETY, ChatAnalyticConstants.STEALTH_CHAT_THREAD);
+			}
+			HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private HikeTipVisibilityAnimator tipVisibilityAnimator;
+	private View mWalkieInfoTip;
+
+	private void showRecordingErrorTip(final int stringResId) {
+		if (mWalkieInfoTip == null) {
+			inflateInfoTipView((ViewStub) activity.findViewById(R.id.recording_info_view));
+		}
+		if (tipVisibilityAnimator == null) {
+			View chatlayout = activity.findViewById(R.id.chatContentlayout);
+			tipVisibilityAnimator = new HikeTipVisibilityAnimator(stringResId, chatlayout, activity, R.id.recording_error_tip, HikeTipVisibilityAnimator.TIP_ANIMATION_LENGTH_SHORT);
+		}
+		tipVisibilityAnimator.startInfoTipAnim();
+	}
+
+	private void inflateInfoTipView(ViewStub recordingTipView) {
+		if (recordingTipView != null) {
+			recordingTipView.setOnInflateListener(new ViewStub.OnInflateListener() {
+
+				@Override
+				public void onInflate(ViewStub stub, View inflated) {
+					mWalkieInfoTip = inflated;
+				}
+			});
+			recordingTipView.inflate();
+		}
+	}
 	/**
 	 * This method calls {@link #fetchConversation(String)} in UI or non UI thread, depending upon async variable For non UI, it starts asyncloader, see {@link ConversationLoader}
 	 * 
@@ -2521,14 +2554,48 @@ import android.widget.Toast;
 	 */
 	protected final void fetchConversation(boolean async)
 	{
+		boolean isThreadException=false;
+		StopWatch watch=new StopWatch();
+		watch.start();
 		Logger.i(TAG, "fetch conversation called , isAsync " + async);
 		if (async)
 		{
 			activity.getSupportLoaderManager().initLoader(FETCH_CONV, null, this);
 		}
-		else
-		{
-			setupConversation(fetchConversation());
+		else {
+			Conversation conv = null;
+			if (fetchConversationAsyncTask == null || fetchConversationAsyncTask.getStatus() == AsyncTask.Status.PENDING) {
+
+				if(fetchConversationAsyncTask!=null) {
+					fetchConversationAsyncTask.cancel(true);
+					Logger.d(TAG, "Cancelling Asyntask as it is not started till Now.Is the Threedpool full?");
+				}
+				Logger.d(TAG,"Now fetching on UI thread Only...");
+				conv = fetchConversation();
+			} else {
+				Logger.d(TAG, "trying to get it from future object");
+				try {
+					conv = conversationFuture.get();
+				} catch (InterruptedException e) {
+					Logger.d(TAG,"Interrupted Exception called...>"+Thread.currentThread().getName());
+					isThreadException=true;
+					e.printStackTrace();
+				} catch (ExecutionException e) {
+					Logger.d(TAG,"Exceution Exception called...>"+Thread.currentThread().getName());
+					e.printStackTrace();
+					isThreadException=true;
+				}
+			}
+			if(isThreadException&&conv==null&&Thread.currentThread()==uiHandler.getLooper().getThread())
+			{
+				// Being aggressive here giving it one more try to load obj from DB
+				Logger.d(TAG,"trying to fetch the objects from DB one more time as their was thread exception in the previous state");
+				conv=fetchConversation();
+			}
+			Logger.d(TAG,"Current Thread Name"+Thread.currentThread().getName());
+			watch.stop();
+			Logger.d(TAG,"Time taken to execuet fetchConversation is -->" +watch.getElapsedTime());
+			setupConversation(conv);
 		}
 	}
 	
@@ -2705,6 +2772,8 @@ import android.widget.Toast;
 		setupDefaultActionBar(true); // Setup the action bar
 		initMessageSenderLayout();
 
+		initKeyboardOffBoarding();
+
 		setEditTextListeners();
 		
 		activity.supportInvalidateOptionsMenu(); // Calling the onCreate menu here
@@ -2732,18 +2801,18 @@ import android.widget.Toast;
 		 */
 		if (shouldShowKeyboard())
 		{
-			if (!isSystemKeyboard())
-			{
-				showCustomKeyboard(mComposeView);
-				KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, (keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight);
-			}
-			else
-			{
-				activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-			}
+			activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 		}
+
+        if(CustomKeyboardManager.getInstance().shouldShowInputBox(mConversation.getMsisdn()))
+        {
+            CustomKeyboardManager.getInstance().initInputBox(activity,this,this,mConversation.getMsisdn());
+            sendUIMessage(SHOW_INPUT_BOX, mConversation.getMsisdn());
+        }
+
+        recordChatThreadOpen();
 	}
-	
+
 	private OnItemsFinishedListener mOnItemsFinishedListener  = new OnItemsFinishedListener()
 	{
 		@Override
@@ -2758,15 +2827,15 @@ import android.widget.Toast;
 	
 	protected boolean shouldShowKeyboard()
 	{
-		return ((mConversation.getMessagesList().isEmpty() && !mConversation.isBlocked() && !activity.getIntent().getBooleanExtra(HikeConstants.Extras.HIKE_DIRECT_MODE,false) 
-				&& !keyboardFtue.isReadyForFTUE()) || shouldShowKeyboardInActionMode());
+		return ((mConversation.getMessagesList().isEmpty() && !mConversation.isBlocked() && !activity.getIntent().getBooleanExtra(HikeConstants.Extras.HIKE_DIRECT_MODE,false) && !shouldShowKeyboardOffBoardingUI())
+				|| shouldShowKeyboardInActionMode());
 	}
 	
 	protected boolean shouldShowKeyboardInActionMode()
 	{
 		return (mActionMode.whichActionModeIsOn() == SEARCH_ACTION_MODE);
 	}
-
+	
 	/**
 	 * Checks if there is any typing notification present for the given msisdn, if present, it adds it to the ConvMessages
 	 */
@@ -2792,23 +2861,6 @@ import android.widget.Toast;
 
 		mComposeView.setOnKeyListener(this);
 
-		mComposeView.setSelectAllOnFocus(true);
-
-		mComposeView.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if (!isSystemKeyboard())
-				{
-					showCustomKeyboard(mComposeView);
-				/*
-				 * This is an approximate height given by kpt until we get keyboard visibility call. The final height is set in onInputViewVisibility().
-				 * This calls is to avoid the seeming delay in appearance of edittext.
-				 */
-					KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, (keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight);
-					showKeyboardFtueIfReady();
-				}
-			}
-		});
 	}
 
 	/*
@@ -2830,13 +2882,29 @@ import android.widget.Toast;
 		/* get the number of credits and also listen for changes */
 		int mCredits = activity.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getInt(HikeMessengerApp.SMS_SETTING, 0);
 
-		mComposeViewWatcher = new ComposeViewWatcher(mConversation, mComposeView, (ImageButton) activity.findViewById(R.id.send_message), mCredits,
+		mComposeViewWatcher = new ComposeViewWatcher(mConversation, mComposeView, (ImageButton) activity.findViewById(R.id.send_message), (ImageButton) activity.findViewById(R.id.send_message_audio), mCredits,
 				activity.getApplicationContext());
 
 		mComposeViewWatcher.init();
 
 		/* check if the send button should be enabled */
 		mComposeViewWatcher.setBtnEnabled();
+		//Begin CE-487: FTUE red-dot of WT also appears on send message button
+		boolean isWTTipShown = mTips.isGivenTipShowing(ChatThreadTips.WT_RECOMMEND_TIP);
+		if (useWTRevamped && isWTTipShown) {
+			mComposeViewWatcher.setSendBtnChangeListener(
+					new ComposeViewWatcher.SendBtnChangedListener() {
+						@Override
+						public void onSendBtnChanged(boolean enabled) {
+							if (enabled) {
+								mTips.hideTip(ChatThreadTips.WT_RECOMMEND_TIP);
+							} else {
+								mTips.showHiddenTip(ChatThreadTips.WT_RECOMMEND_TIP);
+							}
+						}
+					});
+		}
+		//End CE-487
 		mComposeView.requestFocus();
 
 	}
@@ -3016,6 +3084,17 @@ import android.widget.Toast;
 					{
 						sendPoke();
 					}
+					else if(msgExtrasJson.optInt(HikeConstants.MESSAGE_TYPE.MESSAGE_TYPE) == HikeConstants.MESSAGE_TYPE.CONTENT){
+						// as we will be changing msisdn and hike status while inserting in DB
+						ConvMessage convMessage = Utils.makeConvMessage(msisdn, mConversation.isOnHike());
+						convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.CONTENT);
+						convMessage.platformMessageMetadata = new PlatformMessageMetadata(msgExtrasJson.optString(HikeConstants.METADATA), activity.getApplicationContext());
+//						convMessage.platformMessageMetadata.addThumbnailsToMetadata();
+						convMessage.setMessage(convMessage.getMessage());
+
+						sendMessage(convMessage);
+
+					}
 					else if (msgExtrasJson.has(HikeConstants.Extras.FILE_PATH))
 					{
 						String fileKey = null;
@@ -3028,7 +3107,7 @@ import android.widget.Toast;
 						}
 						String filePath = msgExtrasJson.getString(HikeConstants.Extras.FILE_PATH);
 						String fileType = msgExtrasJson.getString(HikeConstants.Extras.FILE_TYPE);
-
+						String caption = msgExtrasJson.optString(HikeConstants.CAPTION);
 						boolean isRecording = false;
 						long recordingDuration = -1;
 						if (msgExtrasJson.has(HikeConstants.Extras.RECORDING_TIME))
@@ -3052,7 +3131,7 @@ import android.widget.Toast;
 
 						Logger.d("ChatThread", "isCloudMediaUri" + Utils.isPicasaUri(filePath));
 						channelSelector.sendFile(activity.getApplicationContext(), msisdn, filePath, fileKey, hikeFileType, fileType, isRecording,
-									recordingDuration, true, mConversation.isOnHike(), attachmentType);
+								recordingDuration, true, mConversation.isOnHike(), attachmentType, caption);
 					}
 					else if (msgExtrasJson.has(HikeConstants.Extras.LATITUDE) && msgExtrasJson.has(HikeConstants.Extras.LONGITUDE)
 							&& msgExtrasJson.has(HikeConstants.Extras.ZOOM_LEVEL))
@@ -3080,29 +3159,14 @@ import android.widget.Toast;
 						String stickerId = msgExtrasJson.getString(StickerManager.FWD_STICKER_ID);
 						Sticker sticker = new Sticker(categoryId, stickerId);
 						sendSticker(sticker, StickerManager.FROM_FORWARD);
-						boolean isDis = sticker.isDisabled(sticker, activity.getApplicationContext());
-						// add this sticker to recents if this sticker is not disabled
-						if (!isDis)
-						{
-							StickerManager.getInstance().addRecentSticker(sticker);
-						}
+
 						/*
 						 * Making sure the sticker is not forwarded again on orientation change
 						 */
 						intent.removeExtra(StickerManager.FWD_CATEGORY_ID);
 					}
 
-                    else if(msgExtrasJson.optInt(HikeConstants.MESSAGE_TYPE.MESSAGE_TYPE) == HikeConstants.MESSAGE_TYPE.CONTENT){
-                        // as we will be changing msisdn and hike status while inserting in DB
-                        ConvMessage convMessage = Utils.makeConvMessage(msisdn, mConversation.isOnHike());
-                        convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.CONTENT);
-                        convMessage.platformMessageMetadata = new PlatformMessageMetadata(msgExtrasJson.optString(HikeConstants.METADATA), activity.getApplicationContext());
-                        convMessage.platformMessageMetadata.addThumbnailsToMetadata();
-                        convMessage.setMessage(convMessage.platformMessageMetadata.notifText);
 
-                        sendMessage(convMessage);
-
-                    }
 
 					else if(msgExtrasJson.optInt(HikeConstants.MESSAGE_TYPE.MESSAGE_TYPE) == HikeConstants.MESSAGE_TYPE.WEB_CONTENT || msgExtrasJson.optInt(
 							HikeConstants.MESSAGE_TYPE.MESSAGE_TYPE) == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT){
@@ -3627,6 +3691,7 @@ import android.widget.Toast;
 	@Override
 	public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id)
 	{
+		if(isWalkieTalkieShowing()) return true;
 		return showMessageContextMenu(mAdapter.getItem(position - mConversationsView.getHeaderViewsCount()), view);
 	}
 
@@ -3883,38 +3948,18 @@ import android.widget.Toast;
 		currentFirstVisibleItem = firstVisibleItem;
 	}
 
-	protected boolean removeKeyboardFtueIfShowing()
-	{
-		if (keyboardFtue!=null && keyboardFtue.isShowing())
-		{
-			keyboardFtue.destroy();
-			return true;
-		}
-		return false;
-	}
-
-	private void showKeyboardFtueIfReady()
-	{
-		if (keyboardFtue.isReadyForFTUE() && !mActionMode.isActionModeOn())
-		{
-			activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-			keyboardFtue.showNextFtue();
-			Utils.hideSoftKeyboard(activity, mComposeView);
-		}
-	}
-
 	@Override
 	public boolean onTouch(View v, MotionEvent event)
 	{
 		switch (v.getId())
 		{
-		case R.id.msg_compose:
+			case R.id.msg_compose:
 
 			if(stickerTagWatcher != null)
 			{
 				stickerTagWatcher.onTouch(v, event);
 			}
-			
+
 			/**
 			 * Fix for android bug, where the focus is removed from the edittext when you have a layout with tabs (Emoticon layout) for hard keyboard devices
 			 * http://code.google.com/p/android/issues/detail?id=2516
@@ -3923,10 +3968,60 @@ import android.widget.Toast;
 			{
 				mComposeView.requestFocusFromTouch();
 			}
-			return mShareablePopupLayout.onEditTextTouch(v, event);
 
-		default:
-			return mGestureDetector.onTouchEvent(event);
+			if (shouldShowKeyboardOffBoardingUI()) {
+				if (event.getAction() == MotionEvent.ACTION_UP) {
+					showKeyboardOffboardingIfReady();
+				}
+				return true;
+			}
+			else {
+				return mShareablePopupLayout.onEditTextTouch(v, event);
+			}
+			case R.id.send_message_audio:
+				if(inProcessOfShowingPopup) return true;
+				if (tipVisibilityAnimator != null && !tipVisibilityAnimator.isTipShownForMinDuration()) {
+					return true;
+				}
+				boolean isWTShown = mTips.isGivenTipShowing(ChatThreadTips.WT_RECOMMEND_TIP);
+				if (isWTShown) {
+					if (event.getAction() == MotionEvent.ACTION_UP) closeWTTip();
+					return true;
+				}
+
+				switch (event.getAction()) {
+					case MotionEvent.ACTION_DOWN:
+						v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+						if (tipVisibilityAnimator != null && tipVisibilityAnimator.isShowingInfoTip()) {
+							tipVisibilityAnimator.dismissInfoTipIfShowing();
+						}
+						walkieView.initialize(activity.findViewById(R.id.bottom_panel), mShareablePopupLayout.isShowing() || isKeyboardOpen());
+						walkieView.update(v,event);
+						if (mAdapter != null)
+						{
+							mAdapter.pausetPlayerIfPlaying();
+						}
+						sendWTClickedAnalytic();
+						break;
+					case MotionEvent.ACTION_MOVE:
+						walkieView.update(v, event);
+						break;
+					case MotionEvent.ACTION_UP:
+						walkieView.update(v, event);
+						break;
+					case MotionEvent.ACTION_CANCEL:
+						/* CANCEL event is received if the user clicks on the system-popup Allow/Deny.
+						   As this is as good as a UP event, we will stopRecorder */
+						if(walkieView != null) walkieView.stopRecorderAndShowError();
+						break;
+					default:
+						return false;
+				}
+
+				return true;
+
+			default:
+				return mGestureDetector.onTouchEvent(event);
 		}
 
 	}
@@ -4169,9 +4264,19 @@ import android.widget.Toast;
         		sendUIMessage(MESSAGE_SENT, msg);
         	}
         	break;
+		case HikePubSub.CLEAR_CONVERSATION:
+			FileTransferManager.getInstance(activity).clearConversation(msisdn);
+			break;
 		case HikePubSub.GENERAL_EVENT_STATE_CHANGE:
 			//TODO Proper handling in next release. It is safe to comment this out for now.
 			//onGeneralEventStateChange(object);
+			break;
+		case HikePubSub.FILE_OPENED:
+			uiHandler.sendEmptyMessage(FILE_OPENED);
+			break;
+		case HikePubSub.SHOW_INPUT_BOX:
+			Logger.i(TAG, "General Event: Show Custom Keyboard PubSub");
+			createInputBox(object);
 			break;
 
 		default:
@@ -4205,7 +4310,7 @@ import android.widget.Toast;
 			@Override
 			public void run()
 			{
-				if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMEND_PREF, true))
+				if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMEND_PREF, true))
 				{
 					setupStickerSearch();
 				}
@@ -4213,6 +4318,7 @@ import android.widget.Toast;
 				{
 					dismissStickerRecommendationPopup();
 					releaseStickerSearchResources();
+					StickerEventSearchManager.getInstance().clearNowCastEvents();
 				}
 			}
 		});
@@ -4286,7 +4392,7 @@ import android.widget.Toast;
 		{
 			if (isActivityVisible)
 			{
-				ChatThreadUtils.publishReadByForMessage(message, mConversationDb, msisdn,channelSelector);
+				publishReadByForMessage(message, msisdn, channelSelector);
 
 				if(message.getPrivateData() != null && message.getPrivateData().getTrackID() != null)
 				{
@@ -4307,12 +4413,21 @@ import android.widget.Toast;
 			{
 				SoundUtils.playSoundFromRaw(activity.getApplicationContext(), R.raw.received_message, AudioManager.STREAM_RING);
 			}
-			
-			sendUIMessage(MESSAGE_RECEIVED, message);
 
+            sendUIMessage(MESSAGE_RECEIVED, message);
+
+            if(CustomKeyboardManager.getInstance().shouldShowInputBox(senderMsisdn))
+            {
+                CustomKeyboardManager.getInstance().initInputBox(activity,this,this,senderMsisdn);
+                sendUIMessage(SHOW_INPUT_BOX, senderMsisdn);
+            }
+            else
+            {
+                sendUIMessage(REMOVE_INPUT_BOX, null);
+            }
 		}
 	}
-	
+
 	protected boolean onMessageDelivered(Object object)
 	{
 		Pair<String, Long> pair = (Pair<String, Long>) object;
@@ -4407,7 +4522,7 @@ import android.widget.Toast;
 				HikePubSub.CHAT_BACKGROUND_CHANGED, HikePubSub.CLOSE_CURRENT_STEALTH_CHAT, HikePubSub.ClOSE_PHOTO_VIEWER_FRAGMENT, HikePubSub.STICKER_CATEGORY_MAP_UPDATED,
 				HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.MULTI_MESSAGE_DB_INSERTED, HikePubSub.BLOCK_USER, HikePubSub.UNBLOCK_USER, HikePubSub.MUTE_CONVERSATION_TOGGLED, HikePubSub.SHARED_WHATSAPP, 
 				HikePubSub.STEALTH_CONVERSATION_MARKED, HikePubSub.STEALTH_CONVERSATION_UNMARKED, HikePubSub.BULK_MESSAGE_DELIVERED_READ, HikePubSub.STICKER_RECOMMEND_PREFERENCE_CHANGED, HikePubSub.ENTER_TO_SEND_SETTINGS_CHANGED, HikePubSub.NUDGE_SETTINGS_CHANGED,
-				HikePubSub.UPDATE_THREAD,HikePubSub.GENERAL_EVENT_STATE_CHANGE};
+				HikePubSub.UPDATE_THREAD,HikePubSub.GENERAL_EVENT_STATE_CHANGE, HikePubSub.FILE_OPENED, HikePubSub.CLEAR_CONVERSATION,HikePubSub.SHOW_INPUT_BOX};
 
 		/**
 		 * Array of pubSub listeners we get from {@link OneToOneChatThread} or {@link GroupChatThread}
@@ -4443,13 +4558,12 @@ import android.widget.Toast;
 
 	public void onDestroy()
 	{
-		KptUtils.destroyKeyboardResources(mCustomKeyboard, R.id.msg_compose, R.id.search_text, R.id.messageedittext);
-
 		setTipSeen(ChatThreadTips.STICKER_RECOMMEND_TIP, true);
 		
 		setTipSeen(ChatThreadTips.STICKER_RECOMMEND_AUTO_OFF_TIP, true);
 
-		keyboardFtue.destroy();
+		if(keyboardOffBoarding != null)
+			removeKeyboardShutdownIfShowing();
 		
 		hideActionMode();
 
@@ -4461,7 +4575,7 @@ import android.widget.Toast;
 
 		releaseMessageAdapterResources();
 
-		StickerManager.getInstance().saveCustomCategories();
+		StickerManager.getInstance().saveRecents();
 
 		releaseMessageMap();
 		
@@ -4479,11 +4593,32 @@ import android.widget.Toast;
 		
 		releaseStickerSearchResources();
 
-		if (tipFadeInAnimation != null)
-			tipFadeInAnimation.cancel();
+        releaseBotsKeyboardResources();
+
+		// removing touch listener to stop receiving callback after onDestroy as we are getting a NPE in onTouch as mSharaeableLayout is null
+		if(mComposeView!=null)
+		{
+			mComposeView.setOnTouchListener(null);
+		}
+
+		if(fetchConversationAsyncTask!=null)
+		{
+			fetchConversationAsyncTask.cancel(true);
+		}
+
+		walkieView = null;
+		if(tipVisibilityAnimator != null){
+			tipVisibilityAnimator.dismissInfoTipIfShowing();
+			tipVisibilityAnimator = null;
+		}
 	}
-	
-	private void releaseShareablePopUpResources()
+
+    private void releaseBotsKeyboardResources()
+    {
+        CustomKeyboardManager.getInstance().releaseResources();
+    }
+
+    private void releaseShareablePopUpResources()
 	{
 		if(mShareablePopupLayout != null)
 		{
@@ -4512,7 +4647,7 @@ import android.widget.Toast;
 	
 	private void releaseStickerSearchResources()
 	{
-		if(stickerTagWatcher != null)
+		if (stickerTagWatcher != null)
 		{
 			stickerTagWatcher.releaseResources();
 			mComposeView.removeTextChangedListener(stickerTagWatcher);
@@ -4550,26 +4685,15 @@ import android.widget.Toast;
 		}
 	}
 
-	protected void pauseKeyboardResources()
-	{
-		if (mCustomKeyboard != null)
-		{
-			if (isCustomKeyboardVisible())
-				hideKptKeyboard();
-			KptUtils.pauseKeyboardResources(mCustomKeyboard, mComposeView);
-		}
-	}
-	
 	/**
 	 * Mimics the onPause method of an Activity.
 	 */
 
 	public void onPause()
 	{
-		pauseKeyboardResources();
-		
 		Utils.hideSoftKeyboard(activity, mComposeView);
 
+		dismissWalkieTalkie();
 		isActivityVisible = false;
 		
 		resumeImageLoaders(true);
@@ -4583,12 +4707,12 @@ import android.widget.Toast;
 
 	public void onResume()
 	{
-		KptUtils.resumeKeyboard(mCustomKeyboard);
 		if (shouldShowKeyboard())
 		{
 			tryToDismissAnyOpenPanels();
+			inProcessOfShowingPopup = true;
+			Utils.showSoftKeyboard(activity, mComposeView);
 		}
-		showKeyboardIfRequired();
 
 		isActivityVisible = true;
 
@@ -4630,44 +4754,6 @@ import android.widget.Toast;
 		}
 	}
 
-	protected void showKeyboard()
-	{
-
-		if (isSystemKeyboard())
-		{
-			changeKeyboard(isSystemKeyboard());
-			activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-			Utils.showSoftKeyboard(mComposeView, InputMethodManager.SHOW_FORCED);
-			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
-		}
-		else
-		{
-			showCustomKeyboard(mComposeView);
-		}
-	}
-
-	protected void resetKeyboard()
-	{
-		if (isSystemKeyboard())
-		{
-			changeKeyboard(isSystemKeyboard());
-			Utils.hideSoftKeyboard(activity, mComposeView);
-		}
-		KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
-	}
-
-	protected void showKeyboardIfRequired()
-	{
-		if (shouldShowKeyboard())
-		{
-			tryToDismissAnyOpenPanels();
-			showKeyboard();
-		}
-		else
-		{
-			resetKeyboard();
-		}
-	}
 	public void onRestart()
 	{
 		isActivityVisible = true;
@@ -4738,6 +4824,22 @@ import android.widget.Toast;
 		{
 			audioRecordView.dismissAudioRecordView();
 		}
+		dismissWalkieTalkie();
+	}
+
+	/* cancel the current recording and dismiss the walkie talkie, if it was currently showing */
+	private boolean dismissWalkieTalkie(){
+		if(walkieView != null && walkieView.isShowing()){
+			walkieView.cancelAndDismissAudio(false);
+			return true;
+		}
+		return false;
+	}
+
+	public boolean isWalkieTalkieShowing(){
+		if(walkieView != null)
+			return walkieView.isShowing();
+		return false;
 	}
 
 
@@ -4813,6 +4915,11 @@ import android.widget.Toast;
 		 */
 		initShareablePopup();
 		StickerManager.getInstance().showStickerRecommendTurnOnToast();
+		// Update events, if sticker recommendation is running.
+		if (stickerTagWatcher != null)
+		{
+			StickerSearchManager.getInstance().loadStickerEvents();
+		}
 	}
 
 	protected void hideView(int viewId)
@@ -5033,7 +5140,7 @@ import android.widget.Toast;
 		Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(msisdn);
 		if (drawable == null)
 		{
-			drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(msisdn, false);
+			drawable = HikeBitmapFactory.getDefaultTextAvatar(msisdn);
 		}
 
 		setAvatarStealthBadge();
@@ -5173,9 +5280,8 @@ import android.widget.Toast;
 				hikeFile.delete(activity.getApplicationContext());
 			}
             HikeConversationsDatabase.getInstance().reduceRefCount(key);
-			FileTransferManager.getInstance(activity.getApplicationContext()).cancelTask(convMessage.getMsgID(), file, convMessage.isSent(), hikeFile.getFileSize());
+			FileTransferManager.getInstance(activity.getApplicationContext()).cancelTask(convMessage.getMsgID(), hikeFile, convMessage.isSent(), hikeFile.getFileSize(), hikeFile.getAttachmentSharedAs());
 			mAdapter.notifyDataSetChanged();
-
 		}
 
 		if (convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.CONTENT)
@@ -5339,7 +5445,7 @@ import android.widget.Toast;
 	protected void sendSticker(Sticker sticker, String source)
 	{
 		ConvMessage convMessage = Utils.makeConvMessage(msisdn, StickerManager.STICKER_MESSAGE_TAG, mConversation.isOnHike());
-		ChatThreadUtils.setStickerMetadata(convMessage, sticker.getCategoryId(), sticker.getStickerId(), source);
+		ChatThreadUtils.setStickerMetadata(convMessage, sticker, source);
 		sendMessage(convMessage);
 		
 	}
@@ -5398,7 +5504,7 @@ import android.widget.Toast;
 		{
 			mMessageMap.clear();
 		}
-
+		
 		mAdapter.notifyDataSetChanged();
 		Logger.d(TAG, "Clearing conversation");
 	}
@@ -5411,7 +5517,7 @@ import android.widget.Toast;
 		if (messages != null && messages.size() > 0)
 		{
 			EmailConversationsAsyncTask emailTask = new EmailConversationsAsyncTask(activity, null);
-			Utils.executeConvAsyncTask(emailTask, mConversation.getConvInfo());
+			emailTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, mConversation.getConvInfo());
 		}
 		else
 		{
@@ -5448,7 +5554,7 @@ import android.widget.Toast;
 	 * if true then we pass {@link ConvMessage} list and mark msgs read in db for only these convMessages
 	 * if no read msg is found then we don't know how many msgs should be marked as read , in this case we have to fetch messages from db and then update the same
 	 */
-	private void setMessagesRead()
+	protected void setMessagesRead()
 	{
 		List<ConvMessage> unreadConvMessages = new ArrayList<>();
 		boolean readMessageExists = false;
@@ -5902,6 +6008,10 @@ import android.widget.Toast;
 			{
 				ConvMessage message = selectedMessagesMap.get(selectedMsgIds.get(0));
 				HikeFile hikeFile = message.getMetadata().getHikeFiles().get(0);
+				if (!TextUtils.isEmpty(msisdn) && BotUtils.isBot(msisdn))
+				{
+					PlatformUtils.sendBotFileShareAnalytics(hikeFile, msisdn);
+				}
 				hikeFile.shareFile(activity);
 				mActionMode.finish();
 			}
@@ -5954,11 +6064,6 @@ import android.widget.Toast;
 	protected void onConfigurationChanged(Configuration newConfig)
 	{
 		Logger.d(TAG, "newConfig : " + newConfig.toString());
-		if (mCustomKeyboard != null)
-		{
-			mCustomKeyboard.onConfigurationChanged(newConfig);
-			keyboardHeight = 0;
-		}
 
 		/* AND-3521: calling onConfigurationChange when mShareablePopupLayout is not null,
 		   so that bottomNavBar(width/height) can be updated according to orientation */
@@ -5968,11 +6073,6 @@ import android.widget.Toast;
 				mShareablePopupLayout.dismiss();
 			}
 			mShareablePopupLayout.onConfigurationChanged();
-		}
-		
-		if (!isSystemKeyboard() && !isCustomKeyboardVisible())
-		{
-			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
 		}
 		
 		if (stickerTagWatcher != null)
@@ -6021,6 +6121,10 @@ import android.widget.Toast;
 				attachmentPicker.onOrientationChange(newConfig.orientation);
 			}
 		}
+
+		if(walkieView != null && !walkieView.isShowing()){
+			walkieView.onConfigChanged();
+		}
 		
 	}
 	
@@ -6054,6 +6158,8 @@ import android.widget.Toast;
 
 		if ((view == mComposeView))
 		{
+			//CE-497:Samsung duos2, in landscape mode when DONE is pressed onHidden method isn't called
+			if(useWTRevamped && inProcessOfShowingPopup) inProcessOfShowingPopup = false;
 	     // On some phones (like: micromax A120) "actionId" always comes 0, so added one more optional check (view.getId() ==R.id.msg_compose) & (view.getId() ==R.id.search_text)
 			if ((actionId == EditorInfo.IME_ACTION_SEND)
 					|| ((view.getId() == R.id.msg_compose) && PreferenceManager
@@ -6111,10 +6217,6 @@ import android.widget.Toast;
 	@Override
 	public void onPopupDismiss()
 	{
-		if (isCustomKeyboardVisible())
-		{
-			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, (keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight);
-		}
 		Logger.i(TAG, "onPopup Dismiss");
 		if(activity.findViewById(R.id.sticker_btn).isSelected())
 		{
@@ -6125,6 +6227,11 @@ import android.widget.Toast;
 		{
 			setEmoticonButtonSelected(false);
 		}
+
+        if(activity.findViewById(R.id.send_message).isSelected())
+        {
+            setInputBoxButtonSelected(false);
+        }
 	}
 	
 	@Override
@@ -6133,11 +6240,15 @@ import android.widget.Toast;
 		// on back press - if keyboard was open , now keyboard gone , try to hide emoticons
 		// if keyboard ws not open , onbackpress of activity will get call back, dismiss popup there
 		// if we dismiss here in second case as well, then onbackpress of acitivty will be called and it will finish activity
-		
+		dismissWalkieTalkie();
 		if (mShareablePopupLayout.isKeyboardOpen() && mShareablePopupLayout.isShowing())
 		{
 			mShareablePopupLayout.dismiss();
 		}
+        else if(mShareablePopupLayout.isShowing())
+        {
+            setComposeViewDefaultState();
+        }
 		mShareablePopupLayout.onBackPressed();
 	}
 
@@ -6151,7 +6262,7 @@ import android.widget.Toast;
 			return;
 		}
 		
-		hideKeyboard();
+		Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
 
 		saveCurrentActionMode();
 		if (mShareablePopupLayout != null)
@@ -6187,17 +6298,13 @@ import android.widget.Toast;
 	
 	public boolean isKeyboardOpen()
 	{
-		return ((mShareablePopupLayout != null) && (mShareablePopupLayout.isKeyboardOpen() || isCustomKeyboardVisible()));
-//		if(mShareablePopupLayout == null || !mShareablePopupLayout.isKeyboardOpen())
-//		{
-//			return false;
-//		}
-//		return true;
+		return ((mShareablePopupLayout != null) && (mShareablePopupLayout.isKeyboardOpen()));
 	}
 	
 	@Override
 	public void onShown()
 	{
+		inProcessOfShowingPopup = false;
 		/**
 		 * If the last message was visible before opening the keyboard it can be hidden hence we need to scroll to bottom.
 		 */
@@ -6217,13 +6324,21 @@ import android.widget.Toast;
 	@Override
 	public void onHidden()
 	{
-		if (changeKbdClicked == true)
-		{
-			changeKeyboard(!isSystemKeyboard());
-			mShareablePopupLayout.setCustomKeyBoard(!isSystemKeyboard(), (keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight);
-			changeKbdClicked = false;
+		//CE-497, as in landscape mode onShown isn't called when keyboard is completely up
+		if (useWTRevamped && inProcessOfShowingPopup) {
+			inProcessOfShowingPopup = false;
 		}
 	}
+
+	@Override
+	public void onHiddingPreviouslyShown(){
+		//CE-513: In some devices onBackPressed is not called when the keyboard was open
+		if (useWTRevamped && !isKeyboardOpen() && !mShareablePopupLayout.isShowing()) {
+			if (isWalkieTalkieShowing()) dismissWalkieTalkie();
+		}
+	}
+
+	private boolean inProcessOfShowingPopup = false;
 
 	public void dismissResidualAcitonMode()
 	{
@@ -6245,7 +6360,7 @@ import android.widget.Toast;
 
 	protected void showOverlay(String label, String formatString, String overlayBtnText, SpannableString str, int drawableResId, int viewTag)
 	{
-		hideKeyboard();
+		Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
 
 		View mOverlayLayout = activity.findViewById(R.id.overlay_layout);
 		mOverlayLayout.setTag(viewTag);
@@ -6330,14 +6445,14 @@ import android.widget.Toast;
 		}
 
 		else
-		{
-			Utils.sendInviteUtil(new ContactInfo(msisdn, msisdn, mConversation.getConversationName(), msisdn), activity.getApplicationContext(),
+		{ //Passing application context was causing a crash since, we were showing a dialog later on
+			Utils.sendInviteUtil(new ContactInfo(msisdn, msisdn, mConversation.getConversationName(), msisdn), activity,
 					HikeConstants.SINGLE_INVITE_SMS_ALERT_CHECKED, getString(R.string.native_header), getString(R.string.native_info));
 
 		}
 	}
 	
-	private void blockUser(Object object, boolean isBlocked)
+	protected void blockUser(Object object, boolean isBlocked)
 	{
 		String mMsisdn = (String) object;
 
@@ -6454,10 +6569,9 @@ import android.widget.Toast;
 	protected void showThemePicker(int footerTextId)
 	{
 		/**
-		 * //TODO::Hiding KeyboardIfNeeded while showing themepicker
+		 * Hiding soft keyboard
 		 */
-		//Hiding the Kpt Keyboard updates the padding to 0 hence Message enter box is not shown if shareable pop is showing 
-		hideKeyboardIfNeeded();
+		Utils.hideSoftKeyboard(activity, mComposeView);
 		setUpThemePicker();
 		themePicker.showThemePicker(activity.findViewById(R.id.attachment_anchor), currentTheme,footerTextId, activity.getResources().getConfiguration().orientation);
 	}
@@ -6480,10 +6594,13 @@ import android.widget.Toast;
 	{
 		intentDataHash = savedInstanceState.getInt(HikeConstants.CONSUMED_FORWARDED_DATA, 0);
 	}
-	
+
 	public void connectedToMsisdn(String connectedDevice)
 	{
-		
+		if(stickerTagWatcher != null)
+        {
+            stickerTagWatcher.refreshUndownloadedStickerWatcher(false);
+        }
 	}
 	
 	public void wifiP2PScanResults(WifiP2pDeviceList peerList)
@@ -6498,7 +6615,10 @@ import android.widget.Toast;
 
 	public void onDisconnect(ERRORCODE errorCode)
 	{
-		
+        if(stickerTagWatcher != null)
+        {
+            stickerTagWatcher.refreshUndownloadedStickerWatcher(true);
+        }
 	}
 	
 	public void changeChannel(Boolean setOfflineChannel,Boolean removeListener)
@@ -6527,7 +6647,6 @@ import android.widget.Toast;
 		if(mComposeView != null)
 		{
 			mComposeView.setText("");
-			customKeyboardUpdateCore();
 		}
 	}
 	
@@ -6540,57 +6659,6 @@ import android.widget.Toast;
 	{
 		hideOverflowMenu();
 		hideThemePicker();
-	}
-
-	private void changeKeyboard(boolean systemKeyboard)
-	{
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SYSTEM_KEYBOARD_SELECTED, systemKeyboard);
-		
-		if (systemKeyboard)
-		{
-			removeKeyboardFtueIfShowing();
-			hideKptKeyboard();
-			swtichCustomKeyboardToDefaultKeyboard(mComposeView);
-			unregisterCustomKeyboardEditText(R.id.msg_compose);
-			resetSharablePopup();
-			mComposeView.setOnClickListener(new OnClickListener()
-			{
-				@Override
-				public void onClick(View v)
-				{
-					Utils.showSoftKeyboard(mComposeView, InputMethodManager.SHOW_FORCED);
-					showKeyboardFtueIfReady();
-				}
-			});
-		}
-		else
-		{
-			bindCustomKeyboard();
-			mCustomKeyboard.swtichToKPTKeyboard(mComposeView, KPTConstants.MULTILINE_LINE_EDITOR, null, kptKeyboardVisibilityStatusListner);
-			registerCustomKeyboardEditText(R.id.msg_compose);
-			resetSharablePopup();
-			mCustomKeyboard.init(mComposeView);
-			showCustomKeyboard(mComposeView);
-			setEditTextListeners();
-		}
-		HikeMessengerApp.getPubSub().publish(HikePubSub.KEYBOARD_SWITCHED,null);
-		showOverflowMenuKeyboardTipIfRequired();
-		StickerSearchManager.getInstance().inputMethodChanged(StickerSearchUtils.getCurrentLanguageISOCode());
-	}
-	
-	private void resetSharablePopup()
-	{
-		if (mShareablePopupLayout != null)
-		{
-			mShareablePopupLayout.dismiss();
-			releaseShareablePopUpResources();
-		}
-		initShareablePopup();
-	}
-
-	public boolean isSystemKeyboard()
-	{
-		return HikeMessengerApp.isSystemKeyboard();
 	}
 
 	/**
@@ -6616,35 +6684,6 @@ import android.widget.Toast;
 	}
 
 	/**
-	 * This will take care of setting onClick issue ID  AND-3924 this is to be set only when we want set on click for Chat compose view
-	 */
-	protected View.OnClickListener mComposeChatOnClickListener = new OnClickListener() {
-		@Override
-		public void onClick(View v) {
-			if(isSystemKeyboard()){
-				Utils.showSoftKeyboard(mComposeView, InputMethodManager.SHOW_FORCED);
-				showKeyboardFtueIfReady();
-			}else{
-				mCustomKeyboard.swtichToKPTKeyboard(mComposeView, KPTConstants.MULTILINE_LINE_EDITOR, null, kptKeyboardVisibilityStatusListner);
-				registerCustomKeyboardEditText(R.id.msg_compose);
-				resetSharablePopup();
-				mCustomKeyboard.init(mComposeView);
-				showCustomKeyboard(mComposeView);
-				setEditTextListeners();
-			}
-		}
-	};
-
-
-	public void hideKeyboardIfNeeded() {
-		if (KptUtils.isSystemKeyboard()) {
-			Utils.hideSoftKeyboard(activity, mComposeView);
-		} else if (mCustomKeyboard != null && isCustomKeyboardVisible() && (mShareablePopupLayout == null || !mShareablePopupLayout.isShowing())) {
-			hideKptKeyboard();
-		}
-		removeKeyboardFtueIfShowing();
-	}
-	/**
 	 * This method changes the state of a ConvMessage after a general event is sent or received
 	 * @param object
 	 */
@@ -6666,65 +6705,291 @@ import android.widget.Toast;
 			}
 		}
 	}
-
-	protected boolean isCustomKeyboardVisible()
-	{
-		return mCustomKeyboard != null ? mCustomKeyboard.isCustomKeyboardVisible() : false;
-	}
-
-	protected void showCustomKeyboard(View view)
-	{
-		if (mCustomKeyboard != null)
-		{
-			mCustomKeyboard.showCustomKeyboard(view, true);
-		}
-	}
-
-	protected void hideCustomKeyboard(View view)
-	{
-		if (mCustomKeyboard != null)
-		{
-			mCustomKeyboard.showCustomKeyboard(view, false);
-		}
-	}
-
-	protected void registerCustomKeyboardEditText(int resId)
-	{
-		if (mCustomKeyboard != null)
-			mCustomKeyboard.registerEditText(resId);
-	}
-
-	protected void unregisterCustomKeyboardEditText(int resId)
-	{
-		if (mCustomKeyboard != null)
-			mCustomKeyboard.unregister(resId);
-	}
-
-	protected void customKeyboardUpdateCore()
-	{
-		if (mCustomKeyboard != null)
-			mCustomKeyboard.updateCore();
-	}
-
-	protected int getKeyBoardAndCVHeight()
-	{
-		return mCustomKeyboard != null ? mCustomKeyboard.getKeyBoardAndCVHeight() : 0;
-	}
-
-	protected void closeAnyCustomKeyboardDialogIfShowing()
-	{
-		if (mCustomKeyboard != null)
-			mCustomKeyboard.closeAnyDialogIfShowing();
-	}
-
-	protected void swtichCustomKeyboardToDefaultKeyboard(AdaptxtEditText tv)
-	{
-		if (mCustomKeyboard != null)
-			mCustomKeyboard.swtichToDefaultKeyboard(tv);
-	}
-
+	
 	public void onPostResume()
 	{
 
 	}
+
+	@Override
+	public void shopClicked()
+	{
+		HAManager.getInstance().record(HikeConstants.LogEvent.STKR_SHOP_BTN_CLICKED, AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH);
+		Intent i = IntentFactory.getStickerShopIntent(activity);
+		activity.startActivityForResult(i, RESULT_CODE_STICKER_SHOP_ACTIVITY);
+	}
+
+	public  static class FetchConversationAsyncTask extends AsyncTask<Void,Void,Void>
+	{
+
+		private  WeakReference<FutureTask<Conversation>> conversationFuture=null;
+
+		FetchConversationAsyncTask(WeakReference<FutureTask<Conversation>> callableWeakReference)
+		{
+			this.conversationFuture=callableWeakReference;
+		}
+		@Override
+		protected Void doInBackground(Void... params) {
+			StopWatch watch=new StopWatch();
+			watch.start();
+			Logger.d(TAG, "Starting callable");
+			if(conversationFuture.get()!=null) {
+				conversationFuture.get().run();
+			}
+			watch.stop();
+			Logger.d(TAG, "Ending callable function"+watch.getElapsedTime());
+			return null;
+		}
+	}
+
+	protected int getCurrentOrientation()
+	{
+		return activity.getResources().getConfiguration().orientation;
+	}
+
+	protected void publishReadByForMessage(ConvMessage message, String msisdn, IChannelSelector channelSelector)
+	{
+		ChatThreadUtils.publishReadByForMessage(message, HikeConversationsDatabase.getInstance(), msisdn,channelSelector);
+	}
+
+	protected boolean shouldEnableSearch()
+	{
+		return (!isMessageListEmpty() && !mConversation.isBlocked());
+	}
+
+	protected boolean shouldEnableHikeKeyboard()
+	{
+		return (!mConversation.isBlocked());
+	}
+
+	protected boolean shouldEnableClearChat()
+	{
+		return (!isMessageListEmpty());
+	}
+
+	protected boolean shouldEnableEmailChat()
+	{
+		return (!isMessageListEmpty());
+	}
+
+	protected void recordChatThreadOpen()
+	{
+		JSONObject json = getChatThreadOpenJSON();
+		if (json != null)
+		{
+			HAManager.getInstance().recordV2(json);
+		}
+	}
+
+	protected JSONObject getChatThreadOpenJSON()
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.CHAT_OPEN);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_LOG_2);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.CHAT_OPEN);
+			json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
+			json.put(AnalyticsConstants.V2.SPECIES, getChatThreadOpenSource(activity.getIntent().getIntExtra(ChatThreadActivity.CHAT_THREAD_SOURCE, ChatThreadOpenSources.UNKNOWN)));
+			json.put(AnalyticsConstants.V2.FORM, activity.getIntent().getStringExtra(HikeConstants.Extras.WHICH_CHAT_THREAD));
+			json.put(AnalyticsConstants.V2.TO_USER, msisdn);
+
+			return json;
+
+		}
+
+		catch (JSONException e)
+		{
+			e.toString();
+			return null;
+		}
+	}
+
+	private String getChatThreadOpenSource(int source)
+	{
+		switch (source)
+		{
+		case ChatThreadOpenSources.NOTIF :
+			return "notif";
+		case ChatThreadOpenSources.CONV_FRAGMENT:
+			return "conv_fragment";
+		case ChatThreadOpenSources.NEW_COMPOSE:
+			return "new_compose";
+		case ChatThreadOpenSources.SHORTCUT:
+			return "shortcut";
+		case ChatThreadOpenSources.FORWARD:
+			return "forward";
+		case ChatThreadOpenSources.EMPTY_STATE_CONV_FRAGMENT:
+			return "emptystateConvFragment";
+		case ChatThreadOpenSources.FRIENDS_SCREEN:
+			return "friends_screen";
+		case ChatThreadOpenSources.UNSAVED_CONTACT_CLICK:
+			return "unsaved_contact_click";
+		case ChatThreadOpenSources.FILE_SHARING:
+			return "file_fwd";
+		case ChatThreadOpenSources.PROFILE_SCREEN:
+			return "profile_screen";
+		case ChatThreadOpenSources.OFFLINE:
+			return "offline_chat";
+		case ChatThreadOpenSources.STICKEY_CALLER:
+			return "sticky_caller";
+		case ChatThreadOpenSources.VOIP:
+			return "voip_source";
+		case ChatThreadOpenSources.LIKES_DIALOG:
+			return "likes_dialog";
+		case ChatThreadOpenSources.TIMELINE:
+			return "timeline";
+		case ChatThreadOpenSources.NEW_GROUP:
+			return "new_group_create";
+		case ChatThreadOpenSources.MICRO_APP:
+			return "micro_app";
+		default:
+			return "unknown";
+		}
+
+	}
+
+    private void createInputBox(Object object)
+    {
+        CustomKeyboardManager.getInstance().initInputBox(activity,this,this,msisdn);
+        sendUIMessage(SHOW_INPUT_BOX, object);
+    }
+
+	private void showInputBox()
+	{
+		CustomKeyboardManager customKeyboardManager = CustomKeyboardManager.getInstance();
+
+        setComposeViewCustomKeyboardState();
+
+		if (!customKeyboardManager.isInputBoxButtonShowing(msisdn))
+		{
+            customKeyboardManager.setInputBoxButtonShowing(msisdn,true);
+        }
+
+		CustomKeyboard customKeyboard = CustomKeyboardManager.getInstance().getCustomKeyboardObject(msisdn);
+		int customKeyBoardHeight = CustomKeyboardInputBoxAdapter.getCustomKeyBoardHeight(customKeyboard);
+
+		if(mShareablePopupLayout != null)
+            mShareablePopupLayout.showPopup(CustomKeyboardManager.getInstance(), activity.getResources().getConfiguration().orientation, customKeyBoardHeight);
+
+        if(customKeyboard.isHidden())
+        {
+            mShareablePopupLayout.dismiss();
+            setComposeViewDefaultState();
+            customKeyboard.setHidden(false);
+        }
+    }
+
+	private void dismissInputBox()
+	{
+		mShareablePopupLayout.dismiss();
+
+		setComposeViewDefaultState();
+
+		((ImageButton) activity.findViewById(R.id.send_message)).setImageResource(R.drawable.walkie_talkie_btn_selector);
+	}
+
+    private void setComposeViewDefaultState()
+    {
+        CustomFontEditText composeTextView = (CustomFontEditText) activity.findViewById(R.id.msg_compose);
+        composeTextView.setEnabled(true);
+        composeTextView.setClickable(true);
+        composeTextView.setFocusable(true);
+        composeTextView.setHint("");
+        composeTextView.setPadding((int)(10 * Utils.densityMultiplier),(int)(6 * Utils.densityMultiplier),0,0);
+        CustomKeyboardManager.getInstance().setInputBoxButtonShowing(msisdn,false);
+    }
+
+    private void setComposeViewCustomKeyboardState()
+    {
+        if(activity.findViewById(R.id.sticker_btn) != null)
+            activity.findViewById(R.id.sticker_btn).setVisibility(View.GONE);
+        if(activity.findViewById(R.id.emoticon_btn) != null)
+            activity.findViewById(R.id.emoticon_btn).setVisibility(View.GONE);
+
+        FrameLayout pulsatingDot = (FrameLayout) activity.findViewById(R.id.pulsatingDot);
+
+        if(pulsatingDot != null)
+            pulsatingDot.setVisibility(View.GONE);
+
+        CustomFontEditText composeTextView = (CustomFontEditText) activity.findViewById(R.id.msg_compose);
+        composeTextView.setHint(getResources().getString(R.string.select_options));
+        composeTextView.setPadding((int)(10 * Utils.densityMultiplier),(int)(6 * Utils.densityMultiplier),0,0);
+        composeTextView.setEnabled(false);
+        composeTextView.setClickable(false);
+
+        ImageButton keyboardInputButton = (ImageButton) activity.findViewById(R.id.send_message);
+        keyboardInputButton.setImageResource(R.drawable.keyboard_button_selector);
+        keyboardInputButton.setContentDescription(activity.getResources().getString(R.string.content_des_send_recorded_audio_text_chatting));
+        keyboardInputButton.setSelected(true);
+    }
+
+    protected ConvMessage createConvMessageFromString(String message)
+    {
+        if (TextUtils.isEmpty(message))
+        {
+            showToast(R.string.text_empty_error);
+            return null; // Do not create message
+        }
+        ConvMessage convMessage = Utils.makeConvMessage(msisdn, message, mConversation.isOnHike());
+
+        mComposeView.setText("");
+        if (mComposeViewWatcher != null)
+        {
+            mComposeViewWatcher.onMessageSent();
+        }
+        return convMessage;
+    }
+
+    private void setInputBoxButtonSelected(boolean selected)
+    {
+        activity.findViewById(R.id.send_message).setSelected(selected);
+    }
+
+	protected void inputBoxClicked()
+	{
+		setInputBoxButtonSelected(true);
+
+		if(mShareablePopupLayout.isShowing())
+        {
+            Utils.showSoftKeyboard(activity.getApplicationContext(), mComposeView);
+            setComposeViewDefaultState();
+        }
+        else
+        {
+            setComposeViewCustomKeyboardState();
+        }
+
+		mShareablePopupLayout.togglePopup(CustomKeyboardManager.getInstance(), activity.getResources().getConfiguration().orientation, true);
+	}
+
+
+	@Override
+	public void onTextClicked(String textSelected)
+	{
+		sendMessage(createConvMessageFromString(textSelected));
+
+		// Delete keyboard data from shared pref if the keyboard type is not persistent
+		String keyboardDataJson = HikeSharedPreferenceUtil.getInstance(CustomKeyboardManager.CUSTOM_INPUT_BOX_KEY).getData(CustomKeyboardManager.getKeyboardKey(msisdn),
+				HikePlatformConstants.KEYBOARD_DEFAULT_DATA);
+		try
+		{
+			if (!TextUtils.isEmpty(keyboardDataJson))
+			{
+				boolean isKeyBoardPersistent = new JSONObject(keyboardDataJson).optBoolean(HikePlatformConstants.IS_KEYBOARD_PERSISTENT, false);
+				if (!isKeyBoardPersistent)
+					CustomKeyboardManager.getInstance().removeFromSharedPreferences(msisdn);
+			}
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+
+
+
 }

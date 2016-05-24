@@ -17,6 +17,7 @@ import android.widget.TextView;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPConstants;
@@ -85,7 +86,8 @@ public class CallFailedFragment extends Fragment
 			@Override
 			public void onClick(View v) {
 				
-				Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(getActivity(), msisdn, true, false);
+				Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(getActivity(), msisdn, true, false,
+						ChatThreadActivity.ChatThreadOpenSources.VOIP);
 				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 				startActivity(intent);
 				getActivity().finish();
@@ -96,7 +98,7 @@ public class CallFailedFragment extends Fragment
 		{
 			@Override
 			public void onClick(View v) {
-				Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(getActivity(), msisdn, false, false);
+				Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(getActivity(), msisdn, false, false, ChatThreadActivity.ChatThreadOpenSources.VOIP);
 				intent.putExtra(HikeConstants.Extras.SHOW_RECORDING_DIALOG, true);
 				startActivity(intent);
 				getActivity().finish();
@@ -162,6 +164,11 @@ public class CallFailedFragment extends Fragment
 			case VoIPConstants.CallFailedCodes.UDP_CONNECTION_FAIL:
 			case VoIPConstants.CallFailedCodes.CALLER_BAD_NETWORK:
 				view.setText(getString(R.string.voip_caller_poor_network, partnerName));
+				break;
+
+			case VoIPConstants.CallFailedCodes.CUSTOM_MESSAGE:
+				view.setText(getArguments().getString(VoIPConstants.CUSTOM_MESSAGE));
+				enableRedial = false;
 				break;
 
 			default:

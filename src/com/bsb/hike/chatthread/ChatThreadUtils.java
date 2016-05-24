@@ -1,14 +1,5 @@
 package com.bsb.hike.chatthread;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Pattern;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences.Editor;
@@ -34,6 +25,7 @@ import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
+import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.analytics.MsgRelLogManager;
@@ -42,13 +34,14 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.filetransfer.FTMessageBuilder;
 import com.bsb.hike.filetransfer.FileTransferManager;
-import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
-import com.bsb.hike.models.HikeFile.HikeFileType;
-import com.bsb.hike.models.MovingList;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
+import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.MovingList;
+import com.bsb.hike.models.Sticker;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.service.HikeMqttManagerNew;
@@ -58,9 +51,24 @@ import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
+
 public class ChatThreadUtils
 {
 	private static final String TAG = "ChatThreadUtils";
+
+	public static boolean isWT1RevampEnabled(Context context)
+	{
+		boolean wtRevamp = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.WT_1_REVAMP_ENABLED, false);
+		return wtRevamp;
+	}
 
 	protected static void playUpDownAnimation(Context context, final View view)
 	{
@@ -193,8 +201,13 @@ public class ChatThreadUtils
 	
 	protected static void uploadFile(Context context, String msisdn, String filePath, HikeFileType fileType, boolean isConvOnHike, int attachmentType)
 	{
+		uploadFile(context, msisdn, filePath, fileType, isConvOnHike, attachmentType,null);
+	}
+
+	protected static void uploadFile(Context context, String msisdn, String filePath, HikeFileType fileType, boolean isConvOnHike, int attachmentType, String caption)
+	{
 		Logger.i(TAG, "upload file , filepath " + filePath + " filetype " + fileType);
-		initialiseFileTransfer(context, msisdn, filePath, null, fileType, null, false, -1, false, isConvOnHike, attachmentType);
+		initialiseFileTransfer(context, msisdn, filePath, null, fileType, null, false, -1, false, isConvOnHike, attachmentType,caption);
 	}
 	
 	protected static void initiateFileTransferFromIntentData(Context context, String msisdn, String fileType, String filePath, boolean convOnHike, int attachmentType)
@@ -213,8 +226,24 @@ public class ChatThreadUtils
 		initialiseFileTransfer(context, msisdn, filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, true, convOnHike, attachmentType);
 	}
 
+	protected static void initiateFileTransferFromIntentData(Context context, String msisdn, String fileType, String filePath, String fileKey, boolean isRecording,
+															 long recordingDuration, boolean convOnHike, int attachmentType, String caption)
+	{
+		HikeFileType hikeFileType = HikeFileType.fromString(fileType, isRecording);
+
+		Logger.d(TAG, "Forwarding file- Type:" + fileType + " Path: " + filePath);
+
+		Logger.d("Suyash", "ChThUtil : isCloudMediaUri" + Utils.isPicasaUri(filePath));
+		initialiseFileTransfer(context, msisdn, filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, true, convOnHike, attachmentType,caption);
+	}
+
 	protected static void initialiseFileTransfer(Context context, String msisdn, String filePath, String fileKey, HikeFileType hikeFileType, String fileType, boolean isRecording,
-			long recordingDuration, boolean isForwardingFile, boolean convOnHike, int attachmentType)
+												 long recordingDuration, boolean isForwardingFile, boolean convOnHike, int attachmentType)
+	{
+		initialiseFileTransfer(context, msisdn, filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, isForwardingFile, convOnHike, attachmentType, null);
+	}
+	protected static void initialiseFileTransfer(Context context, String msisdn, String filePath, String fileKey, HikeFileType hikeFileType, String fileType, boolean isRecording,
+			long recordingDuration, boolean isForwardingFile, boolean convOnHike, int attachmentType, String caption)
 	{
 		clearTempData(context);
 
@@ -226,9 +255,18 @@ public class ChatThreadUtils
 		File file = new File(filePath);
 		Logger.d(TAG, "File size: " + file.length() + " File name: " + file.getName());
 
-		if (HikeConstants.MAX_FILE_SIZE != -1 && HikeConstants.MAX_FILE_SIZE < file.length())
+		boolean skipMaxSizeCheck = (isBigVideoSharingEnabled() && hikeFileType == HikeFileType.VIDEO);
+		//Do pre-compression size check as before if compression have been turned off by the user.
+		if(skipMaxSizeCheck && (android.os.Build.VERSION.SDK_INT < 18
+				|| !PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.COMPRESS_VIDEO, true))) {
+			skipMaxSizeCheck = false;
+		}
+		if (!skipMaxSizeCheck && HikeConstants.MAX_FILE_SIZE < file.length())
 		{
 			Toast.makeText(context, R.string.max_file_size, Toast.LENGTH_SHORT).show();
+			if (hikeFileType == HikeFileType.VIDEO) {
+				Utils.recordEventMaxSizeToastShown(ChatAnalyticConstants.VIDEO_MAX_SIZE_TOAST_SHOWN, getChatThreadType(msisdn), msisdn, file.length());
+			}
 			FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_1_3, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "InitialiseFileTransfer - Max size limit reached.");
 			return;
 		}
@@ -242,7 +280,8 @@ public class ChatThreadUtils
 				.setForwardMsg(isForwardingFile)
 				.setRecipientOnHike(convOnHike)
 				.setRecordingDuration(recordingDuration)
-				.setAttachement(attachmentType);
+				.setAttachement(attachmentType)
+				.setCaption(caption);
 		mBuilder.build();
 				
 	}
@@ -257,6 +296,7 @@ public class ChatThreadUtils
 		}
 		String filePath = intent.getStringExtra(HikeConstants.Extras.FILE_PATH);
 		String fileType = intent.getStringExtra(HikeConstants.Extras.FILE_TYPE);
+		String caption = intent.getStringExtra(HikeConstants.CAPTION);
 		int attachmentType = FTAnalyticEvents.FILE_ATTACHEMENT;
 
 		boolean isRecording = false;
@@ -269,6 +309,7 @@ public class ChatThreadUtils
 			fileType = HikeConstants.VOICE_MESSAGE_CONTENT_TYPE;
 		}
 
+		Logger.d("FileSelect", "Sharing file path = " + filePath);
 		if (filePath == null)
 		{
 			Toast.makeText(context, R.string.unknown_file_error, Toast.LENGTH_SHORT).show();
@@ -276,12 +317,17 @@ public class ChatThreadUtils
 		}
 		else
 		{
-			ChatThreadUtils.initiateFileTransferFromIntentData(context, msisdn, fileType, filePath, fileKey, isRecording, recordingDuration, isConvOnHike, attachmentType);
+			ChatThreadUtils.initiateFileTransferFromIntentData(context, msisdn, fileType, filePath, fileKey, isRecording, recordingDuration, isConvOnHike, attachmentType,caption);
 		}
 	}
 
 	protected static boolean shouldShowLastSeen(String msisdn, Context context, boolean convOnHike, boolean isBlocked)
 	{
+		if (Utils.isFavToFriendsMigrationAllowed() && !ContactManager.getInstance().isTwoWayFriend(msisdn))
+		{
+			return false; // We do not want to show the last seen in this case if the user is not 2way friend
+		}
+
 		if (convOnHike && !isBlocked && !BotUtils.isBot(msisdn) && !OfflineUtils.isConnectedToSameMsisdn(msisdn))
 		{
 			return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.LAST_SEEN_PREF, true);
@@ -334,19 +380,21 @@ public class ChatThreadUtils
 		HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_MESSAGE, new Pair<ArrayList<Long>, Bundle>(msgIds, bundle));
 	}
 
-	protected static void setStickerMetadata(ConvMessage convMessage, String categoryId, String stickerId, String source)
+	protected static void setStickerMetadata(ConvMessage convMessage, Sticker sticker, String source)
 	{
 		JSONObject metadata = new JSONObject();
 		try
 		{
-			metadata.put(StickerManager.CATEGORY_ID, categoryId);
+			metadata.put(StickerManager.CATEGORY_ID, sticker.getCategoryId());
 
-			metadata.put(StickerManager.STICKER_ID, stickerId);
+			metadata.put(StickerManager.STICKER_ID, sticker.getStickerId());
 
 			if (!source.equalsIgnoreCase(StickerManager.FROM_OTHER))
 			{
 				metadata.put(StickerManager.SEND_SOURCE, source);
 			}
+
+			metadata.put(StickerManager.STICKER_TYPE, sticker.getStickerType().ordinal());
 
 			convMessage.setMetadata(metadata);
 			Logger.d(TAG, "metadata: " + metadata.toString());
@@ -704,4 +752,10 @@ public class ChatThreadUtils
 
 		return null;
 	}
+
+	public static boolean isBigVideoSharingEnabled()
+	{
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.LARGE_VIDEO_SHARING_ENABLED, false);
+	}
+
 }

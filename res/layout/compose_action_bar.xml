@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent" >
-    
+    android:layout_height="fill_parent">
+
     <LinearLayout
         android:id="@+id/done_container"
         android:layout_width="wrap_content"
@@ -11,17 +11,17 @@
         android:layout_centerVertical="true"
         android:background="@drawable/bg_overflow_menu_selector"
         android:gravity="center"
+        android:orientation="horizontal"
         android:paddingLeft="12dp"
         android:paddingRight="12dp"
-        android:orientation="horizontal"
-        android:visibility="gone" >
+        android:visibility="gone">
 
-		<ImageView
-		    android:id="@+id/arrow"
-		    android:layout_width="wrap_content"
-		    android:layout_height="wrap_content"
-		    android:src="@drawable/action_bar_arrow"
-		    android:layout_marginRight="8dp" />        
+        <ImageView
+            android:id="@+id/arrow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="8dp"
+            android:src="@drawable/action_bar_arrow" />
 
         <com.bsb.hike.view.CustomFontTextView
             android:id="@+id/post_btn"
@@ -37,23 +37,24 @@
         android:id="@+id/seprator"
         android:layout_width="1dp"
         android:layout_height="match_parent"
+        android:layout_alignWithParentIfMissing="true"
         android:layout_marginBottom="8dp"
         android:layout_marginTop="8dp"
-        android:background="@color/transparent_white_ab"
-        android:layout_alignWithParentIfMissing="true"
         android:layout_toLeftOf="@id/done_container"
+        android:background="@color/transparent_white_ab"
         android:visibility="gone" />
-    
+
     <ProgressBar
         android:id="@+id/loading_progress"
         android:layout_width="17dp"
         android:layout_height="17dp"
-        android:layout_centerVertical="true"
-        android:visibility="gone"
-        android:layout_toLeftOf="@id/seprator"
-        android:layout_marginRight="20dp"
         android:layout_alignWithParentIfMissing="true"
-        android:indeterminateDrawable="@drawable/circular_double_spinner"/>
+        android:layout_centerVertical="true"
+        android:layout_marginRight="20dp"
+        android:layout_toLeftOf="@id/seprator"
+        android:indeterminateDrawable="@drawable/circular_double_spinner"
+        android:visibility="gone" />
+
     <LinearLayout
         android:id="@+id/actionsView"
         android:layout_width="wrap_content"
@@ -64,58 +65,60 @@
         android:gravity="center"
         android:paddingLeft="15dp"
         android:paddingRight="15dp"
-        android:visibility="gone" >
+        android:visibility="gone">
 
         <ImageView
             android:id="@+id/actionBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/btn_wand" />
+            android:src="@drawable/ic_filter" />
     </LinearLayout>
+
     <LinearLayout
         android:layout_width="wrap_content"
-	    android:layout_height="fill_parent"
-	    android:layout_alignParentLeft="true"
-	    android:layout_toLeftOf="@id/seprator" >
-	    <LinearLayout
-	        android:id="@+id/back"
-	        android:layout_width="wrap_content"
-	        android:layout_height="fill_parent"
-	        android:background="@drawable/bg_overflow_menu_selector"
-	        android:clickable="false"
-	        android:gravity="center_vertical"
-	        android:orientation="horizontal"
-	        android:paddingRight="5dp"
-	        android:paddingLeft="17dp" >
-	
-	    
-	        <LinearLayout
-	            android:layout_width="wrap_content"
-	            android:layout_height="match_parent"
-	            android:gravity="center_vertical"
-	            android:orientation="vertical" >
-	
-	            <com.bsb.hike.view.CustomFontTextView
-	                android:id="@+id/title"
-	                style="@style/ActionBarText"
-	                android:layout_width="wrap_content"
-	                android:layout_height="wrap_content"
-	                android:layout_marginBottom="1dp"
-	                android:ellipsize="end" />
-	            
-	            <com.bsb.hike.view.CustomFontTextView
-	                android:id="@+id/subtext"
-	                style="@style/ActionBarText"
-	                android:layout_width="wrap_content"
-	                android:layout_height="wrap_content"
-	                android:layout_marginBottom="@dimen/ab__action_bar_subtitle_bottom_margin"
-	                android:layout_marginTop="@dimen/ab__action_bar_subtitle_top_margin"
-	                android:textSize="12sp"
-	                android:textStyle="normal"
-	                android:visibility="gone" />
-	
-	        </LinearLayout>
-		</LinearLayout>
+        android:layout_height="fill_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_toLeftOf="@id/seprator">
+
+        <LinearLayout
+            android:id="@+id/back"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:background="@drawable/bg_overflow_menu_selector"
+            android:clickable="false"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingLeft="17dp"
+            android:paddingRight="5dp">
+
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:orientation="vertical">
+
+                <com.bsb.hike.view.CustomFontTextView
+                    android:id="@+id/title"
+                    style="@style/ActionBarText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="1dp"
+                    android:ellipsize="end" />
+
+                <com.bsb.hike.view.CustomFontTextView
+                    android:id="@+id/subtext"
+                    style="@style/ActionBarText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/ab__action_bar_subtitle_bottom_margin"
+                    android:layout_marginTop="@dimen/ab__action_bar_subtitle_top_margin"
+                    android:textSize="12sp"
+                    android:textStyle="normal"
+                    android:visibility="gone" />
+
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
 
 </RelativeLayout>

@@ -15,6 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
@@ -32,13 +33,13 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Utils;
 import com.hike.transporter.utils.Logger;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -185,21 +186,49 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 			Logger.e(TAG, "Context is null while trying to open the bot ");
 		}
 	}
-	
+
+    /*
+	 * Method to make a post call to server with necessary params requesting for bot discovery cbot
+	 * Sample Json to be sent in network call ::
+	 * {
+            "app": [{
+                "name": "+hikenews+",
+                "params": {
+                            "enable_bot": true,
+                            "notif": "off"
+                            }
+                        }],
+                "platform_version": 10
+        }
+	 */
 	private void initiateBotDownload(final String msisdn)
 	{
-		JSONObject json = new JSONObject();
-		JSONArray jsonArray = new JSONArray();
-		jsonArray.put(msisdn);
-		try
-		{
-			json.put(APP_NAME, jsonArray);
-		}
-		catch (JSONException e)
-		{
-			Logger.e(TAG, "Bot download request Json Exception: "+e.getMessage());
-		}
-		RequestToken token = HttpRequests.microAppPostRequest(HttpRequestConstants.getBotDownloadUrl(), json, new IRequestListener()
+        // Json to send to install.json on server requesting for micro app download for bot discovery
+        JSONObject json = new JSONObject();
+
+        try
+        {
+            // Json object to create adding params to micro app requesting json (In our scenario, we need to receive cbot only with enable bot as false for our scenario)
+            JSONObject paramsJsonObject = new JSONObject();
+            paramsJsonObject.put(HikePlatformConstants.ENABLE_BOT,true);
+            paramsJsonObject.put(HikePlatformConstants.NOTIF,HikePlatformConstants.SETTING_OFF);
+
+            // Json object containing all the information required for one micro app
+            JSONObject appsJsonObject = new JSONObject();
+            appsJsonObject.put(HikePlatformConstants.NAME, msisdn);
+            appsJsonObject.put(HikePlatformConstants.PARAMS,paramsJsonObject);
+
+            // Put apps JsonObject in the final json
+            json.put(HikePlatformConstants.APPS, appsJsonObject);
+            json.put(HikePlatformConstants.PLATFORM_VERSION, HikePlatformConstants.CURRENT_VERSION);
+            json.put(HikeConstants.SOURCE, HikePlatformConstants.BOT_DISCOVERY);
+        }
+        catch (JSONException e)
+        {
+            Logger.e("Json Exception :: ", e.toString());
+        }
+
+		RequestToken token = HttpRequests.microAppPostRequest(HttpRequestConstants.getBotDownloadUrlV2(), json, new IRequestListener()
 		{
 			
 			@Override

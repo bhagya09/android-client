@@ -1,11 +1,6 @@
 package com.bsb.hike.adapters;
 
-import java.io.Serializable;
-import java.util.List;
-
 import android.content.Context;
-import android.content.Intent;
-import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -17,17 +12,20 @@ import android.widget.ImageView.ScaleType;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.R;
 import com.bsb.hike.media.StickerPickerListener;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.models.StickerPageAdapterItem;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
 import com.bsb.hike.smartImageLoader.StickerLoader;
 import com.bsb.hike.ui.utils.RecyclingImageView;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+
+import java.util.List;
 
 
 public class StickerPageAdapter extends BaseAdapter implements OnClickListener
@@ -163,7 +161,7 @@ public class StickerPageAdapter extends BaseAdapter implements OnClickListener
 				convertView = new RecyclingImageView(mContext);
 				int padding = (int) (5 * Utils.scaledDensityMultiplier);
 				convertView.setLayoutParams(ll);
-				((ImageView) convertView).setScaleType(ScaleType.FIT_CENTER);
+				((ImageView) convertView).setScaleType(ScaleType.CENTER_INSIDE);
 				((ImageView) convertView).setPadding(padding, padding, padding, padding);
 				
 				break;
@@ -197,7 +195,7 @@ public class StickerPageAdapter extends BaseAdapter implements OnClickListener
 		{
 		case STICKER:
 			Sticker sticker = (Sticker) item.getSticker();
-			stickerLoader.loadImage(sticker.getSmallStickerPath(), ((ImageView) convertView), isListFlinging);
+			stickerLoader.loadSticker(sticker, StickerConstants.StickerType.SMALL, ((ImageView) convertView), isListFlinging);
 			convertView.setOnClickListener(this);
 				
 			break;
@@ -253,7 +251,7 @@ public class StickerPageAdapter extends BaseAdapter implements OnClickListener
 
 	private void initialiseDownloadStickerTask(DownloadSource source)
 	{
-		StickerManager.getInstance().initialiseDownloadStickerPackTask(category, source, mContext);
+		StickerManager.getInstance().initialiseDownloadStickerPackTask(category, StickerManager.getInstance().getPackDownloadBodyJson(source));
 		replaceDownloadingatTop();
 	}
 
@@ -299,7 +297,7 @@ public class StickerPageAdapter extends BaseAdapter implements OnClickListener
 			mStickerPickerListener.stickerSelected(sticker, source);
 
 			/* In case sticker is clicked on the recents screen, don't update the UI or recents list. Also if this sticker is disabled don't update the recents UI */
-			if (!category.isCustom())
+			if (!category.getCategoryId().equals(StickerManager.RECENT))
 			{
 				StickerManager.getInstance().addRecentStickerToPallete(sticker);	
 			}

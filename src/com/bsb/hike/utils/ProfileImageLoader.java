@@ -51,7 +51,7 @@ public class ProfileImageLoader implements LoaderCallbacks<Boolean>
 		this.msisdn = msisdn;
 		this.imageView = new WeakReference<ImageView>(imageView);
 		this.imageSize = imageSize;
-		this.defaultDrawable = HikeBitmapFactory.getDefaultAvatar(context.getResources(), msisdn, true);
+		this.defaultDrawable = HikeBitmapFactory.getRectTextAvatar(msisdn);
 		basePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
 		mappedId = msisdn + ProfileActivity.PROFILE_PIC_SUFFIX;
 		this.isStatusImage = isStatusImage;
@@ -231,14 +231,6 @@ public class ProfileImageLoader implements LoaderCallbacks<Boolean>
 
 	private void setImageDrawable(Drawable drawable)
 	{
-		if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB){
-			if((drawable != null) && drawable instanceof BitmapDrawable){
-				if(((BitmapDrawable) drawable).getBitmap().isRecycled()){
-					return;
-				}
-			}
-		}
-		
 		if(imageView.get() != null)
 		{
 			imageView.get().setImageDrawable(drawable);

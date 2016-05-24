@@ -29,15 +29,17 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.models.Sticker;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerRecommendFragmentListener;
-import com.bsb.hike.smartImageLoader.ImageWorker.SuccessfulImageLoadingListener;
+import com.bsb.hike.offline.OfflineController;
+import com.bsb.hike.smartImageLoader.ImageWorker.ImageLoaderListener;
 import com.bsb.hike.smartImageLoader.StickerLoader;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 
-public class StickerRecommendationFtueFragment extends Fragment implements Listener, SuccessfulImageLoadingListener
+public class StickerRecommendationFtueFragment extends Fragment implements Listener, ImageLoaderListener
 {
 	private IStickerRecommendFragmentListener listener;
 	
@@ -72,7 +74,7 @@ public class StickerRecommendationFtueFragment extends Fragment implements Liste
 	private String word;
 
 	private String phrase;
-	
+
 	public static StickerRecommendationFtueFragment newInstance(IStickerRecommendFragmentListener istickerRecommendFragmentListener, ArrayList<Sticker> stickerList)
 	{
 		StickerRecommendationFtueFragment stickerRecommendationFtueFragment = new StickerRecommendationFtueFragment();
@@ -93,8 +95,13 @@ public class StickerRecommendationFtueFragment extends Fragment implements Liste
 	{
 		super.onActivityCreated(savedInstanceState);
 		HikeMessengerApp.getPubSub().addListeners(StickerRecommendationFtueFragment.this, pubSubListeners);
-		this.stickerLoader = new StickerLoader(HikeMessengerApp.getInstance(), true);
-		stickerLoader.setSuccessfulImageLoadingListener(this);
+
+		//the sticker loader will attempt to download mini sticker if sticker not present provided the server switch is enabled other wise will download full sticker
+		boolean loadMini = StickerManager.getInstance().isMiniStickersEnabled();
+
+        setupStickerLoader(loadMini);
+
+        stickerLoader.setImageLoaderListener(this);
 	}
 	
 	@Override
@@ -111,8 +118,8 @@ public class StickerRecommendationFtueFragment extends Fragment implements Liste
 		ivShop = parent.findViewById(R.id.shop_icon);
 		close = parent.findViewById(R.id.sticker_recommend_popup_close);
 		settings = parent.findViewById(R.id.sticker_recommend_popup_settings);
-		
-		stickerImageContainer.setOnClickListener(stickerImageClickListener);
+
+        ivSticker.setOnClickListener(stickerImageClickListener);
 		ivShop.setOnClickListener(stickerShopImageClickListener);
 		settings.setOnClickListener(settingsListener);
 		close.setOnClickListener(closeListener);
@@ -146,7 +153,7 @@ public class StickerRecommendationFtueFragment extends Fragment implements Liste
 	private void loadStickerImage(boolean stickerLoaded)
 	{
 		ivSticker.setScaleType(ScaleType.CENTER_INSIDE);
-		stickerLoader.loadImage(sticker.getSmallStickerPath(), ivSticker, false);
+		stickerLoader.loadSticker(sticker, StickerConstants.StickerType.SMALL, ivSticker);
 	}
 	
 	
@@ -304,21 +311,35 @@ public class StickerRecommendationFtueFragment extends Fragment implements Liste
 	}
 
 	@Override
-	public void onSuccessfulImageLoaded(ImageView imageView)
+	public void onImageWorkSuccess(ImageView imageView)
 	{
 		if(!isAdded())
 		{
 			return ;
 		}
-		getActivity().runOnUiThread(new Runnable()
-		{
-			
-			@Override
-			public void run()
-			{
-				pbSticker.setVisibility(View.GONE);
-				ivSticker.setVisibility(View.VISIBLE);
-			}
-		});
+
+        pbSticker.setVisibility(View.GONE);
+        ivSticker.setVisibility(View.VISIBLE);
 	}
+
+	@Override
+	public void onImageWorkFailed(ImageView imageView)
+	{
+        if(!isAdded())
+        {
+            return ;
+        }
+
+        pbSticker.setVisibility(View.VISIBLE);
+        ivSticker.setVisibility(View.GONE);
+	}
+
+    public void setupStickerLoader(boolean loadMini)
+    {
+        this.stickerLoader = new StickerLoader.Builder()
+                .downloadLargeStickerIfNotFound(!loadMini)
+                .loadMiniStickerIfNotFound(loadMini)
+                .downloadMiniStickerIfNotFound(loadMini)
+                .build();
+    }
 }

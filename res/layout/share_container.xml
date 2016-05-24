@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/day_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="horizontal"
+    android:paddingLeft="@dimen/chat_bubble_edge_spacing"
+    android:paddingRight="@dimen/chat_bubble_edge_spacing"
+    android:background="@drawable/share_bg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_weight="0.5"
+        android:id="@+id/cta1"
+        android:visibility="gone">
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/cta1Text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="7dp"
+            android:layout_marginRight="7dp"
+            android:text="@string/share"
+            android:drawableLeft="@drawable/ic_share"
+            android:textColor="@android:color/black"
+            android:layout_gravity="center"
+            android:textSize="14sp"
+            android:singleLine="true"
+            android:ellipsize="end"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_weight="0.5"
+        android:id="@+id/cta2"
+        android:visibility="gone">
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/cta2Text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="7dp"
+            android:layout_marginRight="7dp"
+            android:text="@string/share"
+            android:drawableLeft="@drawable/ic_share"
+            android:textColor="@android:color/black"
+            android:layout_gravity="center"
+            android:textSize="14sp"
+            android:singleLine="true"
+            android:ellipsize="end"/>
+    </LinearLayout>
+</LinearLayout>

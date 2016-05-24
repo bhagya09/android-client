@@ -8,9 +8,11 @@ import android.util.Pair;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.bots.CustomKeyboardManager;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.MessageEvent;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.notifications.ToastListener;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.CocosProcessIntentService;
@@ -76,6 +78,8 @@ public class GeneralEventMessagesManager
 			else if (HikeConstants.GeneralEventMessagesTypes.MESSAGE_EVENT.equals(type))
 			{
 				String fromMsisdn = packet.getString(HikeConstants.FROM);
+				if(!TextUtils.isEmpty(fromMsisdn) && ContactManager.getInstance().isBlocked(fromMsisdn))
+					return; // returning in case of blocked
 				String messageHash = data.getString(HikePlatformConstants.MESSAGE_HASH);
 				long messageId = HikeConversationsDatabase.getInstance().getMessageIdFromMessageHash(messageHash, fromMsisdn);
 				if (messageId < 0)
@@ -124,6 +128,12 @@ public class GeneralEventMessagesManager
 			{
 				handleGeneralEventDRPacket(packet);
 			}
+            else if(HikeConstants.GeneralEventMessagesTypes.CUSTOM_KEYBOARD.equals(type))
+            {
+                CustomKeyboardManager.getInstance().saveToSharedPreferences(packet.getString(HikeConstants.FROM), data.getJSONObject(HikeConstants.DATA));
+
+                HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_INPUT_BOX, packet.getString(HikeConstants.FROM));
+            }
 			
 		}
 	}

@@ -11,7 +11,6 @@ import java.util.Set;
 import com.bsb.hike.R;
 import com.bsb.hike.ui.utils.SpanUtil;
 import com.bsb.hike.utils.Logger;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 
 import android.content.Context;
 import android.text.Editable;
@@ -21,8 +20,9 @@ import android.text.style.ImageSpan;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.widget.EditText;
 
-public class TagEditText extends AdaptxtEditText
+public class TagEditText extends EditText
 {
 	private static final String TOKEN = "!`!";
 

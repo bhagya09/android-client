@@ -42,6 +42,8 @@ import org.json.JSONObject;
 public class MessagingBridge_Alto extends MessagingBridge_Nano
 {
 
+	private static final String TAG = MessagingBridge_Alto.class.getSimpleName();
+
 	public MessagingBridge_Alto(Activity activity, CustomWebView webView, ConvMessage convMessage, BaseAdapter adapter)
 	{
 		super(activity, webView, convMessage, adapter);
@@ -735,6 +737,15 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	@JavascriptInterface
 	public void blockParentBot(String block)
 	{
+		//Check to prevent NPE
+		//java.lang.NullPointerException
+		//at java.util.concurrent.ConcurrentHashMap.containsKey(ConcurrentHashMap.java:781)
+		//at com.bsb.hike.bots.BotUtils.isBot(SourceFile:169)
+		//at com.bsb.hike.platform.bridge.MessagingBridge_Alto.blockParentBot(SourceFile:737)
+		if (TextUtils.isEmpty(message.webMetadata.getParentMsisdn())) {
+			Logger.e(TAG, "block is null");
+			return;
+		}
 		if (!BotUtils.isBot(message.webMetadata.getParentMsisdn()))
 		{
 			return;

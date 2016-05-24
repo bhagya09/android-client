@@ -67,6 +67,7 @@ public class ProductPopupsConstants
 
 	public static final String RECEIVED = "rec";
 
+	public static final String RECEIVED_NOT_SHOWN = "recv_not_shown";
 	
 	public static enum PopupStateEnum
 	{
@@ -248,6 +249,14 @@ public class ProductPopupsConstants
 				return "newchat";
 			}
 		},
+		COMPOSE_CHAT_WITH_BDAY
+		{
+			@Override
+			public String toString()
+			{
+				return "newchat_bday";
+			}
+		},
 		HIDDEN_MODE
 		{
 			@Override
@@ -297,7 +306,14 @@ public class ProductPopupsConstants
 			{
 				return "edit_profile";
 			}
-		},
+		},PROFILE_DOB{
+
+		@Override
+		public String toString()
+		{
+			return "profile_dob";
+		}
+	},
 		HELP
 		{
 			@Override

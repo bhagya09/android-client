@@ -27,7 +27,7 @@
         android:layout_gravity="bottom"
         android:orientation="horizontal" >
 
-        <com.bsb.hike.view.StickerEmoticonIconPageIndicator
+        <com.bsb.hike.view.StickerIconPageIndicator
             android:id="@+id/sticker_icon_indicator"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"

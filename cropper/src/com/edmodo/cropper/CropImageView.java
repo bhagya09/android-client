@@ -24,11 +24,13 @@ import android.media.ExifInterface;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.edmodo.cropper.cropwindow.CropOverlayView;
 import com.edmodo.cropper.cropwindow.edge.Edge;
@@ -206,10 +208,14 @@ public class CropImageView extends FrameLayout {
             mLayoutHeight = height;
 
             final Rect bitmapRect = ImageViewUtil.getBitmapRect(mBitmap.getWidth(),
-                                                                            mBitmap.getHeight(),
-                                                                            mLayoutWidth,
-                                                                            mLayoutHeight,
-																			mScaleType);
+                    mBitmap.getHeight(),
+                    mLayoutWidth,
+                    mLayoutHeight,
+                    mScaleType);
+            Log.d("CropOverlay", "bitW: " + mBitmap.getWidth());
+            Log.d("CropOverlay","bitH: "+mBitmap.getHeight());
+            Log.d("CropOverlay","rectW: "+ (bitmapRect.right - bitmapRect.left));
+            Log.d("CropOverlay","rectH: "+(bitmapRect.bottom - bitmapRect.top));
             mCropOverlayView.setBitmapRect(bitmapRect);
 
             // MUST CALL THIS
@@ -281,37 +287,40 @@ public class CropImageView extends FrameLayout {
             return;
         }
 
-        final Matrix matrix = new Matrix();
-        final int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
-        int rotate = -1;
-
-        switch (orientation) {
-            case ExifInterface.ORIENTATION_ROTATE_270:
-                rotate = 270;
-                break;
-            case ExifInterface.ORIENTATION_ROTATE_180:
-                rotate = 180;
-                break;
-            case ExifInterface.ORIENTATION_ROTATE_90:
-                rotate = 90;
-                break;
-        }
-
-        if (rotate == -1) {
-            setImageBitmap(bitmap);
-        } else {
-            matrix.postRotate(rotate);
-            final Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap,
-                                                             0,
-                                                             0,
-                                                             bitmap.getWidth(),
-                                                             bitmap.getHeight(),
-                                                             matrix,
-                                                             true);
-            setImageBitmap(rotatedBitmap);
-            bitmap.recycle();
-        }
+        setImageBitmap(rotateBitmapExif(bitmap, exif));
     }
+
+    public Bitmap rotateBitmapExif(Bitmap bitmap, ExifInterface exif)
+	{
+		final Matrix matrix = new Matrix();
+		final int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
+		int rotate = -1;
+
+		switch (orientation)
+		{
+		case ExifInterface.ORIENTATION_ROTATE_270:
+			rotate = 270;
+			break;
+		case ExifInterface.ORIENTATION_ROTATE_180:
+			rotate = 180;
+			break;
+		case ExifInterface.ORIENTATION_ROTATE_90:
+			rotate = 90;
+			break;
+		}
+
+		if (rotate == -1)
+		{
+			return bitmap;
+		}
+		else
+		{
+			matrix.postRotate(rotate);
+			final Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+			bitmap.recycle();
+			return rotatedBitmap;
+		}
+	}
 
     /**
      * Sets a Drawable as the content of the CropImageView.
@@ -339,6 +348,11 @@ public class CropImageView extends FrameLayout {
 		final float actualCropY = Math.max(0f, actualCropRect.top);
 		final float actualCropWidth = Math.min(mBitmap.getWidth(), actualCropRect.right - actualCropRect.left);
 		final float actualCropHeight = Math.min(mBitmap.getHeight(), actualCropRect.bottom - actualCropRect.top);
+
+        if(actualCropHeight < 1 || actualCropWidth < 1)
+        {
+            return mBitmap;
+        }
 
 		// Crop the subset from the original Bitmap.
 		final Bitmap croppedBitmap = Bitmap.createBitmap(mBitmap, (int) actualCropX, (int) actualCropY, (int) actualCropWidth, (int) actualCropHeight);
@@ -448,7 +462,12 @@ public class CropImageView extends FrameLayout {
         mDegreesRotated = mDegreesRotated % 360;
     }
 
-	private void setScaleType(ImageView.ScaleType scaleType) {
+    public int getDegreesRotated()
+    {
+        return mDegreesRotated;
+    }
+
+    private void setScaleType(ImageView.ScaleType scaleType) {
 		mScaleType = scaleType;
 		if (mImageView != null) mImageView.setScaleType(mScaleType);
 	}
@@ -466,6 +485,27 @@ public class CropImageView extends FrameLayout {
         setImageResource(mImageResource);
         mCropOverlayView = (CropOverlayView) v.findViewById(R.id.CropOverlayView);
         mCropOverlayView.setInitialAttributeValues(mGuidelines, mFixAspectRatio, mAspectRatioX, mAspectRatioY);
+    }
+
+    public void showCropOverlay()
+    {
+        if(mCropOverlayView!=null)
+        {
+            mCropOverlayView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    public void hideCropOverlay()
+    {
+        if(mCropOverlayView!=null)
+        {
+            mCropOverlayView.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    public boolean isCropOverlayVisible()
+    {
+        return mCropOverlayView.getVisibility() == View.VISIBLE;
     }
 
     /**
@@ -493,6 +533,11 @@ public class CropImageView extends FrameLayout {
         }
 
         return spec;
+    }
+
+    public Bitmap getBitmap()
+    {
+        return mBitmap;
     }
 
 }

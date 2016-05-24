@@ -1,14 +1,10 @@
 package com.bsb.hike.productpopup;
 
-import java.lang.ref.WeakReference;
-
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.IInterface;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -20,7 +16,6 @@ import android.view.Window;
 import android.webkit.WebView;
 import android.widget.LinearLayout;
 
-import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
@@ -28,6 +23,8 @@ import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.content.HikeWebClient;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+
+import java.lang.ref.WeakReference;
 
 public class HikeDialogFragment extends DialogFragment implements HikePubSub.Listener
 {
@@ -125,13 +122,13 @@ public class HikeDialogFragment extends DialogFragment implements HikePubSub.Lis
 		return view;
 	}
 	
-@Override
-public void onDetach()
-{
-	// TODO Auto-generated method stub
-	super.onDetach();
-	HikeMessengerApp.getPubSub().removeListeners(this, pubsub);
-}
+	@Override
+	public void onDetach()
+	{
+		// TODO Auto-generated method stub
+		super.onDetach();
+		HikeMessengerApp.getPubSub().removeListeners(this, pubsub);
+	}
 	/**
 	 * 
 	 * @param supportFragmentManager

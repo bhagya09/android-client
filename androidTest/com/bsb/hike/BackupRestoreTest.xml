@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<method name="testRestore">
+    <test name="Positive case :Valid Backup">
+        <parameter id="0" name="path" value="/storage/emulated/0/UT_Data/backup_Restore/good/" />
+        <parameter id="1" name="backupDB" value="chats" />
+        <parameter id="2" name="expectedValue" value="true" />
+    </test>
+    <test name="Negative case :MSISDN mismatch">
+        <parameter id="0" name="path" value="/storage/emulated/0/UT_Data/backup_Restore/bad_msisdn/" />
+        <parameter id="1" name="backupDB" value="chats" />
+        <parameter id="2" name="expectedValue" value="false" />
+    </test>
+    <test name="Negative case :Version mismatch">
+        <parameter id="0" name="path" value="/storage/emulated/0/UT_Data/backup_Restore/bad_version/" />
+        <parameter id="1" name="backupDB" value="chats" />
+        <parameter id="2" name="expectedValue" value="false" />
+    </test>
+</method>

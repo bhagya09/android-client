@@ -24,33 +24,28 @@ import org.apache.http.util.TextUtils;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
-import android.graphics.Canvas;
-import android.graphics.ColorMatrixColorFilter;
-import android.graphics.Matrix;
-import android.graphics.Paint;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
-import android.support.v8.renderscript.Allocation;
-import android.support.v8.renderscript.Element;
-import android.support.v8.renderscript.RenderScript;
-import android.support.v8.renderscript.ScriptIntrinsicBlur;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.cropimage.HikeCropFragment.HikeCropListener;
 import com.bsb.hike.photos.HikePhotosUtils;
+import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 /**
  * The activity can crop specific region of interest from an image.
@@ -63,11 +58,15 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 
 	public static final String SOURCE_IMAGE_PATH = "image-path";
 
-	public static final String CROPPED_IMAGE_PATH = "CropIMGP";
-	
+	public static final String CROPPED_IMAGE_PATH = "final-crop-path";
+
 	public static final String CROP_COMPRESSION = "CropCompres";
 
-	boolean mSaving; // Whether the "save" button is already clicked.
+	public static final String ALLOW_EDITING = "AllowEdit";
+
+	public static final String FIXED_ASPECT_RATIO = "FixAspRatio";
+
+	private final String INTERIM_IMG_PATH = "InterimImgPath";
 
 	private String mSrcImagePath, mCropImagePath;
 
@@ -75,14 +74,26 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 
 	private CropCompression mCropCompression;
 
+	private boolean isSrcEdited = false;
+
+	private View doneContainer;
+	
+	private boolean doneClicked;
+
+	private boolean isInCropMode;
+
+	private ImageView doneImageView;
+
+	private TextView doneText;
+
+	private String mInterimImagePath;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
 		overridePendingTransition(R.anim.fade_in_animation, R.anim.fade_out_animation);
 
 		super.onCreate(savedInstanceState);
-
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
 		setContentView(R.layout.cropimageactivity);
 
@@ -120,6 +131,15 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 			}
 		}
 
+		if(savedInstanceState != null)
+		{
+			mInterimImagePath = savedInstanceState.getString(INTERIM_IMG_PATH,null);
+			if(!android.text.TextUtils.isEmpty(mInterimImagePath))
+			{
+				mSrcImagePath = mInterimImagePath;
+			}
+		}
+
 		if (TextUtils.isEmpty(mSrcImagePath) || TextUtils.isEmpty(mCropImagePath))
 		{
 			Toast.makeText(this, getResources().getString(R.string.image_failed), Toast.LENGTH_LONG).show();
@@ -128,21 +148,38 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 			return;
 		}
 
-		mCropFragment = HikeCropFragment.getInstance(new HikeCropListener()
-		{
+		StatusBarColorChanger.setStatusBarColor(getWindow(), Color.BLACK);
+
+		mCropFragment = HikeCropFragment.getInstance(new HikeCropListener() {
 			@Override
-			public void onSuccess(Bitmap croppedBmp)
-			{
+			public void onSuccess(Bitmap croppedBmp) {
 				onCropped(croppedBmp);
 			}
 
 			@Override
-			public void onFailed()
-			{
+			public void onFailed() {
 				Logger.e(TAG, "Crop failed");
 				onCropFailed();
 			}
+
+			@Override
+			public void toggleDoneButtonVisibility(final boolean show) {
+				if (doneContainer != null)
+				{
+					doneContainer.setVisibility(show?View.VISIBLE:View.GONE);
+				}
+			}
 		}, mSrcImagePath);
+
+		boolean allowEditing = false;
+
+		if (extras != null)
+		{
+			mCropFragment.setAspectRatioFixed(extras.getBoolean(FIXED_ASPECT_RATIO, false));
+			allowEditing = extras.getBoolean(ALLOW_EDITING, false);
+		}
+
+		mCropFragment.setEditEnabled(allowEditing);
 
 		setupActionBar();
 
@@ -155,25 +192,29 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
 
 		View actionBarView = LayoutInflater.from(this).inflate(R.layout.photos_action_bar, null);
-		actionBar.setBackgroundDrawable(ResourcesCompat.getDrawable(getResources(), R.color.photos_action_bar_background, null));
-		actionBarView.findViewById(R.id.back).setOnClickListener(new OnClickListener()
-		{
+		actionBar.setBackgroundDrawable(ResourcesCompat.getDrawable(getResources(), R.color.crop_actionbar_bg, null));
+		actionBarView.findViewById(R.id.back).setOnClickListener(new OnClickListener() {
 			@Override
-			public void onClick(View v)
-			{
+			public void onClick(View v) {
 				onBackPressed();
 			}
 		});
 
 		((TextView) actionBarView.findViewById(R.id.done_text)).setText(R.string.done);
 
-		actionBarView.findViewById(R.id.done_container).setVisibility(View.VISIBLE);
+		doneContainer = actionBarView.findViewById(R.id.done_container);
 
-		actionBarView.findViewById(R.id.done_container).setOnClickListener(new View.OnClickListener()
-		{
+		doneContainer.setVisibility(View.VISIBLE);
+
+		doneImageView = (ImageView) doneContainer.findViewById(R.id.next_btn);
+
+		doneText = (TextView) doneContainer.findViewById(R.id.done_text);
+
+		doneContainer.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v)
 			{
+				doneClicked = true;
 				mCropFragment.crop();
 			}
 		});
@@ -190,15 +231,27 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 		{
 			if (mCropCompression != null)
 			{
-				argBmp = scale(argBmp, mCropCompression.getWidth(), mCropCompression.getHeight());
+				argBmp = HikePhotosUtils.scaleAdvanced(argBmp, mCropCompression.getWidth(), mCropCompression.getHeight(), true);
+			}
+
+			if (argBmp == null)
+			{
+				onCropFailed();
 			}
 
 			BitmapUtils.saveBitmapToFile(new File(mCropImagePath), argBmp, CompressFormat.JPEG, mCropCompression == null ? 85 : mCropCompression.getQuality());
-			Intent resultIntent = new Intent();
-			resultIntent.putExtra(CROPPED_IMAGE_PATH, mCropImagePath);
-			resultIntent.putExtra(SOURCE_IMAGE_PATH, mSrcImagePath);
-			setResult(RESULT_OK, resultIntent);
-			finish();
+
+			mInterimImagePath = mCropImagePath;
+
+			if (doneClicked)
+			{
+				sendCropResult();
+			}
+			else
+			{
+				mCropFragment.setSourceImagePath(mCropImagePath);
+				mCropFragment.loadBitmap();
+			}
 		}
 		catch (IOException e)
 		{
@@ -206,98 +259,72 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 			onCropFailed();
 		}
 	}
-	
+
+	private void sendCropResult()
+	{
+		File cropResult = new File(mCropImagePath);
+		if(!cropResult.exists())
+		{
+			try
+			{
+				BitmapUtils.saveBitmapToFile(new File(mCropImagePath), mCropFragment.getImageBitmap(), CompressFormat.JPEG,
+						mCropCompression == null ? 85 : mCropCompression.getQuality());
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+				onCropFailed();
+				return;
+			}
+		}
+
+		Intent resultIntent = new Intent();
+		Bundle extras = getIntent().getExtras();
+		if (extras != null)
+		{
+			resultIntent.putExtras(extras);
+		}
+		resultIntent.putExtra(CROPPED_IMAGE_PATH, mCropImagePath);
+		resultIntent.putExtra(SOURCE_IMAGE_PATH, mSrcImagePath);
+		setResult(RESULT_OK, resultIntent);
+		finish();
+	}
+
 	private void onCropFailed()
 	{
 		setResult(RESULT_CANCELED);
 		finish();
 	}
 
-	/**
-	 * TODO Test and make generic method
-	 * 
-	 * @param argBmp
-	 */
-	private void blur(Bitmap argBmp)
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
-		final RenderScript rs = RenderScript.create( getApplicationContext());
-		final Allocation input = Allocation.createFromBitmap( rs, argBmp, Allocation.MipmapControl.MIPMAP_NONE, Allocation.USAGE_SCRIPT );
-		final Allocation output = Allocation.createTyped( rs, input.getType() );
-		final ScriptIntrinsicBlur script = ScriptIntrinsicBlur.create( rs, Element.U8_4( rs ) );
-		script.setRadius( 1.0f );
-		script.setInput( input );
-		script.forEach( output );
-		output.copyTo( argBmp );
+		super.onActivityResult(requestCode, resultCode, data);
 	}
-	
-	private boolean shouldBlur(Bitmap argBmp, int maxWidth, int maxHeight)
-	{
-		int BLUR_THRESHOLD = 80;
-		
-		int sourceSize = argBmp.getWidth() * argBmp.getHeight();
-		
-		int destSize = maxWidth * maxHeight;
-		
-		//TODO
-		return true;
-	}
-	
-	private Bitmap scale(Bitmap argBmp, final float maxWidth, final float maxHeight)
-	{
-		Matrix scaleTransformation = null;
-		
-		boolean shouldScale = false;
-		
-		if (argBmp.getHeight() > maxHeight || argBmp.getWidth() > maxWidth)
-		{
-			shouldScale = true;
-			float originalWidth = argBmp.getWidth(), originalHeight = argBmp.getHeight();
-			float s1x = maxWidth / originalWidth;
-			float s1y = maxHeight / originalHeight;
-			float s1 = (s1x < s1y) ? s1x : s1y;
-			scaleTransformation = new Matrix();
-			scaleTransformation.setScale(s1, s1);
-		}
-		
-	    ColorMatrixColorFilter colorFilter = HikePhotosUtils.getGreenDownShiftFilter();
-		
-		argBmp.setHasAlpha(true);
 
-		Bitmap scaledBitmap = null;
-		try
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		outState.putString(INTERIM_IMG_PATH , mInterimImagePath);
+		super.onSaveInstanceState(outState);
+	}
+
+	@Override
+	public void onBackPressed() {
+		boolean isEventConsumed = false;
+
+		if(mCropFragment != null && mCropFragment.isVisible())
 		{
-			if (shouldScale)
-			{
-				scaledBitmap = Bitmap.createBitmap((int)maxWidth, (int)maxHeight, Bitmap.Config.RGB_565);
-			}
-			else
-			{
-				scaledBitmap = Bitmap.createBitmap(argBmp.getWidth(), argBmp.getHeight(), Bitmap.Config.RGB_565);
-			}
-			Canvas canvas = new Canvas(scaledBitmap);
-			if (scaleTransformation != null)
-			{
-				canvas.setMatrix(scaleTransformation);
-			}
-			Paint paint = new Paint(Paint.FILTER_BITMAP_FLAG | Paint.DITHER_FLAG | Paint.ANTI_ALIAS_FLAG);
-			paint.setDither(true);
-			paint.setColorFilter(colorFilter);
-			
-			if (!shouldScale)
-			{
-				canvas.drawBitmap(argBmp, 0, 0, paint);
-			}
-			else
-			{
-				canvas.drawBitmap(argBmp, 0,0, paint);
-			}
+			//This means it: (1) has been added, (2) has its view attached to the window, and (3) is not hidden
+			isEventConsumed = mCropFragment.onBackPressed();
 		}
-		catch (OutOfMemoryError exception)
+
+		if(!isEventConsumed)
 		{
-			exception.printStackTrace();
-			onCropFailed();
+			if(!TextUtils.isEmpty(mInterimImagePath))
+			{
+				Utils.deleteFile(new File(mInterimImagePath));
+			}
+			super.onBackPressed();
 		}
-		
-		return scaledBitmap;
 	}
 }

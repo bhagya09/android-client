@@ -1,13 +1,5 @@
 package com.bsb.hike.models;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Context;
 import android.text.TextUtils;
 
@@ -37,6 +29,14 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomMessageTextView.DimentionMatrixHolder;
 import com.bsb.hike.view.CustomMessageTextView.ViewDimentions;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, Comparable<ConvMessage>
 
@@ -93,8 +93,6 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 	private int notificationType;
 	
 	private long sortingId = -1;
-
-	private boolean fromCustomKeyboard=false;
 
 	public String getNameSpace()
 	{
@@ -235,7 +233,7 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 		PARTICIPANT_JOINED, // The participant has joined
 		GROUP_END, // Group chat has ended
 		USER_OPT_IN, DND_USER, USER_JOIN, CHANGED_GROUP_NAME, CHANGED_GROUP_IMAGE, BLOCK_INTERNATIONAL_SMS, INTRO_MESSAGE, STATUS_MESSAGE, CHAT_BACKGROUND,
-		VOIP_CALL_SUMMARY, VOIP_MISSED_CALL_OUTGOING, VOIP_MISSED_CALL_INCOMING,CHANGE_ADMIN, GC_SETTING_CHANGE,OFFLINE_INLINE_MESSAGE , OFFLINE_FILE_NOT_RECEIVED;
+		VOIP_CALL_SUMMARY, VOIP_MISSED_CALL_OUTGOING, VOIP_MISSED_CALL_INCOMING,CHANGE_ADMIN, GC_SETTING_CHANGE,OFFLINE_INLINE_MESSAGE , OFFLINE_FILE_NOT_RECEIVED, FRIEND_REQUSET_STATUS;
 
 		public static ParticipantInfoState fromJSON(JSONObject obj)
 		{
@@ -315,6 +313,11 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 			else if(OfflineConstants.OFFLINE_FILES_NOT_RECEIVED_TYPE.equals(type))
 			{
 				return OFFLINE_FILE_NOT_RECEIVED;
+			}
+
+			else if (HikeConstants.FRIENDS_SYSTEM_MESSAGE.equals(type))
+			{
+				return FRIEND_REQUSET_STATUS;
 			}
 				
 			return NO_INFO;
@@ -506,7 +509,7 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 			// TODO : We should parse metadata based on message type, so doing now for content, we should clean the else part sometime
 			if(HikeConstants.ConvMessagePacketKeys.CONTENT_TYPE.equals(obj.optString(HikeConstants.SUB_TYPE))){
 				this.messageType  = MESSAGE_TYPE.CONTENT;
-				platformMessageMetadata  = new PlatformMessageMetadata(data.optJSONObject(HikeConstants.METADATA), context);
+				platformMessageMetadata  = new PlatformMessageMetadata(data.optJSONObject(HikeConstants.METADATA), context, mIsSent);
                 platformMessageMetadata.addToThumbnailTable();
                 platformMessageMetadata.thumbnailMap.clear();
 			}
@@ -642,8 +645,8 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 		case CHANGED_GROUP_IMAGE:
 			String msisdn = metadata.getMsisdn();
 			String userMsisdn = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, "");
-
-			String participantName = userMsisdn.equals(msisdn) ? context.getString(R.string.you) : ((OneToNConversation) conversation).getConvParticipantFirstNameAndSurname(msisdn);
+			isSelfGenerated=userMsisdn.equals(msisdn);
+			String participantName = isSelfGenerated? context.getString(R.string.you) : ((OneToNConversation) conversation).getConvParticipantFirstNameAndSurname(msisdn);
 			
 			if (participantInfoState == ParticipantInfoState.CHANGED_GROUP_NAME)
 			{
@@ -698,7 +701,16 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 			this.mMessage = context.getString(R.string.voip_missed_call_notif);
 			break;
 		}
-		setState(isSelfGenerated ? State.RECEIVED_READ : State.RECEIVED_UNREAD);
+
+		if(isSelfGenerated || (metadata != null && metadata.isSync()))
+		{
+			setState(State.RECEIVED_READ);
+		}
+		else
+		{
+			setState(State.RECEIVED_UNREAD);
+		}
+
 	}
 
 	public void setMetadata(MessageMetadata messageMetadata)
@@ -725,7 +737,6 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 			participantInfoState = this.metadata.getParticipantInfoState();
 
 			isStickerMessage = this.metadata.getSticker() != null;
-			
 			
 		}
 	}
@@ -906,8 +917,6 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 					else if (metadata.isPokeMessage())
 					{
 						data.put(HikeConstants.POKE, true);
-					}else if(fromCustomKeyboard()){
-						data.put(HikeConstants.METADATA, md);
 					}
 				}
 				
@@ -1387,12 +1396,7 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 	{
 		this.messageOriginType = messageOriginType;
 	}
-	public void setfromCustomKeyboard(boolean fromCustomKeyboard){
-		this.fromCustomKeyboard=fromCustomKeyboard;
-	}
-	public boolean fromCustomKeyboard(){
-		return fromCustomKeyboard;
-	}
+
 	public long getServerId()
 	{
 		if(isBroadcastMessage() && !isBroadcastConversation())

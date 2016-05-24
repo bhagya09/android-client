@@ -100,6 +100,7 @@ public class DbConversationListener implements Listener
 		mPubSub.addListener(HikePubSub.BOT_DISCOVERY_DOWNLOAD_SUCCESS, this);
 		mPubSub.addListener(HikePubSub.BOT_DISCOVERY_TABLE_FLUSH, this);
 		mPubSub.addListener(HikePubSub.ADD_NM_BOT_CONVERSATION, this);
+		mPubSub.addListener(HikePubSub.ADD_INLINE_FRIEND_MSG, this);
 	}
 
 	@Override
@@ -566,6 +567,18 @@ public class DbConversationListener implements Listener
 		{
 			HikeConversationsDatabase.getInstance().addNonMessagingBotconversation((BotInfo) object);
 		}
+
+		else if (HikePubSub.ADD_INLINE_FRIEND_MSG.equals(type))
+		{
+			ConvMessage msg = (ConvMessage) object;
+
+			if (msg != null)
+			{
+				HikeConversationsDatabase.getInstance().addConversationMessages(msg, false);
+				// Update the CT back as well.
+				HikeMessengerApp.getPubSub().publish(HikePubSub.UPDATE_THREAD, msg);
+			}
+		}
 	}
 
     private void sendMultiConvMessage(MultipleConvMessage multiConvMessages) {
@@ -610,7 +623,7 @@ public class DbConversationListener implements Listener
                 listOfContacts.add(new ContactInfo(msisdn, msisdn, null, null,!convMessage.isSMS()));
             }
             convMessage.platformMessageMetadata.thumbnailMap.clear();
-            convMessage.platformMessageMetadata.addThumbnailsToMetadata();
+//            convMessage.platformMessageMetadata.addThumbnailsToMetadata();
             long timeStamp = System.currentTimeMillis()/1000;
 			String source = jsonObject.optString(HikePlatformConstants.SOURCE);
             MultipleConvMessage multipleConvMessage = new MultipleConvMessage(listOfMessages, listOfContacts, timeStamp, true, source);

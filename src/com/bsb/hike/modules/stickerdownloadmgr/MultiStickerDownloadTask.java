@@ -4,13 +4,13 @@ import android.os.Bundle;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHTTPTask;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHttpTaskResult;
 import com.bsb.hike.modules.httpmgr.interceptor.IRequestInterceptor;
-import com.bsb.hike.modules.httpmgr.request.RequestConstants;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
 import com.bsb.hike.modules.httpmgr.request.requestbody.JsonBody;
@@ -31,7 +31,9 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_OUT_OF_SPACE;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.multiStickerDownloadRequest;
@@ -44,7 +46,7 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 
 	private StickerConstants.DownloadType downloadType;
 
-	private DownloadSource source;
+	private JSONObject bodyJson;
 
 	private int existingStickerNumber = 0;
 
@@ -54,11 +56,11 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 
 	private RequestToken requestToken;
 
-	public MultiStickerDownloadTask(StickerCategory category, StickerConstants.DownloadType downloadType, DownloadSource source)
+	public MultiStickerDownloadTask(StickerCategory category, StickerConstants.DownloadType downloadType, JSONObject bodyJson)
 	{
 		this.category = category;
 		this.downloadType = downloadType;
-		this.source = source;
+		this.bodyJson = bodyJson;
 	}
 
 	public void execute()
@@ -68,13 +70,12 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 			doOnFailure(new HttpException(REASON_CODE_OUT_OF_SPACE));
 			return;
 		}
-		requestId = getRequestId();
 		download();
 	}
 
 	private void download()
 	{
-		requestToken = multiStickerDownloadRequest(requestId, getRequestInterceptor(), getRequestListener());
+		requestToken = multiStickerDownloadRequest(getRequestId(), getRequestInterceptor(), getRequestListener());
 
 		if (requestToken.isRequestRunning()) // duplicate check
 		{
@@ -89,7 +90,7 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 		{
 
 			@Override
-			public void intercept(Chain chain)
+			public void intercept(Chain chain) throws Exception
 			{
 				Logger.d(TAG, "intercept(), CategoryId: " + category.getCategoryId());
 				String directoryPath = StickerManager.getInstance().getStickerDirectoryForCategoryId(category.getCategoryId());
@@ -131,17 +132,15 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 
 				try
 				{
-					JSONObject request = new JSONObject();
-					request.put(StickerManager.CATEGORY_ID, category.getCategoryId());
-					request.put(HikeConstants.STICKER_IDS, existingStickerIds);
-					request.put(HikeConstants.RESOLUTION_ID, Utils.getResolutionId());
-					request.put(HikeConstants.NUMBER_OF_STICKERS, getStickerDownloadSize());
-					request.put(HikeConstants.DOWNLOAD_SOURCE, source.getValue());
-					request.put(HikeConstants.KEYBOARD_LIST, new JSONArray(StickerLanguagesManager.getInstance().getAccumulatedSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE, StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE)));
+					bodyJson.put(StickerManager.CATEGORY_ID, category.getCategoryId());
+					bodyJson.put(HikeConstants.STICKER_IDS, existingStickerIds);
+					bodyJson.put(HikeConstants.RESOLUTION_ID, Utils.getResolutionId());
+					bodyJson.put(HikeConstants.NUMBER_OF_STICKERS, getStickerDownloadSize());
+					bodyJson.put(HikeConstants.KEYBOARD_LIST, new JSONArray(StickerLanguagesManager.getInstance().getAccumulatedSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE, StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE)));
 
-					Logger.d(TAG, "intercept(), Sticker Download Task Request: " + request.toString());
+					Logger.d(TAG, "intercept(), Sticker Download Task Request: " + bodyJson.toString());
 
-					IRequestBody body = new JsonBody(request);
+					IRequestBody body = new JsonBody(bodyJson);
 					chain.getRequestFacade().setBody(body);
 					chain.proceed();
 				}
@@ -209,23 +208,29 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 					Logger.d(TAG, "Reached end? " + reachedEnd);
 					Logger.d(TAG, "Sticker count: " + totalNumber);
 
+
+
 					if (categoryData.has(HikeConstants.STICKERS))
 					{
 						JSONObject stickers = categoryData.getJSONObject(HikeConstants.STICKERS);
+						Set<Sticker> stickerSet = new HashSet<>();
 
 						for (Iterator<String> keys = stickers.keys(); keys.hasNext();)
 						{
 							String stickerId = keys.next();
+                            Sticker sticker = new Sticker(categoryId,stickerId);
 							JSONObject stickerData = stickers.getJSONObject(stickerId);
 							String stickerImage = stickerData.getString(HikeConstants.IMAGE);
+
 							existingStickerNumber++;
 
 							try
 							{
 								byte[] byteArray = StickerManager.getInstance().saveLargeStickers(largeStickerDir.getAbsolutePath(), stickerId, stickerImage);
 								StickerManager.getInstance().saveSmallStickers(smallStickerDir.getAbsolutePath(), stickerId, byteArray);
-								StickerManager.getInstance().saveInStickerTagSet(stickerId, categoryId);
-								
+								StickerManager.getInstance().saveInStickerTagSet(sticker);
+                                StickerManager.getInstance().saveInTableStickerSet(sticker);
+								stickerSet.add(sticker);
 							}
 							catch (FileNotFoundException e)
 							{
@@ -236,7 +241,12 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 								Logger.w(TAG, e);
 							}
 						}
-						StickerManager.getInstance().sendResponseTimeAnalytics(result, RequestConstants.POST);
+
+                        StickerManager.getInstance().saveStickerSetFromJSON(stickers, categoryId);
+
+                        StickerManager.getInstance().sendResponseTimeAnalytics(result, HikeConstants.STICKER_PACK, categoryId, null);
+
+						StickerManager.getInstance().initiateMultiStickerQuickSuggestionDownloadTask(stickerSet);
 					}
 
 					StickerLanguagesManager.getInstance().checkAndUpdateForbiddenList(data);
@@ -294,7 +304,7 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 
 	private String getRequestId()
 	{
-		return (StickerRequestType.MULTIPLE.getLabel() + "\\" + category.getCategoryId());
+		return (StickerRequestType.MULTIPLE.getLabel() + "\\" + category.getCategoryId() + "\\" + existingStickerNumber);
 	}
 
 	/**
@@ -353,7 +363,7 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 	{
 		Bundle b = new Bundle();
 		b.putSerializable(StickerManager.CATEGORY_ID, category.getCategoryId());
-		b.putSerializable(HikeConstants.DOWNLOAD_SOURCE, source);
+		b.putSerializable(HikeConstants.DOWNLOAD_SOURCE, DownloadSource.fromValue(bodyJson.optInt(HikeConstants.DOWNLOAD_SOURCE)));
 		b.putSerializable(StickerManager.PERCENTAGE, percentage);
 		StickerManager.getInstance().onStickersDownloadProgress(b);
 	}
@@ -363,7 +373,7 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 	{
 		Bundle b = new Bundle();
 		b.putSerializable(StickerManager.CATEGORY_ID, category.getCategoryId());
-		b.putSerializable(HikeConstants.DOWNLOAD_SOURCE, source);
+		b.putSerializable(HikeConstants.DOWNLOAD_SOURCE, DownloadSource.fromValue(bodyJson.optInt(HikeConstants.DOWNLOAD_SOURCE)));
 		b.putSerializable(StickerManager.STICKER_DOWNLOAD_TYPE, downloadType);
 		StickerManager.getInstance().sucessFullyDownloadedStickers(b);
 	}
@@ -374,13 +384,14 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 		Logger.e(TAG, "on failure, exception ", e);
 		Bundle b = new Bundle();
 		b.putSerializable(StickerManager.CATEGORY_ID, category.getCategoryId());
-		b.putSerializable(HikeConstants.DOWNLOAD_SOURCE, source);
+		b.putSerializable(HikeConstants.DOWNLOAD_SOURCE, DownloadSource.fromValue(bodyJson.optInt(HikeConstants.DOWNLOAD_SOURCE)));
 		b.putSerializable(StickerManager.STICKER_DOWNLOAD_TYPE, downloadType);
 		if (e != null && e instanceof HttpException && ((HttpException) e).getErrorCode() == HttpException.REASON_CODE_OUT_OF_SPACE)
 		{
 			b.putBoolean(StickerManager.STICKER_DOWNLOAD_FAILED_FILE_TOO_LARGE, true);
 		}
 		StickerManager.getInstance().stickersDownloadFailed(b);
+		StickerManager.getInstance().logStickerDownloadError(HikeConstants.STICKER_PACK);
 	}
 
 	@Override

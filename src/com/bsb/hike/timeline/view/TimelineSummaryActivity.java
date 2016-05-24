@@ -34,6 +34,7 @@ import android.widget.ImageView.ScaleType;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -41,6 +42,7 @@ import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
@@ -71,6 +73,7 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.ProfileImageLoader;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.view.TouchImageView;
 
 /**
  * 
@@ -83,7 +86,7 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 {
 	
 	
-	ImageView imageView;
+	TouchImageView imageView;
 
 	private String mappedId;
 
@@ -377,7 +380,7 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 
 	private void initReferences()
 	{
-		imageView = (ImageView) findViewById(R.id.image);
+		imageView = (TouchImageView) findViewById(R.id.image);
 		fadeScreen = findViewById(R.id.bg_screen);
 		foregroundScreen = findViewById(R.id.fg_screen);
 		infoContainer = findViewById(R.id.image_info_container);
@@ -516,6 +519,10 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 		}
 		else
 		{
+			if(imageView!= null && imageView.isZoomed())
+			{
+				imageView.resetZoom();
+			}
 			supportFinishAfterTransition();
 		}
 	}
@@ -588,7 +595,7 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 		{
 
 			Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(TimelineSummaryActivity.this, ContactManager.getInstance()
-					.getContact(mStatusMessage.getMsisdn(),true,true), false, false);
+					.getContact(mStatusMessage.getMsisdn(),true,true), false, false, ChatThreadActivity.ChatThreadOpenSources.TIMELINE);
 			// Add anything else to the intent
 			intent.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
 			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -792,7 +799,7 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 		Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(mStatusMessage.getMsisdn());
 		if (drawable == null)
 		{
-			drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(mStatusMessage.getMsisdn(), false);
+			drawable = HikeBitmapFactory.getDefaultTextAvatar(mStatusMessage.getMsisdn());
 		}
 
 		avatar.setScaleType(ScaleType.FIT_CENTER);
@@ -815,7 +822,7 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 					@Override
 					public void positiveClicked(HikeDialog hikeDialog)
 					{
-						Utils.toggleFavorite(TimelineSummaryActivity.this.getApplicationContext(), profileContactInfo, false);
+						Utils.toggleFavorite(TimelineSummaryActivity.this.getApplicationContext(), profileContactInfo, false, HikeConstants.AddFriendSources.UNKNOWN);
 						if (hikeDialog != null && hikeDialog.isShowing())
 						{
 							hikeDialog.dismiss();

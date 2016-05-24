@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    
-<LinearLayout 
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
@@ -55,7 +51,3 @@
 	
 <include layout="@layout/select_all_bottom_bar"/>
 </LinearLayout>
-
-<include layout="@layout/kpt_keyboard_viewholder" />
-
-</RelativeLayout>

@@ -5,6 +5,7 @@ import org.json.JSONObject;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 
@@ -20,6 +21,8 @@ public class HikeSharedFile extends HikeFile implements Parcelable
 	
 	private String groupParticipantMsisdn;
 
+	private String caption;
+	
 	public HikeSharedFile(JSONObject fileJSON, boolean isSent, long msgId, String msisdn, long timeStamp, String groupParticipantMsisdn)
 	{
 		super(fileJSON, isSent);
@@ -141,4 +144,18 @@ public class HikeSharedFile extends HikeFile implements Parcelable
 		}
 	};
 
+	@Override
+	public void setCaption(String caption)
+	{
+		if (!TextUtils.isEmpty(caption))
+		{
+			this.caption = caption;
+		}
+	}
+
+	@Override
+	public String getCaption()
+	{
+		return caption;
+	}
 }

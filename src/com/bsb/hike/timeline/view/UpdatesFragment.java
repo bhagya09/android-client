@@ -1,6 +1,5 @@
 package com.bsb.hike.timeline.view;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -10,6 +9,7 @@ import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -33,12 +33,14 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HomeAnalyticsConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.media.ImageParser;
 import com.bsb.hike.media.ImageParser.ImageParserListener;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
-import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.Protip;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -61,11 +63,13 @@ import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.etiennelawlor.quickreturn.library.enums.QuickReturnViewType;
 import com.etiennelawlor.quickreturn.library.listeners.QuickReturnRecyclerViewOnScrollListener;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
 
 public class UpdatesFragment extends Fragment implements Listener, OnClickListener
 {
@@ -83,7 +87,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	private List<StatusMessage> statusMessages;
 
 	private String[] pubSubListeners = { HikePubSub.TIMELINE_UPDATE_RECIEVED, HikePubSub.LARGER_UPDATE_IMAGE_DOWNLOADED, HikePubSub.PROTIP_ADDED, HikePubSub.ICON_CHANGED,
-			HikePubSub.ACTIVITY_UPDATE, HikePubSub.TIMELINE_WIPE, HikePubSub.TIMELINE_FTUE_LIST_UPDATE,HikePubSub.HIKE_JOIN_TIME_OBTAINED, HikePubSub.USER_JOIN_TIME_OBTAINED };
+			HikePubSub.ACTIVITY_UPDATE, HikePubSub.TIMELINE_WIPE, HikePubSub.TIMELINE_FTUE_LIST_UPDATE,HikePubSub.HIKE_JOIN_TIME_OBTAINED, HikePubSub.USER_JOIN_TIME_OBTAINED, HikePubSub.CLOSE_CURRENT_STEALTH_CHAT, HikePubSub.PROFILE_UPDATE_FINISH };
 	
 	private String[] friendMsisdns = new String[]{};
 
@@ -170,6 +174,13 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			{
 				mMsisdnArray.add(msisdn);
 			}
+
+			if (msisdnArray!= null && msisdnArray.length == 1)
+			{
+				//Send Analytics
+				HikeAnalyticsEvent.analyticsForUserProfileOpen(msisdnArray[0], "ProfileTap");
+			}
+
 		}
 		
 		timelineCardsAdapter = new TimelineCardsAdapter(getActivity(), statusMessages, userMsisdn, mFtueFriendList, getLoaderManager(), mShowProfileHeader, mMsisdnArray)
@@ -317,14 +328,8 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 
 						}
 					};
-					if (Utils.isHoneycombOrHigher())
-					{
-						asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, mMsisdnArray.toArray(new String[mMsisdnArray.size()]));
-					}
-					else
-					{
-						asyncTask.execute(mMsisdnArray.toArray(new String[mMsisdnArray.size()]));
-					}
+					asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, mMsisdnArray.toArray(new String[mMsisdnArray.size()]));
+
 				}
 				else
 				{
@@ -351,15 +356,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		}
 
 		fetchUpdates = new FetchUpdates();
-
-		if (Utils.isHoneycombOrHigher())
-		{
-			fetchUpdates.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, mMsisdnArray.toArray(new String[mMsisdnArray.size()]));
-		}
-		else
-		{
-			fetchUpdates.execute(mMsisdnArray.toArray(new String[mMsisdnArray.size()]));
-		}
+		fetchUpdates.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, mMsisdnArray.toArray(new String[mMsisdnArray.size()]));
 	}
 
 	private boolean isLastMsgJoinTime()
@@ -417,6 +414,66 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	}
 
 	@Override
+	public void onPause()
+	{
+		super.onPause();
+		if (timelineCardsAdapter != null && !timelineCardsAdapter.getSUViewedSet().isEmpty())
+		{
+			JSONArray viewedJsonArray = new JSONArray();
+			HashSet<String> viewedSUs = timelineCardsAdapter.getSUViewedSet();
+			for (String suID : viewedSUs)
+			{
+				viewedJsonArray.put(suID);
+			}
+
+			JSONObject viewsPayload = new JSONObject();
+			try
+			{
+				viewsPayload.put(HikeConstants.SU_ID, viewedJsonArray);
+				Logger.d("SendViewsAPI", "Payload"+viewsPayload.toString());
+				timelineCardsAdapter.getSUViewedSet().clear();
+				RequestToken sendViewsToken = HttpRequests.sendViewsLink(viewsPayload, new IRequestListener()
+				{
+					@Override
+					public void onRequestFailure(HttpException httpException)
+					{
+						Logger.d("SendViewsAPI", "Failed");
+					}
+
+					@Override
+					public void onRequestSuccess(Response result)
+					{
+						if (Utils.isResponseValid((JSONObject) result.getBody().getContent()))
+						{
+							Logger.d("SendViewsAPI", "Success");
+						}
+						else
+						{
+							Logger.d("SendViewsAPI", "Stat failed");
+						}
+
+					}
+
+					@Override
+					public void onRequestProgressUpdate(float progress)
+					{
+						// Do nothing
+					}
+				});
+				
+				if(sendViewsToken!=null)
+				{
+					sendViewsToken.execute();
+				}
+			}
+			catch (JSONException e)
+			{
+				e.printStackTrace();
+			}
+		}
+	}
+
+	@Override
 	public void onEventReceived(String type, final Object object)
 	{
 		if (!isAdded())
@@ -429,6 +486,11 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			HikeMessengerApp.getPubSub().publish(HikePubSub.RESET_NOTIFICATION_COUNTER, null);
 			
 			final StatusMessage statusMessage = (StatusMessage) object;
+
+			if (StealthModeManager.getInstance().isStealthMsisdn(statusMessage.getMsisdn()) && !StealthModeManager.getInstance().isActive())
+			{
+				return;
+			}
 
 			// If not showing profile, lets add new message
 			if (mShowProfileHeader)
@@ -481,13 +543,11 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				}
 			});
 		}
-		else if (HikePubSub.ICON_CHANGED.equals(type))
+		else if (HikePubSub.ICON_CHANGED.equals(type) || HikePubSub.PROFILE_UPDATE_FINISH.equals(type))
 		{
-			getActivity().runOnUiThread(new Runnable()
-			{
+			getActivity().runOnUiThread(new Runnable() {
 				@Override
-				public void run()
-				{
+				public void run() {
 					timelineCardsAdapter.notifyDataSetChanged();
 				}
 			});
@@ -601,6 +661,34 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 
 			notifyVisibleItems();
 		}
+		else if (HikePubSub.CLOSE_CURRENT_STEALTH_CHAT.equals(type))
+		{
+			if (isAdded() && getActivity() != null && !Utils.isEmpty(statusMessages))
+			{
+				getActivity().runOnUiThread(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						boolean shouldRefresh = false;
+						for(int i = statusMessages.size() - 1; i >= 0 ; i--)
+						{
+							StatusMessage statusMessage = statusMessages.get(i);
+							if(StealthModeManager.getInstance().isStealthMsisdn(statusMessage.getMsisdn()))
+							{
+								statusMessages.remove(i);
+								shouldRefresh = true;
+							}
+						}
+
+						if(shouldRefresh)
+						{
+							timelineCardsAdapter.notifyDataSetChanged();
+						}
+					}
+				});
+			}
+		}
 	}
 
 	private int getStartIndex()
@@ -692,26 +780,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			}
 			else
 			{
-				List<ContactInfo> friendsList = ContactManager.getInstance().getContactsOfFavoriteType(FavoriteType.FRIEND, HikeConstants.BOTH_VALUE, userMsisdn);
-
-				Logger.d(HikeConstants.TIMELINE_LOGS, "list of friends from CM before filter" + friendsList);
-				
-				ArrayList<String> msisdnList = new ArrayList<String>();
-
-				for (ContactInfo contactInfo : friendsList)
-				{
-					if (TextUtils.isEmpty(contactInfo.getMsisdn()))
-					{
-						continue;
-					}
-					msisdnList.add(contactInfo.getMsisdn());
-				}
-
-				msisdnList.add(userMsisdn);
-
-				friendMsisdns = new String[msisdnList.size()];
-				msisdnList.toArray(friendMsisdns);
-				Logger.d(HikeConstants.TIMELINE_LOGS, "list of friends after filter whose SU we are fetching " + friendMsisdns);
+				friendMsisdns = HikeConversationsDatabase.getTimelineFriendsMsisdn(userMsisdn);
 			}
 
 			List<StatusMessage> statusMessages = null;
@@ -1023,7 +1092,8 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		switch (arg0.getId())
 		{
 		case R.id.new_photo_tab:
-			int galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS | GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE | GalleryActivity.GALLERY_COMPRESS_EDITED_IMAGE
+			recordNewPhotoClick();
+			int galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS | GalleryActivity.GALLERY_CROP_IMAGE | GalleryActivity.GALLERY_COMPRESS_EDITED_IMAGE
 					| GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
 
 			Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(getActivity(), galleryFlags, Utils.getNewImagePostFilePath());
@@ -1031,7 +1101,10 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			break;
 
 		case R.id.new_status_tab:
-			startActivity(IntentFactory.getPostStatusUpdateIntent(getActivity(), null));
+			recordNewStatusClick();
+			Intent newSUIntent = IntentFactory.getPostStatusUpdateIntent(getActivity(), null, null, false);
+			Utils.setSpecies(HomeAnalyticsConstants.SU_SPECIES_TIMELINE_TEXT_BUTTON, newSUIntent);
+			startActivity(newSUIntent);
 			break;
 
 		default:
@@ -1055,12 +1128,14 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	}
 
 	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data)
+	public void onActivityResult(int requestCode, int resultCode, final Intent data)
 	{
 		if (resultCode == Activity.RESULT_CANCELED)
 		{
 			return;
 		}
+
+		final String genus = data.getStringExtra(HikeConstants.Extras.GENUS);
 
 		switch (requestCode)
 		{
@@ -1070,7 +1145,13 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				@Override
 				public void imageParsed(String imagePath)
 				{
-					startActivity(IntentFactory.getPostStatusUpdateIntent(getActivity(), imagePath));
+					Intent newSUIntent = IntentFactory.getPostStatusUpdateIntent(getActivity(), null, imagePath, false);
+					Utils.setSpecies(HomeAnalyticsConstants.SU_SPECIES_TIMELINE_PHOTO_BUTTON, newSUIntent);
+					if(!TextUtils.isEmpty(genus))
+					{
+						Utils.setGenus(genus, newSUIntent);
+					}
+					startActivity(newSUIntent);
 				}
 
 				@Override
@@ -1111,5 +1192,36 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			}
 		}
 	}
+
+	private void recordNewPhotoClick()
+	{
+		recordTimelineButtonClick("tl_photo");
+	}
+
+	private void recordNewStatusClick()
+	{
+		recordTimelineButtonClick("tl_status");
+	}
+
+	private void recordTimelineButtonClick(String whichItem)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, HomeAnalyticsConstants.TIMELINE_UK);
+			json.put(AnalyticsConstants.V2.KINGDOM, HomeAnalyticsConstants.HOMESCREEN_KINGDOM);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, whichItem);
+
+			HAManager.getInstance().recordV2(json);
+		}
+
+		catch (JSONException e)
+		{
+			e.toString();
+		}
+	}
+
 
 }

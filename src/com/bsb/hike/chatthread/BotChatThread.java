@@ -1,5 +1,6 @@
 package com.bsb.hike.chatthread;
 
+import android.content.Intent;
 import android.support.v4.view.MenuItemCompat;
 import android.util.Pair;
 import android.view.Menu;
@@ -22,6 +23,7 @@ import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.view.CustomFontButton;
 
@@ -66,11 +68,11 @@ public class BotChatThread extends OneToOneChatThread
 		super.initView();
 		if (!configuration.isInputEnabled())
 		{
-			activity.findViewById(R.id.compose_container).setVisibility(View.GONE);
+			activity.findViewById(R.id.bottom_panel).setVisibility(View.GONE);
 		}
 		else
 		{
-			activity.findViewById(R.id.compose_container).setVisibility(View.VISIBLE);
+			activity.findViewById(R.id.bottom_panel).setVisibility(View.VISIBLE);
 
 		}
 	}
@@ -94,34 +96,47 @@ public class BotChatThread extends OneToOneChatThread
 	public void onPause()
 	{
 		super.onPause();
+        HAManager.getInstance().endChatSession(msisdn);
 	}
 	
 	@Override
 	public void onResume()
 	{
 		super.onResume();
+        HAManager.getInstance().startChatSession(msisdn);
 	}
 	
 	@Override
 	protected void onStart()
 	{
-		HAManager.getInstance().startChatSession(msisdn);
 		super.onStart();
 	}
 	
 	@Override
 	protected void onStop()
 	{
-		HAManager.getInstance().endChatSession(msisdn);
 		super.onStop();
 	}
-	
-	@Override
+
+    @Override
+    public void onDestroy()
+    {
+        super.onDestroy();
+		if(activity.getIntent() != null && activity.getIntent().hasExtra(AnalyticsConstants.BOT_NOTIF_TRACKER))
+        HAManager.getInstance().recordIndividualChatSession(msisdn,activity.getIntent().getStringExtra(AnalyticsConstants.BOT_NOTIF_TRACKER));
+    }
+
+    @Override
 	protected void fetchConversationFinished(Conversation conversation)
 	{
 		super.fetchConversationFinished(conversation);
 		toggleConversationMuteViewVisibility(mConversation.isMuted());
 		checkAndRecordNotificationAnalytics();
+	}
+
+	@Override
+	protected boolean shouldShowKeyboardOffBoardingUI() {
+		return configuration.isKptExitUIEnabled() && super.shouldShowKeyboardOffBoardingUI();
 	}
 
 	@Override
@@ -219,12 +234,6 @@ public class BotChatThread extends OneToOneChatThread
 		return true;
 	}
 
-	@Override
-	protected boolean showOverflowMenuKeyboardTipIfRequired()
-	{
-		return true;
-	}
-
 	/**
 	 * Returns a list of over flow menu items to be displayed
 	 *
@@ -271,12 +280,9 @@ public class BotChatThread extends OneToOneChatThread
 			list.add(new OverFlowMenuItem(getString(R.string.email_chat), 0, 0, R.string.email_chat));
 		}
 		
-		if (configuration.isHikeKeyboardInOverflowMenuEnabled())
+		if (configuration.isHelpInOverflowMenuEnabled() && BotUtils.isBot(HikePlatformConstants.CUSTOMER_SUPPORT_BOT_MSISDN))
 		{
-			if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CHANGE_KEYBOARD_CHAT_ENABLED, true) && HikeMessengerApp.isCustomKeyboardUsable())
-			{
-				list.add(new OverFlowMenuItem(getString(isSystemKeyboard()?R.string.hike_keyboard:R.string.system_keyboard), 0, 0, R.string.hike_keyboard));
-			}
+			list.add(new OverFlowMenuItem(getString(R.string.help), 0, 0, R.string.help));
 		}
 		
 		return list;
@@ -296,6 +302,9 @@ public class BotChatThread extends OneToOneChatThread
 		case R.string.view_profile:
 			BotConversation.analyticsForBots(msisdn, HikePlatformConstants.BOT_VIEW_PROFILE, HikePlatformConstants.OVERFLOW_MENU, AnalyticsConstants.CLICK_EVENT, null);
 			break;
+		case R.string.help:
+			onHelpClicked();
+			break;
 		default:
 			break;
 		}
@@ -311,6 +320,24 @@ public class BotChatThread extends OneToOneChatThread
 
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, new Pair<String, Boolean>(mConversation.getMsisdn(), mConversation.isMuted()));
 
+	}
+	
+	private void onHelpClicked()
+	{
+		Intent intent =IntentFactory.getNonMessagingBotIntent(HikePlatformConstants.CUSTOMER_SUPPORT_BOT_MSISDN,activity.getApplicationContext());
+		JSONObject jsonObject = new JSONObject();
+		try
+		{
+			jsonObject.put(HikePlatformConstants.MSISDN, msisdn);
+
+		}
+		catch (JSONException e)
+		{
+			Logger.d(TAG, "Error on Help Click");
+		}
+		intent.putExtra(HikePlatformConstants.EXTRA_DATA,jsonObject.toString());
+		activity.startActivity(intent);
+		
 	}
 
 	@Override
@@ -463,5 +490,31 @@ public class BotChatThread extends OneToOneChatThread
 	public void scheduleH20Tip()
 	{
 		return;
+	}
+
+	/**
+	 * Returning here, since we do not want any of friends shizzle in BotChats
+	 */
+	@Override
+	protected void doSetupForAddFriend()
+	{
+		return;
+	}
+
+	/**
+	 * Returning false here, since we do not want any of friends shizzle in BotChats
+	 *
+	 * @return
+	 */
+	@Override
+	protected boolean isNotMyOneWayFriend()
+	{
+		return false;
+	}
+
+	@Override
+	protected void addFavoriteTypeTypeFromContactInfo(JSONObject json)
+	{
+		return; //Do nothing
 	}
 }

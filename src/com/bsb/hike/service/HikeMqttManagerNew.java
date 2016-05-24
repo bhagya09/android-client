@@ -335,12 +335,12 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 	{
 		
 		// If user is not signed up. Do not initialize MQTT
-		if (!Utils.isUserSignedUp(HikeMessengerApp.getInstance(), false))
+		if (!Utils.shouldConnectToMQTT())
 		{
-			Logger.wtf(TAG, "User not signed up. Not starting mqtt service");
+			Logger.wtf(TAG, "Not connecting to MQ because user is not signed up or db went kaput!");
 			return false;
 		}
-		
+
 		if(initialised.get())
 		{
 			Logger.d(TAG, "Already initialised , return now..");
@@ -639,7 +639,8 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			if (mqtt == null)
 			{
 				// Here I am using my modified MQTT PAHO library
-				mqtt = new MqttAsyncClient(hostInfo.getServerUri(), clientId + ":" + pushConnect + ":" + fastReconnect + ":" + Utils.getNetworkType(context), null,
+				Logger.d("HikeMqttManagerNew"+hostInfo.getServerUri(), clientId + ":" + pushConnect + ":" + fastReconnect + ":" + Utils.getNetworkType(context)+":"+hostInfo.getPort());
+				mqtt = new MqttAsyncClient(hostInfo.getServerUri(), clientId + ":" + pushConnect + ":" + fastReconnect + ":" + Utils.getNetworkType(context)+":"+hostInfo.getPort(), null,
 						MAX_INFLIGHT_MESSAGES_ALLOWED);
 				mqtt.setCallback(getMqttCallback());
 				Logger.d(TAG, "Number of max inflight msgs allowed : " + mqtt.getMaxflightMessages());
@@ -653,7 +654,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			{
 				acquireWakeLock(hostInfo.getConnectTimeOut());
 				Logger.d(TAG, "Connect using pushconnect : " + pushConnect + "  fast reconnect : " + fastReconnect + " connection time out = "+hostInfo.getConnectTimeOut());
-				mqtt.setClientId(clientId + ":" + pushConnect + ":" + fastReconnect);
+				mqtt.setClientId(clientId + ":" + pushConnect + ":" + fastReconnect + ":" + Utils.getNetworkType(context)+":"+hostInfo.getPort());
 				mqtt.setServerURI(hostInfo.getServerUri());
 				
 				//Setting some connection options which we need to reset on every connect
@@ -712,7 +713,10 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 
 		try
 		{
-			ipArray = new JSONArray(ipString);
+			if(ipString!=null && !ipString.isEmpty())
+			{
+				ipArray = new JSONArray(ipString);
+			}
 		}
 		catch (JSONException e)
 		{
@@ -1530,6 +1534,14 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 		else if (intent.getAction().equals(MQTT_CONNECTION_CHECK_ACTION))
 		{
 			Logger.d(TAG, "Connection check happened from GCM, client already connected ? : " + isConnected());
+
+			// Using this to disconnect from MQ
+			if (intent.hasExtra("destroy"))
+			{
+				destroyMqtt();
+				return;
+			}
+
 			boolean reconnect = intent.getBooleanExtra("reconnect", false);
 			if (reconnect)
 			{

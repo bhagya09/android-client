@@ -1,39 +1,11 @@
 package com.bsb.hike.ui;
 
-import java.io.File;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.BitmapUtils;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.analytics.HAManager.EventPriority;
-import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.modules.kpt.HikeAdaptxtEditTextEventListner;
-import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
-import com.bsb.hike.modules.kpt.KptUtils;
-import com.bsb.hike.productpopup.ProductPopupsConstants;
-import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.IntentFactory;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.Utils;
-import com.bsb.hike.view.CustomFontEditText;
-import com.kpt.adaptxt.beta.KPTAddonItem;
-import com.kpt.adaptxt.beta.RemoveDialogData;
-import com.kpt.adaptxt.beta.util.KPTConstants;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
-
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
@@ -42,22 +14,39 @@ import android.text.Html;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseActivity implements AdaptxtKeyboordVisibilityStatusListner, View.OnClickListener
+import com.bsb.hike.BitmapModule.BitmapUtils;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.ChatAnalyticConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.productpopup.ProductPopupsConstants;
+import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
+import com.bsb.hike.view.CustomFontEditText;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+
+public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseActivity
 {
-	private HikeCustomKeyboard mCustomKeyboard;
-	
-	private boolean systemKeyboard;
-	
 	private SharedPreferences preferences;
 
 	private String convId;
@@ -75,8 +64,12 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 	private TextView postText;
 
 	private Bitmap groupBitmap;
-	
+
+	private int defAvBgColor;
+
 	private TextView groupNote;
+
+	private boolean convImageSet = false;
 	
 	/**
 	 * @author anubansal
@@ -106,13 +99,7 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 		setupActionBar();
 
 		preferences = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE);
-		systemKeyboard = HikeMessengerApp.isSystemKeyboard();
 
-		if (!systemKeyboard)
-		{
-			initCustomKeyboard();
-		}
-		
 		if (savedInstanceState != null)
 		{
 			setConversationId(savedInstanceState.getString(HikeConstants.Extras.CONVERSATION_ID));
@@ -136,6 +123,10 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 			setConversationId(conversationId);
 		}
 
+		TypedArray bgColorArray = Utils.getDefaultAvatarBG();
+		int index = BitmapUtils.iconHash(getConvId()) % (bgColorArray.length());
+		defAvBgColor = bgColorArray.getColor(index, 0);
+
 		Object object = getLastCustomNonConfigurationInstance();
 		if (object != null && (object instanceof Bitmap))
 		{
@@ -146,11 +137,11 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 		{
 			if (convType == ConvType.BROADCAST)
 			{
-				findViewById(R.id.broadcast_bg).setBackgroundResource(BitmapUtils.getDefaultAvatarResourceId(convId, true));
+				((ImageView) findViewById(R.id.broadcast_profile_image)).setImageDrawable(HikeBitmapFactory.getRandomHashTextDrawable(defAvBgColor));
 			}
 			else if (convType == ConvType.GROUP)
 			{
-				convImage.setBackgroundResource(BitmapUtils.getDefaultAvatarResourceId(convId, true));
+				convImage.setImageDrawable(HikeBitmapFactory.getRandomHashTextDrawable(defAvBgColor));
 			}
 		}
 		
@@ -160,23 +151,6 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 		}
 	}
 
-	private void initCustomKeyboard()
-	{
-		LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
-		mCustomKeyboard = new HikeCustomKeyboard(this, viewHolder,
-				KPTConstants.MULTILINE_LINE_EDITOR, kptEditTextEventListener,CreateNewGroupOrBroadcastActivity.this);
-		mCustomKeyboard.registerEditText((convType == ConvType.GROUP) ? R.id.group_name : R.id.broadcast_name);
-		mCustomKeyboard.init(convName);
-		convName.setOnClickListener(this);
-	}
-	HikeAdaptxtEditTextEventListner kptEditTextEventListener = new HikeAdaptxtEditTextEventListner()
-	{
-		@Override
-		public void onReturnAction(int i, AdaptxtEditText adaptxtEditText)
-		{
-			mCustomKeyboard.showCustomKeyboard(convName, false);
-		}
-	};
 	/**
 	 * This method sets the OneToNConversation type to be handled
 	 */
@@ -189,7 +163,6 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 	protected void onResume()
 	{
 		super.onResume();
-		KptUtils.resumeKeyboard(mCustomKeyboard);
 	}
 	
 	private void createView() {
@@ -197,7 +170,6 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 		if (convType == ConvType.BROADCAST)
 		{
 			setContentView(R.layout.create_new_broadcast);
-
 			convImage = (ImageView) findViewById(R.id.broadcast_profile_image);
 			convName = (CustomFontEditText) findViewById(R.id.broadcast_name);
 			myMsisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, "");
@@ -219,9 +191,26 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 				}
 
 				@Override
-				public void afterTextChanged(Editable editable)
+				public void afterTextChanged(Editable s)
 				{
 					Utils.toggleActionBarElementsEnable(doneBtn, arrow, postText, true);
+
+					if (s == null || groupBitmap != null)
+					{
+						return;
+					}
+
+					String newText = s.toString();
+
+					if (newText == null || TextUtils.isEmpty(newText.trim()))
+					{
+						Drawable drawable = HikeBitmapFactory.getRandomHashTextDrawable(defAvBgColor);
+						convImage.setImageDrawable(drawable);
+						return;
+					}
+
+					Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(newText, -1, defAvBgColor, true);
+					convImage.setImageDrawable(drawable);
 				}
 			});
 		}
@@ -232,8 +221,7 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 
 			convImage = (ImageView) findViewById(R.id.group_profile_image);
 			convName = (CustomFontEditText) findViewById(R.id.group_name);
-			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-			groupNote = (TextView) findViewById(R.id.group_info);		
+			groupNote = (TextView) findViewById(R.id.group_info);
 			groupNote.setText(Html.fromHtml(getString(R.string.group_participant_info)));
 			editImageIcon = (ImageView) findViewById(R.id.change_image);
 			gsSettings = (CheckBox) findViewById(R.id.checkBox);
@@ -256,9 +244,26 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 				}
 
 				@Override
-				public void afterTextChanged(Editable editable)
+				public void afterTextChanged(Editable s)
 				{
-					Utils.toggleActionBarElementsEnable(doneBtn, arrow, postText, !TextUtils.isEmpty(editable.toString().trim()));
+					Utils.toggleActionBarElementsEnable(doneBtn, arrow, postText, !TextUtils.isEmpty(s.toString().trim()));
+
+					if (s == null || groupBitmap != null)
+					{
+						return;
+					}
+
+					String newText = s.toString();
+
+					if (newText == null || TextUtils.isEmpty(newText.trim()))
+					{
+						Drawable drawable = HikeBitmapFactory.getRandomHashTextDrawable(defAvBgColor);
+						convImage.setImageDrawable(drawable);
+						return;
+					}
+
+					Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(newText, -1, defAvBgColor, true);
+					convImage.setImageDrawable(drawable);
 				}
 			});
 			
@@ -280,12 +285,6 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 	@Override
 	public void onBackPressed()
 	{
-		if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
-		{
-			mCustomKeyboard.showCustomKeyboard(convName, false);
-			return;
-		}
-		
 		/**
 		 * Deleting the temporary file, if it exists.
 		 */
@@ -383,6 +382,8 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 				else
 				{
 					addMembersViaHike();
+					HikeAnalyticsEvent.recordAnalyticsForGCFlow(ChatAnalyticConstants.GCEvents.GC_CLICK_NEXT, getGroupName(), convImageSet?1:0, getGSSettings(), -1, null);
+
 				}
 				break;
 		}
@@ -425,6 +426,8 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
             editImageIcon.setImageResource(R.drawable.ic_edit_group);
         }
 
+		convImageSet = true;
+
         /*
          * Saving the icon in the DB.
          */
@@ -460,79 +463,17 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 	}
 
 	@Override
-	public void analyticalData(KPTAddonItem kptAddonItem)
-	{
-		KptUtils.generateKeyboardAnalytics(kptAddonItem);
-	}
-
-	@Override
-	public void onInputViewCreated()
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onInputviewVisbility(boolean arg0, int arg1)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void showGlobeKeyView()
-	{
-		KptUtils.onGlobeKeyPressed(CreateNewGroupOrBroadcastActivity.this, mCustomKeyboard);
-	}
-
-	@Override
-	public void showQuickSettingView()
-	{
-		KptUtils.onGlobeKeyPressed(CreateNewGroupOrBroadcastActivity.this, mCustomKeyboard);
-	}
-
-	@Override
 	protected void onPause()
 	{
-		KptUtils.pauseKeyboardResources(mCustomKeyboard);
-		
 		super.onPause();
 	}
 	
 	@Override
 	protected void onDestroy()
 	{
-		KptUtils.destroyKeyboardResources(mCustomKeyboard, R.id.group_name, R.id.broadcast_name);
-
 		super.onDestroy();
 	}
 
-	@Override
-	public void onClick(View v)
-	{
-		switch (v.getId())
-		{
-		case R.id.group_name:
-		case R.id.broadcast_name:
-			mCustomKeyboard.showCustomKeyboard(convName, true);
-			break;
-		default:
-			break;
-		}
-	}
-
-	@Override
-	public void dismissRemoveDialog() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void showRemoveDialog(RemoveDialogData arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-	
 	public String getGroupName()
 	{
 		return convName.getText().toString();
@@ -553,6 +494,13 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 	{
 		Intent intentGroup = IntentFactory.openComposeChatIntentForGroup(this, convId, convName.getText().toString().trim(), getGSSettings());
 		startActivity(intentGroup);
+	}
+
+	@Override
+	protected String getSourceSpecies()
+	{
+		// Not doing it for Group/Broadcast pic changes
+		return null;
 	}
 
 }

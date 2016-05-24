@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/recommended_packs"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="9dp"
+        android:background="@color/home_screen_list_divider" />
+
+    <com.bsb.hike.view.CustomFontTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="@string/recommended_packs"
+        android:textAllCaps="true"
+        android:textColor="#181f30"
+        android:textSize="12sp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"/>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rvRecommendedPacksGrid"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:layout_marginTop="18dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
+
+    </android.support.v7.widget.RecyclerView>
+
+
+</LinearLayout>

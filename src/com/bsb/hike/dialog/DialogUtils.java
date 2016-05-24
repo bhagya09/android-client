@@ -16,6 +16,7 @@ import com.bsb.hike.HikeConstants.ImageQuality;
 import com.bsb.hike.HikeConstants.SMSSyncState;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.adapters.ComposeChatAdapter;
 import com.bsb.hike.dialog.CustomAlertRadioButtonDialog.RadioButtonPojo;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -27,12 +28,49 @@ public class DialogUtils
 
 	public static String getForwardConfirmationText(Context context, ArrayList<ContactInfo> arrayList, boolean forwarding)
 	{
+
+		boolean hasTimeline = false;
+		String otherContactName = "";
+
+		for(ContactInfo contactInfo:arrayList)
+		{
+			if(contactInfo!=null && contactInfo.getPhoneNum()!=null && contactInfo.getPhoneNum().equals(ComposeChatAdapter.HIKE_FEATURES_TIMELINE_ID))
+			{
+				hasTimeline = true;
+			}
+			else
+			{
+				otherContactName = contactInfo.getFirstName();
+			}
+		}
+
 		// multi forward case
 		if (forwarding)
 		{
-			return arrayList.size() == 1 ? context.getResources().getString(R.string.forward_to_singular) : context.getResources().getString(R.string.forward_to_plural,
-					arrayList.size());
+			if(hasTimeline)
+			{
+				if(arrayList.size() == 1)
+				{
+					return context.getString(R.string.share_on_timeline);
+				}
+				
+				return arrayList.size() == 2 ? context.getString(R.string.forward_to_single_timeline, otherContactName) : context.getString(R.string.forward_to_plural_timeline,
+						arrayList.size() - 1);
+			}
+			return arrayList.size() == 1 ? context.getResources().getString(R.string.forward_to_singular, otherContactName) : context.getResources().getString(R.string.forward_to_plural, arrayList.size());
 		}
+
+		if (hasTimeline)
+		{
+			if(arrayList.size() == 1)
+			{
+				return context.getString(R.string.share_on_timeline);
+			}
+
+			return arrayList.size() == 2 ? context.getString(R.string.share_with_contact_timeline, otherContactName) : context.getString(R.string.share_with_timeline,
+					arrayList.size() - 1);
+		}
+
 		StringBuilder sb = new StringBuilder();
 
 		int lastIndex = arrayList.size() - 1;
@@ -87,14 +125,7 @@ public class DialogUtils
 	
 	public static void executeSMSSyncStateResultTask(AsyncTask<Void, Void, SMSSyncState> asyncTask)
 	{
-		if (Utils.isHoneycombOrHigher())
-		{
-			asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-		}
-		else
-		{
-			asyncTask.execute();
-		}
+		asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 
 	public static void sendSMSSyncLogEvent(boolean syncing)

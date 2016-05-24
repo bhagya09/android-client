@@ -1,7 +1,9 @@
 package com.bsb.hike.platform;
 
 import java.lang.ref.WeakReference;
+import java.util.Iterator;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -19,11 +21,14 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.MqttConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.AppState;
 import com.bsb.hike.models.EventData;
+import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.LogAnalyticsEvent;
 import com.bsb.hike.models.NormalEvent;
+import com.bsb.hike.models.NotifData;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.utils.CustomAnnotation.DoNotObfuscate;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -53,6 +58,10 @@ public class NativeBridge
 	protected static final String SEND_SHARED_MESSAGE = "SEND_SHARED_MESSAGE";
 
 	protected static final String ON_EVENT_RECEIVE = "ON_EVENT_RECEIVE";
+
+	protected static final String SHARED_NOTIF_CACHE = "SHARED_NOTIF_CACHE";
+
+	protected boolean openViaNotif;
 
 	private static Handler mHandler;
 
@@ -111,10 +120,12 @@ public class NativeBridge
 	{
 		if (mThread == null)
 			return;
-		mThread.postRunnable(new Runnable() {
+		mThread.postRunnable(new Runnable()
+		{
 
 			@Override
-			public void run() {
+			public void run()
+			{
 				activity.platformCallback(functionId, mBotInfo.getHelperData());
 			}
 		});
@@ -169,9 +180,11 @@ public class NativeBridge
 			{
 				final String cache = helper.getFromCache(key, mBotInfo.getNamespace());
 
-				activity.runOnGLThread(new Runnable() {
+				activity.runOnGLThread(new Runnable()
+				{
 					@Override
-					public void run() {
+					public void run()
+					{
 						activity.platformCallback(id, cache);
 					}
 				});
@@ -312,9 +325,11 @@ public class NativeBridge
 			public void run()
 			{
 				final String returnedData = helper.getAllEventsForMessageHash(messageHash, mBotInfo.getNamespace());
-				activity.runOnGLThread(new Runnable() {
+				activity.runOnGLThread(new Runnable()
+				{
 					@Override
-					public void run() {
+					public void run()
+					{
 						activity.platformCallback(functionId, returnedData);
 					}
 				});
@@ -397,9 +412,11 @@ public class NativeBridge
 	public void showPopup(final String contentData)
 	{
 		Handler handler = new Handler(HikeMessengerApp.getInstance().getApplicationContext().getMainLooper());
-		handler.post(new Runnable() {
+		handler.post(new Runnable()
+		{
 			@Override
-			public void run() {
+			public void run()
+			{
 				PlatformHelper.showPopup(contentData, weakActivity.get());
 			}
 		});
@@ -414,9 +431,11 @@ public class NativeBridge
 	@JavascriptInterface
 	public void getBotVersion(final String id)
 	{
-		activity.runOnGLThread(new Runnable() {
+		activity.runOnGLThread(new Runnable()
+		{
 			@Override
-			public void run() {
+			public void run()
+			{
 				activity.platformCallback(id, String.valueOf(mBotInfo.getVersion()));
 			}
 		});
@@ -465,11 +484,13 @@ public class NativeBridge
 	 */
 	public void deleteEvent(final String eventId)
 	{
-		mThread.postRunnable(new Runnable() {
+		mThread.postRunnable(new Runnable()
+		{
 
 			@Override
-			public void run() {
-				EventData eventData = new EventData(true,eventId);
+			public void run()
+			{
+				EventData eventData = new EventData(true, eventId);
 				Intent hikeProcessIntentService = new Intent(activity, HikeProcessIntentService.class);
 				hikeProcessIntentService.putExtra(HikeProcessIntentService.EVENT_DELETE, eventData);
 				activity.startService(hikeProcessIntentService);
@@ -491,7 +512,7 @@ public class NativeBridge
 			@Override
 			public void run()
 			{
-				EventData eventData = new EventData(false,messageHash);
+				EventData eventData = new EventData(false, messageHash);
 				Intent hikeProcessIntentService = new Intent(activity, HikeProcessIntentService.class);
 				hikeProcessIntentService.putExtra(HikeProcessIntentService.EVENT_DELETE, eventData);
 				activity.startService(hikeProcessIntentService);
@@ -529,9 +550,11 @@ public class NativeBridge
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				activity.runOnGLThread(new Runnable() {
+				activity.runOnGLThread(new Runnable()
+				{
 					@Override
-					public void run() {
+					public void run()
+					{
 						activity.platformCallback(id, result.toString());
 					}
 				});
@@ -555,7 +578,7 @@ public class NativeBridge
 			{
 				if (weakActivity != null)
 				{
-					Utils.createShortcut(weakActivity.get(), mBotInfo);
+					Utils.createShortcut(weakActivity.get(), mBotInfo, true);
 				}
 			}
 		});
@@ -616,22 +639,24 @@ public class NativeBridge
 	 */
 	public void platformCallback(final String callID, final String response)
 	{
-		activity.runOnGLThread(new Runnable() {
+		activity.runOnGLThread(new Runnable()
+		{
 			@Override
-			public void run() {
+			public void run()
+			{
 				activity.platformCallback(callID, response);
 			}
 		});
 	}
-	
+
 	/**
-	 * Returns status of connectivity, on the same thread. No need of handler/GlThread explicit invocation.  
+	 * Returns status of connectivity, on the same thread. No need of handler/GlThread explicit invocation.
 	 * 
 	 * @return
 	 */
 	public boolean isNetworkConnected()
 	{
-	  return Utils.getNetInfoFromConnectivityManager().second;
+		return Utils.getNetInfoFromConnectivityManager().second;
 	}
 
 	/**
@@ -644,7 +669,7 @@ public class NativeBridge
 		platformCallback(ON_EVENT_RECEIVE, eventData);
 	}
 
-	public void sendAppState( boolean isForeGround)
+	public void sendAppState(boolean isForeGround)
 	{
 		JSONObject object = new JSONObject();
 
@@ -687,9 +712,11 @@ public class NativeBridge
 			return;
 		}
 		Log.d("cocos2d-x", data);
-		mThread.postRunnable(new Runnable() {
+		mThread.postRunnable(new Runnable()
+		{
 			@Override
-			public void run() {
+			public void run()
+			{
 				PlatformUtils.openActivity(weakActivity.get(), data);
 			}
 		});
@@ -698,7 +725,8 @@ public class NativeBridge
 	/**
 	 * show Toast msg
 	 *
-	 * @param data: message to be displayed
+	 * @param data
+	 *            : message to be displayed
 	 */
 	public void showToast(String data, String duration)
 	{
@@ -720,6 +748,203 @@ public class NativeBridge
 				Toast.makeText(application, message, length).show();
 			}
 		});
+	}
+
+	/**
+	 * Call this method to open the gallery view to select a file.
+	 * 
+	 * @param id
+	 * @param displayCameraItem
+	 *            : Whether or not to display the camera item in the gallery view.
+	 */
+
+	public void chooseFile(String id, String displayCameraItem)
+	{
+		PlatformHelper.chooseFile(id, displayCameraItem, weakActivity.get());
+	}
+
+	/**
+	 * Call tis method to set alarm.
+	 *
+	 * @param jsonString
+	 *            {"notification_sound":true,"increase_unread":true,"alarm_data":{},"notification":"test notif","rearrange_chat":true}
+	 * @param timeInMills
+	 * @param persistent
+	 */
+	public void setAlarm(final String jsonString, final float timeInMills, final boolean persistent)
+	{
+		try
+		{
+			if (weakActivity == null)
+			{
+				return;
+			}
+			final Activity mContext = weakActivity.get();
+			if (TextUtils.isEmpty(msisdn) || mContext == null)
+			{
+				return;
+			}
+
+			final JSONObject json = new JSONObject(jsonString);
+			JSONObject cacheJson = json;
+			cacheJson.put("createdTime", System.currentTimeMillis());
+			cacheJson.put("timeInMillis", timeInMills);
+
+			String cacheJsonString = helper.getFromCache(SHARED_NOTIF_CACHE, mBotInfo.getNamespace());
+			JSONArray cacheJsonArray = new JSONArray();
+			if (cacheJsonString != null && cacheJsonString.length() > 0)
+			{
+				cacheJsonArray = new JSONArray(cacheJsonString);
+			}
+			cacheJsonArray.put(cacheJson);
+			helper.putInCache(SHARED_NOTIF_CACHE, cacheJsonArray.toString(), mBotInfo.getNamespace());
+
+			mThread.postRunnable(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+
+					NonMessagingBotAlarmManager.setAlarm(mContext, json, msisdn, (long) timeInMills, persistent);
+				}
+			});
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * call this function to get the notif data pertaining to the microApp. This function will be called from the GLThread, no need to explicitly return on GLThread.
+	 */
+	public String getNotifData()
+	{
+		if(msisdn == null)
+			return "";
+		BotInfo botinfo = HikeConversationsDatabase.getInstance().getBotInfoForMsisdn(msisdn);
+		try
+		{
+			if (botinfo == null)
+			{
+				return "";
+			}
+			String value = botinfo.getNotifData();
+			if (value != null && value.length() > 0)
+			{
+				JSONObject notifJson = new JSONObject(value);
+				Iterator keysToCopyIterator = notifJson.keys();
+				JSONArray notifArray = new JSONArray();
+				while (keysToCopyIterator.hasNext())
+				{
+					String key = (String) keysToCopyIterator.next();
+					notifArray.put(notifJson.get(key));
+				}
+				value = notifArray.toString();
+			}
+			else
+			{
+				value = "";
+			}
+			final String notifData = value;
+			deleteAllNotifData();
+			return notifData;
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		deleteAllNotifData();
+		return "";
+	}
+
+	/**
+	 * call this function to get the notif data ,pertaining to the microApp, which opened the microapp on clicking the notification. This function will be called from the GLThread,
+	 * no need to explicitly return on GLThread.
+	 */
+	public String getCurrentNotifData()
+	{
+		if (openViaNotif)
+		{
+			try
+			{
+				if (mBotInfo == null)
+				{
+					return "";
+				}
+				String value = mBotInfo.getNotifData();
+				if (value != null && value.length() > 0)
+				{
+					JSONObject notifJson = new JSONObject(value);
+					Iterator keysToCopyIterator = notifJson.keys();
+					JSONArray notifArray = new JSONArray();
+					while (keysToCopyIterator.hasNext())
+					{
+						String key = (String) keysToCopyIterator.next();
+						notifArray.put(notifJson.get(key));
+					}
+					value = notifArray.getJSONObject(notifArray.length() - 1).toString();
+				}
+				else
+				{
+					value = "";
+				}
+				final String notifData = value;
+				return notifData;
+			}
+			catch (JSONException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		return "";
+	}
+
+	/**
+	 * call this function to delete the entire notif data of the microApp.
+	 */
+	public void deleteAllNotifData()
+	{
+		if (msisdn == null)
+		{
+			return;
+		}
+		helper.putInCache(SHARED_NOTIF_CACHE, "", mBotInfo.getNamespace());
+		Intent hikeProcessIntentService = new Intent(activity, HikeProcessIntentService.class);
+		hikeProcessIntentService.putExtra(HikeProcessIntentService.NOTIF_DATA_DELETE, msisdn);
+		activity.startService(hikeProcessIntentService);
+	}
+
+	/**
+	 * Call this function to delete partial notif data pertaining to a microApp. The key is the timestamp provided by Native
+	 * 
+	 * @param key
+	 *            : the key of the saved data. Will remain unique for a unique microApp.
+	 */
+	public void deletePartialNotifData(String key)
+	{
+		if (key == null || TextUtils.isEmpty(msisdn))
+		{
+			return;
+		}
+		NotifData notifData = new NotifData(key, msisdn);
+		Intent hikeProcessIntentService = new Intent(activity, HikeProcessIntentService.class);
+		hikeProcessIntentService.putExtra(HikeProcessIntentService.NOTIF_DATA_PARTIAL_DELETE, notifData);
+		activity.startService(hikeProcessIntentService);
+	}
+
+	/**
+	 * Call this function to cancel the alarm data associtated with a particular alarm data
+	 * 
+	 * @param alarmData
+	 */
+	public void cancelAlarm(String alarmData)
+	{
+		if (weakActivity == null || TextUtils.isEmpty(msisdn) || alarmData == null)
+		{
+			return;
+		}
+		HikeAlarmManager.cancelAlarm(weakActivity.get(), msisdn.hashCode() + alarmData.hashCode());
 	}
 
 }

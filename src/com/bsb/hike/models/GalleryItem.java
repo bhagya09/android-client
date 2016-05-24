@@ -20,7 +20,7 @@ public class GalleryItem implements Parcelable
 	
 	public static final long CAMERA_TILE_ID = -11L;
 	
-	private static final String CUSTOM_TILE_NAME = "Custom_Item";
+	public static final String CUSTOM_TILE_NAME = "Custom_Item";
 
 	private long id;
 

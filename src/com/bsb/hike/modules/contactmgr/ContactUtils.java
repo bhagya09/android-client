@@ -10,9 +10,16 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
+import android.content.Intent;
+
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.service.HikeService;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 public class ContactUtils
 {
@@ -151,6 +158,19 @@ public class ContactUtils
 		else
 		{
 			return ((msb & 1) != 0 ? rand : (rand + 10));
+		}
+	}
+
+	public static void triggerSyncContacts(Context mContext)
+	{
+		if(!HikeMessengerApp.syncingContacts)
+		{
+			if(Utils.isUserOnline(mContext))
+			{
+				Intent contactSyncIntent = new Intent(HikeService.MQTT_CONTACT_SYNC_ACTION);
+				contactSyncIntent.putExtra(HikeConstants.Extras.MANUAL_SYNC, true);
+				mContext.sendBroadcast(contactSyncIntent);
+			}
 		}
 	}
 }

@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -47,6 +48,7 @@ import com.bsb.hike.ui.fragments.PhotoActionsFragment;
 import com.bsb.hike.ui.fragments.PhotoActionsFragment.ActionListener;
 import com.bsb.hike.ui.fragments.PreviewFragment;
 import com.bsb.hike.ui.fragments.ProfilePicFragment;
+import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.IntentFactory;
@@ -106,7 +108,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 
 		super.onCreate(savedInstanceState);
 
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+//		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
 		setContentView(R.layout.fragment_picture_editer);
 		
@@ -214,6 +216,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			startedForProfileUpdate = intent.getBooleanExtra(HikeConstants.HikePhotos.ONLY_PROFILE_UPDATE, false);
 		}
 
+		StatusBarColorChanger.setStatusBarColor(getWindow(), Color.BLACK);
 		setupActionBar();
 
 		// We need to create a single destination copy
@@ -430,13 +433,11 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 
 	private void uploadProfilePic(final String croppedImageFile, final String originalImageFile)
 	{
-//		Utils.copyFile(croppedImageFile, TestBmp.getFilename());
-//		TestBmp.compressImage(croppedImageFile,croppedImageFile,800f,800f);
 		editView.setVisibility(View.VISIBLE);
 		ProfilePicFragment profilePicFragment = new ProfilePicFragment();
 		Bundle b = new Bundle();
 		b.putString(HikeConstants.HikePhotos.FILENAME, croppedImageFile);
-		b.putString(HikeConstants.HikePhotos.ORIG_FILE, originalImageFile);
+		b.putString(HikeConstants.HikePhotos.ORIG_FILE, croppedImageFile);
 		profilePicFragment.setArguments(b);
 		getSupportFragmentManager().beginTransaction().replace(R.id.overlayFrame, profilePicFragment).addToBackStack(null).commit();
 	}
@@ -645,7 +646,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 
 									if (f.exists())
 									{
-										startActivity(IntentFactory.getPostStatusUpdateIntent(PictureEditer.this, f.getAbsolutePath()));
+										startActivity(IntentFactory.getPostStatusUpdateIntent(PictureEditer.this,null, f.getAbsolutePath(),false));
 									}
 									else
 									{
@@ -699,7 +700,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 					setTempProfileImageName(f.getAbsolutePath());
 
 					CropCompression compression = new CropCompression().maxWidth(640).maxHeight(640).quality(80);
-					Intent cropIntent = IntentFactory.getCropActivityIntent(PictureEditer.this, f.getAbsolutePath(), f.getAbsolutePath(), compression);
+					Intent cropIntent = IntentFactory.getCropActivityIntent(PictureEditer.this, f.getAbsolutePath(), f.getAbsolutePath(), compression,false,true);
 					startActivityForResult(cropIntent, HikeConstants.CROP_RESULT);
 				}
 			});

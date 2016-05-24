@@ -13,14 +13,25 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Pair;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.DatabaseErrorHandlers.CustomDatabaseErrorHandler;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.Sticker;
+import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
+import com.bsb.hike.modules.stickersearch.StickerSearchManager;
+import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
+import com.bsb.hike.modules.stickersearch.datamodel.CategorySearchData;
+import com.bsb.hike.modules.stickersearch.datamodel.CategoryTagData;
 import com.bsb.hike.modules.stickersearch.datamodel.StickerAppositeDataContainer;
+import com.bsb.hike.modules.stickersearch.datamodel.StickerEventDataContainer;
 import com.bsb.hike.modules.stickersearch.datamodel.StickerTagDataContainer;
+import com.bsb.hike.modules.stickersearch.provider.StickerEventSearchManager;
+import com.bsb.hike.modules.stickersearch.provider.StickerEventSearchManager.Event;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
@@ -28,8 +39,24 @@ import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.ExecutionDurationLogger;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 {
@@ -62,6 +89,10 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 	private static long sInsertionTimePerSession = 0;
 
 	private static long sPTInsertionTimePerSession = 0;
+
+	private Float maxLocalFrequency = 0.0f;
+	private Float maxTrendingFrequency = 0.0f;
+	private Float maxGlobalFrequency = 0.0f;
 
 	private HikeStickerSearchDatabase(Context context)
 	{
@@ -114,6 +145,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					HikeStickerSearchBaseConstants.DEFAULT_VT_TABLE_LIST);
 
 			sHikeStickerSearchDatabase.loadTableMap();
+
+            sHikeStickerSearchDatabase.setUndownloadedTagsCount();
 		}
 	}
 
@@ -123,7 +156,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		if ((sHikeStickerSearchDatabase == null) || (sHikeStickerSearchDatabase.mDb == null) || (sHikeStickerSearchDatabase.mContext == null)
 				|| (sHikeStickerSearchDatabase.mRandom == null) || (sHikeStickerSearchDatabase.mExistingVirtualTablesList == null))
 		{
-			Logger.w(TAG, "Either database has not been initialized, initializing...");
+			Logger.w(TAG, "getInstance() : Database has not been initialized, initializing...");
 
 			init();
 		}
@@ -178,6 +211,27 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			db.execSQL(sql);
 		}
 
+		if (oldVersion < HikeStickerSearchBaseConstants.VERSION_STICKER_EVENT_ADDED)
+		{
+			String sql = "ALTER TABLE " + HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING + " ADD COLUMN " + HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_DAY_EVENTS
+					+ HikeStickerSearchBaseConstants.SYNTAX_TEXT_LAST;
+			db.execSQL(sql);
+
+			// Create unique index on fixed table: TABLE_STICKER_TAG_ENTITY for 2 columns 'Entity Type' and 'Entity Type' together (as described in onCreate())
+			sql = "CREATE UNIQUE INDEX " + HikeStickerSearchBaseConstants.ENTITY_UNIQUE_INDEX + " ON " + HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_ENTITY + "("
+					+ HikeStickerSearchBaseConstants.ENTITY_NAME + ", " + HikeStickerSearchBaseConstants.ENTITY_TYPE + ")";
+			db.execSQL(sql);
+		}
+
+        if (oldVersion < HikeStickerSearchBaseConstants.VERSION_SHOP_SEARCH_ADDED)
+        {
+            if(!Utils.isTableExists(db,HikeStickerSearchBaseConstants.TABLE_CATEGORY_TAG_MAPPING))
+            {
+                String sql = getCategoryTagMappingTableCreateQuery();
+                db.execSQL(sql);
+            }
+        }
+
 		Logger.i(TAG_UPGRADE,
 				"Time taken in db upgrade = " + Utils.getExecutionTimeLog(operationStartTime, System.currentTimeMillis(), ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND));
 	}
@@ -189,15 +243,20 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 		// Create fixed table: TABLE_STICKER_TAG_ENTITY
 		// Primary key : Integer [Compulsory]
-		// Name of Entity : String [Compulsory], eg. InitMarker, ContactNumber, GrouId, ChatStory, Region/Language, State etc.
+		// Name of Entity : String [Compulsory], eg. InitMarker, ContactNumber, GrouId, ChatStory, Region/Language, State, Event etc.
 		// Type of Entity : Integer [Compulsory], Recognize to know what kind of entity is in above examples
-		// Qualified Data : String [Optional], Data of entity, which can be directly 'imposed over'/'defined for' client user
-		// Unqualified data : String [Optional], Data of entity, which can be used relatively to determine order of probability distribution
+		// Qualified Data : String [Optional], Data of entity, which can be directly 'imposed over'/'defined for' client user as it is mostly non-dynamic data
+		// Unqualified data : String [Optional], Data of entity, which can be used relatively to determine order of probability distribution as it may change time to time
 		String sql = HikeStickerSearchBaseConstants.SYNTAX_CREATE_TABLE + HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_ENTITY
 				+ HikeStickerSearchBaseConstants.SYNTAX_BRACKET_OPEN + HikeStickerSearchBaseConstants.UNIQUE_ID + HikeStickerSearchBaseConstants.SYNTAX_PRIMARY_KEY
 				+ HikeStickerSearchBaseConstants.ENTITY_NAME + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT + HikeStickerSearchBaseConstants.ENTITY_TYPE
 				+ HikeStickerSearchBaseConstants.SYNTAX_INTEGER_NEXT + HikeStickerSearchBaseConstants.ENTITY_QUALIFIED_HISTORY + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT
 				+ HikeStickerSearchBaseConstants.ENTITY_UNQUALIFIED_HISTORY + HikeStickerSearchBaseConstants.SYNTAX_TEXT_LAST + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE;
+		db.execSQL(sql);
+
+		// Create unique index on fixed table: TABLE_STICKER_TAG_ENTITY for 2 columns 'Entity Type' and 'Entity Type' together (as described above)
+		sql = "CREATE UNIQUE INDEX " + HikeStickerSearchBaseConstants.ENTITY_UNIQUE_INDEX + " ON " + HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_ENTITY + "("
+				+ HikeStickerSearchBaseConstants.ENTITY_NAME + ", " + HikeStickerSearchBaseConstants.ENTITY_TYPE + ")";
 		db.execSQL(sql);
 
 		// Create fixed table: TABLE_STICKER_PACK_CATEGORY_HISTORY
@@ -240,10 +299,10 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				+ HikeStickerSearchBaseConstants.STICKER_STORY_THEME_ENTITIES + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT
 				+ HikeStickerSearchBaseConstants.STICKER_EXACTNESS_WITH_TAG_PRIORITY + HikeStickerSearchBaseConstants.SYNTAX_INTEGER_NEXT
 				+ HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_TIME + HikeStickerSearchBaseConstants.SYNTAX_INTEGER_NEXT
-				+ HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_FESTIVALS + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT
-				+ HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE + HikeStickerSearchBaseConstants.SYNTAX_INTEGER_NEXT
-				+ HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT
-				+ HikeStickerSearchBaseConstants.STICKER_STRING_USED_WITH_TAG + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT
+				+ HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_TIME_STAMP_EVENTS + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT
+				+ HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_DAY_EVENTS + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT
+				+ HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE + HikeStickerSearchBaseConstants.SYNTAX_INTEGER_NEXT + HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE
+				+ HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT + HikeStickerSearchBaseConstants.STICKER_STRING_USED_WITH_TAG + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT
 				+ HikeStickerSearchBaseConstants.STICKER_WORDS_NOT_USED_WITH_TAG + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT
 				+ HikeStickerSearchBaseConstants.STICKER_TAG_POPULARITY + HikeStickerSearchBaseConstants.SYNTAX_INTEGER_NEXT + HikeStickerSearchBaseConstants.STICKER_AVAILABILITY
 				+ HikeStickerSearchBaseConstants.SYNTAX_INTEGER_NEXT + HikeStickerSearchBaseConstants.STICKER_TAG_LANGUAGE + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT
@@ -257,7 +316,25 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				+ HikeStickerSearchBaseConstants.SYNTAX_NEXT + HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE + HikeStickerSearchBaseConstants.SYNTAX_NEXT
 				+ HikeStickerSearchBaseConstants.STICKER_TAG_LANGUAGE + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE;
 		db.execSQL(sql);
-	}
+
+
+        sql = getCategoryTagMappingTableCreateQuery();
+        db.execSQL(sql);
+
+    }
+
+    private String getCategoryTagMappingTableCreateQuery()
+    {
+		return "CREATE TABLE IF NOT EXISTS " + HikeStickerSearchBaseConstants.TABLE_CATEGORY_TAG_MAPPING + "("
+                + HikeStickerSearchBaseConstants.UNIQUE_ID + " INTEGER PRIMARY KEY, "
+                + HikeStickerSearchBaseConstants.NAME + " TEXT, "
+				+ HikeStickerSearchBaseConstants.FOR_GENDER + " TEXT, "
+                + HikeStickerSearchBaseConstants.THEME + " TEXT, "
+                + HikeStickerSearchBaseConstants.LANGUAGE + " TEXT, "
+				+ HikeStickerSearchBaseConstants.KEYWORDS + " TEXT, "
+                + HikeStickerSearchBaseConstants.LAST_UPDATED_TIMESTAMP + " INTEGER  DEFAULT 0"
+                +")";
+    }
 
 	/* Prepare search engine database */
 	public void prepare()
@@ -273,8 +350,10 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 			for (int i = 0; i < initialTableCount; i++)
 			{
-				createVirtualTable(getVirtualTableNameForChar(mExistingVirtualTablesList.charAt(i)));
+				createStickerVirtualTable(getVirtualTableNameForChar(mExistingVirtualTablesList.charAt(i)));
 			}
+
+            createCategoryVirtualTable(HikeStickerSearchBaseConstants.DEFAULT_VT_SHOP_SEARCH);
 
 			mDb.setTransactionSuccessful();
 		}
@@ -297,14 +376,14 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		mDb.insert(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_ENTITY, null, cv);
 	}
 
-	/* Create virtual table used for searching tags */
-	private void createVirtualTable(String tableName)
+	/* Create virtual table used for searching sticker tags */
+	private void createStickerVirtualTable(String tableName)
 	{
 		String sql;
 
 		if (!Utils.isTableExists(mDb, tableName))
 		{
-			Logger.v(TAG, "Creating virtual table with name: " + tableName);
+			Logger.v(TAG, "createStickerVirtualTable() : Creating virtual table with name: " + tableName);
 
 			sql = HikeStickerSearchBaseConstants.SYNTAX_CREATE_VTABLE + tableName + HikeStickerSearchBaseConstants.SYNTAX_FTS_VERSION_4
 					+ HikeStickerSearchBaseConstants.SYNTAX_BRACKET_OPEN + HikeStickerSearchBaseConstants.TAG_REAL_PHRASE + HikeStickerSearchBaseConstants.SYNTAX_NEXT
@@ -319,19 +398,37 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 	}
 
+    /* Create virtual table used for searching pack tags */
+    private void createCategoryVirtualTable(String tableName)
+    {
+        String sql;
+
+        if (!Utils.isTableExists(mDb, tableName))
+        {
+            Logger.v(TAG, "createCategoryVirtualTable() : Creating virtual table with name: " + tableName);
+
+			sql = "CREATE VIRTUAL TABLE " + tableName + " USING fts4(" + HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID + ", " + HikeStickerSearchBaseConstants.TAG_REAL_PHRASE
+					+ ",tokenize=simple, FOREIGN KEY(" + HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID + ") REFERENCES " + HikeStickerSearchBaseConstants.TABLE_CATEGORY_TAG_MAPPING + "("
+					+ HikeStickerSearchBaseConstants.UNIQUE_ID + "))";
+
+            mDb.execSQL(sql);
+        }
+
+    }
+
 	/* Setup virtual table for given prefix, if does not exist */
 	private String setupVirtualTableForFirstChar(Character prefix)
 	{
 		String tableName = getVirtualTableNameForChar(prefix);
 
-		createVirtualTable(tableName);
+		createStickerVirtualTable(tableName);
 
 		if (!tableForCharExists(prefix))
 		{
 			mExistingVirtualTableMap.put(prefix, true);
 			mExistingVirtualTablesList = mExistingVirtualTablesList + prefix;
 			HikeSharedPreferenceUtil.getInstance(HikeStickerSearchBaseConstants.SHARED_PREF_STICKER_DATA).saveData(
-					HikeStickerSearchBaseConstants.KEY_PREF_STICKER_SEARCH_VT_TABLES_LIST, mExistingVirtualTablesList);
+                    HikeStickerSearchBaseConstants.KEY_PREF_STICKER_SEARCH_VT_TABLES_LIST, mExistingVirtualTablesList);
 		}
 
 		return tableName;
@@ -345,6 +442,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		{
 			mExistingVirtualTableMap.put(mExistingVirtualTablesList.charAt(i), true);
 		}
+
 	}
 
 	private boolean tableForCharExists(Character c)
@@ -381,6 +479,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			// Delete tables used for search
 			deleteSearchData();
 
+            deleteShopSearchData();
+
 			if (isNeedToDeleteAllSearchData)
 			{
 				// Delete fixed table: TABLE_STICKER_CATEGORY_HISTORY
@@ -389,8 +489,10 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				// Delete fixed table: TABLE_STICKER_TAG_MAPPING
 				mDb.delete(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, null, null);
 
-				// Delete fixed table: TABLE_STICKER_TAG_MAPPING
+				// Delete fixed table: TABLE_STICKER_TAG_ENTITY
 				mDb.delete(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_ENTITY, null, null);
+
+                mDb.delete(HikeStickerSearchBaseConstants.TABLE_CATEGORY_TAG_MAPPING, null, null);
 			}
 			SQLiteDatabase.releaseMemory();
 
@@ -425,16 +527,33 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		}
 
 		HikeSharedPreferenceUtil.getInstance(HikeStickerSearchBaseConstants.SHARED_PREF_STICKER_DATA).removeData(
-				HikeStickerSearchBaseConstants.KEY_PREF_STICKER_SEARCH_VT_TABLES_LIST);
+                HikeStickerSearchBaseConstants.KEY_PREF_STICKER_SEARCH_VT_TABLES_LIST);
+
 	}
 
-	public void insertStickerTagData(Map<String, ArrayList<String>> packStoryData, ArrayList<StickerTagDataContainer> stickersTagData)
+    private void deleteShopSearchData()
+    {
+        if (Utils.isTableExists(mDb, HikeStickerSearchBaseConstants.DEFAULT_VT_SHOP_SEARCH))
+        {
+            Logger.v(TAG, "Deleting virtual table with name: " + HikeStickerSearchBaseConstants.DEFAULT_VT_SHOP_SEARCH);
+            mDb.delete(HikeStickerSearchBaseConstants.DEFAULT_VT_SHOP_SEARCH, null, null);
+
+            SQLiteDatabase.releaseMemory();
+        }
+    }
+
+	public void insertStickerTagData(Map<String, List<String>> packStoryData, Set<StickerEventDataContainer> events, List<StickerTagDataContainer> stickersTagData)
 	{
 		Logger.i(TAG_INSERTION, "insertStickerTagData()");
 
+		/*
+		 * If only festival data is received from server but no tags, then update only festival data Hence, call insertAndUpdateEventEntities() first.
+		 */
+		Map<String, Long> eventIdMap = insertAndUpdateEventEntities(events); // Get event's references from table: TABLE_STICKER_TAG_ENTITY after Insert/ Update
+
 		if (Utils.isEmpty(stickersTagData))
 		{
-			Logger.wtf(TAG_INSERTION, "insertStickerTagData(), Invalid tag data insertion request.");
+			Logger.wtf(TAG_INSERTION, "insertStickerTagData(), Empty tag data insertion request.");
 			return;
 		}
 
@@ -483,10 +602,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		int totalTagsCount = allTagList.size();
 		long operationOverTime = System.currentTimeMillis();
 		Logger.i(TAG_INSERTION, "insertStickerTagData(), Total tags count (to update/ insert) = " + totalTagsCount);
-		Logger.i(
-				TAG_INSERTION,
-				"Time taken in checking tag data conformity = "
-						+ Utils.getExecutionTimeLog(operationStartTime, operationOverTime, ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND));
+		Logger.i(TAG_INSERTION, "Time taken in checking tag data conformity = "
+				+ Utils.getExecutionTimeLog(operationStartTime, operationOverTime, ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND));
 
 		// Tag data building (querying) operation
 		Cursor c = null;
@@ -566,16 +683,12 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			}
 
 			operationOverTime = System.currentTimeMillis();
-			Logger.i(
-					TAG_INSERTION,
-					"Time taken in individual query (on group of tags) = "
-							+ Utils.getExecutionTimeLog(operationStartTime, operationOverTime, ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND));
+			Logger.i(TAG_INSERTION, "Time taken in individual query (on group of tags) = "
+					+ Utils.getExecutionTimeLog(operationStartTime, operationOverTime, ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND));
 		}
 
-		Logger.d(
-				TAG_INSERTION,
-				"Time taken in overall tag data query = "
-						+ Utils.getExecutionTimeLog(queryOperationStartTime, operationOverTime, ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND));
+		Logger.d(TAG_INSERTION, "Time taken in overall tag data query = "
+				+ Utils.getExecutionTimeLog(queryOperationStartTime, operationOverTime, ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND));
 
 		// Tag data setup (update/ insert) operation
 		operationStartTime = System.currentTimeMillis();
@@ -604,15 +717,17 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				isLanguageUpdateNeeded = false;
 				stickerIndex = validStickerTagDataIndices.get(i);
 				stickerTagData = stickersTagData.get(stickerIndex);
+
 				stickerCode = stickerTagData.getStickerCode();
-				ArrayList<String> stickerTags = stickerTagData.getTagList();
-				ArrayList<String> tagLanguages = stickerTagData.getLanguageList();
-				ArrayList<String> tagScripts = stickerTagData.getScriptList();
-				ArrayList<Integer> tagExactnessPriorities = stickerTagData.getTagExactMatchPriorityList();
-				ArrayList<Integer> tagPopularities = stickerTagData.getTagPopularityList();
+				List<String> stickerTags = stickerTagData.getTagList();
+				List<String> tagLanguages = stickerTagData.getLanguageList();
+				List<String> tagScripts = stickerTagData.getScriptList();
+				List<Integer> tagExactnessPriorities = stickerTagData.getTagExactMatchPriorityList();
+				List<Integer> tagPopularities = stickerTagData.getTagPopularityList();
 				int stickerMoment = stickerTagData.getMomentCode();
 				int availability = stickerTagData.getStickerAvailabilityStatus() ? HikeStickerSearchBaseConstants.DECISION_STATE_YES
 						: HikeStickerSearchBaseConstants.DECISION_STATE_NO;
+				ContentValues cv = new ContentValues();
 				int size = stickerTags.size();
 
 				for (int j = 0; j < size; j++)
@@ -621,7 +736,6 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					language = tagLanguages.get(j);
 					script = tagScripts.get(j);
 
-					ContentValues cv = new ContentValues();
 					cv.put(HikeStickerSearchBaseConstants.STICKER_EXACTNESS_WITH_TAG_PRIORITY, tagExactnessPriorities.get(j));
 					cv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_TIME, stickerMoment);
 					cv.put(HikeStickerSearchBaseConstants.STICKER_TAG_POPULARITY, tagPopularities.get(j));
@@ -667,6 +781,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 						{
 							cv.clear();
 							cv.put(HikeStickerSearchBaseConstants.STICKER_TAG_LANGUAGE, language);
+
 							mDb.update(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, cv, whereConditionToQueryAndUpdate, new String[] { tag, stickerCode, language });
 						}
 						// Case 3. At least one row for given sticker and tag was found in database with different attributes, update the language data and other attributes too
@@ -676,6 +791,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 							{
 								cv.put(HikeStickerSearchBaseConstants.STICKER_TAG_LANGUAGE, language);
 							}
+
 							mDb.update(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, cv, whereConditionToQueryAndUpdate, new String[] { tag, stickerCode, language });
 						}
 
@@ -684,7 +800,16 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 						existingCv.clear();
 						existingCv = null;
 					}
+
+					cv.clear();
 				}
+
+				// Update ranks of related events for a given sticker
+				Pair<String, String> ranks = buildRankDataForRelatedEvents(stickerTagData.getFestiveData(), eventIdMap);
+				cv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_TIME_STAMP_EVENTS, ranks.first);
+				cv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_DAY_EVENTS, ranks.second);
+				mDb.update(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, cv, HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE + "=?", new String[] { stickerCode });
+				cv.clear();
 			}
 
 			mDb.setTransactionSuccessful();
@@ -715,19 +840,15 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		}
 
 		operationOverTime = System.currentTimeMillis();
-		Logger.i(
-				TAG_INSERTION,
-				"Time taken in insertion (into primary table) = "
-						+ Utils.getExecutionTimeLog(operationStartTime, operationOverTime, ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND));
+		Logger.i(TAG_INSERTION, "Time taken in insertion (into primary table) = "
+				+ Utils.getExecutionTimeLog(operationStartTime, operationOverTime, ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND));
 
 		Logger.v(TAG, "insertStickerTagData(), Existing tags count = " + existingTagsCount + ", New tags count = " + newTagsCount);
 		Logger.v(TAG, "insertStickerTagData(), Newly inserted tags count = " + newTagsInsertionSucceeded + ", Newly abandoned tags count = " + newTagsInsertionFailed);
 
 		updatePTWriteTime(operationOverTime - requestStartTime);
-		Logger.d(
-				TAG_INSERTION,
-				"Time taken in insertion for current session (into primary table) = "
-						+ Utils.getExecutionTimeLog(0, sPTInsertionTimePerSession, ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND));
+		Logger.d(TAG_INSERTION, "Time taken in insertion for current session (into primary table) = "
+				+ Utils.getExecutionTimeLog(0, sPTInsertionTimePerSession, ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND));
 
 		if (newTagsInsertionSucceeded > 0)
 		{
@@ -735,27 +856,100 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 			long operationVTStartTime = System.nanoTime();
 
-			insertIntoVirtualTable(insertedTags, insertedRows);
+			insertIntoStickerVirtualTable(insertedTags, insertedRows);
 
 			long operationVTOverTime = System.nanoTime();
 			operationOverTime = System.currentTimeMillis();
-			Logger.i(
-					TAG_INSERTION,
-					"Time taken in insertion (into virtual table) = "
-							+ Utils.getExecutionTimeLog(operationVTStartTime, operationVTOverTime, ExecutionDurationLogger.PRECISION_UNIT_NANO_SECOND));
+			Logger.i(TAG_INSERTION, "Time taken in insertion (into virtual table) = "
+					+ Utils.getExecutionTimeLog(operationVTStartTime, operationVTOverTime, ExecutionDurationLogger.PRECISION_UNIT_NANO_SECOND));
 		}
 
-		Logger.i(
-				TAG_INSERTION,
-				"Time taken in overall insertion for current request = "
-						+ Utils.getExecutionTimeLog(requestStartTime, operationOverTime, ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND));
+		Logger.i(TAG_INSERTION, "Time taken in overall insertion for current request = "
+				+ Utils.getExecutionTimeLog(requestStartTime, operationOverTime, ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND));
 
 		updateOverallWriteTime(operationOverTime - requestStartTime);
-		Logger.d(
-				TAG_INSERTION,
-				"Time taken in overall insertion for current session = "
-						+ Utils.getExecutionTimeLog(0, sInsertionTimePerSession, ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND));
+		Logger.d(TAG_INSERTION, "Time taken in overall insertion for current session = "
+				+ Utils.getExecutionTimeLog(0, sInsertionTimePerSession, ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND));
 	}
+
+    public void insertCategoryTagDataList(List<CategoryTagData> categoryTagDataList)
+    {
+        if(Utils.isEmpty(categoryTagDataList))
+        {
+            return;
+        }
+
+        List<CategoryTagData> updatedCategories = new ArrayList<CategoryTagData>(categoryTagDataList.size());
+        ContentValues contentValues = new ContentValues();
+        try
+        {
+            mDb.beginTransaction();
+            for(CategoryTagData categoryTagData : categoryTagDataList)
+            {
+                if(!categoryTagData.isValid())
+                {
+                    Logger.i(TAG, "insertCategoryTagDataList() : Ignoring invalid tag data for category = " + categoryTagData.getUcid());
+                    continue;
+                }
+
+                contentValues.put(HikeStickerSearchBaseConstants.UNIQUE_ID, categoryTagData.getUcid());
+                contentValues.put(HikeStickerSearchBaseConstants.NAME, categoryTagData.getName());
+                contentValues.put(HikeStickerSearchBaseConstants.FOR_GENDER, categoryTagData.getGender());
+                contentValues.put(HikeStickerSearchBaseConstants.THEME, categoryTagData.getThemesString());
+                contentValues.put(HikeStickerSearchBaseConstants.LANGUAGE, categoryTagData.getLanguagesString());
+                contentValues.put(HikeStickerSearchBaseConstants.KEYWORDS, categoryTagData.getKeywordsString());
+                contentValues.put(HikeStickerSearchBaseConstants.LAST_UPDATED_TIMESTAMP,categoryTagData.getCategoryLastUpdatedTime());
+
+				long rowsAffected = mDb.update(HikeStickerSearchBaseConstants.TABLE_CATEGORY_TAG_MAPPING, contentValues, HikeStickerSearchBaseConstants.UNIQUE_ID + "=?",
+						new String[] { Integer.toString(categoryTagData.getUcid()) });
+                if(rowsAffected <= 0)
+                {
+                    rowsAffected = mDb.insert(HikeStickerSearchBaseConstants.TABLE_CATEGORY_TAG_MAPPING, null, contentValues);
+                    if(rowsAffected>=0)
+                    {
+                        updatedCategories.add(categoryTagData);
+                    }
+                }
+                else
+                {
+                    updatedCategories.add(categoryTagData);
+                }
+
+
+            }
+            mDb.setTransactionSuccessful();
+        }
+        finally
+        {
+            mDb.endTransaction();
+        }
+
+		if (updatedCategories.size() > 0)
+        {
+            insertIntoCategoryVirtualTable(updatedCategories);
+        }
+
+        Logger.i(TAG, "insertCategoryTagDataList() : done");
+
+    }
+
+    public void deleteCategoryTagFromCategorySearchTable(Set<Integer> categoryUcids)
+    {
+        try
+        {
+            mDb.beginTransaction();
+
+            for (Integer ucid : categoryUcids)
+            {
+				mDb.delete(HikeStickerSearchBaseConstants.TABLE_CATEGORY_TAG_MAPPING, HikeStickerSearchBaseConstants.UNIQUE_ID + "=?", new String[] { Integer.toString(ucid) });
+            }
+            mDb.setTransactionSuccessful();
+        }
+        finally
+        {
+            mDb.endTransaction();
+        }
+    }
 
 	private void updatePTWriteTime(long durationInNanoSeconds)
 	{
@@ -777,9 +971,9 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		return (stickersTagData == null) ? false : stickersTagData.isValidData();
 	}
 
-	private void insertIntoVirtualTable(ArrayList<String> tags, ArrayList<Long> referenceIds)
+	private void insertIntoStickerVirtualTable(ArrayList<String> tags, ArrayList<Long> referenceIds)
 	{
-		Logger.i(TAG, "insertIntoVirtualTable()");
+		Logger.i(TAG, "insertIntoStickerVirtualTable()");
 
 		int totalCount = tags.size();
 		int remainingCount = totalCount;
@@ -835,7 +1029,235 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		}
 	}
 
-	private ArrayList<StickerAppositeDataContainer> searchIntoPrimaryTable(String matchKey, String[] referenceArgs, boolean isExactMatchNeeded)
+	private void insertIntoCategoryVirtualTable(List<CategoryTagData> categoryTagDataList)
+	{
+		Logger.i(TAG, "insertIntoCategoryVirtualTable()");
+
+		try
+		{
+			mDb.beginTransaction();
+
+            ContentValues cv = new ContentValues();
+			for (int catDataIndex = 0; catDataIndex < categoryTagDataList.size();catDataIndex++)
+			{
+                String tags = categoryTagDataList.get(catDataIndex).getCategoryDocument();
+                int currentReferenceId = categoryTagDataList.get(catDataIndex).getUcid();
+
+                cv.put(HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID, currentReferenceId);
+                cv.put(HikeStickerSearchBaseConstants.TAG_REAL_PHRASE, tags);
+
+
+                if (mDb.insertWithOnConflict(HikeStickerSearchBaseConstants.DEFAULT_VT_SHOP_SEARCH, null, cv, SQLiteDatabase.CONFLICT_REPLACE) <= 0)
+                {
+                    Logger.e(TAG, "Error while inserting tag '" + tags + "' in virtual table: " + HikeStickerSearchBaseConstants.DEFAULT_VT_SHOP_SEARCH);
+                }
+
+			}
+
+            mDb.setTransactionSuccessful();
+		}
+		finally
+		{
+			mDb.endTransaction();
+			SQLiteDatabase.releaseMemory();
+
+		}
+	}
+
+	private Map<String, Long> insertAndUpdateEventEntities(Set<StickerEventDataContainer> eventDataContainerSet)
+	{
+		if (Utils.isEmpty(eventDataContainerSet))
+		{
+			return null;
+		}
+
+		HashMap<String, Long> eventIdMap = new HashMap<String, Long>();
+		HashMap<String, StickerEventDataContainer> existingEvents = new HashMap<String, StickerEventDataContainer>();
+		HashMap<String, Long> existingEventIdMap = new HashMap<String, Long>();
+
+		int maxEntityNameParametersPerQuery = HikeStickerSearchBaseConstants.SQLITE_MAX_LIMIT_VARIABLE_NUMBER - 1; // 1 is left for entity_type parameter
+		Iterator<StickerEventDataContainer> iterator = eventDataContainerSet.iterator();
+		int totalEventCount = eventDataContainerSet.size();
+		String whereConditionToQueryAndUpdate;
+		int currentCount;
+		Cursor c = null;
+
+		for (int remainingCount = totalEventCount; remainingCount > 0; remainingCount = (remainingCount - currentCount))
+		{
+			currentCount = ((remainingCount / maxEntityNameParametersPerQuery) > 0) ? maxEntityNameParametersPerQuery : remainingCount;
+			whereConditionToQueryAndUpdate = HikeStickerSearchBaseConstants.ENTITY_NAME + HikeStickerSearchBaseConstants.SYNTAX_IN
+					+ HikeStickerSearchBaseConstants.SYNTAX_BRACKET_OPEN + StickerSearchUtility.getSQLiteDatabaseMultipleParametersSyntax(currentCount)
+					+ HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE + " AND " + HikeStickerSearchBaseConstants.ENTITY_TYPE + "=?";
+
+			// Build arguments to query
+			String[] argsInCondition = new String[currentCount + 1]; // Total no. of '?'s = Total no. of entity_name arguments + one entity_type argument
+			for (int i = 0; i < currentCount; i++)
+			{
+				argsInCondition[i] = iterator.next().getEventId();
+			}
+			argsInCondition[currentCount] = String.valueOf(HikeStickerSearchBaseConstants.ENTITY_EVENT);
+
+			try
+			{
+				c = mDb.query(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_ENTITY, null, whereConditionToQueryAndUpdate, argsInCondition, null, null, null);
+
+				if ((c != null) && (c.getCount() > 0))
+				{
+					int primaryIdIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.UNIQUE_ID);
+					int eventNameIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.ENTITY_NAME);
+					int alternateNamesIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.ENTITY_QUALIFIED_HISTORY);
+					int eventRangesIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.ENTITY_UNQUALIFIED_HISTORY);
+
+					while (c.moveToNext())
+					{
+						StickerEventDataContainer oldEventData = new StickerEventDataContainer(c.getString(eventNameIndex), c.getString(alternateNamesIndex),
+								c.getString(eventRangesIndex));
+						existingEvents.put(c.getString(eventNameIndex), oldEventData);
+						existingEventIdMap.put(c.getString(eventNameIndex), c.getLong(primaryIdIndex));
+					}
+				}
+			}
+			finally
+			{
+				if (c != null)
+				{
+					c.close();
+					c = null;
+				}
+
+				SQLiteDatabase.releaseMemory();
+			}
+		}
+
+		try
+		{
+			mDb.beginTransaction();
+
+			String eventName;
+			String names;
+			String ranges;
+
+			for (StickerEventDataContainer eventDataContainer : eventDataContainerSet)
+			{
+				if (eventDataContainer.isValidData())
+				{
+					eventName = eventDataContainer.getEventId();
+					names = eventDataContainer.getOtherNames();
+					ranges = eventDataContainer.getRangeJSONString();
+
+					ContentValues cv = new ContentValues();
+					cv.put(HikeStickerSearchBaseConstants.ENTITY_QUALIFIED_HISTORY, names);
+					cv.put(HikeStickerSearchBaseConstants.ENTITY_UNQUALIFIED_HISTORY, ranges);
+
+					if (existingEvents.containsKey(eventName))
+					{
+						long primaryId = existingEventIdMap.get(eventName);
+
+						// Check if event data is changed now
+						if (!existingEvents.get(eventName).equals(eventDataContainer))
+						{
+							mDb.update(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_ENTITY, cv, HikeStickerSearchBaseConstants.UNIQUE_ID + "=?",
+									new String[] { String.valueOf(primaryId) });
+
+							/* TODO */
+							/* Correction of Event's erroneous/Old Data for existing Festive Tags */
+						}
+
+						eventIdMap.put(eventName, primaryId);
+					}
+					else
+					{
+						cv.put(HikeStickerSearchBaseConstants.ENTITY_NAME, eventName);
+						cv.put(HikeStickerSearchBaseConstants.ENTITY_TYPE, HikeStickerSearchBaseConstants.ENTITY_EVENT);
+
+						long rowId = mDb.insert(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_ENTITY, null, cv);
+						if (rowId > -1)
+						{
+							eventIdMap.put(eventName, rowId);
+						}
+					}
+				}
+			}
+
+			mDb.setTransactionSuccessful();
+		}
+		finally
+		{
+			mDb.endTransaction();
+			SQLiteDatabase.releaseMemory();
+		}
+
+		existingEvents.clear();
+		existingEvents = null;
+		existingEventIdMap.clear();
+		existingEventIdMap = null;
+
+		// Reset and update pre-loaded events, if sticker recommendation is running and new events have been added from server
+		if (eventIdMap.size() > 0)
+		{
+			if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, false)
+					&& HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMEND_PREF, true))
+			{
+				StickerEventSearchManager.getInstance().clearNowCastEvents();
+				StickerSearchManager.getInstance().loadStickerEvents();
+			}
+		}
+
+		return eventIdMap;
+	}
+
+	private Pair<String, String> buildRankDataForRelatedEvents(List<StickerEventDataContainer> eventDataContainerList, Map<String, Long> ids)
+	{
+		if ((ids == null) || (Utils.isEmpty(eventDataContainerList)))
+		{
+			return new Pair<String, String>(null, null);
+		}
+
+		String type1Ranks = null;
+		String type2Ranks = null;
+		JSONObject jsonType1Ranks = new JSONObject();
+		JSONObject jsonType2Ranks = new JSONObject();
+
+		for (StickerEventDataContainer eventDataContainer : eventDataContainerList)
+		{
+			String eventName = eventDataContainer.getEventId();
+			if (ids.containsKey(eventName))
+			{
+				try
+				{
+					String referenceId = String.valueOf(ids.get(eventName));
+
+					if (eventDataContainer.getTimeStampEventsRanks() != null)
+					{
+						jsonType1Ranks.put(referenceId, eventDataContainer.getTimeStampEventsRanks());
+					}
+
+					if (eventDataContainer.getDayEventsRanks() != null)
+					{
+						jsonType2Ranks.put(referenceId, eventDataContainer.getDayEventsRanks());
+					}
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		}
+
+		if (jsonType1Ranks.length() > 0)
+		{
+			type1Ranks = jsonType1Ranks.toString();
+		}
+
+		if (jsonType2Ranks.length() > 0)
+		{
+			type2Ranks = jsonType2Ranks.toString();
+		}
+
+		return new Pair<String, String>(type1Ranks, type2Ranks);
+	}
+
+	private ArrayList<StickerAppositeDataContainer> searchIntoStickerPrimaryTable(String matchKey, String[] referenceArgs, boolean isExactMatchNeeded)
 	{
 		ArrayList<StickerAppositeDataContainer> list = null;
 
@@ -862,6 +1284,44 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 						list = selectTagsForStickersWithLimit(matchKey, isExactMatchNeeded, c);
 					}
 
+					Logger.i(TAG, "Search findings count = " + list.size());
+					Logger.i(TAG, "Search findings: " + list);
+				}
+			}
+			finally
+			{
+				if (c != null)
+				{
+					c.close();
+				}
+			}
+		}
+
+		return list;
+	}
+
+	private SortedSet<CategorySearchData> searchIntoCategoryPrimaryTable(String matchKey, String[] referenceArgs)
+	{
+		SortedSet<CategorySearchData> list = null;
+
+		if (!Utils.isEmpty(referenceArgs))
+		{
+			Cursor c = null;
+
+			try
+			{
+				String[] columns = { HikeStickerSearchBaseConstants.UNIQUE_ID, HikeStickerSearchBaseConstants.NAME, HikeStickerSearchBaseConstants.FOR_GENDER };
+
+				// Todo use utils method
+				c = mDb.query(HikeStickerSearchBaseConstants.TABLE_CATEGORY_TAG_MAPPING, columns,
+						HikeStickerSearchBaseConstants.UNIQUE_ID + " IN (" + StickerSearchUtility.getSQLiteDatabaseMultipleParametersSyntax(referenceArgs.length) + ")",
+						referenceArgs, null, null, null);
+
+				int count = (c == null) ? 0 : c.getCount();
+
+				if (count > 0)
+				{
+					list = loadCategorySearchData(matchKey, c);
 					Logger.i(TAG, "Search findings count = " + list.size());
 					Logger.i(TAG, "Search findings: " + list);
 				}
@@ -1017,6 +1477,27 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		return list;
 	}
 
+    private SortedSet<CategorySearchData> loadCategorySearchData(String matchKey, Cursor c)
+    {
+        SortedSet<CategorySearchData> list = new TreeSet<CategorySearchData>();
+
+        int ucidIdx = c.getColumnIndex(HikeStickerSearchBaseConstants.UNIQUE_ID);
+        int forGenderIdx = c.getColumnIndex(HikeStickerSearchBaseConstants.FOR_GENDER);
+        int nameIdx = c.getColumnIndex(HikeStickerSearchBaseConstants.NAME);
+
+        while (c.moveToNext())
+        {
+            CategorySearchData categorySearchData = new CategorySearchData.Builder(c.getInt(ucidIdx))
+                    .setGender(c.getInt(forGenderIdx))
+                    .setName(c.getString(nameIdx))
+                    .setMatchKeyword(matchKey)
+                    .build();
+            list.add(categorySearchData);
+        }
+
+        return list;
+    }
+
 	private int[] computeColumnIndices(Cursor c)
 	{
 		int[] columnIndices;
@@ -1031,12 +1512,13 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		// INDEX_STICKER_DATA_STORY_THEMES = 6
 		// INDEX_STICKER_DATA_EXACTNESS_ORDER = 7
 		// INDEX_STICKER_DATA_MOMENT_CODE = 8
-		// INDEX_STICKER_DATA_FESTIVALS = 9
-		// INDEX_STICKER_DATA_AGE = 10
-		// INDEX_STICKER_DATA_USED_WITH_STRINGS = 11
-		// INDEX_STICKER_DATA_REJECTED_WITH_WORDS = 12
-		// INDEX_STICKER_AVAILABILITY_STATUS = 13
-		// INDEX_STICKER_DATA_COUNT = 14
+		// INDEX_STICKER_DATA_TIME_STAMP_EVENTS_RANKS = 9
+		// INDEX_STICKER_DATA_DAY_EVENTS_RANKS = 10
+		// INDEX_STICKER_DATA_AGE = 11
+		// INDEX_STICKER_DATA_USED_WITH_STRINGS = 12
+		// INDEX_STICKER_DATA_REJECTED_WITH_WORDS = 13
+		// INDEX_STICKER_AVAILABILITY_STATUS = 14
+		// INDEX_STICKER_DATA_COUNT = 15
 
 		if (c != null)
 		{
@@ -1054,7 +1536,9 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_STORY_THEMES] = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_STORY_THEME_ENTITIES);
 			columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_EXACTNESS_ORDER] = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_EXACTNESS_WITH_TAG_PRIORITY);
 			columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_MOMENT_CODE] = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_TIME);
-			columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_FESTIVALS] = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_FESTIVALS);
+			columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_TIME_STAMP_EVENTS_RANKS] = c
+					.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_TIME_STAMP_EVENTS);
+			columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_DAY_EVENTS_RANKS] = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_DAY_EVENTS);
 			columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_AGE] = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE);
 			columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_USED_WITH_STRINGS] = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_STRING_USED_WITH_TAG);
 			columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_REJECTED_WITH_WORDS] = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_WORDS_NOT_USED_WITH_TAG);
@@ -1079,6 +1563,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					c.getString(columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_OVERALL_FREQUENCY]),
 					c.getInt(columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_EXACTNESS_ORDER]),
 					c.getInt(columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_MOMENT_CODE]),
+					c.getString(columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_TIME_STAMP_EVENTS_RANKS]),
 					c.getInt(columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_AVAILABILITY_STATUS]));
 		}
 		else
@@ -1128,7 +1613,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			count = ((c == null) ? 0 : c.getCount());
 			if (count > 0)
 			{
-				tempReferences = selectReferencesForTags(matchKey, isExactMatchNeeded, c);
+				tempReferences = selectReferencesForStickerTags(matchKey, isExactMatchNeeded, c);
 			}
 		}
 		catch (SQLiteException e)
@@ -1158,14 +1643,62 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				rows[i] = tempReferences.get(i);
 			}
 
-			result = searchIntoPrimaryTable(matchKey, rows, isExactMatchNeeded);
+			result = searchIntoStickerPrimaryTable(matchKey, rows, isExactMatchNeeded);
 			SQLiteDatabase.releaseMemory();
 		}
 
 		return result;
 	}
 
-	private ArrayList<String> selectReferencesForTags(String matchKey, boolean isExactMatchNeeded, Cursor c)
+    public SortedSet<CategorySearchData> searchIntoFTSAndFindCategoryDataList(String matchKey)
+    {
+        
+        String[] tempReferences = null;
+        Cursor c = null;
+        int count = 0;
+
+        try
+        {
+
+            Logger.i(TAG, "Searching \"" + matchKey + "\" in " + HikeStickerSearchBaseConstants.DEFAULT_VT_SHOP_SEARCH );
+
+			c = mDb.query(HikeStickerSearchBaseConstants.DEFAULT_VT_SHOP_SEARCH, new String[]{HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID}, HikeStickerSearchBaseConstants.TAG_REAL_PHRASE + " MATCH '" + matchKey + "'", null, null, null,
+					null);
+
+            count = ((c == null) ? 0 : c.getCount());
+
+            if (count > 0)
+            {
+                tempReferences = selectReferencesForCategoryTags(matchKey, c);
+            }
+        }
+        catch (SQLiteException e)
+        {
+            Logger.e(TAG, "Exception while searching \"" + matchKey + "\"", e);
+        }
+        finally
+        {
+            if (c != null)
+            {
+                c.close();
+            }
+        }
+
+		return getCategoriesForReferences(tempReferences, matchKey);
+    }
+
+	private SortedSet<CategorySearchData> getCategoriesForReferences(String[] referenceIds, String matchKey)
+	{
+
+		SortedSet<CategorySearchData> result = null;
+
+		result = searchIntoCategoryPrimaryTable(matchKey, referenceIds);
+		SQLiteDatabase.releaseMemory();
+
+		return result;
+	}
+    
+	private ArrayList<String> selectReferencesForStickerTags(String matchKey, boolean isExactMatchNeeded, Cursor c)
 	{
 		int count = (c == null) ? 0 : c.getCount();
 		ArrayList<String> tempReferences = null;
@@ -1223,6 +1756,70 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		return tempReferences;
 	}
 
+    private String[] selectReferencesForCategoryTags(String matchKey, Cursor c)
+    {
+        int count = (c == null) ? 0 : c.getCount();
+        String[] tempReferences = null;
+
+        int index = 0;
+
+        if (count > 0)
+        {
+            tempReferences = new String[count];
+
+            int referenceIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID);
+
+            while (c.moveToNext())
+            {
+                tempReferences[index++] = c.getString(referenceIndex);
+            }
+        }
+
+        return tempReferences;
+    }
+
+	public Map<Long, Event> readAllEventsData()
+	{
+		Map<Long, Event> rawData = null;
+		Cursor c = null;
+
+		try
+		{
+			c = mDb.query(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_ENTITY, null, HikeStickerSearchBaseConstants.ENTITY_TYPE + "=?",
+					new String[] { String.valueOf(HikeStickerSearchBaseConstants.ENTITY_EVENT) }, null, null, null, null);
+
+			int count = (c == null) ? 0 : c.getCount();
+
+			if (count > 0)
+			{
+				rawData = new HashMap<Long, Event>();
+				int idIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.UNIQUE_ID);
+				int eventIdIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.ENTITY_NAME);
+				int eventNamesIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.ENTITY_QUALIFIED_HISTORY);
+				int eventRangesIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.ENTITY_UNQUALIFIED_HISTORY);
+
+				while (c.moveToNext())
+				{
+					Event event = new Event(c.getString(eventIdIndex), c.getString(eventNamesIndex), c.getString(eventRangesIndex));
+					rawData.put(c.getLong(idIndex), event);
+				}
+
+				Logger.i(TAG, "readAllEventsData(), Search findings count = " + rawData.size());
+			}
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+
+			SQLiteDatabase.releaseMemory();
+		}
+
+		return rawData;
+	}
+
 	public void removeTagsForNonExistingStickers(Set<String> existingStickerInfoSet)
 	{
 		if (existingStickerInfoSet == null)
@@ -1230,7 +1827,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			return;
 		}
 
-		HashSet<String> removedStickerInfoSet = new HashSet<String>();
+		Set<String> removedStickerInfoSet = new HashSet<String>();
 		Cursor c = null;
 		try
 		{
@@ -1264,6 +1861,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 	public void removeTagsForDeletedCategories(Set<String> deletedCategorySet)
 	{
+
 		if (Utils.isEmpty(deletedCategorySet))
 		{
 			return;
@@ -1284,7 +1882,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				sb.append(HikeStickerSearchBaseConstants.SYNTAX_OR_NEXT);
 			}
 		}
-		
+
 		HashSet<String> removedStickerInfoSet = new HashSet<String>();
 		Cursor c = null;
 		try
@@ -1412,6 +2010,11 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		}
 	}
 
+    public void analysePackSearched()
+    {
+        // TODO: 13/04/16
+    }
+    
 	public void analyseMessageSent(String prevText, Sticker sticker, String nextText)
 	{
 		Logger.i(TAG, "analyseMessageSent(" + prevText + ", " + sticker + ", " + nextText + ")");
@@ -1421,7 +2024,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			return;
 		}
 
-		String stickerCode = StickerManager.getInstance().getStickerSetString(sticker);
+		String stickerCode = sticker.getStickerCode();
 		Cursor c = null;
 		int totalCount = 0;
 		String[] rowIds = null;
@@ -1430,7 +2033,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		try
 		{
 			String whereConditionToUpdate = StickerSearchUtility.getSQLiteDatabaseMultipleConditionsWithANDSyntax(
-					new String[] { HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE }, new int[] { HikeStickerSearchBaseConstants.SQLITE_NON_NULL_CHECK });
+                    new String[]{HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE}, new int[]{HikeStickerSearchBaseConstants.SQLITE_NON_NULL_CHECK});
 
 			c = mDb.query(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, new String[] { HikeStickerSearchBaseConstants.UNIQUE_ID,
 					HikeStickerSearchBaseConstants.STICKER_OVERALL_FREQUENCY }, whereConditionToUpdate, new String[] { stickerCode }, null, null, null);
@@ -1516,6 +2119,11 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		long currentTime = System.currentTimeMillis();
 		boolean isTestModeOn = StickerSearchUtility.isTestModeForSRModule();
 
+		if(StickerSearchUtils.tagCacheLimitReached(StickerSearchConstants.STATE_FORCED_TAGS_DOWNLOAD))
+		{
+			rebalanceUndownloadedStickers();
+		}
+
 		Logger.i(TAG_REBALANCING,
 				"summarizeAndDoRebalancing(), " + (isTestModeOn ? "Test " : StickerSearchConstants.STRING_EMPTY) + "Operation is started today at time:: " + date.toString());
 
@@ -1532,7 +2140,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 		float THRESHOLD_DATABASE_FORCED_SHRINK_COEFFICIENT = isTestModeOn ? HikeStickerSearchBaseConstants.TEST_THRESHOLD_DATABASE_FORCED_SHRINK_COEFFICIENT
 				: stickerDataSharedPref.getData(HikeConstants.STICKER_SEARCH_BASE_THRESHOLD_FORCED_SHRINK_COEFFICIENT,
-						HikeStickerSearchBaseConstants.THRESHOLD_DATABASE_FORCED_SHRINK_COEFFICIENT);
+				HikeStickerSearchBaseConstants.THRESHOLD_DATABASE_FORCED_SHRINK_COEFFICIENT);
 
 		long TIME_WINDOW_TRENDING_SUMMERY = isTestModeOn ? StickerSearchConstants.TEST_TIME_WINDOW_TRENDING_SUMMERY : stickerDataSharedPref.getData(
 				HikeConstants.STICKER_TAG_SUMMERY_INTERVAL_TRENDING, StickerSearchConstants.TIME_WINDOW_TRENDING_SUMMERY);
@@ -1600,7 +2208,6 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			ArrayList<Float> localFrequencies = new ArrayList<Float>();
 			ArrayList<Float> globalFrequencies = new ArrayList<Float>();
 			ArrayList<Integer> ages = new ArrayList<Integer>();
-
 			ArrayList<Float> slottedFrequenciesPerSticker;
 			int blockCount = 0;
 			int existingTagCountPerBlock;
@@ -1673,18 +2280,17 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			// |||
 			// |||
 			// ^^^
-			// -------------------------Global
-			// ===--------------===Local
-			// ===--------Trending
+			// ----------------------------<---Global
+			// ===<------------------<---Local
+			// ===<--------Trending
 			//
-			// ==> Order of shifting ('===' represents proportional shift, ':::' represents vacant space to be filled in next period and '---' represents pure cumulative frequency)
-			//
+			// ==>Shifting ('===' represents proportional shift, ':::' represents gap to be filled in next period and '---' represents pure Gaussian's cumulative frequency)
 			//
 			// After shifting==>
 			//
-			// :::-----------------------Global
-			// :::---------------Local
-			// :::-------Trending
+			// --------------------------------Global
+			// :::-----------------------Local
+			// :::---------Trending
 			// ^^^
 			// |||
 			// |||
@@ -1700,7 +2306,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			if (isTrendingSummeryTurn)
 			{
 				// Compute proportional trending frequencies first for all sticker-tags
-				float maxTrendingFrequency = Collections.max(trendingFrequencies);
+				maxTrendingFrequency = Collections.max(trendingFrequencies);
 
 				float MAXIMUM_FREQUENCY_TRENDING = stickerDataSharedPref.getData(HikeConstants.STICKER_TAG_MAX_FREQUENCY_TRENDING,
 						StickerSearchConstants.MAXIMUM_FREQUENCY_TRENDING);
@@ -1738,7 +2344,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			if (isLocalSummeryTurn)
 			{
 				// Compute proportional local frequencies first for all sticker-tags
-				float maxLocalFrequency = Collections.max(localFrequencies);
+				maxLocalFrequency = Collections.max(localFrequencies);
 
 				float MAXIMUM_FREQUENCY_LOCAL = stickerDataSharedPref.getData(HikeConstants.STICKER_TAG_MAX_FREQUENCY_LOCAL, StickerSearchConstants.MAXIMUM_FREQUENCY_LOCAL);
 
@@ -1775,7 +2381,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			if (isGlobalSummeryTurn)
 			{
 				// Compute proportional global frequencies first for all sticker-tags
-				float maxGlobalFrequency = Collections.max(globalFrequencies);
+				maxGlobalFrequency = Collections.max(globalFrequencies);
 
 				float MAXIMUM_FREQUENCY_GLOBAL = stickerDataSharedPref.getData(HikeConstants.STICKER_TAG_MAX_FREQUENCY_GLOBAL, StickerSearchConstants.MAXIMUM_FREQUENCY_GLOBAL);
 
@@ -2113,4 +2719,217 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 		return true;
 	}
+
+	public void rebalanceUndownloadedStickers()
+	{
+
+		Cursor c = null;
+
+		ArrayList<StickerAppositeDataContainer> resultSet = null;
+
+		 maxLocalFrequency = 0.0f;
+		 maxTrendingFrequency = 0.0f;
+		 maxGlobalFrequency = 0.0f;
+
+
+		try
+		{
+			c = mDb.query(true,
+					HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING,
+					new String[] { HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE, HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE, HikeStickerSearchBaseConstants.STICKER_OVERALL_FREQUENCY },
+					HikeStickerSearchBaseConstants.STICKER_AVAILABILITY+HikeStickerSearchBaseConstants.SYNTAX_SINGLE_PARAMETER_CHECK,
+					new String[]{String.valueOf(HikeStickerSearchBaseConstants.DECISION_STATE_NO)},
+					null,
+					null,
+					HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE + HikeStickerSearchBaseConstants.SYNTAX_DESCENDING,
+					null);
+
+			int rowCount = (c == null) ? 0 : c.getCount();
+
+            Logger.i(TAG,"rebalanceUndownloadedStickers() : undownloaded sticker count = "+rowCount);
+
+			if (rowCount > 0)
+			{
+				resultSet = new ArrayList<StickerAppositeDataContainer>(rowCount);
+				int stickerIdIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE);
+				int ageIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE);
+				int compositeFrequencyIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_OVERALL_FREQUENCY);
+
+				while (c.moveToNext())
+				{
+					String stickerCode = c.getString(stickerIdIndex);
+					int stickertagAge = c.getInt(ageIndex);
+					String frequencyFunction = c.getString(compositeFrequencyIndex);
+					StickerAppositeDataContainer temp = new StickerAppositeDataContainer(stickerCode,frequencyFunction,0,HikeStickerSearchBaseConstants.DECISION_STATE_NO,stickertagAge);
+					resultSet.add(temp);
+
+					if(maxGlobalFrequency < temp.getGlobalFrequency())
+					{
+						maxGlobalFrequency = temp.getGlobalFrequency();
+					}
+
+					if(maxTrendingFrequency < temp.getTrendingFrequency())
+					{
+						maxTrendingFrequency = temp.getTrendingFrequency();
+					}
+
+					if(maxLocalFrequency < temp.getLocalFrequency())
+					{
+						maxLocalFrequency = temp.getLocalFrequency();
+					}
+
+				}
+			}
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+				c = null;
+			}
+			SQLiteDatabase.releaseMemory();
+		}
+
+		if(Utils.isEmpty(resultSet))
+		{
+			return;
+		}
+
+		Collections.sort(resultSet, new Comparator<StickerAppositeDataContainer>() {
+			@Override
+			public int compare(StickerAppositeDataContainer lhs, StickerAppositeDataContainer rhs) {
+				float lhsScore = lhs.getCumalativeNormalisedFrequency(maxLocalFrequency,maxTrendingFrequency,maxGlobalFrequency);
+				float rhsScore = rhs.getCumalativeNormalisedFrequency(maxLocalFrequency,maxTrendingFrequency,maxGlobalFrequency);
+
+				return Float.compare(rhsScore,lhsScore);
+			}
+		});
+
+
+        int stickersToDelete = StickerSearchUtils.getUndownloadedTagsStickersCount() - StickerSearchUtils.getTagCacheLimit(StickerSearchConstants.STATE_FORCED_TAGS_DOWNLOAD);
+
+		stickersToDelete = stickersToDelete > resultSet.size() ? resultSet.size() : stickersToDelete;
+        
+        Logger.i(TAG,"rebalanceUndownloadedStickers() : undownloaded sticker set to delete count = "+stickersToDelete);
+
+		//Todo remove mini stickers from disk lru cache
+
+		Set<String> stickersSetToDelete = new HashSet<String>();
+
+		for (int i =0; i<stickersToDelete;i++)
+		{
+			stickersSetToDelete.add(resultSet.get(i).getStickerCode());
+            Logger.i(TAG, "rebalanceUndownloadedStickers() : undownloaded sticker to be deleted = " + resultSet.get(i).getStickerCode());
+		}
+
+		removeTagsForDeletedStickers(stickersSetToDelete);
+
+	}
+
+    private void setUndownloadedTagsCount()
+    {
+
+		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				Cursor c = null;
+
+				int result = 0;
+
+				try
+				{
+					c = mDb.query(true, HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, new String[] { HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE,
+							HikeStickerSearchBaseConstants.STICKER_AVAILABILITY }, HikeStickerSearchBaseConstants.STICKER_AVAILABILITY
+							+ HikeStickerSearchBaseConstants.SYNTAX_SINGLE_PARAMETER_CHECK, new String[] { String.valueOf(HikeStickerSearchBaseConstants.DECISION_STATE_NO) },
+							null, null, null, null);
+
+					result = (c == null) ? 0 : c.getCount();
+				}
+				finally
+				{
+					if (c != null)
+					{
+						c.close();
+						c = null;
+					}
+					SQLiteDatabase.releaseMemory();
+				}
+
+				Logger.i(TAG, "getUndownloadedTagsCount() = " + result);
+
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeStickerSearchBaseConstants.KEY_PREF_UNDOWNLOADED_TAG_COUNT, result);
+			}
+		});
+        
+    }
+
+	public List<CategoryTagData> getStickerCategoriesForTagDataUpdate(List<String> categoryUcids)
+	{
+		if(Utils.isEmpty(categoryUcids))
+        {
+            return null;
+        }
+
+        List<CategoryTagData> result = new ArrayList<>();
+
+		Cursor c = null;
+
+		try
+		{
+
+			c = mDb.query(HikeStickerSearchBaseConstants.TABLE_CATEGORY_TAG_MAPPING, null,
+                    HikeStickerSearchBaseConstants.UNIQUE_ID + " IN (" + StickerSearchUtility.getSQLiteDatabaseMultipleParametersSyntax(categoryUcids.size()) + ")",
+                    categoryUcids.toArray(new String[categoryUcids.size()]), null, null, null);
+
+			int count = (c == null) ? 0 : c.getCount();
+
+			if (count > 0)
+			{
+				int ucidIdx = c.getColumnIndex(HikeStickerSearchBaseConstants.UNIQUE_ID);
+				int catIdIdx = c.getColumnIndex(HikeStickerSearchBaseConstants.CATEGORY_ID);
+				int forGenderIdx = c.getColumnIndex(HikeStickerSearchBaseConstants.FOR_GENDER);
+				int nameIdx = c.getColumnIndex(HikeStickerSearchBaseConstants.NAME);
+				int themeIdx = c.getColumnIndex(HikeStickerSearchBaseConstants.THEME);
+				int langIdx = c.getColumnIndex(HikeStickerSearchBaseConstants.LANGUAGE);
+				int keysIdx = c.getColumnIndex(HikeStickerSearchBaseConstants.KEYWORDS);
+				int tsIdx = c.getColumnIndex(HikeStickerSearchBaseConstants.LAST_UPDATED_TIMESTAMP);
+
+				while (c.moveToNext())
+				{
+					CategoryTagData categoryTagData = new CategoryTagData.Builder(c.getInt(ucidIdx))
+                            .setGender(c.getInt(forGenderIdx))
+                            .setName(c.getString(nameIdx))
+                            .setCategoryLastUpdatedTime(c.getLong(tsIdx))
+                            .setLanguages(c.getString(langIdx))
+                            .setThemes(c.getString(themeIdx))
+                            .setKeywords(c.getString(keysIdx))
+                            .build();
+					result.add(categoryTagData);
+					categoryUcids.remove(Integer.toString(categoryTagData.getUcid()));
+				}
+
+			}
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+
+		if (!Utils.isEmpty(categoryUcids))
+		{
+			for (String ucid : categoryUcids)
+			{
+				result.add(new CategoryTagData.Builder(Integer.parseInt(ucid)).build());
+			}
+		}
+
+		return result;
+	}
+
 }

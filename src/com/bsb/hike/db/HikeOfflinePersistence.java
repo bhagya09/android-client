@@ -7,6 +7,7 @@ import java.util.List;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.db.dbcommand.SetPragmaModeCommand;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikePacket;
 import com.bsb.hike.offline.OfflineController;
@@ -43,6 +44,8 @@ public class HikeOfflinePersistence implements IPersistanceInterface
 	{
 		hikeMqttPersistence = HikeMqttPersistence.getInstance();
 		mDb = hikeMqttPersistence.getDb();
+		SetPragmaModeCommand setPragmaModeCommand = new SetPragmaModeCommand(mDb);
+		setPragmaModeCommand.execute();
 	}
 
 	@Override

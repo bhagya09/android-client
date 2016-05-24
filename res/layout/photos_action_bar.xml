@@ -77,4 +77,23 @@
             android:textColor="@color/photos_action_bar_font" />
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/actionsView"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@id/done_container"
+        android:background="@drawable/bg_overflow_menu_selector"
+        android:gravity="center"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
+        android:visibility="gone" >
+
+        <ImageView
+            android:id="@+id/actionBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/btn_filter_enable" />
+    </LinearLayout>
+
 </RelativeLayout>

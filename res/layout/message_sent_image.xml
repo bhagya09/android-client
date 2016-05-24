@@ -5,7 +5,7 @@
     android:descendantFocusability="blocksDescendants"
     android:gravity="center_vertical|right"
     android:minHeight="30dp"
-    android:paddingBottom="5dp" >
+    android:paddingBottom="5dp">
 
     <ViewStub
         android:id="@+id/day_stub"
@@ -23,14 +23,14 @@
         android:layout_marginRight="@dimen/chat_bubble_edge_spacing"
         android:layout_marginTop="2.5dp"
         android:background="@drawable/ic_bubble_green_selector"
-        android:orientation="vertical" >
+        android:orientation="vertical">
 
         <RelativeLayout
             android:id="@+id/placeholder"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="2dp"
-            android:layout_marginRight="2dp" >
+            android:layout_marginRight="2dp">
 
             <com.bsb.hike.ui.utils.RecyclingImageView
                 android:id="@+id/file_thumb"
@@ -44,7 +44,13 @@
                 android:layout_height="56dp"
                 android:layout_centerInParent="true"
                 android:background="@drawable/bg_ft_progress"
-                android:gravity="center" >
+                android:gravity="center">
+
+                <View
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:layout_centerInParent="true"
+                    android:background="@drawable/bg_ft_progress" />
 
                 <ProgressBar
                     android:id="@+id/initializing"
@@ -53,8 +59,7 @@
                     android:layout_centerInParent="true"
                     android:indeterminateDrawable="@drawable/circular_double_spinner" />
 
-                <com.bsb.hike.view.HoloCircularProgress
-                    xmlns:app="http://schemas.android.com/apk/res-auto"
+                <com.bsb.hike.view.HoloCircularProgress xmlns:app="http://schemas.android.com/apk/res-auto"
                     android:id="@+id/progress"
                     android:layout_width="56dp"
                     android:layout_height="56dp"
@@ -74,15 +79,27 @@
                     android:layout_centerInParent="true" />
             </RelativeLayout>
 
+
             <include
+                layout="@layout/message_time_status_ext"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignBottom="@id/file_thumb"
                 android:layout_alignRight="@id/file_thumb"
                 android:layout_marginBottom="3dp"
-                android:layout_marginRight="3dp"
-                layout="@layout/message_time_status_ext" />
+                android:layout_marginRight="3dp" />
         </RelativeLayout>
+
+        <com.bsb.hike.view.CustomSendMessageTextView
+            android:id="@+id/caption"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:padding="2dp"
+            android:textColor="@color/chat_color"
+            android:textSize="16sp" />
+
+
     </LinearLayout>
 
     <View
@@ -90,8 +107,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@id/message_container"
-        android:layout_below="@id/day_container"
-        android:layout_alignWithParentIfMissing="true" />
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_below="@id/day_container" />
 
     <ViewStub
         android:id="@+id/message_info_stub"

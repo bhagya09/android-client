@@ -1,16 +1,5 @@
 package com.bsb.hike.notifications;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -26,9 +15,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
-import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
@@ -39,6 +26,17 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.google.gson.Gson;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  * This class is responsible for maintaining states of ConvMessages to be used for showing Android notifications.
@@ -311,11 +309,13 @@ public class HikeNotificationMsgStack implements Listener
 		// Iterate all the notification types in current notification stack
 		ListIterator<Entry<String, LinkedList<NotificationPreview>>> mapIterator = new ArrayList<Map.Entry<String, LinkedList<NotificationPreview>>>(mMessagesMap.entrySet())
 				.listIterator();
-
+		List<NotificationPreview> notifListSingleMsisdn=null;
 		while (mapIterator.hasNext())
 		{
 			Entry<String, LinkedList<NotificationPreview>> entry = mapIterator.next();
-			LinkedList<NotificationPreview> notifListSingleMsisdn = entry.getValue();
+
+			if(entry.getValue()!=null)
+			notifListSingleMsisdn = new LinkedList<>(entry.getValue());
 
 			for (NotificationPreview preview : notifListSingleMsisdn)
 			{
@@ -378,7 +378,7 @@ public class HikeNotificationMsgStack implements Listener
 
 					if (mNotificationIntent == null)
 					{
-						mNotificationIntent = IntentFactory.createChatThreadIntentFromMsisdn(mContext, lastAddedMsisdn, false, false);
+						mNotificationIntent = IntentFactory.createChatThreadIntentFromMsisdn(mContext, lastAddedMsisdn, false, false, ChatThreadActivity.ChatThreadOpenSources.NOTIF);
 					}
 					// Adding the notif tracker to bot notifications
 					mNotificationIntent.putExtra(AnalyticsConstants.BOT_NOTIF_TRACKER, AnalyticsConstants.BOT_OPEN_SOURCE_NOTIF);
@@ -386,7 +386,7 @@ public class HikeNotificationMsgStack implements Listener
 				else
 				{
 					// Single msisdn, mixed notification types
-					mNotificationIntent = IntentFactory.createChatThreadIntentFromMsisdn(mContext, lastAddedMsisdn, false, false);
+					mNotificationIntent = IntentFactory.createChatThreadIntentFromMsisdn(mContext, lastAddedMsisdn, false, false, ChatThreadActivity.ChatThreadOpenSources.NOTIF);
 				}
 			}
 
@@ -455,20 +455,25 @@ public class HikeNotificationMsgStack implements Listener
 		setBigTextList(new ArrayList<SpannableString>());
 		StringBuilder bigText = new StringBuilder();
 
-		ListIterator<Entry<String, LinkedList<NotificationPreview>>> mapIterator = new ArrayList<Map.Entry<String, LinkedList<NotificationPreview>>>(mMessagesMap.entrySet()).listIterator(mMessagesMap
+		ListIterator<Entry<String, LinkedList<NotificationPreview>>> mapIterator = new ArrayList<>(mMessagesMap.entrySet()).listIterator(mMessagesMap
 				.size());
 		
 		if (retryCount > 0)
 		{
 			maxRetryCount--;
 		}
-	
 		while (mapIterator.hasPrevious())
 		{
 			Entry<String, LinkedList<NotificationPreview>> conv = mapIterator.previous();
 			String msisdn = conv.getKey();
 
-			for (NotificationPreview notifPrvw : conv.getValue())
+			// we are getting a concurrent modification excep here as we have created a new iterator with old reference to linklist.
+			if (conv.getValue() == null)
+				continue;
+
+			List<NotificationPreview> snapShot=new LinkedList<>(conv.getValue());
+
+			for (NotificationPreview notifPrvw :snapShot)
 			{
 
 				String notificationMsgTitle = mContext.getString(R.string.app_name);
@@ -786,7 +791,7 @@ public class HikeNotificationMsgStack implements Listener
  */
 	public  void processPreNotificationWork()
 	{
-		ListIterator<Entry<String, LinkedList<NotificationPreview>>> mapIterator = new ArrayList<Map.Entry<String, LinkedList<NotificationPreview>>>(mMessagesMap.entrySet())
+		ListIterator<Entry<String, LinkedList<NotificationPreview>>> mapIterator = new ArrayList<>(mMessagesMap.entrySet())
 				.listIterator(mMessagesMap.size());
 
 		LinkedList<NotificationPreview> keySet = null;
@@ -798,9 +803,13 @@ public class HikeNotificationMsgStack implements Listener
 
 			if (keySet == null)
 			{
-				keySet = new LinkedList<NotificationPreview>();
+				keySet = new LinkedList<>();
 			}
-			for (NotificationPreview notifPrvw : conv.getValue())
+			List<NotificationPreview> snapShot=new LinkedList<>();
+			if (conv.getValue() != null)
+				snapShot.addAll(conv.getValue());
+
+			for (NotificationPreview notifPrvw : snapShot)
 			{
 
 				if (getNotificationCount(notifPrvw.getNotificationType()) == -1)

@@ -1,7 +1,5 @@
 package com.bsb.hike.ui;
 
-import java.util.ArrayList;
-
 import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.drawable.Drawable;
@@ -32,8 +30,10 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HomeAnalyticsConstants;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -50,6 +50,10 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
+import org.json.JSONException;
+import org.json.JSONObject;
+import java.util.ArrayList;
 
 public class SettingsActivity extends ChangeProfileImageBaseActivity implements OnItemClickListener, OnClickListener, android.content.DialogInterface.OnClickListener
 {
@@ -116,16 +120,11 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		items.add(new SettingsDisplayPojo(getString(R.string.settings_media), R.string.settings_media, R.drawable.ic_auto_download_media_settings));
 		
 		items.add(new SettingsDisplayPojo(getString(R.string.settings_chat), R.string.settings_chat, R.drawable.ic_settings_chat));
+		items.add(new SettingsDisplayPojo(getString(R.string.settings_sticker), R.string.settings_sticker, R.drawable.ic_settings_sticker));
+
 		if (HikeMessengerApp.isLocalisationEnabled())
 		{
-			if (HikeMessengerApp.isCustomKeyboardUsable())
-			{
-				items.add(new SettingsDisplayPojo(getString(R.string.settings_localization), R.string.settings_localization, R.drawable.ic_settings_languages));
-			}
-			else
-			{
-				items.add(new SettingsDisplayPojo(getString(R.string.language), R.string.language, R.drawable.ic_settings_languages));
-			}
+			items.add(new SettingsDisplayPojo(getString(R.string.language), R.string.language, R.drawable.ic_settings_languages));
 		}
 		if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(HikeConstants.FREE_SMS_PREF, true))
 		{
@@ -370,24 +369,33 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 			switch (holder.id)
 			{
 			case R.string.notifications:
+				recordNotificationClick();
 				IntentFactory.openSettingNotification(this);
 				break;
 
 			case R.string.settings_media:
+				recordMediaClick();
 				IntentFactory.openSettingMedia(this);
 				break;
 
 			case R.string.settings_chat:
+				recordChatclick();
 				IntentFactory.openSettingChat(this);
 				break;
 
-			case R.string.settings_localization:
+			case R.string.settings_sticker:
+				recordStickerSettingsClick();
+				IntentFactory.openStickerSettingsActivity(this);
+				break;
+
             case R.string.language:
+				recordLanguageClick();
 				IntentFactory.openSettingLocalization(this);
 				break;
 				
 			case R.string.sms_with_settings:
 			case R.string.sms:
+				recordSMSClick();
 				IntentFactory.openSettingSMS(this);
 				break;
 
@@ -396,6 +404,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 				break;
 
 			case R.string.manage_account:
+				recordAccountClick();
 				IntentFactory.openSettingAccount(this);
 				break;
 
@@ -447,10 +456,16 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 	private void addProfileImgInHeader()
 	{
 		// set profile picture
-		Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(contactInfo.getMsisdn());
+		Drawable drawable = null;
+		// workaround for bug AND-461 , if msisdn is null we will show default avatar
+		if (contactInfo.getMsisdn() != null)
+		{
+			drawable = HikeMessengerApp.getLruCache().getIconFromCache(contactInfo.getMsisdn());
+		}
+
 		if (drawable == null)
 		{
-			drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(contactInfo.getMsisdn(), false);
+			drawable = HikeBitmapFactory.getDefaultTextAvatar(contactInfo.getMsisdn());
 		}
 		profileImgView.setImageDrawable(drawable);
 		
@@ -542,13 +557,13 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		{
 			runOnUiThread(new Runnable()
 			{
-
 				@Override
 				public void run()
 				{
 					String name = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getString(HikeMessengerApp.NAME_SETTING, contactInfo.getNameOrMsisdn());
 					contactInfo.setName(name);
 					setNameInHeader(nameView);
+					addProfileImgInHeader();
 				}
 			});
 		}
@@ -560,6 +575,12 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		HikeMessengerApp.getPubSub().removeListeners(this, profilePubSubListeners);
 
 		super.onDestroy();
+	}
+
+	@Override
+	protected String getSourceSpecies()
+	{
+		return HomeAnalyticsConstants.DP_SPECIES_FULL_VIEW;
 	}
 
 	@Override
@@ -618,4 +639,60 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		this.msisdn = msisdn;
 		super.setLocalMsisdn(this.msisdn);			
 	}
+
+	private void recordNotificationClick()
+	{
+		recordPreferencesPageOpen("notif");
+	}
+
+	private void recordMediaClick()
+	{
+		recordPreferencesPageOpen("media");
+	}
+
+	private void recordChatclick()
+	{
+		recordPreferencesPageOpen("chat_stng");
+	}
+
+	private void recordStickerSettingsClick()
+	{
+		recordPreferencesPageOpen("stk_stng");
+	}
+
+	private void recordLanguageClick()
+	{
+		recordPreferencesPageOpen("lng_stng");
+	}
+
+	private void recordAccountClick()
+	{
+		recordPreferencesPageOpen("account");
+	}
+
+	private void recordSMSClick()
+	{
+		recordPreferencesPageOpen("sms");
+	}
+
+
+	private void recordPreferencesPageOpen(String whichPage)
+	{
+		try
+		{
+			JSONObject json = HikeAnalyticsEvent.getSettingsAnalyticsJSON();
+
+			if (json != null)
+			{
+				json.put(AnalyticsConstants.V2.FAMILY, whichPage);
+				HAManager.getInstance().recordV2(json);
+			}
+		}
+
+		catch (JSONException e)
+		{
+			e.toString();
+		}
+	}
+
 }

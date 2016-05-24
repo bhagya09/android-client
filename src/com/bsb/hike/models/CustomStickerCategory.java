@@ -1,32 +1,54 @@
 package com.bsb.hike.models;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+
+import java.io.File;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 public class CustomStickerCategory extends StickerCategory
 {
 	private Set<Sticker> stickerSet;
 
-	private String TAG = "CustomStickerCategory";
-
-	public CustomStickerCategory(String categoryId)
+	protected CustomStickerCategory(Init<?> builder)
 	{
-		super(categoryId);
-		this.setCustom(true);
-		loadStickers();
+		super(builder);
+		this.stickerSet = builder.stickerSet;
 	}
+
+	protected static abstract class Init<S extends Init<S>> extends StickerCategory.Init<S>
+	{
+		private Set<Sticker> stickerSet;
+
+		public S setStickerSet(Set<Sticker> stickerSet)
+		{
+			this.stickerSet = stickerSet;
+			return self();
+		}
+
+		public CustomStickerCategory build()
+		{
+			return new CustomStickerCategory(this);
+		}
+	}
+
+	public static class Builder extends Init<Builder>
+	{
+		@Override
+		protected Builder self()
+		{
+			return this;
+		}
+	}
+
+	private String TAG = "CustomStickerCategory";
 
 	@Override
 	public int getState()
@@ -40,12 +62,6 @@ public class CustomStickerCategory extends StickerCategory
 	{
 	}
 	
-	public CustomStickerCategory(String categoryId, String categoryName, boolean updateAvailable, boolean isVisible, boolean isCustom, boolean isAdded, int catIndex,
-			int totalStickers, int categorySize)
-	{
-		super(categoryId, categoryName, updateAvailable, isVisible, isCustom, isAdded, catIndex, totalStickers, categorySize);
-		loadStickers();
-	}
 
 	public List<Sticker> getStickerList()
 	{
@@ -77,72 +93,30 @@ public class CustomStickerCategory extends StickerCategory
 
 	public void loadStickers()
 	{
-		stickerSet = getSortedListForCategory(getCategoryId(), StickerManager.getInstance().getInternalStickerDirectoryForCategoryId(getCategoryId()));
-		if (getCategoryId().equals(StickerManager.RECENT) && stickerSet.isEmpty())
+
+		if (getCategoryId().equals(StickerManager.RECENT))
 		{
-			addDefaultRecentSticker();
+			stickerSet = loadRecentsFromDb();
+			if(stickerSet.isEmpty())
+			{
+				addDefaultRecentSticker();
+			}
+
+			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FORCED_RECENTS_PRESENT, false))
+			{
+				List<Sticker> forcedRecentStickers = StickerManager.getInstance().getForcedRecentsStickers();
+
+				if(forcedRecentStickers != null)
+				{
+					stickerSet.addAll(forcedRecentStickers);
+				}
+			}
 		}
 	}
 
-	/***
-	 * 
-	 * @param catId
-	 * @return
-	 * 
-	 *         This function can return null if file doesnot exist.
-	 */
-	public Set<Sticker> getSortedListForCategory(String catId, String dirPath)
+	public Set<Sticker> loadRecentsFromDb()
 	{
-		Set<Sticker> list = null;
-		FileInputStream fileIn = null;
-		ObjectInputStream in = null;
-		try
-		{
-			long t1 = System.currentTimeMillis();
-			Logger.d(TAG, "Calling function get sorted list for category : " + catId);
-			File dir = new File(dirPath);
-			if (!dir.exists())
-			{
-				dir.mkdirs();
-				return Collections.synchronizedSet(new LinkedHashSet<Sticker>(getMaxStickerCount()));
-			}
-			File catFile = new File(dirPath, catId + ".bin");
-			if (!catFile.exists())
-				return Collections.synchronizedSet(new LinkedHashSet<Sticker>(getMaxStickerCount()));
-			fileIn = new FileInputStream(catFile);
-			in = new ObjectInputStream(fileIn);
-			int size = in.readInt();
-			list = Collections.synchronizedSet(new LinkedHashSet<Sticker>(size));
-			for (int i = 0; i < size; i++)
-			{
-				try
-				{
-					Sticker s = new Sticker();
-					s.deSerializeObj(in);
-					File f = new File(s.getSmallStickerPath());
-					if(f.exists())
-					{
-						list.add(s);
-					}
-				}
-				catch (Exception e)
-				{
-					Logger.e(TAG, "Exception while deserializing sticker", e);
-				}
-			}
-			long t2 = System.currentTimeMillis();
-			Logger.d(TAG, "Time in ms to get sticker list of category : " + catId + " from file :" + (t2 - t1));
-		}
-		catch (Exception e)
-		{
-			Logger.e(TAG, "Exception while reading category file.", e);
-			list = Collections.synchronizedSet(new LinkedHashSet<Sticker>(getMaxStickerCount()));
-		}
-		finally
-		{
-			Utils.closeStreams(in, fileIn);
-		}
-		return list;
+		return HikeConversationsDatabase.getInstance().getRecentStickers();
 	}
 
 	public void addDefaultRecentSticker()
@@ -157,7 +131,7 @@ public class CustomStickerCategory extends StickerCategory
 			synchronized (stickerSet)
 			{
 				Sticker s = new Sticker(recentCat[i], recentSticker[i]);
-				File f = new File(s.getSmallStickerPath());
+				File f = new File(s.getSmallStickerFilePath());
 				if(f.exists())
 				{
 					stickerSet.add(s);
@@ -199,6 +173,10 @@ public class CustomStickerCategory extends StickerCategory
 	public Set<Sticker> getStickerSet()
 	{
 		// TODO Auto-generated method stub
+		if(Utils.isEmpty(stickerSet))
+		{
+			loadStickers();
+		}
 		return stickerSet;
 	}
 

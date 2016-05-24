@@ -1,17 +1,12 @@
 package com.bsb.hike.analytics;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.Random;
 
 import com.bsb.hike.utils.AccountUtils;
-import com.bsb.hike.voip.VoIPConstants;
-import com.bsb.hike.voip.VoIPUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,7 +21,6 @@ import android.text.TextUtils;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.analytics.AnalyticsConstants.AppOpenSource;
-import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.media.ShareablePopupLayout;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
@@ -36,6 +30,7 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+import com.hike.abtest.ABTest;
 
 /**
  * @author rajesh
@@ -237,7 +232,24 @@ public class HAManager
 			return;
 		recordEvent(type, eventContext, priority, metadata, AnalyticsConstants.EVENT_TAG_MOB);		
 	}
-	
+
+	/**
+	 * Used to write analytics event to the file
+	 * @param eventJson event as JSONObject
+	 * @Sample: {"uk":"XXXXXX","k":"micro_app","c":"db_corrupt","fa":"db_error","f":"\"\\\/data\\\/data\\\/com.bsb.hike\\\/databases\\\/chats\"","ver":"v2"}
+	 * @NOTE: Below fields are mandatory
+	 *      1. AnalyticsConstants.V2.UNIQUE_KEY
+	 *      2. AnalyticsConstants.V2.KINGDOM
+	 *      3. AnalyticsConstants.V2.VERSION(This is added by the API itself)
+	 */
+	//TODO: choose better name
+	public void recordV2(JSONObject eventJson)
+	{
+		if(!isAnalyticsEnabled)
+			return;
+		recordEventV2(eventJson);
+	}
+
 	/**
 	 * Used to write the event onto the text file
 	 * @param type type of the event
@@ -258,6 +270,107 @@ public class HAManager
 
 		AnalyticsStore.getInstance(this.context).storeEvent(generateAnalticsJson(type, eventContext,
 				priority, metadata, tag));
+		ABTestSample(metadata);//Will be removed on 15/May/2016
+	}
+
+	//Will be removed on 15/May/2016
+	//Variable as defined by PM for the experiment.
+	String SAMPLE_EXPERIMENT_VARIABLE = "ABTEST-SAMPLE-01";
+	/**
+	 * Sample method for ABTest sdk usage reference.
+	 *
+	 * @param metadata
+	 */
+	private void ABTestSample(JSONObject metadata) {
+		//For sample purpose, this will be run as and when user enters TimeLine...
+		if(metadata.has(HikeConstants.EVENT_KEY)) {
+			String eventKey = null;
+			try {
+				eventKey = metadata.getString(HikeConstants.EVENT_KEY);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+			if(!eventKey.equals(HikeConstants.LogEvent.TIMELINE_OPEN)) {
+				return;
+			}
+		} else {
+			return;
+		}
+		//Call ABTest API based on variable type and default value
+		int abtestIntSample = ABTest.getInt(SAMPLE_EXPERIMENT_VARIABLE, -1);
+
+		//Implement behaviors based on the variable value
+		switch(abtestIntSample) {
+			case 1:
+				//Implement for Behavior 1
+				break;
+			case 2:
+				//Implement for Behavior 2
+				break;
+			case 3:
+				//Implement for Behavior 3
+				break;
+		}
+
+		//After user goes through the experiment, log the experiment values.
+		//(Check with PM/Analyst on this, for your respective case)
+		logABtestSample(abtestIntSample);
+
+	}
+	//Will be removed on 15/May/2016
+	private void logABtestSample(int abtestIntSample) {
+		//Log only if we have received experiment value (non-default)
+		if(abtestIntSample > 0) {
+			//Get Experiment details from ABTest SDK
+			JSONObject analyticsLog = ABTest.getLogDetails(SAMPLE_EXPERIMENT_VARIABLE);
+			if(analyticsLog!=null) {
+				try {
+					//Add experiment values, which you receive from your respective PM/Analyst
+					analyticsLog.put(AnalyticsConstants.V2.UNIQUE_KEY, "AB-TEST-SAMPLE");
+					analyticsLog.put(AnalyticsConstants.V2.GENUS, "sampleExperiment");
+					analyticsLog.put(AnalyticsConstants.V2.FAMILY, "Var Value: " +
+							SAMPLE_EXPERIMENT_VARIABLE + ": " + abtestIntSample);
+					recordEventV2(analyticsLog);
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+
+		}
+	}
+
+	/**
+	 * Used to write the event onto the text file
+	 * @param eventJson event data
+	 * @throws NullPointerException, IllegalArgumentException
+	 */
+	private synchronized void recordEventV2(JSONObject eventJson) throws NullPointerException, IllegalArgumentException
+	{
+		if(eventJson == null)
+		{
+			throw new NullPointerException("Event cannot be null.");
+		}
+		if(!eventJson.has(AnalyticsConstants.V2.UNIQUE_KEY) ||
+				!eventJson.has(AnalyticsConstants.V2.KINGDOM)) {
+			throw new IllegalArgumentException("AnalyticsConstants.V2.UNIQUE_KEY and AnalyticsConstants.V2.KINGDOM are Mandatory");
+		}
+		try {
+			if(!eventJson.has(AnalyticsConstants.V2.VERSION) ||
+                    !eventJson.getString(AnalyticsConstants.V2.VERSION).equals(AnalyticsConstants.V2.VERSION_VALUE))
+            {
+                eventJson.put(AnalyticsConstants.V2.VERSION, AnalyticsConstants.V2.VERSION_VALUE);
+            }
+			eventJson.put(AnalyticsConstants.V2.CTS, Utils.applyOffsetToMakeTimeServerSync(context, System.currentTimeMillis()));
+			eventJson.put(AnalyticsConstants.V2.RECORD_ID, fgSessionInstance.getSessionId());
+		} catch (JSONException e) {
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "Error in Event Json, ignoring event...");
+			return;
+		}
+
+		eventJson = Utils.cloneJsonObject(eventJson);
+		Logger.d(AnalyticsConstants.ANALYTICS_TAG, eventJson.toString());
+
+		AnalyticsStore.getInstance(this.context).storeEvent(eventJson);
 	}
 
 	private synchronized void dumpInMemoryEventsAndTryToUpload(boolean sendNow, boolean isOnDemandFromServer)
@@ -472,7 +585,14 @@ public class HAManager
 			{
 				metadata = new JSONObject();
 			}
-			
+			else
+			{
+				//Some metadata creators, modify metadata after calling the recordEvent()
+				//Due to this, there was a ConcurrentModificationException while persisting the JSON
+				//Cloning metadata will help us in this.
+				metadata = Utils.cloneJsonObject(metadata);
+			}
+
 			metadata.put(AnalyticsConstants.SESSION_ID, fgSessionInstance.getSessionId());
 
 			data.put(AnalyticsConstants.METADATA, metadata);
@@ -494,7 +614,7 @@ public class HAManager
 	 */
 	public void sendAnalyticsData(boolean sendNow, boolean isOnDemandFromServer)
 	{
-		dumpInMemoryEventsAndTryToUpload(sendNow, isOnDemandFromServer);		
+		dumpInMemoryEventsAndTryToUpload(sendNow, isOnDemandFromServer);
 	}	
 	
 	/**
@@ -548,9 +668,6 @@ public class HAManager
 
 	public JSONObject recordAndReturnSessionEnd()
 	{
-		fgSessionInstance.endChatSessions();
-		recordChatSessions();
-		
 		JSONObject metadata = getMetaDataForSession(fgSessionInstance, false);
 		
 		/*
@@ -562,8 +679,17 @@ public class HAManager
 		//HAManager.getInstance().record(AnalyticsConstants.SESSION_EVENT, AnalyticsConstants.BACKGROUND, EventPriority.HIGH, metadata, AnalyticsConstants.EVENT_TAG_SESSION);
 
 		fgSessionInstance.reset();
-		
+
+		uploadAnalyticsIfReqd();
 		return metadata; 
+	}
+
+	private void uploadAnalyticsIfReqd() {
+		if(getPrefs().getInt(AnalyticsConstants.EVENTS_TO_UPLOAD_COUNT, 0) >
+				AnalyticsConstants.DEFAULT_THRESHOLD_EVENTS_TO_UPLOAD) {
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "----Uploading events on Session end----");
+			sendAnalyticsData(true, false);
+		}
 	}
 
 	private JSONObject getMetaDataForSession( Session session, boolean sessionStart)
@@ -655,13 +781,13 @@ public class HAManager
 
 	}
 	
-	public void stickyCallerAnalyticsNonUIEvent(String eventKey, String numberType, String msisdn, String status, String source)
+	public void stickyCallerAnalyticsNonUIEvent(String eventType, String numberType, String msisdn, String status, String source)
 	{
 		JSONObject metadata = new JSONObject();
 		try
 		{
-			metadata.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.StickyCallerEvents.STICKY_CALLER);
-			metadata.put(HikeConstants.EVENT_KEY, eventKey);
+			metadata.put(HikeConstants.EVENT_TYPE, eventType);
+			metadata.put(HikeConstants.EVENT_KEY, AnalyticsConstants.StickyCallerEvents.STICKY_CALLER);
 			metadata.put(AnalyticsConstants.StickyCallerEvents.NUMBER_TYPE, numberType);
 			metadata.put(AnalyticsConstants.StickyCallerEvents.MSISDN, msisdn);
 			metadata.put(AnalyticsConstants.StickyCallerEvents.STATUS, status);
@@ -675,13 +801,13 @@ public class HAManager
 
 	}
 	
-	public void stickyCallerAnalyticsUIEvent(String eventKey, String msisdn, String source, String callType)
+	public void stickyCallerAnalyticsUIEvent(String eventType, String msisdn, String source, String callType)
 	{
 		JSONObject metadata = new JSONObject();
 		try
 		{
-			metadata.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.StickyCallerEvents.STICKY_CALLER);
-			metadata.put(HikeConstants.EVENT_KEY, eventKey);
+			metadata.put(HikeConstants.EVENT_KEY, AnalyticsConstants.StickyCallerEvents.STICKY_CALLER);
+			metadata.put(HikeConstants.EVENT_TYPE, eventType);
 			metadata.put(AnalyticsConstants.StickyCallerEvents.MSISDN, msisdn);
 			metadata.put(AnalyticsConstants.StickyCallerEvents.SOURCE, source);
 			metadata.put(AnalyticsConstants.StickyCallerEvents.CALL_TYPE, callType);
@@ -707,7 +833,29 @@ public class HAManager
 			Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "update tip/notif analytics json exception");
 		}
 	}
-	
+
+	public void interceptAnalyticsEvent(String eventKey, String action, boolean isUIEvent)
+	{
+		JSONObject metadata = new JSONObject();
+		try
+		{
+			metadata.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.InterceptEvents.INTERCEPTS);
+			metadata.put(HikeConstants.EVENT_KEY, eventKey);
+			metadata.put(AnalyticsConstants.InterceptEvents.INTERCEPT_ACTION, action);
+			if(isUIEvent)
+			{
+				record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
+			}
+			else
+			{
+				record(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.InterceptEvents.INTERCPET_NOTIF_EVENT, EventPriority.HIGH, metadata);
+			}
+		}
+		catch (JSONException e)
+		{
+			Logger.d(HikeConstants.INTERCEPTS.INTERCEPT_LOG, "intercept analytics event exception:" + e.toString());
+		}
+	}
 	
 	public void serviceEventAnalytics(String eventType, String serviceName)
 	{		
@@ -828,47 +976,45 @@ public class HAManager
 		return AnalyticsConstants.MessageType.TEXT;
 
 	}
-	
-	/**
-	 * It records Events For All Bots For this App session
-	 */
-	public void recordChatSessions()
+
+    /**
+     * It records Events For Bot for this individual session
+     */
+	public void recordIndividualChatSession(String msisdn ,String source)
 	{
-		JSONObject metadata = null;
-		
+		JSONObject metadata;
+        ChatSession chatSession = fgSessionInstance.getIndividualChatSesions(msisdn);
+        fgSessionInstance.removeChatSessionFromMap(msisdn);
 		try
 		{
-			ArrayList<ChatSession> chatSessionList = fgSessionInstance.getChatSesions();
-			
-			if(chatSessionList != null && !chatSessionList.isEmpty())
+			if (chatSession != null)
 			{
-				for(ChatSession chatSession : chatSessionList)
-				{
-					metadata = new JSONObject();
-					//1)to_user:- "+hikecricket+" for cricket bot
-					metadata.put(AnalyticsConstants.TO_USER, chatSession.getMsisdn());
-					
-					//2)duration:-Total time of Chat Session in whole session
-					metadata.put(AnalyticsConstants.SESSION_TIME, chatSession.getChatSessionTotalTime());
-					
-					//3)putting event key (ek) as bot_open
-					metadata.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.BOT_OPEN);
+				metadata = new JSONObject();
+				// 1)to_user:- "+hikecricket+" for cricket bot
+				metadata.put(AnalyticsConstants.TO_USER, chatSession.getMsisdn());
 
-					metadata.put(AnalyticsConstants.NETWORK_TYPE, Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
-					metadata.put(AnalyticsConstants.APP_VERSION, AccountUtils.getAppVersion());
+				// 2)duration:-Total time of Chat Session in this particular session got this msisdn
+				metadata.put(AnalyticsConstants.SESSION_TIME, chatSession.getChatSessionTime());
 
-					record(AnalyticsConstants.CHAT_ANALYTICS, AnalyticsConstants.NON_UI_EVENT, EventPriority.HIGH, metadata, AnalyticsConstants.EVENT_TAG_BOTS);
-					botOpenMqttAnalytics(metadata);
+				// 3)putting event key (ek) as bot_open
+				metadata.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.BOT_OPEN);
 
-					Logger.d(AnalyticsConstants.ANALYTICS_TAG, "--session-id :" + fgSessionInstance.getSessionId() + "--to_user :" + chatSession.getMsisdn() + "--session-time :" + chatSession.getChatSessionTotalTime());
-				}
+				metadata.put(AnalyticsConstants.NETWORK_TYPE, Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
+				metadata.put(AnalyticsConstants.APP_VERSION, AccountUtils.getAppVersion());
+				metadata.put(AnalyticsConstants.SOURCE_APP_OPEN,source);
+
+				record(AnalyticsConstants.CHAT_ANALYTICS, AnalyticsConstants.NON_UI_EVENT, EventPriority.HIGH, metadata, AnalyticsConstants.EVENT_TAG_BOTS);
+				botOpenMqttAnalytics(metadata);
+
+				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "--session-id :" + fgSessionInstance.getSessionId() + "--to_user :" + chatSession.getMsisdn() + "--session-time :"
+						+ chatSession.getChatSessionTime());
 			}
 		}
-		catch(JSONException e)
+		catch (JSONException e)
 		{
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 		}
-		
+
 	}
 
 	private void botOpenMqttAnalytics(JSONObject metadata)
@@ -1049,7 +1195,7 @@ public class HAManager
 		} 
 		catch (JSONException e) 
 		{
-			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "Invalid json:",e);
+			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "Invalid json:", e);
 		}
 
 	}
@@ -1107,7 +1253,20 @@ public class HAManager
 		}
 
 		Editor editor = getPrefs().edit();
-	    editor.putBoolean(AnalyticsConstants.USER_GOOGLE_ACCOUNTS_SENT, true);
-	    editor.apply();
+		editor.putBoolean(AnalyticsConstants.USER_GOOGLE_ACCOUNTS_SENT, true);
+		editor.apply();
+	}
+
+	public void resetAnalyticsEventsUploadCount() {
+		SharedPreferences.Editor sharedPrefEditor = getPrefs().edit();
+		sharedPrefEditor.putInt(AnalyticsConstants.EVENTS_TO_UPLOAD_COUNT, 0);
+		sharedPrefEditor.commit();
+	}
+
+	public void incrementAnalyticsEventsUploadCount() {
+		SharedPreferences.Editor sharedPrefEditor = getPrefs().edit();
+		sharedPrefEditor.putInt(AnalyticsConstants.EVENTS_TO_UPLOAD_COUNT,
+				getPrefs().getInt(AnalyticsConstants.EVENTS_TO_UPLOAD_COUNT, 0) + 1);
+		sharedPrefEditor.commit();
 	}
 }

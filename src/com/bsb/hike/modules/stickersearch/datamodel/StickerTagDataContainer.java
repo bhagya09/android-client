@@ -9,8 +9,10 @@ package com.bsb.hike.modules.stickersearch.datamodel;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class StickerTagDataContainer
 {
@@ -34,9 +36,10 @@ public class StickerTagDataContainer
 
 	private int mMomentCode;
 
-	private String mFestivals;
+	private List<StickerEventDataContainer> mEvents;
 
-	private StickerTagDataContainer(StickerTagDataBuilder builder) {
+	private StickerTagDataContainer(StickerTagDataBuilder builder)
+	{
 		mStickerCode = builder.mStickerCode;
 		mTags = builder.mTags;
 		mLanguages = builder.mLanguages;
@@ -46,8 +49,8 @@ public class StickerTagDataContainer
 		mTagExactMatchPriorities = builder.mTagExactMatchPriorities;
 		mTagPriorities = builder.mTagPriorities;
 		mMomentCode = builder.mMomentCode;
-		mFestivals = builder.mFestivals;
-    }
+		mEvents = builder.mEvents;
+	}
 
 	public String getStickerCode()
 	{
@@ -56,7 +59,7 @@ public class StickerTagDataContainer
 
 	public boolean getStickerAvailabilityStatus()
 	{
-		return (mStickerCode == null) ? false : StickerManager.getInstance().getStickerFromSetString(mStickerCode).getStickerCurrentAvailability();
+		return (mStickerCode == null) ? false : StickerManager.getInstance().getStickerFromSetString(mStickerCode).isStickerAvailable();
 	}
 
 	public ArrayList<String> getTagList()
@@ -99,9 +102,9 @@ public class StickerTagDataContainer
 		return mMomentCode;
 	}
 
-	public String getFestivalList()
+	public List<StickerEventDataContainer> getFestiveData()
 	{
-		return mFestivals;
+		return mEvents;
 	}
 
 	public boolean isValidData()
@@ -112,17 +115,25 @@ public class StickerTagDataContainer
 		if (size > 0)
 		{
 			result = (mStickerCode != null) && (mLanguages != null) && (mScripts != null) && (mTagCategories != null) && (mThemes != null) && (mTagExactMatchPriorities != null)
-					&& (mTagPriorities != null) && (mFestivals != null);
+					&& (mTagPriorities != null);
 
 			if (result)
 			{
-				// Language, Script, Category and various Priorities are per tag while themes are per sticker
+				// Language, Script, Category and various Priorities are per tag and themes are per sticker
 //				result = (mLanguages.size() == size) && (mScripts.size() == size) && (mTagCategories.size() == size) && (mTagExactMatchPriorities.size() == size)
 //						&& (mTagPriorities.size() == size) && (mThemes.size() > 0);
 				//temp hack since theme list is not being used currently and also server does not send theme list for tags in regional scripts
 				result = (mLanguages.size() == size) && (mScripts.size() == size) && (mTagCategories.size() == size) && (mTagExactMatchPriorities.size() == size)
 						&& (mTagPriorities.size() == size) && (mThemes.size() >= 0);
 			}
+		}
+		/* Explicitly, attribute only data was sent by server.
+		 * Currently, festival list is the attribute, which can be sent without any tag attached.
+		 * Add conditions for other attributes in future as the case may be.
+		 */
+		else
+		{
+			result = (mStickerCode != null) && (mEvents != null);
 		}
 
 		if (!isValidMomentCode())
@@ -137,7 +148,8 @@ public class StickerTagDataContainer
 	private boolean isValidMomentCode()
 	{
 		return ((mMomentCode >= HikeStickerSearchBaseConstants.MOMENT_CODE_UNIVERSAL) && (mMomentCode <= HikeStickerSearchBaseConstants.MOMENT_CODE_NIGHT_TERMINAL))
-				|| ((mMomentCode >= HikeStickerSearchBaseConstants.MOMENT_CODE_MORNING_NON_TERMINAL) && (mMomentCode <= HikeStickerSearchBaseConstants.MOMENT_CODE_NIGHT_NON_TERMINAL));
+				|| ((mMomentCode >= HikeStickerSearchBaseConstants.MOMENT_CODE_MORNING_NON_TERMINAL)
+						&& (mMomentCode <= HikeStickerSearchBaseConstants.MOMENT_CODE_NIGHT_NON_TERMINAL));
 	}
 
 	@Override
@@ -151,12 +163,12 @@ public class StickerTagDataContainer
 		result = prime * result + ((mTagExactMatchPriorities == null) ? 0 : mTagExactMatchPriorities.hashCode());
 		result = prime * result + ((mTagPriorities == null) ? 0 : mTagPriorities.hashCode());
 		result = prime * result + ((mStickerCode == null) ? 0 : mStickerCode.hashCode());
-		result = prime * result + ((mFestivals == null) ? 0 : mFestivals.hashCode());
 		result = prime * result + ((mLanguages == null) ? 0 : mLanguages.hashCode());
 		result = prime * result + ((mScripts == null) ? 0 : mScripts.hashCode());
 		result = prime * result + ((mTagCategories == null) ? 0 : mTagCategories.hashCode());
 		result = prime * result + ((mTags == null) ? 0 : mTags.hashCode());
 		result = prime * result + ((mThemes == null) ? 0 : mThemes.hashCode());
+		result = prime * result + ((mEvents == null) ? 0 : mEvents.hashCode());
 
 		return result;
 	}
@@ -224,18 +236,6 @@ public class StickerTagDataContainer
 			return false;
 		}
 
-		if (mFestivals == null)
-		{
-			if (other.mFestivals != null)
-			{
-				return false;
-			}
-		}
-		else if (!mFestivals.equals(other.mFestivals))
-		{
-			return false;
-		}
-
 		if (mLanguages == null)
 		{
 			if (other.mLanguages != null)
@@ -296,14 +296,26 @@ public class StickerTagDataContainer
 			return false;
 		}
 
+		if (mEvents == null)
+		{
+			if (other.mEvents != null)
+			{
+				return false;
+			}
+		}
+		else if (!mEvents.equals(other.mEvents))
+		{
+			return false;
+		}
+
 		return true;
 	}
 
 	@Override
 	public String toString()
 	{
-		return "[stkr_info: " + mStickerCode + ", tag_data: {<tag=" + mTags + "><lan=" + mLanguages + "><scr=" + mScripts + "><cat=" + mTagCategories + "><thm=" + mThemes + "><ext_match_ord="
-				+ mTagExactMatchPriorities + "><tag_popularity_ord=" + mTagPriorities + ">}, attrs: {<mnt_cd=" + mMomentCode + "><fest=" + mFestivals + "}]";
+		return "[stkr_info: " + mStickerCode + ", tag_data: {<tag=" + mTags + "><lan=" + mLanguages + "><scr=" + mScripts + "><cat=" + mTagCategories + "><thm=" + mThemes
+				+ "><ext_match_ord=" + mTagExactMatchPriorities + "><tag_popularity_ord=" + mTagPriorities + ">}, attrs: {<mnt_cd=" + mMomentCode + "><evt=" + mEvents + "}]";
 	}
 
 	public static class StickerTagDataBuilder
@@ -326,7 +338,7 @@ public class StickerTagDataContainer
 
 		private int mMomentCode;
 
-		private String mFestivals;
+		private List<StickerEventDataContainer> mEvents;
 
 		/* Initial constructor should have all 3 parameters, based on which any sticker can be defined uniquely */
 		public StickerTagDataBuilder(String stickerCode, ArrayList<String> tags, ArrayList<String> themes, ArrayList<String> languages)
@@ -356,10 +368,10 @@ public class StickerTagDataContainer
 			return this;
 		}
 
-		public StickerTagDataBuilder events(int moment, String festivals)
+		public StickerTagDataBuilder events(int moment, List<StickerEventDataContainer> events)
 		{
 			mMomentCode = moment;
-			mFestivals = festivals;
+			mEvents = events;
 			return this;
 		}
 

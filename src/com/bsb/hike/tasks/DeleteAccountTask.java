@@ -1,7 +1,5 @@
 package com.bsb.hike.tasks;
 
-import org.json.JSONObject;
-
 import android.app.Activity;
 import android.app.NotificationManager;
 import android.content.Context;
@@ -14,17 +12,19 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.backup.AccountBackupRestore;
+import com.bsb.hike.bots.CustomKeyboardManager;
 import com.bsb.hike.db.HikeContentDatabase;
-import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.localisation.LocalLanguage;
 import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.requeststate.HttpRequestStateDB;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchDataController;
@@ -32,6 +32,7 @@ import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineException;
 import com.bsb.hike.service.HikeService;
 import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.HikeSystemSettingsDBUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
@@ -39,7 +40,11 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.google.android.gcm.GCMRegistrar;
-import com.hike.transporter.TException;
+
+import org.json.JSONObject;
+
+import java.util.Map;
+import java.util.Set;
 
 public class DeleteAccountTask implements ActivityCallableTask
 {
@@ -135,6 +140,8 @@ public class DeleteAccountTask implements ActivityCallableTask
 		HikeConversationsDatabase convDb = HikeConversationsDatabase.getInstance();
 		convDb.deleteAll();
 
+		HttpRequestStateDB.getInstance().deleteAll();
+
 		if (delete)
 		{
 			// DBBackupRestore.getInstance(ctx).deleteAllFiles();
@@ -169,9 +176,13 @@ public class DeleteAccountTask implements ActivityCallableTask
 		 */
 
 		/**
-		 * Deleting residual sticker data
+		 * Deleting residual sticker data on account deletion only and not in case of unlink relink account
 		 */
-		StickerManager.getInstance().deleteStickers();
+		if (delete)
+		{
+			StickerManager.getInstance().deleteStickers();
+		}
+		Utils.deleteDiskCache();
 		
 		/**
 		 * Setting token and uid in memory to null
@@ -201,6 +212,11 @@ public class DeleteAccountTask implements ActivityCallableTask
 		{
 			AccountBackupRestore.getInstance(ctx).deleteAllFiles();
 		}
+
+		if (!delete)
+		{
+			AccountBackupRestore.getInstance(ctx).backup(); // Keep a backup if it's reset account
+		}
 		
 		/*
 		 *Closing connection is connected or connecting  via hike direct    
@@ -220,11 +236,16 @@ public class DeleteAccountTask implements ActivityCallableTask
 		 */
 		HikeMessengerApp.getInstance().startUpdgradeIntent();
 
+        /*
+		 * We need to remove custom keyboard data from shared preferences after account reset
+		 */
+        Map<String,?> customKeyboardSharedPref = HikeSharedPreferenceUtil.getInstance(CustomKeyboardManager.CUSTOM_INPUT_BOX_KEY).getAllData();
+        Set<String> customKeyboardSharedPrefKeys = customKeyboardSharedPref.keySet();
+        HikeSharedPreferenceUtil.getInstance(CustomKeyboardManager.CUSTOM_INPUT_BOX_KEY).removeData(customKeyboardSharedPrefKeys);
 
-		finished = true;
+        finished = true;
 
 		/* clear any toast notifications */
-
 		try
 		{
 			NotificationManager mgr = (NotificationManager) ctx.getSystemService(android.content.Context.NOTIFICATION_SERVICE);

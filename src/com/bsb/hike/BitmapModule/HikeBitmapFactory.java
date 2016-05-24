@@ -3,13 +3,13 @@ package com.bsb.hike.BitmapModule;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Random;
 
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
-import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -20,39 +20,36 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
 import android.media.ExifInterface;
 import android.os.Build;
-import android.os.Handler;
-import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Pair;
 import android.view.View;
 import android.view.View.MeasureSpec;
-import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.contactmgr.GroupDetails;
 import com.bsb.hike.photos.HikePhotosListener;
-import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.view.TextDrawable;
 
 public class HikeBitmapFactory
 {
 	private static final String TAG = "HikeBitmapFactory";
 
-	public static final int DEFAULT_BITMAP_COMPRESSION = 80;
-
-	private static final int NUMBER_OF_CHARS_DEFAULT_DP = 1;
-	
 	private static final int MEMORY_MULTIPLIIER = 8;
 		
 	private static final int RGB_565_BYTE_SIZE = 16;
@@ -65,7 +62,7 @@ public class HikeBitmapFactory
 		
         private int value;
 
-        private BitmapResolutionState(int value) {
+        BitmapResolutionState(int value) {
                 this.value = value;
         }
         
@@ -139,26 +136,6 @@ public class HikeBitmapFactory
 		}
 		byte[] thumbnailBytes = Base64.decode(encodedString, Base64.DEFAULT);
 		return getBitmapDrawable(decodeBitmapFromByteArray(thumbnailBytes, Config.RGB_565));
-	}
-
-	public static Bitmap makeSquareThumbnail(Bitmap thumbnail)
-	{
-		int dimensionLimit = thumbnail.getWidth() < thumbnail.getHeight() ? thumbnail.getWidth() : thumbnail.getHeight();
-
-		int startX = thumbnail.getWidth() > dimensionLimit ? (int) ((thumbnail.getWidth() - dimensionLimit) / 2) : 0;
-		int startY = thumbnail.getHeight() > dimensionLimit ? (int) ((thumbnail.getHeight() - dimensionLimit) / 2) : 0;
-
-		Logger.d("Utils", "StartX: " + startX + " StartY: " + startY + " WIDTH: " + thumbnail.getWidth() + " Height: " + thumbnail.getHeight());
-		Logger.d("Utils", "dimensionLimit : " + dimensionLimit);
-
-		Bitmap squareThumbnail = createBitmap(thumbnail, startX, startY, startX + dimensionLimit, startY + dimensionLimit);
-
-		if (squareThumbnail != thumbnail)
-		{
-			thumbnail.recycle();
-		}
-		thumbnail = null;
-		return squareThumbnail;
 	}
 
 	public static Bitmap stringToBitmap(String thumbnailString)
@@ -273,63 +250,6 @@ public class HikeBitmapFactory
 		}, 0);
 	}
 
-	/**
-	 * TODO Use Fresco to optimize - https://github.com/facebook/fresco
-	 * 
-	 * @param imageFile
-	 */
-	public static void correctImageOrientation(String imageFile)
-	{
-
-		if (null == imageFile || !new File(imageFile).exists())
-		{
-			return;
-		}
-
-		try
-		{
-			String imageOrientation = Utils.getImageOrientation(imageFile);
-
-			// Check if orientation needs to be fixed
-			if (0 != Utils.getRotatedAngle(imageOrientation))
-			{
-				// Load
-				Bitmap bmp = HikeBitmapFactory.decodeFile(imageFile);
-
-				if (bmp != null)
-				{
-					// Rotate
-					Bitmap correctedBmp = Utils.getRotatedBitmap(imageFile, bmp);
-
-					if (correctedBmp != null)
-					{
-						String fileExtension = Utils.getFileExtension(new File(imageFile).getName());
-
-						// Check file type - Takes care of jpeg/jpg
-						String fileType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase());
-
-						CompressFormat outCompressFormat = CompressFormat.PNG;
-						
-						if (fileType.equals("image/jpeg"))
-						{
-							outCompressFormat = CompressFormat.JPEG;
-						}
-
-						// Save
-						BitmapUtils.saveBitmapToFile(new File(imageFile), correctedBmp, outCompressFormat, 100);
-						// Recycle
-						HikePhotosUtils.manageBitmaps(bmp);
-						HikePhotosUtils.manageBitmaps(correctedBmp);
-					}
-				}
-			}
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-	}
-
 	public static Bitmap rotateBitmap(Bitmap b, int degrees)
 	{
 		if (degrees != 0 && b != null)
@@ -359,15 +279,11 @@ public class HikeBitmapFactory
 	public static Bitmap returnScaledBitmap(Bitmap src, Context context)
 	{
 		Resources res = context.getResources();
-		if (Utils.isHoneycombOrHigher())
-		{
-			int height = (int) res.getDimension(android.R.dimen.notification_large_icon_height);
-			int width = (int) res.getDimension(android.R.dimen.notification_large_icon_width);
-			src = createScaledBitmap(src, width, height, Bitmap.Config.RGB_565, false, true, true);
-			return src;
-		}
-		else
-			return src;
+
+		int height = (int) res.getDimension(android.R.dimen.notification_large_icon_height);
+		int width = (int) res.getDimension(android.R.dimen.notification_large_icon_width);
+		src = createScaledBitmap(src, width, height, Bitmap.Config.RGB_565, false, true, true);
+		return src;
 	}
 
 	public static BitmapDrawable getBitmapDrawable(Resources mResources, final Bitmap bitmap)
@@ -375,17 +291,7 @@ public class HikeBitmapFactory
 		if (bitmap == null)
 			return null;
 
-		if (Utils.isHoneycombOrHigher())
-		{
-			// Running on Honeycomb or newer, so wrap in a standard BitmapDrawable
-			return new BitmapDrawable(mResources, bitmap);
-		}
-		else
-		{
-			// Running on Gingerbread or older, so wrap in a RecyclingBitmapDrawable
-			// which will recycle automagically
-			return new RecyclingBitmapDrawable(mResources, bitmap);
-		}
+		return new BitmapDrawable(mResources, bitmap);
 	}
 
 	public static BitmapDrawable getBitmapDrawable(final Bitmap bitmap)
@@ -393,17 +299,7 @@ public class HikeBitmapFactory
 		if (bitmap == null)
 			return null;
 
-		if (Utils.isHoneycombOrHigher())
-		{
-			// Running on Honeycomb or newer, so wrap in a standard BitmapDrawable
-			return new BitmapDrawable(bitmap);
-		}
-		else
-		{
-			// Running on Gingerbread or older, so wrap in a RecyclingBitmapDrawable
-			// which will recycle automagically
-			return new RecyclingBitmapDrawable(bitmap);
-		}
+		return new BitmapDrawable(bitmap);
 	}
 
 	/**
@@ -438,12 +334,6 @@ public class HikeBitmapFactory
 
 		// Calculate inSampleSize
 		options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
-
-		// If we're running on Honeycomb or newer, try to use inBitmap
-		// if (Utils.hasHoneycomb())
-		// {
-		// addInBitmapOptions(options, cache);
-		// }
 
 		// Decode bitmap with inSampleSize set
 		options.inJustDecodeBounds = false;
@@ -553,63 +443,6 @@ public class HikeBitmapFactory
 	}
 
 	/**
-	 * Decode and sample down a bitmap from a file to the requested width and height.
-	 * 
-	 * @param filename
-	 *            The full path of the file to decode
-	 * @param reqWidth
-	 *            The requested width of the resulting bitmap
-	 * @param reqHeight
-	 *            The requested height of the resulting bitmap
-	 * @param cache
-	 *            The ImageCache used to find candidate bitmaps for use with inBitmap
-	 * @return A bitmap sampled down from the original with the same aspect ratio and dimensions that are equal to or greater than the requested width and height
-	 */
-	public static Bitmap decodeSampledBitmapFromByteArray(byte[] bytearray, int reqWidth, int reqHeight)
-	{
-		return decodeSampledBitmapFromByteArray(bytearray, reqWidth, reqHeight, Bitmap.Config.ARGB_8888);
-	}
-
-	public static Bitmap decodeSampledBitmapFromByteArray(byte[] bytearray, int reqWidth, int reqHeight, Bitmap.Config con)
-	{
-		if (bytearray == null)
-			return null;
-		// First decode with inJustDecodeBounds=true to check dimensions
-		final BitmapFactory.Options options = new BitmapFactory.Options();
-		options.inJustDecodeBounds = true;
-
-		decodeByteArray(bytearray, 0, bytearray.length, options);
-
-		options.inPreferredConfig = con;
-
-		// Calculate inSampleSize
-		options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
-
-		// If we're running on Honeycomb or newer, try to use inBitmap
-		// if (Utils.hasHoneycomb())
-		// {
-		// addInBitmapOptions(options, cache);
-		// }
-
-		// Decode bitmap with inSampleSize set
-		options.inJustDecodeBounds = false;
-		Bitmap result = null;
-		try
-		{
-			result = decodeByteArray(bytearray, 0, bytearray.length, options);
-		}
-		catch (IllegalArgumentException e)
-		{
-			result = decodeByteArray(bytearray, 0, bytearray.length);
-		}
-		catch (Exception e)
-		{
-			Logger.e(TAG, "Exception in decoding Bitmap from ByteArray: ", e);
-		}
-		return result;
-	}
-
-	/**
 	 * This method decodes a bitmap from byte array with particular configuration config passed as a parameter. Bitmap will not be sampled , only configuration will be config. To
 	 * sample down bitmap use decodeSampledBitmapFromByteArray
 	 * 
@@ -696,26 +529,6 @@ public class HikeBitmapFactory
 			Logger.e(TAG, "Exception in decoding Bitmap from file: ", e);
 		}
 		return result;
-	}
-
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	private static void addInBitmapOptions(BitmapFactory.Options options)
-	{
-		// inBitmap only works with mutable bitmaps so force the decoder to
-		// return mutable bitmaps.
-		options.inMutable = true;
-		HikeLruCache cache = HikeMessengerApp.getLruCache();
-		if (cache != null)
-		{
-			// Try and find a bitmap to use for inBitmap
-			Bitmap inBitmap = cache.getBitmapFromReusableSet(options);
-
-			if (inBitmap != null)
-			{
-				Logger.d(TAG, "Found a bitmap in reusable set.");
-				options.inBitmap = inBitmap;
-			}
-		}
 	}
 
 	/**
@@ -1318,29 +1131,144 @@ public class HikeBitmapFactory
 		
 		return calculateInSampleSize(options, reqWidth, reqHeight);
 	}
-	public static BitmapDrawable getDefaultAvatar(Resources res, String msisdn, boolean hiRes)
-	{
-	
-		int index = BitmapUtils.iconHash(msisdn) % (HikeConstants.DEFAULT_AVATAR_KEYS.length);
 
-		int defaultAvatarResId = HikeConstants.DEFAULT_AVATARS[index]; 
-		
-		Drawable layers[] = new Drawable[2];
-		layers[0] = res.getDrawable(defaultAvatarResId);
-		layers[1] = res.getDrawable(getDefaultAvatarIconResId(msisdn, hiRes));
-		
-		LayerDrawable ld = new LayerDrawable(layers);
-		ld.setId(0, 0);
-		ld.setId(1, 1);
-		ld.setDrawableByLayerId(0, layers[0]);
-		ld.setDrawableByLayerId(1, layers[1]);
-		
-		Bitmap bmp = drawableToBitmap(ld);
-		
-		BitmapDrawable bd = getBitmapDrawable(res, bmp);
-		return bd;
+	public static Drawable getDefaultTextAvatar(String text)
+	{
+		return getDefaultTextAvatar(text, -1);
+	}
+
+	public static Drawable getDefaultTextAvatar(String text, int fontSize)
+	{
+		return getDefaultTextAvatar(text,fontSize,-1);
+	}
+
+	public static Drawable getDefaultTextAvatar(String text, int fontSize, int argBgColor)
+	{
+		return getDefaultTextAvatar(text, fontSize, argBgColor,false);
+	}
+
+	public static Drawable getDefaultTextAvatar(String text, int fontSize, int argBgColor, boolean isFirstName)
+	{
+		if (TextUtils.isEmpty(text))
+		{
+			return getRandomHashTextDrawable();
+		}
+
+		String initials = null;
+
+		if (isFirstName)
+		{
+			initials = Utils.getInitialsFromContactName(text);
+		}
+		else
+		{
+			initials = getNameInitialsForDefaultAv(text);
+		}
+
+		int bgColor = argBgColor;
+
+		if (bgColor == -1)
+		{
+			TypedArray bgColorArray = Utils.getDefaultAvatarBG();
+
+			int index = BitmapUtils.iconHash(text) % (bgColorArray.length());
+
+			bgColor = bgColorArray.getColor(index, 0);
+		}
+
+		TextDrawable drawable = null;
+		if (fontSize != -1)
+		{
+			drawable =  TextDrawable.builder().beginConfig().fontSize(fontSize).endConfig().buildRound(initials, bgColor);
+		}
+		else
+		{
+			drawable = TextDrawable.builder().buildRound(initials, bgColor);
+		}
+
+		//https://github.com/facebook/fresco/issues/501
+		drawable.setPadding(new Rect());
+
+		return drawable;
 	}
 	
+	public static TextDrawable getRandomHashTextDrawable()
+	{
+		return getRandomHashTextDrawable(-1);
+	}
+
+	public static TextDrawable getRandomHashTextDrawable(int argBgColor)
+	{
+		int bgColor = argBgColor;
+
+		if (argBgColor == -1)
+		{
+			TypedArray bgColorArray = Utils.getDefaultAvatarBG();
+
+			bgColor = bgColorArray.getColor(new Random().nextInt(bgColorArray.length()), 0);
+		}
+
+		return TextDrawable.builder().buildRound("#", bgColor);
+	}
+
+	public static Drawable getRectTextAvatar(String text)
+	{
+		TypedArray bgColorArray = Utils.getDefaultAvatarBG();
+
+		if (TextUtils.isEmpty(text))
+		{
+			return getRandomHashTextDrawable();
+		}
+
+		String initials = getNameInitialsForDefaultAv(text);
+
+		int index = BitmapUtils.iconHash(text) % (bgColorArray.length());
+
+		int bgColor = bgColorArray.getColor(index, 0);
+
+		return TextDrawable.builder().buildRect(initials, bgColor);
+	}
+
+	public static String getNameInitialsForDefaultAv(String msisdn)
+	{
+		if (TextUtils.isEmpty(msisdn.trim()))
+		{
+			return "#";
+		}
+
+		String contactName = msisdn;
+
+		if (OneToNConversationUtils.isOneToNConversation(msisdn) && ContactManager.getInstance().getGroupDetails(msisdn) != null)
+		{
+			GroupDetails groupDetails = ContactManager.getInstance().getGroupDetails(msisdn);
+
+			contactName = groupDetails.getGroupName();
+		}
+		else if(BotUtils.isBot(msisdn))
+		{
+			BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+			contactName = botInfo.getConversationName();
+		}
+		else
+		{
+			ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, true, true, false);
+
+			contactName = contactInfo.getName();
+
+			if (ContactManager.getInstance().getSelfMsisdn().equals(msisdn))
+			{
+				contactName = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.NAME_SETTING, msisdn);
+			}
+
+			if (contactName == null)
+			{
+				contactName = msisdn;
+			}
+		}
+
+		return Utils.getInitialsFromContactName(contactName);
+	}
+
 	private static int getDefaultAvatarIconResId( String msisdn, boolean hiRes)
 	{
 		if (OneToNConversationUtils.isBroadcastConversation(msisdn))
@@ -1766,7 +1694,7 @@ public class HikeBitmapFactory
 			}
 		}
 
-		return new Pair<Integer, Integer>(imgWidth, imgHeight);
+		return new Pair<>(imgWidth, imgHeight);
 	}
 
 }

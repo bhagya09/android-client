@@ -18,6 +18,12 @@ public class AccountInfo
 
 	private String backupToken;
 
+	private String serverName;
+
+	private String serverGender;
+
+	private Birthday serverDOB;
+
 	private AccountInfo(Builder builder)
 	{
 		this.token = builder.token;
@@ -28,6 +34,9 @@ public class AccountInfo
 		this.all_invitee_joined = builder.all_invitee_joined;
 		this.country_code = builder.country_code;
 		this.backupToken = builder.backupToken;
+		this.serverName = builder.serverName;
+		this.serverGender = builder.serverGender;
+		this.serverDOB = builder.serverDOB;
 	}
 
 	public String getToken()
@@ -65,6 +74,21 @@ public class AccountInfo
 		return country_code;
 	}
 
+	public String getServerName()
+	{
+		return serverName;
+	}
+
+	public String getServerGender()
+	{
+		return serverGender;
+	}
+
+	public Birthday getServerDOB()
+	{
+		return serverDOB;
+	}
+
 	public String getBackUpToken()
 	{
 		return backupToken;
@@ -87,6 +111,12 @@ public class AccountInfo
 		private String country_code;
 
 		private String backupToken;
+
+		private String serverName;
+
+		private String serverGender;
+
+		private Birthday serverDOB;
 
 		public AccountInfo build()
 		{
@@ -138,6 +168,24 @@ public class AccountInfo
 		public Builder setBackupToken(String backupToken)
 		{
 			this.backupToken = backupToken;
+			return this;
+		}
+
+		public Builder setServerName(String serverName)
+		{
+			this.serverName = serverName;
+			return this;
+		}
+
+		public Builder setServerGender(String serverGender)
+		{
+			this.serverGender = serverGender;
+			return this;
+		}
+
+		public Builder setServerBirthday(Birthday serverDOB)
+		{
+			this.serverDOB = serverDOB;
 			return this;
 		}
 	}

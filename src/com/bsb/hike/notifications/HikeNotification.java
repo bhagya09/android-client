@@ -3,6 +3,7 @@ package com.bsb.hike.notifications;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -14,6 +15,7 @@ import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Action;
 import android.support.v4.app.NotificationCompat.Builder;
@@ -35,16 +37,30 @@ import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.filetransfer.FTUtils;
+import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.*;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
+import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.notifications.refactor.badge.HikeBadgeCountManager;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.productpopup.AtomicTipContentModel;
+import com.bsb.hike.productpopup.AtomicTipManager;
+import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
+import com.bsb.hike.triggers.InterceptUtils;
+import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.utils.*;
 import com.bsb.hike.voip.VoIPService;
 import com.bsb.hike.voip.VoIPUtils;
@@ -56,6 +72,7 @@ import java.util.*;
 
 public class HikeNotification
 {
+	private final SharedPreferences appPrefs;
 	private String VIB_OFF, VIB_DEF, VIB_SHORT, VIB_LONG;
 
 	private String NOTIF_SOUND_OFF, NOTIF_SOUND_DEFAULT, NOTIF_SOUND_HIKE;
@@ -79,6 +96,8 @@ public class HikeNotification
 	public static final int HIKE_TO_OFFLINE_PUSH_NOTIFICATION_ID = -89;
 
 	public static final int VOIP_MISSED_CALL_NOTIFICATION_ID = -89;
+
+	public static final int CRITICAL_DB_CORRUPT_NOTIF = -111;
 	
 	public static final String NOTIF_ALARM_INTENT = "com.bsb.hike.PERS_NOTIF_ALARM_INTENT";
 
@@ -94,11 +113,13 @@ public class HikeNotification
 	public static final int OFFLINE_REQUEST_ID = -91;
 	
 	public static final int NOTIFICATION_PRODUCT_POPUP = -92;
+
 	// We need a key to pair notification id. This will be used to retrieve notification id on notification dismiss/action.
 	public static final String HIKE_NOTIFICATION_ID_KEY = "hike.notification";
 
 	public static final String HIKE_STEALTH_MESSAGE_KEY = "HIKE_STEALTH_MESSAGE_KEY";
 
+	public static final int NOTIF_INTERCEPT_NON_DOWNLOAD = -94;
 
 	private static final String SEPERATOR = " ";
 
@@ -108,10 +129,28 @@ public class HikeNotification
 
 	private final SharedPreferences sharedPreferences;
 
-	private HikeNotificationMsgStack hikeNotifMsgStack;
-	
+	private final SharedPreferences defaultSharedPrefs;
 
-	
+	private HikeNotificationMsgStack hikeNotifMsgStack;
+
+	private PlatformNotificationMsgStack platformNotificationMsgStack;
+
+	public static final String IMAGE = "image";
+
+	public static final String VIDEO = "video";
+
+	public static final String INTERCEPT_NON_DWLD_SHARE_INTENT = "com.bsb.hike.INTERCEPT_NON_DWLD_SHARE_INTENT";
+
+	public static final String INTERCEPT_SET_DP_INTENT = "com.bsb.hike.INTERCEPT_SET_DP_INTENT";
+
+	public static final String INTERCEPT_PHOTO_EDIT_INTENT = "com.bsb.hike.INTERCEPT_PHOTO_EDIT_INTENT";
+
+	public static final String INTERCEPT_VIDEO_SHARE_INTENT = "com.bsb.hike.INTERCEPT_VIDEO_SHARE_INTENT";
+
+	private static final int INTERCEPT_THMB_HEIGHT = 96;
+
+	private static final int INTERCEPT_THMB_WIDTH = 96;
+
 	private static HashMap<String, Long> lastNotificationTimeMap=new HashMap<String, Long>();//For now HashMap<groupId, LastNotifiactionTimeInMillis>()
 	
 	private static final int DEFAULT_NOTIFICATION_DELAY_FOR_GROUP_IN_SEC = 15;
@@ -124,13 +163,18 @@ public class HikeNotification
 	
 	private static HikeBadgeCountManager mBadgeCountManager;
 
+	private final String TAG= HikeNotification.class.getCanonicalName();
+
 	
 	private HikeNotification()
 	{
 		this.context = HikeMessengerApp.getInstance().getApplicationContext();
 		this.notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 		this.sharedPreferences = context.getSharedPreferences(HikeMessengerApp.STATUS_NOTIFICATION_SETTING, 0);
+		this.defaultSharedPrefs = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0); // We will use this pref to check for Notif Block. Earlier we were checking from the wrong prefs.
 		this.hikeNotifMsgStack = HikeNotificationMsgStack.getInstance();
+		this.platformNotificationMsgStack= PlatformNotificationMsgStack.getInstance();
+		this.appPrefs = PreferenceManager.getDefaultSharedPreferences(context);
 		this.mBadgeCountManager=new HikeBadgeCountManager();
 
 		if (VIB_DEF == null)
@@ -157,7 +201,7 @@ public class HikeNotification
 		/*
 		 * return straight away if the block notification setting is ON
 		 */
-		if (sharedPreferences.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
+		if (defaultSharedPrefs.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
 		{
 			return;
 		}
@@ -197,7 +241,7 @@ public class HikeNotification
 		/*
 		 * return straight away if the block notification setting is ON
 		 */
-		if (sharedPreferences.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
+		if (defaultSharedPrefs.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
 		{
 			return;
 		}
@@ -238,7 +282,7 @@ public class HikeNotification
 		/*
 		 * return straight away if the block notification setting is ON
 		 */
-		if (sharedPreferences.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
+		if (defaultSharedPrefs.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
 		{
 			return;
 		}
@@ -266,6 +310,45 @@ public class HikeNotification
 		
 		notificationBuilderPostWork();
 
+	}
+
+	public void notifyAtomicTip(AtomicTipContentModel tipContentModel)
+	{
+		if (defaultSharedPrefs.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
+		{
+			return;
+		}
+
+		Logger.d(getClass().getSimpleName(), "Creating notif for atomic tips with bundled values");
+		int notifId = NOTIFICATION_PRODUCT_POPUP;
+		String notifTitle = tipContentModel.getNotifTitle();
+		String notifText = tipContentModel.getNotifText();
+		int tipId = tipContentModel.hashCode();
+		boolean isSilent = tipContentModel.isSilent();
+		if (!TextUtils.isEmpty(notifTitle) && !TextUtils.isEmpty(notifText))
+		{
+			NotificationCompat.Builder mBuilder = getNotificationBuilder(notifTitle, notifText, notifTitle, null, returnSmallIcon(), isSilent, isSilent, false);
+
+			Intent notificationIntent = Utils.getHomeActivityIntent(context);
+			notificationIntent.putExtra(HikeConstants.Extras.HAS_TIP, true);
+			notificationIntent.putExtra(HikeConstants.TIP_ID, tipId);
+			notificationIntent.putExtra(HikeConstants.IS_ATOMIC_TIP, true);
+
+			PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+			mBuilder.setContentIntent(contentIntent);
+
+			Intent deleteIntent = new Intent(context, NotificationDismissedReceiver.class);
+			deleteIntent.putExtra(HIKE_NOTIFICATION_ID_KEY, notifId);
+			deleteIntent.putExtra(HikeConstants.TIP_ID, tipContentModel.getTipId());
+			deleteIntent.putExtra(ProductPopupsConstants.IS_CANCELLABLE, tipContentModel.isCancellable());
+
+			PendingIntent pendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(), notifId, deleteIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+			mBuilder.setDeleteIntent(pendingIntent);
+
+			Logger.d(getClass().getSimpleName(), "recording atomic tip notif creation");
+			AtomicTipManager.getInstance().tipFromNotifAnalytics(AnalyticsConstants.AtomicTipsAnalyticsConstants.TIP_NOTIF_CREATED, tipContentModel.getTipId(), tipContentModel.isCancellable());
+			notifyNotification(notifId, mBuilder);
+		}
 	}
 
 	public void notifyMessage(final Protip proTip, int notificationType)
@@ -296,7 +379,7 @@ public class HikeNotification
 
 		setNotificationIntentForBuilder(mBuilder, notificationIntent, PROTIP_NOTIFICATION_ID);
 
-		if (!sharedPreferences.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
+		if (!defaultSharedPrefs.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
 		{
 			notifyNotification(PROTIP_NOTIFICATION_ID, mBuilder);
 		}
@@ -309,6 +392,23 @@ public class HikeNotification
 	 */
 	public void notifyUpdatePush(int updateType, String packageName, String message, boolean isApplicationsPushUpdate)
 	{
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.AutoApkDownload.UPDATE_FROM_DOWNLOADED_APK, false))
+		{
+			String tipHeaderText = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_TIP_HEADER, context.getResources().getString(R.string.update_tip_header_text));
+			String tipMsgTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_TIP_BODY, context.getResources().getString(R.string.update_tip_body_text));
+			final int smallIconId = returnSmallIcon();
+
+			NotificationCompat.Builder mBuilder = getNotificationBuilder(tipHeaderText, tipMsgTxt, message, null, smallIconId, false);
+
+			Intent intent = Utils.getHomeActivityIntent(context);
+			intent.putExtra(HikeConstants.Extras.HAS_TIP, true);
+			intent.putExtra(HikeConstants.TIP_ID, ConversationTip.UPDATE_CRITICAL_TIP);
+			mBuilder.setContentIntent(PendingIntent.getActivity(context,1,intent,PendingIntent.FLAG_UPDATE_CURRENT));
+			notifyNotification(APP_UPDATE_AVAILABLE_ID, mBuilder);
+
+		}
+		else
+		{
 		message = (TextUtils.isEmpty(message)) ? context.getString(R.string.update_app) : message;
 		final int smallIconId = returnSmallIcon();
 
@@ -319,12 +419,13 @@ public class HikeNotification
 		intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
 		mBuilder.setContentIntent(PendingIntent.getActivity(context, 0, intent, 0));
 
-		if (!sharedPreferences.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
+		if (!defaultSharedPrefs.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
 		{
 			int notificationId = isApplicationsPushUpdate ? GAMING_PACKET_NOTIFICATION_ID : APP_UPDATE_AVAILABLE_ID;
 			notifyNotification(notificationId, mBuilder);
 		}
 		// TODO:: we should reset the gaming download message from preferences
+		}
 	}
 	
 	public void notifyPersistentUpdate(String notifTitle, String message, String actionText, String laterText, Uri url, Long alarmInterval)
@@ -356,7 +457,7 @@ public class HikeNotification
 		mBuilder.addAction(R.drawable.ic_clock_later, laterText, PendingIntent.getBroadcast(context, 0, laterIntent, PendingIntent.FLAG_UPDATE_CURRENT))
 				.addAction(R.drawable.ic_downloaded_tick, actionText, openUrl);
 		
-		if (!sharedPreferences.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false) && !settingPref.getData(HikeConstants.IS_HIKE_APP_FOREGROUNDED, false))
+		if (!defaultSharedPrefs.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false) && !settingPref.getData(HikeConstants.IS_HIKE_APP_FOREGROUNDED, false))
 		{
 			int notificationId = PERSISTENT_NOTIF_ID;
 			notifyNotification(notificationId, mBuilder);
@@ -406,6 +507,7 @@ public class HikeNotification
 		notificationIntent.putExtra(HikeConstants.Extras.MSISDN, contactInfo.getMsisdn());
 		notificationIntent.putExtra(HikeConstants.Extras.WHICH_CHAT_THREAD, ChatThreadUtils.getChatThreadType(contactInfo.getMsisdn()));
 		notificationIntent.putExtra(HikeConstants.Extras.CHAT_INTENT_TIMESTAMP, System.currentTimeMillis());
+		notificationIntent.putExtra(ChatThreadActivity.CHAT_THREAD_SOURCE, ChatThreadActivity.ChatThreadOpenSources.VOIP);
 		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
 		/*
@@ -627,7 +729,7 @@ public class HikeNotification
 			showInboxStyleNotification(hikeNotifMsgStack.getNotificationIntent(), hikeNotifMsgStack.getNotificationIcon(), hikeNotifMsgStack.getLatestAddedTimestamp(),
 					hikeNotifMsgStack.getNotificationId(), hikeNotifMsgStack.getNotificationTickerText(), hikeNotifMsgStack.getNotificationTitle(),
 					hikeNotifMsgStack.getNotificationBigText(0), isSingleMsisdn ? hikeNotifMsgStack.lastAddedMsisdn : "bulk", hikeNotifMsgStack.getNotificationSubText(),
-					avatarDrawable, hikeNotifMsgStack.getBigTextList(), forceNotPlaySound, 0,isSilentNotification);
+					avatarDrawable, hikeNotifMsgStack.getBigTextList(), forceNotPlaySound, 0, isSilentNotification);
 		}
 	}
 
@@ -647,7 +749,7 @@ public class HikeNotification
 	 */
 	public void showNotificationForCurrentMsgStack(boolean shouldNotPlaySound, int retryCount)
 	{
-		Logger.d("NotificationRetry","showNotificationForCurrentMsgStack called");
+		Logger.d("NotificationRetry", "showNotificationForCurrentMsgStack called");
 		
 		hikeNotifMsgStack.invalidateConvMsgList();
 
@@ -727,7 +829,7 @@ public class HikeNotification
 		/*
 		 * return straight away if the block notification setting is ON
 		 */
-		if (sharedPreferences.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
+		if (defaultSharedPrefs.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
 		{
 			return;
 		}
@@ -740,6 +842,7 @@ public class HikeNotification
 		notificationIntent.putExtra(HikeConstants.Extras.NAME, (nameMap.get(firstMsisdn)));
 		notificationIntent.putExtra(HikeConstants.Extras.WHICH_CHAT_THREAD, ChatThreadUtils.getChatThreadType(firstMsisdn));
 		notificationIntent.putExtra(HikeConstants.Extras.CHAT_INTENT_TIMESTAMP, System.currentTimeMillis());
+		notificationIntent.putExtra(ChatThreadActivity.CHAT_THREAD_SOURCE, ChatThreadActivity.ChatThreadOpenSources.NOTIF);
 		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
 		notificationIntent.setData((Uri.parse("custom://" + notificationId)));
@@ -790,7 +893,7 @@ public class HikeNotification
 		/*
 		 * return straight away if the block notification setting is ON
 		 */
-		if (sharedPreferences.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false) || !stealthNotificationEnabled)
+		if (defaultSharedPrefs.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false) || !stealthNotificationEnabled)
 		{
 			return;
 		}
@@ -825,7 +928,7 @@ public class HikeNotification
 		/*
 		 * return straight away if the block notification setting is ON
 		 */
-		if (sharedPreferences.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
+		if (defaultSharedPrefs.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
 		{
 			return;
 		}
@@ -843,9 +946,9 @@ public class HikeNotification
 
 		final String key = (contactInfo != null && !TextUtils.isEmpty(contactInfo.getName())) ? contactInfo.getName() : msisdn;
 
-		final String message = context.getString(R.string.add_as_favorite_notification_line);
+		final String message = context.getString(Utils.isFavToFriendsMigrationAllowed() ?  R.string.add_as_friend_notification_line : R.string.add_as_favorite_notification_line);
 
-		final String text = context.getString(R.string.add_as_favorite_notification, key);
+		final String text = context.getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.friend_req_inline_msg_received : R.string.add_as_favorite_notification, key);
 
 		// if notification message stack is empty, add to it and proceed with single notification display
 		// else add to stack and notify clubbed messages
@@ -1039,6 +1142,178 @@ public class HikeNotification
 		addNotificationId(notificationId);
 	}
 
+	/**
+	 * Method to create notification for Intercepts
+	 * @param interceptItem uri for image/video. can be null if using file path
+	 * @param path path of the directory where file is present. can be null if uri is provided
+	 * @param fileName name of the file. can be null if uri is provided
+	 * @param whichIntercept the type of intercept - Screenshot/Image/Video
+	 */
+	public void notifyIntercept(Uri interceptItem, String path, String fileName, String whichIntercept)
+	{
+		int notifId = NOTIF_INTERCEPT_NON_DOWNLOAD;
+		PendingIntent defaultAction = null;
+		String title, message;
+		NotificationCompat.Builder mBuilder = null;
+		Bitmap microThmb, miniThmb, scaled, circular;
+
+		Intent deleteIntent = new Intent(context, NotificationDismissedReceiver.class);
+		deleteIntent.putExtra(HIKE_NOTIFICATION_ID_KEY, notifId);
+
+		Logger.d(HikeConstants.INTERCEPTS.INTERCEPT_LOG, "received: path=" + path + fileName + " uri=" + interceptItem + " type=" + whichIntercept.toString());
+
+		switch (whichIntercept)
+		{
+			case InterceptUtils.INTERCEPT_TYPE_SCREENSHOT:
+				if (TextUtils.isEmpty(path) || TextUtils.isEmpty(fileName))
+				{
+					Logger.d(HikeConstants.INTERCEPTS.INTERCEPT_LOG, "got null path or filename for screenshot");
+					return;
+				}
+
+				path = path + fileName;
+
+				//converting path string to uri
+				interceptItem = Uri.parse(path);
+
+				//adding notification title, message and small hike icon
+				title = context.getString(R.string.intercept_title_screen_shot);
+				message = context.getString(R.string.intercept_message_screen_shot);
+				mBuilder = getNotificationBuilder(title, message, title, null, returnSmallIcon(), true, true, false);
+
+				//intent for share action button
+				PendingIntent shareActionScrnSht = IntentFactory.getInterceptBroadcast(context, INTERCEPT_NON_DWLD_SHARE_INTENT,
+						whichIntercept, interceptItem);
+				mBuilder.addAction(R.drawable.actionbar_ic_forward, context.getString(R.string.intercept_lable_screenshot_share), shareActionScrnSht);
+
+				//content intent for notification
+				defaultAction = IntentFactory.getInterceptBroadcast(context, INTERCEPT_PHOTO_EDIT_INTENT,
+						whichIntercept, interceptItem);
+
+				//creating and adding thumbnails to the notification
+				miniThmb = HikeBitmapFactory.decodeBitmapFromFile(path, Bitmap.Config.RGB_565);
+				microThmb = HikeBitmapFactory.decodeSampledBitmapFromFile(path, INTERCEPT_THMB_WIDTH, INTERCEPT_THMB_HEIGHT);
+				scaled = HikeBitmapFactory.returnScaledBitmap(microThmb, context);
+				circular = HikeBitmapFactory.getCircularBitmap(scaled);
+				mBuilder.setLargeIcon(circular);
+				mBuilder.setStyle(new NotificationCompat.BigPictureStyle().bigPicture(miniThmb).bigLargeIcon(circular).setSummaryText(message));
+				deleteIntent.putExtra(HikeConstants.TYPE, AnalyticsConstants.InterceptEvents.INTERCEPT_SCREENSHOT);
+
+				break;
+
+			case InterceptUtils.INTERCEPT_TYPE_IMAGE:
+				if(interceptItem == null)
+				{
+					Logger.d(HikeConstants.INTERCEPTS.INTERCEPT_LOG, "got null uri for image intercept");
+					return;
+				}
+
+				//adding notification title, message and small hike icon
+				title = context.getString(R.string.intercept_title_image);
+				message = context.getString(R.string.intercept_message_image);
+				mBuilder = getNotificationBuilder(title, message, title, null, returnSmallIcon(), true, true, false);
+
+				//content intent for notification
+				defaultAction = IntentFactory.getInterceptBroadcast(context, INTERCEPT_PHOTO_EDIT_INTENT,
+						whichIntercept, interceptItem);
+
+				//intent for share action button
+				PendingIntent shareActionImg = IntentFactory.getInterceptBroadcast(context, INTERCEPT_NON_DWLD_SHARE_INTENT,
+						whichIntercept, interceptItem);
+				mBuilder.addAction(R.drawable.actionbar_ic_forward, context.getString(R.string.intercept_lable_image_share), shareActionImg);
+
+				//intent for setDP action button
+				PendingIntent setDPAction = IntentFactory.getInterceptBroadcast(context, INTERCEPT_SET_DP_INTENT,
+						whichIntercept, interceptItem);
+				mBuilder.addAction(R.drawable.intercept_setdp, context.getString(R.string.intercept_lable_set_dp), setDPAction);
+
+				//creating and adding thumbnails to the notification
+				microThmb = MediaStore.Images.Thumbnails.getThumbnail(context.getContentResolver(), ContentUris.parseId(interceptItem),
+						MediaStore.Images.Thumbnails.MICRO_KIND, null);
+				miniThmb = MediaStore.Images.Thumbnails.getThumbnail(context.getContentResolver(), ContentUris.parseId(interceptItem),
+						MediaStore.Images.Thumbnails.MINI_KIND, null);
+				scaled = HikeBitmapFactory.returnScaledBitmap(microThmb, context);
+				circular = HikeBitmapFactory.getCircularBitmap(scaled);
+				mBuilder.setLargeIcon(circular);
+				mBuilder.setStyle(new NotificationCompat.BigPictureStyle().bigPicture(miniThmb).bigLargeIcon(circular).setSummaryText(message));
+				deleteIntent.putExtra(HikeConstants.TYPE, AnalyticsConstants.InterceptEvents.INTERCEPT_IMAGE);
+
+				break;
+
+			case InterceptUtils.INTERCEPT_TYPE_VIDEO:
+				if(interceptItem == null)
+				{
+					Logger.d(HikeConstants.INTERCEPTS.INTERCEPT_LOG, "got null uri for video intercept");
+					return;
+				}
+
+				//adding notification title, message and small hike icon
+				title = context.getString(R.string.intercept_title_video);
+				message = context.getString(R.string.intercept_message_video);
+				mBuilder = getNotificationBuilder(title, message, title, null, returnSmallIcon(), true, true, false);
+
+				//content intent for notification & share intent are essentially same, but different triggers for analytics purpose
+				defaultAction = IntentFactory.getInterceptBroadcast(context, INTERCEPT_VIDEO_SHARE_INTENT,
+						whichIntercept, interceptItem);
+
+				PendingIntent shareActionVid = IntentFactory.getInterceptBroadcast(context, INTERCEPT_NON_DWLD_SHARE_INTENT,
+						whichIntercept, interceptItem);
+
+				mBuilder.addAction(R.drawable.actionbar_ic_forward, context.getString(R.string.intercept_lable_video_share), shareActionVid);
+
+				//creating and adding thumbnails to the notification
+				Bitmap microBmp = MediaStore.Video.Thumbnails.getThumbnail(context.getContentResolver(), ContentUris.parseId(interceptItem),
+						MediaStore.Video.Thumbnails.MICRO_KIND, null);
+				scaled = HikeBitmapFactory.returnScaledBitmap(microBmp, context);
+				mBuilder.setLargeIcon(HikeBitmapFactory.getCircularBitmap(scaled));
+				mBuilder.setStyle(new NotificationCompat.BigTextStyle().bigText(message));
+				deleteIntent.putExtra(HikeConstants.TYPE, AnalyticsConstants.InterceptEvents.INTERCEPT_VIDEO);
+
+				break;
+
+			default:
+				return;
+		}
+
+		if (!defaultSharedPrefs.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
+		{
+			//adding content intent & onDelete intent
+			mBuilder.setContentIntent(defaultAction);
+			PendingIntent pendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(), notifId, deleteIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+			mBuilder.setDeleteIntent(pendingIntent);
+
+			//create the notification
+			notifyNotification(notifId, mBuilder);
+
+			//logging and analytics for creating intercept notification
+			Logger.d(HikeConstants.INTERCEPTS.INTERCEPT_LOG, "Created notification for intercept:" + whichIntercept);
+            HAManager.getInstance().interceptAnalyticsEvent(getEventKeyFromInterceptType(whichIntercept), AnalyticsConstants.InterceptEvents.INTERCEPT_NOTIF_CREATED, false);
+		}
+
+	}
+
+	/**
+	 * Utility method to determine eventKey for analytics for Intercepts
+	 * @param type intercept type
+	 * @return the constant eventKey string as defined in analytic constants
+	 */
+	public String getEventKeyFromInterceptType(String type)
+    {
+        if(type.equals(InterceptUtils.INTERCEPT_TYPE_SCREENSHOT))
+        {
+            return AnalyticsConstants.InterceptEvents.INTERCEPT_SCREENSHOT;
+        }
+        if(type.equals(InterceptUtils.INTERCEPT_TYPE_IMAGE))
+        {
+            return AnalyticsConstants.InterceptEvents.INTERCEPT_IMAGE;
+        }
+        if(type.equals(InterceptUtils.INTERCEPT_TYPE_VIDEO))
+        {
+            return AnalyticsConstants.InterceptEvents.INTERCEPT_VIDEO;
+        }
+        return null;
+    }
+
 	private void addNotificationId(final int id)
 	{
 		String ids = sharedPreferences.getString(HikeMessengerApp.STATUS_IDS, "");
@@ -1075,6 +1350,7 @@ public class HikeNotification
 		{
 			notificationManager.cancelAll();
 			hikeNotifMsgStack.resetMsgStack();
+			platformNotificationMsgStack.resetMsgStack();
 		}
 		catch (SecurityException e)
 		{
@@ -1131,7 +1407,7 @@ public class HikeNotification
 	}
 
 	private void showInboxStyleNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text,
-			final String key, final String message, final String msisdn, String subMessage, Drawable argAvatarDrawable, List<SpannableString> inboxLines, boolean shouldNotPlaySound, int retryCount,boolean isSilentNotification)
+			final String key, final String message, final String msisdn, String subMessage, Drawable argAvatarDrawable, List<SpannableString> inboxLines, boolean shouldNotPlaySound, int retryCount,boolean isSilentNotification, boolean isPlatformNotif)
 	{
 
 		final int smallIconId = returnSmallIcon();
@@ -1155,20 +1431,28 @@ public class HikeNotification
 		//Handling separately for NM Bots because for NM bots, on pressing back/up, the user must be brought to the conversation list. (AND-2692)
 		if (BotUtils.isBot(msisdn) && BotUtils.getBotInfoForBotMsisdn(msisdn).isNonMessagingBot())
 		{
-				setNotificationIntentForBuilderWithBackStack(mBuilder, notificationIntent, notificationId, retryCount);
+			if(isPlatformNotif){
+				setNotificationIntentForBuilderWithBackStack(msisdn.hashCode(), mBuilder, notificationIntent, notificationId, retryCount);
+			}else{
+				setNotificationIntentForBuilderWithBackStack(0, mBuilder, notificationIntent, notificationId, retryCount);
+			}
 		}
 		else
 		{
 			setNotificationIntentForBuilder(mBuilder, notificationIntent,notificationId,retryCount);
 		}
 
-		if (!sharedPreferences.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
+		if (!defaultSharedPrefs.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
 		{
 			notifyNotification(notificationId, mBuilder);
 		}
 		notificationBuilderPostWork();
 	}
-
+	private void showInboxStyleNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text,
+											final String key, final String message, final String msisdn, String subMessage, Drawable argAvatarDrawable, List<SpannableString> inboxLines, boolean shouldNotPlaySound, int retryCount,boolean isSilentNotification)
+	{
+		showInboxStyleNotification(notificationIntent, icon, timestamp, notificationId, text, key, message, msisdn, subMessage, argAvatarDrawable, inboxLines, shouldNotPlaySound, retryCount, isSilentNotification, false);
+	}
 	public void showBigTextStyleNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text,
 			final String key, final String message, final String msisdn, String subMessage, Drawable argAvatarDrawable, boolean shouldNotPlaySound, int retryCount)
 	{
@@ -1178,12 +1462,10 @@ public class HikeNotification
 	public void showBigTextStyleNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text,
 			final String key, final String message, final String msisdn, String subMessage, Drawable argAvatarDrawable, boolean shouldNotPlaySound, int retryCount, Action[] actions)
 	{
-		showBigTextStyleNotification(notificationIntent, icon, timestamp, notificationId, text, key, message, msisdn, subMessage, argAvatarDrawable, shouldNotPlaySound, retryCount, actions,false);
+		showBigTextStyleNotification(notificationIntent, icon, timestamp, notificationId, text, key, message, msisdn, subMessage, argAvatarDrawable, shouldNotPlaySound, retryCount, actions, false);
 	}
 	public void showBigTextStyleNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text,
-			final String key, final String message, final String msisdn, String subMessage, Drawable argAvatarDrawable, boolean shouldNotPlaySound, int retryCount, Action[] actions,boolean isSilentNotification)
-	{
-
+											 final String key, final String message, final String msisdn, String subMessage, Drawable argAvatarDrawable, boolean shouldNotPlaySound, int retryCount, Action[] actions,boolean isSilentNotification, boolean isPlatformNotif){
 		final int smallIconId = returnSmallIcon();
 
 		NotificationCompat.Builder mBuilder;
@@ -1207,29 +1489,32 @@ public class HikeNotification
 
 		// Moves the big view style object into the notification object.
 		mBuilder.setStyle(bigTextStyle);
-		
+
 		//Handling separately for NM Bots because for NM bots, on pressing back/up, the user must be brought to the conversation list. (AND-2692)
 		if (BotUtils.isBot(msisdn) && BotUtils.getBotInfoForBotMsisdn(msisdn).isNonMessagingBot())
 		{
-				setNotificationIntentForBuilderWithBackStack(mBuilder, notificationIntent, notificationId, retryCount);
+			setNotificationIntentForBuilderWithBackStack(msisdn.hashCode(),mBuilder, notificationIntent, notificationId, retryCount);
 		}
 		else
 		{
 			setNotificationIntentForBuilder(mBuilder, notificationIntent,notificationId,retryCount);
 		}
-		
-		if (!sharedPreferences.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
+
+		if (!defaultSharedPrefs.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
 		{
 			notifyNotification(notificationId, mBuilder);
 		}
 		notificationBuilderPostWork();
 	}
-
-	private void showNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text, final String key,
-			final String message, final String msisdn, final Bitmap bigPictureImage, boolean isFTMessage, boolean isPin, boolean isBigText, String subMessage,
-			Drawable argAvatarDrawable, boolean forceNotPlaySound, int retryCount,boolean isSilentNotification,boolean disableTickerText)
+	public void showBigTextStyleNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text,
+			final String key, final String message, final String msisdn, String subMessage, Drawable argAvatarDrawable, boolean shouldNotPlaySound, int retryCount, Action[] actions,boolean isSilentNotification)
 	{
+		showBigTextStyleNotification(notificationIntent, icon, timestamp, notificationId, text, key, message, msisdn, subMessage, argAvatarDrawable, shouldNotPlaySound, retryCount, actions, isSilentNotification, false);
 
+	}
+    private void showNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text, final String key,
+								  final String message, final String msisdn, final Bitmap bigPictureImage, boolean isFTMessage, boolean isPin, boolean isBigText, String subMessage,
+								  Drawable argAvatarDrawable, boolean forceNotPlaySound, int retryCount,boolean isSilentNotification,boolean disableTickerText, boolean isPlatformNotif){
 		final int smallIconId = returnSmallIcon();
 
 		NotificationCompat.Builder mBuilder;
@@ -1268,18 +1553,45 @@ public class HikeNotification
 				mBuilder = getNotificationBuilder(key, message, text.toString(), argAvatarDrawable, smallIconId, false,isSilentNotification);
 			}
 		}
+		if (BotUtils.isBot(msisdn) && BotUtils.getBotInfoForBotMsisdn(msisdn).isNonMessagingBot())
+		{
+			if (isPlatformNotif)
+			{
+				setNotificationIntentForBuilderWithBackStack(msisdn.hashCode(), mBuilder, notificationIntent, notificationId, retryCount);
+			}
+			else
+			{
+				setNotificationIntentForBuilderWithBackStack(0, mBuilder, notificationIntent, notificationId, retryCount);
+			}
+		}
+		else
+		{
+			setNotificationIntentForBuilder(mBuilder, notificationIntent, notificationId, retryCount);
+		}
 
-		setNotificationIntentForBuilder(mBuilder, notificationIntent,notificationId,retryCount);
 		
-		
-		
-		if (!sharedPreferences.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
+		if (!defaultSharedPrefs.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
 		{
 			notifyNotification(notificationId, mBuilder);
 		}
 		notificationBuilderPostWork();
 	}
+	private void showNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text, final String key,
+			final String message, final String msisdn, final Bitmap bigPictureImage, boolean isFTMessage, boolean isPin, boolean isBigText, String subMessage,
+			Drawable argAvatarDrawable, boolean forceNotPlaySound, int retryCount,boolean isSilentNotification,boolean disableTickerText)
+	{
+		showNotification(notificationIntent, icon, timestamp, notificationId, text, key, message, msisdn, bigPictureImage, isFTMessage, isPin, isBigText, subMessage,
+				argAvatarDrawable, forceNotPlaySound, retryCount, isSilentNotification, disableTickerText, false);
 
+	}
+
+	private void showNotification(final Intent notificationIntent, final long timestamp, final int notificationId, String tickerText, String key, String text, String msisdn,
+			Bitmap bigPicture, boolean isBigText, Drawable avatarDrawable, boolean isSilent, boolean isPlatformNotif)
+	{
+		showNotification(notificationIntent, 0, timestamp, notificationId, tickerText, key, text, msisdn, bigPicture, false, false, isBigText
+				, null, avatarDrawable,
+				isSilent, 0, false, false, isPlatformNotif);
+	}
 	private void showNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text, final String key,
 			final String message, final String msisdn, final Bitmap bigPictureImage, boolean isPin, boolean forceNotPlaySound)
 	{
@@ -1290,7 +1602,7 @@ public class HikeNotification
 			final String message, final String msisdn, final Bitmap bigPictureImage, boolean isPin, boolean forceNotPlaySound,boolean isSilentNotification)
 	{
 		showNotification(notificationIntent, icon, timestamp, notificationId, text, key, message, msisdn, bigPictureImage, false, isPin, true,
-				hikeNotifMsgStack.getNotificationSubText(), Utils.getAvatarDrawableForNotification(context, msisdn, isPin), forceNotPlaySound, 0,isSilentNotification);
+				hikeNotifMsgStack.getNotificationSubText(), Utils.getAvatarDrawableForNotification(context, msisdn, isPin), forceNotPlaySound, 0, isSilentNotification);
 	}
 	private void showNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text, final String key,
 			final String message, final String msisdn, final Bitmap bigPictureImage, boolean isFTMessage, boolean isPin, boolean isBigText, String subMessage,
@@ -1299,6 +1611,126 @@ public class HikeNotification
 		showNotification(notificationIntent, icon, timestamp, notificationId, text, key, message, msisdn, bigPictureImage, isFTMessage, isPin, isBigText, subMessage,
 				argAvatarDrawable, forceNotPlaySound, retryCount, isSilentNotification, false);
 
+	}
+
+	/*
+	 * Receives jsonobject of format:
+	 * { "f": "+hikegames+", "d": { "u": "+hikegames+", "silent": "false", "md": { "hm": "This is hm2", "notifData": {} }, "i": 1452057426, "uuc": true, "rearrange_chat": true,
+	 * "push": true, "b": "This is notif subtext", "hike_affinity": false, "clubbymsisdn" : false, "type": 0, "heads_up": true, "led_light": "#ffffff", "big_picture": "" }, "t":
+	 * "popup", "st": "notif", "bitmap_url":"url string" }
+	 */
+	public void showPlatformNotification(final JSONObject jsonObject, final String msisdn)
+	{
+		try
+		{
+			final Drawable avatarDrawable = Utils.getAvatarDrawableForNotification(context, msisdn, false);
+			final Intent notifIntent = IntentFactory.getIntentForBots(context, msisdn)!=null?IntentFactory.getIntentForBots(context, msisdn):IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, false, false, ChatThreadActivity.ChatThreadOpenSources.NOTIF);
+
+			// Adding the notif tracker to bot notifications
+			notifIntent.putExtra(AnalyticsConstants.BOT_NOTIF_TRACKER,AnalyticsConstants.PLATFORM_NOTIFICATION);
+            boolean isClubByMsisdn = jsonObject.optBoolean(HikePlatformConstants.CLUB_BY_MSISDN);
+			if (isClubByMsisdn)
+			{
+				PlatformNotificationPreview platformNotificationPreview = new PlatformNotificationPreview.PlatformNotificationPreviewBuilder(
+						isClubByMsisdn, msisdn, HikeNotificationUtils.getNameForMsisdn(msisdn), jsonObject.getJSONObject(
+								HikePlatformConstants.METADATA).getString(HikePlatformConstants.HIKE_MESSAGE)).setSubText(jsonObject.optString(HikeConstants.BODY)).build();
+				platformNotificationMsgStack.addNotif(platformNotificationPreview);
+			}
+			if (isClubByMsisdn && platformNotificationMsgStack.getMessageCountForMsisdn(msisdn) > 1)
+			{
+				List<SpannableString> bigTextList = platformNotificationMsgStack.getBigTextList(msisdn);
+				showInboxStyleNotification(notifIntent, 0, System.currentTimeMillis(), msisdn.hashCode() + 1, getTickerText(msisdn, jsonObject.getString(HikeConstants.BODY)),
+						HikeNotificationUtils.getNameForMsisdn(msisdn), HikeNotificationUtils.getNotificationStringFromList(bigTextList), msisdn,
+						platformNotificationMsgStack.getTickerTextForMsisdn(msisdn), avatarDrawable, bigTextList,
+						Boolean.valueOf(jsonObject.getString(HikePlatformConstants.SILENT_PUSH)), 0, false, true);
+			}
+			else
+			{
+				String bitmapString = jsonObject.optString(HikePlatformConstants.BIG_PICTURE);
+				final Bitmap bigPicture = HikeBitmapFactory.stringToBitmap(bitmapString);
+				//we use msisdn hashcode as notif id if needs to be shown as single notification else (msisdn hashcode +1)
+				final int notificationId = isClubByMsisdn ? msisdn.hashCode() + 1 : msisdn.hashCode();
+				if(!TextUtils.isEmpty(bitmapString))
+				{
+					notifIntent.putExtra(AnalyticsConstants.BOT_NOTIF_TRACKER,AnalyticsConstants.PLATFORM_RICH_NOTIF);
+				}
+				showNotification(notifIntent, notificationId, jsonObject, msisdn, avatarDrawable, bigPicture, false);
+				String bitmap_url = jsonObject.optString(HikePlatformConstants.BITMAP_URL);
+				if(TextUtils.isEmpty(bitmapString) && !TextUtils.isEmpty(bitmap_url)){
+					FileTransferManager.NetworkType networkType = FTUtils.getNetworkType(context);
+					if ((networkType == FileTransferManager.NetworkType.WIFI && appPrefs.getBoolean(HikeConstants.WF_AUTO_DOWNLOAD_IMAGE_PREF, true))
+							|| (networkType != FileTransferManager.NetworkType.WIFI && appPrefs.getBoolean(HikeConstants.MD_AUTO_DOWNLOAD_IMAGE_PREF, true)))
+					{
+						RequestToken bitmapDownloadRequestToken = HttpRequests.downloadBitmapTaskRequest(bitmap_url, new IRequestListener() {
+							@Override
+							public void onRequestFailure(HttpException httpException) {
+								httpException.printStackTrace();
+								showAnalyticsForRichNotifImageShow(false, AnalyticsConstants.REQUEST_FAILURE);
+							}
+
+							@Override
+							public void onRequestSuccess(Response result) {
+								Bitmap bigPicture = (Bitmap)result.getBody().getContent();
+								notifIntent.putExtra(AnalyticsConstants.BOT_NOTIF_TRACKER,AnalyticsConstants.PLATFORM_RICH_NOTIF);
+								showNotification(notifIntent, notificationId, jsonObject, msisdn, avatarDrawable, bigPicture,true);
+								showAnalyticsForRichNotifImageShow(true,null);
+							}
+
+							@Override
+							public void onRequestProgressUpdate(float progress) {
+
+							}
+						});
+						bitmapDownloadRequestToken.execute();
+					}else{
+						showAnalyticsForRichNotifImageShow(false,AnalyticsConstants.AUTO_DOWNLOAD_OFF);
+					}
+				}
+
+			}
+
+		}
+		catch (JSONException ex)
+		{
+			Logger.e(TAG, "incorrect format json received in show platform notification", ex);
+		}
+		catch (IllegalArgumentException ex)
+		{
+			Logger.e(TAG, "illegal argument exception", ex);
+		}
+
+	}
+
+	private void showAnalyticsForRichNotifImageShow(boolean success, String reason){
+		//{"d":{"ep":"HIGH","st":"repl","et":"nonUiEvent","md":{"sid":1460008590298,"fld1":"autoDownloadOff/requestFailure","ek":"micro_app","event":"platformRichNotifs","fld4":"success/fail"},"cts":1460008340211,"tag":"plf"},"t":"le_android"}
+		JSONObject json = new JSONObject();
+		try
+		{
+			json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.MICRO_APP_EVENT);
+			json.putOpt(AnalyticsConstants.EVENT,AnalyticsConstants.PLATFORM_RICH_NOTIFS);
+			json.putOpt(AnalyticsConstants.LOG_FIELD_4, success ? AnalyticsConstants.BITMAP_DOWNLOAD_SUCCESS : AnalyticsConstants.BITMAP_DOWNLOAD_UNSUCESSFULL);
+            if(!TextUtils.isEmpty(reason)){
+				json.put(AnalyticsConstants.LOG_FIELD_1, reason);
+			}
+		} catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
+		HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_REPLACED, json);
+	}
+	//Used only for platform notifications
+	private void showNotification(final Intent notificationIntent, final int notificationId, final JSONObject jsonObject, final String msisdn, Drawable avatarDrawable, Bitmap bigPicture,Boolean isReplay)
+	{
+		showNotification(notificationIntent, System.currentTimeMillis(), notificationId, getTickerText(msisdn, jsonObject.optString(HikeConstants.BODY)),
+				HikeNotificationUtils.getNameForMsisdn(msisdn), jsonObject.optString(HikeConstants.BODY), msisdn, bigPicture, bigPicture == null, avatarDrawable,
+				isReplay?true:Boolean.valueOf(jsonObject.optString(HikePlatformConstants.SILENT_PUSH)), true);
+	}
+	private String getTickerText(String msisdn, String message)
+	{
+		StringBuilder tickerText = new StringBuilder();
+		tickerText.append(HikeNotificationUtils.getNameForMsisdn(msisdn) + " - " + message);
+		return tickerText.toString();
 	}
 
 	public int returnSmallIcon()
@@ -1472,7 +1904,7 @@ public class HikeNotification
 		setOnDeleteIntent(mBuilder, notificationId, retryCount);
 	}
 	
-	public void setNotificationIntentForBuilderWithBackStack(NotificationCompat.Builder mBuilder, Intent notificationIntent,int notificationId,int retryCount)
+	public void setNotificationIntentForBuilderWithBackStack(int requestCode,NotificationCompat.Builder mBuilder, Intent notificationIntent,int notificationId,int retryCount)
 	{
 		//Adding Extra to check While receiving that user has come via clicking Notification
 		notificationIntent.putExtra(AnalyticsConstants.APP_OPEN_SOURCE_EXTRA, AppOpenSource.FROM_NOTIFICATION);
@@ -1482,7 +1914,7 @@ public class HikeNotification
         stackBuilder.addNextIntent(Utils.getHomeActivityIntent(context));
         stackBuilder.addNextIntent(notificationIntent);
         
-        PendingIntent contentIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent contentIntent = stackBuilder.getPendingIntent(requestCode, PendingIntent.FLAG_UPDATE_CURRENT);
         mBuilder.setContentIntent(contentIntent);
 		
 		setOnDeleteIntent(mBuilder, notificationId, retryCount);
@@ -1749,6 +2181,27 @@ public class HikeNotification
 		NotificationCompat.Builder mBuilder = getNotificationBuilder(contentTitle,contentText,tickerText, null,smallIconId, false,false);
 		setNotificationIntentForBuilder(mBuilder, intent,HikeNotification.OFFLINE_REQUEST_ID);
 		notifyNotification(HikeNotification.OFFLINE_REQUEST_ID, mBuilder);
+	}
+
+	/**
+	 * Note : This method does not check for notifs being blocked or not becuase the notification must be shown!
+	 */
+	public void showCorruptDbNotification()
+	{
+		String message = context.getString(R.string.db_corrupt_notif_msg); // TODO Get Proper Strings
+		String title = context.getString(R.string.app_name); // TODO Get Proper Strings
+		final int smallIconId = returnSmallIcon();
+		NotificationCompat.Builder mBuilder = getNotificationBuilder(title, message, message, null, smallIconId, false, false, false);
+		mBuilder.setOngoing(true);
+
+		Intent mNotificationIntent = new Intent(context, HomeActivity.class);
+		mNotificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+		PendingIntent contentIntent = PendingIntent.getActivity(context, 0, mNotificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+		mBuilder.setContentIntent(contentIntent);
+
+		int notificationId = CRITICAL_DB_CORRUPT_NOTIF;
+		notifyNotification(notificationId, mBuilder);
 	}
 
 }

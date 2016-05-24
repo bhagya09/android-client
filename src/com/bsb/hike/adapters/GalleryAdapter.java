@@ -144,11 +144,13 @@ public class GalleryAdapter extends BaseAdapter
 				holder.galleryThumb.setScaleType(ScaleType.CENTER_CROP);
 				holder.contentLayout.setVisibility(View.GONE);
 			}
+			holder.galleryThumb.setAlpha(1f);
 		}
 		else
 		{
 			holder.galleryThumb.setScaleType(ScaleType.CENTER_INSIDE);
 			holder.galleryThumb.setImageResource(R.drawable.ic_add_more);
+			holder.galleryThumb.setAlpha(0.8f);
 		}
 
 		if ((selectedGalleryItems != null && selectedGalleryItems.contains(galleryItem)) || selectedItemPostion == position)

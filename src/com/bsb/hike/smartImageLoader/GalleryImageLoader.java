@@ -19,7 +19,7 @@ public class GalleryImageLoader extends ImageWorker
 	}
 
 	@Override
-	protected Bitmap processBitmap(String data)
+	public Bitmap processBitmap(String data)
 	{
 		if (!data.startsWith(GALLERY_KEY_PREFIX))
 		{

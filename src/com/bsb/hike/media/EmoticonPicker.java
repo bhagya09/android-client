@@ -18,7 +18,7 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
-import com.bsb.hike.view.StickerEmoticonIconPageIndicator;
+import com.bsb.hike.view.EmoticonIconPageIndicator;
 
 /**
  * Class for implementing emoticons anywhere in the application.
@@ -42,7 +42,7 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 	
 	private EditText mEditText;
 	
-	private StickerEmoticonIconPageIndicator mIconPageIndicator;
+	private EmoticonIconPageIndicator mIconPageIndicator;
 	
 	private EmoticonAdapter mEmoticonAdapter;
 
@@ -215,7 +215,7 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 			throw new IllegalArgumentException("View Pager was not found in the view passed.");
 		}
 
-		mIconPageIndicator = (StickerEmoticonIconPageIndicator) view.findViewById(R.id.emoticon_icon_indicator);
+		mIconPageIndicator = (EmoticonIconPageIndicator) view.findViewById(R.id.emoticon_icon_indicator);
 		
 		View eraseKey = view.findViewById(R.id.erase_key_image);
 		eraseKey.setOnClickListener(this);
@@ -460,20 +460,4 @@ public class EmoticonPicker implements ShareablePopup, EmoticonPickerListener, O
 		this.useStatusUpdateList = shouldUse;
 	}
 	
-	public void setCustomKeyBoardHeight(int height){
-		mPopUpLayout.setCustomKeyBoardHeight(height);
-	}
-	
-	public void setCustomKeyBoard(boolean isCustomKeyBoard, int height)
-	{
-	  mPopUpLayout.setCustomKeyBoard(isCustomKeyBoard, height);
-	}
-	
-	public void setBottomPadding(int bottomPadding)
-	{
-		if (mPopUpLayout != null)
-		{
-			mPopUpLayout.setOriginalBottomPadding(bottomPadding);
-		}
-	}
 }

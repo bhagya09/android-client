@@ -82,4 +82,13 @@ public class PlatformContentRequest
 			return mContentData.hashCode();
 		}
 	}
+
+    public byte getBotType() {
+        return this.mContentData.getBotType();
+    }
+
+	public void setBotType(byte botType)
+	{
+		this.mContentData.setBotType(botType);
+	}
 }

@@ -1,10 +1,20 @@
 package com.bsb.hike.view;
 
-import android.graphics.*;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.LinearGradient;
+import android.graphics.Paint;
+import android.graphics.PixelFormat;
+import android.graphics.Rect;
+import android.graphics.RectF;
+import android.graphics.Typeface;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.graphics.drawable.shapes.RectShape;
 import android.graphics.drawable.shapes.RoundRectShape;
+
+import com.bsb.hike.HikeMessengerApp;
 
 public class TextDrawable extends ShapeDrawable
 {
@@ -32,8 +42,12 @@ public class TextDrawable extends ShapeDrawable
 	private final int borderThickness;
 
 	private LinearGradient gradient;
+
+	private Builder mBuilder;
+
+	private static Typeface typeface;
 	
-	private TextDrawable(Builder builder)
+	protected TextDrawable(Builder builder)
 	{
 		super(builder.shape);
 
@@ -51,10 +65,15 @@ public class TextDrawable extends ShapeDrawable
 		fontSize = builder.fontSize;
 		textPaint = new Paint();
 		textPaint.setColor(builder.textColor);
-		textPaint.setShadowLayer(2f, 5, 5, getLighterShade(Color.BLACK,12));
+//		textPaint.setShadowLayer(2f, 5, 5, getLighterShade(Color.BLACK,12));
 		textPaint.setAntiAlias(true);
-		textPaint.setFakeBoldText(builder.isBold);
+//		textPaint.setFakeBoldText(builder.isBold);
 		textPaint.setStyle(Paint.Style.FILL);
+		if (typeface == null)
+		{
+			typeface = Typeface.createFromAsset(HikeMessengerApp.getInstance().getApplicationContext().getAssets(), "fonts/Roboto-Light.ttf");
+		}
+		textPaint.setTypeface(typeface);
 		textPaint.setAlpha(235);
 		textPaint.setTextAlign(Paint.Align.CENTER);
 		textPaint.setStrokeWidth(builder.borderThickness);
@@ -69,6 +88,13 @@ public class TextDrawable extends ShapeDrawable
 		// drawable paint color
 		Paint paint = getPaint();
 		paint.setColor(color);
+		
+		mBuilder = builder;
+	}
+	
+	public Builder getBuilder()
+	{
+		return mBuilder;
 	}
 
 	public void setWidth(int width)
@@ -104,7 +130,7 @@ public class TextDrawable extends ShapeDrawable
 		// draw text
 		int width = this.width < 0 ? r.width() : this.width;
 		int height = this.height < 0 ? r.height() : this.height;
-		int fontSize = (int) (this.fontSize < 0 ? (Math.min(width, height) * 1f / 2.0f) : this.fontSize);
+		int fontSize = (int) (this.fontSize < 0 ? (Math.min(width, height) * 1f / 1.7f) : this.fontSize);
 		textPaint.setTextSize(fontSize);
 		getPaint().setShader(gradient);
 		super.draw(canvas);

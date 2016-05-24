@@ -37,6 +37,29 @@ public class HikeAnimationFactory
 		return animSet;
 	}
 
+	public static Animation getScaleFadeRingAnimation(int initialOffset)
+	{
+		AnimationSet animSet = new AnimationSet(true);
+		float a = 1f;
+		float pivotX = 0.5f;
+		float pivotY = 0.5f;
+
+		Animation anim0 = new ScaleAnimation(a, 0.50f, a,0.50f, Animation.RELATIVE_TO_SELF, pivotX, Animation.RELATIVE_TO_SELF, pivotY);
+		anim0.setStartOffset(initialOffset);
+		anim0.setDuration(1000);
+		anim0.setRepeatCount(Animation.INFINITE);
+		animSet.addAnimation(anim0);
+
+		Animation fade = new AlphaAnimation(1, 0);
+		fade.setInterpolator(new AccelerateInterpolator(2f));
+		fade.setStartOffset(1500);
+		fade.setDuration(500);
+		fade.setRepeatCount(Animation.INFINITE);
+		animSet.addAnimation(fade);
+
+		return animSet;
+	}
+
 	public static AnimationSet getHikeActionBarLogoAnimation(Context context)
 	{
 		anim_repeat_count = 2;
@@ -86,5 +109,19 @@ public class HikeAnimationFactory
 			}
 		});
 		return animSet;
+	}
+
+	public static Animation getStickerPreviewFtueAnimation(Context context)
+	{
+		final AnimationSet animSet = (AnimationSet) AnimationUtils.loadAnimation(context, R.anim.pack_preview_shop_ftue_anim);
+		return animSet;
+	}
+
+	public static Animation getStickerShopSearchIconFtueAnimation(Context context, AnimationListener listener)
+	{
+		Animation pulse = AnimationUtils.loadAnimation(context, R.anim.pulse);
+		pulse.setRepeatCount(Animation.INFINITE);
+		pulse.setAnimationListener(listener);
+		return pulse;
 	}
 }

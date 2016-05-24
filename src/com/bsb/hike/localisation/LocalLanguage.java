@@ -1,20 +1,14 @@
 package com.bsb.hike.localisation;
 
-import android.content.Context;
-import android.text.TextUtils;
-
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.R;
-import com.bsb.hike.modules.kpt.KptKeyboardManager;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.Utils;
-import com.kpt.adaptxt.beta.KPTAddonItem;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.R;
+import com.bsb.hike.utils.Utils;
+import com.bsb.hike.localisation.FontManager;
+import android.content.Context;
 
 /**
  * Created by gauravmittal on 20/10/15.
@@ -93,11 +87,11 @@ public class LocalLanguage {
 
     public static void refreshdeviceSupportedHikeList(Context context){
         {
-            ArrayList<KPTAddonItem> deviceSupportedkptLanguages = KptKeyboardManager.getInstance().getSupportedLanguagesList();
+            ArrayList<String> deviceSupportedLanguages = FontManager.getInstance().getSupportedLanguageList();
             HashSet<String> supportedLocaleSet = new HashSet<>();
-            for (KPTAddonItem item : deviceSupportedkptLanguages)
+            for (String locale : deviceSupportedLanguages)
             {
-                supportedLocaleSet.add(item.getlocaleName().substring(0,item.getlocaleName().indexOf("-")));
+                supportedLocaleSet.add(locale.substring(0,locale.indexOf("-")));
             }
 
             deviceSupportedHikeList = new ArrayList<>();
@@ -121,15 +115,15 @@ public class LocalLanguage {
         if(deviceUnSupportedList != null){
             return;
         }
-        List<KPTAddonItem> unsupportedItems = KptKeyboardManager.getInstance().getUnsupportedLanguagesList();
+        List<String> unsupportedItems = FontManager.getInstance().getUnsupportedLanguageList();
         if(Utils.isEmpty(unsupportedItems))
         {
             return;
         }
         HashSet<String> unsupportedLocaleSet = new HashSet<>();
-        for (KPTAddonItem item : unsupportedItems)
+        for (String locale : unsupportedItems)
         {
-            unsupportedLocaleSet.add(item.getlocaleName().substring(0,item.getlocaleName().indexOf("-")));
+            unsupportedLocaleSet.add(locale.substring(0,locale.indexOf("-")));
         }
 
         deviceUnSupportedList = new ArrayList<>();

@@ -16,6 +16,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.SparseArray;
+import static com.bsb.hike.db.DBConstants.*;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.*;
+
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -23,14 +26,20 @@ import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.DBConstants.HIKE_CONTENT;
 import com.bsb.hike.db.DatabaseErrorHandlers.CustomDatabaseErrorHandler;
+import com.bsb.hike.db.dbcommand.SetPragmaModeCommand;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.WhitelistDomain;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.productpopup.AtomicTipContentModel;
+import com.bsb.hike.productpopup.AtomicTipManager;
 import com.bsb.hike.productpopup.ProductContentModel;
 import com.bsb.hike.productpopup.ProductInfoManager;
+import com.bsb.hike.utils.ChatTheme;
+import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
-public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants, HIKE_CONTENT
+public class HikeContentDatabase extends SQLiteOpenHelper
 {
 
 	private static final HikeContentDatabase hikeContentDatabase=new HikeContentDatabase();
@@ -41,6 +50,8 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 	{
 		super(HikeMessengerApp.getInstance().getApplicationContext(), DB_NAME, null, DB_VERSION, new CustomDatabaseErrorHandler());
 		mDB = getWritableDatabase();
+		SetPragmaModeCommand setPragmaModeCommand = new SetPragmaModeCommand(mDB);
+		setPragmaModeCommand.execute();
 	}
 
 	public static HikeContentDatabase getInstance()
@@ -51,7 +62,6 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 	@Override
 	public void onCreate(SQLiteDatabase db)
 	{
-		mDB = db;
 		String[] createQueries = getCreateQueries();
 		for (String create : createQueries)
 		{
@@ -63,7 +73,10 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
 	{
-		mDB = db;
+		if(mDB == null)
+		{
+			mDB = db;
+		}
 		// CREATE all tables, it is possible that few tables are created in this version
 		String[] updateQueries = getUpdateQueries(oldVersion, newVersion);
 
@@ -92,7 +105,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 
 	private String[] getCreateQueries()
 	{
-		String[] createAndIndexes = new String[8];
+		String[] createAndIndexes = new String[12];
 		int i = 0;
 		// CREATE TABLE
 		// CONTENT TABLE -> _id,content_id,love_id,channel_id,timestamp,metadata
@@ -130,12 +143,32 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 				  + TRIGGER_POINT + " INTEGER " + ")";
 		// URL_WHITELIST_TABLE
 		String urlWhitelistTable = CREATE_TABLE + URL_WHITELIST + "(" 
-				+ _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " 
+				+ _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
 				+ DOMAIN + " TEXT UNIQUE, "
 				+ IN_HIKE + " INTEGER" + ")";
 		createAndIndexes[i++]= urlWhitelistTable;
 		// URL WHITELIST ENDS
 		
+		// Auth_TABLE
+				String authTable = CREATE_TABLE + AUTH_TABLE + "(" 
+						+ MICROAPP_ID + " TEXT PRIMARY KEY, " 
+						+ TOKEN + " TEXT "
+					 + ")";
+				createAndIndexes[i++]= authTable;
+		// Auth Table ENDS
+		
+
+        //CREATE MAPP_TABLE
+        String mAppTable = CREATE_TABLE + MAPP_DATA + "("
+                + _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + NAME + " TEXT UNIQUE, "
+                + VERSION + " INTEGER, "
+                + APP_PACKAGE + " TEXT" + ")";
+        createAndIndexes[i++]= mAppTable;
+
+		//CREATE ATOMIC_TIP_TABLE
+		createAndIndexes[i++] = getAtomicTipTableCreateQuery();
+
 		String contentIndex = CREATE_INDEX + CONTENT_ID_INDEX + " ON " + CONTENT_TABLE + " (" + CONTENT_ID + ")";
 		
 		createAndIndexes[i++] = popupDB;
@@ -151,6 +184,8 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 		createAndIndexes[i++] = cacheDataTable;
 		
 		createAndIndexes[i++] = getCreateBotDiscoveryTableQuery();
+
+		createAndIndexes[i++] = getPlatformDownloadStateTableQuery();
 		// INDEX ENDS HERE
 
 		return createAndIndexes;
@@ -215,6 +250,39 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 		{
 			String createBotDiscoveryQuery = getCreateBotDiscoveryTableQuery();
 			queries.add(createBotDiscoveryQuery);
+		}
+		if(oldVersion < 7)
+		{
+			//Auth_Table
+			String authTable = CREATE_TABLE + AUTH_TABLE + "(" 
+					+ MICROAPP_ID + " TEXT PRIMARY KEY, " 
+					+ TOKEN + " TEXT "
+				 + ")";
+			queries.add(authTable);
+
+            String createMappTableQuery = getCreateMAppDataTableQuery();
+			String botDownloadStateTableQuery = CREATE_TABLE + DBConstants.HIKE_CONTENT.PLATFORM_DOWNLOAD_STATE_TABLE +
+					" ("
+					+ HikePlatformConstants.APP_NAME + " TEXT, "
+					+ HikePlatformConstants.PACKET_DATA + " TEXT, "
+					+ HikePlatformConstants.MAPP_VERSION_CODE + " INTEGER, "
+					+ HikePlatformConstants.TYPE + " INTEGER, "
+					+ HikePlatformConstants.TTL + " INTEGER, "
+					+ DBConstants.HIKE_CONTENT.DOWNLOAD_STATE + " INTEGER, "
+					+ HikePlatformConstants.PREF_NETWORK + " INTEGER DEFAULT " + Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK)+", "
+					+ "UNIQUE ("
+					+ HikePlatformConstants.APP_NAME + "," + HikePlatformConstants.MAPP_VERSION_CODE
+					+ ")"
+					+ ")";
+			queries.add(botDownloadStateTableQuery);
+            queries.add(createMappTableQuery);
+        }
+		if(oldVersion < 8)
+		{
+			String alterNamespace = "ALTER TABLE " + PLATFORM_DOWNLOAD_STATE_TABLE + " ADD COLUMN " + AUTO_RESUME + " INTEGER";
+			queries.add(alterNamespace);
+			String atomicTipTableCreateQuery = getAtomicTipTableCreateQuery();
+			queries.add(atomicTipTableCreateQuery);
 		}
 		
 		return queries.toArray(new String[]{});
@@ -318,8 +386,53 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 		cv.put(END_TIME, productContentModel.getEndtime());
 		cv.put(TRIGGER_POINT, productContentModel.getTriggerpoint());
 		cv.put(_ID, productContentModel.hashCode());
-		long val = mDB.insertWithOnConflict(POPUPDATA, null, cv,SQLiteDatabase.CONFLICT_REPLACE);
+		productContentModel = getPopupFromId(productContentModel.hashCode());
+		if (productContentModel != null)
+		{
+			ProductInfoManager.recordPopupEvent(productContentModel.getAppName(), productContentModel.getPid(), productContentModel.isFullScreen(),
+					ProductPopupsConstants.RECEIVED_NOT_SHOWN);
+		}
+		long val = mDB.insertWithOnConflict(POPUPDATA, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
 		Logger.d("ProductPopup", "DB Inserted Successfully..." + val + "");
+	}
+
+	private ProductContentModel getPopupFromId(int id)
+	{
+		ProductContentModel productContentModel=null;
+		Cursor c = null;
+		try
+		{
+			String query = "select * from "+POPUPDATA +" where _id = "+ id;
+
+			c = mDB.rawQuery(query, null);
+
+			if (c.moveToFirst())
+			{
+				do
+				{
+					int triggerPoint = c.getInt(c.getColumnIndex(TRIGGER_POINT));
+					int startTime = c.getInt(c.getColumnIndex(START_TIME));
+					String json = c.getString(c.getColumnIndex(POPUPDATA));
+					int endTime = c.getInt(c.getColumnIndex(END_TIME));
+					productContentModel = ProductContentModel.makeProductContentModel(new JSONObject(json));
+					Logger.d("ProductPopup>", triggerPoint + " >" + startTime + ">>>" + endTime);
+
+				}
+				while ((c.moveToNext()));
+			}
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		finally
+		{
+			if(c!=null)
+			{
+				c.close();
+			}
+		}
+		return productContentModel;
 	}
 
 	/**
@@ -452,7 +565,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 
 	public void addDomainInWhitelist(WhitelistDomain domain)
 	{
-		addDomainInWhitelist(new WhitelistDomain[] { domain });
+		addDomainInWhitelist(new WhitelistDomain[]{domain});
 	}
 
 	/**
@@ -481,7 +594,8 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 		}
 
 	}
-
+	
+	
 	public void deleteDomainFromWhitelist(String domain)
 	{
 		deleteDomainFromWhitelist(new String[] { domain });
@@ -565,8 +679,11 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 		mDB.delete(CONTENT_TABLE, null, null);
 		mDB.delete(ALARM_MGR_TABLE, null, null);
 		mDB.delete(CONTENT_CACHE_TABLE, null, null);
+        mDB.delete(MAPP_DATA, null, null);
+		mDB.delete(PLATFORM_DOWNLOAD_STATE_TABLE,null,null);
 		ProductInfoManager.getInstance().deleteAllPopups();
 		deleteAllDomainsFromWhitelist();
+		flushAtomicTipTable();
 	}
 
 	/**
@@ -700,8 +817,24 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 
 			int latestVersion = botJSON.optInt(HikePlatformConstants.BOT_LATEST_VERSION, 0); // TODO Add current version here
 
-			BotInfo mBotInfo = new BotInfo.HikeBotBuilder(msisdn).setConvName(name).description(description).setType(botType).setUpdateVersion(latestVersion).build();
-			
+            int mAppVersionCode = 0;
+
+            byte requestType = HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS;
+
+            if (botJSON.has(HikePlatformConstants.METADATA))
+            {
+                JSONObject mdJsonObject = botJSON.optJSONObject(HikePlatformConstants.METADATA);
+                JSONObject cardObjectJson = mdJsonObject.optJSONObject(HikePlatformConstants.CARD_OBJECT);
+                mAppVersionCode = cardObjectJson.optInt(HikePlatformConstants.MAPP_VERSION_CODE);
+                String nonMessagingBotType = cardObjectJson.optString(HikePlatformConstants.NON_MESSAGING_BOT_TYPE,HikePlatformConstants.MICROAPP_MODE);
+                if (nonMessagingBotType == HikePlatformConstants.NATIVE_MODE)
+                {
+                    requestType = HikePlatformConstants.PlatformBotType.NATIVE_APPS;
+                }
+            }
+
+			BotInfo mBotInfo = new BotInfo.HikeBotBuilder(msisdn).setConvName(name).description(description).setType(botType).setUpdateVersion(latestVersion).setMAppVersionCode(mAppVersionCode).setBotType(requestType).build();
+
 			String thumbnailString = botJSON.optString(HikePlatformConstants.BOT_DP, "");
 			
 			if (!TextUtils.isEmpty(thumbnailString))
@@ -859,6 +992,367 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 		}
 		
 		return array;
+	}
+	
+	public String getTokenForMicroapp(String mappId)
+	{
+		Cursor c = null;
+		try
+		{
+			c = mDB.query(AUTH_TABLE, new String[] { DBConstants.HIKE_CONTENT.TOKEN }, DBConstants.HIKE_CONTENT.MICROAPP_ID + "=?", new String[] { mappId }, null, null, null);
+			if (c.moveToFirst())
+			{
+
+				return c.getString(c.getColumnIndex(DBConstants.HIKE_CONTENT.TOKEN));
+
+			}
+			return null;
+		}
+		catch(Exception e){
+			Logger.d(getClass().getSimpleName(), "Caught Exception while getTokenForMicroapp : "+ e.getMessage());
+			return null;
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+	}
+	
+	public void addAuthToken(String mId, String token)
+	{
+		try
+		{
+			mDB.beginTransaction();
+			ContentValues cv = new ContentValues();
+				cv.put(DBConstants.HIKE_CONTENT.MICROAPP_ID, mId);
+				cv.put(DBConstants.HIKE_CONTENT.TOKEN, token);
+				mDB.insert(AUTH_TABLE, null, cv);
+			mDB.setTransactionSuccessful();
+		}
+		finally
+		{
+			mDB.endTransaction();
+		}
+
+	}
+	public void deleteMicroAppFromAuthTAble(String[] mAppId)
+	{
+		
+		String whereClause = DBConstants.HIKE_CONTENT.MICROAPP_ID + "=?";
+		mDB.delete(AUTH_TABLE, whereClause, mAppId);
+	}
+
+    /*
+     * Method to insert entry to MApp Data table for each entry
+     */
+    public void insertIntoMAppDataTable(String mAppName,int version,String appPackageUrl)
+    {
+        // values to insert into Mapp Data table
+        ContentValues cv = new ContentValues();
+        cv.put(NAME,mAppName);
+        cv.put(VERSION,version);
+        cv.put(APP_PACKAGE,appPackageUrl);
+
+        long insertedRow = mDB.insertWithOnConflict(MAPP_DATA, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+
+        if(insertedRow > 0)
+            HikeMessengerApp.hikeMappInfo.put(mAppName,version);
+    }
+
+    /*
+     * Method to get mapp version by its app name
+     */
+    public void initSdkMap()
+    {
+        Cursor c = mDB.query(DBConstants.HIKE_CONTENT.MAPP_DATA, new String[]{DBConstants.NAME, DBConstants.HIKE_CONTENT.VERSION}, null, null, null, null, null);
+
+        while(c != null && c.moveToNext())
+        {
+            String appName = c.getString(c.getColumnIndex(DBConstants.NAME));
+            int version = c.getInt(c.getColumnIndex(DBConstants.HIKE_CONTENT.VERSION));
+            Logger.v("BOT", "Putting sdk Info in hashmap " + appName + version);
+            HikeMessengerApp.hikeMappInfo.put(appName,version);
+        }
+
+        if (c != null)
+        {
+            c.close();
+        }
+    }
+
+    /*
+    * Method to get MApp table data create query
+    */
+    private String getCreateMAppDataTableQuery()
+    {
+        String mAppTable = CREATE_TABLE + MAPP_DATA + "("
+                + _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + NAME + " TEXT UNIQUE, "
+                + VERSION + " INTEGER, "
+                + APP_PACKAGE + " TEXT" + ")";
+
+        return mAppTable;
+    }
+
+	/**
+	 * This table maintains download state for cbot/mapp packets for Platform.
+	 * @return
+	 */
+	private String getPlatformDownloadStateTableQuery()
+	{
+
+		String botDownloadStateTableQuery = CREATE_TABLE + DBConstants.HIKE_CONTENT.PLATFORM_DOWNLOAD_STATE_TABLE +
+				" ("
+				+ HikePlatformConstants.APP_NAME + " TEXT, "
+				+ HikePlatformConstants.PACKET_DATA + " TEXT, "
+				+ HikePlatformConstants.MAPP_VERSION_CODE + " INTEGER, "
+				+ HikePlatformConstants.TYPE + " INTEGER, "
+				+ HikePlatformConstants.TTL + " INTEGER, "
+				+ DBConstants.HIKE_CONTENT.DOWNLOAD_STATE + " INTEGER, "
+				+ AUTO_RESUME + " INTEGER DEFAULT " + 0 + ", "
+				+ HikePlatformConstants.PREF_NETWORK + " INTEGER DEFAULT " + Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK)+", "
+				+ "UNIQUE ("
+				+ HikePlatformConstants.APP_NAME + "," + HikePlatformConstants.MAPP_VERSION_CODE
+				+ ")"
+				+ ")";
+
+		return botDownloadStateTableQuery;
+	}
+	/**
+	 * Function to add data to Platform Download State Table
+	 */
+	public void addToPlatformDownloadStateTable(String name, int mAppVersionCode, String data, int type, long ttl,int prefNetwork, int dwnldState,int autoResume)
+	{
+		ContentValues cv = new ContentValues();
+		cv.put(HikePlatformConstants.APP_NAME, name);
+		cv.put(HikePlatformConstants.MAPP_VERSION_CODE, mAppVersionCode);
+		cv.put(HikePlatformConstants.PACKET_DATA, data);
+		cv.put(HikePlatformConstants.TYPE, type);
+		cv.put(HikePlatformConstants.TTL, ttl);
+		cv.put(HikePlatformConstants.PREF_NETWORK, prefNetwork);
+		cv.put(DBConstants.HIKE_CONTENT.DOWNLOAD_STATE, dwnldState);
+		cv.put(AUTO_RESUME, autoResume);
+		try
+		{
+			mDB.insertWithOnConflict(HIKE_CONTENT.PLATFORM_DOWNLOAD_STATE_TABLE, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
+		}
+		catch (Exception e)
+		{
+			Logger.d(getClass().getCanonicalName(), "Error while inserting to DB");
+
+		}
+	}
+
+	public void removeFromPlatformDownloadStateTable(String name, int mAppVersionCode)
+	{
+		long rows =mDB.delete(HIKE_CONTENT.PLATFORM_DOWNLOAD_STATE_TABLE, HikePlatformConstants.APP_NAME + " =? AND " + HikePlatformConstants.MAPP_VERSION_CODE + " = " + mAppVersionCode, new String[]{name});
+	}
+
+	public void updatePlatformDownloadState(String name, int mAppVersionCode, int newState)
+	{
+		ContentValues cv = new ContentValues();
+		cv.put(DBConstants.HIKE_CONTENT.DOWNLOAD_STATE, newState);
+		mDB.update(HIKE_CONTENT.PLATFORM_DOWNLOAD_STATE_TABLE, cv, HikePlatformConstants.APP_NAME + " =? AND " + HikePlatformConstants.MAPP_VERSION_CODE + " = " + mAppVersionCode, new String[]{name});
+	}
+
+	/**
+	 * Call this method to get the cursor of the PlatformDownloadStateTable.
+	 * @return
+	 */
+	public Cursor getAllPendingPlatformDownloads()
+	{
+		Cursor c = null;
+			c = mDB.query(HIKE_CONTENT.PLATFORM_DOWNLOAD_STATE_TABLE,null, null, null, null, null, null);
+		return c;
+	}
+
+	/**
+	 * Method to delete all entries from Platform Download State Table
+	 */
+	public void flushPlatformDownloadStateTable()
+	{
+		Logger.v("HikeContentDatabase", "Fluhsing Download state table");
+		mDB.delete(PLATFORM_DOWNLOAD_STATE_TABLE, null, null);
+	}
+	/*
+	Method to check if a microapp download is in progress
+	@param appName whose progress is to be checked .
+	 */
+	public boolean isMicroAppDownloadRunning(String appName)
+	{
+		if (TextUtils.isEmpty(appName))
+		{
+			Logger.e(HikePlatformConstants.TAG, "entries are incorrect. Send correct keys to search for.");
+			return false;
+		}
+		Cursor c = null;
+		try
+		{
+			c = mDB.query(PLATFORM_DOWNLOAD_STATE_TABLE, new String[] { DOWNLOAD_STATE }, HikePlatformConstants.APP_NAME + "=?", new String[] {appName}, null, null, null);
+			if (c.moveToFirst())
+			{
+				int downloadStateIndex = c.getColumnIndex(DOWNLOAD_STATE);
+				int value = c.getInt(downloadStateIndex);
+				if(value == (HikePlatformConstants.PlatformDwnldState.IN_PROGRESS))
+				return true;
+			}
+			return false;
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+	}
+
+	/**
+	 * Method to frame and return create table query for atomic tips table
+	 * @return
+     */
+	public String getAtomicTipTableCreateQuery()
+	{
+		String atomicTipTableCreateQuery = CREATE_TABLE + ATOMIC_TIP_TABLE + "("
+				+_ID +" INTEGER PRIMARY KEY ,"
+				+ TIP_DATA + " TEXT,"
+				+ TIP_STATUS + " INTEGER,"
+				+ TIP_PRIORITY + " INTEGER,"
+				+ TIP_END_TIME + " INTEGER" + ")";
+
+		return atomicTipTableCreateQuery;
+	}
+
+	/**
+	 * Method to insert atomic tips received via mqtt into Content DB.
+	 * @param tipContentModel
+	 * @param tipStatus
+     */
+	public void saveAtomicTip(AtomicTipContentModel tipContentModel, int tipStatus)
+	{
+		Logger.d(getClass().getSimpleName(), "Saving new atomic tip");
+		ContentValues cv = new ContentValues();
+		cv.put(_ID, tipContentModel.hashCode());
+		cv.put(TIP_DATA, tipContentModel.getJsonString());
+		cv.put(TIP_STATUS, tipStatus);
+		cv.put(TIP_PRIORITY, tipContentModel.getPriority());
+		cv.put(TIP_END_TIME, tipContentModel.getEndTime());
+		long row = mDB.insertWithOnConflict(ATOMIC_TIP_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+		Logger.d(getClass().getSimpleName(), "Atomic Tip insertion success: " + row);
+	}
+
+	/**
+	 * Method to get list of all saved atomic tips in ascending order of status and tip priority
+	 * @return
+     */
+	public List<AtomicTipContentModel> getSavedAtomicTips()
+	{
+		Logger.d(getClass().getSimpleName(), "Fetching saved atomic tips");
+		List<AtomicTipContentModel> atomicTipContentModels = new ArrayList<>();
+		Cursor c = null;
+		try
+		{
+			String query = "SELECT * FROM " + ATOMIC_TIP_TABLE + " ORDER BY " + TIP_STATUS + " ASC, " +TIP_PRIORITY + " ASC";
+
+			c = mDB.rawQuery(query, null);
+
+			Logger.d(getClass().getSimpleName(), "atomic tips table cursor size = "+c.getCount());
+
+			while (c.moveToNext())
+			{
+				String tipJSON = c.getString(c.getColumnIndex(TIP_DATA));
+				@AtomicTipContentModel.Status int tipStatus = c.getInt(c.getColumnIndex(TIP_STATUS));
+				AtomicTipContentModel tipContentModel = AtomicTipContentModel.getAtomicTipContentModel(new JSONObject(tipJSON));
+				tipContentModel.setTipStatus(tipStatus);
+				atomicTipContentModels.add(tipContentModel);
+			}
+		}
+		catch (JSONException jse)
+		{
+			Logger.d(getClass().getSimpleName(), "JSONException while fetching Atomic Tips from Content DB");
+		}
+		finally
+		{
+			if(c != null)
+			{
+				c.close();
+			}
+		}
+		return atomicTipContentModels;
+	}
+
+	/**
+	 * Method to update status of an atomic tip
+	 * @param tipId
+	 * @param tipStatus
+     */
+	public void updateAtomicTipStatus(int tipId, int tipStatus)
+	{
+		Logger.d(getClass().getSimpleName(), "Updating atomic tip status");
+		ContentValues cv = new ContentValues();
+		cv.put(TIP_STATUS, tipStatus);
+		String whereClause = _ID + "=" + tipId;
+		mDB.update(ATOMIC_TIP_TABLE, cv, whereClause, null);
+	}
+
+	/**
+	 * Method to clean atomic tips table by deleting dismissed & expired tips.
+	 */
+	public void cleanAtomicTipsTable()
+	{
+		Logger.d(getClass().getSimpleName(), "Deleting dismissed and expired atomic tips from table.");
+		String dismissedClause = TIP_STATUS + "=" + AtomicTipContentModel.DISMISSED;
+		String expiredClause = " OR "+TIP_END_TIME+ "<" + System.currentTimeMillis();
+		String whereClause = dismissedClause + expiredClause;
+		int result = mDB.delete(ATOMIC_TIP_TABLE, whereClause, null);
+		Logger.d(getClass().getSimpleName(), "number of cleaned rows from atomic tip table: "+result);
+	}
+
+	/**
+	 * Method to check and record expired tips into analytics
+	 */
+	public void checkAndLogExpiredAtomicTips()
+	{
+		String expiredClause = TIP_END_TIME+ "<" + System.currentTimeMillis();
+		Cursor c = null;
+		try
+		{
+			String query = "SELECT * FROM " + ATOMIC_TIP_TABLE + " WHERE " + expiredClause;
+
+			c = mDB.rawQuery(query, null);
+
+			Logger.d(getClass().getSimpleName(), "atomic tips table cursor size = "+c.getCount());
+
+			while (c.moveToNext())
+			{
+				String tipJSON = c.getString(c.getColumnIndex(TIP_DATA));
+				AtomicTipContentModel tipContentModel = AtomicTipContentModel.getAtomicTipContentModel(new JSONObject(tipJSON));
+				AtomicTipManager.getInstance().recordExpiredTip(tipContentModel);
+			}
+		}
+		catch (JSONException jse)
+		{
+			Logger.d(getClass().getSimpleName(), "JSONException while fetching Atomic Tip from Content DB");
+		}
+		finally
+		{
+			if(c != null)
+			{
+				c.close();
+			}
+		}
+	}
+
+	/**
+	 * Method to flush atomic tips table.
+	 */
+	public void flushAtomicTipTable()
+	{
+		Logger.d(getClass().getSimpleName(), "Flushing atomic tip table.");
+		mDB.delete(ATOMIC_TIP_TABLE, null, null);
 	}
 
 }

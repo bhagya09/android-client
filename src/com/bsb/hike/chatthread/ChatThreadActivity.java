@@ -30,6 +30,49 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 	
 	private static final String TAG = "ChatThreadActivity";
 
+	public static final String CHAT_THREAD_SOURCE = "ct_source";
+
+	public static final class ChatThreadOpenSources
+	{
+		public static final int UNKNOWN = 0;
+
+		public static final int NOTIF = 1;
+
+		public static final int CONV_FRAGMENT = 2;
+
+		public static final int NEW_COMPOSE = 3;
+
+		public static final int SHORTCUT = 4;
+
+		public static final int FORWARD = 5;
+
+		public static final int EMPTY_STATE_CONV_FRAGMENT = 6;
+
+		public static final int FRIENDS_SCREEN = 7;
+
+		public static final int UNSAVED_CONTACT_CLICK = 8;
+
+		public static final int FILE_SHARING = 9;
+
+		public static final int PROFILE_SCREEN = 10;
+
+		public static final int OFFLINE = 11;
+
+		public static final int STICKEY_CALLER = 12;
+
+		public static final int VOIP = 13;
+
+		public static final int LIKES_DIALOG = 14;
+
+		public static final int TIMELINE = 15;
+
+		public static final int NEW_GROUP = 16;
+
+		public static final int MICRO_APP = 17;
+
+        public static final int INITIATE_BOT = 19;
+	}
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -392,11 +435,11 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		return;
 	}
 	
-	public void hideKeyboard() {
-		if(chatThread!=null){
-			chatThread.hideKeyboard();
+	public boolean isWalkieTalkieShowing(){
+		if(chatThread != null) {
+			return chatThread.isWalkieTalkieShowing();
 		}
-		return;
+		return false;
 	}
 
 	@Override
@@ -406,5 +449,16 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		if (chatThread != null) {
 			chatThread.onPostResume();
 		}
+	}
+
+	public void recordMediaShareEvent(String uniqueKey_order, String genus, String family){
+		if(chatThread != null){
+			chatThread.recordMediaShareAnalyticEvent(uniqueKey_order, genus, family);
+		}
+	}
+
+	protected void recordActivityEndTime()
+	{
+		super.recordActivityEndTime();
 	}
 }

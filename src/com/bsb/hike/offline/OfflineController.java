@@ -1,14 +1,5 @@
 package com.bsb.hike.offline;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import android.app.NotificationManager;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
@@ -18,33 +9,30 @@ import android.widget.Toast;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
-import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.filetransfer.FileSavedState;
-import com.bsb.hike.filetransfer.FileTransferManager;
-import com.bsb.hike.filetransfer.UploadFileTask;
-import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
-import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeHandlerUtil;
-import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
-import com.bsb.hike.offline.OfflineConstants.HandlerConstants;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
-import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.ui.ComposeChatActivity.FileTransferData;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
-import com.google.ads.AdRequest.ErrorCode;
 import com.google.gson.Gson;
 import com.hike.transporter.TException;
 import com.hike.transporter.Transporter;
 import com.hike.transporter.models.SenderConsignment;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.util.ArrayList;
 
 /**
  * 
@@ -199,7 +187,7 @@ public class OfflineController
 			}
 
 			hikeConverter.buildFileConsignment(fileData.filePath, fileData.fileKey, fileData.hikeFileType, fileData.fileType,
-					fileData.isRecording, fileData.recordingDuration, FTAnalyticEvents.OTHER_ATTACHEMENT, msisdn, apkLabel);
+					fileData.isRecording, fileData.recordingDuration, FTAnalyticEvents.OTHER_ATTACHEMENT, msisdn, apkLabel,fileData.caption);
 		}
 	}
 
@@ -214,6 +202,7 @@ public class OfflineController
 			}
 			String filePath = msgExtrasJson.getString(HikeConstants.Extras.FILE_PATH);
 			String fileType = msgExtrasJson.getString(HikeConstants.Extras.FILE_TYPE);
+			String caption = msgExtrasJson.optString(HikeConstants.CAPTION);
 
 			boolean isRecording = false;
 			long recordingDuration = -1;
@@ -242,7 +231,7 @@ public class OfflineController
 			else
 			{
 				hikeConverter.buildFileConsignment(filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, attachmentType,
-						msisdn, null);
+						msisdn, caption);
 			}
 		}
 		catch (JSONException e)
@@ -346,10 +335,10 @@ public class OfflineController
 		hikeConverter.buildFileConsignment(filePath, null, HikeFileType.VIDEO, null, false, -1, FTAnalyticEvents.VIDEO_ATTACHEMENT, msisdn, null);
 	}
 
-	public void sendImage(String imagePath, String msisdn, int attachementType)
+	public void sendImage(String imagePath, String msisdn, int attachementType,String caption)
 	{
 	   hikeConverter.buildFileConsignment(imagePath, null, HikeFileType.IMAGE, null, false, -1, FTAnalyticEvents.CAMERA_ATTACHEMENT, msisdn,
-			   null);
+				null,caption);
 	}
 
 	public void createHotspot(String msisdn)
@@ -394,10 +383,10 @@ public class OfflineController
 	}
 
 	public void sendfile(String filePath, String fileKey, HikeFileType hikeFileType, String fileType, boolean isRecording, long recordingDuration, int attachmentType,
-			String msisdn, String apkLabel)
+			String msisdn, String apkLabel,String caption)
 	{
 		hikeConverter.buildFileConsignment(filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, attachmentType, msisdn,
-				apkLabel);
+				apkLabel,caption);
 	}
 
 	public void onDisconnect(TException e)

@@ -34,14 +34,14 @@ public class OnlineChannel implements IChannelSelector{
 			long duration, String msisdn, boolean isOnHike)
 	{
 		ChatThreadUtils.initialiseFileTransfer(applicationContext, msisdn, filePath, null, HikeFileType.AUDIO_RECORDING, HikeConstants.VOICE_MESSAGE_CONTENT_TYPE,
-				true, duration, false,isOnHike, FTAnalyticEvents.AUDIO_ATTACHEMENT);
+				true, duration, false, isOnHike, FTAnalyticEvents.AUDIO_ATTACHEMENT);
 	}
 
 	@Override
 	public void sendAudio(Context applicationContext, String msisdn,
 			String filePath, boolean onHike) 
 	{	
-		ChatThreadUtils.uploadFile(applicationContext, msisdn, filePath, HikeFileType.AUDIO,onHike, FTAnalyticEvents.AUDIO_ATTACHEMENT);
+		ChatThreadUtils.uploadFile(applicationContext, msisdn, filePath, HikeFileType.AUDIO, onHike, FTAnalyticEvents.AUDIO_ATTACHEMENT);
 	}
 
 	@Override
@@ -59,7 +59,7 @@ public class OnlineChannel implements IChannelSelector{
 	@Override
 	public void onShareFile(Context applicationContext, String msisdn,
 			Intent intent, boolean onHike) {
-		ChatThreadUtils.onShareFile(applicationContext, msisdn, intent,onHike);
+		ChatThreadUtils.onShareFile(applicationContext, msisdn, intent, onHike);
 	}
 
 	@Override
@@ -69,8 +69,19 @@ public class OnlineChannel implements IChannelSelector{
 			boolean isForwardingFile, boolean isOnHike, int attachmentType) {
 		
 		ChatThreadUtils.initialiseFileTransfer(applicationContext, msisdn, filePath, fileKey, hikeFileType, fileType, isRecording,
-				recordingDuration, true,isOnHike, attachmentType);
+				recordingDuration, true, isOnHike, attachmentType);
 		
+	}
+
+	@Override
+	public void sendFile(Context applicationContext, String msisdn,
+						 String filePath, String fileKey, HikeFileType hikeFileType,
+						 String fileType, boolean isRecording, long recordingDuration,
+						 boolean isForwardingFile, boolean isOnHike, int attachmentType, String caption) {
+
+		ChatThreadUtils.initialiseFileTransfer(applicationContext, msisdn, filePath, fileKey, hikeFileType, fileType, isRecording,
+				recordingDuration, true,isOnHike, attachmentType, caption);
+
 	}
 
 	@Override
@@ -95,7 +106,7 @@ public class OnlineChannel implements IChannelSelector{
 	public void initiateFileTransferFromIntentData(Context applicationContext,
 			String msisdn, String fileType, String filePath, boolean isOnHike,
 			int otherAttachement) {
-		ChatThreadUtils.initiateFileTransferFromIntentData(applicationContext, msisdn, fileType, filePath,isOnHike, FTAnalyticEvents.OTHER_ATTACHEMENT);
+		ChatThreadUtils.initiateFileTransferFromIntentData(applicationContext, msisdn, fileType, filePath, isOnHike, FTAnalyticEvents.OTHER_ATTACHEMENT);
 	}
 
 	@Override
@@ -107,7 +118,14 @@ public class OnlineChannel implements IChannelSelector{
 	public void uploadFile(Context applicationContext, String msisdn,
 			String imagePath, HikeFileType imageType, boolean isOnHike,
 			int cameraAttachement) {
-		ChatThreadUtils.uploadFile(applicationContext, msisdn, imagePath, HikeFileType.IMAGE,isOnHike, FTAnalyticEvents.CAMERA_ATTACHEMENT);
+		uploadFile(applicationContext, msisdn, imagePath, imageType, isOnHike, cameraAttachement,null);
+	}
+
+	@Override
+	public void uploadFile(Context applicationContext, String msisdn,
+						   String imagePath, HikeFileType imageType, boolean isOnHike,
+						   int cameraAttachement, String caption) {
+		ChatThreadUtils.uploadFile(applicationContext, msisdn, imagePath, HikeFileType.IMAGE,isOnHike, FTAnalyticEvents.CAMERA_ATTACHEMENT,caption);
 	}
 
 

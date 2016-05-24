@@ -1,24 +1,5 @@
 package com.bsb.hike.voip;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Random;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -28,14 +9,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.media.AudioFormat;
 import android.media.AudioManager;
-import android.media.AudioRecord;
-import android.media.AudioTrack;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.media.SoundPool;
-import android.media.audiofx.AutomaticGainControl;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
@@ -74,6 +51,25 @@ import com.bsb.hike.voip.VoIPUtils.CallSource;
 import com.bsb.hike.voip.view.VoIPActivity;
 import com.musicg.dsp.Resampler;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Random;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
 public class VoIPService extends Service implements Listener
 {
 	
@@ -85,18 +81,14 @@ public class VoIPService extends Service implements Listener
 	private boolean reconnectingBeeps = false;
 	private volatile boolean keepRunning;
 	private boolean mute, hold, speaker, vibratorEnabled = true;
-	private int minBufSizePlayback, minBufSizeRecording;
-	private AudioTrack audioTrack = null;
 	private static int callId = 0;
-//	private NotificationManager notificationManager;
-//	private NotificationCompat.Builder builder;
 	private AudioManager audioManager;
 	private int initialAudioMode;
 	private boolean initialSpeakerMode;
 	private AudioManager.OnAudioFocusChangeListener mOnAudioFocusChangeListener;
-	private int playbackSampleRate = 0, recordingSampleRate = 0;
 	private boolean inCellularCall = false;
-//	public boolean recordingAndPlaybackRunning = false;
+	private VoIPRecorder recorder;
+	private VoIPPlayer player;
 	
 	// Conference related
 	private boolean conferencingEnabled = false;
@@ -108,7 +100,6 @@ public class VoIPService extends Service implements Listener
 	// Task executors
 	private Thread processRecordedSamplesThread = null, bufferSendingThread = null, reconnectingBeepsThread = null;
 	private Thread connectionTimeoutThread = null;
-	private Thread recordingThread = null, playbackThread = null;
 	private Thread notificationThread = null;
 	private Thread conferenceBroadcastThread = null;
 	private ScheduledExecutorService scheduledExecutorService = null;
@@ -135,7 +126,6 @@ public class VoIPService extends Service implements Listener
 	private WakeLock wakeLock = null;
 	
 	// Resampler
-	private boolean resamplerEnabled = true;
 	private Resampler resampler = null;
 
 	// Echo cancellation
@@ -144,9 +134,7 @@ public class VoIPService extends Service implements Listener
 	private boolean aecSpeakerSignal = false, aecMicSignal = false;
 	
 	// Buffer queues
-	private final LinkedBlockingQueue<VoIPDataPacket> recordedSamples     = new LinkedBlockingQueue<>(VoIPConstants.MAX_SAMPLES_BUFFER);
 	private final LinkedBlockingQueue<VoIPDataPacket> processedRecordedSamples      = new LinkedBlockingQueue<>();
-	private final LinkedBlockingQueue<VoIPDataPacket> playbackBuffersQueue      = new LinkedBlockingQueue<>();
 	private final LinkedBlockingQueue<VoIPDataPacket> conferenceBroadcastPackets      = new LinkedBlockingQueue<>();
 	private final CircularByteBuffer recordBuffer = new CircularByteBuffer();
 	
@@ -317,7 +305,7 @@ public class VoIPService extends Service implements Listener
 				
 			case VoIPConstants.MSG_UPDATE_FORCE_MUTE_LAYOUT:
 				if (client == null) return;
-				
+
 				if (forceMute != client.forceMute) {
 					forceMute = client.forceMute;
 					Logger.d(tag, "Force mute: " + forceMute);
@@ -325,7 +313,7 @@ public class VoIPService extends Service implements Listener
 						setMute(true);
 					} 
 					// Text to speech
-					if (client.isCallActive()) {
+					if (client.isCallActive() && tts != null) {
 						if (forceMute)
 							tts.speak(getString(R.string.voip_speech_force_mute_on), TextToSpeech.QUEUE_FLUSH, null);
 						 else
@@ -378,18 +366,23 @@ public class VoIPService extends Service implements Listener
 			conferencingEnabled = true;
 		}
 		
-		if (resamplerEnabled && resampler == null) 
+		if (resampler == null)
 			resampler = new Resampler();
 		
 		// Initialize text to speech
 		tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
-			
+
 			@Override
 			public void onInit(int status) {
-				if (status != TextToSpeech.ERROR)
-					tts.setLanguage(Locale.getDefault());
-				else
-					Logger.w(tag, "Error initializing text to speech.");
+				try {
+					if (status != TextToSpeech.ERROR)
+						tts.setLanguage(Locale.getDefault());
+					else
+						Logger.w(tag, "Error initializing text to speech.");
+				} catch (Exception e) {		// AND-5043
+					Logger.e(tag, "TTS Exception: " + e.toString());
+					tts = null;
+				}
 			}
 		});
 
@@ -486,6 +479,28 @@ public class VoIPService extends Service implements Listener
 				bundle.putString(VoIPConstants.PARTNER_NAME, cl.getName());
 				sendMessageToActivity(VoIPConstants.MSG_DOES_NOT_SUPPORT_CONFERENCE, bundle);
 				cl.hangUp();
+			}
+		}
+
+		// Server returned a custom error
+		if (action.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_CUSTOM_MESSAGE)) {
+			Logger.w(tag, "Server returned a custom error: " + intent.getStringExtra(VoIPConstants.Extras.CUSTOM_MESSAGE));
+			VoIPClient cl = getClient(msisdn);
+			if (cl != null) {
+				// Send message to voip activity
+				final Bundle bundle = new Bundle();
+				bundle.putString(VoIPConstants.MSISDN, msisdn);
+				bundle.putString(VoIPConstants.PARTNER_NAME, cl.getName());
+				bundle.putString(VoIPConstants.CUSTOM_MESSAGE, intent.getStringExtra(VoIPConstants.Extras.CUSTOM_MESSAGE));
+
+				new Handler().postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						sendMessageToActivity(VoIPConstants.MSG_CUSTOM_ERROR_FROM_SERVER, bundle);
+						removeFromClients(msisdn);
+					}
+				} , VoIPConstants.SERVICE_To_ACTIVITY_ERR_MESSAGE_DELAY);
+
 			}
 		}
 
@@ -1292,11 +1307,11 @@ public class VoIPService extends Service implements Listener
 		if (connectionTimeoutThread != null)
 			connectionTimeoutThread.interrupt();
 
-		if (playbackThread != null)
-			playbackThread.interrupt();
+		if (player != null)
+			player.stop();
 		
-		if (recordingThread != null)
-			recordingThread.interrupt();
+		if (recorder != null)
+			recorder.stop();
 
 		if (processRecordedSamplesThread != null)
 			processRecordedSamplesThread.interrupt();
@@ -1326,9 +1341,7 @@ public class VoIPService extends Service implements Listener
 
 		// Empty the queues
 		conferenceBroadcastPackets.clear();
-		recordedSamples.clear();
 		processedRecordedSamples.clear();
-		playbackBuffersQueue.clear();
 		recordBuffer.clear();
 		
 		releaseWakeLock();
@@ -1486,145 +1499,32 @@ public class VoIPService extends Service implements Listener
 	}
 	
 	private void startRecording() {
-		
-		if (recordingThread != null)
-			return;	// We are already running
 
-		recordingThread = new Thread(new Runnable() {
-			
-			@Override
-			public void run() {
+		if (recorder == null) {
 
-				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
+			int preferredFrameSize = -1;
 
-				AudioRecord recorder = null;
-				
-				int audioSource = VoIPUtils.getAudioSource(speaker);
-
-				// Start recording audio from the mic
-				// Try different sample rates
-				for (int rate : new int[] {VoIPConstants.AUDIO_SAMPLE_RATE, 44100, 24000, 22050}) {
-					try
-					{
-						recordingSampleRate = rate;
-						
-						minBufSizeRecording = AudioRecord.getMinBufferSize(recordingSampleRate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
-						if (minBufSizeRecording < 0) {
-							Logger.w(tag, "Sample rate " + recordingSampleRate + " is not valid.");
-							continue;
-						}
-						
-						if (aecEnabled) {
-							// For the Solicall AEC library to work, we must record data in chunks
-							// which is a multiple of the library's supported frame size (20ms).
-							Logger.d(tag, "Old minBufSizeRecording: " + minBufSizeRecording + " at sample rate: " + recordingSampleRate);
-							if (minBufSizeRecording < SolicallWrapper.SOLICALL_FRAME_SIZE * 2) {
-								minBufSizeRecording = SolicallWrapper.SOLICALL_FRAME_SIZE * 2;
-							} else {
-								minBufSizeRecording = ((minBufSizeRecording + (SolicallWrapper.SOLICALL_FRAME_SIZE * 2) - 1) / (SolicallWrapper.SOLICALL_FRAME_SIZE * 2)) * SolicallWrapper.SOLICALL_FRAME_SIZE * 2;
-							}
-							Logger.d(tag, "New minBufSizeRecording: " + minBufSizeRecording);
-						}
-						
-						recorder = new AudioRecord(audioSource, recordingSampleRate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, minBufSizeRecording);
-						if (recorder.getState() == AudioRecord.STATE_INITIALIZED) {
-							recorder.startRecording();
-							break;
-						}
-						else {
-							recorder.release();
-						}
-					}
-					catch(IllegalArgumentException e)
-					{
-						Logger.e(tag, "AudioRecord init failed (" + recordingSampleRate + "): " + e.toString());
-					}
-					catch (IllegalStateException e)
-					{
-						Logger.e(tag, "Recorder exception (" + recordingSampleRate + "): " + e.toString());
-					}
-					
-				}
-				
-				if (recorder == null || recorder.getState() != AudioRecord.STATE_INITIALIZED) {
-					Logger.e(tag, "AudioRecord initialization failed. Mic may not work.");
-					sendMessageToActivity(VoIPConstants.MSG_AUDIORECORD_FAILURE);
-					return;
-				}
-				
-				// Attach AGC
-				if (Utils.isJellybeanOrHigher()) {
-					if (AutomaticGainControl.isAvailable()) {
-						AutomaticGainControl agc = AutomaticGainControl.create(recorder.getAudioSessionId());
-						if (agc != null) {
-							Logger.w(VoIPConstants.TAG, "Initial AGC status: " + agc.getEnabled());
-							agc.setEnabled(true);
-						}
-					} else
-						Logger.w(tag, "AGC not available.");
-				}
-				
-				// Start processing recorded data
-				byte[] recordedData = new byte[minBufSizeRecording];
-				int retVal;
-				while (keepRunning) {
-					retVal = recorder.read(recordedData, 0, recordedData.length);
-					if (retVal != recordedData.length) {
-						Logger.w(tag, "Unexpected recorded data length. Expected: " + recordedData.length + ", Recorded: " + retVal);
-						continue;
-					}
-					
-					if (mute)
-						continue;
-					
-					// Resample
-					byte[] output;
-					if (resamplerEnabled && recordingSampleRate != VoIPConstants.AUDIO_SAMPLE_RATE) {
-						// We need to resample the mic signal
-						output = resampler.reSample(recordedData, 16, recordingSampleRate, VoIPConstants.AUDIO_SAMPLE_RATE);
-						// Logger.d(logTag, "Resampled from: " + recordedData.length + " to: " + output.length);
-					} else
-						output = recordedData;
-
-					// Break input audio into smaller chunks for Solicall AEC
-	            	int index = 0;
-	            	int newSize;
-                	while (index < retVal) {
-                		if (retVal - index < SolicallWrapper.SOLICALL_FRAME_SIZE * 2)
-                			newSize = retVal - index;
-                		else
-                			newSize = SolicallWrapper.SOLICALL_FRAME_SIZE * 2;
-
-                		byte[] data = new byte[newSize];
-                		System.arraycopy(output, index, data, 0, newSize);
-                		index += newSize;
-
-	                	// Add it to the samples to encode queue
-						VoIPDataPacket dp = new VoIPDataPacket(VoIPDataPacket.PacketType.AUDIO_PACKET);
-	                	dp.write(data);
-	                	try {
-		                	recordedSamples.add(dp);
-	                	} catch (IllegalStateException e) {
-	                		// Recorded samples queue is full
-	                	}
-                	}
-
-					if (Thread.interrupted()) {
-						break;
-					}
-				}
-				
-				// Stop recording
-				if (recorder != null)
-					if (recorder.getState() == AudioRecord.STATE_INITIALIZED) {
-						recorder.stop();
-					}
-				
-				recorder.release();
+			if (aecEnabled) {
+				// For the Solicall AEC library to work, we must record data in chunks
+				// which is a multiple of the library's supported frame size (20ms).
+				preferredFrameSize = SolicallWrapper.SOLICALL_FRAME_SIZE;
 			}
-		}, "RECORDING_THREAD");
-		
-		recordingThread.start();
+
+			recorder = new VoIPRecorderImpl(preferredFrameSize);
+
+			recorder.startRecording(new VoIPRecorder.RecorderCallback() {
+				@Override
+				public void onInitFailure() {
+					sendMessageToActivity(VoIPConstants.MSG_AUDIORECORD_FAILURE);
+				}
+
+				@Override
+				public byte[] resample(byte[] sourceData, int bitsPerSample, int sourceRate, int targetRate) {
+					return resampler.reSample(sourceData, bitsPerSample, sourceRate, targetRate);
+				}
+			});
+		}
+
 		processRecordedSamples();
 	}
 	
@@ -1642,7 +1542,7 @@ public class VoIPService extends Service implements Listener
 				while (keepRunning) {
 					VoIPDataPacket dpRaw;
 					try {
-						dpRaw = recordedSamples.take();
+						dpRaw = recorder.take();
 					} catch (InterruptedException e) {
 						break;
 					}
@@ -1677,10 +1577,14 @@ public class VoIPService extends Service implements Listener
 						VoIPDataPacket dp = new VoIPDataPacket(PacketType.AUDIO_PACKET);
 						dp.setData(pcmData);
 						dp.setVoice(speechDetected);
-						if (processedRecordedSamples.size() < VoIPConstants.MAX_SAMPLES_BUFFER)
-							processedRecordedSamples.add(dp);
-						else
-							Logger.w(tag, "Recorded buffers queue is full.");
+						if (!hostingConference()) {
+							client.addSampleToEncode(dp);
+						} else {
+							if (processedRecordedSamples.size() < VoIPConstants.MAX_SAMPLES_BUFFER)
+								processedRecordedSamples.add(dp);
+							else
+								Logger.w(tag, "Recorded buffers queue is full.");
+						}
 					}
 				}
 			}
@@ -1691,99 +1595,40 @@ public class VoIPService extends Service implements Listener
 	
 	private void startPlayBack() {
 
-		if (playbackThread != null)
-			return;	// We are already running
+		if (player == null) {
+			player = new VoIPPlayerImpl();
+			player.start(new VoIPPlayer.PlayerCallback() {
 
-		playbackThread = new Thread(new Runnable() {
-			
-			@Override
-			public void run() {
-
-				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
-				int index;
-				int size;
-
-				if (resamplerEnabled) 
-					playbackSampleRate = AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_VOICE_CALL);
-				else
-					playbackSampleRate = VoIPConstants.AUDIO_SAMPLE_RATE;
-				
-				minBufSizePlayback = AudioTrack.getMinBufferSize(playbackSampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
-				Logger.d(tag, "AUDIOTRACK - minBufSizePlayback: " + minBufSizePlayback + ", playbackSampleRate: " + playbackSampleRate);
-			
-				try {
-					audioTrack = new AudioTrack(AudioManager.STREAM_VOICE_CALL, playbackSampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT, minBufSizePlayback, AudioTrack.MODE_STREAM);
-				} catch (IllegalArgumentException e) {
-					Logger.w(tag, "Unable to initialize AudioTrack: " + e.toString());
-					getClient().hangUp();
-					return;
-				}
-				
-				try {
-					audioTrack.play();
-				} catch (IllegalStateException e) {
-					Logger.e(tag, "Audiotrack error: " + e.toString());
-					getClient().hangUp();
-				}
-				
 				byte[] solicallSpeakerBuffer = new byte[SolicallWrapper.SOLICALL_FRAME_SIZE * 2];
-				while (keepRunning) {
-					VoIPDataPacket dp;
-					try {
-						dp = playbackBuffersQueue.take();
-						if (dp != null) {
+				int index, size;
 
-							// AEC
-							if (solicallAec != null && aecEnabled && aecSpeakerSignal && aecMicSignal) {
-								index = 0;
-								while (dp.getData() != null && index < dp.getData().length) {
-									size = Math.min(SolicallWrapper.SOLICALL_FRAME_SIZE * 2, dp.getLength() - index);
-									System.arraycopy(dp.getData(), index, solicallSpeakerBuffer, 0, size);
-									solicallAec.processSpeaker(solicallSpeakerBuffer);
-									index += size; 
-								}
-							} else
-								aecSpeakerSignal = true;
+				@Override
+				public void onInitFailure() {
+					getClient().hangUp();
+				}
 
-							// Resample
-							byte[] output = dp.getData();
-							if (output == null)
-								continue;
-							
-							if (resamplerEnabled && playbackSampleRate != VoIPConstants.AUDIO_SAMPLE_RATE) {
-								// We need to resample the output signal
-								// Logger.d(logTag, "Resampling.");
-								output = resampler.reSample(dp.getData(), 16, VoIPConstants.AUDIO_SAMPLE_RATE, playbackSampleRate);
-							} 
-							
-							// For streaming mode, we must write data in chunks <= buffer size
-							index = 0;
-							while (index < output.length) {
-								size = Math.min(minBufSizePlayback, output.length - index);
-								audioTrack.write(output, index, size);
-								index += size; 
-							}
-						} 
-					} catch (InterruptedException e) {
-						break;
-					}
+				@Override
+				public void aboutToPlay(VoIPDataPacket dp) {
+					// AEC
+					if (solicallAec != null && aecEnabled && aecSpeakerSignal && aecMicSignal) {
+						index = 0;
+						while (dp.getData() != null && index < dp.getData().length) {
+							size = Math.min(SolicallWrapper.SOLICALL_FRAME_SIZE * 2, dp.getLength() - index);
+							System.arraycopy(dp.getData(), index, solicallSpeakerBuffer, 0, size);
+							solicallAec.processSpeaker(solicallSpeakerBuffer);
+							index += size;
+						}
+					} else
+						aecSpeakerSignal = true;
 				}
-				
-				if (audioTrack != null) {
-					try {
-						audioTrack.pause();
-						audioTrack.flush();
-						audioTrack.release();
-						audioTrack = null;
-					} catch (IllegalStateException e) {
-						Logger.w(tag, "Audiotrack IllegalStateException: " + e.toString());
-					}
+
+				@Override
+				public byte[] resample(byte[] sourceData, int bitsPerSample, int sourceRate, int targetRate) {
+					return resampler.reSample(sourceData, bitsPerSample, sourceRate, targetRate);
 				}
-				
-			}
-		}, "PLAY_BACK_THREAD");
-		
-		playbackThread.start();
+			});
+		}
+
 		startAudioProcessor();
 	}
 
@@ -1842,7 +1687,7 @@ public class VoIPService extends Service implements Listener
 							}
 						}
 
-						// Buffer underrun protection
+						// Local playback with buffer underrun protection.
 						try {
 							if (finalDecodedSample == null) {
 								// Logger.d(logTag, "Decoded samples underrun. Adding silence.");
@@ -1850,17 +1695,15 @@ public class VoIPService extends Service implements Listener
 							} 
 
 							// Add to our decoded samples queue for playback
-							if (!hold) {
-								if (playbackBuffersQueue.size() < VoIPConstants.MAX_SAMPLES_BUFFER)
-									playbackBuffersQueue.put(finalDecodedSample);
-								else
-									Logger.w(tag, "Playback buffers queue full.");
-							}
+							if (!hold)
+								player.addToQueue(finalDecodedSample);
 
 						} catch (InterruptedException e) {
 							Logger.e(tag, "InterruptedException while adding playback sample: " + e.toString());
 						}
 
+
+						// Conference broadcast.
 						// If we are in conference, then add our own recorded signal as well.
 						// Broadcast this signal to all clients, except for the ones that are speaking.
 						// If someone is speaking, we need to send them a custom stream without their voice signal.
@@ -1900,18 +1743,8 @@ public class VoIPService extends Service implements Listener
 									client.addSampleToEncode(clientDp); 
 								}
 							}
-						} else {
-							// We are in a one-to-one call, 
-							// so just send our recorded stream to the other client.
-							VoIPDataPacket dp = processedRecordedSamples.poll();
-							VoIPClient client = getClient();
-							if (dp != null && client != null)
-								client.addSampleToEncode(dp);
-						}
-
-						if (hostingConference())
 							clientSample.clear();
-
+						}
 					} else {
 						Logger.d(tag, "Shutting down decoded samples poller.");
 						scheduledFuture.cancel(true);
@@ -2028,13 +1861,13 @@ public class VoIPService extends Service implements Listener
 		this.hold = newHold;
 		
 		if (newHold) {
-			if (recordingThread != null) {
-				recordingThread.interrupt();
-				recordingThread = null;
+			if (recorder != null) {
+				recorder.stop();
+				recorder = null;
 			}
-			if (playbackThread != null) {
-				playbackThread.interrupt();
-				playbackThread = null;
+			if (player != null) {
+				player.stop();
+				player = null;
 			}
 		} else {
 			// Coming off hold

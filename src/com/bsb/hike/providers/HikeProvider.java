@@ -1,10 +1,5 @@
 package com.bsb.hike.providers;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.Arrays;
-import java.util.List;
-
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.UriMatcher;
@@ -22,6 +17,11 @@ import com.bsb.hike.ui.HikeAuthActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Provides hike contact's avatar blob data
@@ -218,7 +218,11 @@ public class HikeProvider extends ContentProvider
 
 		ParcelFileDescriptor parcel = null;
 
-		String filePath = uri.toString().replace(PlatformContentConstants.CONTENT_AUTHORITY_BASE, PlatformContentConstants.PLATFORM_CONTENT_DIR);
+        // Precautionary check to keep current microapps to work even if versioning migration fails
+        String filePath = uri.toString().replace(PlatformContentConstants.CONTENT_AUTHORITY_BASE, PlatformContentConstants.PLATFORM_CONTENT_DIR);
+
+        if(!new File(filePath).exists())
+            filePath = uri.toString().replace(PlatformContentConstants.CONTENT_AUTHORITY_BASE, PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR);
 
 		try
 		{

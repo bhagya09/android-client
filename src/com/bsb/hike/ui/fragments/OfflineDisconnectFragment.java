@@ -19,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.ContactInfo;
@@ -127,7 +128,7 @@ public class OfflineDisconnectFragment extends Fragment
 			 drawable = HikeMessengerApp.getLruCache().getIconFromCache(connectedMsisdn);
 			if (drawable == null)
 			{
-				drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(connectedMsisdn, false);
+				drawable = HikeBitmapFactory.getDefaultTextAvatar(connectedMsisdn);
 			}
 			avatar.setImageDrawable(drawable);
 			connectionRequest.setText(Html.fromHtml(firstMessage));
@@ -145,7 +146,7 @@ public class OfflineDisconnectFragment extends Fragment
 			drawable = HikeMessengerApp.getLruCache().getIconFromCache(connectingMsisdn);
 			if (drawable == null)
 			{
-				drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(connectingMsisdn, false);
+				drawable = HikeBitmapFactory.getDefaultTextAvatar(connectingMsisdn);
 			}
 			avatar.setImageDrawable(drawable);
 			connectionRequest.setText(Html.fromHtml(firstMessage));
@@ -158,7 +159,7 @@ public class OfflineDisconnectFragment extends Fragment
 			if (StealthModeManager.getInstance().isStealthMsisdn(connectingMsisdn) && !StealthModeManager.getInstance().isActive())
 			{
 				firstMessage = getResources().getString(R.string.hike_direct_request);
-				drawable  = HikeMessengerApp.getLruCache().getDefaultAvatar(connectingMsisdn, false);
+				drawable  = HikeBitmapFactory.getDefaultTextAvatar(connectingMsisdn);
 			}
 			else
 			{
@@ -172,7 +173,7 @@ public class OfflineDisconnectFragment extends Fragment
 				drawable = HikeMessengerApp.getLruCache().getIconFromCache(connectingMsisdn);
 				if (drawable == null)
 				{
-					drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(connectingMsisdn, false);
+					drawable = HikeBitmapFactory.getDefaultTextAvatar(connectingMsisdn);
 				}
 			}
 			avatar.setImageDrawable(drawable);

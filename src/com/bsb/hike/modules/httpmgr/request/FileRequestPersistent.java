@@ -122,7 +122,7 @@ public class FileRequestPersistent extends FileRequest
 				stateFile.createNewFile();
 				stateOutputStream = new FileOutputStream(stateFile, false);// Do not want to open it in append Mode
 
-				String str = "Total Bytes" + FILE_DELIMETER + downloadedLen + "\n";
+				String str = "Total Bytes" + FILE_DELIMETER + (downloadedLen + currentPointer) + "\n"; // Taking offset to correct position
 				String progress = "Progress" + FILE_DELIMETER + (normaliseProgress(initialProgress,((float) downloadedLen / totalContentLength))) + "\n";
 				String originalFilePath = "Original File" + FILE_DELIMETER + filePath + "\n";
 				String url = "URL" + FILE_DELIMETER + getUrl().toString();

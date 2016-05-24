@@ -8,7 +8,7 @@ package com.bsb.hike.modules.stickersearch.provider.db;
 
 public class HikeStickerSearchBaseConstants
 {
-	public static final int STICKERS_SEARCH_DATABASE_VERSION = 3;
+	public static final int STICKERS_SEARCH_DATABASE_VERSION = 5;
 
 	public static final String DATABASE_HIKE_STICKER_SEARCH = "hike_sticker_search_base";
 
@@ -16,6 +16,10 @@ public class HikeStickerSearchBaseConstants
 	public static final int VERSION_STICKER_TAG_MAPPING_INDEX_ADDED = 2;
 
 	public static final int VERSION_STICKER_REGIONAL_TAG_MAPPING_ADDED = 3;
+
+	public static final int VERSION_STICKER_EVENT_ADDED = 4;
+
+    public static final int VERSION_SHOP_SEARCH_ADDED = 5;
 
 	// ==============================================Version history for DATABASE_HIKE_STICKER_SEARCH]]
 
@@ -25,6 +29,8 @@ public class HikeStickerSearchBaseConstants
 	public static final String TABLE_STICKER_PACK_CATEGORY_HISTORY = "stickerCategoryHistory";
 
 	public static final String TABLE_STICKER_TAG_MAPPING = "stickerTagMapping";
+
+    public static final String TABLE_CATEGORY_TAG_MAPPING = "categoryTagMapping";
 
 	// ================================Fixed tables used for Sticker-Tag relation and recommendations]]
 
@@ -71,6 +77,8 @@ public class HikeStickerSearchBaseConstants
 
 	public static final String ENTITY_UNQUALIFIED_HISTORY = "unqualifiedData";
 
+	public static final String ENTITY_UNIQUE_INDEX = "entityIndex";
+
 	// Table: TABLE_STICKER_PACK_CATEGORY_HISTORY
 	public static final String CATEGORY_ID = "categoryId";
 
@@ -99,7 +107,9 @@ public class HikeStickerSearchBaseConstants
 
 	public static final String STICKER_ATTRIBUTE_TIME = "stickerUsageMoment";
 
-	public static final String STICKER_ATTRIBUTE_FESTIVALS = "stickerUsageForEvents";
+	public static final String STICKER_ATTRIBUTE_TIME_STAMP_EVENTS = "stickerUsageForEvents";
+
+	public static final String STICKER_ATTRIBUTE_DAY_EVENTS = "stickerUsageForDayEvents";
 
 	public static final String STICKER_ATTRIBUTE_AGE = "stickerAge";
 
@@ -121,6 +131,21 @@ public class HikeStickerSearchBaseConstants
 	public static final String TAG_REAL_PHRASE = "realTagName";
 
 	public static final String TAG_GROUP_UNIQUE_ID = "tagUniqueId"; // foreign key from TABLE_STICKER_TAG_MAPPING
+
+    // Table: TABLE_CATEGORY_TAG_MAPPING
+    public static final String THEME = "theme";
+
+    public static final String FOR_GENDER = "forGender";
+
+    public static final String NAME = "name";
+
+    public static final String LANGUAGE = "lang";
+
+    public static final String RANK = "rank";
+
+    public static final String KEYWORDS = "keywords";
+
+    public static final String LAST_UPDATED_TIMESTAMP = "lastTimestamp";
 
 	// Syntax constants
 	public static final int SQLITE_FIRST_INTEGER_ROW_ID = 1;
@@ -177,6 +202,8 @@ public class HikeStickerSearchBaseConstants
 
 	public static final String SYNTAX_SINGLE_PARAMETER_CHECK = "=?";
 
+	public static final String SYNTAX_SINGLE_PARAMETER_NEGATIVE_CHECK = "!=?";
+
 	public static final String SYNTAX_SINGLE_PARAMETER_UNSIGNED_CHECK = " IS ";
 
 	public static final String SYNTAX_NULL = "NULL";
@@ -206,17 +233,18 @@ public class HikeStickerSearchBaseConstants
 
 	public static final int ENTITY_USER_GROUP = 6; // Group to chat in
 
+	public static final int ENTITY_EVENT = 7; // Event or Festival
+
 	// Entity-qualified constants
 	public static final String IS_INITIALISED = "isInitialising";
 
 	public static final String TOTAL_CALASSIFICATION = "stateCount";
 
 	// =============================Constants used for Sticker-Tag relation and recommendations]]
-
 	// Decision constants======================================================================[[
-	public static final int DECISION_STATE_NO = 0;
+    public static final int DECISION_STATE_NO = 0;
 
-	public static final int DECISION_STATE_YES = 1;
+    public static final int DECISION_STATE_YES = 1;
 
 	// ======================================================================Decision constants]]
 
@@ -244,6 +272,12 @@ public class HikeStickerSearchBaseConstants
 	public static final String KEY_PREF_LAST_GLOBAL_SUMMERIZATION_TIME = "last_global_summerization_time";
 
 	public static final String KEY_PREF_STICKER_SEARCH_VT_TABLES_LIST = "virtualTableList";
+
+	public static final String KEY_PREF_UNDOWNLOADED_CACHE_LIMIT = "ud_t_c_l";
+
+	public static final String KEY_PREF_UNDOWNLOADED_TAG_COUNT= "ud_t_c";
+
+	public static final String KEY_PREF_UNDOWNLOADED_VISIBLE_IN_RECO_COUNT= "ud_v_c";
 
 	// ==============================================Constants used in shared_pref or system_db]]
 
@@ -303,22 +337,26 @@ public class HikeStickerSearchBaseConstants
 
 	public static final int INDEX_STICKER_DATA_MOMENT_CODE = 8;
 
-	public static final int INDEX_STICKER_DATA_FESTIVALS = 9;
+	public static final int INDEX_STICKER_DATA_TIME_STAMP_EVENTS_RANKS = 9;
 
-	public static final int INDEX_STICKER_DATA_AGE = 10;
+	public static final int INDEX_STICKER_DATA_DAY_EVENTS_RANKS = 10;
 
-	public static final int INDEX_STICKER_DATA_USED_WITH_STRINGS = 11;
+	public static final int INDEX_STICKER_DATA_AGE = 11;
 
-	public static final int INDEX_STICKER_DATA_REJECTED_WITH_WORDS = 12;
+	public static final int INDEX_STICKER_DATA_USED_WITH_STRINGS = 12;
 
-	public static final int INDEX_STICKER_AVAILABILITY_STATUS = 13;
+	public static final int INDEX_STICKER_DATA_REJECTED_WITH_WORDS = 13;
 
-	public static final int INDEX_STICKER_DATA_COUNT = 14;
+	public static final int INDEX_STICKER_AVAILABILITY_STATUS = 14;
+
+	public static final int INDEX_STICKER_DATA_COUNT = 15;
 
 	// =============================================Constants used for indexing of sticker data]]
 
 	// Default virtual tables prefixes
 	public static final String DEFAULT_VT_TABLE_LIST = "ABCDEFGHIJKLMNOPQRSTUVWXYZ\0";
+
+    public static final String DEFAULT_VT_SHOP_SEARCH = "stickerShopSearch";
 
 	// Default story
 	public static final String DEFAULT_STORY = "generic";
@@ -329,7 +367,7 @@ public class HikeStickerSearchBaseConstants
 	// Default script
 	public static final String DEFAULT_STICKER_TAG_SCRIPT_ISO_CODE = "Latn";
 
-	// States used for Sticker-Tag relation and recommendations================================[[
+    // States used for Sticker-Tag relation and recommendations================================[[
 	public static enum STATE_CATEGORY
 	{
 		OTHER(0), // Undefined
@@ -406,6 +444,32 @@ public class HikeStickerSearchBaseConstants
 	}
 
 	// ================================States used for Sticker-Tag relation and recommendations]]
+
+	// Days used in Sticker-Event relation and recommendations================================[[
+		public static enum DAY
+		{
+			SUNDAY(1),
+			MONDAY(2),
+			TUESDAY(3),
+			WEDNESDAY(4),
+			THURSDAY(5),
+			FRIDAY(6),
+			SATURDAY(7);
+
+			private final int mId;
+
+			private DAY(int identifier)
+			{
+				mId = identifier;
+			}
+
+			public int getId()
+			{
+				return mId;
+			}
+		}
+
+		// ================================Days used in Sticker-Event relation and recommendations]]
 
 	// States used for day time division=======================================================[[
 	public static enum TIME_CODE

@@ -38,17 +38,17 @@ import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Pair;
 
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.CallerContentModel;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.db.DBConstants;
-import com.bsb.hike.db.DbException;
 import com.bsb.hike.db.DatabaseErrorHandlers.CustomDatabaseErrorHandler;
+import com.bsb.hike.db.DbException;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.FtueContactsData;
@@ -59,7 +59,7 @@ import com.bsb.hike.utils.Utils;
 
 class HikeUserDatabase extends SQLiteOpenHelper
 {
-	private SQLiteDatabase mDb;
+	private static volatile SQLiteDatabase mDb;
 
 	private static volatile HikeUserDatabase hikeUserDatabase;
 	
@@ -89,7 +89,33 @@ class HikeUserDatabase extends SQLiteOpenHelper
 		}
 		return hikeUserDatabase;
 	}
-	
+
+	public void reinitializeDB()
+	{
+		Logger.d(getClass().getSimpleName(), "Reinitialising user DB");
+		close();
+		Logger.d(getClass().getSimpleName(), "User DB is closed now");
+
+		hikeUserDatabase = new HikeUserDatabase(HikeMessengerApp.getInstance().getApplicationContext());
+		/*
+		 * We can remove this line, if we can guarantee, NoOne keeps a local copy of HikeUserDatabase.
+		 * right now we store convDb reference in some classes and use that refenence to query db. ex. DbConversationListener.
+		 * i.e. on restore we have two objects of HikeConversationsDatabase in memory.
+		 */
+		mDb = hikeUserDatabase.getWriteDatabase();
+		mReadDb = hikeUserDatabase.getReadableDatabase();
+		Logger.d(getClass().getSimpleName(), "User DB initialization is complete");
+	}
+
+	public SQLiteDatabase getWriteDatabase()
+	{
+		if(mDb == null || !mDb.isOpen())
+		{
+			mDb = super.getWritableDatabase();
+		}
+		return mDb;
+	}
+
 	@Override
 	public void onCreate(SQLiteDatabase db)
 	{
@@ -280,6 +306,11 @@ class HikeUserDatabase extends SQLiteOpenHelper
 			db.execSQL(getHikeCallerTable());
 		}
 
+	}
+
+	public void clearTable(String tableName)
+	{
+		mDb.delete(tableName, null, null);
 	}
 
 	private String getHikeCallerTable()
@@ -1538,6 +1569,13 @@ class HikeUserDatabase extends SQLiteOpenHelper
 		mDb.delete(DBConstants.USERS_TABLE, DBConstants.ID + " in " + ids_joined, null);
 	}
 
+	void deleteMultipleRows(Collection<String> ids, Collection<String> pNums)
+	{
+		String ids_joined = "(" + Utils.join(ids, ",", "\"", "\"") + ")";
+		String phoneNumbers = "(" + Utils.join(pNums, ",", "\"", "\"") + ")";
+		mDb.delete(DBConstants.USERS_TABLE, DBConstants.ID + " in " + ids_joined + " AND " + DBConstants.PHONE + " in " + phoneNumbers, null);
+	}
+
 	void updateContacts(List<ContactInfo> updatedContacts)
 	{
 		if (updatedContacts == null)
@@ -1546,11 +1584,13 @@ class HikeUserDatabase extends SQLiteOpenHelper
 		}
 
 		ArrayList<String> ids = new ArrayList<String>(updatedContacts.size());
+		ArrayList<String> pNums = new ArrayList<String>(updatedContacts.size());
 		for (ContactInfo c : updatedContacts)
 		{
 			ids.add(c.getId());
+			pNums.add(c.getPhoneNum());
 		}
-		deleteMultipleRows(ids);
+		deleteMultipleRows(ids, pNums);
 		try
 		{
 			addContacts(updatedContacts, false);
@@ -1775,6 +1815,21 @@ class HikeUserDatabase extends SQLiteOpenHelper
 		{
 			writeThumbnailToFile(new File(cacheDir, msisdn + ".jpg"), data);
 		}
+	}
+	
+	void setThumbnail(String msisdn, byte[] data)
+	{
+		//TODO Consider merging with setIcon(String msisdn, byte[] data, boolean isProfileImage)
+		HikeMessengerApp.getLruCache().remove(msisdn);
+		ContentValues vals = new ContentValues(2);
+		vals.put(DBConstants.MSISDN, msisdn);
+		vals.put(DBConstants.IMAGE, data);
+		mDb.replace(DBConstants.THUMBNAILS_TABLE, null, vals);
+		
+		String whereClause = DBConstants.MSISDN + "=?"; // msisdn;
+		ContentValues customPhotoFlag = new ContentValues(1);
+		customPhotoFlag.put(DBConstants.HAS_CUSTOM_PHOTO, 1);
+		mDb.update(DBConstants.USERS_TABLE, customPhotoFlag, whereClause, new String[] { msisdn });
 	}
 
 	Drawable getIcon(String msisdn)

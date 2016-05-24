@@ -1,5 +1,6 @@
 package com.bsb.hike.ui.fragments;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.animation.Animator;
@@ -18,6 +19,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -28,12 +30,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bsb.hike.BitmapModule.BitmapUtils;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.BitmapUtils;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HomeAnalyticsConstants;
 import com.bsb.hike.imageHttp.HikeImageUploader;
 import com.bsb.hike.imageHttp.HikeImageWorker;
 import com.bsb.hike.models.ContactInfo;
@@ -73,9 +78,9 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 	private final byte UPLOAD_FAILED = 2;
 
 	private final byte UPLOAD_INPROGRESS = 3;
-	
+
 	private final byte UPLOAD_STALE = 4;
-	
+
 	private RoundedImageView mCircularImageView;
 
 	private ImageView mProfilePicBg;
@@ -85,13 +90,13 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 	private String origImagePath;
 
 	private HikeUiHandler hikeUiHandler;
-	
+
 	private HikeImageUploader mImageWorkerFragment;
-	
+
 	private static final String TAG = "dp_download";
 
 	private static final String UPLOAD_STATUS_KEY = "u_p_k";
-	
+
 	private Runnable failedRunnable = new Runnable()
 	{
 
@@ -144,11 +149,11 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 		imagePath = bundle.getString(HikeConstants.HikePhotos.FILENAME);
 
 		origImagePath = bundle.getString(HikeConstants.HikePhotos.ORIG_FILE);
-		
+
 		if(savedInstanceState != null)
 		{
 			mUploadStatus = savedInstanceState.getByte(UPLOAD_STATUS_KEY) ;
-			
+
 			//if upload was statrted before and the token to be uploaded no longer exists, we can assume the file was uploaded
 			if(mUploadStatus == UPLOAD_INPROGRESS  || mUploadStatus == UPLOAD_STALE)
 			{
@@ -156,12 +161,12 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 				{
 					mUploadStatus = UPLOAD_COMPLETE;
 				}
-				else 
+				else
 				{
 					mUploadStatus = UPLOAD_STALE;
 				}
 			}
-			
+
 		}
 
 
@@ -172,7 +177,7 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 		{
 			mCircularImageView.setImageBitmap(bmp);
 		}
-		
+
 		mProfilePicBg.setImageBitmap(bmp);
 
 		text1 = (TextView) mFragmentView.findViewById(R.id.text1);
@@ -199,7 +204,14 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 				mCircularProgress.setVisibility(View.VISIBLE);
 				mProfilePicBg.setVisibility(View.VISIBLE);
 
-				((HikeAppStateBaseFragmentActivity) getActivity()).getSupportActionBar().hide();
+				try
+				{
+					((HikeAppStateBaseFragmentActivity) getActivity()).getSupportActionBar().hide();
+				}
+				catch (NullPointerException npe)
+				{
+					// Do nothing
+				}
 				startUpload();
 			}
 		}, 300);
@@ -219,7 +231,7 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 			showStaleState(getString(R.string.task_already_running));
 			return;
 		}
-		
+
 		mUploadStatus = UPLOAD_INPROGRESS;
 
 		changeTextWithAnimation(text1, getString(R.string.photo_dp_saving));
@@ -257,9 +269,9 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 			ContactInfo userInfo = Utils.getUserContactInfo(preferences);
 
 			String mLocalMSISDN = userInfo.getMsisdn();
-			
+
 			beginDpUpload(bytes, origImagePath, mLocalMSISDN);
-			
+
 			updateProgressUniformly(80f, 10f);
 		}
 	}
@@ -365,6 +377,7 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 					if (isAdded() && mUploadStatus == UPLOAD_COMPLETE && isResumed())
 					{
 						Intent in = new Intent(getActivity(), TimelineActivity.class);
+						in.putExtra(TimelineActivity.TIMELINE_SOURCE, TimelineActivity.TimelineOpenSources.PROFILE_PIC_FRAGMENT);
 						in.putExtra(HikeConstants.HikePhotos.HOME_ON_BACK_PRESS, true);
 						getActivity().startActivity(in);
 						getActivity().finish();
@@ -426,24 +439,24 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 		mCircularProgress.setProgressColor(getResources().getColor(R.color.photos_circular_progress_yellow));
 
 		mFragmentView.findViewById(R.id.retryButton).setVisibility(View.GONE);
-		
+
 		mFragmentView.setOnClickListener(new OnClickListener() {
-			
+
 			@Override
 			public void onClick(View v) {
-				
+
 				if(mUploadStatus == UPLOAD_STALE)
 				{
 					mUploadStatus = UPLOAD_COMPLETE;
-				
+
 					timelineLauncherRunnable.run();
 				}
-				
+
 			}
 		});
 
 	}
-	
+
 	private void changeTextWithAnimation(final TextView tv, final String newText)
 	{
 		ObjectAnimator visToInvis = ObjectAnimator.ofFloat(tv, "alpha", 1f, 0.2f);
@@ -481,7 +494,7 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 	public void onResume()
 	{
 		super.onResume();
-		
+
 		if (mUploadStatus == UPLOAD_COMPLETE)
 		{
 			timelineLauncherRunnable.run();
@@ -514,6 +527,8 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 		JSONObject response = (JSONObject) result.getBody().getContent();
 
 		StatusMessage statusMessage = Utils.createTimelinePostForDPChange(response, true);
+
+		recordStatusUpdateSource();
 
 		Utils.incrementUnseenStatusCount();
 
@@ -559,19 +574,52 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 	public void onProgressUpdate(float percent)
 	{
 		// Do nothing
-		
+
 	}
 
 	@Override
 	public void onCancelled()
 	{
 		// Do nothing
-		
+
 	}
 
 	@Override
 	public void onFailed()
 	{
-		hikeUiHandler.post(failedRunnable);		
+		hikeUiHandler.post(failedRunnable);
+	}
+
+	private void recordStatusUpdateSource()
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, HomeAnalyticsConstants.TIMELINE_UK);
+			json.put(AnalyticsConstants.V2.KINGDOM, HomeAnalyticsConstants.HOMESCREEN_KINGDOM);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, HomeAnalyticsConstants.ORDER_STATUS_UPDATE);
+			json.put(AnalyticsConstants.V2.FAMILY, HomeAnalyticsConstants.SU_TYPE_DP);
+
+			String genus = getArguments().getString(HikeConstants.Extras.GENUS);
+			if(TextUtils.isEmpty(genus))
+			{
+				genus = HomeAnalyticsConstants.SU_GENUS_OTHER;
+			}
+			json.put(AnalyticsConstants.V2.GENUS, genus);
+
+			String species = getArguments().getString(HikeConstants.Extras.SPECIES);
+			if(TextUtils.isEmpty(species))
+			{
+				species = HomeAnalyticsConstants.DP_SPECIES_OTHER;
+			}
+			json.put(AnalyticsConstants.V2.SPECIES, species);
+			HAManager.getInstance().recordV2(json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
 	}
 }

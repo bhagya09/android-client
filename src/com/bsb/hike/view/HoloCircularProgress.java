@@ -658,43 +658,36 @@ public class HoloCircularProgress extends View {
 	
 	public synchronized void setAnimatedProgress(int start, int target, int duration)
 	{
-		if (Utils.isHoneycombOrHigher())
+		if (animation == null)
 		{
-			if (animation == null)
+			animation = ObjectAnimator.ofInt(this, "progress", start, target);
+			animation.setDuration(duration); // 0.5 second
+			animation.setInterpolator(new LinearInterpolator());
+			if (android.os.Build.VERSION.SDK_INT >= 18)
+				animation.setAutoCancel(true);
+			animation.addUpdateListener(new AnimatorUpdateListener()
 			{
-				animation = ObjectAnimator.ofInt(this, "progress", start, target);
-				animation.setDuration(duration); // 0.5 second
-				animation.setInterpolator(new LinearInterpolator());
-				if (android.os.Build.VERSION.SDK_INT >= 18)
-					animation.setAutoCancel(true);
-				animation.addUpdateListener(new AnimatorUpdateListener()
-				{
-					
-					@Override
-					public void onAnimationUpdate(ValueAnimator animation)
-					{
-						// TODO Auto-generated method stub
-						float progress = ((Integer)animation.getAnimatedValue()) * 0.01f;
-						progress = (float) (Math.round(progress*100.0)/100.0);
-						HoloCircularProgress.this.setProgress(progress);
-						if(FileTransferManager.getInstance(getContext()).getAnimatedProgress(msgId) < (int) animation.getAnimatedValue())
-						{
-							FileTransferManager.getInstance(getContext()).setAnimatedProgress((int) animation.getAnimatedValue(), msgId);
-						}
-					}
-				});
-				animation.start();
-			}
-			else
-			{
-				animation.setIntValues(start, target);
-				animation.setDuration(duration);
-				animation.start();
-			}
 
+				@Override
+				public void onAnimationUpdate(ValueAnimator animation)
+				{
+					float progress = ((Integer)animation.getAnimatedValue()) * 0.01f;
+					progress = (float) (Math.round(progress*100.0)/100.0);
+					HoloCircularProgress.this.setProgress(progress);
+					if(FileTransferManager.getInstance(getContext()).getAnimatedProgress(msgId) < (int) animation.getAnimatedValue())
+					{
+						FileTransferManager.getInstance(getContext()).setAnimatedProgress((int) animation.getAnimatedValue(), msgId);
+					}
+				}
+			});
+			animation.start();
 		}
 		else
-			this.setProgress(target);
+		{
+			animation.setIntValues(start, target);
+			animation.setDuration(duration);
+			animation.start();
+		}
 	}
 	
 	public void stopAnimation()
@@ -707,6 +700,7 @@ public class HoloCircularProgress extends View {
 	
 	public void resetProgress()
 	{
+		stopAnimation();
 		mProgress = 0.0f;
 		invalidate();
 	}

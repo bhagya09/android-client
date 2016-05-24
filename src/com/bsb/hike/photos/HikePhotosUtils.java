@@ -1,16 +1,17 @@
 package com.bsb.hike.photos;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Bitmap.Config;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.ColorMatrixColorFilter;
+import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.DisplayMetrics;
@@ -26,9 +27,9 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 
 /**
  * Utility class for picture editing.
- * 
+ *
  * @author akhiltripathi
- * 
+ *
  */
 
 public class HikePhotosUtils
@@ -47,7 +48,7 @@ public class HikePhotosUtils
 
 		public static final int QUALITY_TYPE = 4;
 	}
-	
+
 	// array cpntaining colors hex codes for colors provided in doodling
 	public static int[] DoodleColors = { 0xffff6d00, 0xff1014e2, 0xff86d71d,
 
@@ -56,9 +57,9 @@ public class HikePhotosUtils
 	0xff16efc4, 0xffffffff, 0xff2ab0fc };
 
 	/**
-	 * 
+	 *
 	 * Util method which converts the dp value into float(pixel value) based on the given context resources
-	 * 
+	 *
 	 * @return value in pixel
 	 */
 	public static int dpToPx(int dps)
@@ -72,7 +73,7 @@ public class HikePhotosUtils
 	/**
 	 * This method converts device specific pixels to density independent pixels.
 	 * http://stackoverflow.com/questions/4605527/converting-pixels-to-dp
-	 * 
+	 *
 	 * @param px A value in px (pixels) unit. Which we need to convert into db
 	 * @return A float value to represent dp equivalent to px value
 	 */
@@ -82,16 +83,12 @@ public class HikePhotosUtils
 	    float dp = px / (metrics.densityDpi / 160f);
 	    return dp;
 	}
-	
+
 	public static void manageBitmaps(Bitmap bitmap)
 	{
 
 		if (bitmap != null)
 		{
-			if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB && !bitmap.isRecycled())
-			{
-				bitmap.recycle();
-			}
 			bitmap = null;
 		}
 	}
@@ -117,7 +114,7 @@ public class HikePhotosUtils
 		{
 			return null;
 		}
-		
+
 		Bitmap temp = bitmap;
 		int width = 0, height = 0;
 		float aspectRatio = bitmap.getWidth() * 1.0f / bitmap.getHeight();
@@ -162,20 +159,20 @@ public class HikePhotosUtils
 
 	/**
 	 * Funtcion to create Bitmap. Handles out of Memory Exception
-	 * 
+	 *
 	 * @author akhiltripathi
 	 */
 
 	public static Bitmap createBitmap(Bitmap source, int x, int y, int targetWidth, int targetHeight, boolean createMutableCopy, boolean scaledCopy, boolean crop, boolean retry,Config config)
 	{
 		Bitmap ret = null;
-		
+
 		try
 		{
 			if (source != null)
 			{
 				Config outConfig = (source.getConfig() == null) ? config : source.getConfig();
-				
+
 				if (scaledCopy && createMutableCopy)
 				{
 					ret = Bitmap.createScaledBitmap(source, targetWidth, targetHeight, false);
@@ -218,7 +215,7 @@ public class HikePhotosUtils
 
 	/**
 	 * Utility class for Filters
-	 * 
+	 *
 	 */
 	public static class FilterTools
 	{
@@ -303,7 +300,7 @@ public class HikePhotosUtils
 
 				effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.ORIGINAL);
 				++filterNameIndex;
-				if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SPECIAL_DAY_TRIGGER, false)) 
+				if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SPECIAL_DAY_TRIGGER, false))
 				{
 					effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.TIRANGAA);
 				}
@@ -371,7 +368,7 @@ public class HikePhotosUtils
 
 	/**
 	 * Utility class for Borders/Frames
-	 * 
+	 *
 	 */
 
 	public static class BorderTools
@@ -398,56 +395,69 @@ public class HikePhotosUtils
 			return b;
 
 		}
-
-		public static class BorderList
-		{
-			public List<String> names = new LinkedList<String>();
-
-			public List<Integer> borders = new LinkedList<Integer>();
-
-			private static BorderList list;
-
-			public void addBorder(final String name, final int id)
-			{
-				names.add(name);
-				borders.add(new Integer(id));
-			}
-
-			public static BorderList getBorders()
-			{
-				if (list == null)
-
-				{
-					list = new BorderList();
-					list.addBorder("Hearts", R.drawable.a);
-
-				}
-				return list;
-			}
-		}
-
 	}
-	
+
 	public static int getServerConfigDimenForDP()
 	{
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DP_IMAGE_SIZE, HikeConstants.HikePhotos.MAX_IMAGE_DIMEN);
 	}
-	
-	public static ColorMatrixColorFilter getGreenDownShiftFilter()
+
+	public static Bitmap scaleAdvanced(Bitmap argBmp, final float maxWidth, final float maxHeight, boolean applyGreenDownShiftFilter)
 	{
-		float[] colorTransform = {
-	            1, 0, 0, 0, 0,
-	            0, 1, 0, 0, -5f,
-	            0, 0, 1, 0, 0,
-	            0, 0, 0, 1, 0 
-	            };
+		Matrix scaleTransformation = null;
 
-	    ColorMatrix colorMatrix = new ColorMatrix();
-	    colorMatrix.setSaturation(0f); //Remove Colour 
-	    colorMatrix.set(colorTransform); //Apply the Red
+		float s1 = 1.0f;
 
-	    ColorMatrixColorFilter colorFilter = new ColorMatrixColorFilter(colorMatrix);
-	    return colorFilter;
+		if (argBmp.getHeight() > maxHeight || argBmp.getWidth() > maxWidth)
+		{
+			float originalWidth = argBmp.getWidth(), originalHeight = argBmp.getHeight();
+			float s1x = maxWidth / originalWidth;
+			float s1y = maxHeight / originalHeight;
+			s1 = (s1x < s1y) ? s1x : s1y;
+			scaleTransformation = new Matrix();
+			scaleTransformation.setScale(s1, s1);
+		}
+
+		ColorMatrixColorFilter colorFilter = HikeEffectsFactory.getGreenDownShiftFilter();
+
+		argBmp.setHasAlpha(true);
+
+		Bitmap scaledBitmap = null;
+		try
+		{
+			scaledBitmap = Bitmap.createBitmap(((int) ((float) argBmp.getWidth() * s1)), ((int) ((float) argBmp.getHeight() * s1)), Bitmap.Config.RGB_565);
+			Canvas canvas = new Canvas(scaledBitmap);
+			if (scaleTransformation != null)
+			{
+				canvas.setMatrix(scaleTransformation);
+			}
+			Paint paint = new Paint(Paint.FILTER_BITMAP_FLAG | Paint.DITHER_FLAG | Paint.ANTI_ALIAS_FLAG);
+			paint.setDither(true);
+			if (applyGreenDownShiftFilter)
+			{
+				paint.setColorFilter(colorFilter);
+			}
+			canvas.drawBitmap(argBmp, 0, 0, paint);
+		}
+		catch (OutOfMemoryError exception)
+		{
+			exception.printStackTrace();
+			return null;
+		}
+
+		return scaledBitmap;
 	}
 
+	public static BitmapFactory.Options getLoadingOptionsAdvanced()
+	{
+		BitmapFactory.Options options = new BitmapFactory.Options();
+
+		options.inScaled = false;
+
+		options.inDither = true;
+
+		options.inPreferQualityOverSpeed = true;
+
+		return options;
+	}
 }

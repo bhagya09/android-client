@@ -33,7 +33,7 @@ public class PlatformContentLoader extends Handler
 
 	/**
 	 * Gets the loader.
-	 * 
+	 *
 	 * @return the loader
 	 */
 	public static PlatformContentLoader getLoader()
@@ -43,7 +43,7 @@ public class PlatformContentLoader extends Handler
 
 	/**
 	 * Handle request.
-	 * 
+	 *
 	 * @param platformContentModel
 	 *            the platform content model
 	 * @param listener
@@ -52,6 +52,10 @@ public class PlatformContentLoader extends Handler
 	public void handleRequest(final PlatformContentRequest argContentRequest)
 	{
 		Logger.d(TAG, "handling request");
+
+        // Stop the flow and return from here in case any exception occurred and contentData becomes null
+        if(argContentRequest.getContentData() == null)
+            return;
 
 		PlatformContentModel formedContent = PlatformContentCache.getFormedContent(argContentRequest);
 
@@ -103,26 +107,14 @@ public class PlatformContentLoader extends Handler
 		}
 	}
 
-	@SuppressLint("NewApi")
 	private void getTemplateFromRemote(PlatformContentRequest argContentRequest)
 	{
 		PlatformRequestManager.setWaitState(argContentRequest);
 
-		// Check if this is already being downloaded
-//		ArrayList<Integer> currentDownloadingTemplates = PlatformRequestManager.getCurrentDownloadingTemplates();
-
-//		for (Integer downloadingTemplateCode : currentDownloadingTemplates)
-//		{
-//			if (downloadingTemplateCode.compareTo(argContentRequest.getContentData().appHashCode()) == 0)
-//			{
-//				return;
-//			}
-//		}
-
 		if (PlatformZipDownloader
-				.getCurrentDownloadingRequests().containsKey(argContentRequest.getContentData().getLayout_url()))
+				.getCurrentDownloadingRequests().containsKey(argContentRequest.getContentData().getId()))
 		{
-			PairModified<RequestToken, Integer> requestTokenIntegerPair = PlatformZipDownloader.getCurrentDownloadingRequests().get(argContentRequest.getContentData().getLayout_url());
+			PairModified<RequestToken, Integer> requestTokenIntegerPair = PlatformZipDownloader.getCurrentDownloadingRequests().get(argContentRequest.getContentData().getId());
 
 			if (requestTokenIntegerPair != null && (requestTokenIntegerPair.getSecond() < 1))
 			{
@@ -133,6 +125,13 @@ public class PlatformContentLoader extends Handler
 
 		Logger.d(TAG, "fetching template from remote");
 
-		PlatformUtils.downloadAndUnzip(argContentRequest, true, true);
+        // Setting up parameters for downloadAndUnzip call
+        boolean isTemplatingEnabled = true;
+        boolean doReplace = true;
+        String callbackId = null;
+        boolean resumeSupported = false;
+        String assocCbot = "";
+
+		PlatformUtils.downloadAndUnzip(argContentRequest, isTemplatingEnabled, doReplace, callbackId, resumeSupported, assocCbot,false);
 	}
 }

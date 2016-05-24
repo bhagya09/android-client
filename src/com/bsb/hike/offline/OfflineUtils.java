@@ -48,7 +48,7 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.hike.transporter.utils.TConstants.ERRORCODES;
-
+import com.bsb.hike.chatthread.ChatThreadActivity;
 /**
  * 
  * @author himanshu, deepak malik, sahil
@@ -295,22 +295,29 @@ public class OfflineUtils
 
 	public static String getStickerPath(JSONObject sticker)
 	{
-		String path = "";
-		try
-		{
-			String ctgId = sticker.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(StickerManager.CATEGORY_ID);
-			String stkId = sticker.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(StickerManager.STICKER_ID);
+		Sticker stickerObject = getSticker(sticker);
 
-			Sticker tempStk = new Sticker(ctgId, stkId);
-			path = tempStk.getStickerPath();
-		}
-		catch (JSONException e)
-		{
-			Logger.e(TAG, "JSONException in getStickerPath. Check whether JSONObject is a sticker.");
-			e.printStackTrace();
-		}
-		return path;
+		return (stickerObject == null) ? "" : stickerObject.getLargeStickerPath();
 	}
+
+    public static Sticker getSticker(JSONObject sticker)
+    {
+        Sticker tempStk = null;
+        try
+        {
+            String ctgId = sticker.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(StickerManager.CATEGORY_ID);
+            String stkId = sticker.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(StickerManager.STICKER_ID);
+
+            tempStk = new Sticker(ctgId, stkId);
+
+        }
+        catch (JSONException e)
+        {
+            Logger.e(TAG, "JSONException in getLargeStickerPath. Check whether JSONObject is a sticker.");
+            e.printStackTrace();
+        }
+        return tempStk;
+    }
 
 	public static boolean isConnectedToSameMsisdn(JSONObject message, String connectedMsisdn)
 	{
@@ -406,7 +413,7 @@ public class OfflineUtils
         	return null;
         }
         
-        //String stickerPath = sticker.getStickerPath(HikeMessengerApp.getInstance().getApplicationContext());
+        //String stickerPath = sticker.getLargeStickerPath(HikeMessengerApp.getInstance().getApplicationContext());
         stickerImage = new File(tempPath);
 
         // sticker is not present
@@ -422,7 +429,7 @@ public class OfflineUtils
 
 	public static String getOfflineStkPath(String ctgId, String stkId)
 	{
-		String rootPath = StickerManager.getInstance().getStickerDirectoryForCategoryId(ctgId);
+		String rootPath = StickerManager.getInstance().getStickerCategoryDirPath(ctgId);
 		if (TextUtils.isEmpty(rootPath))
 		{
 			return null;
@@ -763,7 +770,7 @@ public class OfflineUtils
 			}
 			
 			NotificationCompat.Action[] actions = getNotificationActions(context,msisdn);
-			Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, false,false);
+			Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, false,false, ChatThreadActivity.ChatThreadOpenSources.NOTIF);
 			intent.putExtra(OfflineConstants.START_CONNECT_FUNCTION, true);
 			intent.putExtra(HikeConstants.C_TIME_STAMP, System.currentTimeMillis());
 			HikeNotificationMsgStack hikeNotifMsgStack =  HikeNotificationMsgStack.getInstance();
@@ -799,7 +806,8 @@ public class OfflineUtils
 
 	private static Action[] getNotificationActions(Context context, String msisdn)
 	{
-		Intent chatThreadIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, false,false);
+		Intent chatThreadIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, false,false,
+				ChatThreadActivity.ChatThreadOpenSources.NOTIF);
 		chatThreadIntent.putExtra(OfflineConstants.START_CONNECT_FUNCTION, true);
 		PendingIntent chatThreadPendingIntent = PendingIntent.getActivity(context, 0, chatThreadIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 

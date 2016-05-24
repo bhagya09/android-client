@@ -28,7 +28,6 @@ public class IconLoader extends ImageWorker
 		this.context = ctx;
 		this.mImageWidth = imageWidth;
 		this.mImageHeight = imageHeight;
-		mResources = this.context.getResources();
 	}
 
 	/**
@@ -76,6 +75,12 @@ public class IconLoader extends ImageWorker
 		return null;
 	}
 
+	@Override
+	protected Bitmap processBitmap(String data, Object refObj)
+	{
+		return processBitmap(data);
+	}
+	
 	@Override
 	protected Bitmap processBitmapOnUiThread(String id)
 	{

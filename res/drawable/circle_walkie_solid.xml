@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape xmlns:android="http://schemas.android.com/apk/res/android"
+            android:shape="oval">
+
+            <solid android:color="@color/rec_progress_alpha" />
+
+            <size
+                android:width="90dp"
+                android:height="90dp" />
+        </shape>
+    </item>
+    <item android:drawable="@drawable/ic_white_cross"
+        android:top="33dp" android:bottom="33dp"
+        android:right="33dp" android:left="33dp"
+        />
+</layer-list>

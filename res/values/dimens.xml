@@ -35,14 +35,14 @@
     <dimen name="timeine_big_picture_size">200dp</dimen>
     <dimen name="timeine_profile_picture_size">320dp</dimen>
     <dimen name="icon_picture_size">50dp</dimen>
-    <dimen name="gallery_grid_spacing">2dp</dimen>
+    <dimen name="gallery_grid_spacing">1px</dimen>
     <dimen name="gallery_cover_item_size">179dp</dimen>
     <dimen name="gallery_album_item_size">134dp</dimen>
     <dimen name="gallery_selection_item_size">89dp</dimen>
     <dimen name="file_message_item_size">56dp</dimen>
     <dimen name="file_thumbnail_size">150dp</dimen>
     <dimen name="notification_bar_height">25dp</dimen>
-    <dimen name="gallery_selected_grid_height">150dp</dimen>
+    <dimen name="gallery_selected_grid_height">140dp</dimen>
     <dimen name="remove_selection_padding">13dp</dimen>
     <dimen name="hike_list_item_avtar">44dp</dimen>
     <dimen name="compose_chat_content_margin">10dp</dimen>
@@ -109,7 +109,7 @@
 	<dimen name="home_sreen_divider_right_padding">16dp</dimen>
 	<dimen name="conv_item_height">68dp</dimen>
 	<dimen name="conv_item_padding">16dp</dimen>
-	<dimen name="conv_item_avatar">52dp</dimen>
+	<dimen name="conv_item_avatar">50dp</dimen>
 	<dimen name="compose_item_height">63dp</dimen>
 	<dimen name="compose_avatar_dimen">40dp</dimen>
 	<dimen name="settings_item_height">57dp</dimen>
@@ -143,4 +143,16 @@
 	<dimen name="mapp_download_dialog_icon">64dp</dimen>
 	<dimen name="mapp_download_dialog_icon_margin">36dp</dimen>
 	<dimen name="mapp_download_dialog_icon_margin_land">26dp</dimen>
+	<dimen name="keyboard_exit_ui">262dp</dimen>
+	<dimen name="slide_to_cancel_arrow_width">36dp</dimen>
+	<dimen name="slide_to_cancel_margin">30dp</dimen>
+	<dimen name="sticker_mini_loader">38dp</dimen>
+	<dimen name="four_dp_corner_radius">4dp</dimen>
+	<dimen name="friends_ftue_tip_margin">60dp</dimen>
+	<dimen name="keyboard_offboarding_text_width">270dp</dimen>
+	<dimen name="keyboard_offboarding_divider">30dp</dimen>
+	<dimen name="keyboard_offboarding_heading_width">250dp</dimen>
+	<dimen name="native_card_message_container_wide_width">280dp</dimen>
+	<dimen name="native_card_message_container_narror_width">224dp</dimen>
+	<dimen name="native_card_image_height">116dp</dimen>
 </resources>

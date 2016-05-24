@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Larger red circle in back -->
+    <item>
+        <shape android:shape="oval">
+            <stroke android:color="@color/rec_progress"
+                android:width="0.5dp"/>
+            <solid android:color="@android:color/transparent"/>
+            <size
+                android:width="110dp"
+                android:height="110dp"/>
+        </shape>
+    </item>
+
+</layer-list>

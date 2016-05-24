@@ -17,6 +17,7 @@ import android.os.PersistableBundle;
 import android.text.TextUtils;
 import android.view.Window;
 import android.view.WindowManager;
+import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
@@ -100,10 +101,16 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		getSupportActionBar().hide();
 		context = CocosGamingActivity.this;
 		settings = getSharedPreferences(HikePlatformConstants.GAME_PROCESS, context.MODE_MULTI_PROCESS);
-		settings.edit().putInt(HikePlatformConstants.GAME_PROCESS,android.os.Process.myPid()).commit();
+		setIsGameRunning(true);
 
 		msisdn = getIntent().getStringExtra(HikeConstants.MSISDN);
 		platform_content_dir = PlatformContentConstants.PLATFORM_CONTENT_DIR;
+		if(TextUtils.isEmpty(msisdn))
+		{
+			finish();
+			Cocos2dxHelper.terminateProcess();
+			return;
+		}
 		botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
 
 		if (botInfo == null || botInfo.getMetadata() == null)
@@ -168,12 +175,15 @@ public class CocosGamingActivity extends Cocos2dxActivity
 					{
 						e.printStackTrace();
 					}
-					String appName = json.optString(HikeConstants.NAME);
-					cocosEnginePath = platform_content_dir + appName + "/libcocos2d.so";
+                    String appName = json.optString(HikeConstants.NAME);
+                    cocosEnginePath = platform_content_dir + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_MAPPS + appName + PlatformContentConstants.GAME_ENGINE_SO_FILE;
+				    File cocosEngineFile = new File(cocosEnginePath);
+                    if(!(cocosEngineFile.exists()))
+                        cocosEnginePath = PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + appName + PlatformContentConstants.GAME_ENGINE_SO_FILE;
 
-				}
+                }
 			}
-			cocosGamePath = getAppBasePath() + "libcocos2dcpp.so";
+			cocosGamePath = getAppBasePath() + PlatformContentConstants.GAME_SO_FILE;
 		}
 
 		loadSoFile(cocosEnginePath, true);
@@ -305,9 +315,21 @@ public class CocosGamingActivity extends Cocos2dxActivity
 						platformCallback(NativeBridge.SEND_SHARED_MESSAGE, res);
 					}
 				});
-
+				//nativeBridge.sendAppState(true); // AND-4907
 				Logger.d(TAG, "+onActivityResult");
 				break;
+				case HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST:
+					final String id =data.getStringExtra(HikeConstants.CALLBACK_ID);
+					this.runOnGLThread(new Runnable()
+					{
+						@Override
+						public void run()
+						{
+							platformCallback(id,PlatformUtils.getFileUploadJson(data));
+						}
+					});
+					Logger.d(TAG, "+onActivityResult");
+					break;
 			}
 		}
 	}
@@ -319,7 +341,7 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		super.onResume();
 		HAManager.getInstance().startChatSession(msisdn);
 		openTimestamp = System.currentTimeMillis();
-		nativeBridge.sendAppState(true);
+		//nativeBridge.sendAppState(true);
 		settings.edit().putBoolean(HikePlatformConstants.GAME_ACTIVE, true).commit();
 	}
 
@@ -330,15 +352,15 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		super.onPause();
 		HAManager.getInstance().endChatSession(msisdn);
 		activeDuration = activeDuration + (System.currentTimeMillis() - openTimestamp);
-		nativeBridge.sendAppState(false);
-		settings.edit().putBoolean(HikePlatformConstants.GAME_ACTIVE,false).commit();
+		//nativeBridge.sendAppState(false);
+		setIsGameRunning(false);
 	}
 
 	@Override
 	protected void onDestroy()
 	{
-		nativeBridge.sendAppState(false);
-		settings.edit().putBoolean(HikePlatformConstants.GAME_ACTIVE,false).commit();
+		//nativeBridge.sendAppState(false);
+		setIsGameRunning(false);
 		sendGameOpenAnalytics();
 		onHandlerDestroy();
 		super.onDestroy();
@@ -382,15 +404,14 @@ public class CocosGamingActivity extends Cocos2dxActivity
 	 */
 	public static String getExternalPath()
 	{
-		String path = platform_content_dir + nonMessagingBotMetadata.getAppName();
+        String path = nonMessagingBotMetadata.getBotFilePath();
 		return path + File.separator + "assets/";
 	}
 
 	public String getAppBasePath()
 	{
-		String path = platform_content_dir + nonMessagingBotMetadata.getAppName();
-
-		return path + File.separator;
+        String path = nonMessagingBotMetadata.getBotFilePath();
+        return path + File.separator;
 	}
 
 	/**
@@ -406,6 +427,10 @@ public class CocosGamingActivity extends Cocos2dxActivity
 			json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.BOT_NOTIF_TRACKER);
 			json.put(AnalyticsConstants.BOT_MSISDN, msisdn);
 			json.put(AnalyticsConstants.BOT_OPEN_SOURCE, source);
+			if(source.equals(AnalyticsConstants.BOT_OPEN_SOURCE_NOTIF))
+			{
+				nativeBridge.openViaNotif =true;
+			}
 			nativeBridge.logAnalytics("true", AnalyticsConstants.CLICK_EVENT, json.toString());
 		}
 
@@ -413,6 +438,11 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		{
 			e.printStackTrace();
 		}
+	}
+
+	public void setIsGameRunning(Boolean isGameRunning)
+	{
+		settings.edit().putBoolean(HikePlatformConstants.GAME_ACTIVE,isGameRunning).commit();
 	}
 
 }

@@ -17,13 +17,17 @@ import android.text.TextUtils;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.db.AccountBackupRestore;
+import com.bsb.hike.R;
+import com.bsb.hike.backup.AccountBackupRestore;
+import com.bsb.hike.backup.AccountBackupRestore.*;
+import com.bsb.hike.backup.BackupUtils;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.models.AccountInfo;
 import com.bsb.hike.models.Birthday;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.modules.contactmgr.ContactUtils;
+import com.bsb.hike.modules.signupmgr.PostAddressBookTask;
 import com.bsb.hike.modules.signupmgr.RegisterAccountTask;
 import com.bsb.hike.modules.signupmgr.SetProfileTask;
 import com.bsb.hike.modules.signupmgr.ValidateNumberTask;
@@ -31,13 +35,13 @@ import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUIDFetch;
 import com.bsb.hike.ui.SignupActivity;
 import com.bsb.hike.utils.*;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
+import com.crashlytics.android.Crashlytics;
 
 import java.io.File;
 import java.util.List;
 import java.util.Map;
+
+import static com.bsb.hike.backup.AccountBackupRestore.*;
 
 public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> implements ActivityCallableTask
 {
@@ -107,8 +111,8 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 
 	public enum State
 	{
-		MSISDN, ADDRESSBOOK, NAME, PULLING_PIN, PIN, ERROR, PROFILE_IMAGE, GENDER, SCANNING_CONTACTS, PIN_VERIFIED, BACKUP_AVAILABLE, RESTORING_BACKUP
-	};
+		MSISDN, ADDRESSBOOK, NAME, PULLING_PIN, PIN, ERROR, PROFILE_IMAGE, GENDER, SCANNING_CONTACTS, PIN_VERIFIED, BACKUP_AVAILABLE, RESTORING_BACKUP, RESTORING_CLOUD_SETTINGS, SHOW_STICKER_RESTORE_DIALOG
+	}
 
 	public class StateValue
 	{
@@ -230,7 +234,6 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 	@Override
 	protected Boolean doInBackground(Void... unused)
 	{
-		deletePreviouslySavedProfileImages();
 		Logger.e("SignupTask", "FETCHING NUMBER? " + isAlreadyFetchingNumber);
 		isPinError = false;
 		SharedPreferences settings = this.context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
@@ -253,6 +256,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 			/*
 			 * need to get the MSISDN. If we're on Wifi don't bother trying to autodetect
 			 */
+			deletePreviouslySavedProfileImages();
 			ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Activity.CONNECTIVITY_SERVICE);
 			NetworkInfo wifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
@@ -427,6 +431,11 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 			msisdn = accountInfo.getMsisdn();
 			/* save the new msisdn */
 			Utils.savedAccountCredentials(accountInfo, settings.edit());
+			//Check for crash reporting tool
+			if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CRASH_REPORTING_TOOL, HikeConstants.ACRA).equals(HikeConstants.CRASHLYTICS))
+			{
+				Crashlytics.setUserIdentifier(accountInfo.getUid());
+			}
 			String hikeUID = accountInfo.getUid();
 			String hikeToken = accountInfo.getToken();
 			if (!TextUtils.isEmpty(hikeUID) && !TextUtils.isEmpty(hikeToken))
@@ -486,51 +495,31 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 		{
 			String token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
 			ContactManager conMgr = ContactManager.getInstance();
-			List<ContactInfo> contactinfos = conMgr.getContacts(this.context);
+			List<ContactInfo> contactinfos = null;
+			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HIDE_DELETED_CONTACTS, false))
+			{
+				contactinfos = conMgr.getContacts(this.context);
+			}
+			else
+			{
+				contactinfos = conMgr.getContactsOld(this.context);
+			}
+			if(contactinfos == null)
+			{
+				return Boolean.FALSE;
+			}
 			conMgr.setGreenBlueStatus(this.context, contactinfos);
 			
 			try
 			{
 				Logger.d("Signup", "Starting AB scanning");
 				Map<String, List<ContactInfo>> contacts = conMgr.convertToMap(contactinfos);
-				
-				if (Utils.isAddressbookCallsThroughHttpMgrEnabled())
-				{
-					boolean addressBookPosted = new PostAddressBookTask(contacts).execute();
-					if (addressBookPosted == false)
-					{
-						publishProgress(new StateValue(State.ERROR, HikeConstants.ADDRESS_BOOK_ERROR));
-						return Boolean.FALSE;
-					}
-				}
-				else
-				{
-					JSONObject jsonForAddressBookAndBlockList = AccountUtils.postAddressBook(token, contacts);
 
-					List<ContactInfo> addressbook = ContactUtils.getContactList(jsonForAddressBookAndBlockList, contacts);
-					List<String> blockList = ContactUtils.getBlockList(jsonForAddressBookAndBlockList);
-
-					if (jsonForAddressBookAndBlockList.has(HikeConstants.PREF))
-					{
-						JSONObject prefJson = jsonForAddressBookAndBlockList.getJSONObject(HikeConstants.PREF);
-						JSONArray contactsArray = prefJson.optJSONArray(HikeConstants.CONTACTS);
-						if (contactsArray != null)
-						{
-							Editor editor = settings.edit();
-							editor.putString(HikeMessengerApp.SERVER_RECOMMENDED_CONTACTS, contactsArray.toString());
-							editor.commit();
-						}
-					}
-					// List<>
-					// TODO this exception should be raised from the postAddressBook
-					// code
-					if (addressbook == null)
-					{
-						publishProgress(new StateValue(State.ERROR, HikeConstants.ADDRESS_BOOK_ERROR));
-						return Boolean.FALSE;
-					}
-					Logger.d("SignupTask", "about to insert addressbook");
-					ContactManager.getInstance().setAddressBookAndBlockList(addressbook, blockList);
+				boolean addressBookPosted = new PostAddressBookTask(contacts).execute();
+				if (addressBookPosted == false)
+				{
+					publishProgress(new StateValue(State.ERROR, HikeConstants.ADDRESS_BOOK_ERROR));
+					return Boolean.FALSE;
 				}
 			}
 			catch (Exception e)
@@ -697,20 +686,39 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 				{
 					this.data = null;
 					
-					boolean status = restore(settings);
+					@RestoreErrorStates int restoreStatus = restore(settings);
 					
 					// A delay so that user is able to understand the UI animations.
 					synchronized (this)
 					{
 						this.wait(HikeConstants.BACKUP_RESTORE_UI_DELAY);
 					}
-					if (status)
+					if (restoreStatus == STATE_RESTORE_SUCCESS)
 					{
+						BotUtils.postAccountRestoreSetup();
 						publishProgress(new StateValue(State.RESTORING_BACKUP,Boolean.TRUE.toString()));
+
+						if (BackupUtils.isDeviceDpiDifferent())
+						{
+							publishProgress(new StateValue(State.SHOW_STICKER_RESTORE_DIALOG, null)); //Give a signal to show the sticker restore dialog.
+						}
 					}
+
 					else
 					{
-						publishProgress(new StateValue(State.RESTORING_BACKUP,Boolean.FALSE.toString()));
+						BotUtils.initBots();
+						switch (restoreStatus)
+						{
+						case STATE_RESTORE_FAILURE_INCOMPATIBLE_VERSION:
+							publishProgress(new StateValue(State.RESTORING_BACKUP, context.getString(R.string.restore_version_error)));
+							break;
+						case STATE_RESTORE_FAILURE_MSISDN_MISMATCH:
+							publishProgress(new StateValue(State.RESTORING_BACKUP, context.getString(R.string.restore_msisdn_error)));
+							break;
+						default:
+							publishProgress(new StateValue(State.RESTORING_BACKUP, Boolean.FALSE.toString()));
+							break;
+						}
 						// After publishing 'restore failed' the task waits for the user to again make an input(Restore or Skip)
 						synchronized (this)
 						{
@@ -733,6 +741,22 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 				return Boolean.FALSE;
 			}
 		}
+
+		try
+		{
+			// Fetch user settings from server
+			publishProgress(new StateValue(State.RESTORING_CLOUD_SETTINGS, null));
+			synchronized (this)
+			{
+				this.wait();
+			}
+		}
+		catch (InterruptedException iex)
+		{
+			iex.printStackTrace();
+			Logger.e("SignupTask","Interrupted while waiting for returning user's setting restore");
+		}
+
 		Logger.d("SignupTask", "Publishing Token_Created");
 
 		/* tell the service to start listening for new messages */
@@ -742,17 +766,18 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 
 		return Boolean.TRUE;
 	}
-	
-	private boolean restore(SharedPreferences settings)
+
+	@RestoreErrorStates
+	private int restore(SharedPreferences settings)
 	{
 		Editor editor = settings.edit();
 		editor.putBoolean(HikeMessengerApp.RESTORING_BACKUP, true);
 		editor.commit();
 		
 		publishProgress(new StateValue(State.RESTORING_BACKUP,null));
-		boolean status = AccountBackupRestore.getInstance(context).restore();
+		@RestoreErrorStates  int restoreStatus = AccountBackupRestore.getInstance(context).restore();
 		
-		if (status)
+		if (restoreStatus == STATE_RESTORE_SUCCESS)
 		{
 			/**
 			 * This will shutdown the contact manager completely and then Contact Manager will be initialized with new hike user db values that restored during backup restore
@@ -766,7 +791,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 		editor.putBoolean(HikeMessengerApp.RESTORING_BACKUP, false);
 		editor.commit();
 		
-		return status;
+		return restoreStatus;
 	}
 	
 	@Override
@@ -843,7 +868,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 		getSignupTask(activity);
 		if (!signupTask.isRunning())
 		{
-			Utils.executeSignupTask(signupTask);
+			signupTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		}
 		return signupTask;
 	}
@@ -862,7 +887,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 			 * auto auth
 			 */
 			SignupTask.isAlreadyFetchingNumber = true;
-			Utils.executeSignupTask(signupTask);
+			signupTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		}
 		return signupTask;
 	}

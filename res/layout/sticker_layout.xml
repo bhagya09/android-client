@@ -54,7 +54,7 @@
             
         </FrameLayout>
 
-        <com.bsb.hike.view.StickerEmoticonIconPageIndicator
+        <com.bsb.hike.view.StickerIconPageIndicator
             android:id="@+id/sticker_icon_indicator"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

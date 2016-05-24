@@ -44,7 +44,16 @@ public class MultiStickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTask
 	public MultiStickerTagDownloadTask(Set<String> stickerSet, int state, Set<String> languagesSet)
 	{
 		this.stickerCategoryList = new ArrayList<String>(stickerSet);
-		this.languagesList = new ArrayList<>(languagesSet);
+
+		if(!Utils.isEmpty(languagesSet))
+		{
+			this.languagesList = new ArrayList<String>(languagesSet);
+		}
+		else
+		{
+			this.languagesList = new ArrayList<String>();
+		}
+
 		this.state = state;
 		
 		if(state == StickerSearchConstants.STATE_STICKER_DATA_REFRESH)

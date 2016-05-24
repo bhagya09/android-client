@@ -1,8 +1,9 @@
 package com.bsb.hike.media;
 
-import android.app.Activity;
+import java.util.HashSet;
+import java.util.Set;
+
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
@@ -25,22 +26,20 @@ import com.bsb.hike.R;
 import com.bsb.hike.adapters.StickerAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.chatHead.ChatHeadConstants;
-import com.bsb.hike.chatHead.ChatHeadLayout;
-import com.bsb.hike.chatHead.ChatHeadViewManager;
 import com.bsb.hike.chatHead.ChatHeadUtils;
+import com.bsb.hike.chatHead.ChatHeadViewManager;
 import com.bsb.hike.chatHead.TabClickListener;
+import com.bsb.hike.chatthread.IShopIconClickedCallback;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
-import com.bsb.hike.view.StickerEmoticonIconPageIndicator;
+import com.bsb.hike.view.StickerIconPageIndicator;
 
 public class StickerPicker implements OnClickListener, ShareablePopup, StickerPickerListener,TabClickListener
 {
@@ -56,8 +55,8 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	
 	private int currentConfig = Configuration.ORIENTATION_PORTRAIT; 
 	
-	private StickerEmoticonIconPageIndicator mIconPageIndicator;
-	
+	private StickerIconPageIndicator mIconPageIndicator;
+
 	private static final String TAG = "StickerPicker";
 	
 	private ViewPager mViewPager;
@@ -75,6 +74,14 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	private ImageView chatHeadInfoIconButton;
 
 	private ProgressBar chatHeadProgressBar;
+
+	private boolean showLastCategory;
+
+	private IShopIconClickedCallback shopIconClickedCallback;
+
+	private StickerCategory quickSuggetionCategory;
+
+	private boolean showQuickSuggestions;
 	
 	/**
 	 * Constructor
@@ -87,6 +94,20 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		this.mContext = context;
 		this.listener = listener;
 		this.currentConfig = context.getResources().getConfiguration().orientation;
+	}
+
+	/**
+	 * Constructor
+	 *
+	 * @param activity
+	 * @param listener
+	 */
+	public StickerPicker(Context context, StickerPickerListener listener, IShopIconClickedCallback shopIconClickedCallback)
+	{
+		this.mContext = context;
+		this.listener = listener;
+		this.currentConfig = context.getResources().getConfiguration().orientation;
+		this.shopIconClickedCallback = shopIconClickedCallback;
 	}
 
 	/**
@@ -154,6 +175,11 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		showStickerPicker(0, 0, screenOrietentation);
 	}
 
+	public void setShowLastCategory(boolean showLastCategory)
+	{
+		this.showLastCategory = showLastCategory;
+	}
+
 	public void showStickerPicker(int xoffset, int yoffset, int screenOritentation)
 	{
 		/**
@@ -209,9 +235,9 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 			throw new IllegalArgumentException("View Pager was not found in the view passed.");
 		}
 
-		stickerAdapter = new StickerAdapter(mContext, this);
+		initStickerAdapter();
 
-		mIconPageIndicator = (StickerEmoticonIconPageIndicator) view.findViewById(R.id.sticker_icon_indicator);
+		mIconPageIndicator = (StickerIconPageIndicator) view.findViewById(R.id.sticker_icon_indicator);
 		
 		View shopIcon = (view.findViewById(R.id.shop_icon));
 		if (shopIcon != null)
@@ -271,6 +297,8 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	
 	private void addAdaptersToViews()
 	{
+		addOrRemoveQuickSuggestionCategory();
+
 		mViewPager.setAdapter(stickerAdapter);
 
 		mIconPageIndicator.setViewPager(mViewPager);
@@ -278,7 +306,16 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		mIconPageIndicator.setOnPageChangeListener(onPageChangeListener);
 
 		mIconPageIndicator.setCurrentItem(0);
-		
+
+		if(showLastCategory)
+		{
+			mIconPageIndicator.setCurrentItem(stickerAdapter.getCount());
+			setShowLastCategory(false);
+		}
+		else
+		{
+			mIconPageIndicator.setCurrentItem(0);
+		}
 		if (refreshStickers)
 		{
 			mIconPageIndicator.notifyDataSetChanged();
@@ -352,10 +389,10 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	private void shopIconClicked()
 	{
 		setStickerIntroPrefs();
-		HAManager.getInstance().record(HikeConstants.LogEvent.STKR_SHOP_BTN_CLICKED, AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH);
-		Intent i = IntentFactory.getStickerShopIntent(mContext);
-		i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		mContext.getApplicationContext().startActivity(i);
+		if (shopIconClickedCallback!= null)
+		{
+			shopIconClickedCallback.shopClicked();
+		}
 	}
 
 	public void updateDimension(int width, int height)
@@ -444,6 +481,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		{
 			stickerAdapter.getStickerLoader().setExitTasksEarly(flag);
 			stickerAdapter.getStickerOtherIconLoader().setExitTasksEarly(flag);
+			stickerAdapter.getMiniStickerLoader().setExitTasksEarly(flag);
 			if (!flag)
 			{
 				stickerAdapter.notifyDataSetChanged();
@@ -649,7 +687,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 			infoIconClick();
 		}
 		setOnClick();
-		StickerEmoticonIconPageIndicator.registerChatHeadTabClickListener(this);
+		StickerIconPageIndicator.registerChatHeadTabClickListener(this);
 	}
 	
 	public void createExternalStickerPicker(LinearLayout layout)
@@ -678,7 +716,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		chatHeadTotalStickersText = (TextView)chatHeadstickerPickerView.findViewById(R.id.sticker_sent_side_text);
 		chatHeadMainText  = (TextView)chatHeadstickerPickerView.findViewById(R.id.main_text);
 		chatHeadProgressBar = (ProgressBar)chatHeadstickerPickerView.findViewById(R.id.progress_bar);
-		mIconPageIndicator = (StickerEmoticonIconPageIndicator) chatHeadstickerPickerView.findViewById(R.id.sticker_icon_indicator);
+		mIconPageIndicator = (StickerIconPageIndicator) chatHeadstickerPickerView.findViewById(R.id.sticker_icon_indicator);
 		
 	}
 
@@ -692,7 +730,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 
 	public void stoppingChatHeadActivity()
 	{
-		StickerEmoticonIconPageIndicator.unRegisterChatHeadTabClickListener();
+		StickerIconPageIndicator.unRegisterChatHeadTabClickListener();
 		releaseResources();
 	}
 
@@ -701,4 +739,28 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		ChatHeadViewManager.getInstance(HikeMessengerApp.getInstance()).resetPosition(ChatHeadConstants.SHARING_BEFORE_FINISHING_ANIMATION, filePathBmp);
 	}
 
+	private void initStickerAdapter()
+	{
+		stickerAdapter = stickerAdapter == null ? new StickerAdapter(mContext, this) : stickerAdapter;
+	}
+
+	private void addOrRemoveQuickSuggestionCategory()
+	{
+		if(showQuickSuggestions && quickSuggetionCategory != null)
+		{
+			stickerAdapter.addQuickSuggestionCategory(quickSuggetionCategory);
+			showQuickSuggestions = false;
+			refreshStickers = true;
+		}
+		else
+		{
+			refreshStickers = stickerAdapter.removeQuickSuggestionCategory();
+		}
+	}
+
+	public void showQuickSuggestionCategory(StickerCategory quickSuggestionCategory)
+	{
+		this.showQuickSuggestions = true;
+		this.quickSuggetionCategory = quickSuggestionCategory;
+	}
 }

@@ -1,17 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-     >
-<LinearLayout
-    android:id="@+id/screen"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
     android:background="@color/home_bg"
-    android:orientation="vertical"
-   >
+    android:orientation="vertical" >
 
-    <FrameLayout
+    <com.bsb.hike.view.CustomRelativeLayout
         android:id="@+id/frame"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -27,10 +21,28 @@
             android:id="@+id/full_screen_button"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:layout_gravity="bottom|right"
             android:layout_margin="12dp"
             android:background="@drawable/full_screen_btn" />
-    </FrameLayout>
+
+        <Button
+            android:id="@+id/my_location_button"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_margin="12dp"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/ic_current_location_location_sharing" />
+
+
+        <ImageView
+            android:id="@+id/manual_marker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:src="@drawable/ic_map_marker_location_sharing"
+            />
+
+
+    </com.bsb.hike.view.CustomRelativeLayout>
 
     <LinearLayout
         android:id="@+id/search_text"
@@ -96,5 +108,3 @@
     </RelativeLayout>
 
 </LinearLayout>
-<include layout="@layout/kpt_keyboard_viewholder"/>
-</RelativeLayout>

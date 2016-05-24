@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ListFragment;
@@ -28,6 +29,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.adapters.FriendsAdapter;
 import com.bsb.hike.adapters.FriendsAdapter.FriendsListFetchedCallback;
 import com.bsb.hike.adapters.FriendsAdapter.ViewType;
+import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -114,13 +116,14 @@ public class FriendsFragment extends ListFragment implements Listener, OnItemLon
 	@Override
 	public void onResume()
 	{
-		// TODO Auto-generated method stub
 		super.onResume();
 		if(friendsAdapter != null)
 		{
 			friendsAdapter.getIconLoader().setExitTasksEarly(false);
 			friendsAdapter.notifyDataSetChanged();
 		}
+		HikeMessengerApp.getPubSub().publish(HikePubSub.UNSEEN_STATUS_COUNT_CHANGED, null);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_UNSEEN_FRIEND_REQUEST_CHANGED, new Integer(0));
 	}
 
 	@Override
@@ -165,7 +168,7 @@ public class FriendsFragment extends ListFragment implements Listener, OnItemLon
         {
             contactInfos.add(contactInfo);
             ConvertToJsonArrayTask task = new ConvertToJsonArrayTask(this,contactInfos,true);
-            Utils.executeJSONArrayResultTask(task);
+			task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             return;
         }
 
@@ -198,7 +201,7 @@ public class FriendsFragment extends ListFragment implements Listener, OnItemLon
 		}
 		else
 		{
-			Utils.startChatThread(getActivity(), contactInfo);
+			Utils.startChatThread(getActivity(), contactInfo, ChatThreadActivity.ChatThreadOpenSources.FRIENDS_SCREEN);
 			getActivity().finish();
 		}
 	}
@@ -539,7 +542,7 @@ public class FriendsFragment extends ListFragment implements Listener, OnItemLon
 
 		ArrayList<String> optionsList = new ArrayList<String>();
 
-		optionsList.add(getString(R.string.remove_from_favorites));
+		optionsList.add(getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.remove_from_friends : R.string.remove_from_favorites));
 
 		final String[] options = new String[optionsList.size()];
 		optionsList.toArray(options);
@@ -554,7 +557,7 @@ public class FriendsFragment extends ListFragment implements Listener, OnItemLon
 			public void onClick(DialogInterface dialog, int which)
 			{
 				String option = options[which];
-				if (getString(R.string.remove_from_favorites).equals(option))
+				if (getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.remove_from_friends :R.string.remove_from_favorites).equals(option))
 				{
 					Utils.checkAndUnfriendContact(contactInfo);
 				}

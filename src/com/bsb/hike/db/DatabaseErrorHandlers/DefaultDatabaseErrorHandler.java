@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteException;
 import android.util.Pair;
 
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 import java.io.File;
 import java.util.List;
@@ -105,7 +106,14 @@ class DefaultDatabaseErrorHandler implements DatabaseErrorHandler
 		Logger.e(TAG, "deleting the database file: " + fileName);
 		try
 		{
-			SQLiteDatabase.deleteDatabase(new File(fileName));
+			if (Utils.isJellybeanOrHigher())
+			{
+				SQLiteDatabase.deleteDatabase(new File(fileName));
+			}
+			else
+			{
+				new File(fileName).delete();
+			}
 		}
 		catch (Exception e)
 		{

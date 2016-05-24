@@ -1,10 +1,6 @@
 package com.bsb.hike.platform;
 
 import java.io.File;
-import java.io.FilenameFilter;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.support.v4.util.LruCache;
 import android.text.TextUtils;
@@ -101,26 +97,28 @@ public class PlatformContentCache
 	{
 		Logger.d(TAG, "loading template from disk");
 
-		// if (verifyVersion(content))
-		// {
-		// // Continue loading
-		// }
-		// else
-		// {
-		// return null;
-		// }
+        IExceptionHandler exceptionHandler = new IExceptionHandler()
+        {
+            @Override
+            public void onExceptionOcurred(Exception ex)
+            {
+                Logger.wtf(TAG, "Got an  exception while reading from disk." + ex.toString());
+                PlatformUtils.microappIOFailedAnalytics(content.getContentData().getId(), ex.toString(), true);
+            }
+        };
 
-		IExceptionHandler exceptionHandler = new IExceptionHandler()
+		String microAppPath = PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS;
+		String microAppName = content.getContentData().cardObj.getAppName();
+
+        microAppPath = PlatformUtils.generateMappUnZipPathForBotType(content.getBotType(),microAppPath,microAppName);
+
+		File file = new File(microAppPath, content.getContentData().getTag());
+
+		// If file is not found in the newer structured hierarchy directory path, then look for file in the older content directory path used before versioning
+		if (!file.exists())
 		{
-			@Override
-			public void onExceptionOcurred(Exception ex)
-			{
-				Logger.wtf(TAG, "Got an  exception while reading from disk." + ex.toString());
-				PlatformUtils.microappIOFailedAnalytics(content.getContentData().getId(), ex.toString(), true);
-			}
-		};
-
-		File file = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + content.getContentData().getId(), content.getContentData().getTag());
+			file = new File(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + content.getContentData().getId(), content.getContentData().getTag());
+		}
 
 		String templateString;
 		templateString = PlatformContentUtils.readDataFromFile(file, exceptionHandler);
@@ -147,70 +145,6 @@ public class PlatformContentCache
 		return downloadedTemplate;
 	}
 
-	public static boolean verifyVersion(PlatformContentRequest content)
-	{
-		File file = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR, content.getContentData().getId());
-
-		if (file.exists() && file.isDirectory())
-		{
-			String[] fileList = file.list(new FilenameFilter()
-			{
-				@Override 
-				public boolean accept(File dir, String filename)
-				{
-					if (filename.equals(PlatformContentConstants.PLATFORM_CONFIG_FILE_NAME))
-					{
-						return true;
-					}
-					else
-					{
-						return false;
-					}
-				}
-			});
-
-			if (fileList.length == 0)
-			{
-				// If config.json is not present we go ahead and use current version
-				return true;
-			}
-			else
-			{
-				File configFile = new File(file.getAbsolutePath() + File.separator + fileList[0]);
-
-				String configFileData = PlatformContentUtils.readDataFromFile(configFile, null);
-
-				if (TextUtils.isEmpty(configFileData))
-				{
-					return true;
-				}
-				else
-				{
-					try
-					{
-						JSONObject configJson = new JSONObject(configFileData);
-						String version = configJson.getString(PlatformContentConstants.PLATFORM_CONFIG_VERSION_ID);
-						if (version.equals(content.getContentData().getVersion()))
-						{
-							return true;
-						}
-						else
-						{
-							return false;
-						}
-					}
-					catch (JSONException e)
-					{
-						e.printStackTrace();
-						return true;
-					}
-				}
-			}
-		}
-
-		return false;
-	}
-
 	/**
 	 * Put hot content.
 	 * 
@@ -220,7 +154,7 @@ public class PlatformContentCache
 	public static void putFormedContent(PlatformContentModel content)
 	{
 		Logger.d(TAG, "put formed content in cache");
-		
+
 		formedContentCache.put(content.hashCode(), content);
 	}
 
@@ -237,6 +171,14 @@ public class PlatformContentCache
 
 		return formedContentCache.get(request.getContentData().hashCode());
 	}
+    
+	/**
+	 * Clear formed content cache. Code only to be executed when we are clearing client data
+	 */
+	public static void clearFormedContentCache()
+    {
+        formedContentCache.evictAll();
+    }
 
 	public interface IExceptionHandler
 	{

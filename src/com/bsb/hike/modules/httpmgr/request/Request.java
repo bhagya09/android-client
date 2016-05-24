@@ -1,8 +1,6 @@
 package com.bsb.hike.modules.httpmgr.request;
 
-import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_HIGH;
-import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_LOW;
-import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_NORMAL;
+import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.*;
 import static com.bsb.hike.modules.httpmgr.request.RequestConstants.GET;
 
 import java.io.IOException;
@@ -10,16 +8,21 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Future;
 
-import android.text.TextUtils;
+import org.json.JSONObject;
 
+import com.bsb.hike.filetransfer.FileSavedState;
+import com.bsb.hike.filetransfer.FileTransferBase.FTState;
+import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.modules.gcmnetworkmanager.Config;
+import com.bsb.hike.modules.gcmnetworkmanager.HikeGcmNetworkMgr;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.client.IClient;
 import com.bsb.hike.modules.httpmgr.engine.ProgressByteProcessor;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.interceptor.IRequestInterceptor;
@@ -31,8 +34,13 @@ import com.bsb.hike.modules.httpmgr.request.listener.IProgressListener;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestCancellationListener;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
+import com.bsb.hike.modules.httpmgr.request.requestbody.StringBody;
+import com.bsb.hike.modules.httpmgr.requeststate.HttpRequestState;
+import com.bsb.hike.modules.httpmgr.requeststate.HttpRequestStateDB;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.httpmgr.retry.BasicRetryPolicy;
-import com.bsb.hike.utils.Utils;
+
+import android.text.TextUtils;
 
 /**
  * Encapsulates all of the information necessary to make an HTTP request.
@@ -46,11 +54,11 @@ public abstract class Request<T> implements IRequestFacade
 	public static final int BUFFER_SIZE = 4 * 1024; // 4Kb
 
 	private String defaultId = "";
-	
+
 	private String md5Id;
 
 	private String analyticsParam;
-	
+
 	private String method;
 
 	private URL url;
@@ -66,7 +74,7 @@ public abstract class Request<T> implements IRequestFacade
 	private BasicRetryPolicy retryPolicy;
 
 	private volatile boolean isCancelled;
-	
+
 	private volatile boolean isFinished;
 
 	private volatile boolean wrongRequest;
@@ -89,6 +97,12 @@ public abstract class Request<T> implements IRequestFacade
 
 	private Future<?> future;
 
+	private volatile FileSavedState state = null;
+
+	protected int chunkSize;
+
+	private Config gcmTaskConfig;
+
 	protected Request(Init<?> builder)
 	{
 		this.defaultId = builder.id;
@@ -103,6 +117,7 @@ public abstract class Request<T> implements IRequestFacade
 		addRequestListeners(builder.requestListeners);
 		this.responseOnUIThread = builder.responseOnUIThread;
 		this.asynchronous = builder.asynchronous;
+		this.gcmTaskConfig = builder.gcmTaskConfig;
 		ensureSaneDefaults();
 		setHostUris();
 	}
@@ -125,7 +140,7 @@ public abstract class Request<T> implements IRequestFacade
 		}
 
 		md5Id = generateId();
-		
+
 		if (requestInteceptors == null)
 		{
 			requestInteceptors = new Pipeline<IRequestInterceptor>();
@@ -140,6 +155,13 @@ public abstract class Request<T> implements IRequestFacade
 		{
 			setWrongRequest(true);
 			setWrongRequestErrorCode(HttpException.REASON_CODE_WRONG_URL);
+			return;
+		}
+
+		if (gcmTaskConfig != null && !asynchronous)
+		{
+			setWrongRequest(true);
+			setWrongRequestErrorCode(HttpException.REASON_CODE_CAN_NOT_USE_GCM_TASK_FOR_SYNC_CALLS);
 			return;
 		}
 	}
@@ -170,26 +192,89 @@ public abstract class Request<T> implements IRequestFacade
 		this.future = null;
 	}
 
+	public Response executeRequest(IClient client) throws Throwable {
+		return client.execute(this);
+	}
+
 	public abstract T parseResponse(InputStream in, int contentLength) throws IOException;
 
 	protected void readBytes(InputStream is, ProgressByteProcessor progressByteProcessor) throws IOException
 	{
+		readBytes(is, progressByteProcessor, 0);
+	}
+
+	protected void readBytes(InputStream is, ProgressByteProcessor progressByteProcessor, int offset) throws IOException
+	{
 		final byte[] buffer = new byte[BUFFER_SIZE];
 		int len = 0;
-		while ((len = is.read(buffer)) != -1)
+		FTState st = state == null ? FTState.NOT_STARTED : state.getFTState();
+		while ((len = is.read(buffer)) != -1 && st != FTState.PAUSED)
 		{
-			progressByteProcessor.processBytes(buffer, 0, len);
+			progressByteProcessor.processBytes(buffer, offset, len);
 		}
+	}
+
+	public FileSavedState getState()
+	{
+		if (state == null)
+		{
+			state = getStateFromDB();
+		}
+		return state;
+	}
+
+	protected FileSavedState getStateFromDB()
+	{
+		FileSavedState fss;
+		HttpRequestState st = HttpRequestStateDB.getInstance().getRequestState(this.getId());
+		if (st == null)
+		{
+			fss = new FileSavedState(FTState.INITIALIZED, 0, 0, 0);
+		}
+		else
+		{
+			LogFull.d("getting state from db");
+			JSONObject md = st.getMetadata();
+			fss = FileSavedState.getFileSavedStateFromJSON(md);
+			LogFull.d("getting state from db file upload request ft state : "+fss.getFTState().name());
+		}
+		return fss;
+	}
+
+	public int getChunkSize()
+	{
+		return chunkSize;
+	}
+
+	public void deleteState()
+	{
+		HttpRequestStateDB.getInstance().deleteState(this.getId());
+	}
+
+	protected void saveStateInDB(FileSavedState fss)
+	{
+		HttpRequestState state = new HttpRequestState(this.getId());
+		state.setMetadata(fss.toJSON());
+		HttpRequestStateDB.getInstance().insertOrReplaceRequestState(state);
+	}
+
+	public void setState(FileSavedState state) {
+		this.state = state;
 	}
 
 	/**
 	 * Returns the unique id of the request
-	 * 
+	 *
 	 * @return
 	 */
 	public String getId()
 	{
 		return md5Id;
+	}
+
+	public String getCustomId()
+	{
+		return defaultId;
 	}
 
 	/**
@@ -339,6 +424,16 @@ public abstract class Request<T> implements IRequestFacade
 		return asynchronous;
 	}
 
+	public Config getGcmTaskConfig()
+	{
+		return gcmTaskConfig;
+	}
+
+	public void setGcmTaskConfig(Config gcmTaskConfig)
+	{
+		this.gcmTaskConfig = gcmTaskConfig;
+	}
+
 	/**
 	 * Returns the future of the request that is submitted to the executor
 	 * 
@@ -382,7 +477,32 @@ public abstract class Request<T> implements IRequestFacade
 		Header header = new Header(name, value);
 		this.headers.add(header);
 	}
-	
+
+	public void replaceOrAddHeader(String name, String value)
+	{
+		if (TextUtils.isEmpty(name) || TextUtils.isEmpty(value))
+		{
+			return;
+		}
+
+		boolean exists = false;
+		for (Header header : headers)
+		{
+			if (header.getName().equals(name))
+			{
+				header.setValue(value);
+				exists = true;
+				break;
+			}
+		}
+
+		if (!exists)
+		{
+			Header header = new Header(name, value);
+			this.headers.add(header);
+		}
+	}
+
 	@Override
 	/**
 	 * Adds more headers to the list of headers of the request
@@ -569,6 +689,21 @@ public abstract class Request<T> implements IRequestFacade
 		}
 		this.isCancelled = true;
 
+		if (gcmTaskConfig != null)
+		{
+			final String tag = gcmTaskConfig.getTag();
+			HikeHandlerUtil.getInstance().postAtFront(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					HttpRequestStateDB.getInstance().deleteBundleForTag(tag);
+				}
+			});
+
+			HikeGcmNetworkMgr.getInstance().cancelTask(tag, gcmTaskConfig.getService());
+		}
+
 		if (future != null)
 		{
 			future.cancel(true);
@@ -625,6 +760,8 @@ public abstract class Request<T> implements IRequestFacade
 		private boolean responseOnUIThread;
 
 		private boolean asynchronous = true;
+
+		private Config gcmTaskConfig;
 
 		protected abstract S self();
 
@@ -683,7 +820,7 @@ public abstract class Request<T> implements IRequestFacade
 		public S post(IRequestBody body)
 		{
 			this.method = RequestConstants.POST;
-			this.body = body;
+			this.body = body != null ? body : new StringBody("");
 			return self();
 		}
 
@@ -864,6 +1001,18 @@ public abstract class Request<T> implements IRequestFacade
 		}
 
 		/**
+		 * Sets the properties of request which will be used for scheduling the task {@link com.google.android.gms.gcm.OneoffTask} in Gcm network manager
+		 *
+		 * @param config
+		 * @return
+		 */
+		public S setGcmTaskConfig(Config config)
+		{
+			this.gcmTaskConfig = config;
+			return self();
+		}
+
+		/**
 		 * Returns an object of {@link RequestToken} which allows outside world to only have limited access to request class so that users can not update request after being
 		 * submitted to the executor
 		 * 
@@ -875,11 +1024,6 @@ public abstract class Request<T> implements IRequestFacade
 	public String generateId()
 	{
 		String input = url + defaultId;
-		Collections.sort(headers);
-		for (Header header : headers)
-		{
-			input += header.getName() + header.getValue();
-		}
 		return HttpUtils.calculateMD5hash(input);
 	}
 	

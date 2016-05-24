@@ -9,6 +9,7 @@ import android.database.DatabaseUtils.InsertHelper;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.bsb.hike.db.dbcommand.SetPragmaModeCommand;
 import com.bsb.hike.models.HikePacket;
 import com.bsb.hike.utils.Logger;
 import com.hike.transporter.interfaces.IPersistanceInterface;
@@ -38,8 +39,10 @@ public class HikeMqttPersistence extends SQLiteOpenHelper
 	{
 		super(context, DBConstants.HIKE_PERSISTENCE.DATABASE_NAME, null, DBConstants.HIKE_PERSISTENCE.DATABASE_VERSION);
 		mDb = getWritableDatabase();
+		SetPragmaModeCommand setPragmaModeCommand = new SetPragmaModeCommand(mDb);
+		setPragmaModeCommand.execute();
 	}
-	
+
 	public SQLiteDatabase getDb()
 	{
 		return mDb;

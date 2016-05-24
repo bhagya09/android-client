@@ -1,6 +1,7 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHTTPTask;
@@ -51,7 +52,7 @@ public class SingleStickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTas
         {
             return;
         }
-        StickerManager.getInstance().saveInStickerTagSet(stickerId, categoryId); // add to set so that tag retry can occur for this sticker if this request fails
+		StickerManager.getInstance().saveInStickerTagSet(new Sticker(categoryId, stickerId)); // add to set so that tag retry can occur for this sticker if this request fails
         requestToken.execute();
     }
 

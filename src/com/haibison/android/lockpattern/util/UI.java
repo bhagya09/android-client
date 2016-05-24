@@ -19,6 +19,7 @@ package com.haibison.android.lockpattern.util;
 import com.bsb.hike.BuildConfig;
 import com.bsb.hike.utils.Utils;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -28,8 +29,6 @@ import android.util.TypedValue;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 
 /**
  * UI utilities.
@@ -158,9 +157,9 @@ public class UI {
      * @param dialog
      *            the dialog.
      */
-//    public static void adjustDialogSizeForLargeScreens(Dialog dialog) {
-//        adjustDialogSizeForLargeScreens(dialog.getWindow());
-//    }// adjustDialogSizeForLargeScreens()
+    public static void adjustDialogSizeForLargeScreens(Dialog dialog) {
+        adjustDialogSizeForLargeScreens(dialog.getWindow());
+    }// adjustDialogSizeForLargeScreens()
 
     /**
      * Uses a fixed size for {@code dialogWindow} in large screens.
@@ -168,7 +167,7 @@ public class UI {
      * @param dialogWindow
      *            the window <i>of the dialog</i>.
      */
-    public static void adjustDialogSizeForLargeScreens(Window dialogWindow, LinearLayout linearLayout) {
+    public static void adjustDialogSizeForLargeScreens(Window dialogWindow) {
         if (BuildConfig.DEBUG)
             Log.d(CLASSNAME, "adjustDialogSizeForLargeScreens()");
 
@@ -200,8 +199,6 @@ public class UI {
             Log.d(CLASSNAME,
                     String.format("width = %,d | height = %,d", width, height));
 
-        dialogWindow.setLayout(width, height);
-        
         width = (int) (width * (isPortrait ? screenSize.fixedWidthMinor
                 : screenSize.fixedWidthMajor));
         height = (int) (height * (isPortrait ? screenSize.fixedHeightMajor
@@ -214,13 +211,7 @@ public class UI {
         if (BuildConfig.DEBUG)
             Log.d(CLASSNAME, String.format(
                     "NEW >>> width = %,d | height = %,d", width, height));
-        RelativeLayout.LayoutParams lp = (android.widget.RelativeLayout.LayoutParams)linearLayout.getLayoutParams();
-        if (lp != null)
-        {
-        	lp.width = width;
-        	lp.height = height;
-        }
-        linearLayout.setLayoutParams(lp);
+        dialogWindow.setLayout(width, height);
     }// adjustDialogSizeForLargeScreens()
 
     /**

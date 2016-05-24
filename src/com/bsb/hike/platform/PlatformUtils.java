@@ -1,10 +1,19 @@
 package com.bsb.hike.platform;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -19,10 +28,10 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.ActivityManager;
-import android.app.ActivityManager.RunningAppProcessInfo;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.location.Location;
 import android.location.LocationListener;
@@ -39,16 +48,30 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bsb.hike.*;
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
+import com.bsb.hike.MqttConstants;
+import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.chatHead.ChatHeadUtils;
+import com.bsb.hike.chatthread.ChatThreadActivity;
+import com.bsb.hike.cropimage.HikeCropActivity;
+import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.localisation.LocalLanguageUtils;
-import com.bsb.hike.models.*;
+import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.HikeFile;
+import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.models.MessageEvent;
+import com.bsb.hike.models.MultipleConvMessage;
+import com.bsb.hike.models.Sticker;
+import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -59,11 +82,11 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.modules.kpt.KptKeyboardManager;
-import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
-import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
 import com.bsb.hike.platform.ContentModules.PlatformContentModel;
+import com.bsb.hike.platform.auth.AuthListener;
+import com.bsb.hike.platform.auth.PlatformAuthenticationManager;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
@@ -75,7 +98,14 @@ import com.bsb.hike.ui.CreateNewGroupOrBroadcastActivity;
 import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.TellAFriend;
-import com.bsb.hike.utils.*;
+import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.PairModified;
+import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.Utils;
 
 /**
  * @author piyush
@@ -85,9 +115,11 @@ import com.bsb.hike.utils.*;
 public class PlatformUtils
 {
 	private static final String TAG = "PlatformUtils";
-	
+
 	private static final String BOUNDARY = "----------V2ymHFg03ehbqgZCaKO6jy";
-	
+
+    public static ConcurrentHashMap<String,Integer> assocMappRequestStatusMap = new ConcurrentHashMap<String,Integer>();
+
 	/**
 	 * 
 	 * metadata:{'layout_id':'','file_id':'','card_data':{},'helper_data':{}}
@@ -125,10 +157,13 @@ public class PlatformUtils
 	}
 
 	/**
-	 * Call this function to merge two JSONObjects. Will iterate for the keys present in the dataDiff. Will add the key in the oldData if not already
-	 * present or will update the value in oldData if the key is present.
-	 * @param oldData : the data that wants to be merged.
-	 * @param dataDiff : the diff that will be merged with the old data.
+	 * Call this function to merge two JSONObjects. Will iterate for the keys present in the dataDiff. Will add the key in the oldData if not already present or will update the
+	 * value in oldData if the key is present.
+	 * 
+	 * @param oldData
+	 *            : the data that wants to be merged.
+	 * @param dataDiff
+	 *            : the diff that will be merged with the old data.
 	 * @return : the merged data.
 	 */
 	public static JSONObject mergeJSONObjects(JSONObject oldData, JSONObject dataDiff)
@@ -152,7 +187,7 @@ public class PlatformUtils
 		}
 		return oldData;
 	}
-	
+
 	public static void openActivity(Activity context, String data)
 	{
 		String activityName = null;
@@ -240,6 +275,13 @@ public class PlatformUtils
 					context.startActivity(IntentFactory.getComposeChatIntent(context));
 				}
 			}
+			if (activityName.equals(HIKESCREEN.COMPOSE_CHAT_WITH_BDAY.toString()))
+			{
+				if (mmObject.has(HikeConstants.MSISDNS)) {
+					ChatHeadUtils.saveBirthdaysFromTip(mmObject);
+				}
+				context.startActivity(IntentFactory.getComposeChatIntent(context));
+			}
 			if (activityName.equals(HIKESCREEN.INVITE_SMS.toString()))
 			{
 				boolean selectAll = mmObject.optBoolean(ProductPopupsConstants.SELECTALL, false);
@@ -273,6 +315,14 @@ public class PlatformUtils
 				context.startActivity(intent);
 
 			}
+			if (activityName.equals(HIKESCREEN.PROFILE_DOB.toString()))
+			{
+				Intent intent = IntentFactory.getProfileIntent(context);
+				intent.putExtra(HikeConstants.Extras.EDIT_PROFILE, true);
+				intent.putExtra(HikeConstants.Extras.PROFILE_DOB, true);
+				context.startActivity(intent);
+
+			}
 			if (activityName.equals(HIKESCREEN.INVITE_WHATSAPP.toString()))
 			{
 				IntentFactory.openInviteWatsApp(context);
@@ -293,7 +343,7 @@ public class PlatformUtils
 
 				if (!TextUtils.isEmpty(url))
 				{
-					Utils.launchPlayStore(url, context);
+					IntentFactory.launchPlayStore(url, context);
 				}
 			}
 			if (activityName.equals(HIKESCREEN.HELP.toString()))
@@ -313,7 +363,7 @@ public class PlatformUtils
 				IntentFactory.createBroadcastIntent(context);
 			}
 			if (activityName.equals(HIKESCREEN.CHAT_HEAD.toString()))
-			{   
+			{
 				if (ChatHeadUtils.areWhitelistedPackagesSharable(context))
 				{
 					boolean show_popup = mmObject.optBoolean(ProductPopupsConstants.NATIVE_POPUP, false);
@@ -332,7 +382,7 @@ public class PlatformUtils
 				ChatHeadUtils.registerCallReceiver();
 				IntentFactory.openStickyCallerSettings(context, false);
 			}
-			if(activityName.equals(HIKESCREEN.ACCESS.toString()))
+			if (activityName.equals(HIKESCREEN.ACCESS.toString()))
 			{
 				IntentFactory.openAccessibilitySettings(context);
 			}
@@ -340,8 +390,8 @@ public class PlatformUtils
 			{
 				String extraData;
 				String msisdn = mmObject.optString(HikeConstants.MSISDN);
-				extraData=mmObject.optString(HikeConstants.DATA);
-				Intent i=IntentFactory.getNonMessagingBotIntent(msisdn,context,extraData);
+				extraData = mmObject.optString(HikeConstants.DATA);
+				Intent i = IntentFactory.getNonMessagingBotIntent(msisdn, context, extraData);
 				if (context != null)
 				{
 					if (!(getLastGame().equals(msisdn)))
@@ -368,20 +418,21 @@ public class PlatformUtils
 					Logger.e(TAG, "Msisdn is missing in the packet");
 					return;
 				}
-				Intent in = IntentFactory.getIntentForAnyChatThread(context, msisdn, mmObject.optBoolean("isBot"));
+				Intent in = IntentFactory.getIntentForAnyChatThread(context, msisdn, mmObject.optBoolean("isBot"),
+						ChatThreadActivity.ChatThreadOpenSources.MICRO_APP);
 				if (in != null)
 				{
 					context.startActivity(in);
 				}
 				else
 				{
-					Toast.makeText(context, context.getString(R.string.app_not_enabled),Toast.LENGTH_SHORT).show();
+					Toast.makeText(context, context.getString(R.string.app_not_enabled), Toast.LENGTH_SHORT).show();
 				}
 			}
 		}
 		catch (JSONException e)
 		{
-			Logger.e(TAG, "JSONException in openActivity : "+e.getMessage());
+			Logger.e(TAG, "JSONException in openActivity : " + e.getMessage());
 			e.printStackTrace();
 		}
 		catch (ActivityNotFoundException e)
@@ -392,16 +443,163 @@ public class PlatformUtils
 
 	}
 
-	/**
-	 * download the microapp and then set the state to whatever that has been passed by the server.
-	 * @param botInfo
-	 * @param enableBot
-	 */
-	public static void downloadZipForNonMessagingBot(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType, NonMessagingBotMetadata botMetadata, boolean resumeSupport)
+    /*
+     * Method to download assoc mapp (helper files) requested with cbot packet.
+     */
+	public static void downloadAssocMappForNonMessagingBot(final JSONObject assocMappJson, final BotInfo botInfo, final boolean enableBot, final String botChatTheme,
+			final String notifType, final NonMessagingBotMetadata botMetadata, final boolean resumeSupport, final boolean autoResume)
 	{
-		PlatformContentRequest rqst = PlatformContentRequest.make(
-				PlatformContentModel
-						.make(botInfo.getMetadata()), new PlatformContentListener<PlatformContentModel>()
+
+		final PlatformContentModel platformContentModel = PlatformContentModel.make(assocMappJson.toString(), HikePlatformConstants.PlatformBotType.HIKE_MAPPS);
+		PlatformContentRequest rqst = PlatformContentRequest.make(platformContentModel, new PlatformContentListener<PlatformContentModel>()
+		{
+			long fileLength = 0;
+
+			@Override
+			public void onComplete(PlatformContentModel content)
+			{
+				Logger.d(TAG, "microapp download packet success.");
+				// Store successful micro app creation in db
+				mAppCreationSuccessHandling(assocMappJson);
+				assocMappDownloadHandling(botInfo, enableBot, botChatTheme, notifType, botMetadata, resumeSupport,autoResume);
+			}
+
+			@Override
+			public void onEventOccured(int uniqueId, PlatformContent.EventCode event)
+			{
+				JSONObject jsonObject = new JSONObject();
+				try
+				{
+					jsonObject.put(HikePlatformConstants.ERROR_CODE, event.toString());
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+				}
+
+				if (event == PlatformContent.EventCode.ALREADY_DOWNLOADED)
+				{
+					microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOADED, platformContentModel, jsonObject);
+					Logger.d(TAG, "microapp already exists.");
+					assocMappDownloadHandling(botInfo, enableBot, botChatTheme, notifType, botMetadata, resumeSupport,autoResume);
+				}
+				else
+				{
+					try
+					{
+						if (fileLength > 0)
+						{
+							jsonObject.put(AnalyticsConstants.FILE_SIZE, String.valueOf(fileLength));
+						}
+						jsonObject.put(AnalyticsConstants.INTERNAL_STORAGE_SPACE, String.valueOf(Utils.getFreeInternalStorage()) + " MB");
+					}
+					catch (JSONException e)
+					{
+						Logger.e(TAG, "JSONException " + e.getMessage());
+					}
+
+                    // In case of assoc mapp failure, remove entry from hashmap
+                    assocMappRequestStatusMap.remove(botInfo.getMsisdn());
+					microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOAD_FAILED, platformContentModel, jsonObject);
+					Logger.wtf(TAG, "microapp download packet failed.Because it is" + event.toString());
+				}
+
+			}
+
+			@Override
+			public void downloadedContentLength(long length)
+			{
+				fileLength = length;
+			}
+		});
+
+        // As this flow is there for MAPP flow, setting the request type to Hike Mapps
+        rqst.setBotType(HikePlatformConstants.PlatformBotType.HIKE_MAPPS);
+        rqst.getContentData().setBotType(HikePlatformConstants.PlatformBotType.HIKE_MAPPS);
+
+		// Setting up parameters for downloadAndUnzip call
+		boolean isTemplatingEnabled = false;
+		boolean doReplace = false;
+		String callbackId = null;
+		String assocCbot = "";
+
+		downloadAndUnzip(rqst, isTemplatingEnabled, doReplace, callbackId, resumeSupport, assocCbot,autoResume);
+	}
+
+    /**
+     * download the microapp and then set the state to whatever that has been passed by the server.
+     *
+     * @param botInfo
+     * @param enableBot
+     */
+    public static void processCbotPacketForNonMessagingBot(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType,
+			NonMessagingBotMetadata botMetadata, boolean resumeSupport)
+	{
+		boolean autoResume=botMetadata.getAutoResume();
+        // On receiving request to process cbot packet , add entry in assocMapp requests map with initial count as no of mapps request to be completed
+        if (botMetadata != null && botMetadata.getAsocmapp() != null)
+		{
+			JSONArray assocMappJsonArray = botMetadata.getAsocmapp();
+
+			int assocMappsCount = assocMappJsonArray.length();
+
+            // add entry in assocMapp requests map with initial count as no of mapps request to be completed
+            assocMappRequestStatusMap.put(botInfo.getMsisdn(),assocMappsCount);
+            for (int i = 0; i < assocMappsCount; i++)
+			{
+				// Get assoc mapp json object from cbot json array
+				JSONObject assocMappJson = null;
+				try
+				{
+					assocMappJson = assocMappJsonArray.getJSONObject(i);
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+				}
+
+                // Code to check if micro app already exists or not and make download micro app call if assoc map already exist
+				if (assocMappJson != null)
+				{
+					JSONObject cardObjectJson = assocMappJson.optJSONObject(HikePlatformConstants.CARD_OBJECT);
+					if (cardObjectJson != null)
+					{
+						final int version = cardObjectJson.optInt(HikePlatformConstants.MAPP_VERSION_CODE, 0);
+						final String appName = cardObjectJson.optString(HikePlatformConstants.APP_NAME, "");
+
+						if (isMicroAppExistForMappPacket(appName, version) && i == assocMappsCount - 1)
+						{
+                            assocMappRequestStatusMap.remove(botInfo.getMsisdn());
+                            // Download micro app for non messaging bot
+							downloadMicroAppZipForNonMessagingCbotPacket(botInfo, enableBot, botChatTheme, notifType, botMetadata, resumeSupport);
+						}
+
+						else if (!isMicroAppExistForMappPacket(appName, version))//Download Associated mapp
+						{
+							downloadAssocMappForNonMessagingBot(assocMappJson,botInfo,enableBot,botChatTheme,notifType,botMetadata,resumeSupport,autoResume);
+						}
+					}
+				}
+			}
+		}
+
+        else // No AssocMapp array found. Reverting to default behaviour.
+        {
+            // Download micro app for non messaging bot
+            downloadMicroAppZipForNonMessagingCbotPacket(botInfo,enableBot,botChatTheme,notifType,botMetadata,resumeSupport);
+        }
+	}
+
+
+    /*
+     * method to download the micro app zip as per cbot packet
+     */
+	public static void downloadMicroAppZipForNonMessagingCbotPacket(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType,
+			final NonMessagingBotMetadata botMetadata, boolean resumeSupport)
+	{
+		boolean autoResume = botMetadata.getAutoResume();
+		PlatformContentRequest rqst = PlatformContentRequest.make(PlatformContentModel.make(botInfo.getMetadata(), botInfo.getBotType()),
+				new PlatformContentListener<PlatformContentModel>()
 				{
 
 					long zipFileSize = 0;
@@ -414,11 +612,11 @@ public class PlatformUtils
 					}
 
 					@Override
-					public void onEventOccured(int uniqueCode,PlatformContent.EventCode event)
+					public void onEventOccured(int uniqueCode, PlatformContent.EventCode event)
 					{
 						if (event == PlatformContent.EventCode.DOWNLOADING || event == PlatformContent.EventCode.LOADED)
 						{
-							//do nothing
+							// do nothing
 							return;
 						}
 						else if (event == PlatformContent.EventCode.ALREADY_DOWNLOADED)
@@ -428,22 +626,29 @@ public class PlatformUtils
 						}
 						else
 						{
-							Logger.wtf(TAG, "microapp download packet failed." + event.toString());
-							JSONObject json = new JSONObject();
-							try
+							if(botMetadata.getAutoResume() && !(PlatformContent.EventCode.UNZIP_FAILED.toString().equals(event.toString())) && !(PlatformContent.EventCode.INCOMPLETE_ZIP_DOWNLOAD.toString().equals(event.toString())))
 							{
-								json.put(HikePlatformConstants.ERROR_CODE, event.toString());
-								if (zipFileSize > 0)
-								{
-									json.put(AnalyticsConstants.FILE_SIZE, String.valueOf(zipFileSize));
-								}
-								json.put(AnalyticsConstants.INTERNAL_STORAGE_SPACE, String.valueOf(Utils.getFreeInternalStorage()) + " MB");
-								createBotAnalytics(HikePlatformConstants.BOT_CREATION_FAILED, botInfo, json);
-								createBotMqttAnalytics(HikePlatformConstants.BOT_CREATION_FAILED_MQTT, botInfo, json);
+								// In case of failure updating status
+								updatePlatformDownloadState(botMetadata.getAppName(), botMetadata.getmAppVersionCode(), HikePlatformConstants.PlatformDwnldState.FAILED);
+								sendDownloadPausedAnalytics(botMetadata.getAppName());
 							}
-							catch (JSONException e)
-							{
-								e.printStackTrace();
+							else {
+								Pair<BotInfo, Boolean> botInfoCreationFailedPair = new Pair(botInfo, false);
+								HikeMessengerApp.getPubSub().publish(HikePubSub.BOT_CREATED, botInfoCreationFailedPair);
+								Logger.wtf(TAG, "microapp download packet failed." + event.toString());
+								JSONObject json = new JSONObject();
+								try {
+									json.put(HikePlatformConstants.ERROR_CODE, event.toString());
+									if (zipFileSize > 0) {
+										json.put(AnalyticsConstants.FILE_SIZE, String.valueOf(zipFileSize));
+									}
+									json.put(AnalyticsConstants.INTERNAL_STORAGE_SPACE, String.valueOf(Utils.getFreeInternalStorage()) + " MB");
+									createBotAnalytics(HikePlatformConstants.BOT_CREATION_FAILED, botInfo, json);
+									createBotMqttAnalytics(HikePlatformConstants.BOT_CREATION_FAILED_MQTT, botInfo, json);
+
+								} catch (JSONException e) {
+									e.printStackTrace();
+								}
 							}
 
 						}
@@ -456,16 +661,36 @@ public class PlatformUtils
 					}
 				});
 
-		downloadAndUnzip(rqst, false, botMetadata.shouldReplace(), botMetadata.getCallbackId(), resumeSupport);
+		// Stop the flow and return from here in case any exception occurred and contentData becomes null
+		if (rqst.getContentData() == null)
+		{
+            invalidDataBotAnalytics(botInfo);
+            Logger.e(TAG, "Stop the micro app download flow for incorrect request");
+			return;
+		}
 
+
+		rqst.setBotType(botInfo.getBotType());
+		rqst.getContentData().cardObj.setmAppVersionCode(botInfo.getMAppVersionCode());
+		rqst.getContentData().setBotType(botInfo.getBotType());
+		rqst.getContentData().setMsisdn(botInfo.getMsisdn());
+
+		downloadAndUnzip(rqst, false, botMetadata.shouldReplace(), botMetadata.getCallbackId(), resumeSupport, "", autoResume);
 	}
+    
 
 	public static void botCreationSuccessHandling(BotInfo botInfo, boolean enableBot, String botChatTheme, String notifType)
 	{
-		enableBot(botInfo, enableBot,true);
+		enableBot(botInfo, enableBot, true);
 		BotUtils.updateBotParamsInDb(botChatTheme, botInfo, enableBot, notifType);
 		createBotAnalytics(HikePlatformConstants.BOT_CREATED, botInfo);
 		createBotMqttAnalytics(HikePlatformConstants.BOT_CREATED_MQTT, botInfo);
+		// Removing from download state table on success
+		NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(botInfo.getMetadata());
+		if (metadata != null)
+		{
+			removeFromPlatformDownloadStateTable(metadata.getAppName(), metadata.getmAppVersionCode());
+		}
 	}
 
 	private static void createBotMqttAnalytics(String key, BotInfo botInfo)
@@ -473,6 +698,10 @@ public class PlatformUtils
 		createBotMqttAnalytics(key, botInfo, null);
 	}
 
+	public static void requestAuthToken(BotInfo botInfo, AuthListener authListener, int tokenLife){
+		PlatformAuthenticationManager manager =new PlatformAuthenticationManager(botInfo.getClientId(), botInfo.getMsisdn(), HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null), HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, null),authListener);
+		manager.requestAuthToken(tokenLife);
+	}
 	private static void createBotMqttAnalytics(String key, BotInfo botInfo, JSONObject json)
 	{
 
@@ -480,7 +709,7 @@ public class PlatformUtils
 		{
 			JSONObject metadata = json == null ? new JSONObject() : new JSONObject(json.toString());
 			JSONObject data = new JSONObject();
-			data.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.NON_UI_EVENT);
+			data.put(HikeConstants.EVENT_TYPE, String.valueOf(botInfo.getMAppVersionCode()));
 
 			metadata.put(HikeConstants.EVENT_KEY, key);
 			metadata.put(AnalyticsConstants.BOT_NAME, botInfo.getConversationName());
@@ -504,7 +733,7 @@ public class PlatformUtils
 		createBotAnalytics(key, botInfo, null);
 	}
 
-	private static void createBotAnalytics(String key, BotInfo botInfo, JSONObject json)
+    public static void createBotAnalytics(String key, BotInfo botInfo, JSONObject json)
 	{
 		if (json == null)
 		{
@@ -516,7 +745,7 @@ public class PlatformUtils
 			json.put(AnalyticsConstants.BOT_NAME, botInfo.getConversationName());
 			json.put(AnalyticsConstants.BOT_MSISDN, botInfo.getMsisdn());
 			json.put(HikePlatformConstants.PLATFORM_USER_ID, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null));
-			HikeAnalyticsEvent.analyticsForNonMessagingBots(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.DOWNLOAD_EVENT, json);
+			HikeAnalyticsEvent.analyticsForNonMessagingBots(String.valueOf(botInfo.getMAppVersionCode()), AnalyticsConstants.DOWNLOAD_EVENT, json);
 		}
 		catch (JSONException e)
 		{
@@ -524,96 +753,167 @@ public class PlatformUtils
 		}
 	}
 
-	public static void enableBot(BotInfo botInfo, boolean enableBot,boolean increaseUnread)
+	public static void enableBot(BotInfo botInfo, boolean enableBot, boolean increaseUnread)
 	{
 		if (enableBot && botInfo.isNonMessagingBot())
 		{
 			HikeConversationsDatabase.getInstance().addNonMessagingBotconversation(botInfo);
-			Utils.rearrangeChat(botInfo.getMsisdn(),true,increaseUnread);
+			Utils.rearrangeChat(botInfo.getMsisdn(), true, increaseUnread);
 		}
 	}
 
 	/**
-	 * download the microapp, can be used by nonmessaging as well as messaging only to download and unzip the app.
-	 * @param downloadData: the data used to download microapp from ac packet to download the app.
+	 * Method used download the microapp for mapp packet flow, can be used by nonmessaging as well as messaging only to download and unzip the app.
+	 * 
+	 * @param downloadData
+	 *            : the data used to download microapp from ac packet to download the app.
 	 */
-	public static void downloadZipFromPacket(final JSONObject downloadData)
+	public static void downloadZipFromPacket(final JSONObject downloadData, int currentNetwork)
 	{
 		if (downloadData == null)
 		{
 			return;
 		}
+		final boolean autoResume = downloadData.optBoolean(HikePlatformConstants.AUTO_RESUME, false);
 
-		final PlatformContentModel platformContentModel = PlatformContentModel.make(downloadData.toString());
-		PlatformContentRequest rqst = PlatformContentRequest.make(
-				platformContentModel, new PlatformContentListener<PlatformContentModel>()
+        // Check here to reject a mapp packet if its latest version is already present on device
+        int currentMappVersionCode = 0,mAppVersionCode = 0;
+        JSONObject cardObjectJson = downloadData.optJSONObject(HikePlatformConstants.CARD_OBJECT);
+        String appName = cardObjectJson.optString(HikePlatformConstants.APP_NAME);
+        if (cardObjectJson != null)
+            mAppVersionCode = cardObjectJson.optInt(HikePlatformConstants.MAPP_VERSION_CODE, -1);
+        if(HikeMessengerApp.hikeMappInfo.containsKey(appName))
+            currentMappVersionCode = HikeMessengerApp.hikeMappInfo.get(appName);
+		if (mAppVersionCode <= currentMappVersionCode)
+		{
+            // Ignore the packet if data is already present on device and fire pubsub for the same
+            Pair<BotInfo, Boolean> mAppCreatedSuccessfullyPair = new Pair(appName, true);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.MAPP_CREATED, mAppCreatedSuccessfullyPair);
+            return;
+		}
+
+        final PlatformContentModel platformContentModel = PlatformContentModel.make(downloadData.toString(), HikePlatformConstants.PlatformBotType.HIKE_MAPPS);
+		PlatformContentRequest rqst = PlatformContentRequest.make(platformContentModel, new PlatformContentListener<PlatformContentModel>()
+		{
+			long fileLength = 0;
+
+			@Override
+			public void onComplete(PlatformContentModel content)
+			{
+				microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOADED, content);
+				Logger.d(TAG, "microapp download packet success.");
+                // Store successful micro app creation in db
+                mAppCreationSuccessHandling(downloadData);
+				// Removing from state table in case of Download success
+				removeFromPlatformDownloadStateTable(platformContentModel.getId(), platformContentModel.cardObj.getmAppVersionCode());
+			}
+
+			@Override
+			public void onEventOccured(int uniqueId, PlatformContent.EventCode event)
+			{
+
+				if (event == PlatformContent.EventCode.DOWNLOADING || event == PlatformContent.EventCode.LOADED)
 				{
-					long fileLength = 0;
+					// do nothing
+					return;
+				}
 
-					@Override
-					public void onComplete(PlatformContentModel content)
+				JSONObject jsonObject = new JSONObject();
+				try
+				{
+					jsonObject.put(HikePlatformConstants.ERROR_CODE, event.toString());
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+				}
+
+				if (event == PlatformContent.EventCode.ALREADY_DOWNLOADED)
+				{
+					microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOADED, platformContentModel, jsonObject);
+					Logger.d(TAG, "microapp already exists.");
+				}
+				else
+				{
+                    try
 					{
-						microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOADED, content);
-						Logger.d(TAG, "microapp download packet success.");
+						if (fileLength > 0)
+						{
+							jsonObject.put(AnalyticsConstants.FILE_SIZE, String.valueOf(fileLength));
+						}
+						jsonObject.put(AnalyticsConstants.INTERNAL_STORAGE_SPACE, String.valueOf(Utils.getFreeInternalStorage()) + " MB");
 					}
+					catch (JSONException e)
+					{
+						Logger.e(TAG, "JSONException " + e.getMessage());
+					}
+                    // Publish pubsub for failure case of mapp packet received
+                    JSONObject cardObjectJson = downloadData.optJSONObject(HikePlatformConstants.CARD_OBJECT);
 
-					@Override
-					public void onEventOccured(int uniqueId,PlatformContent.EventCode event)
+                    if (cardObjectJson != null) {
+                        final String appName = cardObjectJson.optString(HikePlatformConstants.APP_NAME, "");
+                        // Publish pubsub for failed creation of mapp packet received
+                        Pair<BotInfo,Boolean> mAppCreatedSuccessfullyPair = new Pair(appName,false);
+                        HikeMessengerApp.getPubSub().publish(HikePubSub.MAPP_CREATED, mAppCreatedSuccessfullyPair);
+                    }
+					//Updating state in case of failure
+					if (autoResume && !(PlatformContent.EventCode.UNZIP_FAILED.toString().equals(event.toString())))
 					{
 
-						if (event == PlatformContent.EventCode.DOWNLOADING || event == PlatformContent.EventCode.LOADED)
-						{
-							//do nothing
-							return;
-						}
-
-						JSONObject jsonObject = new JSONObject();
-						try
-						{
-							jsonObject.put(HikePlatformConstants.ERROR_CODE, event.toString());
-						}
-						catch (JSONException e)
-						{
-							e.printStackTrace();
-						}
-
-						if (event == PlatformContent.EventCode.ALREADY_DOWNLOADED)
-						{
-							microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOADED, platformContentModel, jsonObject);
-							Logger.d(TAG, "microapp already exists.");
-						}
-						else
-						{
-							try
-							{
-								if (fileLength > 0)
-								{
-									jsonObject.put(AnalyticsConstants.FILE_SIZE, String.valueOf(fileLength));
-								}
-								jsonObject.put(AnalyticsConstants.INTERNAL_STORAGE_SPACE, String.valueOf(Utils.getFreeInternalStorage()) + " MB");
-							}
-							catch (JSONException e)
-							{
-								Logger.e(TAG, "JSONException " +e.getMessage());
-							}
-
-							microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOAD_FAILED, platformContentModel, jsonObject);
-							Logger.wtf(TAG, "microapp download packet failed.Because it is" + event.toString());
-						}
+						updatePlatformDownloadState(platformContentModel.getId(), platformContentModel.cardObj.getmAppVersionCode(),
+								HikePlatformConstants.PlatformDwnldState.FAILED);
+						sendDownloadPausedAnalytics(platformContentModel.getId());
 					}
-
-					@Override
-					public void downloadedContentLength(long length)
+					if (!autoResume)
 					{
-						fileLength = length;
+						PlatformUtils.removeFromPlatformDownloadStateTable(platformContentModel.getId(), platformContentModel.cardObj.getmAppVersionCode());
 					}
-				});
-				boolean doReplace = downloadData.optBoolean(HikePlatformConstants.REPLACE_MICROAPP_VERSION);
-				String callbackId = downloadData.optString(HikePlatformConstants.CALLBACK_ID);
-				boolean resumeSupported=downloadData.optBoolean(HikePlatformConstants.RESUME_SUPPORTED);
-				String assoc_cbot=downloadData.optString(HikePlatformConstants.ASSOCIATE_CBOT,"");
-				downloadAndUnzip(rqst, false, doReplace, callbackId, resumeSupported, assoc_cbot);
+					else
+					{
+						microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOAD_FAILED, platformContentModel, jsonObject);
+						Logger.wtf(TAG, "microapp download packet failed.Because it is" + event.toString());
+					}
+				}
+			}
 
+			@Override
+			public void downloadedContentLength(long length)
+			{
+				fileLength = length;
+			}
+		});
+
+		// Stop the flow and return from here in case any exception occurred and contentData becomes null
+        if (rqst.getContentData() == null)
+        {
+            Logger.e(TAG,"Stop the micro app download flow for incorrect request");
+            return;
+        }
+
+        // As this flow is there for MAPP flow, setting the request type to Hike Mapps
+        boolean isWebCard = downloadData.optBoolean(HikePlatformConstants.IS_WEB_CARD, false);
+        if(!isWebCard)
+        {
+            rqst.setBotType(HikePlatformConstants.PlatformBotType.HIKE_MAPPS);
+            rqst.getContentData().setBotType(HikePlatformConstants.PlatformBotType.HIKE_MAPPS);
+        }
+
+		boolean doReplace = downloadData.optBoolean(HikePlatformConstants.REPLACE_MICROAPP_VERSION);
+		String callbackId = downloadData.optString(HikePlatformConstants.CALLBACK_ID);
+		boolean resumeSupported = downloadData.optBoolean(HikePlatformConstants.RESUME_SUPPORTED);
+		String assoc_cbot = downloadData.optString(HikePlatformConstants.ASSOCIATE_CBOT, "");
+		int prefNetwork = downloadData.optInt(HikePlatformConstants.PREF_NETWORK, Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK));
+		if (autoResume)
+		{
+			resumeSupported = true;
+		}
+			PlatformUtils.addToPlatformDownloadStateTable(rqst.getContentData().getId(), rqst.getContentData().cardObj.getmAppVersionCode(), downloadData.toString(), HikePlatformConstants.PlatformTypes.MAPP,
+					downloadData.optLong(HikePlatformConstants.TTL, HikePlatformConstants.oneDayInMS), downloadData.optInt(HikePlatformConstants.PREF_NETWORK, Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK)), HikePlatformConstants.PlatformDwnldState.IN_PROGRESS,autoResume);
+		if(currentNetwork <= 0 || prefNetwork < currentNetwork)
+		{
+			return;    // Do not download if current network is below preferred network.
+		}
+		downloadAndUnzip(rqst, false, doReplace, callbackId, resumeSupported, assoc_cbot, autoResume);
 	}
 
 	private static void microappDownloadAnalytics(String key, PlatformContentModel content)
@@ -667,182 +967,179 @@ public class PlatformUtils
 			e.printStackTrace();
 		}
 	}
-	
-	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled , boolean doReplace)
-	{
-		downloadAndUnzip(request, isTemplatingEnabled, doReplace, null);
-	}
-	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled)
-	{
-		downloadAndUnzip(request, isTemplatingEnabled, false);
-	}
 
-	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId, boolean resumeSupported)
+	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId, boolean resumeSupported, String assocCbot,boolean autoResume)
 	{
-		downloadAndUnzip(request, isTemplatingEnabled, doReplace,callbackId,resumeSupported,"");
-	}
-	
-	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId, boolean resumeSupported,String assocCbot)
-	{
-		PlatformZipDownloader downloader =  new PlatformZipDownloader(request, isTemplatingEnabled, doReplace, callbackId, resumeSupported,assocCbot);
-		if (!downloader.isMicroAppExist() || doReplace)
+        // Parameters to call if micro app already exists method and stop the micro app downloading flow in this case
+        String mAppName = request.getContentData().cardObj.getAppName();
+        int mAppVersionCode = request.getContentData().cardObj.getmAppVersionCode();
+        byte botType = request.getBotType();
+        String msisdn = request.getContentData().getMsisdn();
+
+        // Code to check if micro app already exists on device based on its bot type and code path structure
+		boolean isMicroAppExist = false;
+        switch (botType)
+        {
+            case HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS:
+                isMicroAppExist = PlatformUtils.isMicroAppExist(mAppName, mAppVersionCode, msisdn, botType);
+                break;
+            case HikePlatformConstants.PlatformBotType.ONE_TIME_POPUPS:
+                isMicroAppExist = PlatformUtils.isMicroAppExistForPopUps(mAppName, botType);
+                break;
+            case HikePlatformConstants.PlatformBotType.NATIVE_APPS:
+                isMicroAppExist = PlatformUtils.isMicroAppExist(mAppName, mAppVersionCode, msisdn, botType);
+                break;
+            case HikePlatformConstants.PlatformBotType.HIKE_MAPPS:
+                isMicroAppExist = PlatformUtils.isMicroAppExistForMappPacket(mAppName, mAppVersionCode);
+                break;
+        }
+        if (!isMicroAppExist)
 		{
-			downloader.downloadAndUnzip();
+            PlatformZipDownloader downloader = new PlatformZipDownloader.Builder().setArgRequest(request).setIsTemplatingEnabled(isTemplatingEnabled)
+                    .setCallbackId(callbackId).setResumeSupported(resumeSupported).setAssocCbotMsisdn(assocCbot).setAutoResume(autoResume).createPlatformZipDownloader();
+            downloader.downloadAndUnzip();
 		}
 		else
 		{
-			request.getListener().onEventOccured(request.getContentData()!=null ? request.getContentData().getUniqueId() : 0,PlatformContent.EventCode.ALREADY_DOWNLOADED);
+			request.getListener().onEventOccured(request.getContentData() != null ? request.getContentData().getUniqueId() : 0, PlatformContent.EventCode.ALREADY_DOWNLOADED);
 		}
-	}
-
-	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId)
-	{
-		downloadAndUnzip(request, isTemplatingEnabled, doReplace, callbackId, false);
 	}
 
 	/**
 	 * Creating a forwarding message for Non-messaging microApp
-	 * @param metadata: the metadata made after merging the json given by the microApp
-	 * @param text:     hm text
+	 * 
+	 * @param metadata
+	 *            : the metadata made after merging the json given by the microApp
+	 * @param text
+	 *            : hm text
 	 * @return
 	 */
 	public static ConvMessage getConvMessageFromJSON(JSONObject metadata, String text, String msisdn) throws JSONException
 	{
 
-
 		ConvMessage convMessage = Utils.makeConvMessage(msisdn, true);
 		convMessage.setMessage(text);
 		convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT);
 		convMessage.webMetadata = new WebMetadata(PlatformContent.getForwardCardData(metadata.toString()));
+
+        // Added check for solving bug for forward card scenario from platform sdk decoupling
+        JSONObject cardObj = convMessage.webMetadata.getCardobj();
+        JSONObject ldJson = cardObj.getJSONObject(HikePlatformConstants.LAYOUT_DATA);
+        ldJson.put(HikePlatformConstants.PLATFORM_SDK_PATH,"");
+        cardObj.put(HikePlatformConstants.LAYOUT_DATA,ldJson);
+        convMessage.webMetadata.setCardobj(cardObj);
+
 		convMessage.setMsisdn(msisdn);
 		return convMessage;
 
 	}
-	
+
 	public static byte[] prepareFileBody(String filePath)
 	{
 		String boundary = "\r\n--" + BOUNDARY + "--\r\n";
 		File file = new File(filePath);
-		if(file.exists() && !file.isDirectory()){
-		int chunkSize = (int) file.length();
-		String boundaryMessage = getBoundaryMessage(filePath);
-		byte[] fileContent = new byte[(int) file.length()];
-		FileInputStream fileInputStream = null;
-	    try
+		if (file.exists() && !file.isDirectory())
 		{
-	    	fileInputStream = new FileInputStream(file);
-			fileInputStream.read(fileContent);
-		}
-		catch (IOException | NullPointerException e)
-		{
-			Logger.e("fileUplaod","file body not present");
-			return null;
-		}
-	    finally
-	    {
-		    try
+			int chunkSize = (int) file.length();
+			String boundaryMessage = getBoundaryMessage(filePath);
+			byte[] fileContent = new byte[(int) file.length()];
+			FileInputStream fileInputStream = null;
+			try
 			{
-	    		if(fileInputStream != null)
-	    		{
-					fileInputStream.close();
-	    		}
+				fileInputStream = new FileInputStream(file);
+				fileInputStream.read(fileContent);
 			}
-			catch (IOException e)
+			catch (IOException | NullPointerException e)
 			{
-				Logger.e("fileUpload","Couldn't Read File");
+				Logger.e("fileUplaod", "file body not present");
+				return null;
 			}
-	    }
-	    return setupFileBytes(boundaryMessage, boundary, chunkSize,fileContent);
+			finally
+			{
+				try
+				{
+					if (fileInputStream != null)
+					{
+						fileInputStream.close();
+					}
+				}
+				catch (IOException e)
+				{
+					Logger.e("fileUpload", "Couldn't Read File");
+				}
+			}
+			return setupFileBytes(boundaryMessage, boundary, chunkSize, fileContent);
 		}
 		else
 		{
-			Logger.e("fileUpload","Invalid file Path");
+			Logger.e("fileUpload", "Invalid file Path");
 			return null;
 		}
 	}
-	
-	public static void uploadFile(final String filePath,final String url,final IFileUploadListener fileListener)
+
+	public static void uploadFile(final String filePath, final String url, final IFileUploadListener fileListener)
 	{
-		if(filePath == null)
+		if (filePath == null)
 		{
 			Logger.d("FileUpload", "File Path specified as null");
 			fileListener.onRequestFailure("File Path null");
 		}
 		HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
 		mThread.startHandlerThread();
+
 		mThread.postRunnable(new Runnable()
 		{
-			
 			@Override
 			public void run()
 			{
-			    byte[] fileBytes = prepareFileBody(filePath);
-			    if(fileBytes!=null)
-			    {
-				String response = send(fileBytes,filePath,url,fileListener);
-				Logger.d("FileUpload", response);
-			    }
-			    else
-			    {
-			    	Logger.e("fileUpload","Empty File Body");
-			    	return ;
-			    }
+				byte[] fileBytes = prepareFileBody(filePath);
+				if (fileBytes != null)
+				{
+                    File srcFile = new File(filePath);
+                    List<Header> headers = getHeaders();
+                    headers.add(new Header("Connection", "Keep-Alive"));
+                    headers.add(new Header("Content-Name", srcFile.getName()));
+                    headers.add(new Header("X-Thumbnail-Required", "0"));
+
+                    RequestToken requestToken = HttpRequests.uploadFileRequest(fileBytes,BOUNDARY,new IRequestListener()
+					{
+
+						@Override
+						public void onRequestFailure(HttpException httpException)
+						{
+							fileListener.onRequestFailure(httpException.toString());
+						}
+
+						@Override
+						public void onRequestSuccess(Response result)
+						{
+							if (result.getBody().getContent() instanceof byte[])
+							{
+								String responseJsonString = new String((byte[]) result.getBody().getContent());
+								fileListener.onRequestSuccess(responseJsonString);
+							}
+						}
+
+						@Override
+						public void onRequestProgressUpdate(float progress)
+						{
+
+						}
+
+					},headers,url);
+
+                    if (requestToken != null && !requestToken.isRequestRunning())
+                    {
+                        requestToken.execute();
+                    }
+				}
+				else
+				{
+					Logger.e("fileUpload", "Empty File Body");
+					return;
+				}
 			}
 		});
-
-	}
-	
-	private static String send(byte[] fileBytes,final String filePath,final String url,IFileUploadListener filelistener)
-	{
-		HttpClient client =  AccountUtils.getClient(null);
-		client.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, HikeConstants.CONNECT_TIMEOUT);
-		long so_timeout = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.FT_UPLOAD_SO_TIMEOUT, 180 * 1000l);
-		Logger.d("UploadFileTask", "Socket timeout = " + so_timeout);
-		client.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT, (int) so_timeout);
-		client.getParams().setParameter(CoreConnectionPNames.TCP_NODELAY, true);
-		client.getParams().setParameter(CoreProtocolPNames.USER_AGENT, "android-" + AccountUtils.getAppVersion());
-		
-		HttpPost post = new HttpPost(url);
-		String res = null;
-		int resCode = 0;
-		try
-		{
-			post.setHeader("Content-Type", "multipart/form-data; boundary=" + BOUNDARY);
-
-			HikeSharedPreferenceUtil mpref = HikeSharedPreferenceUtil.getInstance();
-			String platformUID = mpref.getData(HikeMessengerApp.PLATFORM_UID_SETTING, null);
-			String platformToken = mpref.getData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, null);
-			if (!TextUtils.isEmpty(platformToken) && !TextUtils.isEmpty(platformUID))
-			{
-				post.addHeader(HttpHeaderConstants.COOKIE_HEADER_NAME,
-						HikePlatformConstants.PLATFORM_TOKEN + "=" + platformToken + "; " +
-								HikePlatformConstants.PLATFORM_USER_ID + "=" + platformUID);
-			}
-
-			post.setEntity(new ByteArrayEntity(fileBytes));
-			HttpResponse response = client.execute(post);
-			Logger.d("FileUpload", response.toString());
-			resCode = response.getStatusLine().getStatusCode();
-			
-			res = EntityUtils.toString(response.getEntity());
-			Logger.d("FileUpload",""+resCode);
-		}
-		catch (IOException | NullPointerException ex)
-		{
-			Logger.e("FileUpload", ex.toString());
-			filelistener.onRequestFailure(ex.toString());
-			return ex.toString();
-		}
-		Logger.d("FileUpload", res);
-		if(resCode == 200)
-		{
-			filelistener.onRequestSuccess(res);
-		}
-		else
-		{
-			filelistener.onRequestFailure(res);
-		}
-		return res;
 	}
 
 	/*
@@ -858,12 +1155,11 @@ public class PlatformUtils
 				.append(sendingFileType).append("\r\n\r\n");
 		return res.toString();
 	}
-	
+
 	/*
-	 * Sets up the file byte array with boundary message File Content and boundary
-	 * returns the completed setup file byte array
+	 * Sets up the file byte array with boundary message File Content and boundary returns the completed setup file byte array
 	 */
-	private static byte[] setupFileBytes(String boundaryMesssage, String boundary, int chunkSize,byte[] fileContent)
+	private static byte[] setupFileBytes(String boundaryMesssage, String boundary, int chunkSize, byte[] fileContent)
 	{
 		byte[] fileBytes = new byte[boundaryMesssage.length() + fileContent.length + boundary.length()];
 		try
@@ -872,9 +1168,9 @@ public class PlatformUtils
 			System.arraycopy(fileContent, 0, fileBytes, boundaryMesssage.length(), fileContent.length);
 			System.arraycopy(boundary.getBytes(), 0, fileBytes, boundaryMesssage.length() + fileContent.length, boundary.length());
 		}
-		catch(NullPointerException | ArrayStoreException | IndexOutOfBoundsException e)
+		catch (NullPointerException | ArrayStoreException | IndexOutOfBoundsException e)
 		{
-			
+
 			Logger.d("FileUpload", e.toString());
 			return null;
 		}
@@ -890,29 +1186,30 @@ public class PlatformUtils
 		if (!TextUtils.isEmpty(platformToken) && !TextUtils.isEmpty(platformUID))
 		{
 			List<Header> headers = new ArrayList<Header>(1);
-			headers.add(new Header(HttpHeaderConstants.COOKIE_HEADER_NAME,
-					HikePlatformConstants.PLATFORM_TOKEN + "=" + platformToken + "; " + HikePlatformConstants.PLATFORM_USER_ID + "=" + platformUID));
+			headers.add(new Header(HttpHeaderConstants.COOKIE_HEADER_NAME, HikePlatformConstants.PLATFORM_TOKEN + "=" + platformToken + "; "
+					+ HikePlatformConstants.PLATFORM_USER_ID + "=" + platformUID));
 
 			return headers;
 		}
 		return new ArrayList<Header>();
 	}
-	
+
 	/*
 	 * This function is called to read the list of files from the System from a folder
 	 * 
 	 * @param filePath : The complete file path that is about to be read returns the JSON Array of the file paths of the all the files in a folder
+	 * 
 	 * @param doDeepLevelAccess : To specify if we want to read all the internal files and folders recursively
 	 */
-	public static JSONArray readFileList(String filePath,boolean doDeepLevelAccess)
-	{	
+	public static JSONArray readFileList(String filePath, boolean doDeepLevelAccess)
+	{
 		File directory = new File(filePath);
 		if (directory.exists() && !directory.isDirectory())
 		{
 			Logger.d("FileSystemAccess", "Cannot read a single file");
 			return null;
 		}
-		else if(!directory.exists())
+		else if (!directory.exists())
 		{
 			Logger.d("FileSystemAccess", "Invalid file path!");
 			return null;
@@ -926,8 +1223,8 @@ public class PlatformUtils
 		}
 		return mArray;
 	}
-	
-	public static JSONArray trimFilePath(JSONArray mArray)
+
+	public static JSONArray trimFilePath(JSONArray mArray,String pathToBeTrimmedOut)
 	{
 		JSONArray trimmedArray = new JSONArray();
 		for (int i = 0; i < mArray.length(); i++)
@@ -936,7 +1233,7 @@ public class PlatformUtils
 			try
 			{
 				path = mArray.get(i).toString();
-				path = path.replaceAll(PlatformContentConstants.PLATFORM_CONTENT_DIR, "");
+				path = path.replaceAll(pathToBeTrimmedOut, "");
 				path = path.replaceAll(HikePlatformConstants.FILE_DESCRIPTOR, "");
 				trimmedArray.put(path);
 			}
@@ -950,7 +1247,7 @@ public class PlatformUtils
 	}
 
 	// Method that returns the reads the list of files
-	public static ArrayList<File> filesReader(File root,boolean doDeepLevelAccess)
+	public static ArrayList<File> filesReader(File root, boolean doDeepLevelAccess)
 	{
 		ArrayList<File> a = new ArrayList<>();
 
@@ -959,9 +1256,9 @@ public class PlatformUtils
 		{
 			if (doDeepLevelAccess)
 			{
-				if(files[i].isDirectory())
+				if (files[i].isDirectory())
 				{
-					a.addAll(filesReader(files[i],doDeepLevelAccess));	
+					a.addAll(filesReader(files[i], doDeepLevelAccess));
 				}
 				else
 				{
@@ -978,8 +1275,10 @@ public class PlatformUtils
 	}
 
 	/*
-	 * This function is called to copy a directory from one location to another location 
+	 * This function is called to copy a directory from one location to another location
+	 * 
 	 * @param sourceLocation : The folder which is about to be copied
+	 * 
 	 * @param targetLocation : The folder where the directory is about to be copied
 	 */
 	public static boolean copyDirectoryTo(File sourceLocation, File targetLocation) throws IOException
@@ -998,16 +1297,17 @@ public class PlatformUtils
 		}
 		else
 		{
-			
-			  InputStream in = new FileInputStream(sourceLocation);
-			  OutputStream out = new FileOutputStream(targetLocation);
-			  byte[] buf = new byte[1024]; int len;
-			  while ((len = in.read(buf)) > 0) 
-			  { 
-				  out.write(buf, 0, len); 
-			  }
-			  in.close();
-			  out.close();
+
+			InputStream in = new FileInputStream(sourceLocation);
+			OutputStream out = new FileOutputStream(targetLocation);
+			byte[] buf = new byte[1024];
+			int len;
+			while ((len = in.read(buf)) > 0)
+			{
+				out.write(buf, 0, len);
+			}
+			in.close();
+			out.close();
 		}
 		return true;
 	}
@@ -1015,8 +1315,8 @@ public class PlatformUtils
 	/*
 	 * This function is called to delete a particular file from the System
 	 * 
-	 * @param filePath : The complete file path of the file that is about to be deleted returns whether the file is deleted or not
-	 * Does not return a guaranteed call for a full delete
+	 * @param filePath : The complete file path of the file that is about to be deleted returns whether the file is deleted or not Does not return a guaranteed call for a full
+	 * delete
 	 */
 	public static boolean deleteDirectory(String filePath)
 	{
@@ -1044,26 +1344,29 @@ public class PlatformUtils
 			if (dir.isDirectory())// This checks if the call is made to delete a particular file (eg. "index.html") or an entire sub-folder
 			{
 				String[] children = dir.list();
-				for (int i = 0; i < children.length; i++)
+				if (children != null && children.length>0)
 				{
-					File temp = new File(dir, children[i]);
-					if (temp.isDirectory())
+					for (int i = 0; i < children.length; i++)
 					{
-						Logger.d("DeleteRecursive", "Recursive Call" + temp.getPath());
-						deleteOp(temp);
-					}
-					else
-					{
-						Logger.d("DeleteRecursive", "Delete File" + temp.getPath());
-						boolean b = temp.delete();
-						if (!b)
+						File temp = new File(dir, children[i]);
+						if (temp.isDirectory())
 						{
-							Logger.d("DeleteRecursive", "DELETE FAIL");
-							return false;
+							Logger.d("DeleteRecursive", "Recursive Call" + temp.getPath());
+							deleteOp(temp);
+						}
+						else
+						{
+							Logger.d("DeleteRecursive", "Delete File" + temp.getPath());
+							boolean b = temp.delete();
+							if (!b)
+							{
+								Logger.d("DeleteRecursive", "DELETE FAIL");
+								return false;
+							}
 						}
 					}
 				}
-				dir.delete();
+                dir.delete();
 			}
 			else
 			{
@@ -1074,7 +1377,7 @@ public class PlatformUtils
 		}
 		return false;
 	}
-	
+
 	public static void multiFwdStickers(Context context, String stickerId, String categoryId, boolean selectAll)
 	{
 		if (context == null)
@@ -1086,7 +1389,7 @@ public class PlatformUtils
 		intent.putExtra(HikeConstants.Extras.SELECT_ALL_INITIALLY, selectAll);
 		context.startActivity(intent);
 	}
-	
+
 	public static void downloadStkPk(String metaData)
 	{
 		try
@@ -1099,7 +1402,12 @@ public class PlatformUtils
 
 			if (!TextUtils.isEmpty(categoryId) && !TextUtils.isEmpty(categoryName))
 			{
-				StickerCategory category = new StickerCategory(categoryId, categoryName, totalStickers, categorySize);
+				StickerCategory category = new StickerCategory.Builder()
+						.setCategoryId(categoryId)
+						.setCategoryName(categoryName)
+						.setTotalStickers(totalStickers)
+						.setCategorySize(categorySize)
+						.build();
 				downloadStkPk(category);
 			}
 		}
@@ -1109,15 +1417,14 @@ public class PlatformUtils
 		}
 	}
 
-	public static  void downloadStkPk(StickerCategory category)
+	public static void downloadStkPk(StickerCategory category)
 	{
 		StickerPalleteImageDownloadTask stickerPalleteImageDownloadTask = new StickerPalleteImageDownloadTask(category.getCategoryId());
 		stickerPalleteImageDownloadTask.execute();
-		StickerManager.getInstance().initialiseDownloadStickerPackTask(category, DownloadSource.POPUP, DownloadType.NEW_CATEGORY, HikeMessengerApp.getInstance().getApplicationContext());
-
+		StickerManager.getInstance().initialiseDownloadStickerPackTask(category, StickerConstants.DownloadType.NEW_CATEGORY, StickerManager.getInstance().getPackDownloadBodyJson(StickerConstants.DownloadSource.POPUP));
 	}
-	
-	public static  void OnChatHeadPopupActivateClick()
+
+	public static void OnChatHeadPopupActivateClick()
 	{
 		Context context = HikeMessengerApp.getInstance();
 		if (ChatHeadUtils.areWhitelistedPackagesSharable(context))
@@ -1147,13 +1454,13 @@ public class PlatformUtils
 			Toast.makeText(context, context.getString(R.string.sticker_share_popup_not_activate_toast), Toast.LENGTH_LONG).show();
 		}
 	}
-	
+
 	public static void sendPlatformCrashAnalytics(String crashType, String msisdn)
 	{
 		JSONObject json = new JSONObject();
 		try
 		{
-			json.put(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.APP_CRASH_EVENT);
+			json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.APP_CRASH_EVENT);
 			json.put(HikeConstants.MSISDN, msisdn);
 			json.put(AnalyticsConstants.DATA, crashType);
 			HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.APP_CRASH_EVENT, json);
@@ -1183,7 +1490,7 @@ public class PlatformUtils
 	{
 		try
 		{
-			if(conv.getPlatformData() != null)
+			if (conv.getPlatformData() != null)
 			{
 				JSONObject sharedData = conv.getPlatformData();
 				String namespaces = sharedData.getString(HikePlatformConstants.RECIPIENT_NAMESPACES);
@@ -1192,7 +1499,7 @@ public class PlatformUtils
 					Logger.e(HikePlatformConstants.TAG, "no namespaces defined.");
 					return;
 				}
-				String [] namespaceList = namespaces.split(",");
+				String[] namespaceList = namespaces.split(",");
 				for (String namespace : namespaceList)
 				{
 					String eventType = sharedData.optString(HikePlatformConstants.EVENT_TYPE, HikePlatformConstants.SHARED_EVENT);
@@ -1203,7 +1510,8 @@ public class PlatformUtils
 					}
 					String metadata = sharedData.getString(HikePlatformConstants.EVENT_CARDDATA);
 					int state = conv.isSent() ? HikePlatformConstants.EventStatus.EVENT_SENT : HikePlatformConstants.EventStatus.EVENT_RECEIVED;
-					MessageEvent messageEvent = new MessageEvent(eventType, conv.getMsisdn(), namespace, metadata, conv.createMessageHash(), state, conv.getSendTimestamp(), mappedEventId);
+					MessageEvent messageEvent = new MessageEvent(eventType, conv.getMsisdn(), namespace, metadata, conv.createMessageHash(), state, conv.getSendTimestamp(),
+							mappedEventId);
 					long eventId = HikeConversationsDatabase.getInstance().insertMessageEvent(messageEvent);
 					if (eventId < 0)
 					{
@@ -1220,7 +1528,7 @@ public class PlatformUtils
 		}
 		catch (JSONException e)
 		{
-			//TODO catch block
+			// TODO catch block
 			e.printStackTrace();
 		}
 
@@ -1228,6 +1536,7 @@ public class PlatformUtils
 
 	/**
 	 * Call this method to send platform message event. This method sends an event to the msisdn that it determines when it queries the messages table based on the message hash.
+	 * 
 	 * @param eventMetadata
 	 * @param messageHash
 	 * @param nameSpace
@@ -1256,10 +1565,9 @@ public class PlatformUtils
 		}
 
 	}
-	
+
 	/**
-	 * Used to record analytics for bot opens via push notifications
-	 * Sample JSON : {"ek":"bno","bot_msisdn":"+hikecricketnew+", "bot_source" : "bot_notif" }
+	 * Used to record analytics for bot opens via push notifications Sample JSON : {"ek":"bno","bot_msisdn":"+hikecricketnew+"}
 	 */
 	public static void recordBotOpenSource(String msisdn, String source)
 	{
@@ -1301,6 +1609,7 @@ public class PlatformUtils
 			return new JSONObject();
 		}
 	}
+
 	/**
 	 * Called from MQTTManager, this method is used to resync PlatformUserId and PlatformTokens for clients which have become out of sync with server
 	 * 
@@ -1315,7 +1624,7 @@ public class PlatformUtils
 		String newPlatformUserId = plfSyncJson.optString(HikePlatformConstants.PLATFORM_USER_ID, "");
 
 		String newPlatformToken = plfSyncJson.optString(HikePlatformConstants.PLATFORM_TOKEN, "");
-		
+
 		Logger.i(TAG, "New Platform UserID : " + newPlatformUserId + " , new platform token : " + newPlatformToken);
 
 		if (!TextUtils.isEmpty(newPlatformUserId))
@@ -1328,8 +1637,10 @@ public class PlatformUtils
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, newPlatformToken);
 		}
 	}
+
 	/**
 	 * Call this method to get the latitude and longitude and whether Gps is on/off
+	 * 
 	 * @param LocationManager
 	 * @param Location
 	 * 
@@ -1361,7 +1672,7 @@ public class PlatformUtils
 		}
 		return json.toString();
 	}
-	
+
 	/**
 	 * Returns a String array, which contains the following values :<br>
 	 * [ <total-downloaded-bytes> , <progress> , <original downloaded file path>, <url from which it was downloaded> ]
@@ -1406,7 +1717,7 @@ public class PlatformUtils
 
 		return data;
 	}
-	
+
 	public static String getLastGame()
 	{
 		if (BotUtils.isBot(HikePlatformConstants.GAME_CHANNEL))
@@ -1425,7 +1736,7 @@ public class PlatformUtils
 		if (context != null)
 		{
 			ActivityManager activityManager = (ActivityManager) context.getSystemService(context.ACTIVITY_SERVICE);
-			List<RunningAppProcessInfo> procInfos = activityManager.getRunningAppProcesses();
+			List<ActivityManager.RunningAppProcessInfo> procInfos = activityManager.getRunningAppProcesses();
 			for (int i = 0; i < procInfos.size(); i++)
 			{
 				if (procInfos.get(i).processName.equals(process))
@@ -1441,6 +1752,47 @@ public class PlatformUtils
 	public static Header getDownloadRangeHeader(long startOffset)
 	{
 		return new Header("Range", "bytes=" + startOffset + "-");
+	}
+
+	/*
+	 * Code to append unzip path based on request type for micro app unzip process
+	 */
+	public static String generateMappUnZipPathForBotType(byte botType, String unzipPath, String microAppName)
+	{
+		// Generate unzip path for the given request type
+		switch (botType)
+		{
+		case HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS:
+			unzipPath += PlatformContentConstants.HIKE_WEB_MICRO_APPS + microAppName + File.separator;
+			break;
+		case HikePlatformConstants.PlatformBotType.ONE_TIME_POPUPS:
+			unzipPath += PlatformContentConstants.HIKE_ONE_TIME_POPUPS + microAppName + File.separator;
+			break;
+		case HikePlatformConstants.PlatformBotType.NATIVE_APPS:
+			unzipPath += PlatformContentConstants.HIKE_GAMES + microAppName + File.separator;
+			break;
+		case HikePlatformConstants.PlatformBotType.HIKE_MAPPS:
+			unzipPath += PlatformContentConstants.HIKE_MAPPS + microAppName + File.separator;
+			break;
+		}
+		return unzipPath;
+	}
+
+	/**
+	 * Returns the root folder path for Hike MicroApps <br>
+	 * eg : "/data/data/com.bsb.hike/files/Content/HikeMicroApps/"
+	 *
+	 * @return
+	 */
+	public static String getMicroAppContentRootFolder()
+	{
+		File file = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS);
+		if (!file.exists())
+		{
+			file.mkdirs();
+		}
+
+		return PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS;
 	}
 
 	/**
@@ -1476,45 +1828,50 @@ public class PlatformUtils
 
 	/**
 	 * Utility method to send microapp download success or failure analytics
+	 * 
 	 * @param success
 	 * @param appName
-	 * @param appVersion
+	 * @param mAppVersionCode
 	 */
-	public static void sendMicroAppServerAnalytics(boolean success, String appName, String appVersion)
+	public static void sendMicroAppServerAnalytics(boolean success, String appName, int mAppVersionCode)
 	{
-		sendMicroAppServerAnalytics(success,appName,appVersion,-1);
+		sendMicroAppServerAnalytics(success,appName,mAppVersionCode,-1);
 	}
-	public static void sendMicroAppServerAnalytics(boolean success, String appName, String appVersion,int errorCode)
+	public static void sendMicroAppServerAnalytics(boolean success, String appName, int mAppVersionCode,int errorCode)
 	{
-		try
+        // Json to be sent to server for analysing micro-apps acks analytics
+        JSONObject json = new JSONObject();
+
+        try
 		{
-			JSONObject body = new JSONObject();
-			body.put(HikePlatformConstants.APP_NAME, appName);
-			body.put(HikePlatformConstants.APP_VERSION, appVersion);
-			body.put(HikePlatformConstants.ERROR_CODE,errorCode);
+			JSONObject appsJsonObject = new JSONObject();
+            appsJsonObject.put(HikePlatformConstants.APP_NAME, appName);
+            appsJsonObject.put(HikePlatformConstants.APP_VERSION, mAppVersionCode);
+            appsJsonObject.put(HikePlatformConstants.ERROR_CODE,errorCode);
 
-			RequestToken token = HttpRequests.microAppPostRequest(
-					HttpRequestConstants.getMicroAppLoggingUrl(success), body,
-					new IRequestListener()
-					{
-						@Override
-						public void onRequestFailure(HttpException httpException)
-						{
+            // Put apps JsonObject in the final json
+            json.put(HikePlatformConstants.APPS, appsJsonObject);
 
-						}
+			RequestToken token = HttpRequests.microAppPostRequest(HttpRequestConstants.getMicroAppLoggingUrl(success), json, new IRequestListener()
+			{
+				@Override
+				public void onRequestFailure(HttpException httpException)
+				{
 
-						@Override
-						public void onRequestSuccess(Response result)
-						{
+				}
 
-						}
+				@Override
+				public void onRequestSuccess(Response result)
+				{
 
-						@Override
-						public void onRequestProgressUpdate(float progress)
-						{
+				}
 
-						}
-					});
+				@Override
+				public void onRequestProgressUpdate(float progress)
+				{
+
+				}
+			});
 			token.execute();
 		}
 		catch (JSONException e)
@@ -1538,19 +1895,16 @@ public class PlatformUtils
 			HikeSharedPreferenceUtil.getInstance().saveData(HikePlatformConstants.TIME_INTERVAL, interval);
 		}
 
-		Logger.i(TAG, "Starting recurring location updates at time : "+ System.currentTimeMillis() + ". Duration : "+duration+" Interval : "+interval);
+		Logger.i(TAG, "Starting recurring location updates at time : " + System.currentTimeMillis() + ". Duration : " + duration + " Interval : " + interval);
 
 		final GpsLocation gps = GpsLocation.getInstance();
 
-		gps.requestRecurringLocation(new LocationListener()
-		{
+		gps.requestRecurringLocation(new LocationListener() {
 			@Override
-			public void onLocationChanged(Location location)
-			{
-				Logger.i(TAG, "Location available : "+location.getLatitude()+" , "+location.getLongitude() + " Source : "+location.getProvider());
+			public void onLocationChanged(Location location) {
+				Logger.i(TAG, "Location available : " + location.getLatitude() + " , " + location.getLongitude() + " Source : " + location.getProvider());
 				locationAnalytics(location);
-				if (HikeSharedPreferenceUtil.getInstance().getData(HikePlatformConstants.RECURRING_LOCATION_END_TIME, -1L) < location.getTime() + interval)
-				{
+				if (HikeSharedPreferenceUtil.getInstance().getData(HikePlatformConstants.RECURRING_LOCATION_END_TIME, -1L) < location.getTime() + interval) {
 					Logger.i(TAG, "Stopping recurring location updates at time : " + System.currentTimeMillis());
 					gps.removeUpdates(this);
 					HikeSharedPreferenceUtil.getInstance().removeData(HikePlatformConstants.RECURRING_LOCATION_END_TIME);
@@ -1558,20 +1912,17 @@ public class PlatformUtils
 			}
 
 			@Override
-			public void onStatusChanged(String provider, int status, Bundle extras)
-			{
+			public void onStatusChanged(String provider, int status, Bundle extras) {
 
 			}
 
 			@Override
-			public void onProviderEnabled(String provider)
-			{
+			public void onProviderEnabled(String provider) {
 
 			}
 
 			@Override
-			public void onProviderDisabled(String provider)
-			{
+			public void onProviderDisabled(String provider) {
 
 			}
 		}, interval, duration);
@@ -1628,10 +1979,6 @@ public class PlatformUtils
 	{
 		jsonObject.put(HikeConstants.LOCALE, LocalLanguageUtils.getApplicationLocalLanguageLocale());
 		jsonObject.put(HikeConstants.DEVICE_LOCALE, LocalLanguageUtils.getDeviceDefaultLocale());
-		if (!HikeMessengerApp.isSystemKeyboard())
-			jsonObject.put(HikeConstants.CUSTOM_KEYBOARD_LOCALE, KptKeyboardManager.getInstance()
-					.getCurrentLanguageAddonItem().getlocaleName());
-
 	}
 
 	public static String getNotifBody(JSONObject jsonObj)
@@ -1654,6 +2001,136 @@ public class PlatformUtils
 
 		return jsonObj.optString(HikeConstants.BODY);
 	}
+
+    /*
+     * Method for inserting MAPP successful entry into content database
+     */
+	public static void mAppCreationSuccessHandling(JSONObject mAppJson)
+	{
+		if (mAppJson == null)
+			return;
+
+		JSONObject cardObjectJson = mAppJson.optJSONObject(HikePlatformConstants.CARD_OBJECT);
+
+		if (cardObjectJson != null)
+		{
+			final int version = cardObjectJson.optInt(HikePlatformConstants.MAPP_VERSION_CODE, 0);
+			final String appName = cardObjectJson.optString(HikePlatformConstants.APP_NAME, "");
+			final String appPackage = cardObjectJson.optString(HikePlatformConstants.APP_PACKAGE, "");
+
+            // Publish pubsub for successful creation of mapp packet received
+            Pair<BotInfo,Boolean> mAppCreatedSuccessfullyPair = new Pair(appName,true);
+            HikeMessengerApp.getPubSub().publish(HikePubSub.MAPP_CREATED, mAppCreatedSuccessfullyPair);
+
+			HikeHandlerUtil mThread;
+			mThread = HikeHandlerUtil.getInstance();
+			mThread.startHandlerThread();
+
+			mThread.postRunnable(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					HikeContentDatabase.getInstance().insertIntoMAppDataTable(appName, version, appPackage);
+				}
+			});
+		}
+	}
+
+    /*
+     * This method would check if assoc mapps required for this cbot are downloaded, then trigger the download of micro app
+     */
+    private static void assocMappDownloadHandling(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType,
+                                                  final NonMessagingBotMetadata botMetadata, boolean resumeSupport, boolean autoResume) {
+
+        if(assocMappRequestStatusMap.containsKey(botInfo.getMsisdn()))
+        {
+            assocMappRequestStatusMap.put(botInfo.getMsisdn(),assocMappRequestStatusMap.get(botInfo.getMsisdn()) - 1);
+
+            if(assocMappRequestStatusMap.get(botInfo.getMsisdn()) == 0)
+            {
+                assocMappRequestStatusMap.remove(botInfo.getMsisdn());
+                downloadMicroAppZipForNonMessagingCbotPacket(botInfo,enableBot,botChatTheme,notifType,botMetadata,resumeSupport);
+            }
+        }
+    }
+
+    /*
+     * Method to determine if micro app already exists or not and compares its version code
+     */
+    public static boolean isMicroAppExist(String microAppName, int microAppVersionCode, String msisdn, byte botType)
+    {
+        // Generate path and check the case for the old micro app directory
+        File oldMicroAppFolder = new File(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR, microAppName);
+        if (oldMicroAppFolder.exists())
+            return true;
+
+        // check if msisdn is empty, stop the flow as we can not determine current micro app versioning details without msisdn
+        if(TextUtils.isEmpty(msisdn))
+            return false;
+
+        try
+        {
+            String unzipPath = getMicroAppContentRootFolder();
+            unzipPath = PlatformUtils.generateMappUnZipPathForBotType(botType,unzipPath,microAppName);
+
+            // Details for current micro app running on device
+            BotInfo currentBotInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+            int currentBotInfoMAppVersionCode = 0;
+            if(currentBotInfo != null)
+                currentBotInfoMAppVersionCode = currentBotInfo.getMAppVersionCode();
+
+            if (new File(unzipPath).exists() && microAppVersionCode <= currentBotInfoMAppVersionCode)
+                return true;
+
+        }
+        catch (NullPointerException npe)
+        {
+            Logger.e("PlatformZipDownloader isMicroAppExist",npe.toString());
+            npe.printStackTrace();
+        }
+
+        return false;
+    }
+
+    /*
+     * Method to determine if micro app already exists or not and compares its version code
+     */
+	public static boolean isMicroAppExistForPopUps(String microAppName, byte botType)
+	{
+		// Generate path and check the case for the old micro app directory code
+		File oldMicroAppFolder = new File(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR, microAppName);
+
+		// Generate path for versioning path and check the case for the new micro app directory code
+		String newMicroAppFolderUnzipPath = getMicroAppContentRootFolder();
+		newMicroAppFolderUnzipPath = PlatformUtils.generateMappUnZipPathForBotType(botType, newMicroAppFolderUnzipPath, microAppName);
+
+        // First check in the older code path directory, then in the newer path else returns false
+		if (oldMicroAppFolder.exists())
+			return true;
+		else if (new File(newMicroAppFolderUnzipPath).exists())
+			return true;
+		else
+			return false;
+	}
+
+    /*
+    * Method to determine if mapp sdk exists and compares its version code
+    */
+    public static boolean isMicroAppExistForMappPacket(String mAppName,int mAppVersionCode)
+    {
+        // Generate path for the old mapp directory
+        File unzipPath = new File(getMicroAppContentRootFolder() + PlatformContentConstants.HIKE_MAPPS, mAppName);
+
+        int currentMappVersionCode = 0;
+        if(HikeMessengerApp.hikeMappInfo.containsKey(mAppName))
+            currentMappVersionCode = HikeMessengerApp.hikeMappInfo.get(mAppName);
+        else
+            return false;
+
+        return (unzipPath.exists() && mAppVersionCode <= currentMappVersionCode) ? true : false;
+    }
+
 
 	public static void share(String text, String caption, Activity context, CustomWebView mWebView) {
 		FileOutputStream fos = null;
@@ -1706,6 +2183,7 @@ public class PlatformUtils
 		}
 	}
 
+
 	public static String getRunningGame(Context context)
 	{
 		String gameId = "";
@@ -1719,7 +2197,7 @@ public class PlatformUtils
 
 		ActivityManager activityManager = (ActivityManager) context
 				.getSystemService(context.ACTIVITY_SERVICE);
-		List<RunningAppProcessInfo> procInfos = activityManager.getRunningAppProcesses();
+		List<ActivityManager.RunningAppProcessInfo> procInfos = activityManager.getRunningAppProcesses();
 		for (int i = 0; i < procInfos.size(); i++)
 		{
 			if (procInfos.get(i).processName.equals(HikePlatformConstants.GAME_PROCESS))
@@ -1754,13 +2232,19 @@ public class PlatformUtils
 
         List<ContactInfo> finalContacts=new ArrayList<>(allContacts.size());
         for (ContactInfo ci : allContacts) {
-            if(!ci.isBot()&&ci.isOnhike())  // add more check here ..ex:stealth,unknown etc...
+            if(!ci.isBot()&&ci.isOnhike()&&!ci.isBlocked())  // add more check here ..ex:stealth,unknown etc...
             {
                 finalContacts.add(ci);
             }
         }
 
         Sticker sticker = new Sticker(categoryId, stickerId);
+
+        if(!sticker.isDisabled())
+        {
+            StickerManager.getInstance().addRecentStickerToPallete(sticker);
+        }
+
         ConvMessage cm = getConvMessageForSticker(sticker, categoryId, allContacts.get(0), StickerManager.FROM_FORWARD);
 
         if (cm != null) {
@@ -1807,4 +2291,442 @@ public class PlatformUtils
 		}
 		return convMessage;
 	}
+
+
+    /*
+     * Method to determine and send analytics for disk space occupied by the platform. This method is called on app update and also it can be invoked by sending nmapp packet
+     * Json generated here :: {"fld1":"disk_consumption","fld3":"app_updated","fld2":"DP","ek":"micro_app","fld5":111107,"event":"nmapp"}
+     */
+	public static void platformDiskConsumptionAnalytics(String analyticsTriggerPoint)
+	{
+        // Get list of all micro apps installed in content directory
+		JSONArray mArray = PlatformUtils.readFileList(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS, false);
+        long contentFolderLength = 0,directorySize;
+
+        // Precautionary check to check if these files are indeed folders and preventing NPE
+        File platformContentDirectory = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR);
+        if(platformContentDirectory.exists())
+            contentFolderLength = Utils.folderSize(platformContentDirectory);
+
+        for (int i = 0; i < mArray.length(); i++)
+		{
+			try
+			{
+				String path = (String) mArray.get(i);
+				path = path.replaceAll(PlatformContentConstants.PLATFORM_CONTENT_DIR, "");
+				path = path.replaceAll(HikePlatformConstants.FILE_DESCRIPTOR, "");
+				File microAppFile = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + path);
+
+				if (microAppFile.isDirectory() && Utils.folderSize(microAppFile) > 0)
+				{
+                    directorySize = Utils.folderSize(microAppFile);
+                    JSONObject json = new JSONObject();
+					json.putOpt(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
+					json.putOpt(AnalyticsConstants.EVENT, AnalyticsConstants.NOTIFY_MICRO_APP_STATUS);
+					json.putOpt(AnalyticsConstants.LOG_FIELD_1, AnalyticsConstants.DISK_CONSUMPTION_ANALYTICS);
+					json.putOpt(AnalyticsConstants.LOG_FIELD_2, path); // App Name
+					json.putOpt(AnalyticsConstants.LOG_FIELD_3, analyticsTriggerPoint); // Analytics Trigger Point
+					json.putOpt(AnalyticsConstants.LOG_FIELD_5, directorySize); // Directory disk consumption
+                    json.putOpt(AnalyticsConstants.LOG_FIELD_6, contentFolderLength); // Total content directory size
+					HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_INFO, json);
+				}
+			}
+			catch (JSONException e)
+			{
+				e.printStackTrace();
+			}
+		}
+	}
+
+    /*
+     * Method to determine and send analytics for disk space occupied by the micro app just being installed. This method is called on successful cbot,mapp and popup creation
+     * Json generated here :: {"fld6":3237192,"fld1":"hikecoupons","ek":"micro_app","fld5":448390,"event":"microapp_disk_consumption"}
+     */
+    public static void microAppDiskConsumptionAnalytics(String appName)
+    {
+        try
+        {
+            JSONObject json = new JSONObject();
+            long contentFolderLength = 0,botFileSize =0;
+
+            // Precautionary check to check if these files are indeed folders and preventing NPE
+            if(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR).isDirectory())
+                contentFolderLength = Utils.folderSize(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR));
+            if(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + appName).isDirectory())
+                botFileSize = Utils.folderSize(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + appName));
+
+            json.putOpt(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
+            json.putOpt(AnalyticsConstants.EVENT, AnalyticsConstants.MICROAPP_DISK_CONSUMPTION);
+
+            json.putOpt(AnalyticsConstants.LOG_FIELD_1, appName); //App Name
+            json.putOpt(AnalyticsConstants.LOG_FIELD_5, botFileSize); // installed microapp disk consumption
+            json.putOpt(AnalyticsConstants.LOG_FIELD_6, contentFolderLength); // Total content directory size
+
+            HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.DOWNLOAD_EVENT, json);
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+
+    public static void invalidDataBotAnalytics(BotInfo botInfo) {
+        // Added analytics event to consider this micro app download as failure because of invalid data
+        PlatformContent.EventCode event = PlatformContent.EventCode.INVALID_DATA;
+        Logger.wtf(TAG, "microapp download packet failed." + event.toString());
+        JSONObject json = new JSONObject();
+        try
+        {
+            json.put(HikePlatformConstants.ERROR_CODE, event.toString());
+            PlatformUtils.createBotAnalytics(HikePlatformConstants.BOT_CREATION_FAILED, botInfo, json);
+            PlatformUtils.createBotMqttAnalytics(HikePlatformConstants.BOT_CREATION_FAILED_MQTT, botInfo, json);
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    //{"t":"le_android","d":{"et":"uiEvent","st":"click","ep":"HIGH","cts":1457198967791,"tag":"plf","md":{"ek":"micro_app","event":"botContentShared","fld4":"aGlrZS1jb250bnQtc3RvcmU=ZmM0M2QyNzUtMzQ0Zi00ZDMwLTk3N2UtMGM5YzJjMzEzYjFjLlZsZ1hONFJYcnp0M1hZc3I","fld1":"IMAGE","bot_msisdn":"+hikeviral+","sid":1457198959796}}}
+	public static void sendBotFileShareAnalytics(HikeFile hikeFile, String msisdn)
+	{
+		String fileKey = hikeFile.getFileKey();
+		JSONObject json = new JSONObject();
+		try {
+			json.putOpt(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
+			json.putOpt(AnalyticsConstants.EVENT, AnalyticsConstants.BOT_CONTENT_SHARED);
+			json.putOpt(AnalyticsConstants.LOG_FIELD_4, fileKey);
+			json.putOpt(AnalyticsConstants.LOG_FIELD_1, hikeFile.getHikeFileType());
+			json.putOpt(AnalyticsConstants.BOT_MSISDN, msisdn);
+		} catch (JSONException e) {
+			Logger.d(TAG, "Exception in bot share utils");
+		}
+		HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
+	}
+/*
+ *Method to add data to the State table
+ */
+	public static void addToPlatformDownloadStateTable(final String name, final int mAppVersionCode, final String data,@HikePlatformConstants.PlatformTypes final int type, final long ttl,final int prefNetwork,@HikePlatformConstants.PlatformDwnldState final int state, final boolean autoResume)
+	{
+		if (mAppVersionCode <-1 || TextUtils.isEmpty(name) || ttl < 0)
+		{
+			return;
+		}
+		HikeHandlerUtil handler = HikeHandlerUtil.getInstance();
+		handler.startHandlerThread();
+		handler.postRunnable(new Runnable() {
+			@Override
+			public void run() {
+				HikeContentDatabase.getInstance().addToPlatformDownloadStateTable(name, mAppVersionCode, data, type, System.currentTimeMillis() + ttl, prefNetwork, state,(autoResume) ? 1 : 0);
+			}
+		});
+	}
+
+	/*
+	Method to remove from PlatformDownload table
+	*/
+	public static void removeFromPlatformDownloadStateTable(final String name, final int mAppVersionCode)
+	{
+		if (TextUtils.isEmpty(name) || mAppVersionCode <-1)
+		{
+			return;
+		}
+		HikeHandlerUtil handler = HikeHandlerUtil.getInstance();
+		handler.startHandlerThread();
+		handler.postRunnable(new Runnable() {
+			@Override
+			public void run() {
+				HikeContentDatabase.getInstance().removeFromPlatformDownloadStateTable(name, mAppVersionCode);
+				//Deleting state and incomplete downloaded zip file.
+				if (!TextUtils.isEmpty(name + FileRequestPersistent.STATE_FILE_EXT))
+				{
+					Utils.deleteFile(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + name + FileRequestPersistent.STATE_FILE_EXT));
+					Utils.deleteFile(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.TEMP_DIR_NAME + File.separator + name +".zip"));
+				}
+			}
+		});
+	}
+
+	// Method to update Platform Download table
+
+	public static void updatePlatformDownloadState(final String name, final int mAppVersionCode, @HikePlatformConstants.PlatformDwnldState final int newState)
+	{
+		if (mAppVersionCode <-1 || TextUtils.isEmpty(name))
+		{
+			return;
+		}
+		HikeHandlerUtil handler = HikeHandlerUtil.getInstance();
+		handler.startHandlerThread();
+		handler.postRunnable(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				HikeContentDatabase.getInstance().updatePlatformDownloadState(name, mAppVersionCode, newState);
+			}
+		});
+	}
+
+	/*
+	 * Method to retry pending downloads and also pause any current downloads if network is downgraded. Also remove from table if ttl has expired.
+	 */
+	public static void retryPendingDownloadsIfAny(final int currentNetwork)
+	{
+		Logger.i(TAG, "Restarting pending bot downloads...");
+		HikeHandlerUtil handler = HikeHandlerUtil.getInstance();
+		handler.startHandlerThread();
+		handler.postRunnable(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				long currentTime = System.currentTimeMillis();
+				Cursor c = HikeContentDatabase.getInstance().getAllPendingPlatformDownloads();
+				if (c == null)
+				{
+					Logger.e(TAG, "There are no platform downloads to retry. Returning");
+					return;
+				}
+				while (c.moveToNext())
+				{
+					try
+					{
+						JSONObject json = new JSONObject(c.getString(c.getColumnIndex(HikePlatformConstants.PACKET_DATA)));
+
+						int type = c.getInt(c.getColumnIndex(HikePlatformConstants.TYPE));
+
+						long ttl = c.getLong(c.getColumnIndex(HikePlatformConstants.TTL));
+
+						int prefNetwork =c.getInt(c.getColumnIndex(HikePlatformConstants.PREF_NETWORK));
+
+						String name = c.getString(c.getColumnIndex(HikePlatformConstants.APP_NAME));
+
+						if(c.getInt(c.getColumnIndex(HikePlatformConstants.AUTO_RESUME)) != 1)
+						{
+							continue;    // Moving ahead only if auto_resume is true.
+						}
+
+						if (currentTime > ttl)
+						{
+							int mAppVersionCode = c.getInt(c.getColumnIndex(HikePlatformConstants.MAPP_VERSION_CODE));
+							removeFromPlatformDownloadStateTable(name, mAppVersionCode);
+							sendFailDueToTTL(name);
+							continue;
+						}
+						if(prefNetwork < currentNetwork) // Pausing a request if  the network is downgraded.
+						{
+							PairModified<RequestToken, Integer> tokenCountPair = PlatformZipDownloader.getCurrentDownloadingRequests().get(name);
+							if (null != tokenCountPair && null != tokenCountPair.getFirst())
+							{
+								tokenCountPair.getFirst().cancel();
+							}
+						}
+						else // Only retry on higher NetworkTypes
+						{
+							sendDownloadResumedAnalytics(name);
+							switch (type)
+							{
+								case HikePlatformConstants.PlatformTypes.CBOT:
+									BotUtils.createBot(json,currentNetwork);
+									break;
+								case HikePlatformConstants.PlatformTypes.MAPP:
+									downloadZipFromPacket(json,currentNetwork);
+									break;
+							}
+						}
+					}
+					catch (JSONException e)
+					{
+						Logger.e(TAG, "Exception in retryPendingDownloadsIfAny : "+e.getMessage());
+						e.printStackTrace();
+					}
+				}
+			}
+		});
+	}
+
+	private static String getMsisdnFromAppName(String name)
+	{
+		if (TextUtils.isEmpty(name))
+			return "";
+		return "+" + name + "+";
+	}
+
+	// analytics json : {"d":{"ep":"HIGH","st":"filetransfer","et":"nonUiEvent","md":{"sid":1458220124380,"fld6”:567888,"fld1”:"hikenews","ek":"micro_app","event":"download_paused"},"cts":1458220184473,"tag":"plf"},"t":"le_android”}
+	private static void sendDownloadPausedAnalytics(String id) {
+		int downloadedLength=0;
+		JSONObject json = new JSONObject();
+		try
+		{
+			if(!TextUtils.isEmpty(id)) {
+				String filePath = PlatformContentConstants.PLATFORM_CONTENT_DIR + id + FileRequestPersistent.STATE_FILE_EXT;
+				String data[] = PlatformUtils.readPartialDownloadState(filePath);
+				if (data == null || data.length < 1 || TextUtils.isEmpty(data[1]))
+				{
+					return;
+				}
+				downloadedLength = Integer.parseInt(data[0]);
+			}
+			json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.MICRO_APP_EVENT);
+			json.putOpt(AnalyticsConstants.EVENT,AnalyticsConstants.DOWNLOAD_PAUSED);
+			json.putOpt(AnalyticsConstants.LOG_FIELD_6, downloadedLength);
+			json.putOpt(AnalyticsConstants.LOG_FIELD_1, id);
+		} catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
+		HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.FILE_TRANSFER, json);
+
+	}
+//analytics json : {"d":{"ep":"HIGH","st":"filetransfer","et":"nonUiEvent","md":{"sid":1458220124380,"ek":"micro_app","fld1”:"hikenews","event":"download_resumed"},"cts":1458220217498,"tag":"plf"},"t":"le_android"}
+	private static void sendDownloadResumedAnalytics(String id) {
+		int downladedLength=0;
+		JSONObject json = new JSONObject();
+		try
+		{
+			json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.MICRO_APP_EVENT);
+			json.putOpt(AnalyticsConstants.EVENT,AnalyticsConstants.DOWNLOAD_RESUMED);
+			json.putOpt(AnalyticsConstants.LOG_FIELD_1, id);
+		} catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
+		HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.FILE_TRANSFER, json);
+
+	}
+
+
+	public static void insertUrl(JSONArray array) {
+		String key;
+		String url;
+		int life;
+		JSONObject jsonObject;
+		HikeConversationsDatabase db = HikeConversationsDatabase.getInstance();
+		for (int i = 0; i < array.length(); i++) {
+			try {
+				jsonObject = array.getJSONObject(i);
+				key = jsonObject.getString(DBConstants.URL_KEY);
+				url = jsonObject.getString(HikeConstants.URL);
+				life = jsonObject.getInt(DBConstants.LIFE);
+				db.insertURL(key, url, life);
+			} catch (JSONException e) {
+				Logger.e(TAG, e.toString());
+			}
+		}
+
+
+	}
+
+	public static void deleteUrl(JSONArray array) {
+		String key;
+		JSONObject jsonObject;
+		HikeConversationsDatabase db = HikeConversationsDatabase.getInstance();
+		for (int i = 0; i < array.length(); i++) {
+			try {
+				jsonObject = array.getJSONObject(i);
+				key = jsonObject.getString(DBConstants.URL_KEY);
+				db.deleteURL(key);
+			} catch (JSONException e) {
+				Logger.e(TAG, e.toString());
+			}
+		}
+
+
+	}
+
+	public static List<Header> getHeaderForOauth(String oAuth) {
+		List<Header> headers = new ArrayList<Header>(1);
+		headers.add(new Header(HttpHeaderConstants.COOKIE_HEADER_NAME,
+				"OAUTH" + "=" + oAuth));
+
+		return headers;
+	}
+
+	public static String getFileUploadJson(Intent data)
+	{
+		String filepath = data.getStringExtra(HikeConstants.Extras.GALLERY_SELECTION_SINGLE);
+
+		if (TextUtils.isEmpty(filepath))
+		{
+			// Could be from crop activity
+			filepath = data.getStringExtra(HikeCropActivity.CROPPED_IMAGE_PATH);
+		}
+
+		if (TextUtils.isEmpty(filepath))
+		{
+			Logger.e("FileUpload", "Invalid file Path");
+			return "";
+		}
+		else
+		{
+			filepath = filepath.toLowerCase();
+			Logger.d("FileUpload", "Path of selected file :" + filepath);
+			String fileExtension = MimeTypeMap.getFileExtensionFromUrl(filepath).toLowerCase();
+			String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase()); // fixed size type extension
+			Logger.d("FileUpload", "mime type  of selected file :" + mimeType);
+			JSONObject json = new JSONObject();
+			try
+			{
+				json.put("filePath", filepath);
+				json.put("mimeType", mimeType);
+				json.put("filesize", (new File(filepath)).length());
+				return json.toString();
+			}
+			catch (JSONException e)
+			{
+				Logger.e("FileUpload", "Unable to send in Json");
+				return "";
+			}
+
+		}
+
+	}
+
+	/**
+	 * analytics json : {"d":{"ep":"HIGH","st":"filetransfer","et":"nonUiEvent","md":{"sid":1460011903528,"fld1":"pushkar11","ek":"micro_app","fld2":"+pushkar11+","event":"ttlExpired"},"cts":1460011966846,"tag":"plf"},"t":"le_android"}
+	 * @param name
+	 */
+	public static void sendFailDueToTTL(String name)
+	{
+		JSONObject json = new JSONObject();
+		try
+		{
+			json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.MICRO_APP_EVENT);
+			json.putOpt(AnalyticsConstants.EVENT,AnalyticsConstants.TTL_EXPIRED);
+			json.putOpt(AnalyticsConstants.LOG_FIELD_1, name);
+			json.putOpt(AnalyticsConstants.LOG_FIELD_2,getMsisdnFromAppName(name));
+		} catch (JSONException e)
+		{
+			Logger.e(TAG,"Errorin sending analytics");
+		}
+
+		HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.FILE_TRANSFER, json);
+	}
+
+    /**
+     * Sample log lines : { "t": "le_android", "d": { "et": "nonUiEvent", "st": "dwnld", "ep": "HIGH", "cts": 1453620927336, "tag": "plf", "md": { "ek": "micro_app", "event":
+     * "exception_track", "fld2": "java.io.FileNotFoundException: abc", "platformUid": "VTBoRgRzkEkRVAu3", "networkType": "1", "app_version": "4.1.0.36",
+     * "sid": 1453620914078 } } }
+     *
+     * @param errorMsg
+     */
+    public static void microappsMigrationFailedAnalytics(String errorMsg)
+    {
+        try
+        {
+            JSONObject json = new JSONObject();
+            json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
+            json.put(AnalyticsConstants.EVENT, AnalyticsConstants.MIGRATION_FAILURE_ANALYTICS);
+            json.put(AnalyticsConstants.LOG_FIELD_2, errorMsg); //Error
+            HikeAnalyticsEvent.analyticsForNonMessagingBots(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.DOWNLOAD_EVENT, json);
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
+    }
+    
 }

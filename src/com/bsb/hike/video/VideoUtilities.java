@@ -99,6 +99,8 @@ public class VideoUtilities {
 						: 640.0f / videoEditedInfo.resultHeight;
 				videoEditedInfo.resultWidth *= scale;
 				videoEditedInfo.resultHeight *= scale;
+				videoEditedInfo.resultHeight = videoEditedInfo.resultHeight - (videoEditedInfo.resultHeight % 10);
+				videoEditedInfo.resultWidth = videoEditedInfo.resultWidth - (videoEditedInfo.resultWidth % 10);
 				if (videoEditedInfo.bitrate != 0) {
 					videoEditedInfo.bitrate *= Math.max(0.5f, scale);
 				}

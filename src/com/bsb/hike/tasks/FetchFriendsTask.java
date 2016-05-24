@@ -9,6 +9,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.NUXConstants;
 import com.bsb.hike.adapters.FriendsAdapter;
 import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
@@ -132,6 +133,8 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 	private boolean showDefaultEmptyList;
 
 	private boolean showMicroappShowcase;
+	private List<ContactInfo> filteredOtherFeaturesList;
+	private List<ContactInfo> otherFeaturesList;
 
 	private boolean showFilteredContacts;
 
@@ -283,15 +286,36 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 
 	}
 
+	public void addOtherFeaturesList(List<ContactInfo> otherFeaturesList, List<ContactInfo> filteredOtherFeaturesList)
+	{
+		this.otherFeaturesList = otherFeaturesList;
+		this.filteredOtherFeaturesList = filteredOtherFeaturesList;
+	}
+
 	@Override
 	protected Void doInBackground(Void... params)
 	{
 		long startTime = System.currentTimeMillis();
 		String myMsisdn = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, "");
 
+		List<ContactInfo> bdayContactList = null;
+
+		if(Utils.isBDayInNewChatEnabled())
+		{
+			bdayContactList = ChatHeadUtils.getSortedBdayContactListFromSharedPref();
+		}
+		else
+		{
+			bdayContactList = new ArrayList<ContactInfo>();
+		}
+
 		if (showFilteredContacts && !TextUtils.isEmpty(msisdnList))
 		{
 			contactsInfo = ContactManager.getInstance().getContactInfoListForMsisdnFilter(msisdnList);
+			/**
+			 * Removing Birthday users from contacts list
+			 */
+			contactsInfo.removeAll(bdayContactList);
 			suggestedContactsList.addAll(contactsInfo);
 			filteredSuggestedContactsList.addAll(contactsInfo);
 		}
@@ -327,7 +351,10 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 				}
 				recentTaskList.add(recentContact);
 			}
-
+			/**
+			 * Removing Birthday users from resent contacts list
+			 */
+			recentTaskList.removeAll(bdayContactList);
 		}
 
 		Logger.d("TestQuery", "query time: " + (System.currentTimeMillis() - queryTime));
@@ -382,6 +409,10 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		}
 
 		long iterationTime = System.currentTimeMillis();
+		/**
+		 * Removing Birthday users from all contacts list
+		 */
+		allContacts.removeAll(bdayContactList);
 		for (ContactInfo contactInfo : allContacts)
 		{
 			String msisdn = contactInfo.getMsisdn();
@@ -501,6 +532,12 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 			}
 		}
 
+		if(otherFeaturesList!=null)
+		{
+			filteredOtherFeaturesList.clear();
+			filteredOtherFeaturesList.addAll(otherFeaturesList);
+		}
+		
 		Logger.d("TestQuery", "total time: " + (System.currentTimeMillis() - startTime));
 		return null;
 

@@ -2,13 +2,18 @@ package com.bsb.hike.media;
 
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 
@@ -63,7 +68,7 @@ public class ShareablePopupLayout
 	{
 		if (mKeyboardPopupLayout == null)
 		{
-			if (HikeMessengerApp.keyboardApproach(context) && HikeMessengerApp.isSystemKeyboard())
+			if (HikeMessengerApp.keyboardApproach(context))
 			{
 				mKeyboardPopupLayout = (eatOuterTouchIds == null) ? new KeyboardPopupLayout21(mainView, firstTimeHeight, context, listener, onSoftKeyboardListener)
 						: new KeyboardPopupLayout21(mainView, firstTimeHeight, context, eatOuterTouchIds, listener, onSoftKeyboardListener);
@@ -76,56 +81,56 @@ public class ShareablePopupLayout
 		}
 	}
 
+    /**
+     * This method dismisses a popup if already showing, else it displays it
+     *
+     * @param popup
+     */
 
-	/**
-	 * This method dismisses a popup if already showing, else it displays it 
-	 * 
-	 * @param popup
-	 */
+    public boolean togglePopup(ShareablePopup popup, int screenOrientation, boolean refreshKeyboardHeight)
+    {
+        View popupView = popup.getView(screenOrientation);
 
-	public boolean togglePopup(ShareablePopup popup, int screenOrientation)
-	{
-		View popupView = popup.getView(screenOrientation);
-		
-		/** Exit condition
-		 *  We simply return here.
-		 */
-		if (popupView == null) 
-		{
-			return false;
-		}
-		
-		/**
-		 * If we're already showing a view, let's say stickers and sticker icon was tapped again, then we should dismiss the view.
-		 */
-		if (prevVisibleView != popupView || !mKeyboardPopupLayout.isShowing())
-		{
-			return showPopup(popupView);
-		}
-		
-		else
-		{
-			if (mKeyboardPopupLayout.isShowing())
-			{
-				if (mKeyboardPopupLayout instanceof KeyboardPopupLayout21)
-				{
-					((KeyboardPopupLayout21) mKeyboardPopupLayout).showKeyboardAfterPopupDismiss();
-				}
-				dismiss();
-				return true;
-			}
-		}
-		
-		return false;
-	}
-	
+        /** Exit condition
+         *  We simply return here.
+         */
+        if (popupView == null)
+        {
+            return false;
+        }
+
+        /**
+         * If we're already showing a view, let's say stickers and sticker icon was tapped again, then we should dismiss the view.
+         */
+        if (prevVisibleView != popupView || !mKeyboardPopupLayout.isShowing())
+        {
+            return showPopup(popupView,refreshKeyboardHeight);
+        }
+
+        else
+        {
+            if (mKeyboardPopupLayout.isShowing())
+            {
+                if (mKeyboardPopupLayout instanceof KeyboardPopupLayout21)
+                {
+                    ((KeyboardPopupLayout21) mKeyboardPopupLayout).showKeyboardAfterPopupDismiss();
+                }
+                dismiss();
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
 	/**
 	 * Utility method used for displaying the Popups using the Keyboard Popup layout. Appropriate comments have been added in the code flow for easily readability
 	 * 
 	 * @param popup
 	 */
 	
-	public boolean showPopup(ShareablePopup popup, int screenOrientation)
+	public boolean showPopup(ShareablePopup popup, int screenOrientation, int customKeyboardHeight)
 	{
 		View popupView = popup.getView(screenOrientation);
 		
@@ -142,23 +147,25 @@ public class ShareablePopupLayout
 
 		swapViews(popupView);
 
-		return showKeyboardPopup();
+        // Since this is for Keyboard popup layout, we need to refreshKeyboardHeight while setting popup
+        boolean refreshKeyboardHeight = true;
+
+		return showKeyboardPopup(refreshKeyboardHeight,customKeyboardHeight);
 	}
 	
-	private boolean showPopup(View popupView)
+	private boolean showPopup(View popupView,boolean refreshKeyboardHeight)
 	{
 		addPopupView(popupView);
 
 		swapViews(popupView);
 
-		return showKeyboardPopup();
+		return showKeyboardPopup(refreshKeyboardHeight,0);
 	}
 
 	/**
 	 * Check whether we already had this view in the layout or not, else add it
 	 * 
 	 */
-
 	private void addPopupView(View popupView)
 	{
 		FrameLayout frameLayout = (FrameLayout) mViewToDisplay.findViewById(R.id.shared_keyboard_parent);
@@ -175,11 +182,16 @@ public class ShareablePopupLayout
 		frameLayout.addView(popupView);
 	}
 
-	private boolean showKeyboardPopup()
+	private boolean showKeyboardPopup(boolean refreshKeyboardHeight,int customKeyboardHeight)
 	{
-		if (!mKeyboardPopupLayout.isShowing())
+        if(refreshKeyboardHeight)
+        {
+            mKeyboardPopupLayout.dismiss();
+            return mKeyboardPopupLayout.showCustomKeyboardPopup(mViewToDisplay,refreshKeyboardHeight,customKeyboardHeight);
+        }
+        else if (!mKeyboardPopupLayout.isShowing())
 		{
-			return mKeyboardPopupLayout.showKeyboardPopup(mViewToDisplay);
+            return mKeyboardPopupLayout.showKeyboardPopup(mViewToDisplay);
 		}
 		
 		return true;
@@ -232,17 +244,6 @@ public class ShareablePopupLayout
 	public void releaseResources()
 	{
 		mKeyboardPopupLayout.releaseResources();
-		
-		if (mViewToDisplay != null)
-			
-		{
-			FrameLayout frameLayout = (FrameLayout) mViewToDisplay.findViewById(R.id.shared_keyboard_parent);
-
-			/**
-			* Removing the residual views, if any
-			*/
-			frameLayout.removeAllViews();			
-		}
 	}
 
 	public boolean onEditTextTouch(View v, MotionEvent event){
@@ -274,13 +275,4 @@ public class ShareablePopupLayout
 		}
 	}
 
-	public void setCustomKeyBoardHeight(int height){
-		mKeyboardPopupLayout.setCustomKeyBoardHeight(height);
-	}
-	
-	public void setCustomKeyBoard(boolean isCustomKeyBoard, int height)
-	{
-	  mKeyboardPopupLayout.setCustomKeyBoard(isCustomKeyBoard, height);
-	}
-	
 }
