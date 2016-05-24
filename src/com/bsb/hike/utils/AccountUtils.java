@@ -72,11 +72,11 @@ public class AccountUtils
 
 	public static final String HTTP_STRING = "http://";
 
-	public static final String HTTPS_STRING = "http://";
+	public static final String HTTPS_STRING = "https://";
 
 	public static final String PRODUCTION_HOST = "api.im.hike.in";
 
-	public static final String STAGING_HOST = "52.76.190.143";
+	public static final String STAGING_HOST = "52.76.190.255";
 	
 	public static final String DEV_STAGING_HOST = "staging2.im.hike.in";
 	
@@ -92,7 +92,7 @@ public class AccountUtils
 
 	public static final int PRODUCTION_PORT_SSL = 443;
 
-	public static final int STAGING_PORT = 8080;
+	public static final int STAGING_PORT = 80;
 
 	public static final int STAGING_PORT_SSL = 443;
 
@@ -397,7 +397,7 @@ public class AccountUtils
 	 */
 	public static List<ContactInfo> updateAddressBook(Map<String, List<ContactInfo>> new_contacts_by_id, JSONArray ids_json) throws IllegalStateException
 	{
-		HttpPost request = new HttpPost("http://52.76.190.143/v3" + "/account/addressbook-update");
+		HttpPost request = new HttpPost("http://52.76.190.255/v3" + "/account/addressbook-update");
 		addToken(request);
 		JSONObject data = new JSONObject();
 
