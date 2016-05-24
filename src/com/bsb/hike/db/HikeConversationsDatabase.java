@@ -6683,7 +6683,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 			{
 				boolean isMute = c.getInt(c.getColumnIndex(DBConstants.IS_MUTE)) == 1 ? true : false;
 				int muteDuration = c.getInt(c.getColumnIndex(DBConstants.MUTE_DURATION));
-				long muteTimestamp;
 				mute.setIsMute(isMute);
 				mute.setMuteDuration(muteDuration);
 				mute.setMuteTimestamp(c.getLong(c.getColumnIndex(DBConstants.MUTE_TIMESTAMP)));
