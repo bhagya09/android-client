@@ -6852,7 +6852,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	}
 
 	public void customThemeErrorNotifier(String errorType) {
-		if(errorType.equalsIgnoreCase(HikeConstants.CUSTOM_ERROR_DEVICE_NOT_SUPPORTED)){
+		if(HikeConstants.CUSTOM_ERROR_DEVICE_NOT_SUPPORTED.equalsIgnoreCase(errorType)){
 			Toast.makeText(activity.getApplicationContext(), activity.getResources().getString(R.string.custom_chattheme_device_not_supported), Toast.LENGTH_LONG).show();
 		}
 	}
