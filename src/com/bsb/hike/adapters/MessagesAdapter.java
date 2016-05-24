@@ -4736,6 +4736,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		}
 	}
 	public int getVoiceMessagePlayerState(){
+		if(voiceMessagePlayer.getPlayerState()!=null)
 		return voiceMessagePlayer.getPlayerState().ordinal();
+		else
+			return VoiceMessagePlayerState.STOPPED.ordinal();
 	}
 }
