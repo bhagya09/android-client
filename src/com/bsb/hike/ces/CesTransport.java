@@ -3,7 +3,7 @@
  */
 package com.bsb.hike.ces;
 
-import org.json.JSONObject;
+import android.support.annotation.Nullable;
 
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -13,6 +13,8 @@ import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.httpmgr.retry.BasicRetryPolicy;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONObject;
 
 /**
  * @author suyash
@@ -81,7 +83,7 @@ public class CesTransport {
 			}
 			
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 				Logger.e(TAG, "Task = " + mTaskType + " , Failed !!!", httpException);
 			}
