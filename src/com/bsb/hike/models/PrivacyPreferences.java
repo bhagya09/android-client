@@ -40,4 +40,14 @@ public class PrivacyPreferences
 		this.config = config;
 	}
 
+	public boolean shouldShowLastSeen()
+	{
+		return isBitSet(LAST_SEEN);
+	}
+
+	public boolean shouldShowStatusUpdate()
+	{
+		return isBitSet(STATUS_UPDATE);
+	}
+
 }
