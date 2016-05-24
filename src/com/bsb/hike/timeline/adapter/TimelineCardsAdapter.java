@@ -803,8 +803,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			setAvatar(contact.getMsisdn(), viewHolder.avatar);
 			viewHolder.ftueShow.setTag(viewType);
 			viewHolder.ftueShow.setOnClickListener(ftueListItemClickListener);
-			viewHolder.ftueBottomText.setText(Utils.isFavToFriendsMigrationAllowed() ? R.string.timeline_add_as_frn : R.string.timeline_add_as_fav);
-			viewHolder.favIcon.setImageResource(Utils.isFavToFriendsMigrationAllowed() ? R.drawable.ic_84_addfriend : R.drawable.icon_favorites);
+			viewHolder.ftueBottomText.setText(R.string.timeline_add_as_frn);
+			viewHolder.favIcon.setImageResource(R.drawable.ic_84_addfriend);
 			int imageSize = mContext.getResources().getDimensionPixelSize(R.dimen.timeine_big_picture_size);
 			profileLoader = new ProfileImageLoader(mContext, contact.getMsisdn(), viewHolder.largeProfilePic, imageSize, false, true);
 			profileLoader.setLoaderListener(new ProfileImageLoader.LoaderListener()

@@ -769,7 +769,7 @@ public class HikeConstants
 	public static final String TOGGLE = "toggle";
 
     public static final String HTTP_NETWORK_CHECK_CALL = "httpNetworkCheckCall";
-
+	public static final String FETCH_UID_UPGRADE_SUCCESSFULL = "uid_up_suc";
 	public static String ADD_URL = "addUrl";
 	public static String DELETE_URL = "deleteUrl";
 
@@ -4175,8 +4175,6 @@ public class HikeConstants
 
 	}
 
-	public static final String FAV_TO_FRIENDS_MIGRATION = "f2f_mig";
-
 	public static final String IS_NEW_USER = "is_new_user";
 
 	public static final int DEFAULT_FRIENDS_FTUE_COUNT = 5;
@@ -4244,6 +4242,8 @@ public class HikeConstants
 	public static final String POSITION = "pos";
 
 	public static final String VIEW_ALL_CLICKED = "viewAllClicked";
+
+    public static final String FAVS_RAI="favs";
 
 	public static final int DEFAULT_RETRIES_GCM_NW_MANAGER = 5;
 
