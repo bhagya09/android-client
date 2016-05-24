@@ -3140,7 +3140,7 @@ public class Utils
 			File listFiles[] = file.listFiles();
 			if(listFiles == null)
 			{
-				return;
+				return false;
 			}
 			for (File f : listFiles)
 			{
