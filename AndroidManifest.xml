@@ -6,7 +6,6 @@
     android:versionCode="1734"
     android:versionName="4.2.6.82.113" >
 
->>>>>>> ea5e7954344885b1374cad1cc9a0a12ec2d54769
    <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="17"
