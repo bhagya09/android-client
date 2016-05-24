@@ -82,7 +82,7 @@ public class StoryListAdapter extends BaseAdapter implements PinnedSectionListVi
         if (view == null) {
 
             if (storyItem.getType() == StoryItem.TYPE_HEADER) {
-
+                // TODO
             } else if (storyItem.getType() == StoryItem.TYPE_INTENT || storyItem.getType() == StoryItem.TYPE_FRIEND || storyItem.getType() == StoryItem.TYPE_BRAND) {
                 view = mInflater.inflate(R.layout.list_item_story, null, false);
                 viewHolder = new ViewHolder();
@@ -96,7 +96,7 @@ public class StoryListAdapter extends BaseAdapter implements PinnedSectionListVi
         }
 
         if (storyItem.getType() == StoryItem.TYPE_HEADER) {
-
+            // TODO
         } else if (storyItem.getType() == StoryItem.TYPE_INTENT) {
             Drawable timelineLogoDrawable = ContextCompat.getDrawable(mContext, R.drawable.ic_dp_timeline);
             Drawable otherFeaturesDrawable = ContextCompat.getDrawable(mContext, R.drawable.other_features_bg);
@@ -110,7 +110,7 @@ public class StoryListAdapter extends BaseAdapter implements PinnedSectionListVi
                 viewHolder.subTextView.setVisibility(View.VISIBLE);
             }
         } else if (storyItem.getType() == StoryItem.TYPE_FRIEND) {
-
+            // TODO
         } else if (storyItem.getType() == StoryItem.TYPE_BRAND) {
             // TODO
         }
