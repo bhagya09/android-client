@@ -31,6 +31,10 @@ import com.bsb.hike.ui.StickerShopActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.StickerManager;
 
+/**
+ * Abstract Fragment which provides the basic functionalities of SHOP including download and pack preview and DB reads
+ */
+
 public abstract class StickerShopBaseFragment extends Fragment implements Listener
 {
 	protected String[] pubSubListeners = { HikePubSub.STICKER_CATEGORY_MAP_UPDATED, HikePubSub.STICKER_SHOP_DOWNLOAD_SUCCESS, HikePubSub.STICKER_SHOP_DOWNLOAD_FAILURE };
@@ -87,12 +91,26 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 		doInitialSetup();
 	}
 
+    /**
+     * Method called onActivityCreated.
+     * Implement adapter initialisation and Data read here
+     */
 	protected abstract void doInitialSetup();
 
+    /**
+     * Wrapper for notifyDatasetChanged of the Fragment adapter
+     */
 	protected abstract void notifyAdapter();
 
+    /**
+     * Method called when data needs to be reloaded due to shop data update/download
+     */
 	protected abstract void reloadAdapter();
 
+    /**
+     *
+     * @return StickerOtherIconLoader : Thumbnail Loader object of the fragment which extends ImageWorker
+     */
 	protected abstract StickerOtherIconLoader getStickerPreviewLoader();
 
 	@Override

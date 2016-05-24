@@ -6,6 +6,7 @@ import com.bsb.hike.db.DbException;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.contactmgr.ContactUtils;
+import com.bsb.hike.modules.contactmgr.HikeUserDatabase;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.interceptor.IResponseInterceptor;
@@ -13,6 +14,8 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.httpmgr.retry.BasicRetryPolicy;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.PairModified;
+import com.bsb.hike.utils.Utils;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -86,8 +89,7 @@ public class PostAddressBookTask
 				}
 
 				List<ContactInfo> addressbook = ContactUtils.getContactList(jsonForAddressBookAndBlockList, contactsMap);
-				List<String> blockList = ContactUtils.getBlockList(jsonForAddressBookAndBlockList);
-
+				List<PairModified<String,String>> blockList = ContactUtils.getBlockList(jsonForAddressBookAndBlockList);
 				if (jsonForAddressBookAndBlockList.has(HikeConstants.PREF))
 				{
 					JSONObject prefJson = jsonForAddressBookAndBlockList.optJSONObject(HikeConstants.PREF);
@@ -101,6 +103,10 @@ public class PostAddressBookTask
 				try
 				{
 					ContactManager.getInstance().setAddressBookAndBlockList(addressbook, blockList);
+					JSONArray fav = ContactUtils.getFavouriteJSONObject(jsonForAddressBookAndBlockList);
+					if(fav!=null) {
+						ContactManager.getInstance().setMultipleContactsToFavorites(fav);
+					}
 					chain.proceed();
 				}
 				catch (DbException e)
