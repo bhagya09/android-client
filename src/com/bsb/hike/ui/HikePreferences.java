@@ -1251,13 +1251,13 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 						HAManager.logClickEvent(HikeConstants.LogEvent.LS_EVERYONE_CLICKED);
 						break;
 					case FAVORITES:
-						selectedPrivacyValue = getApplicationContext().getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.privacy_friends_key : R.string.privacy_favorites_key);
-						ls_summary = getApplicationContext().getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.ls_friends_summary : R.string.ls_favorites_summary);
+						selectedPrivacyValue = getApplicationContext().getString(R.string.privacy_friends_key);
+						ls_summary = getApplicationContext().getString(R.string.ls_friends_summary);
 						HAManager.logClickEvent(HikeConstants.LogEvent.LS_FAVOURITES_CLICKED);
 						break;
 					case MY_CONTACTS:
 						selectedPrivacyValue = getApplicationContext().getString(R.string.privacy_my_contacts_key);
-						ls_summary = getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.ls_my_contacts_summary_frn : R.string.ls_my_contacts_summary);
+						ls_summary = getString(R.string.ls_my_contacts_summary_frn);
 						HAManager.logClickEvent(HikeConstants.LogEvent.LS_MY_CONTACTS_CLICKED);
 						break;
 				}
@@ -1631,17 +1631,8 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	{
 		IconListPreference lp = (IconListPreference) getPreferenceScreen().findPreference(HikeConstants.LAST_SEEN_PREF_LIST);
 
-		if (Utils.isFavToFriendsMigrationAllowed())
-		{
-			lp.setEntries(R.array.privacyPrefKeysFriendsExp);
-			lp.setEntryValues(R.array.privacyPrefValuesFriendsExp);
-		}
-
-		else
-		{
-			lp.setEntries(R.array.privacyPrefKeys);
-			lp.setEntryValues(R.array.privacyPrefValues);
-		}
+		lp.setEntries(R.array.privacyPrefKeysFriendsExp);
+		lp.setEntryValues(R.array.privacyPrefValuesFriendsExp);
 
 		lp.setOnPreferenceChangeListener(new OnPreferenceChangeListener()
 		{
@@ -1673,13 +1664,13 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 							HAManager.logClickEvent(HikeConstants.LogEvent.LS_EVERYONE_CLICKED);
 							break;
 						case FAVORITES:
-							selectedPrivacyValue = getApplicationContext().getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.privacy_friends_key : R.string.privacy_favorites_key);
-							ls_summary = getApplicationContext().getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.ls_friends_summary : R.string.ls_favorites_summary);
+							selectedPrivacyValue = getApplicationContext().getString(R.string.privacy_friends_key);
+							ls_summary = getApplicationContext().getString(R.string.ls_friends_summary);
 							HAManager.logClickEvent(HikeConstants.LogEvent.LS_FAVOURITES_CLICKED);
 							break;
 						case MY_CONTACTS:
 							selectedPrivacyValue = getApplicationContext().getString(R.string.privacy_my_contacts_key);
-							ls_summary = getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.ls_my_contacts_summary_frn : R.string.ls_my_contacts_summary);
+							ls_summary = getString(R.string.ls_my_contacts_summary_frn);
 							HAManager.logClickEvent(HikeConstants.LogEvent.LS_MY_CONTACTS_CLICKED);
 							break;
 					}
@@ -1717,7 +1708,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		if(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(HikeConstants.HIGHLIGHT_NLS_PERF, true))
 			lp.setTitleColor(R.color.blue_hike);
 		//Need to set the title differently if fav to friends migration is open
-		if (!TextUtils.isEmpty(lp.getEntry()) && Utils.isFavToFriendsMigrationAllowed() && lp.getEntry().equals(getString(R.string.privacy_favorites_key)))
+		if (!TextUtils.isEmpty(lp.getEntry()) && lp.getEntry().equals(getString(R.string.privacy_favorites_key)))
 		{
 			lp.setTitle(lp.getTitle() + ": " + getString(R.string.privacy_friends_key));
 		}
@@ -1733,15 +1724,15 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 
 		if (favPref != null)
 		{
-			favPref.setTitle(getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.privacy_friends_key : R.string.privacy_favorites_key));
-			favPref.setSummary(getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.frn_list_summary : R.string.fav_list_summary));
+			favPref.setTitle(getString(R.string.privacy_friends_key));
+			favPref.setSummary(getString(R.string.frn_list_summary));
 		}
 
 		SwitchPreferenceCompat profilePicPrefs = (SwitchPreferenceCompat) getPreferenceScreen().findPreference(HikeConstants.PROFILE_PIC_PREF);
 
 		if (profilePicPrefs != null)
 		{
-			profilePicPrefs.setSummary(getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.profile_pic_display_info_frn : R.string.profile_pic_display_info));
+			profilePicPrefs.setSummary(getString(R.string.profile_pic_display_info_frn));
 		}
 
 		//calling setup for birthday privacy preference
@@ -1764,10 +1755,10 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				summaryTxt = getApplicationContext().getString(R.string.ls_everyone_summary);
 				break;
 			case FAVORITES:
-				summaryTxt = getApplicationContext().getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.ls_friends_summary : R.string.ls_favorites_summary);
+				summaryTxt = getApplicationContext().getString(R.string.ls_friends_summary);
 				break;
 			case MY_CONTACTS:
-				summaryTxt = getApplicationContext().getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.ls_my_contacts_summary_frn : R.string.ls_my_contacts_summary);
+				summaryTxt = getApplicationContext().getString(R.string.ls_my_contacts_summary_frn);
 				break;
 		}
 		return summaryTxt;
@@ -1988,7 +1979,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		Preference profilePicPref = getPreferenceScreen().findPreference(HikeConstants.STATUS_BOOLEAN_PREF);
 		if (profilePicPref != null)
 		{
-			profilePicPref.setSummary(Utils.isFavToFriendsMigrationAllowed() ? R.string.mute_status_notification_subtext_frn : R.string.mute_status_notification_subtext);
+			profilePicPref.setSummary(R.string.mute_status_notification_subtext_frn);
 		}
 
 		ledPref.setTitle(ledPref.getTitle() + ": " + ledPref.getEntry());

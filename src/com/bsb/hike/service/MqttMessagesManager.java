@@ -1662,11 +1662,8 @@ public class MqttMessagesManager
 		{
 			incrementUnseenStatusCount();
 
-			if (Utils.isFavToFriendsMigrationAllowed())
-			{
-				ConvMessage message = Utils.generateAddFriendSystemMessage(msisdn, HikeMessengerApp.getInstance().getString(R.string.friend_req_inline_msg_received, contactInfo.getFirstNameAndSurname()), true, State.RECEIVED_UNREAD);
-				HikeMessengerApp.getPubSub().publish(HikePubSub.ADD_INLINE_FRIEND_MSG, message);
-			}
+			ConvMessage message = Utils.generateAddFriendSystemMessage(msisdn, HikeMessengerApp.getInstance().getString(R.string.friend_req_inline_msg_received, contactInfo.getFirstNameAndSurname()), true, State.RECEIVED_UNREAD);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.ADD_INLINE_FRIEND_MSG, message);
 		}
 		else if (favoriteType == favoriteType.REQUEST_RECEIVED && currentType != favoriteType.REQUEST_RECEIVED)
 		{
@@ -1676,11 +1673,8 @@ public class MqttMessagesManager
 				Utils.incrementOrDecrementFriendRequestCount(settings, 1);
 			}
 
-			if (Utils.isFavToFriendsMigrationAllowed())
-			{
-				ConvMessage message = Utils.generateAddFriendSystemMessage(msisdn, HikeMessengerApp.getInstance().getString(R.string.friend_req_inline_msg_received, contactInfo.getFirstNameAndSurname()), true, State.RECEIVED_UNREAD);
-				HikeMessengerApp.getPubSub().publish(HikePubSub.ADD_INLINE_FRIEND_MSG, message);
-			}
+			ConvMessage message = Utils.generateAddFriendSystemMessage(msisdn, HikeMessengerApp.getInstance().getString(R.string.friend_req_inline_msg_received, contactInfo.getFirstNameAndSurname()), true, State.RECEIVED_UNREAD);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.ADD_INLINE_FRIEND_MSG, message);
 		}
 
 		contactInfo.setFavoriteType(favoriteType);
@@ -3064,13 +3058,6 @@ public class MqttMessagesManager
 			boolean enabled = data.getBoolean(HikeConstants.LARGE_VIDEO_SHARING_ENABLED);
 			editor.putBoolean(HikeConstants.LARGE_VIDEO_SHARING_ENABLED, enabled);
 		}
-		if (data.has(HikeConstants.FAV_TO_FRIENDS_MIGRATION))
-		{
-			boolean fav_to_friends_switch = data.getBoolean(HikeConstants.FAV_TO_FRIENDS_MIGRATION);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FAV_TO_FRIENDS_MIGRATION, fav_to_friends_switch);
-			Utils.makeFavFriendsTransition();
-		}
-
 		if (data.has(HikeConstants.IS_NEW_USER))
 		{
 			boolean isNewUser = data.getBoolean(HikeConstants.IS_NEW_USER);
@@ -3387,7 +3374,7 @@ public class MqttMessagesManager
 		 */
 		if (statusMessage.getStatusMessageType() == null
 				|| conMgr.isBlocked(statusMessage.getMsisdn())
-				|| (Utils.isFavToFriendsMigrationAllowed() && !conMgr.isTwoWayFriend(statusMessage.getMsisdn()))
+				|| (!conMgr.isTwoWayFriend(statusMessage.getMsisdn()))
 				)
 		{
 			return;
