@@ -1133,7 +1133,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				else if (adapter.isBirthdayContact(contactInfo))
 				{
 					Intent in = IntentFactory.createChatThreadIntentFromContactInfo(this, contactInfo, false, false, ChatThreadActivity.ChatThreadOpenSources.NEW_COMPOSE);
-					in.putExtra(HikeConstants.Extras.HIKE_BDAY_MODE, true);
+					in.putExtra(HikeConstants.Extras.MSG, getString(R.string.composeview_bday));
 					startActivity(in);
 				}
 				else
