@@ -161,6 +161,7 @@ public class UpgradeIntentService extends IntentService
 			} catch (Exception e) {
 				Logger.e(TAG, "Exception in Migrating Tables ...");
 			}
+		}
 			if (!HikeSharedPreferenceUtil.getInstance().getData(HikeChatThemeConstants.MIGRATE_CHAT_THEMES_DATA_TO_DB, false)) {
 				ChatThemeManager.getInstance().migrateChatThemesToDB();
 			}
@@ -176,7 +177,7 @@ public class UpgradeIntentService extends IntentService
 			Utils.connectToGcmPreSignup();
 
 		}
-	}
+
 	public UpgradeIntentService()
 	{
 		super(TAG);

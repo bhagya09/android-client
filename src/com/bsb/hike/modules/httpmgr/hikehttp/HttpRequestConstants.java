@@ -13,11 +13,11 @@ public class HttpRequestConstants
 
 	private static final String HTTP = "http://";
 
-	private static final String HTTPS = "http://";
+	private static final String HTTPS = "https://";
 
 	public static final String PRODUCTION_API = "api.im.hike.in";
 
-	public static final String STAGING_API = "52.76.190.143:8080";
+	public static final String STAGING_API = "staging.im.hike.in";
 
 	public static final String PLATFORM_PRODUCTION_API = "platform.hike.in";
 
@@ -38,7 +38,7 @@ public class HttpRequestConstants
 
 	public static final int PRODUCTION_PORT_SSL = 443;
 
-	public static final int STAGING_PORT = 8080;
+	public static final int STAGING_PORT = 80;
 
 	public static final int STAGING_PORT_SSL = 443;
 
@@ -660,7 +660,7 @@ public class HttpRequestConstants
 
 	public static String fetchUIDForMissingMsisdnUrl()
 	{
-		return BASE_URL + BASE_V2 + "/user-identifier-update-graph";
+		return BASE_URL + BASE_V2 +BASE_ACCOUNT+ "/user-identifier-update-graph";
 	}
 		public static String getSettingsUploadUrl()
 	{

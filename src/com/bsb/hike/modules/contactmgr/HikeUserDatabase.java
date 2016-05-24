@@ -2724,7 +2724,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		cv.put(DBConstants.MSISDN, msisdn);
 		cv.put(DBConstants.ONHIKE, convInfo.isOnHike() ? 1 : 0);
 		ContactInfo ci= ContactManager.getInstance().getContact(msisdn);
-		if(!TextUtils.isEmpty(ci.getUid()))
+		if(ci!=null && !TextUtils.isEmpty(ci.getUid()))
 		{
 			cv.put(DBConstants.HIKE_UID, ci.getUid());
 		}

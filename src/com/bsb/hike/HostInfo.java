@@ -325,7 +325,7 @@ public class HostInfo
 
 	public String getServerUri()
 	{
-		return protocol + "52.76.190.143" + COLON + 2883;
+		return protocol + host + COLON + port;
 	}
 	
 	private String getIp()
