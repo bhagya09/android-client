@@ -327,7 +327,7 @@ public class DBConstants
 	 *
 	 */
 	public static class HIKE_CONTENT{
-		public static final int DB_VERSION = 8;
+		public static final int DB_VERSION = 9;
 		public static final String DB_NAME = "hike_content_db";
 		// CONTENT TABLE -> _id,content_id,love_id,channel_id,timestamp,metadata
 		public static final String CONTENT_TABLE = "content";
@@ -368,6 +368,8 @@ public class DBConstants
 		public static final String TRIGGER_POINT = "trigger_point";
 
 		public static final String STATUS = "status";
+
+		public static final String PID = "pid";
 		
 		// URL WHITELIST TABLE --> domain, in_hike
 		public static final String URL_WHITELIST = "url_whitelist";
@@ -426,6 +428,8 @@ public class DBConstants
 		public static final String TIP_END_TIME = "tp_et";
 		public static final String TIP_DATA = "tp_data";
 		public static final String TIP_PRIORITY = "tp_prrt";
+
+		public static final String POPUPDATA_INDEX = "popupdata_index";
 
 	}
 	
