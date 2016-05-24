@@ -126,7 +126,7 @@ public class InitiateMultiFileTransferTask extends AsyncTask<Void, Void, Void>
 				}
 				else
 				{
-					FileTransferManager.getInstance(mContext).uploadFile(convMessage, null);
+					FileTransferManager.getInstance(mContext).uploadFile(convMessage, null, false);
 				}
 			}
 		}

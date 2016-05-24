@@ -127,6 +127,7 @@ import android.provider.ContactsContract.RawContacts;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.Settings.Secure;
+import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
@@ -170,6 +171,9 @@ import com.bsb.hike.analytics.TrafficsStatsFile;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.ChatHeadUtils;
+import com.bsb.hike.chatHead.StickyCaller;
+import com.bsb.hike.chatthemes.ChatThemeManager;
+import com.bsb.hike.chatthemes.HikeChatThemeConstants;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -468,16 +472,16 @@ public class Utils
 
 		switch (type)
 		{
-		case PROFILE:
-		case IMAGE:
-			orgFileName = "IMG_" + timeStamp + ".jpg";
-			break;
-		case VIDEO:
-			orgFileName = "MOV_" + timeStamp + ".mp4";
-			break;
-		case AUDIO:
-		case AUDIO_RECORDING:
-			orgFileName = "AUD_" + timeStamp + ".m4a";
+			case PROFILE:
+			case IMAGE:
+				orgFileName = "IMG_" + timeStamp + ".jpg";
+				break;
+			case VIDEO:
+				orgFileName = "MOV_" + timeStamp + ".mp4";
+				break;
+			case AUDIO:
+			case AUDIO_RECORDING:
+				orgFileName = "AUD_" + timeStamp + ".m4a";
 		}
 
 		return orgFileName;
@@ -518,23 +522,23 @@ public class Utils
 		{
 			switch (type)
 			{
-			case PROFILE:
-			case IMAGE:
-				orgFileName.append("IMG_" + timeStamp + ".jpg");
-				break;
-			case VIDEO:
-				orgFileName.append("MOV_" + timeStamp + ".mp4");
-				break;
-			case AUDIO:
-			case AUDIO_RECORDING:
-				orgFileName.append("AUD_" + timeStamp + ".m4a");
-				break;
-			case OTHER:
-				orgFileName.append("FILE_" + timeStamp);
-				break;
-			case APK:
-				orgFileName.append("APK_" + timeStamp + ".apk");
-				break;
+				case PROFILE:
+				case IMAGE:
+					orgFileName.append("IMG_" + timeStamp + ".jpg");
+					break;
+				case VIDEO:
+					orgFileName.append("MOV_" + timeStamp + ".mp4");
+					break;
+				case AUDIO:
+				case AUDIO_RECORDING:
+					orgFileName.append("AUD_" + timeStamp + ".m4a");
+					break;
+				case OTHER:
+					orgFileName.append("FILE_" + timeStamp);
+					break;
+				case APK:
+					orgFileName.append("APK_" + timeStamp + ".apk");
+					break;
 			}
 		}
 		else
@@ -582,24 +586,24 @@ public class Utils
 		StringBuilder path = new StringBuilder(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT);
 		switch (type)
 		{
-		case PROFILE:
-			path.append(HikeConstants.PROFILE_ROOT);
-			break;
-		case IMAGE:
-			path.append(HikeConstants.IMAGE_ROOT);
-			break;
-		case VIDEO:
-			path.append(HikeConstants.VIDEO_ROOT);
-			break;
-		case AUDIO:
-			path.append(HikeConstants.AUDIO_ROOT);
-			break;
-		case AUDIO_RECORDING:
-			path.append(HikeConstants.AUDIO_RECORDING_ROOT);
-			break;
-		default:
-			path.append(HikeConstants.OTHER_ROOT);
-			break;
+			case PROFILE:
+				path.append(HikeConstants.PROFILE_ROOT);
+				break;
+			case IMAGE:
+				path.append(HikeConstants.IMAGE_ROOT);
+				break;
+			case VIDEO:
+				path.append(HikeConstants.VIDEO_ROOT);
+				break;
+			case AUDIO:
+				path.append(HikeConstants.AUDIO_ROOT);
+				break;
+			case AUDIO_RECORDING:
+				path.append(HikeConstants.AUDIO_RECORDING_ROOT);
+				break;
+			default:
+				path.append(HikeConstants.OTHER_ROOT);
+				break;
 		}
 		if (isSent)
 		{
@@ -1269,18 +1273,18 @@ public class Utils
 				orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 0);
 				switch (orientation)
 				{
-				case ExifInterface.ORIENTATION_ROTATE_270:
-					m.preRotate(270);
-					break;
+					case ExifInterface.ORIENTATION_ROTATE_270:
+						m.preRotate(270);
+						break;
 
-				case ExifInterface.ORIENTATION_ROTATE_90:
-					m.preRotate(90);
-					break;
-				case ExifInterface.ORIENTATION_ROTATE_180:
-					m.preRotate(180);
-					break;
-				default:
-					return bitmap;
+					case ExifInterface.ORIENTATION_ROTATE_90:
+						m.preRotate(90);
+						break;
+					case ExifInterface.ORIENTATION_ROTATE_180:
+						m.preRotate(180);
+						break;
+					default:
+						return bitmap;
 				}
 				// Rotates the image according to the orientation
 				rotatedBitmap = HikeBitmapFactory.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), m, true);
@@ -1613,12 +1617,12 @@ public class Utils
 		{
 			switch (Integer.parseInt(imageOrientation))
 			{
-			case ExifInterface.ORIENTATION_ROTATE_180:
-				return 180;
-			case ExifInterface.ORIENTATION_ROTATE_270:
-				return 270;
-			case ExifInterface.ORIENTATION_ROTATE_90:
-				return 90;
+				case ExifInterface.ORIENTATION_ROTATE_180:
+					return 180;
+				case ExifInterface.ORIENTATION_ROTATE_270:
+					return 270;
+				case ExifInterface.ORIENTATION_ROTATE_90:
+					return 90;
 			}
 		}
 
@@ -1692,27 +1696,27 @@ public class Utils
 		switch (whichServer)
 		{
 
-		case AccountUtils._PRODUCTION_HOST:
-			AccountUtils.host = AccountUtils.PRODUCTION_HOST;
-			AccountUtils.port = ssl ? AccountUtils.PRODUCTION_PORT_SSL : AccountUtils.PRODUCTION_PORT;
-			break;
+			case AccountUtils._PRODUCTION_HOST:
+				AccountUtils.host = AccountUtils.PRODUCTION_HOST;
+				AccountUtils.port = ssl ? AccountUtils.PRODUCTION_PORT_SSL : AccountUtils.PRODUCTION_PORT;
+				break;
 
-		case AccountUtils._STAGING_HOST:
-			AccountUtils.host = AccountUtils.STAGING_HOST;
-			AccountUtils.port = ssl ? AccountUtils.STAGING_PORT_SSL : AccountUtils.STAGING_PORT;
-			break;
+			case AccountUtils._STAGING_HOST:
+				AccountUtils.host = AccountUtils.STAGING_HOST;
+				AccountUtils.port = ssl ? AccountUtils.STAGING_PORT_SSL : AccountUtils.STAGING_PORT;
+				break;
 
-		case AccountUtils._DEV_STAGING_HOST:
-			AccountUtils.host = AccountUtils.DEV_STAGING_HOST;
-			AccountUtils.port = ssl ? AccountUtils.STAGING_PORT_SSL : AccountUtils.STAGING_PORT;
-			break;
-		case AccountUtils._CUSTOM_HOST:
-			SharedPreferences sharedPreferences = HikeMessengerApp.getInstance().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE);
+			case AccountUtils._DEV_STAGING_HOST:
+				AccountUtils.host = AccountUtils.DEV_STAGING_HOST;
+				AccountUtils.port = ssl ? AccountUtils.STAGING_PORT_SSL : AccountUtils.STAGING_PORT;
+				break;
+			case AccountUtils._CUSTOM_HOST:
+				SharedPreferences sharedPreferences = HikeMessengerApp.getInstance().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE);
 
-			AccountUtils.host = sharedPreferences.getString(HikeMessengerApp.CUSTOM_HTTP_HOST, AccountUtils.PRODUCTION_HOST);
-			AccountUtils.port = sharedPreferences.getInt(HikeMessengerApp.CUSTOM_HTTP_PORT, AccountUtils.PRODUCTION_PORT);
+				AccountUtils.host = sharedPreferences.getString(HikeMessengerApp.CUSTOM_HTTP_HOST, AccountUtils.PRODUCTION_HOST);
+				AccountUtils.port = sharedPreferences.getInt(HikeMessengerApp.CUSTOM_HTTP_PORT, AccountUtils.PRODUCTION_PORT);
 
-			break;
+				break;
 
 		}
 
@@ -1902,15 +1906,15 @@ public class Utils
 
 			switch (whichScreen)
 			{
-			case FRIENDS_TAB:
-				md.put(HikeConstants.EVENT_KEY, !isReminding ? HikeConstants.LogEvent.INVITE_FTUE_FRIENDS_CLICK : HikeConstants.LogEvent.REMIND_FTUE_FRIENDS_CLICK);
-				break;
-			case UPDATES_TAB:
-				md.put(HikeConstants.EVENT_KEY, !isReminding ? HikeConstants.LogEvent.INVITE_FTUE_UPDATES_CLICK : HikeConstants.LogEvent.REMIND_FTUE_UPDATES_CLICK);
-				break;
-			case SMS_SECTION:
-				md.put(HikeConstants.EVENT_KEY, !isReminding ? HikeConstants.LogEvent.INVITE_SMS_CLICK : HikeConstants.LogEvent.REMIND_SMS_CLICK);
-				break;
+				case FRIENDS_TAB:
+					md.put(HikeConstants.EVENT_KEY, !isReminding ? HikeConstants.LogEvent.INVITE_FTUE_FRIENDS_CLICK : HikeConstants.LogEvent.REMIND_FTUE_FRIENDS_CLICK);
+					break;
+				case UPDATES_TAB:
+					md.put(HikeConstants.EVENT_KEY, !isReminding ? HikeConstants.LogEvent.INVITE_FTUE_UPDATES_CLICK : HikeConstants.LogEvent.REMIND_FTUE_UPDATES_CLICK);
+					break;
+				case SMS_SECTION:
+					md.put(HikeConstants.EVENT_KEY, !isReminding ? HikeConstants.LogEvent.INVITE_SMS_CLICK : HikeConstants.LogEvent.REMIND_SMS_CLICK);
+					break;
 			}
 
 			if (!TextUtils.isEmpty(msisdn))
@@ -2131,30 +2135,30 @@ public class Utils
 			String fileName = contentType.substring(0, contentType.indexOf("/")) + "_" + timeStamp;
 			switch (hikeFileType)
 			{
-			case IMAGE:
-				destFile = File.createTempFile(fileName, "." + extension);
-				break;
-			case VIDEO:
-			case AUDIO:
-			case OTHER:
-				String dirPath = getFileParent(hikeFileType, true);
-				if (dirPath == null)
-				{
-					return null;
-				}
-				File dir = new File(dirPath);
-				if (!dir.exists())
-				{
-					if (!dir.mkdirs())
+				case IMAGE:
+					destFile = File.createTempFile(fileName, "." + extension);
+					break;
+				case VIDEO:
+				case AUDIO:
+				case OTHER:
+					String dirPath = getFileParent(hikeFileType, true);
+					if (dirPath == null)
 					{
-						Logger.d("Hike", "failed to create directory");
 						return null;
 					}
-				}
-				destFile = new File(dir, fileName + "." + extension);
-				break;
-			default:
-				break;
+					File dir = new File(dirPath);
+					if (!dir.exists())
+					{
+						if (!dir.mkdirs())
+						{
+							Logger.d("Hike", "failed to create directory");
+							return null;
+						}
+					}
+					destFile = new File(dir, fileName + "." + extension);
+					break;
+				default:
+					break;
 			}
 		}
 		catch (IOException e)
@@ -2998,14 +3002,14 @@ public class Utils
 		}
 		switch (dayOfMonth % 10)
 		{
-		case 1:
-			return "st";
-		case 2:
-			return "nd";
-		case 3:
-			return "rd";
-		default:
-			return "th";
+			case 1:
+				return "st";
+			case 2:
+				return "nd";
+			case 3:
+				return "rd";
+			default:
+				return "th";
 		}
 	}
 
@@ -3087,29 +3091,29 @@ public class Utils
 
 			switch (hikeFile.getHikeFileType())
 			{
-			case IMAGE:
-				String caption = convMessage.getMetadata().getCaption();
-				if (TextUtils.isEmpty(caption))
-				{
-					return context.getString(R.string.send_sms_img_msg);
-				}
-				else
-				{
-					return String.format(context.getString(R.string.image_w_caption_sms), "\"" + caption + "\"");
-				}
-			case VIDEO:
-				return context.getString(R.string.send_sms_video_msg);
-			case AUDIO:
-				return context.getString(R.string.send_sms_audio_msg);
-			case LOCATION:
-				return context.getString(R.string.send_sms_location_msg);
-			case CONTACT:
-				return context.getString(R.string.send_sms_contact_msg);
-			case AUDIO_RECORDING:
-				return context.getString(R.string.send_sms_audio_msg);
+				case IMAGE:
+					String caption = convMessage.getMetadata().getCaption();
+					if (TextUtils.isEmpty(caption))
+					{
+						return context.getString(R.string.send_sms_img_msg);
+					}
+					else
+					{
+						return String.format(context.getString(R.string.image_w_caption_sms), "\"" + caption + "\"");
+					}
+				case VIDEO:
+					return context.getString(R.string.send_sms_video_msg);
+				case AUDIO:
+					return context.getString(R.string.send_sms_audio_msg);
+				case LOCATION:
+					return context.getString(R.string.send_sms_location_msg);
+				case CONTACT:
+					return context.getString(R.string.send_sms_contact_msg);
+				case AUDIO_RECORDING:
+					return context.getString(R.string.send_sms_audio_msg);
 
-			default:
-				return context.getString(R.string.send_sms_file_msg);
+				default:
+					return context.getString(R.string.send_sms_file_msg);
 			}
 
 		}
@@ -3120,16 +3124,25 @@ public class Utils
 		return convMessage.getMessage();
 	}
 
-	public static void deleteFile(File file)
+	public static boolean deleteFile(File file)
 	{
+		boolean result = true;
+
+		if (!file.exists())
+		{
+			return false;
+		}
+
 		if (file.isDirectory())
 		{
 			for (File f : file.listFiles())
 			{
-				deleteFile(f);
+				result = result && deleteFile(f);
 			}
 		}
-		file.delete();
+		result = result && file.delete();
+
+		return result;
 	}
 
 	public static void deleteFile(Context context, String filename, HikeFileType type)
@@ -3216,7 +3229,7 @@ public class Utils
 			}
 
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 				jObject = null;
 			}
@@ -3629,17 +3642,17 @@ public class Utils
 			{
 				switch (phoneCount)
 				{
-				case 0:
-					i.putExtra(Insert.PHONE, contactData.getData());
-					break;
-				case 1:
-					i.putExtra(Insert.SECONDARY_PHONE, contactData.getData());
-					break;
-				case 2:
-					i.putExtra(Insert.TERTIARY_PHONE, contactData.getData());
-					break;
-				default:
-					break;
+					case 0:
+						i.putExtra(Insert.PHONE, contactData.getData());
+						break;
+					case 1:
+						i.putExtra(Insert.SECONDARY_PHONE, contactData.getData());
+						break;
+					case 2:
+						i.putExtra(Insert.TERTIARY_PHONE, contactData.getData());
+						break;
+					default:
+						break;
 				}
 				phoneCount++;
 			}
@@ -3647,17 +3660,17 @@ public class Utils
 			{
 				switch (emailCount)
 				{
-				case 0:
-					i.putExtra(Insert.EMAIL, contactData.getData());
-					break;
-				case 1:
-					i.putExtra(Insert.SECONDARY_EMAIL, contactData.getData());
-					break;
-				case 2:
-					i.putExtra(Insert.TERTIARY_EMAIL, contactData.getData());
-					break;
-				default:
-					break;
+					case 0:
+						i.putExtra(Insert.EMAIL, contactData.getData());
+						break;
+					case 1:
+						i.putExtra(Insert.SECONDARY_EMAIL, contactData.getData());
+						break;
+					case 2:
+						i.putExtra(Insert.TERTIARY_EMAIL, contactData.getData());
+						break;
+					default:
+						break;
 				}
 				emailCount++;
 			}
@@ -3683,26 +3696,26 @@ public class Utils
 		{
 			switch (contactInfoData.getDataType())
 			{
-			case ADDRESS:
-				ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI).withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, rawContactInsertIndex)
-						.withValue(Data.MIMETYPE, StructuredPostal.CONTENT_ITEM_TYPE).withValue(StructuredPostal.DATA, contactInfoData.getData())
-						.withValue(StructuredPostal.TYPE, StructuredPostal.TYPE_CUSTOM).withValue(StructuredPostal.LABEL, contactInfoData.getDataSubType()).build());
-				break;
-			case EMAIL:
-				ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI).withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, rawContactInsertIndex)
-						.withValue(Data.MIMETYPE, Email.CONTENT_ITEM_TYPE).withValue(Email.DATA, contactInfoData.getData()).withValue(Email.TYPE, Email.TYPE_CUSTOM)
-						.withValue(Email.LABEL, contactInfoData.getDataSubType()).build());
-				break;
-			case EVENT:
-				ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI).withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, rawContactInsertIndex)
-						.withValue(Data.MIMETYPE, Event.CONTENT_ITEM_TYPE).withValue(Event.DATA, contactInfoData.getData()).withValue(Event.TYPE, Event.TYPE_CUSTOM)
-						.withValue(Event.LABEL, contactInfoData.getDataSubType()).build());
-				break;
-			case PHONE_NUMBER:
-				ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI).withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, rawContactInsertIndex)
-						.withValue(Data.MIMETYPE, Phone.CONTENT_ITEM_TYPE).withValue(Phone.NUMBER, contactInfoData.getData()).withValue(Phone.TYPE, Phone.TYPE_CUSTOM)
-						.withValue(Phone.LABEL, contactInfoData.getDataSubType()).build());
-				break;
+				case ADDRESS:
+					ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI).withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, rawContactInsertIndex)
+							.withValue(Data.MIMETYPE, StructuredPostal.CONTENT_ITEM_TYPE).withValue(StructuredPostal.DATA, contactInfoData.getData())
+							.withValue(StructuredPostal.TYPE, StructuredPostal.TYPE_CUSTOM).withValue(StructuredPostal.LABEL, contactInfoData.getDataSubType()).build());
+					break;
+				case EMAIL:
+					ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI).withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, rawContactInsertIndex)
+							.withValue(Data.MIMETYPE, Email.CONTENT_ITEM_TYPE).withValue(Email.DATA, contactInfoData.getData()).withValue(Email.TYPE, Email.TYPE_CUSTOM)
+							.withValue(Email.LABEL, contactInfoData.getDataSubType()).build());
+					break;
+				case EVENT:
+					ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI).withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, rawContactInsertIndex)
+							.withValue(Data.MIMETYPE, Event.CONTENT_ITEM_TYPE).withValue(Event.DATA, contactInfoData.getData()).withValue(Event.TYPE, Event.TYPE_CUSTOM)
+							.withValue(Event.LABEL, contactInfoData.getDataSubType()).build());
+					break;
+				case PHONE_NUMBER:
+					ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI).withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, rawContactInsertIndex)
+							.withValue(Data.MIMETYPE, Phone.CONTENT_ITEM_TYPE).withValue(Phone.NUMBER, contactInfoData.getData()).withValue(Phone.TYPE, Phone.TYPE_CUSTOM)
+							.withValue(Phone.LABEL, contactInfoData.getDataSubType()).build());
+					break;
 			}
 		}
 		ops.add(ContentProviderOperation.newInsert(Data.CONTENT_URI).withValueBackReference(Data.RAW_CONTACT_ID, rawContactInsertIndex)
@@ -4688,29 +4701,22 @@ public class Utils
 		context.startActivity(intent);
 	}
 
-	public static Drawable getChatTheme(ChatTheme chatTheme, Context context)
+	public static Drawable getChatTheme(String chatThemeId, Context context)
 	{
-		/*
-		 * for xhdpi and above we should not scale down the chat theme nodpi asset for hdpi and below to save memory we should scale it down
-		 */
-		int inSampleSize = 1;
-		if (!chatTheme.isTiled() && Utils.scaledDensityMultiplier < 2)
-		{
-			inSampleSize = 2;
+		byte asset = HikeChatThemeConstants.ASSET_INDEX_BG_PORTRAIT;
+		if(context.getResources().getConfiguration().orientation == context.getResources().getConfiguration().ORIENTATION_LANDSCAPE) {
+			asset = HikeChatThemeConstants.ASSET_INDEX_BG_LANDSCAPE;
 		}
-
-		Bitmap b = HikeBitmapFactory.decodeSampledBitmapFromResource(context.getResources(), chatTheme.bgResId(), inSampleSize);
-
-		BitmapDrawable bd = HikeBitmapFactory.getBitmapDrawable(context.getResources(), b);
-
-		Logger.d(context.getClass().getSimpleName(), "chat themes bitmap size= " + BitmapUtils.getBitmapSize(b));
-
-		if (bd != null && chatTheme.isTiled())
-		{
-			bd.setTileModeXY(TileMode.REPEAT, TileMode.REPEAT);
+		Drawable drawable = ChatThemeManager.getInstance().getDrawableForTheme(chatThemeId, asset);
+		if(drawable instanceof BitmapDrawable) {
+			BitmapDrawable bd = (BitmapDrawable) drawable;
+			Logger.d(context.getClass().getSimpleName(), "chat themes bitmap size= " + BitmapUtils.getBitmapSize(bd.getBitmap()));
+			if (bd != null && ChatThemeManager.getInstance().getTheme(chatThemeId).isTiled()) {
+				bd.setTileModeXY(TileMode.REPEAT, TileMode.REPEAT);
+			}
+			return bd;
 		}
-
-		return bd;
+		return drawable;
 	}
 
 	public static void resetPinUnreadCount(OneToNConversation conv)
@@ -5137,20 +5143,20 @@ public class Utils
 	{
 		switch (networkType)
 		{
-		case "wifi":
-			return 1;
-		case "2g":
-			return 4;
-		case "3g":
-			return 3;
-		case "4g":
-			return 2;
-		case "off":
-			return -1;
-		case "unknown":
-			return 0;
-		default:
-			return 0;
+			case "wifi":
+				return 1;
+			case "2g":
+				return 4;
+			case "3g":
+				return 3;
+			case "4g":
+				return 2;
+			case "off":
+				return -1;
+			case "unknown":
+				return 0;
+			default:
+				return 0;
 		}
 	}
 
@@ -5194,28 +5200,28 @@ public class Utils
 		// There are following types of mobile networks
 		switch (networkType)
 		{
-		case TelephonyManager.NETWORK_TYPE_LTE: // ~ 10+ Mbps // API level 11
-			return 4;
-		case TelephonyManager.NETWORK_TYPE_EVDO_0: // ~ 400-1000 kbps
-		case TelephonyManager.NETWORK_TYPE_EVDO_A: // ~ 600-1400 kbps
-		case TelephonyManager.NETWORK_TYPE_HSDPA: // ~ 2-14 Mbps
-		case TelephonyManager.NETWORK_TYPE_HSPA: // ~ 700-1700 kbps
-		case TelephonyManager.NETWORK_TYPE_UMTS: // ~ 400-7000 kbps
-		case TelephonyManager.NETWORK_TYPE_EHRPD: // ~ 1-2 Mbps // API level 11
-		case TelephonyManager.NETWORK_TYPE_HSPAP: // ~ 10-20 Mbps // API level 13
-		case TelephonyManager.NETWORK_TYPE_EVDO_B: // ~ 5 Mbps // API level 9
-		case TelephonyManager.NETWORK_TYPE_HSUPA: // ~ 1-23 Mbps
-			return 3;
-		case TelephonyManager.NETWORK_TYPE_1xRTT: // ~ 50-100 kbps
-		case TelephonyManager.NETWORK_TYPE_CDMA: // ~ 14-64 kbps
-		case TelephonyManager.NETWORK_TYPE_EDGE: // ~ 50-100 kbps
-		case TelephonyManager.NETWORK_TYPE_GPRS: // ~ 100 kbps
-		case TelephonyManager.NETWORK_TYPE_IDEN: // ~25 kbps // API level 8
-		case NETWORK_TYPE_GSM:
-			return 2;
-		case TelephonyManager.NETWORK_TYPE_UNKNOWN:
-		default:
-			return 0;
+			case TelephonyManager.NETWORK_TYPE_LTE: // ~ 10+ Mbps // API level 11
+				return 4;
+			case TelephonyManager.NETWORK_TYPE_EVDO_0: // ~ 400-1000 kbps
+			case TelephonyManager.NETWORK_TYPE_EVDO_A: // ~ 600-1400 kbps
+			case TelephonyManager.NETWORK_TYPE_HSDPA: // ~ 2-14 Mbps
+			case TelephonyManager.NETWORK_TYPE_HSPA: // ~ 700-1700 kbps
+			case TelephonyManager.NETWORK_TYPE_UMTS: // ~ 400-7000 kbps
+			case TelephonyManager.NETWORK_TYPE_EHRPD: // ~ 1-2 Mbps // API level 11
+			case TelephonyManager.NETWORK_TYPE_HSPAP: // ~ 10-20 Mbps // API level 13
+			case TelephonyManager.NETWORK_TYPE_EVDO_B: // ~ 5 Mbps // API level 9
+			case TelephonyManager.NETWORK_TYPE_HSUPA: // ~ 1-23 Mbps
+				return 3;
+			case TelephonyManager.NETWORK_TYPE_1xRTT: // ~ 50-100 kbps
+			case TelephonyManager.NETWORK_TYPE_CDMA: // ~ 14-64 kbps
+			case TelephonyManager.NETWORK_TYPE_EDGE: // ~ 50-100 kbps
+			case TelephonyManager.NETWORK_TYPE_GPRS: // ~ 100 kbps
+			case TelephonyManager.NETWORK_TYPE_IDEN: // ~25 kbps // API level 8
+			case NETWORK_TYPE_GSM:
+				return 2;
+			case TelephonyManager.NETWORK_TYPE_UNKNOWN:
+			default:
+				return 0;
 		}
 	}
 
@@ -5448,32 +5454,32 @@ public class Utils
 		String networkType = "";
 		switch (getNetworkType(context))
 		{
-		case -1:
-			networkType = "off";
-			break;
+			case -1:
+				networkType = "off";
+				break;
 
-		case 0:
-			networkType = "unknown";
-			break;
+			case 0:
+				networkType = "unknown";
+				break;
 
-		case 1:
-			networkType = "wifi";
-			break;
+			case 1:
+				networkType = "wifi";
+				break;
 
-		case 2:
-			networkType = "2g";
-			break;
+			case 2:
+				networkType = "2g";
+				break;
 
-		case 3:
-			networkType = "3g";
-			break;
+			case 3:
+				networkType = "3g";
+				break;
 
-		case 4:
-			networkType = "4g";
-			break;
+			case 4:
+				networkType = "4g";
+				break;
 
-		default:
-			break;
+			default:
+				break;
 		}
 		return networkType;
 	}
@@ -6964,58 +6970,58 @@ public class Utils
 
 		switch (precisionOfTimeUnitInSecond)
 		{
-		case ExecutionDurationLogger.PRECISION_UNIT_SECOND:
-		{
-			timeLogBuilder.append(diff).append(ExecutionDurationLogger.sec);
-			break;
-		}
+			case ExecutionDurationLogger.PRECISION_UNIT_SECOND:
+			{
+				timeLogBuilder.append(diff).append(ExecutionDurationLogger.sec);
+				break;
+			}
 
-		case ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND:
-		{
-			int unitInSecond = (int) Math.pow(10, ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND);
-			long sec = diff / unitInSecond;
-			timeLogBuilder.append(sec).append(ExecutionDurationLogger.sec).append(ExecutionDurationLogger.DELIMITER);
-			long milliSec = diff - (sec * unitInSecond);
-			timeLogBuilder.append(milliSec).append(ExecutionDurationLogger.ms);
-			break;
-		}
+			case ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND:
+			{
+				int unitInSecond = (int) Math.pow(10, ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND);
+				long sec = diff / unitInSecond;
+				timeLogBuilder.append(sec).append(ExecutionDurationLogger.sec).append(ExecutionDurationLogger.DELIMITER);
+				long milliSec = diff - (sec * unitInSecond);
+				timeLogBuilder.append(milliSec).append(ExecutionDurationLogger.ms);
+				break;
+			}
 
-		case ExecutionDurationLogger.PRECISION_UNIT_MICRO_SECOND:
-		{
-			int unitInSecond = (int) Math.pow(10, ExecutionDurationLogger.PRECISION_UNIT_MICRO_SECOND);
-			long sec = diff / unitInSecond;
-			timeLogBuilder.append(sec).append(ExecutionDurationLogger.sec).append(ExecutionDurationLogger.DELIMITER);
-			diff = diff - (sec * unitInSecond);
-			int unitInMilliSecond = (int) Math.pow(10, (ExecutionDurationLogger.PRECISION_UNIT_MICRO_SECOND - ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND));
-			long milliSec = diff / unitInMilliSecond;
-			timeLogBuilder.append(milliSec).append(ExecutionDurationLogger.ms).append(ExecutionDurationLogger.DELIMITER);
-			long microSec = diff - (milliSec * unitInMilliSecond);
-			timeLogBuilder.append(microSec).append(ExecutionDurationLogger.μs);
-			break;
-		}
+			case ExecutionDurationLogger.PRECISION_UNIT_MICRO_SECOND:
+			{
+				int unitInSecond = (int) Math.pow(10, ExecutionDurationLogger.PRECISION_UNIT_MICRO_SECOND);
+				long sec = diff / unitInSecond;
+				timeLogBuilder.append(sec).append(ExecutionDurationLogger.sec).append(ExecutionDurationLogger.DELIMITER);
+				diff = diff - (sec * unitInSecond);
+				int unitInMilliSecond = (int) Math.pow(10, (ExecutionDurationLogger.PRECISION_UNIT_MICRO_SECOND - ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND));
+				long milliSec = diff / unitInMilliSecond;
+				timeLogBuilder.append(milliSec).append(ExecutionDurationLogger.ms).append(ExecutionDurationLogger.DELIMITER);
+				long microSec = diff - (milliSec * unitInMilliSecond);
+				timeLogBuilder.append(microSec).append(ExecutionDurationLogger.μs);
+				break;
+			}
 
-		case ExecutionDurationLogger.PRECISION_UNIT_NANO_SECOND:
-		{
-			int unitInSecond = (int) Math.pow(10, ExecutionDurationLogger.PRECISION_UNIT_NANO_SECOND);
-			long sec = diff / unitInSecond;
-			timeLogBuilder.append(sec).append(ExecutionDurationLogger.sec).append(ExecutionDurationLogger.DELIMITER);
-			diff = diff - (sec * unitInSecond);
-			int unitInMilliSecond = (int) Math.pow(10, (ExecutionDurationLogger.PRECISION_UNIT_NANO_SECOND - ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND));
-			long milliSec = diff / unitInMilliSecond;
-			timeLogBuilder.append(milliSec).append(ExecutionDurationLogger.ms).append(ExecutionDurationLogger.DELIMITER);
-			diff = diff - (milliSec * unitInMilliSecond);
-			int unitInMicroSecond = (int) Math.pow(10, (ExecutionDurationLogger.PRECISION_UNIT_NANO_SECOND - ExecutionDurationLogger.PRECISION_UNIT_MICRO_SECOND));
-			long microSec = diff / unitInMicroSecond;
-			timeLogBuilder.append(microSec).append(ExecutionDurationLogger.μs).append(ExecutionDurationLogger.DELIMITER);
-			long nanoSec = diff - (microSec * unitInMicroSecond);
-			timeLogBuilder.append(nanoSec).append(ExecutionDurationLogger.ns);
-			break;
-		}
+			case ExecutionDurationLogger.PRECISION_UNIT_NANO_SECOND:
+			{
+				int unitInSecond = (int) Math.pow(10, ExecutionDurationLogger.PRECISION_UNIT_NANO_SECOND);
+				long sec = diff / unitInSecond;
+				timeLogBuilder.append(sec).append(ExecutionDurationLogger.sec).append(ExecutionDurationLogger.DELIMITER);
+				diff = diff - (sec * unitInSecond);
+				int unitInMilliSecond = (int) Math.pow(10, (ExecutionDurationLogger.PRECISION_UNIT_NANO_SECOND - ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND));
+				long milliSec = diff / unitInMilliSecond;
+				timeLogBuilder.append(milliSec).append(ExecutionDurationLogger.ms).append(ExecutionDurationLogger.DELIMITER);
+				diff = diff - (milliSec * unitInMilliSecond);
+				int unitInMicroSecond = (int) Math.pow(10, (ExecutionDurationLogger.PRECISION_UNIT_NANO_SECOND - ExecutionDurationLogger.PRECISION_UNIT_MICRO_SECOND));
+				long microSec = diff / unitInMicroSecond;
+				timeLogBuilder.append(microSec).append(ExecutionDurationLogger.μs).append(ExecutionDurationLogger.DELIMITER);
+				long nanoSec = diff - (microSec * unitInMicroSecond);
+				timeLogBuilder.append(nanoSec).append(ExecutionDurationLogger.ns);
+				break;
+			}
 
-		default:
-		{
-			Logger.w(ExecutionDurationLogger.TAG, "Unable to determine time units.");
-		}
+			default:
+			{
+				Logger.w(ExecutionDurationLogger.TAG, "Unable to determine time units.");
+			}
 		}
 
 		return timeLogBuilder.toString();
@@ -7414,20 +7420,20 @@ public class Utils
 	{
 		switch (networkType)
 		{
-		case "wifi":
-			return 1;
-		case "2g":
-			return 4;
-		case "3g":
-			return 3;
-		case "4g":
-			return 2;
-		case "off":
-			return -1;
-		case "unknown":
-			return 5;
-		default:
-			return 0;
+			case "wifi":
+				return 1;
+			case "2g":
+				return 4;
+			case "3g":
+				return 3;
+			case "4g":
+				return 2;
+			case "off":
+				return -1;
+			case "unknown":
+				return 5;
+			default:
+				return 0;
 		}
 	}
 
@@ -7506,10 +7512,12 @@ public class Utils
 		if (isFavToFriendsMigrationAllowed())
 		{
 			changeFavToFriends();
+			BirthdayUtils.modifyBDPrefForFavToFriends(true);
 		}
 		else
 		{
 			revertFavToFriendsChange();
+			BirthdayUtils.modifyBDPrefForFavToFriends(false);
 		}
 	}
 
@@ -7892,13 +7900,22 @@ public class Utils
 
 		if (!newRootDir.exists())
 		{
-			result = result && newRootDir.mkdirs();
+			result = newRootDir.mkdirs();
+		}
+
+		else // newRootDir exists, but can it be a simple file instead of DIR ?
+		{
+			if (!newRootDir.isDirectory())
+			{
+				result = deleteFile(newRootDir) && newRootDir.mkdirs();
+			}
 		}
 
 		if (!oldRootDir.exists() || (oldRootDir.listFiles() == null))
 		{
 			Logger.d("StickerMigration", "Migration unsuccessful but new folder created");
-			return true; // Migration unsuccessful but new folder created
+			StickerManager.getInstance().recordStickerMigrationFailure("Migration unsuccessful but new folder created, The oldDir was absent or listFiles were null");
+			return result; // Migration unsuccessful but new folder created
 		}
 
 		if (result)
@@ -7908,6 +7925,10 @@ public class Utils
 				if (f.isDirectory())
 				{
 					File newDir = new File(newRootDir, f.getName());
+					if (!newDir.exists())
+					{
+						newDir.mkdirs();
+					}
 					result = result && moveDirectoryByRename(f, newDir);
 				}
 				else
@@ -7915,8 +7936,9 @@ public class Utils
 					File newFile = new File(newRootDir, f.getName());
 					if (newFile.exists())
 					{
-						result = result && newFile.delete();
+						result = result && Utils.deleteFile(newFile);
 					}
+
 					result = result && f.renameTo(newFile);
 				}
 			}
@@ -7979,7 +8001,7 @@ public class Utils
 		RequestToken token = HttpRequests.getHistoricSUToken(msisdn, new IRequestListener()
 		{
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 
 			}
@@ -8052,6 +8074,14 @@ public class Utils
 		return bestLocation;
 	}
 
+	public static String repeatString(String repeat, int repeatCount) {
+		StringBuilder repeatedString = new StringBuilder();
+
+		for (int i = 0; i < repeatCount; i++)
+			repeatedString.append(repeat);
+
+		return repeatedString.toString();
+	}
 
 	public static String formatDOB(String dobString) {
 		if (TextUtils.isEmpty(dobString)) {
@@ -8063,25 +8093,33 @@ public class Utils
 	}
 
 	public static void setGenus(@HomeAnalyticsConstants.StatusUpdateSpecies String argGenus, Intent argIntent)
-    {
-        if(argIntent == null)
-        {
-            return;
-        }
+	{
+		if(argIntent == null)
+		{
+			return;
+		}
 
-        argIntent.putExtra(HikeConstants.Extras.GENUS, argGenus);
-    }
+		argIntent.putExtra(HikeConstants.Extras.GENUS, argGenus);
+	}
 
-    public static void setSpecies(@HomeAnalyticsConstants.ProfilePicUpdateSpecies
-                                  @HomeAnalyticsConstants.StatusUpdateSpecies String argSpecies, Intent argIntent)
-    {
-        if(argIntent == null)
-        {
-            return;
-        }
+	public static void setSpecies(@HomeAnalyticsConstants.ProfilePicUpdateSpecies
+								  @HomeAnalyticsConstants.StatusUpdateSpecies String argSpecies, Intent argIntent)
+	{
+		if(argIntent == null)
+		{
+			return;
+		}
 
-        argIntent.putExtra(HikeConstants.Extras.SPECIES, argSpecies);
-    }
+		argIntent.putExtra(HikeConstants.Extras.SPECIES, argSpecies);
+	}
+
+	public static void setBackground(View view, Drawable drawable){
+		if (isJellybeanOrHigher()) {
+			view.setBackground(drawable);
+		} else {
+			view.setBackgroundDrawable(drawable);
+		}
+	}
 
 	public static boolean isBDayInNewChatEnabled() {
 		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
@@ -8194,5 +8232,44 @@ public class Utils
 	public static boolean isEmpty(byte[] argument)
 	{
 		return (argument == null) || argument.length == 0;
+	}
+
+	public static int getFilesCountRecursive(File file)
+	{
+		if (file == null)
+		{
+			return 0;
+		}
+
+		try
+		{
+			if (!file.exists() || file.listFiles() == null)
+			{
+				return 0;
+			}
+
+			int count = 0;
+
+			for (File newFile : file.listFiles())
+			{
+				if (newFile.isDirectory())
+				{
+					count += getFilesCountRecursive(newFile);
+				}
+
+				else
+				{
+					count++;
+				}
+			}
+
+			return count;
+		}
+
+		catch (Exception e) // To prevent any File I/O exceptions!
+		{
+			return 0;
+		}
+
 	}
 }

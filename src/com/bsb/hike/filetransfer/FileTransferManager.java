@@ -11,6 +11,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatthemes.UploadCustomChatThemeBackgroundTask;
 import com.bsb.hike.filetransfer.FileTransferBase.FTState;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
@@ -30,6 +31,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -317,12 +319,17 @@ public class FileTransferManager
 		downloadFile(destinationFile, fileKey, -100L, hikeFileType, null, false);
 	}
 
+	public void uploadCustomThemeBackgroundImage(String filepath){
+		UploadCustomChatThemeBackgroundTask cit = new UploadCustomChatThemeBackgroundTask(filepath, UUID.randomUUID().toString());
+		cit.execute();
+	}
+
 	/**
 	 *
 	 * @param convMessage
 	 * @param fileKey
 	 */
-	public void uploadFile(ConvMessage convMessage, String fileKey)
+	public void uploadFile(ConvMessage convMessage, String fileKey, boolean isManualRetry)
 	{
 		if (isFileTaskExist(convMessage.getMsgID()))
 		{
@@ -337,7 +344,7 @@ public class FileTransferManager
 				return;
 			}
 
-			UploadFileTask task = new UploadFileTask(context, convMessage, fileKey);
+			UploadFileTask task = new UploadFileTask(context, convMessage, fileKey, isManualRetry);
 			fileTaskMap.put(convMessage.getMsgID(), task);
 			task.startFileUploadProcess();
 		}
@@ -349,7 +356,7 @@ public class FileTransferManager
      * @param messageList
      * @param fileKey
      */
-	public void uploadFile(List<ContactInfo> contactList, List<ConvMessage> messageList, String fileKey)
+	public void uploadFile(List<ContactInfo> contactList, List<ConvMessage> messageList, String fileKey, boolean isManualRetry)
 	{
 		ConvMessage convMessage = messageList.get(0);
 		if (isFileTaskExist(convMessage.getMsgID()))
@@ -365,7 +372,7 @@ public class FileTransferManager
 				return;
 			}
 
-			UploadFileTask task = new UploadFileTask(context, contactList, messageList, fileKey);
+			UploadFileTask task = new UploadFileTask(context, contactList, messageList, fileKey, isManualRetry);
 			for (ConvMessage msg : messageList)
 			{
 				fileTaskMap.put(msg.getMsgID(), task);

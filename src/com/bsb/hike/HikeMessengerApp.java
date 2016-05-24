@@ -23,6 +23,8 @@ import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickyCaller;
+import com.bsb.hike.chatthemes.ChatThemeManager;
+import com.bsb.hike.chatthemes.HikeChatThemeConstants;
 import com.bsb.hike.db.DbConversationListener;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.db.HikeMqttPersistence;
@@ -659,6 +661,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	private static InternalCache diskCache;
 
+	public static final String UPGRADE_FOR_STICKER_TABLE = "upgradeForStickerTable";;
+
 	static
 	{
 		mPubSubInstance = new HikePubSub();
@@ -877,7 +881,9 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 				|| settings.getInt(UPGRADE_FOR_SERVER_ID_FIELD, 0) == 1
 				|| settings.getInt(UPGRADE_SORTING_ID_FIELD, 0) == 1
 				||settings.getInt(UPGRADE_LANG_ORDER,0)==0
+				|| !settings.getBoolean(HikeChatThemeConstants.MIGRATE_CHAT_THEMES_DATA_TO_DB, false)
 				|| settings.getBoolean(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, false) == false
+				|| settings.getInt(UPGRADE_FOR_STICKER_TABLE, 1) == 1
 				|| settings.getBoolean(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, false) == false
 				|| settings.getBoolean(HikeMessengerApp.MIGRATE_RECENT_STICKER_TO_DB, false) == false
 				|| settings.getBoolean(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, false) == false
@@ -1116,6 +1122,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		}
 
 		initCrashReportingTool();
+
+		ChatThemeManager.getInstance().initialize();
 
 		checkAndTriggerPendingGcmNetworkCalls();
 	}

@@ -1,6 +1,7 @@
 package com.bsb.hike.analytics;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.modules.httpmgr.Header;
@@ -110,7 +111,7 @@ public class AnalyticsUploadTask implements IHikeHTTPTask, IHikeHttpTaskResult {
             }
 
             @Override
-            public void onRequestFailure(HttpException httpException) {
+            public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException) {
                 Logger.d(AnalyticsConstants.ANALYTICS_TAG, "File :" + mFileToUpload + " upload failed!!");
                 doOnFailure(null);
             }
