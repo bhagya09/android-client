@@ -204,7 +204,7 @@ public class BirthdayUtils
     }
 
     /**
-     * sve Bday List from tip's json packet into shared pref
+     * save Bday List from tip's json packet into shared pref
      * @param jsonObject
      */
     public static void saveBirthdaysFromTip(JSONObject jsonObject)
@@ -299,7 +299,7 @@ public class BirthdayUtils
     }
 
     /**
-     *
+     * This API returns Set of msisdns from JSONArray
      * @return
      */
     public static Set<String> getMsisdnSetFromJSONArray(JSONArray msisdns)
