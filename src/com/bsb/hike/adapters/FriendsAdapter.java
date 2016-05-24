@@ -36,6 +36,7 @@ import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.tasks.FetchFriendsTask;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.ui.HomeActivity;
+import com.bsb.hike.utils.BirthdayUtils;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.LastSeenComparator;
@@ -282,7 +283,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 		if(Utils.isBDayInNewChatEnabled())
 		{
-			hikeBdayContactList = ChatHeadUtils.getSortedBdayContactListFromSharedPref();
+			hikeBdayContactList = BirthdayUtils.getSortedBdayContactListFromSharedPref();
 		}
 		else
 		{
