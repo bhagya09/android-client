@@ -126,6 +126,8 @@ public class ProductPopupsConstants
 		public static final String DOWNLOAD_STKPK="dwnldstkpk";
 		
 		public static final String ACTIVATE_CHAT_HEAD_APPS = "actvchthdapps";
+
+		public static final String MAKE_FRIEND = "makefriend";
 	}
 
 	public static enum HIKESCREEN
@@ -247,6 +249,14 @@ public class ProductPopupsConstants
 			{
 				// TODO Auto-generated method stub
 				return "newchat";
+			}
+		},
+		COMPOSE_CHAT_WITH_BDAY
+		{
+			@Override
+			public String toString()
+			{
+				return "newchat_bday";
 			}
 		},
 		HIDDEN_MODE

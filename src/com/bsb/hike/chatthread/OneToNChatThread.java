@@ -29,7 +29,6 @@ import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.ui.utils.HashSpanWatcher;
-import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.SoundUtils;
 import com.bsb.hike.utils.Utils;
@@ -117,9 +116,9 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 		}
 
 		// fetch theme
-		ChatTheme currentTheme = mConversationDb.getChatThemeForMsisdn(msisdn);
+		String currentThemeId = mConversationDb.getChatThemeIdForMsisdn(msisdn);
 		Logger.d("ChatThread", "Calling setchattheme from createConversation");
-		oneToNConversation.setChatTheme(currentTheme);
+		oneToNConversation.setChatThemeId(currentThemeId);
 		oneToNConversation.setBlocked(ContactManager.getInstance().isBlocked(oneToNConversation.getConversationOwner()));
 		return oneToNConversation;
 	}

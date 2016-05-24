@@ -33,6 +33,7 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.request.requestbody.FileTransferChunkSizePolicy;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.utils.FileTransferCancelledException;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.PairModified;
@@ -230,7 +231,7 @@ public class UploadFileTask extends FileTransferBase
 
 		retryCount = 0;
 		// If we are not able to verify the filekey validity from the server, fall back to uploading the file
-		RequestToken validateFileKeyToken = HttpRequests.validateFileKey(fileKey, getValidateFileKeyRequestListener());
+		RequestToken validateFileKeyToken = HttpRequests.validateFileKey(fileKey, msgId, getValidateFileKeyRequestListener());
 		validateFileKeyToken.execute();
 	}
 
@@ -524,6 +525,11 @@ public class UploadFileTask extends FileTransferBase
 			@Override
 			public void onRequestSuccess(Response result)
 			{
+				if(!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PRODUCTION, true) && HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DISABLE_QUICK_UPLOAD, false))
+				{
+					uploadFile(selectedFile);
+					return;
+				}
 				FTAnalyticEvents.sendQuickUploadEvent(1);
 				JSONObject responseJson = new JSONObject();
 				try
@@ -607,7 +613,8 @@ public class UploadFileTask extends FileTransferBase
 
 		if (requestToken == null || !requestToken.isRequestRunning())
 		{
-			requestToken = HttpRequests.uploadFile(sourceFile.getAbsolutePath(), msgId, vidCompressionRequired, fileType, new IRequestListener()
+			String fileTypeToSendInHttpCall = (hikeFileType == HikeFileType.AUDIO_RECORDING) ? fileType : "";
+			requestToken = HttpRequests.uploadFile(sourceFile.getAbsolutePath(), msgId, vidCompressionRequired, fileTypeToSendInHttpCall, new IRequestListener()
 			{
 				@Override
 				public void onRequestSuccess(Response result)

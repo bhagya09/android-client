@@ -1,26 +1,94 @@
 package com.bsb.hike.utils;
 
+import java.io.*;
+import java.lang.Process;
+import java.lang.reflect.Field;
+import java.net.URI;
+import java.net.URL;
+import java.nio.CharBuffer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.jar.JarFile;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
+
+import org.apache.http.NameValuePair;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.bsb.hike.*;
+import com.bsb.hike.BitmapModule.BitmapUtils;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.HikeConstants.ImageQuality;
+import com.bsb.hike.HikeMessengerApp.CurrentState;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.ChatAnalyticConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.TrafficsStatsFile;
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatHead.ChatHeadUtils;
+import com.bsb.hike.chatthread.ChatThreadActivity;
+import com.bsb.hike.chatthread.ChatThreadUtils;
+import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.dialog.CustomAlertDialog;
+import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
+import com.bsb.hike.filetransfer.FTAnalyticEvents;
+import com.bsb.hike.localisation.LocalLanguage;
+import com.bsb.hike.localisation.LocalLanguageUtils;
+import com.bsb.hike.models.*;
+import com.bsb.hike.models.ContactInfo.FavoriteType;
+import com.bsb.hike.models.ContactInfoData.DataType;
+import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
+import com.bsb.hike.models.ConvMessage.State;
+import com.bsb.hike.models.Conversation.*;
+import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.notifications.HikeNotification;
+import com.bsb.hike.offline.OfflineUtils;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.service.ConnectionChangeReceiver;
+import com.bsb.hike.service.HikeMqttManagerNew;
+import com.bsb.hike.service.HikeService;
+import com.bsb.hike.tasks.CheckForUpdateTask;
+import com.bsb.hike.tasks.StatusUpdateTask;
+import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
+import com.bsb.hike.timeline.view.TimelineActivity;
+import com.bsb.hike.ui.*;
+import com.bsb.hike.userlogs.AESEncryption;
+import com.bsb.hike.voip.VoIPUtils;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.maps.model.LatLng;
+
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AuthenticatorDescription;
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.ActivityManager;
+import android.app.*;
 import android.app.ActivityManager.RunningAppProcessInfo;
-import android.app.AlertDialog;
-import android.app.PendingIntent;
-import android.content.ClipData;
+import android.content.*;
 import android.content.ClipboardManager;
-import android.content.ComponentName;
-import android.content.ContentProviderOperation;
-import android.content.ContentResolver;
-import android.content.ContentUris;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.OperationApplicationException;
-import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
@@ -32,13 +100,9 @@ import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Bitmap;
+import android.graphics.*;
 import android.graphics.Bitmap.CompressFormat;
-import android.graphics.Canvas;
-import android.graphics.Matrix;
-import android.graphics.Point;
 import android.graphics.Shader.TileMode;
-import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
@@ -53,21 +117,10 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.TrafficStats;
 import android.net.Uri;
-import android.os.BatteryManager;
-import android.os.Build;
-import android.os.Environment;
-import android.os.Message;
-import android.os.PowerManager;
-import android.os.RemoteException;
-import android.os.StatFs;
-import android.os.Vibrator;
+import android.os.*;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
-import android.provider.ContactsContract.CommonDataKinds.Email;
-import android.provider.ContactsContract.CommonDataKinds.Event;
-import android.provider.ContactsContract.CommonDataKinds.Phone;
-import android.provider.ContactsContract.CommonDataKinds.StructuredName;
-import android.provider.ContactsContract.CommonDataKinds.StructuredPostal;
+import android.provider.ContactsContract.CommonDataKinds.*;
 import android.provider.ContactsContract.Data;
 import android.provider.ContactsContract.Intents.Insert;
 import android.provider.ContactsContract.RawContacts;
@@ -77,23 +130,14 @@ import android.provider.Settings.Secure;
 import android.support.v4.content.LocalBroadcastManager;
 import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
-import android.text.Editable;
-import android.text.Spannable;
-import android.text.SpannableStringBuilder;
-import android.text.TextUtils;
-import android.text.TextWatcher;
+import android.text.*;
 import android.text.format.DateUtils;
 import android.text.style.StyleSpan;
 import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Pair;
-import android.view.Display;
-import android.view.MotionEvent;
-import android.view.Surface;
-import android.view.View;
+import android.view.*;
 import android.view.View.OnTouchListener;
-import android.view.Window;
-import android.view.WindowManager;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
@@ -101,6 +145,7 @@ import android.view.animation.ScaleAnimation;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
+import android.widget.*;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
@@ -120,10 +165,14 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HomeAnalyticsConstants;
 import com.bsb.hike.analytics.TrafficsStatsFile;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.ChatHeadUtils;
+import com.bsb.hike.chatHead.StickyCaller;
+import com.bsb.hike.chatthemes.ChatThemeManager;
+import com.bsb.hike.chatthemes.HikeChatThemeConstants;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -150,11 +199,9 @@ import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.GroupParticipant;
-import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeHandlerUtil;
-import com.bsb.hike.models.Mute;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -231,6 +278,7 @@ import java.util.StringTokenizer;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.jar.JarFile;
 import java.util.regex.Matcher;
@@ -717,6 +765,11 @@ public class Utils
 			return true;
 		}
 		return false;
+	}
+
+	public static boolean isUpgradeIntentServiceRunning()
+	{
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPGRADING, false);
 	}
 
 	public static boolean isValidEmail(Editable text)
@@ -3070,16 +3123,25 @@ public class Utils
 		return convMessage.getMessage();
 	}
 
-	public static void deleteFile(File file)
+	public static boolean deleteFile(File file)
 	{
+		boolean result = true;
+
+		if (!file.exists())
+		{
+			return false;
+		}
+
 		if (file.isDirectory())
 		{
 			for (File f : file.listFiles())
 			{
-				deleteFile(f);
+				result = result && deleteFile(f);
 			}
 		}
-		file.delete();
+		result = result && file.delete();
+
+		return result;
 	}
 
 	public static void deleteFile(Context context, String filename, HikeFileType type)
@@ -3913,6 +3975,11 @@ public class Utils
 
 	public static FavoriteType toggleFavorite(Context context, ContactInfo contactInfo, boolean isFtueContact, String addFavSource)
 	{
+		return toggleFavorite(context, contactInfo, isFtueContact, addFavSource, true);
+	}
+
+	public static FavoriteType toggleFavorite(Context context, ContactInfo contactInfo, boolean isFtueContact, String addFavSource, boolean showToast)
+	{
 		FavoriteType favoriteType;
 		boolean isRequestSent = false;
 		if (contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED)
@@ -3923,7 +3990,10 @@ public class Utils
 		{
 			favoriteType = FavoriteType.REQUEST_SENT;
 			isRequestSent = true;
-			Toast.makeText(context, Utils.isFavToFriendsMigrationAllowed() ? R.string.friend_request_sent : R.string.favorite_request_sent, Toast.LENGTH_SHORT).show();
+			if(showToast)
+			{
+				Toast.makeText(context, Utils.isFavToFriendsMigrationAllowed() ? R.string.friend_request_sent : R.string.favorite_request_sent, Toast.LENGTH_SHORT).show();
+			}
 		}
 
 		// 2-way friendship established. Get Historical updates here!
@@ -4630,29 +4700,22 @@ public class Utils
 		context.startActivity(intent);
 	}
 
-	public static Drawable getChatTheme(ChatTheme chatTheme, Context context)
+	public static Drawable getChatTheme(String chatThemeId, Context context)
 	{
-		/*
-		 * for xhdpi and above we should not scale down the chat theme nodpi asset for hdpi and below to save memory we should scale it down
-		 */
-		int inSampleSize = 1;
-		if (!chatTheme.isTiled() && Utils.scaledDensityMultiplier < 2)
-		{
-			inSampleSize = 2;
+		byte asset = HikeChatThemeConstants.ASSET_INDEX_BG_PORTRAIT;
+		if(context.getResources().getConfiguration().orientation == context.getResources().getConfiguration().ORIENTATION_LANDSCAPE) {
+			asset = HikeChatThemeConstants.ASSET_INDEX_BG_LANDSCAPE;
 		}
-
-		Bitmap b = HikeBitmapFactory.decodeSampledBitmapFromResource(context.getResources(), chatTheme.bgResId(), inSampleSize);
-
-		BitmapDrawable bd = HikeBitmapFactory.getBitmapDrawable(context.getResources(), b);
-
-		Logger.d(context.getClass().getSimpleName(), "chat themes bitmap size= " + BitmapUtils.getBitmapSize(b));
-
-		if (bd != null && chatTheme.isTiled())
-		{
-			bd.setTileModeXY(TileMode.REPEAT, TileMode.REPEAT);
+		Drawable drawable = ChatThemeManager.getInstance().getDrawableForTheme(chatThemeId, asset);
+		if(drawable instanceof BitmapDrawable) {
+			BitmapDrawable bd = (BitmapDrawable) drawable;
+			Logger.d(context.getClass().getSimpleName(), "chat themes bitmap size= " + BitmapUtils.getBitmapSize(bd.getBitmap()));
+			if (bd != null && ChatThemeManager.getInstance().getTheme(chatThemeId).isTiled()) {
+				bd.setTileModeXY(TileMode.REPEAT, TileMode.REPEAT);
+			}
+			return bd;
 		}
-
-		return bd;
+		return drawable;
 	}
 
 	public static void resetPinUnreadCount(OneToNConversation conv)
@@ -7429,10 +7492,12 @@ public class Utils
 		if (isFavToFriendsMigrationAllowed())
 		{
 			changeFavToFriends();
+			BirthdayUtils.modifyBDPrefForFavToFriends(true);
 		}
 		else
 		{
 			revertFavToFriendsChange();
+			BirthdayUtils.modifyBDPrefForFavToFriends(false);
 		}
 	}
 
@@ -7745,8 +7810,8 @@ public class Utils
 		{
 			ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 
-			ops.add(ContentProviderOperation.newUpdate(Data.CONTENT_URI).withSelection(Data.RAW_CONTACT_ID + " = ?", new String[] { mRawContactId })
-					.withSelection(Data._ID + " = ?", new String[] { mDataId }).withValue(Data.MIMETYPE, Phone.CONTENT_ITEM_TYPE).withValue(StructuredName.DISPLAY_NAME, name)
+			ops.add(ContentProviderOperation.newUpdate(Data.CONTENT_URI).withSelection(Data.RAW_CONTACT_ID + " = ?", new String[]{mRawContactId})
+					.withSelection(Data._ID + " = ?", new String[]{mDataId}).withValue(Data.MIMETYPE, Phone.CONTENT_ITEM_TYPE).withValue(StructuredName.DISPLAY_NAME, name)
 					.build());
 			context.getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
 
@@ -7815,13 +7880,22 @@ public class Utils
 
 		if (!newRootDir.exists())
 		{
-			result = result && newRootDir.mkdirs();
+			result = newRootDir.mkdirs();
+		}
+
+		else // newRootDir exists, but can it be a simple file instead of DIR ?
+		{
+			if (!newRootDir.isDirectory())
+			{
+				result = deleteFile(newRootDir) && newRootDir.mkdirs();
+			}
 		}
 
 		if (!oldRootDir.exists() || (oldRootDir.listFiles() == null))
 		{
 			Logger.d("StickerMigration", "Migration unsuccessful but new folder created");
-			return true; // Migration unsuccessful but new folder created
+			StickerManager.getInstance().recordStickerMigrationFailure("Migration unsuccessful but new folder created, The oldDir was absent or listFiles were null");
+			return result; // Migration unsuccessful but new folder created
 		}
 
 		if (result)
@@ -7831,6 +7905,10 @@ public class Utils
 				if (f.isDirectory())
 				{
 					File newDir = new File(newRootDir, f.getName());
+					if (!newDir.exists())
+					{
+						newDir.mkdirs();
+					}
 					result = result && moveDirectoryByRename(f, newDir);
 				}
 				else
@@ -7838,8 +7916,9 @@ public class Utils
 					File newFile = new File(newRootDir, f.getName());
 					if (newFile.exists())
 					{
-						result = result && newFile.delete();
+						result = result && Utils.deleteFile(newFile);
 					}
+
 					result = result && f.renameTo(newFile);
 				}
 			}
@@ -7975,6 +8054,14 @@ public class Utils
 		return bestLocation;
 	}
 
+	public static String repeatString(String repeat, int repeatCount) {
+		StringBuilder repeatedString = new StringBuilder();
+
+		for (int i = 0; i < repeatCount; i++)
+			repeatedString.append(repeat);
+
+		return repeatedString.toString();
+	}
 
 	public static String formatDOB(String dobString) {
 		if (TextUtils.isEmpty(dobString)) {
@@ -7985,9 +8072,9 @@ public class Utils
 		return String.format("%d/%d/%d", dob.day, dob.month, dob.year);
 	}
 
-	public static void setGenus(String argGenus, Intent argIntent)
+	public static void setGenus(@HomeAnalyticsConstants.StatusUpdateSpecies String argGenus, Intent argIntent)
 	{
-		if(TextUtils.isEmpty(argGenus) || argIntent == null)
+		if(argIntent == null)
 		{
 			return;
 		}
@@ -7995,9 +8082,10 @@ public class Utils
 		argIntent.putExtra(HikeConstants.Extras.GENUS, argGenus);
 	}
 
-	public static void setSpecies(String argSpecies, Intent argIntent)
+	public static void setSpecies(@HomeAnalyticsConstants.ProfilePicUpdateSpecies
+								  @HomeAnalyticsConstants.StatusUpdateSpecies String argSpecies, Intent argIntent)
 	{
-		if(TextUtils.isEmpty(argSpecies) || argIntent == null)
+		if(argIntent == null)
 		{
 			return;
 		}
@@ -8005,7 +8093,26 @@ public class Utils
 		argIntent.putExtra(HikeConstants.Extras.SPECIES, argSpecies);
 	}
 
-	public static void connectToGcmPreSignup() {
+	public static void setBackground(View view, Drawable drawable){
+		if (isJellybeanOrHigher()) {
+			view.setBackground(drawable);
+		} else {
+			view.setBackgroundDrawable(drawable);
+		}
+	}
+
+	public static boolean isBDayInNewChatEnabled() {
+		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
+
+		if (prefs != null) {
+			return prefs.getData(HikeConstants.ENABLE_BDAY_IN_CCA, false);
+		}
+
+		return false;
+	}
+
+	public static void connectToGcmPreSignup()
+	{
 		// GCM_ID_SENT_PRELOAD=true,UserAuth=false,UserOnline=true;GooglePlayServices Installed---->Best Case Scenario
 
 		Context context = HikeMessengerApp.getInstance().getApplicationContext();
@@ -8016,6 +8123,132 @@ public class Utils
 			Intent in = new Intent(HikeService.REGISTER_TO_GCM_ACTION);
 			mprefs.saveData(HikeConstants.REGISTER_GCM_SIGNUP, HikeConstants.REGISTEM_GCM_BEFORE_SIGNUP);
 			LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(in);
+		}
+	}
+
+	/**
+	 * Taken from https://github.com/googlesamples/google-services/blob/master/android/gcm/app/src/main/java/gcm/play/android/samples/com/gcmquickstart/MainActivity.java
+	 *
+	 * @return true : If Play Services are available on the device
+	 */
+	public static boolean checkAndShowPlayServicesErrorDialog(final Activity activity)
+	{
+		int resultCode = getPlayServicesAvailableCode(activity.getApplicationContext());
+
+		if (resultCode != ConnectionResult.SUCCESS)
+		{
+			if (GoogleApiAvailability.getInstance().isUserResolvableError(resultCode))
+			{
+				int requestCode = 10; //Magic Number
+				Dialog errorDialog = GoogleApiAvailability.getInstance()
+						.getErrorDialog(activity, resultCode, requestCode);
+				errorDialog.setOnDismissListener(new DialogInterface.OnDismissListener()
+				{
+					@Override
+					public void onDismiss(DialogInterface dialog)
+					{
+						activity.finish();
+					}
+				});
+				errorDialog.show();
+			}
+			else
+			{
+				Logger.wtf(TAG, "This device is not supported.");
+				activity.finish();
+			}
+
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Can return any of the following :
+	 * SUCCESS, SERVICE_MISSING, SERVICE_VERSION_UPDATE_REQUIRED, SERVICE_DISABLED, SERVICE_INVALID
+	 *
+	 * @param context
+	 * @return
+	 */
+	public static int getPlayServicesAvailableCode(Context context)
+	{
+		int resultCode = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context);
+		Logger.d(TAG, "Is PlayService Available ? : " + resultCode);
+		return resultCode;
+	}
+
+	public static byte[] getBytesFromBundle(Bundle bundle)
+	{
+		byte[] bundleBytes = null;
+
+		if(bundle != null)
+		{
+			Parcel parcel = Parcel.obtain();
+			bundle.writeToParcel(parcel, 0);
+			bundleBytes = parcel.marshall();
+			parcel.recycle();
+		}
+
+		return bundleBytes;
+	}
+
+	public static Bundle getBundleFromBytes(byte[] bundleBytes)
+	{
+		Bundle bundle = null;
+
+		if (!isEmpty(bundleBytes))
+		{
+			Parcel parcel = Parcel.obtain();
+			parcel.unmarshall(bundleBytes, 0, bundleBytes.length);
+			parcel.setDataPosition(0);
+			bundle = parcel.readBundle();
+			parcel.recycle();
+		}
+
+		return bundle;
+	}
+
+	public static boolean isEmpty(byte[] argument)
+	{
+		return (argument == null) || argument.length == 0;
+	}
+
+	public static int getFilesCountRecursive(File file)
+	{
+		if (file == null)
+		{
+			return 0;
+		}
+
+		try
+		{
+			if (!file.exists() || file.listFiles() == null)
+			{
+				return 0;
+			}
+
+			int count = 0;
+
+			for (File newFile : file.listFiles())
+			{
+				if (newFile.isDirectory())
+				{
+					count += getFilesCountRecursive(newFile);
+				}
+
+				else
+				{
+					count++;
+				}
+			}
+
+			return count;
+		}
+
+		catch (Exception e) // To prevent any File I/O exceptions!
+		{
+			return 0;
 		}
 
 	}

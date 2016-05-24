@@ -729,7 +729,7 @@ public class PhotoViewerFragment extends Fragment implements OnPageChangeListene
 			smAdapter.onDestroy();
 		}
 		
-		StatusBarColorChanger.setStatusBarColor(getActivity(),((HikeBaseActivity)getActivity()).statusBarColorID);
+		StatusBarColorChanger.setStatusBarColorValue(getActivity(),((HikeBaseActivity)getActivity()).statusBarColorValue);
 		super.onDestroy();
 	}
 }
