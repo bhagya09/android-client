@@ -215,19 +215,9 @@ public class BirthdayUtils
         {
             return;
         }
-        for(int i = 0; i < msisdns.length(); i++)
-        {
-            JSONObject msisdnObj = msisdns.optJSONObject(i);
-            if(msisdnObj == null)
-            {
-                continue;
-            }
-            String msisdn = msisdnObj.optString(HikeConstants.MSISDN);
-            if(!TextUtils.isEmpty(msisdn))
-            {
-                bdayMsisdns.add(msisdn);
-            }
-        }
+
+        bdayMsisdns = getMsisdnSetFromJSONArray(msisdns);
+
         if(bdayMsisdns.size() != 0)
         {
             HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeConstants.BDAYS_LIST, bdayMsisdns);
@@ -274,12 +264,7 @@ public class BirthdayUtils
                         }
                         else
                         {
-                            bdayMsisdnSet = new HashSet<String>();
-                            for (int i = 0; i < bdayJSONArray.length(); i++)
-                            {
-                                JSONObject bdayInfo = (JSONObject) bdayJSONArray.get(i);
-                                bdayMsisdnSet.add(bdayInfo.getString(HikeConstants.MSISDN));
-                            }
+                            bdayMsisdnSet = getMsisdnSetFromJSONArray(bdayJSONArray);
                         }
 
                         Logger.d("bday_HTTP_Sucess", "Updating time and list in Sp " + bdayMsisdnSet);
@@ -311,6 +296,29 @@ public class BirthdayUtils
             });
             requestToken.execute();
         }
+    }
+
+    /**
+     *
+     * @return
+     */
+    public static Set<String> getMsisdnSetFromJSONArray(JSONArray msisdns)
+    {
+        Set<String> bdayMsisdnSet = new HashSet<String>();
+        for(int i = 0; i < msisdns.length(); i++)
+        {
+            JSONObject msisdnObj = msisdns.optJSONObject(i);
+            if(msisdnObj == null)
+            {
+                continue;
+            }
+            String msisdn = msisdnObj.optString(HikeConstants.MSISDN);
+            if(!TextUtils.isEmpty(msisdn))
+            {
+                bdayMsisdnSet.add(msisdn);
+            }
+        }
+        return bdayMsisdnSet;
     }
 
     /**
