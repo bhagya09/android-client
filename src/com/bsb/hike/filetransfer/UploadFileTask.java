@@ -84,7 +84,9 @@ public class UploadFileTask extends FileTransferBase
 
 	private long startTime;
 
-	public UploadFileTask(Context ctx, ConvMessage convMessage, String fileKey)
+	private boolean isManualRetry;
+
+	public UploadFileTask(Context ctx, ConvMessage convMessage, String fileKey, boolean isManualRetry)
 	{
 		super(ctx, null, -1, null);
 		this.userContext = convMessage;
@@ -101,9 +103,10 @@ public class UploadFileTask extends FileTransferBase
 			}
 		}
 		this.fileKey = fileKey;
+		this.isManualRetry = isManualRetry;
 	}
 
-	public UploadFileTask(Context ctx, List<ContactInfo> contactList, List<ConvMessage> messageList, String fileKey)
+	public UploadFileTask(Context ctx, List<ContactInfo> contactList, List<ConvMessage> messageList, String fileKey, boolean isManualRetry)
 	{
 		super(ctx, null, -1, null);
 		this.userContext = messageList.get(0);
@@ -112,6 +115,7 @@ public class UploadFileTask extends FileTransferBase
 		this.messageList = messageList;
 		this.isMultiMsg = true;
 		this.fileKey = fileKey;
+		this.isManualRetry = isManualRetry;
 	}
 
 	private IRequestListener getValidateFileKeyRequestListener()
@@ -477,7 +481,7 @@ public class UploadFileTask extends FileTransferBase
 				.setNetType(FTUtils.getNetworkTypeString(context))
 				.setFileSize(fileSize)
 				.setFileAvailability(isQuickUpload)
-				//.setManualRetry(false)
+				.setManualRetry(isManualRetry)
 				.setFileType(fileType)
 				.setFTStatus(state)
 				.setFTTaskType(CesConstants.FT_UPLOAD)

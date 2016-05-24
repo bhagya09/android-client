@@ -3667,7 +3667,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 							} else if(hikeFile.getHikeFileType() == HikeFileType.IMAGE){
 								sendImageVideoRelatedAnalytic(ChatAnalyticConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.IMAGE, ChatAnalyticConstants.UPLOAD_MEDIA);
 							}
-							FileTransferManager.getInstance(context).uploadFile(convMessage, null);
+							FileTransferManager.getInstance(context).uploadFile(convMessage, null, true);
 						}
 					}
 					notifyDataSetChanged();
