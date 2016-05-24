@@ -1,5 +1,9 @@
 package com.bsb.hike.modules.signupmgr;
 
+import android.support.annotation.Nullable;
+
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.postAddressBookRequest;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.db.DbException;
@@ -64,7 +68,7 @@ public class PostAddressBookTask
 			}
 
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 				resultObject = null;
 			}

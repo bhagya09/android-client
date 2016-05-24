@@ -116,18 +116,21 @@ public class UrlConnectionClient implements IClient
 		try
 		{
 			T bodyContent = null;
-
+			ResponseBody<T> responseBody = null;
 			if (status >= 200 && status <= 299)
 			{
 				stream = connection.getInputStream();
 				bodyContent = request.parseResponse(stream, length);
+				responseBody = ResponseBody.create(mimeType, length, bodyContent);
 			}
 			else
 			{
-				// TODO Later parse for other responses also so that we can give complete info in onFailure, will have to add some error content field in response class
+				stream = connection.getErrorStream();
+				byte[] bytes = HttpUtils.streamToBytes(stream);
+				String errorString = new String(bytes);
+				responseBody = ResponseBody.createErrorResponse(mimeType, length, errorString);
 			}
 
-			ResponseBody<T> responseBody = ResponseBody.create(mimeType, length, bodyContent);
 			Response response = new Response.Builder().setUrl(connection.getURL().toString()).setStatusCode(status).setReason(reason).setHeaders(headers).setBody(responseBody)
 					.build();
 			response.getResponseInterceptors().addAll(request.getResponseInterceptors());

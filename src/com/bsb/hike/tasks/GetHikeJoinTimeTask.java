@@ -6,6 +6,7 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.support.annotation.Nullable;
 import android.util.Pair;
 
 import com.bsb.hike.HikeConstants;
@@ -101,7 +102,7 @@ public class GetHikeJoinTimeTask implements IHikeHTTPTask
 			}
 
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 				Logger.e(getClass().getSimpleName(), "Hike join time request failed : " + httpException.getMessage());
 			}

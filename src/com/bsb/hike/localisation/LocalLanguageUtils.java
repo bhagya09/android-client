@@ -1,6 +1,7 @@
 package com.bsb.hike.localisation;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
@@ -120,7 +121,7 @@ public class LocalLanguageUtils {
             }
 
             @Override
-            public void onRequestFailure(HttpException httpException)
+            public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
             {
 
             }

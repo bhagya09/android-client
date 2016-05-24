@@ -15,6 +15,7 @@ import android.location.Location;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.provider.CallLog;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.bsb.hike.GCMIntentService;
@@ -563,7 +564,7 @@ public class UserLogInfo {
 			}
 
 			@Override
-			public void onRequestFailure(final HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, final HttpException httpException)
 			{
 
 				scheduleNextSendToServerAction(HikeMessengerApp.LAST_BACK_OFF_TIME_USER_LOGS, new Runnable() {

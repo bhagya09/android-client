@@ -304,7 +304,7 @@ public class RequestExecuter
 			}
 			else
 			{
-				handleException(ex, statusCode);
+				handleErrorResponse(response, ex, statusCode);
 			}
 		}
 		catch (HttpException ex)
@@ -365,12 +365,23 @@ public class RequestExecuter
 		listener.onResponse(null, ex);
 	}
 
+	private void handleErrorResponse(Response errorResponse, Throwable ex, int reasonCode)
+	{
+		listener.onResponse(errorResponse, new HttpException(reasonCode, ex));
+	}
+
+
 	/**
 	 * Handles the retries of the request based on {@link BasicRetryPolicy}
 	 * 
 	 * @param ex
 	 */
 	private void handleRetry(Exception ex, int responseCode)
+	{
+		handleRetry(null, ex, responseCode);
+	}
+
+	private void handleRetry(Response errorResponse, Exception ex, int responseCode)
 	{
 		LogFull.e("Exception occurred for request " + request.toString() + " \n" + ex);
 		HttpException httpException = new HttpException(responseCode, ex);
@@ -386,13 +397,13 @@ public class RequestExecuter
 			else
 			{
 				LogFull.i("max retry count reached for " + request.toString());
-				listener.onResponse(null, httpException);
+				listener.onResponse(errorResponse, httpException);
 			}
 		}
 		else
 		{
 			LogFull.i("no retry policy retuning for " + request.toString());
-			listener.onResponse(null, httpException);
+			listener.onResponse(errorResponse, httpException);
 		}
 	}
 

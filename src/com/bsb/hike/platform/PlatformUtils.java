@@ -40,6 +40,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Html;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -1892,7 +1893,7 @@ public class PlatformUtils
 			RequestToken token = HttpRequests.microAppPostRequest(HttpRequestConstants.getMicroAppLoggingUrl(success), json, new IRequestListener()
 			{
 				@Override
-				public void onRequestFailure(HttpException httpException)
+                public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 				{
 
 				}

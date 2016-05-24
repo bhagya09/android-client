@@ -3,6 +3,7 @@ package com.bsb.hike.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
@@ -73,7 +74,7 @@ public class BirthdayUtils
         RequestToken bdPrefUpdateRequest = HttpRequests.getBDPrefUpdateRequest(payload, new IRequestListener()
         {
             @Override
-            public void onRequestFailure(HttpException httpException)
+            public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
             {
                 Logger.d(TAG, "updating bd pref http failure code: " + httpException.getErrorCode());
                 showBDUpdateFailureToast();
