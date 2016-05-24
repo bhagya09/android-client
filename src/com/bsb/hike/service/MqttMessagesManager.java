@@ -4729,6 +4729,15 @@ public class MqttMessagesManager
 		{
 			saveChatBackground(jsonObj);
 		}
+		else if (HikeConstants.MqttMessageTypes.CHAT_BACKGROUD_V2.equals(type))
+		{
+			if(jsonObj.has(HikeConstants.SUB_TYPE)) {
+				String errorType = jsonObj.getString(HikeConstants.SUB_TYPE);
+				if(!TextUtils.isEmpty(errorType)) {
+					HikeMessengerApp.getPubSub().publish(HikePubSub.CHATTHEME_CUSTOM_COMPATABILITY_ERROR, errorType);
+				}
+			}
+		}
 		else if (HikeConstants.MqttMessageTypes.GROUP_OWNER_CHANGE.equals(type))
 		{
 			saveGroupOwnerChange(jsonObj);
