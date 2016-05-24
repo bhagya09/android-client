@@ -6869,7 +6869,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		if(mShareablePopupLayout != null)
             mShareablePopupLayout.showPopup(CustomKeyboardManager.getInstance(), activity.getResources().getConfiguration().orientation, customKeyBoardHeight);
 
-        if(customKeyboard.isHidden())
+        if(customKeyboard != null && customKeyboard.isHidden())
         {
             mShareablePopupLayout.dismiss();
             setComposeViewDefaultState();
