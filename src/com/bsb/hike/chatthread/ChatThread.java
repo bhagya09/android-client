@@ -3647,7 +3647,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	@Override
 	public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id)
 	{
-		if(isWalkieTalkieShowing()||mAdapter.getVoiceMessagePlayerState()==AUDIO_PLAYING) return true;
+		if(isWalkieTalkieShowing()) return true;
 		return showMessageContextMenu(mAdapter.getItem(position - mConversationsView.getHeaderViewsCount()), view);
 	}
 
@@ -3799,6 +3799,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		mActionMode.showHideMenuItem(R.id.forward_msgs, !(selectedNonForwadableMsgs > 0));
 
 		mActionMode.showHideMenuItem(R.id.message_info, shouldShowMessageInfo());
+
+
 	}
 
 	public boolean shouldShowMessageInfo(){
@@ -3808,8 +3810,26 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		}
 		if(mAdapter.getSelectedCount()==1){
 			HashMap<Long, ConvMessage> selectedMessagesMap = mAdapter.getSelectedMessagesMap();
-			ConvMessage convMessage=selectedMessagesMap.values().iterator().next();
-			if(convMessage.isSent()) {
+			ConvMessage convMessage = selectedMessagesMap.values().iterator().next();
+			if (convMessage.isSent())
+			{
+				//When we are selecting a message which is already playing we disable the mesage Info Icon
+				if (convMessage.isFileTransferMessage() && convMessage.getMetadata() != null)
+				{
+
+					List<HikeFile> fileList = convMessage.getMetadata().getHikeFiles();
+
+					if (fileList != null && !fileList.isEmpty())
+					{
+						String key = fileList.get(0).getFileKey();
+						if (mAdapter.getVoiceMessagePlayerState() == AUDIO_PLAYING && key != null && key.equals(mAdapter.getVoiceMessagePlayerFileKey()))
+						{
+							return false;
+						}
+
+					}
+
+				}
 				return true;
 			}
 

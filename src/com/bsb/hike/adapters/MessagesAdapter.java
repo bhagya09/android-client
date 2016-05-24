@@ -4741,4 +4741,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		else
 			return VoiceMessagePlayerState.STOPPED.ordinal();
 	}
+	public String getVoiceMessagePlayerFileKey(){
+		return voiceMessagePlayer.getFileKey();
+	}
 }
