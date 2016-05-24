@@ -30,6 +30,11 @@ public final class CesConstants {
 	public static final String STICKER_MODULE = "m3";
 	public static final String LEVEL_ONE = "l1";
 	public static final String LEVEL_TWO = "l2";
+	public static final String L1_DATA_REQUIRED = "l1_data_required";
+	public static final String CES_SCORE = "s";
+	public static final String CES = "ces";
+	public static final String CES_L2_DATA = "ces_l2";
+	public static final String CES_ACT_REL = "act_rel";
 
 	public static final int FT_STATUS_COMPLETE = 0;
 	public static final int FT_STATUS_INCOMPLETE = 1;
@@ -66,5 +71,27 @@ public final class CesConstants {
 		public static final String DIVISON = "d";
 		public static final String TRIBE = "t";
 		public static final String SES_ID = "sid";
+	}
+
+	public static final String NET_2G = "2";
+	public static final String NET_3G = "3";
+	public static final String NET_4G = "4";
+	public static final String NET_WIFI = "1";
+	public static final String NET_UNKNOWN = "0";
+	public static final String NET_NONE = "-1";
+	
+	public static final int MAX_SPEED_ON_2G = 64;
+	public static final int MAX_SPEED_ON_3G = 128;
+	public static final int MAX_SPEED_ON_4G = 256;
+	public static final int MAX_SPEED_ON_WIFI = 512;
+	public static final int MAX_SPEED_ON_UNKNOWN = 32;
+	public static final int MAX_SPEED_ON_NO_NET = 32;
+
+	public static final class ConfigureKey
+	{
+		public static final String FETCH_L2_DATA = "fetch_l2";
+		public static final String MAX_NET_SPEED = "max_nw_speed";
+		public static final String COMPUTE_SCORE_ALGO = "cs_algo";
+		public static final String UTILIZE_DISK_PERCENT = "udc";
 	}
 }

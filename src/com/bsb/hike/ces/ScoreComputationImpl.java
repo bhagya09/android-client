@@ -1,5 +1,6 @@
 package com.bsb.hike.ces;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
@@ -8,7 +9,7 @@ import org.json.JSONObject;
  */
 public interface ScoreComputationImpl {
 
-	public JSONObject getLevelOneInfo();
-	public int computeScore();
+	public JSONObject computeScore();
+	public JSONObject getL1Data(JSONArray requiredData);
 
 }

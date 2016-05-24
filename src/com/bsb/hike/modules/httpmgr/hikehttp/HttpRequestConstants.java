@@ -681,4 +681,14 @@ public class HttpRequestConstants
 	{
 		return editDOBBaseUrl() + PREF_PATH;
 	}
+
+	public static String getCesScoreUploadUrl()
+	{
+		return BASE_URL + "/ces/score";
+	}
+
+	public static String getCesLevelOneInfoUploadUrl()
+	{
+		return BASE_URL + "/ces/score" + "/l1data";
+	}
 }
