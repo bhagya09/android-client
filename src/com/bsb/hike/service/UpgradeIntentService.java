@@ -129,7 +129,8 @@ public class UpgradeIntentService extends IntentService
 			editor.putBoolean(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, true);
 			editor.apply();
 		}
-		if (prefs.getInt(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 1) == 1)
+
+        if (prefs.getInt(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 1) == 1)
 		{
 			if (upgradeForStickerTable())
 			{

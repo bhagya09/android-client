@@ -1120,8 +1120,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				String alter3 = "ALTER TABLE " + DBConstants.STICKER_TABLE + " ADD COLUMN " + DBConstants.LAST_QUICK_SUGGESTION_REFRESH_TIME + " INTEGER DEFAULT 0";
 				db.execSQL(alter3);
 			}
-
-
+		}
+		if(oldVersion < 52)
+		{
 			//creating tables for OTA ChatThemes
 			//adding a prevThemeId column to the chat_bg_table
 			if(!Utils.isColumnExistsInTable(db, DBConstants.ChatThemes.CHAT_BG_TABLE, ChatThemes.PREV_THEME_ID_COL))

@@ -7511,10 +7511,12 @@ public class Utils
 		if (isFavToFriendsMigrationAllowed())
 		{
 			changeFavToFriends();
+			BirthdayUtils.modifyBDPrefForFavToFriends(true);
 		}
 		else
 		{
 			revertFavToFriendsChange();
+			BirthdayUtils.modifyBDPrefForFavToFriends(false);
 		}
 	}
 
@@ -8238,26 +8240,35 @@ public class Utils
 			return 0;
 		}
 
-		if (!file.exists() || file.listFiles() == null)
+		try
+		{
+			if (!file.exists() || file.listFiles() == null)
+			{
+				return 0;
+			}
+
+			int count = 0;
+
+			for (File newFile : file.listFiles())
+			{
+				if (newFile.isDirectory())
+				{
+					count += getFilesCountRecursive(newFile);
+				}
+
+				else
+				{
+					count++;
+				}
+			}
+
+			return count;
+		}
+
+		catch (Exception e) // To prevent any File I/O exceptions!
 		{
 			return 0;
 		}
 
-		int count = 0;
-
-		for (File newFile : file.listFiles())
-		{
-			if (newFile.isDirectory())
-			{
-				count += getFilesCountRecursive(newFile);
-			}
-
-			else
-			{
-				count ++;
-			}
-		}
-
-		return count;
 	}
 }
