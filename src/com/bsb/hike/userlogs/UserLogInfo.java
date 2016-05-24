@@ -15,6 +15,7 @@ import android.location.Location;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.provider.CallLog;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.bsb.hike.GCMIntentService;
@@ -347,6 +348,10 @@ public class UserLogInfo {
 
 		try {
 			Info adInfo = AdvertisingIdClient.getAdvertisingIdInfo(HikeMessengerApp.getInstance().getApplicationContext());
+			if(adInfo == null)
+			{
+				return null;
+			}
 			return new JSONArray().put(new JSONObject().putOpt(HikeConstants.ADVERTSING_ID_ANALYTICS, adInfo.getId()));
 		} catch (IOException e) {
 			Logger.d(TAG, "IOException" + e.toString());
@@ -354,6 +359,8 @@ public class UserLogInfo {
 			Logger.d(TAG, "play service repairable exception" + e.toString());
 		} catch (GooglePlayServicesNotAvailableException e) {
 			Logger.d(TAG, "play services not found Exception" + e.toString());
+		} catch (IllegalStateException e) {
+			Logger.d(TAG, "IllegalStateException" + e.toString());
 		}
 		return null;
 	}
@@ -510,7 +517,7 @@ public class UserLogInfo {
 
 		final JSONArray jsonLogArray = collectLogs(flags);
 		// if nothing is logged we do not send anything
-		if (jsonLogArray != null)
+		if (jsonLogArray != null && jsonLogArray.length() > 0)
 		{
 			final JSONObject jsonLogObj = getEncryptedJSON(jsonLogArray, flags);
 
@@ -557,7 +564,7 @@ public class UserLogInfo {
 			}
 
 			@Override
-			public void onRequestFailure(final HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, final HttpException httpException)
 			{
 
 				scheduleNextSendToServerAction(HikeMessengerApp.LAST_BACK_OFF_TIME_USER_LOGS, new Runnable() {

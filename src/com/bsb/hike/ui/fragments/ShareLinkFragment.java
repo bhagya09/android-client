@@ -10,6 +10,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
@@ -323,7 +324,7 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 		}
 
 		@Override
-		public void onRequestFailure(HttpException httpException)
+		public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 		{
 			Logger.d(ShareLinkFragment.class.getSimpleName(), "responce from http call failed " + httpException.toString());
 

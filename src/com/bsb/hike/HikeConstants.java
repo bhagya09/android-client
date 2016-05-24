@@ -1867,8 +1867,6 @@ public class HikeConstants
 		public static final String HIKE_DIRECT_MODE="hikedirectmode";
 		public static final String SHOW_TIMELINE = "showTimeline";
 
-		public static final String HIKE_BDAY_MODE = "hikeBdayMode";
-
 		// constants related to sharing Functioanlity
 		public static final class ShareTypes
 		{
@@ -4310,4 +4308,5 @@ public class HikeConstants
 	public static final String BIRTHDAY_DATA = "bdata";
 
 	public static final String DISABLE_QUICK_UPLOAD = "disable_md5";
+
 }

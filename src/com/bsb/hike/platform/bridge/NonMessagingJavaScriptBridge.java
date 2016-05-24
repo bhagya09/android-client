@@ -17,6 +17,7 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Message;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.webkit.JavascriptInterface;
 
@@ -1672,7 +1673,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			this.tokenLife = tokenLife;
 		}
 		@Override
-		public void onRequestFailure(HttpException httpException) {
+		public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException) {
 			Logger.e("NonMessagingJavascriptBridge", "Error while parsing success request: "+httpException.getErrorCode()+" : "+httpException.getMessage());
 			if (httpException.getErrorCode() == HttpURLConnection.HTTP_UNAUTHORIZED)
 			{

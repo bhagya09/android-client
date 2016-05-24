@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.provider.Settings;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -152,7 +153,7 @@ public class FTApkManager
             }
 
             @Override
-            public void onRequestFailure(HttpException httpException) {
+            public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException) {
                 Logger.d("AUTOAPK", "The error code received is " + httpException.getErrorCode());
 
             }

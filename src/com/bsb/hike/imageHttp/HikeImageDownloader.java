@@ -3,19 +3,17 @@ package com.bsb.hike.imageHttp;
 import java.io.File;
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
-import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.timeline.model.StatusMessage;
-import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -125,7 +123,7 @@ public class HikeImageDownloader extends HikeImageWorker
 		}
 
 		@Override
-		public void onRequestFailure(HttpException httpException)
+		public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 		{
 			if (httpException.getErrorCode() == HttpException.REASON_CODE_CANCELLATION)
 			{

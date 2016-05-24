@@ -1,7 +1,5 @@
 package com.bsb.hike.service;
 
-import java.io.File;
-
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
@@ -20,6 +18,8 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+
+import java.io.File;
 
 public class UpgradeIntentService extends IntentService
 {
@@ -130,11 +130,23 @@ public class UpgradeIntentService extends IntentService
 			editor.apply();
 		}
 
+		if(prefs.getInt(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 1) == 1)
+		{
+			if(upgradeForStickerTable())
+			{
+				Logger.v(TAG, "Upgrade for sticker table was successful");
+				Editor editor = prefs.edit();
+				editor.putInt(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 2);
+				editor.commit();
+				StickerManager.getInstance().doInitialSetup();
+			}
+		}
+
 		if((!prefs.getBoolean(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, false)) && Utils
 				.doesExternalDirExists())
 		{
 			if (StickerManager.getInstance().migrateStickerAssets(StickerManager.getInstance().getOldStickerExternalDirFilePath(),
-					StickerManager.getInstance().getStickerExternalDirFilePath()))
+					StickerManager.getInstance().getNewStickerDirFilePath()))
 			{
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, true);
 				Logger.v(TAG, "Upgrade for sticker table was successful");

@@ -1,5 +1,8 @@
 package com.bsb.hike.chatHead;
 
+import android.support.annotation.Nullable;
+
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -46,7 +49,7 @@ public class CallListener implements IRequestListener
 	}
 
 	@Override
-	public void onRequestFailure(HttpException httpException)
+	public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 	{
 		HAManager.getInstance().stickyCallerAnalyticsNonUIEvent(StickyCaller.getCallEventFromCallType(StickyCaller.CALL_TYPE), AnalyticsConstants.StickyCallerEvents.UNKNOWN, null,
 				AnalyticsConstants.StickyCallerEvents.FAIL, AnalyticsConstants.StickyCallerEvents.SERVER);

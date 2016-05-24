@@ -4,7 +4,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
+import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
@@ -158,7 +160,7 @@ public class UploadFileTask extends FileTransferBase
 			}
 
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 				if (httpException.getErrorCode() == HttpException.REASON_CODE_NO_NETWORK)
 				{
@@ -509,7 +511,7 @@ public class UploadFileTask extends FileTransferBase
 		RequestToken token = HttpRequests.verifyMd5(msgId, new IRequestListener()
 		{
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 				FTAnalyticEvents.sendQuickUploadEvent(0);
 				if (httpException.getErrorCode() == HttpException.REASON_CODE_NO_NETWORK)
@@ -709,7 +711,7 @@ public class UploadFileTask extends FileTransferBase
 				}
 
 				@Override
-				public void onRequestFailure(HttpException httpException)
+				public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 				{
 					Logger.e("HttpResponseUpload", "  onprogress failure called : ", httpException.getCause());
 

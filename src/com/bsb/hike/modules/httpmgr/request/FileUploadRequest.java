@@ -1,5 +1,6 @@
 package com.bsb.hike.modules.httpmgr.request;
 
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
 
@@ -393,7 +394,7 @@ public class FileUploadRequest extends Request<JSONObject>
 	{
 		return new IRequestListener() {
 			@Override
-			public void onRequestFailure(HttpException httpException) {
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException) {
 				exception = httpException;
 				time = System.currentTimeMillis();
 			}
@@ -415,7 +416,7 @@ public class FileUploadRequest extends Request<JSONObject>
 		RequestToken requestToken = HttpRequests.getBytesFromServer(this.getUrl(), X_SESSION_ID, new IRequestListener()
 		{
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 				if (httpException.getErrorCode() / 100 > 0)
 				{
