@@ -1444,7 +1444,7 @@ public class MqttMessagesManager
 
 				if (favorites.length() > 0)
 				{
-					ContactManager.getInstance().setMultipleContactsToFavorites(favorites);
+					//ContactManager.getInstance().setMultipleContactsToFavorites(favorites);
 				}
 			}
 

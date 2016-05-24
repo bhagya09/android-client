@@ -4,9 +4,9 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 
 public class DBConstants
 {
-	public static final int CONVERSATIONS_DATABASE_VERSION = 52;
+	public static final int CONVERSATIONS_DATABASE_VERSION = 53;
 
-	public static final int USERS_DATABASE_VERSION = 18;
+	public static final int USERS_DATABASE_VERSION = 19;
 
 	public static final String HAS_CUSTOM_PHOTO = "hascustomphoto";
 
@@ -289,6 +289,9 @@ public class DBConstants
 	public static final int DEFAULT_ACTIVE_STATE = 1;
 
 	public static final int DEFAULT_INACTIVE_STATE = 0;
+
+	public static final String BLOCK_STATUS_INDEX = "blkindex";
+
 
 	public static final String QUICK_SUGGESTED_REPLY_STICKERS = "qck_sgstd_rply_stckrs";
 
@@ -675,6 +678,16 @@ public class DBConstants
 	public static final int LONG_LIVED = 1;
 	
 	public static final String[] JOURNAL_MODE_ARRAY = { "DELETE", "TRUNCATE", "PERSIST", "MEMORY", "WAL", "OFF" };
+
+	public static final String HIKE_UID="uid";
+
+	public static final String BLOCK_STATUS = "bs";
+
+	public static final String STATUS_BLOCKED = "1";
+
+	public static final String STATUS_UNBLOCKED = "0";
+
+	public static final String DROP_TABLE="DROP TABLE IF EXISTS  ";
 
 	public static final String RECENT_STICKERS_TABLE = "recent_stickers_table";
 }

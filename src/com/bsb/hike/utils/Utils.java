@@ -1203,6 +1203,7 @@ public class Utils
 			data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis() / 1000));
 			data.put(HikeConstants.RESOLUTION_ID, Utils.getResolutionId());
 			data.put(HikeConstants.NEW_LAST_SEEN_SETTING, true);
+			data.put(HikeConstants.FAVS_RAI,false);
 			requestAccountInfo.put(HikeConstants.DATA, data);
 			HikeMqttManagerNew.getInstance().sendMessage(requestAccountInfo, MqttConstants.MQTT_QOS_ONE);
 		}
@@ -1657,6 +1658,7 @@ public class Utils
 		{
 			AccountUtils.base = httpString + AccountUtils.host + "/v1";
 			AccountUtils.baseV2 = httpString + AccountUtils.host + "/v2";
+			AccountUtils.baseV3 = httpString + AccountUtils.host + "/v3";
 			AccountUtils.SDK_AUTH_BASE = AccountUtils.SDK_AUTH_BASE_URL_PROD;
 		}
 		else
@@ -1664,6 +1666,7 @@ public class Utils
 			setHostAndPort(whichServer, AccountUtils.ssl);
 			AccountUtils.base = httpString + AccountUtils.host + ":" + Integer.toString(AccountUtils.port) + "/v1";
 			AccountUtils.baseV2 = httpString + AccountUtils.host + ":" + Integer.toString(AccountUtils.port) + "/v2";
+			AccountUtils.baseV3 = httpString + AccountUtils.host + ":" + Integer.toString(AccountUtils.port) + "/v3";
 			AccountUtils.SDK_AUTH_BASE = AccountUtils.SDK_AUTH_BASE_URL_STAGING;
 		}
 
