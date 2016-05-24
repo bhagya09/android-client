@@ -63,8 +63,11 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.chatThemeBgImgUploadBase;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.authSDKBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.bulkLastSeenUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.chatThemeAssetIdDownloadBase;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.chatThemeAssetsDownloadBase;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.deleteAccountBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.editDOBBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.editProfileAvatarBase;
@@ -133,6 +136,30 @@ import static com.bsb.hike.modules.httpmgr.request.Request.REQUEST_TYPE_SHORT;
 
 public class HttpRequests
 {
+	public static RequestToken downloadChatThemeAssets(JSONObject data, IRequestListener requestListener)
+	{
+		IRequestBody body = new JsonBody(data);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(chatThemeAssetsDownloadBase() + "?resId=" + Utils.getResolutionId())
+				.post(body)
+				.setRequestListener(requestListener)
+				.setRequestType(REQUEST_TYPE_SHORT)
+				.setPriority(PRIORITY_HIGH).build();
+		return requestToken;
+	}
+
+	public static RequestToken downloadChatThemeAssetId(JSONObject data, IRequestListener requestListener)
+	{
+		IRequestBody body = new JsonBody(data);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(chatThemeAssetIdDownloadBase() + "?resId=" + Utils.getResolutionId() + "&platform=1")
+				.post(body)
+				.setRequestListener(requestListener)
+				.setRequestType(REQUEST_TYPE_SHORT)
+				.setPriority(PRIORITY_HIGH).build();
+		return requestToken;
+	}
+	
 	public static RequestToken singleStickerDownloadRequest(String requestId, String stickerId, String categoryId, IRequestListener requestListener, String keyboardList)
 	{
 		RequestToken requestToken = new JSONObjectRequest.Builder()
@@ -341,6 +368,25 @@ public class HttpRequests
 				.setRequestListener(requestListener)
 				.setRequestType(REQUEST_TYPE_SHORT)
 				.build();
+		return requestToken;
+	}
+
+	public static RequestToken postCustomChatThemeBgImgUpload(String imageFilePath, String sessionId, IRequestListener requestListener) {
+		RequestToken requestToken = null;
+		try {
+			final MediaType MEDIA_TYPE_PNG = MediaType.parse("image/png");
+			MultipartBuilder multipartBuilder = new MultipartBuilder().type(MultipartBuilder.FORM);
+			File imageFile = new File(imageFilePath);
+			if (imageFile.exists()) {
+				multipartBuilder.addPart(Headers.of("Content-Disposition", "form-data; name=\"file\";filename=\"" + imageFile.getName() + "\""),
+						RequestBody.create(MEDIA_TYPE_PNG, new File(imageFilePath)));
+				final RequestBody requestBody = multipartBuilder.build();
+				MultipartRequestBody body = new MultipartRequestBody(requestBody);
+				requestToken = new JSONObjectRequest.Builder().setUrl(chatThemeBgImgUploadBase()).addHeader(new Header("X-SESSION-ID", sessionId)).setRequestListener(requestListener).post(body).build();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		return requestToken;
 	}
 
