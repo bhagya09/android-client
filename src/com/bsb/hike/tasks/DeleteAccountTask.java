@@ -14,6 +14,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.ces.disk.CesDiskManager;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.backup.AccountBackupRestore;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -178,6 +179,7 @@ public class DeleteAccountTask implements ActivityCallableTask
 			StickerManager.getInstance().deleteStickers();
 		}
 		Utils.deleteDiskCache();
+		CesDiskManager.deleteAllCesData();
 		
 		/**
 		 * Setting token and uid in memory to null

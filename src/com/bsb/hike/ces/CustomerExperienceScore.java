@@ -11,9 +11,14 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.Context;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.ces.CesConstants.CESModule;
+import com.bsb.hike.ces.disk.CesDiskManager;
 import com.bsb.hike.ces.ft.CesFtTask;
 import com.bsb.hike.ces.ft.FTScoreComputation;
 import com.bsb.hike.models.HikeHandlerUtil;
@@ -26,6 +31,8 @@ import com.bsb.hike.utils.Utils;
  */
 public class CustomerExperienceScore {
 
+	private final String TAG = "CustomerExperienceScore";
+
 	private final int CPU_COUNT = Runtime.getRuntime().availableProcessors();
 
 	private final int MAXIMUM_POOL_SIZE = CPU_COUNT * 2 + 1;
@@ -36,20 +43,20 @@ public class CustomerExperienceScore {
 
 	private static volatile CustomerExperienceScore _instance = null;
 
-	private CustomerExperienceScore(Context ctx)
+	private CustomerExperienceScore()
 	{
 		BlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<Runnable>();
 		pool = new ThreadPoolExecutor(1, MAXIMUM_POOL_SIZE, KEEP_ALIVE_TIME, TimeUnit.SECONDS, workQueue, Utils.threadFactory("CES Thread", false), rejectedExecutionHandler());
 	}
 
-	public static CustomerExperienceScore getInstance(Context context)
+	public static CustomerExperienceScore getInstance()
 	{
 		if (_instance == null)
 		{
 			synchronized (CustomerExperienceScore.class)
 			{
 				if (_instance == null)
-					_instance = new CustomerExperienceScore(context.getApplicationContext());
+					_instance = new CustomerExperienceScore();
 			}
 		}
 		return _instance;
@@ -114,15 +121,79 @@ public class CustomerExperienceScore {
 		}
 	}
 
-	public void processCesData()
+	public void processCesScoreAndL1Data()
 	{
 		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
 		{
 			@Override
 			public void run()
 			{
-				ScoreComputationImpl mCompute = new FTScoreComputation();
-				mCompute.getLevelOneInfo();
+				JSONObject cesScore_data = null;
+				JSONObject sData = null;
+				try {
+					cesScore_data = new JSONObject();
+					sData = new JSONObject();
+
+					ScoreComputationImpl ftCompute = new FTScoreComputation();
+					JSONObject ft_score = ftCompute.computeScore();
+
+					if(ft_score != null)
+					{
+						sData.put(CesConstants.CES_SCORE, ft_score);
+					}
+					cesScore_data.put(CesUtils.getDayBeforeUTCDate(), sData);
+					
+					CesTransport transport = new CesTransport();
+					JSONObject response = transport.sendCesScore(cesScore_data);
+					if(response != null && response.has(HikeConstants.DATA_2))
+					{
+						JSONObject respL1Data = response.getJSONObject(HikeConstants.DATA_2);
+						if(respL1Data.has(CesConstants.L1_DATA_REQUIRED))
+						{
+							JSONObject respData = respL1Data.getJSONObject(CesConstants.L1_DATA_REQUIRED);
+							String date = CesUtils.getDayBeforeUTCDate();
+							if(respData.has(date))
+							{
+								JSONObject requiredData = respData.getJSONObject(date);
+								JSONObject cesl1Data = new JSONObject();
+								JSONObject allModuleData = new JSONObject();
+								if(requiredData.has(CesConstants.FT_MODULE))
+								{
+									JSONObject ftModuleData = ftCompute.getL1Data(requiredData.getJSONArray(CesConstants.FT_MODULE));
+									if(ftModuleData != null)
+									{
+										allModuleData.put(CesConstants.FT_MODULE, ftModuleData);
+									}
+								}
+								cesl1Data.put(CesUtils.getDayBeforeUTCDate(), allModuleData);
+								transport.sendCesLevelOneInfo(cesl1Data);
+							}
+						}
+					}
+				} catch (JSONException e)
+				{
+					Logger.e(TAG, "Parsing error : ", e);
+				}
+				finally
+				{
+					CesDiskManager.deleteCesDataOnAndBefore(CesUtils.getDayBeforeUTCDate());
+				}
+			}
+		});
+	}
+
+	public void processCesL2Data(final String module)
+	{
+		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if(CesUtils.whichModule(module) != -1)
+				{
+					CesDiskManager disk = new CesDiskManager(CesUtils.whichModule(module), CesUtils.getDayBeforeUTCDate(), CesDiskManager.DataFlushMode.FLUSH);
+					disk.dumpCesL2Data();
+				}
 			}
 		});
 	}

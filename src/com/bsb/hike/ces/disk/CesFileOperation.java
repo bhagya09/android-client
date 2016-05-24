@@ -17,6 +17,7 @@ import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -110,10 +111,11 @@ public class CesFileOperation {
 		return result;
 	}
 
-	public static List<JSONObject> retrieveCesData(List<JSONObject> data, String filePath)
+	public static boolean dumpCesL2DataToAnalytics(String filePath)
 	{
 		InputStreamReader isr = null;
 		BufferedReader bufferedReader = null;
+		boolean result = false;
 		try
 		{
 			isr = new InputStreamReader(new FileInputStream(filePath));
@@ -123,9 +125,9 @@ public class CesFileOperation {
             while ( (receiveString = bufferedReader.readLine()) != null )
             {
             	JSONObject logLine = new JSONObject(receiveString);
-            	data.add(logLine);
+            	HAManager.getInstance().recordV2(logLine);
             }
-
+            result = true;
 		} catch (FileNotFoundException e)
 		{
 			Logger.e(TAG, "FileNotFoundException : ", e);
@@ -142,6 +144,6 @@ public class CesFileOperation {
 		{
 			Utils.closeStreams(bufferedReader, isr);
 		}
-		return data;
+		return result;
 	}
 }

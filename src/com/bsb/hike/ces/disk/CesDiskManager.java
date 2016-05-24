@@ -14,8 +14,8 @@ import android.support.annotation.IntDef;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.ces.CesConstants;
-import com.bsb.hike.ces.CesConstants.CESInfoType;
-import com.bsb.hike.ces.CesConstants.CESModule;
+import com.bsb.hike.ces.CesUtils;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -25,7 +25,7 @@ import com.bsb.hike.utils.Utils;
  */
 public class CesDiskManager
 {
-	private final String CES_ROOT_DIR = "/ces";
+	private static final String CES_ROOT_DIR = "/ces";
 	private final String L1_FILENAME = "l1ces";
 	private final String L2_FILENAME = "l2ces";
 	private final String FILE_EXTENSION = ".txt";
@@ -71,7 +71,7 @@ public class CesDiskManager
 
 	private void makeDir(String moduleName, String date)
 	{
-		File dir = new File(HikeConstants.HIKE_DIRECTORY_ROOT + CES_ROOT_DIR+ "/" + date + "/" + moduleName);
+		File dir = new File(HikeConstants.HIKE_DIRECTORY_ROOT + CES_ROOT_DIR + "/" + date + "/" + moduleName);
 		if(!dir.exists())
 		{
 			if(!dir.mkdirs())
@@ -244,35 +244,76 @@ public class CesDiskManager
 	private boolean isDiskFreeSpaceAvailable()
 	{
 		boolean result = false;
-		double freeSpace = (Utils.getFreeSpace() / 100) * PERCENT_OF_FREE_DISK;
-		if(freeSpace > getInfoFileSize())
+		double freeSpace = (Utils.getFreeSpace() / 100) * HikeSharedPreferenceUtil.getInstance().getData(CesConstants.ConfigureKey.UTILIZE_DISK_PERCENT, PERCENT_OF_FREE_DISK);
+		if(freeSpace > getCesFileSize())
 		{
 			result = true;
 		}
 		return result;
 	}
 
-	private long getInfoFileSize()
+	private long getCesFileSize() {
+		File cesDir = new File(HikeConstants.HIKE_DIRECTORY_ROOT + CES_ROOT_DIR);
+		if (cesDir == null || !cesDir.exists())
+		{
+			return 0;
+		}
+		if (!cesDir.isDirectory())
+		{
+			return cesDir.length();
+		}
+		final List<File> dirs = new LinkedList<File>();
+		dirs.add(cesDir);
+		long result = 0;
+		while (!dirs.isEmpty())
+		{
+			final File dir = dirs.remove(0);
+			if (!dir.exists())
+			{
+				continue;
+			}
+			final File[] listFiles = dir.listFiles();
+			if (listFiles == null || listFiles.length == 0)
+			{
+				continue;
+			}
+			for (final File child : listFiles)
+			{
+				result += child.length();
+				if (child.isDirectory())
+				{
+					dirs.add(child);
+				}
+			}
+		}
+		return result;
+	}
+
+	public void dumpCesL2Data()
 	{
-		long resultSize = 0;
-		if (level1File != null) {
-			File parentDir = level1File.getParentFile();
-			if (parentDir.isDirectory()) {
-				File[] list = parentDir.listFiles();
-				for (int i = 0; i < list.length; i++) {
-					resultSize += list[i].length();
-				}
-			}
+		CesFileOperation.dumpCesL2DataToAnalytics(getFilePath(CesConstants.CESInfoType.L2));
+	}
+
+	public static void deleteCesDataOnAndBefore(String date)
+	{
+		File dir = new File(HikeConstants.HIKE_DIRECTORY_ROOT + CES_ROOT_DIR + "/" + date);
+		if(dir != null && dir.exists())
+		{
+			Utils.deleteFile(dir);
 		}
-		if (level2File != null) {
-			File parentDir = level2File.getParentFile();
-			if (parentDir.isDirectory()) {
-				File[] list = parentDir.listFiles();
-				for (int i = 0; i < list.length; i++) {
-					resultSize += list[i].length();
-				}
-			}
+		else
+		{
+			return;
 		}
-		return resultSize;
+		deleteCesDataOnAndBefore(CesUtils.getDayBeforeUTCDate(date));
+	}
+
+	public static void deleteAllCesData()
+	{
+		File dir = new File(HikeConstants.HIKE_DIRECTORY_ROOT + CES_ROOT_DIR);
+		if(dir.exists())
+		{
+			Utils.deleteFile(dir);
+		}
 	}
 }
