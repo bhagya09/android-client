@@ -11,6 +11,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
@@ -41,6 +42,8 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.MessagesAdapter;
+import com.bsb.hike.chatthemes.ChatThemeManager;
+import com.bsb.hike.chatthemes.HikeChatThemeConstants;
 import com.bsb.hike.dialog.ContactDialog;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
@@ -49,6 +52,8 @@ import com.bsb.hike.models.ContactInfoData;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
+import com.bsb.hike.models.HikeChatTheme;
+import com.bsb.hike.models.HikeChatThemeAsset;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeSharedFile;
 import com.bsb.hike.models.MessageMetadata;
@@ -78,7 +83,7 @@ public class MessageInfoView
 {
 	ConvMessage convMessage;
 
-	ChatTheme chatTheme;
+	HikeChatTheme chatTheme;
 
 	Context mContext;
 
@@ -128,7 +133,7 @@ public class MessageInfoView
 	};
 
 	private ViewType vType;
-	public MessageInfoView(ConvMessage convMessage, ChatTheme chatTheme, Context mContext, Conversation conversation,BaseAdapter adapter)
+	public MessageInfoView(ConvMessage convMessage, HikeChatTheme chatTheme, Context mContext, Conversation conversation,BaseAdapter adapter)
 	{
 		this.convMessage = convMessage;
 		this.chatTheme = chatTheme;
@@ -157,15 +162,13 @@ public class MessageInfoView
 
 	}
 	private int viewTypeCount=ViewType.values().length;
-	public void setChatTheme(ChatTheme chatTheme){
+	public void setChatTheme(HikeChatTheme chatTheme){
 		this.chatTheme=chatTheme;
 	}
 	public void setConversation(Conversation conversation){
 		this.conversation=conversation;
 	}
-	public View getView(){
-		return getView(convMessage);
-	}
+
 	public View getView(View convertView,final ConvMessage convMessage){
 		int type = getItemViewType(convMessage);
 		MessageMetadata metadata = convMessage.getMetadata();
@@ -245,7 +248,8 @@ public class MessageInfoView
 			}else {
 				nudgeHolder=(NudgeViewHolder) v.getTag();
 			}
-			nudgeHolder.nudge.setImageResource(chatTheme.sentNudgeResId());
+			nudgeHolder.nudge.setImageDrawable(ChatThemeManager.getInstance().
+				getDrawableForTheme(chatTheme.getThemeId(), HikeChatThemeConstants.ASSET_INDEX_SENT_NUDGE_BG));
 			setTimeNStatus(nudgeHolder, true);
 		}
 		else if (viewType == ViewType.WALKIE_TALKIE_SENT)
@@ -274,13 +278,14 @@ public class MessageInfoView
 			circle.setIntrinsicWidth((int) (36 * Utils.scaledDensityMultiplier));
 
 			/* label outgoing hike conversations in green */
-			if (chatTheme == ChatTheme.DEFAULT)
+			if (chatTheme.getThemeId().equalsIgnoreCase(ChatThemeManager.getInstance().defaultChatThemeId))
 			{
 				circle.getPaint().setColor(mContext.getResources().getColor(!convMessage.isSMS() ? R.color.bubble_blue : R.color.bubble_green));
 			}
 			else
 			{
-				circle.getPaint().setColor(mContext.getResources().getColor(chatTheme.bubbleColor()));
+				ColorDrawable bubbleColor = (ColorDrawable) ChatThemeManager.getInstance().getDrawableForTheme(chatTheme.getThemeId(), HikeChatThemeConstants.ASSET_INDEX_BUBBLE_COLOR);
+				circle.getPaint().setColor(bubbleColor.getColor());
 			}
 
 			wtHolder.placeHolder.setBackgroundDrawable(circle);
@@ -744,387 +749,6 @@ public class MessageInfoView
 		});
 		return v;
 	}
-	public View getView(final ConvMessage convMessage)
-	{
-		int type = getItemViewType(convMessage);
-		ViewType viewType = ViewType.values()[type];
-		MessageMetadata metadata = convMessage.getMetadata();
-		View v = null;
-		MessagesAdapter.DetailViewHolder detailViewHolder = new MessagesAdapter.DetailViewHolder();
-		if (viewType == ViewType.STICKER_SENT)
-		{
-			v = inflater.inflate(R.layout.message_sent_sticker, null, false);
-			Sticker sticker = metadata.getSticker();
-			stickerLoader = new StickerLoader.Builder().downloadLargeStickerIfNotFound(true).lookForOfflineSticker(true).loadMiniStickerIfNotFound(true)
-					.downloadMiniStickerIfNotFound(true).stretchMini(true).build();
-			detailViewHolder.time = (TextView) v.findViewById(R.id.time);
-			detailViewHolder.status = (ImageView) v.findViewById(R.id.status);
-			detailViewHolder.timeStatus = v.findViewById(R.id.time_status);
-			detailViewHolder.dayStub = (ViewStub) v.findViewById(R.id.day_stub);
-			detailViewHolder.messageInfoStub = (ViewStub) v.findViewById(R.id.message_info_stub);
-			ImageView stickerImage = (ImageView) v.findViewById(R.id.image);
-			stickerImage.setVisibility(View.VISIBLE);
-
-			stickerLoader.loadSticker(sticker, StickerConstants.StickerType.LARGE, stickerImage, false, true);
-			setTimeNStatus(detailViewHolder, true);
-			return v;
-		}
-		else if (viewType == ViewType.NUDGE_SENT)
-		{
-			v = inflater.inflate(R.layout.message_sent_nudge, null, false);
-			ImageView nudge = (ImageView) v.findViewById(R.id.nudge);
-			detailViewHolder.time = (TextView) v.findViewById(R.id.time);
-			detailViewHolder.status = (ImageView) v.findViewById(R.id.status);
-			detailViewHolder.timeStatus = v.findViewById(R.id.time_status);
-			detailViewHolder.dayStub = (ViewStub) v.findViewById(R.id.day_stub);
-			detailViewHolder.messageInfoStub = (ViewStub) v.findViewById(R.id.message_info_stub);
-			nudge.setImageResource(chatTheme.sentNudgeResId());
-			setTimeNStatus(detailViewHolder, true);
-		}
-		else if (viewType == ViewType.WALKIE_TALKIE_SENT)
-		{
-			v = inflater.inflate(R.layout.message_sent_walkie_talkie, null, false);
-			ImageView action = (ImageView) v.findViewById(R.id.action);
-			action.setImageResource(R.drawable.ic_mic);
-			View placeHolder = v.findViewById(R.id.placeholder);
-			detailViewHolder.time = (TextView) v.findViewById(R.id.time);
-			detailViewHolder.status = (ImageView) v.findViewById(R.id.status);
-			detailViewHolder.timeStatus = v.findViewById(R.id.time_status);
-			detailViewHolder.dayStub = (ViewStub) v.findViewById(R.id.day_stub);
-			detailViewHolder.messageInfoStub = (ViewStub) v.findViewById(R.id.message_info_stub);
-			HoloCircularProgress progress = (HoloCircularProgress) v.findViewById(R.id.play_progress);
-			TextView duration = (TextView) v.findViewById(R.id.duration);
-			duration.setVisibility(View.VISIBLE);
-			ShapeDrawable circle = new ShapeDrawable(new OvalShape());
-			circle.setIntrinsicHeight((int) (36 * Utils.scaledDensityMultiplier));
-			circle.setIntrinsicWidth((int) (36 * Utils.scaledDensityMultiplier));
-
-			/* label outgoing hike conversations in green */
-			if (chatTheme == ChatTheme.DEFAULT)
-			{
-				circle.getPaint().setColor(mContext.getResources().getColor(!convMessage.isSMS() ? R.color.bubble_blue : R.color.bubble_green));
-			}
-			else
-			{
-				circle.getPaint().setColor(mContext.getResources().getColor(chatTheme.bubbleColor()));
-			}
-
-			placeHolder.setBackgroundDrawable(circle);
-			setTimeNStatus(detailViewHolder, true);
-			final HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
-
-			if (!TextUtils.isEmpty(hikeFile.getFileKey()))
-			{
-				action.setBackgroundResource(0);
-				action.setImageResource(0);
-
-				action.setImageResource(R.drawable.ic_mic);
-				Utils.setupFormattedTime(duration, hikeFile.getRecordingDuration());
-				duration.setVisibility(View.VISIBLE);
-				progress.setVisibility(View.INVISIBLE);
-			}
-			action.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-		}
-		else if (viewType == ViewType.VIDEO_SENT)
-		{
-			v = inflater.inflate(R.layout.message_sent_video, null, false);
-			ImageView fileThumb = (ImageView) v.findViewById(R.id.file_thumb);
-			ImageView ftAction = (ImageView) v.findViewById(R.id.action);
-			ViewGroup messageContainer = (ViewGroup) v.findViewById(R.id.message_container);
-			detailViewHolder.time = (TextView) v.findViewById(R.id.time);
-			detailViewHolder.status = (ImageView) v.findViewById(R.id.status);
-			detailViewHolder.timeStatus = v.findViewById(R.id.time_status);
-			detailViewHolder.dayStub = (ViewStub) v.findViewById(R.id.day_stub);
-			detailViewHolder.messageInfoStub = (ViewStub) v.findViewById(R.id.message_info_stub);
-			final HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
-			Drawable thumbnail = null;
-			if (hikeFile.getThumbnail() == null && !TextUtils.isEmpty(hikeFile.getFileKey()))
-			{
-				thumbnail = HikeMessengerApp.getLruCache().getFileIconFromCache(hikeFile.getFileKey());
-			}
-			else
-			{
-				thumbnail = hikeFile.getThumbnail();
-			}
-			fileThumb.setBackgroundDrawable(thumbnail);// /Look for createMediaThumnail TODO: Check
-			setTimeNStatus(detailViewHolder, true);
-		}
-		else if (viewType == ViewType.IMAGE_SENT)
-		{
-			v = inflater.inflate(R.layout.message_sent_image, null, false);
-			ImageView fileThumb = (ImageView) v.findViewById(R.id.file_thumb);
-			ImageView ftAction = (ImageView) v.findViewById(R.id.action);
-			detailViewHolder.time = (TextView) v.findViewById(R.id.time);
-			detailViewHolder.status = (ImageView) v.findViewById(R.id.status);
-			detailViewHolder.timeStatus = v.findViewById(R.id.time_status);
-			detailViewHolder.dayStub = (ViewStub) v.findViewById(R.id.day_stub);
-			detailViewHolder.messageInfoStub = (ViewStub) v.findViewById(R.id.message_info_stub);
-			ViewGroup messageContainer = (ViewGroup) v.findViewById(R.id.message_container);
-			HoloCircularProgress circularProgress = (HoloCircularProgress) v.findViewById(R.id.progress);
-			circularProgress.setVisibility(View.GONE);
-			ProgressBar initializing = (ProgressBar) v.findViewById(R.id.initializing);
-			initializing.setVisibility(View.INVISIBLE);
-			View circularProgressBg = v.findViewById(R.id.circular_bg);
-			circularProgressBg.setVisibility(View.GONE);
-
-			Drawable thumbnail = null;
-			final HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
-			if (hikeFile.getThumbnail() == null && !TextUtils.isEmpty(hikeFile.getFileKey()))
-			{
-				thumbnail = HikeMessengerApp.getLruCache().getFileIconFromCache(hikeFile.getFileKey());
-			}
-			else
-			{
-				thumbnail = hikeFile.getThumbnail();
-			}
-			fileThumb.setImageDrawable(thumbnail);
-
-			RelativeLayout.LayoutParams fileThumbParams = (RelativeLayout.LayoutParams) fileThumb.getLayoutParams();
-
-			{
-				fileThumb.setScaleType(ImageView.ScaleType.CENTER_CROP);
-				fileThumbParams.height = (int) (150 * Utils.scaledDensityMultiplier);
-				fileThumbParams.width = (int) ((thumbnail.getIntrinsicWidth() * fileThumbParams.height) / thumbnail.getIntrinsicHeight());
-				/*
-				 * fixed the bug when image thumbnail is very big. By specifying a maximum width for the thumbnail so that download button can also fit to the screen.
-				 */
-
-				// Set Thumbnail Width
-				int maxWidth = (int) (250 * Utils.scaledDensityMultiplier);
-				fileThumbParams.width = Math.min(fileThumbParams.width, maxWidth);
-				int minWidth = (int) (119 * Utils.scaledDensityMultiplier);
-				fileThumbParams.width = Math.max(fileThumbParams.width, minWidth);
-				if (fileThumbParams.width == minWidth)
-				{
-					fileThumbParams.height = ((thumbnail.getIntrinsicHeight() * minWidth) / thumbnail.getIntrinsicWidth());
-				}
-				else if (fileThumbParams.width == maxWidth)
-				{
-					fileThumbParams.height = ((thumbnail.getIntrinsicHeight() * maxWidth) / thumbnail.getIntrinsicWidth());
-				}
-
-				// Set Thumbnail Height
-				int minHeight = (int) (70 * Utils.scaledDensityMultiplier);
-				fileThumbParams.height = Math.max(fileThumbParams.height, minHeight);
-				if (fileThumbParams.height == minHeight)
-				{
-					int width = ((thumbnail.getIntrinsicWidth() * minHeight) / thumbnail.getIntrinsicHeight());
-					if (width >= minWidth && width <= maxWidth)
-						fileThumbParams.width = width;
-				}
-			}
-			fileThumb.setScaleType(ImageView.ScaleType.CENTER_CROP);
-			fileThumb.setLayoutParams(fileThumbParams);
-
-			fileThumb.setVisibility(View.VISIBLE);
-
-			setBubbleColor(convMessage, messageContainer);
-			setTimeNStatus(detailViewHolder, true);
-
-		}
-		else if (viewType == ViewType.LOCATION_SENT)
-		{
-			v = inflater.inflate(R.layout.message_sent_image, null, false);
-			ImageView fileThumb = (ImageView) v.findViewById(R.id.file_thumb);
-			View circularProgressBg = v.findViewById(R.id.circular_bg);
-			detailViewHolder.time = (TextView) v.findViewById(R.id.time);
-			detailViewHolder.status = (ImageView) v.findViewById(R.id.status);
-			detailViewHolder.timeStatus = v.findViewById(R.id.time_status);
-			detailViewHolder.dayStub = (ViewStub) v.findViewById(R.id.day_stub);
-			detailViewHolder.messageInfoStub = (ViewStub) v.findViewById(R.id.message_info_stub);
-			circularProgressBg.setVisibility(View.GONE);
-			HoloCircularProgress circularProgress = (HoloCircularProgress) v.findViewById(R.id.progress);
-			circularProgress.setVisibility(View.GONE);
-			ProgressBar initializing = (ProgressBar) v.findViewById(R.id.initializing);
-			initializing.setVisibility(View.INVISIBLE);
-
-			Drawable thumbnail = null;
-			final HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
-			if (hikeFile.getThumbnail() == null && !TextUtils.isEmpty(hikeFile.getFileKey()))
-			{
-				thumbnail = HikeMessengerApp.getLruCache().getFileIconFromCache(hikeFile.getFileKey());
-			}
-			else
-			{
-				thumbnail = hikeFile.getThumbnail();
-			}
-			if (thumbnail != null)
-			{
-				fileThumb.setBackgroundDrawable(thumbnail);
-			}
-			else
-			{
-				createMediaThumb(fileThumb);
-				fileThumb.setImageResource(R.drawable.ic_default_location);
-				fileThumb.setScaleType(ImageView.ScaleType.CENTER);
-			}
-			setTimeNStatus(detailViewHolder, true);
-		}
-		else if (viewType == ViewType.CONTACT_SENT)
-		{
-			v = inflater.inflate(R.layout.message_sent_file, null, false);
-			ImageView fileThumb = (ImageView) v.findViewById(R.id.file_thumb);
-			View fileDetails = v.findViewById(R.id.file_details);
-			TextView fileSize = (TextView) v.findViewById(R.id.file_size);
-			TextView fileName = (TextView) v.findViewById(R.id.file_name);
-			View circularProgressBg = v.findViewById(R.id.circular_bg);
-
-			circularProgressBg.setVisibility(View.GONE);
-			detailViewHolder.time = (TextView) v.findViewById(R.id.time);
-			detailViewHolder.status = (ImageView) v.findViewById(R.id.status);
-			detailViewHolder.timeStatus = v.findViewById(R.id.time_status);
-			detailViewHolder.dayStub = (ViewStub) v.findViewById(R.id.day_stub);
-			detailViewHolder.messageInfoStub = (ViewStub) v.findViewById(R.id.message_info_stub);
-			ViewGroup messageContainer = (ViewGroup) v.findViewById(R.id.message_container);
-			final HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
-			fileThumb.setImageResource(R.drawable.ic_default_contact);
-			fileThumb.setScaleType(ImageView.ScaleType.CENTER);
-			fileName.setText(hikeFile.getDisplayName());
-			fileThumb.setScaleType(ImageView.ScaleType.CENTER);
-			fileName.setText(hikeFile.getDisplayName());
-			List<ContactInfoData> items = Utils.getContactDataFromHikeFile(hikeFile);
-			String phone = null, email = null;
-			for (ContactInfoData contactInfoData : items)
-			{
-				if (contactInfoData.getDataType() == ContactInfoData.DataType.PHONE_NUMBER)
-					phone = contactInfoData.getData();
-
-				else if (contactInfoData.getDataType() == ContactInfoData.DataType.EMAIL)
-					email = contactInfoData.getData();
-			}
-
-			if (!TextUtils.isEmpty(phone))
-			{
-				fileSize.setText(phone);
-				fileSize.setVisibility(View.VISIBLE);
-			}
-			else if (!TextUtils.isEmpty(email))
-			{
-				fileSize.setText(email);
-				fileSize.setVisibility(View.VISIBLE);
-			}
-
-			fileThumb.setVisibility(View.VISIBLE);
-			fileName.setVisibility(View.VISIBLE);
-			fileDetails.setVisibility(View.VISIBLE);
-
-			setBubbleColor(convMessage, messageContainer);
-			setTimeNStatus(detailViewHolder, false);
-		}
-		else if (viewType == ViewType.FILE_SENT)
-		{
-			v = inflater.inflate(R.layout.message_sent_file, null, false);
-			ImageView fileThumb = (ImageView) v.findViewById(R.id.file_thumb);
-			TextView fileExtension = (TextView) v.findViewById(R.id.file_extension);
-			View circularProgressBg = v.findViewById(R.id.circular_bg);
-			circularProgressBg.setVisibility(View.GONE);
-			View fileDetails = v.findViewById(R.id.file_details);
-			TextView fileSize = (TextView) v.findViewById(R.id.file_size);
-			TextView fileName = (TextView) v.findViewById(R.id.file_name);
-			TextView time = (TextView) v.findViewById(R.id.time);
-			ImageView status = (ImageView) v.findViewById(R.id.status);
-			View timeStatus = (View) v.findViewById(R.id.time_status);
-			ViewGroup messageContainer = (ViewGroup) v.findViewById(R.id.message_container);
-			detailViewHolder.time = time;
-			detailViewHolder.status = status;
-			detailViewHolder.timeStatus = timeStatus;
-			detailViewHolder.dayStub = (ViewStub) v.findViewById(R.id.day_stub);
-			detailViewHolder.messageInfoStub = (ViewStub) v.findViewById(R.id.message_info_stub);
-			setBubbleColor(convMessage, messageContainer);
-			final HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
-			String fileNameString = hikeFile.getFileName();
-			fileName.setText(fileNameString);
-
-			if ((hikeFile.getFile().length() > 0))
-			{
-				fileSize.setText(Utils.getSizeForDisplay(hikeFile.getFile().length()));
-			}
-			else if (hikeFile.getFileSize() > 0)
-			{
-				fileSize.setText(Utils.getSizeForDisplay(hikeFile.getFileSize()));
-			}
-			else
-			{
-				fileSize.setText("");
-			}
-			String ext = Utils.getFileExtension(hikeFile.getFileName()).toUpperCase();
-			if (!TextUtils.isEmpty(ext))
-			{
-				fileExtension.setText(ext);
-			}
-			else
-			{
-				fileExtension.setText("?");
-			}
-
-			fileThumb.setVisibility(View.VISIBLE);
-			fileName.setVisibility(View.VISIBLE);
-			fileSize.setVisibility(View.VISIBLE);
-			fileExtension.setVisibility(View.VISIBLE);
-			fileDetails.setVisibility(View.VISIBLE);
-			setTimeNStatus(detailViewHolder, false);
-
-		}
-		else
-		{
-
-			v = inflater.inflate(R.layout.message_sent_text, null, false);
-			TextView text = (TextView) v.findViewById(R.id.text);
-
-			ViewGroup messageContainer = (ViewGroup) v.findViewById(R.id.message_container);
-			detailViewHolder.time = (TextView) v.findViewById(R.id.time);
-			detailViewHolder.status = (ImageView) v.findViewById(R.id.status);
-			detailViewHolder.timeStatus = v.findViewById(R.id.time_status);
-			detailViewHolder.dayStub = (ViewStub) v.findViewById(R.id.day_stub);
-			detailViewHolder.messageInfoStub = (ViewStub) v.findViewById(R.id.message_info_stub);
-			setBubbleColor(convMessage, messageContainer);
-			CustomMessageTextView tv = (CustomMessageTextView) text;
-			tv.setDimentionMatrixHolder(convMessage);
-			if (viewType == ViewType.SEND_HIKE || viewType == ViewType.SEND_SMS)
-			{
-				CustomSendMessageTextView sendTV = (CustomSendMessageTextView) tv;
-				if ((convMessage.isBroadcastMessage() && !convMessage.isBroadcastConversation()) || (convMessage.isOfflineMessage() && convMessage.isSent()))
-				{
-					sendTV.setBroadcastLength();
-				}
-				else
-				{
-					sendTV.setDefaultLength();
-				}
-			}
-
-			{
-				CharSequence markedUp = convMessage.getMessage();
-				SmileyParser smileyParser = SmileyParser.getInstance();
-				markedUp = smileyParser.addSmileySpans(markedUp, false);
-				text.setText(markedUp);
-
-			}
-			setTimeNStatus(detailViewHolder, false);
-
-		}
-		v.setOnClickListener(new View.OnClickListener()
-		{
-			@Override
-			public void onClick(View v)
-			{
-				if (convMessage.getMetadata() != null)
-				{
-					List<HikeFile> list = convMessage.getMetadata().getHikeFiles();
-					if (list != null && !list.isEmpty())
-					{
-						final HikeFile hikeFile = list.get(0);
-						if (!TextUtils.isEmpty(hikeFile.getFileKey()))
-						{
-							openFile(hikeFile, convMessage, v);
-						}
-					}
-				}
-			}
-		});
-		return v;
-	}
-
 
 	/**
 	 * Returns what type of View this item is going to result in * @return an integer
@@ -1243,7 +867,6 @@ public class MessageInfoView
 		vType=type;
 		return type.ordinal();
 	}
-
 	private void setBubbleColor(ConvMessage convMessage, ViewGroup messageContainer)
 	{
 		int leftPad = messageContainer.getPaddingLeft();
@@ -1252,13 +875,13 @@ public class MessageInfoView
 		int bottomPad = messageContainer.getPaddingBottom();
 		if (convMessage.isSent() && messageContainer != null)
 		{
-			if (chatTheme == ChatTheme.DEFAULT)
+			if (chatTheme.getThemeId().equals(ChatThemeManager.getInstance().defaultChatThemeId))
 			{
 				messageContainer.setBackgroundResource(!convMessage.isSMS() ? R.drawable.ic_bubble_blue_selector : R.drawable.ic_bubble_green_selector);
 			}
 			else
 			{
-				messageContainer.setBackgroundResource(chatTheme.bubbleResId());
+				Utils.setBackground(messageContainer, ChatThemeManager.getInstance().getDrawableForTheme(chatTheme.getThemeId(), HikeChatThemeConstants.ASSET_INDEX_CHAT_BUBBLE_BG));
 			}
 		}
 		messageContainer.setPadding(leftPad, topPad, rightPad, bottomPad);
@@ -1972,7 +1595,7 @@ public class MessageInfoView
 		{
 			inflated.setVisibility(View.VISIBLE);
 			messageInfo.setVisibility(View.VISIBLE);
-			messageInfo.setTextColor(mContext.getResources().getColor(chatTheme == chatTheme.DEFAULT ? R.color.list_item_subtext : R.color.white));
+			messageInfo.setTextColor(mContext.getResources().getColor(chatTheme.getThemeId().equals(ChatThemeManager.getInstance().defaultChatThemeId) ? R.color.list_item_subtext : R.color.white));
 
 		}
 	}
