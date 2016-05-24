@@ -17,6 +17,7 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.utils.BirthdayUtils;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.PairModified;
@@ -305,7 +306,8 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 
 		if(showBdaySection)
 		{
-			bdayContactList = ChatHeadUtils.getSortedBdayContactListFromSharedPref();
+			bdayContactList = BirthdayUtils.getSortedBdayContactListFromSharedPref();
+			BirthdayUtils.removeHiddenMsisdn(bdayContactList);
 		}
 		else
 		{
