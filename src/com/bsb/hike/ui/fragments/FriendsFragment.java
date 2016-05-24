@@ -542,7 +542,7 @@ public class FriendsFragment extends ListFragment implements Listener, OnItemLon
 
 		ArrayList<String> optionsList = new ArrayList<String>();
 
-		optionsList.add(getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.remove_from_friends : R.string.remove_from_favorites));
+		optionsList.add(getString(R.string.remove_from_friends));
 
 		final String[] options = new String[optionsList.size()];
 		optionsList.toArray(options);
@@ -557,7 +557,7 @@ public class FriendsFragment extends ListFragment implements Listener, OnItemLon
 			public void onClick(DialogInterface dialog, int which)
 			{
 				String option = options[which];
-				if (getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.remove_from_friends :R.string.remove_from_favorites).equals(option))
+				if (getString(R.string.remove_from_friends).equals(option))
 				{
 					Utils.checkAndUnfriendContact(contactInfo);
 				}

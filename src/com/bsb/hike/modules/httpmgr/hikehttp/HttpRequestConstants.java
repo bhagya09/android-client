@@ -367,6 +367,11 @@ public class HttpRequestConstants
 		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/addressbook";
 	}
 
+	public static String postAddressbookBaseV3Url()
+	{
+		return BASE_URL + BASE_V3 + BASE_ACCOUNT + "/addressbook";
+	}
+
 	public static String updateAddressbookBaseUrl()
 	{
 		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/addressbook-update";
@@ -453,6 +458,12 @@ public class HttpRequestConstants
 	{
 		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/profile/";
 	}
+
+	public static String getHikeJoinTimeBaseV2Url()
+	{
+		return BASE_URL + BASE_V2 + BASE_ACCOUNT + "/profile/";
+	}
+
 
 	public static String registerAccountBaseUrl()
 	{
@@ -647,7 +658,11 @@ public class HttpRequestConstants
 		return  BASE_URL + BASE_V1 + "hsu/";
 	}
 
-	public static String getSettingsUploadUrl()
+	public static String fetchUIDForMissingMsisdnUrl()
+	{
+		return BASE_URL + BASE_V2 +BASE_ACCOUNT+ "/user-identifier-update-graph";
+	}
+		public static String getSettingsUploadUrl()
 	{
 		return  BASE_URL + BASE_V5 + HIKE_SETTINGS;
 	}
