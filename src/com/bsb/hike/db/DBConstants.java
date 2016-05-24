@@ -432,6 +432,8 @@ public class DBConstants
 		public static final String TIP_DATA = "tp_data";
 		public static final String TIP_PRIORITY = "tp_prrt";
 
+		public static final String POPUPDATA_INDEX = "popupdata_index";
+
 	}
 	
 	public static interface HIKE_PERSISTENCE

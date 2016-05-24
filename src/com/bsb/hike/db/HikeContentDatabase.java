@@ -105,7 +105,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper
 
 	private String[] getCreateQueries()
 	{
-		String[] createAndIndexes = new String[12];
+		String[] createAndIndexes = new String[13];
 		int i = 0;
 		// CREATE TABLE
 		// CONTENT TABLE -> _id,content_id,love_id,channel_id,timestamp,metadata
@@ -188,6 +188,9 @@ public class HikeContentDatabase extends SQLiteOpenHelper
 
 		createAndIndexes[i++] = getPlatformDownloadStateTableQuery();
 		// INDEX ENDS HERE
+
+		String caretePopupdataIndex = CREATE_INDEX + POPUPDATA_INDEX + " ON " + POPUPDATA + " ( " + PID + " ) ";
+		createAndIndexes[i++] = caretePopupdataIndex;
 
 		return createAndIndexes;
 	}
@@ -289,6 +292,9 @@ public class HikeContentDatabase extends SQLiteOpenHelper
 		{
 			String alterPopupTable = "ALTER TABLE " + POPUPDATA + " ADD COLUMN " + PID + " TEXT ";
 			queries.add(alterPopupTable);
+
+			String caretePopupdataIndex = CREATE_INDEX + POPUPDATA_INDEX + " ON " + POPUPDATA + " ( " + PID + " ) ";
+			queries.add(caretePopupdataIndex);
 		}
 		return queries.toArray(new String[]{});
 	}
