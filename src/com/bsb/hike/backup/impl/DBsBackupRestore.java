@@ -1,10 +1,12 @@
 package com.bsb.hike.backup.impl;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.backup.iface.BackupableRestorable;
 import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.StickerManager;
 
@@ -49,6 +51,7 @@ public class DBsBackupRestore implements BackupableRestorable
 				}
 
                 StickerManager.getInstance().postRestoreSetup();
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CHAT_BG_TABLE_MIGRATION, 0);
 			}
 		};
 
