@@ -1,25 +1,26 @@
 package com.bsb.hike.modules.stickersearch.tasks;
 
-import android.text.TextUtils;
-import android.util.Pair;
-
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.modules.stickersearch.datamodel.CategoryTagData;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchDatabase;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
-import com.squareup.okhttp.internal.Util;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+/**
+ * Created by akhiltripathi on 12/04/16.
+ */
 
 public class CategoryTagInsertTask implements Runnable
 {

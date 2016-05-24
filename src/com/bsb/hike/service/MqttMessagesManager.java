@@ -35,6 +35,8 @@ import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.db.DBConstants;
+import com.bsb.hike.chatthemes.ChatThemeManager;
+import com.bsb.hike.chatthemes.HikeChatThemeConstants;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.db.dbcommand.GetSqliteVersionCommand;
@@ -103,7 +105,6 @@ import com.bsb.hike.triggers.InterceptUtils;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.userlogs.UserLogInfo;
 import com.bsb.hike.utils.AccountUtils;
-import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.ClearGroupTypingNotification;
 import com.bsb.hike.utils.ClearTypingNotification;
 import com.bsb.hike.utils.FestivePopup;
@@ -566,11 +567,14 @@ public class MqttMessagesManager
 					 */
 					if (chatBgJson.optBoolean(HikeConstants.CUSTOM))
 					{
-						throw new IllegalArgumentException();
+						//throw new IllegalArgumentException();
+						//putting request to download the asset ids for the theme
+						ChatThemeManager.getInstance().downloadThemeAssetsMetadata(bgId, true);
 					}
 
-					ChatTheme chatTheme = ChatTheme.getThemeFromId(bgId);
-					convDb.setChatBackground(groupId, chatTheme.bgId(), 0);
+					String chatThemeId = bgId;
+					convDb.setChatBackground(groupId, bgId, 0);
+
 				}
 				catch (IllegalArgumentException e)
 				{
@@ -1485,7 +1489,7 @@ public class MqttMessagesManager
 
 				if (favorites.length() > 0)
 				{
-					ContactManager.getInstance().setMultipleContactsToFavorites(favorites);
+					//ContactManager.getInstance().setMultipleContactsToFavorites(favorites);
 				}
 			}
 
@@ -1703,11 +1707,8 @@ public class MqttMessagesManager
 		{
 			incrementUnseenStatusCount();
 
-			if (Utils.isFavToFriendsMigrationAllowed())
-			{
-				ConvMessage message = Utils.generateAddFriendSystemMessage(msisdn, HikeMessengerApp.getInstance().getString(R.string.friend_req_inline_msg_received, contactInfo.getFirstNameAndSurname()), true, State.RECEIVED_UNREAD);
-				HikeMessengerApp.getPubSub().publish(HikePubSub.ADD_INLINE_FRIEND_MSG, message);
-			}
+			ConvMessage message = Utils.generateAddFriendSystemMessage(msisdn, HikeMessengerApp.getInstance().getString(R.string.friend_req_inline_msg_received, contactInfo.getFirstNameAndSurname()), true, State.RECEIVED_UNREAD);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.ADD_INLINE_FRIEND_MSG, message);
 		}
 		else if (favoriteType == favoriteType.REQUEST_RECEIVED && currentType != favoriteType.REQUEST_RECEIVED)
 		{
@@ -1717,11 +1718,8 @@ public class MqttMessagesManager
 				Utils.incrementOrDecrementFriendRequestCount(settings, 1);
 			}
 
-			if (Utils.isFavToFriendsMigrationAllowed())
-			{
-				ConvMessage message = Utils.generateAddFriendSystemMessage(msisdn, HikeMessengerApp.getInstance().getString(R.string.friend_req_inline_msg_received, contactInfo.getFirstNameAndSurname()), true, State.RECEIVED_UNREAD);
-				HikeMessengerApp.getPubSub().publish(HikePubSub.ADD_INLINE_FRIEND_MSG, message);
-			}
+			ConvMessage message = Utils.generateAddFriendSystemMessage(msisdn, HikeMessengerApp.getInstance().getString(R.string.friend_req_inline_msg_received, contactInfo.getFirstNameAndSurname()), true, State.RECEIVED_UNREAD);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.ADD_INLINE_FRIEND_MSG, message);
 		}
 
 		contactInfo.setFavoriteType(favoriteType);
@@ -3095,22 +3093,22 @@ public class MqttMessagesManager
 			boolean enabled = data.getBoolean(HikeConstants.MESSAGE_INFO_ENABLED);
 			editor.putBoolean(HikeConstants.MESSAGE_INFO_ENABLED, enabled);
 		}
-		if (data.has(HikeConstants.MESSAGE_INFO_ENABLED_DATABASE)) {
-			boolean enabled = data.getBoolean(HikeConstants.MESSAGE_INFO_ENABLED_DATABASE);
-			editor.putBoolean(HikeConstants.MESSAGE_INFO_ENABLED_DATABASE, enabled);
+
+		if (data.has(HikeConstants.CUSTOM_CHATTHEME_ENABLED))
+		{
+			boolean enabled = data.getBoolean(HikeConstants.CUSTOM_CHATTHEME_ENABLED);
+			editor.putBoolean(HikeConstants.CUSTOM_CHATTHEME_ENABLED, enabled);
+		}
+		if (data.has(HikeConstants.CUSTOM_CHATTHEME_DISABLE_OVERLAY))
+		{
+			boolean disabled = data.getBoolean(HikeConstants.CUSTOM_CHATTHEME_DISABLE_OVERLAY);
+			editor.putBoolean(HikeConstants.CUSTOM_CHATTHEME_DISABLE_OVERLAY, disabled);
 		}
 		if (data.has(HikeConstants.LARGE_VIDEO_SHARING_ENABLED))
 		{
 			boolean enabled = data.getBoolean(HikeConstants.LARGE_VIDEO_SHARING_ENABLED);
 			editor.putBoolean(HikeConstants.LARGE_VIDEO_SHARING_ENABLED, enabled);
 		}
-		if (data.has(HikeConstants.FAV_TO_FRIENDS_MIGRATION))
-		{
-			boolean fav_to_friends_switch = data.getBoolean(HikeConstants.FAV_TO_FRIENDS_MIGRATION);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FAV_TO_FRIENDS_MIGRATION, fav_to_friends_switch);
-			Utils.makeFavFriendsTransition();
-		}
-
 		if (data.has(HikeConstants.IS_NEW_USER))
 		{
 			boolean isNewUser = data.getBoolean(HikeConstants.IS_NEW_USER);
@@ -3217,7 +3215,13 @@ public class MqttMessagesManager
 			long bdayHttpTimeGap = data.getLong(HikeConstants.BDAY_HTTP_CALL_TIME_GAP);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BDAY_HTTP_CALL_TIME_GAP, bdayHttpTimeGap);
 		}
-		
+
+		if (data.has(HikeConstants.DISABLE_QUICK_UPLOAD))
+		{
+			boolean disableQuickUpload = data.getBoolean(HikeConstants.DISABLE_QUICK_UPLOAD);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.DISABLE_QUICK_UPLOAD, disableQuickUpload);
+		}
+
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 
@@ -3420,7 +3424,7 @@ public class MqttMessagesManager
 		 */
 		if (statusMessage.getStatusMessageType() == null
 				|| conMgr.isBlocked(statusMessage.getMsisdn())
-				|| (Utils.isFavToFriendsMigrationAllowed() && !conMgr.isTwoWayFriend(statusMessage.getMsisdn()))
+				|| (!conMgr.isTwoWayFriend(statusMessage.getMsisdn()))
 				)
 		{
 			return;
@@ -3917,6 +3921,10 @@ public class MqttMessagesManager
 
 	public void saveChatBackground(JSONObject jsonObj) throws JSONException
 	{
+		if(saveChatThemeSignals(jsonObj))
+		{
+			return;
+		}
 		String from = jsonObj.optString(HikeConstants.FROM);
 		String to = jsonObj.optString(HikeConstants.TO);
 
@@ -3930,7 +3938,7 @@ public class MqttMessagesManager
 		}
 		String id = isGroupConversation ? to : from;
 
-		Pair<ChatTheme, Long> chatThemedata = convDb.getChatThemeAndTimestamp(id);
+		Pair<String, Long> chatThemedata = convDb.getChatThemeIdAndTimestamp(id);
 
 		if (chatThemedata != null)
 		{
@@ -3947,7 +3955,7 @@ public class MqttMessagesManager
 				JSONObject data = jsonObj.getJSONObject(HikeConstants.DATA);
 				String bgId = data.optString(HikeConstants.BG_ID);
 
-				if (bgId.equals(chatThemedata.first.bgId()))
+				if (bgId.equals(chatThemedata.first))
 				{
 					/*
 					 * Duplicate theme.
@@ -3965,16 +3973,15 @@ public class MqttMessagesManager
 			/*
 			 * If this is a custom theme, we should show it as not supported.
 			 */
-			if (data.optBoolean(HikeConstants.CUSTOM))
-			{
-				throw new IllegalArgumentException();
+			if (data.optBoolean(HikeConstants.CUSTOM)) {
+				//throw new IllegalArgumentException();
+				//putting a request to downlaod the asset ids for the theme
+				ChatThemeManager.getInstance().downloadThemeAssetsMetadata(bgId, true);
+			}else {
+				String chatThemeId = bgId;
+				this.pubSub.publish(HikePubSub.CHAT_BACKGROUND_CHANGED, new Pair<String, String>(id, bgId));
 			}
-
-			ChatTheme chatTheme = ChatTheme.getThemeFromId(bgId);
 			convDb.setChatBackground(id, bgId, timestamp);
-
-			this.pubSub.publish(HikePubSub.CHAT_BACKGROUND_CHANGED, new Pair<String, ChatTheme>(id, chatTheme));
-
 			saveStatusMsg(jsonObj, id);
 		}
 		catch (IllegalArgumentException e)
@@ -3984,6 +3991,34 @@ public class MqttMessagesManager
 			 * will keep on current applied theme.
 			 */
 		}
+	}
+
+	private boolean saveChatThemeSignals(JSONObject jsonObj)
+	{
+		try
+		{
+			if(jsonObj.has(HikeConstants.SUB_TYPE)) {
+				String type = jsonObj.getString(HikeConstants.SUB_TYPE);
+				if (type.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_NEW_THEME))//New Theme Signal
+				{
+					JSONObject data = jsonObj.getJSONObject(HikeConstants.DATA);
+					JSONArray themeData = data.getJSONArray(HikeChatThemeConstants.JSON_SIGNAL_THEME_DATA);
+					//TODO CHATTHEME, Enable if it OTA Themes
+					//ChatThemeManager.getInstance().processNewThemeSignal(themeData, false);
+					return true;
+				} else if (type.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_DEL_THEME))//Delete Theme Packet
+				{
+					JSONObject data = jsonObj.getJSONObject(HikeConstants.DATA);
+					ChatThemeManager.getInstance().processDeleteThemeSignal(data);
+					return true;
+				}
+			}
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		return false;
 	}
 
 	private void saveGroupOwnerChange(JSONObject jsonObj) throws JSONException

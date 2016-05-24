@@ -1427,4 +1427,7 @@
     <string name="pack_search_again_hint">कृपया प्यार, हिंदी, बॉलीवुड इत्यादि की तरह पूरे पूरे शब्द लिखें</string>
     <string name="edit_profile_birthday">जन्मदिन</string>
     <string name="atomic_tip_http_failure">कुछ त्रुटि हुई। कृपया कुछ देर बाद प्रयत्न करें</string>
+    <string name="my_location">मेरा स्थान</string>
+    <string name="custom_location">मेरा कस्टम स्थान</string>
+
 </resources>

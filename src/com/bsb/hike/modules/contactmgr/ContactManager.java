@@ -3,16 +3,6 @@
  */
 package com.bsb.hike.modules.contactmgr;
 
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -42,7 +32,33 @@ import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.modules.iface.ITransientCache;
 import com.bsb.hike.tasks.UpdateAddressBookTask;
-import com.bsb.hike.utils.*;
+import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
+import com.bsb.hike.utils.PairModified;
+import com.bsb.hike.utils.Utils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author Gautam & Sidharth
@@ -944,10 +960,10 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 
 	/**
 	 * This method deletes the contacts of particular set of ids given by parameter <code>keySet</code> from users database
-	 * 
+	 *
 	 * @param keySet
 	 */
-	public void deleteMultipleContactInDB(Set<String> keySet)
+	public void deleteMultipleContactInDB(Map<String, List<ContactInfo>> keySet)
 	{
 		hDb.deleteMultipleRows(keySet);
 	}
@@ -1034,6 +1050,17 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	{
 		persistenceCache.block(msisdn);
 		hDb.block(msisdn);
+	}
+
+	public void block(List<String> msisdns)
+	{
+		persistenceCache.block(msisdns);
+		List<PairModified<String,String>> list=new ArrayList<>(msisdns.size());
+		for (String s:msisdns)
+		{
+			list.add(new PairModified<String, String>(s,null));
+		}
+		hDb.addBlockList(list);
 	}
 
 	/**
@@ -1138,7 +1165,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	 * 
 	 * @param favorites
 	 */
-	public void setMultipleContactsToFavorites(JSONObject favorites)
+	public void setMultipleContactsToFavorites(JSONArray favorites)
 	{
 		hDb.setMultipleContactsToFavorites(favorites);
 	}
@@ -1273,9 +1300,14 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	 * @param blockedMsisdns
 	 * @throws DbException
 	 */
-	public void setAddressBookAndBlockList(List<ContactInfo> contacts, List<String> blockedMsisdns) throws DbException
+	public void setAddressBookAndBlockList(List<ContactInfo> contacts, List<PairModified<String,String>> blockedMsisdns) throws DbException
 	{
-		persistenceCache.block(blockedMsisdns);
+		List<String> blockList=new ArrayList<>(blockedMsisdns.size());
+		for(PairModified<String,String> pm:blockedMsisdns)
+		{
+			blockList.add(pm.getFirst());
+		}
+		persistenceCache.block(blockList);
 		hDb.setAddressBookAndBlockList(contacts, blockedMsisdns);
 	}
 
@@ -1757,7 +1789,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 			deleteContacts(contactsToDelete);
 
 			/* Delete ids from hike user DB */
-			deleteMultipleContactInDB(hike_contacts_by_id.keySet());
+			deleteMultipleContactInDB(hike_contacts_by_id);
 			updateContactsinDB(updatedContacts);
 			syncContacts(updatedContacts);
 
@@ -2010,7 +2042,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 			deleteContacts(contactsToDelete);
 
 			/* Delete ids from hike user DB */
-			deleteMultipleContactInDB(hike_contacts_by_id.keySet());
+			deleteMultipleContactInDB(hike_contacts_by_id);
 			updateContactsinDB(updatedContacts);
 			syncContacts(updatedContacts);
 

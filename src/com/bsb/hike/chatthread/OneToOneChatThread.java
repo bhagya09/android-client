@@ -50,6 +50,9 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MessageType;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.chatthemes.ChatThemeDrawableHelper;
+import com.bsb.hike.chatthemes.ChatThemeManager;
+import com.bsb.hike.chatthemes.HikeChatThemeConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.db.HikeMqttPersistence;
 import com.bsb.hike.dialog.H20Dialog;
@@ -84,7 +87,6 @@ import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.ui.fragments.OfflineAnimationFragment;
 import com.bsb.hike.ui.fragments.OfflineDisconnectFragment;
 import com.bsb.hike.ui.fragments.OfflineDisconnectFragment.OfflineConnectionRequestListener;
-import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.LastSeenScheduler;
@@ -266,11 +268,6 @@ import java.util.Map;
 				sendUIMessage(SHOW_OVERFLOW_MENU, 500, null);
 			}
 		}
-		else if (activity.getIntent().getBooleanExtra(HikeConstants.Extras.HIKE_BDAY_MODE, false))
-		{
-			activity.getIntent().removeExtra(HikeConstants.Extras.HIKE_BDAY_MODE);
-			sendUIMessage(SHOW_BDAY_UI, 1000, null);
-		}
 	}
 	
 	private void handleOfflineIntent(Intent intent)
@@ -344,7 +341,7 @@ import java.util.Map;
 			if (OfflineUtils.isConnectedToSameMsisdn(msisdn))
 			{
 				activity.updateActionBarColor(new ColorDrawable(Color.BLACK));
-				setStatusBarColor(R.color.black);
+				setStatusBarColorValue(getResources().getColor(R.color.black));
 				setLastSeen(getString(R.string.connection_established),true);
 			}
 			break;
@@ -427,11 +424,6 @@ import java.util.Map;
 			list.add(item);
 		}
 
-		if ((!Utils.isFavToFriendsMigrationAllowed()) && mContactInfo.isNotOrRejectedFavourite() && mConversation.isOnHike())
-		{
-			list.add(new OverFlowMenuItem(getString(Utils.isFavToFriendsMigrationAllowed() ?  R.string.add_as_friend_menu : R.string.add_as_favorite_menu), 0, 0, R.string.add_as_favorite_menu));
-		}
-
 		list.add(new OverFlowMenuItem(mConversation.isBlocked() ? getString(R.string.unblock_title) : getString(R.string.block_title), 0, 0, !isNotMyOneWayFriend(), R.string.block_title));
 		return list;
 	}
@@ -449,9 +441,9 @@ import java.util.Map;
 			mConversation.setMessages(HikeConversationsDatabase.getInstance().getConversationThread(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, mConversation, -1, -1));
 		}
 
-		ChatTheme chatTheme = mConversationDb.getChatThemeForMsisdn(msisdn);
+		String chatThemeId = mConversationDb.getChatThemeIdForMsisdn(msisdn);
 		Logger.d(TAG, "Calling setchattheme from createConversation");
-		mConversation.setChatTheme(chatTheme);
+		mConversation.setChatThemeId(chatThemeId);
 
 		mConversation.setBlocked(ContactManager.getInstance().isBlocked(msisdn));
 		mCredits = activity.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getInt(HikeMessengerApp.SMS_SETTING, 0);
@@ -978,7 +970,7 @@ import java.util.Map;
 	{
 		mActionBar.updateOverflowMenuItemString(R.string.scan_free_hike,getString(R.string.disconnect_offline));
 		activity.updateActionBarColor(new ColorDrawable(Color.BLACK));
-		setStatusBarColor(R.color.black);
+		setStatusBarColorValue(getResources().getColor(R.color.black));
 		setLastSeen(message,true);
 		activity.invalidateOptionsMenu();
 		showNetworkError(ChatThreadUtils.checkNetworkError());
@@ -989,11 +981,14 @@ import java.util.Map;
 	{
 		prevLastSeen=null;
 		hideLastSeenText();
-		mActionBar.updateOverflowMenuItemString(R.string.scan_free_hike,getString(R.string.scan_free_hike));
+		mActionBar.updateOverflowMenuItemString(R.string.scan_free_hike, getString(R.string.scan_free_hike));
 		fetchLastSeen();
 		showNetworkError(ChatThreadUtils.checkNetworkError());
-		activity.updateActionBarColor(getCurrentlTheme().headerBgResId());
-		setStatusBarColor(getCurrentlTheme().statusBarColor());
+		activity.updateActionBarColor(ChatThemeManager.getInstance().getDrawableForTheme(getCurrentlThemeId(), HikeChatThemeConstants.ASSET_INDEX_ACTION_BAR_BG));
+
+		ColorDrawable statusBarColor = (ColorDrawable) ChatThemeManager.getInstance().getDrawableForTheme(getCurrentlThemeId(), HikeChatThemeConstants.ASSET_INDEX_STATUS_BAR_BG);
+		setStatusBarColorValue(statusBarColor.getColor());
+
 		showCallIcon();
 		activity.invalidateOptionsMenu();
 	}
@@ -1490,9 +1485,9 @@ import java.util.Map;
 	}
 
 	@Override
-	protected void updateUIAsPerTheme(ChatTheme theme)
+	protected void updateUIAsPerTheme(String themeId)
 	{
-		super.updateUIAsPerTheme(theme);
+		super.updateUIAsPerTheme(themeId);
 		if (!mContactInfo.isUnknownContact())
 		{
 			setupSMSToggleLayout();
@@ -1501,7 +1496,7 @@ import java.util.Map;
 		if (OfflineUtils.isConnectedToSameMsisdn(msisdn))
 		{
 			activity.updateActionBarColor(new ColorDrawable(Color.BLACK));
-			setStatusBarColor(R.color.black);
+			setStatusBarColorValue(getResources().getColor(R.color.black));
 		}
 	}
 
@@ -1546,9 +1541,9 @@ import java.util.Map;
 		TextView hikeSmsText = (TextView) activity.findViewById(R.id.hike_text);
 		TextView regularSmsText = (TextView) activity.findViewById(R.id.sms_text);
 
-		ChatTheme theme = getCurrentlTheme();
+		String themeId = getCurrentlThemeId();
 
-		if (theme == ChatTheme.DEFAULT)
+		if (themeId.equals(ChatThemeManager.getInstance().defaultChatThemeId))
 		{
 			hikeSmsText.setTextColor(this.getResources().getColor(R.color.sms_choice_unselected));
 			regularSmsText.setTextColor(this.getResources().getColor(R.color.sms_choice_unselected));
@@ -1562,7 +1557,7 @@ import java.util.Map;
 			regularSmsText.setTextColor(this.getResources().getColor(R.color.white));
 			smsToggleSubtext.setTextColor(this.getResources().getColor(R.color.white));
 			smsToggle.setButtonDrawable(R.drawable.sms_checkbox_custom_theme);
-			activity.findViewById(R.id.sms_toggle_button).setBackgroundResource(theme.smsToggleBgRes());
+			activity.findViewById(R.id.sms_toggle_button).setBackground(ChatThemeManager.getInstance().getDrawableForTheme(themeId, HikeChatThemeConstants.ASSET_INDEX_SMS_TOGGLE_BG));
 		}
 
 		boolean smsToggleOn = Utils.getSendSmsPref(activity.getApplicationContext());
@@ -3358,11 +3353,8 @@ import java.util.Map;
 		Utils.addFavorite(activity, mContactInfo, false, fromFtueBtn ? HikeConstants.AddFriendSources.CHAT_FTUE : HikeConstants.AddFriendSources.CHAT_ADD_FRIEND);
 		mContactInfo.setFavoriteType(favoriteType);
 
-		if (Utils.isFavToFriendsMigrationAllowed())
-		{
-			ConvMessage message = Utils.generateAddFriendSystemMessage(msisdn, activity.getString(R.string.friend_req_inline_msg_sent, mContactInfo.getFirstNameAndSurname()), mConversation.isOnHike(), State.RECEIVED_UNREAD);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.ADD_INLINE_FRIEND_MSG, message);
-		}
+		ConvMessage message = Utils.generateAddFriendSystemMessage(msisdn, activity.getString(R.string.friend_req_inline_msg_sent, mContactInfo.getFirstNameAndSurname()), mConversation.isOnHike(), State.RECEIVED_UNREAD);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.ADD_INLINE_FRIEND_MSG, message);
 	}
 	
 	@Override
@@ -3724,12 +3716,7 @@ import java.util.Map;
 
 	private void inflateAddFriendButtonIfNeeded()
 	{
-		if (!Utils.isFavToFriendsMigrationAllowed())
-		{
-			return; // Do nothing here!
-		}
-
-		else if (mContactInfo.isMyOneWayFriend())
+		if (mContactInfo.isMyOneWayFriend())
 		{
 			return; //If I am 1-way or 2-way friends, do not inflate these views
 		}
@@ -3804,12 +3791,7 @@ import java.util.Map;
 
 	protected void doSetupForAddFriend()
 	{
-		if (!Utils.isFavToFriendsMigrationAllowed())
-		{
-			return; // Do nothing here!
-		}
-
-		else if (mContactInfo.isMyOneWayFriend())
+		if (mContactInfo.isMyOneWayFriend())
 		{
 			return; // If it already is a 1 way or a 2 way friend, no need for all this shizzle!
 		}
@@ -3996,7 +3978,7 @@ import java.util.Map;
 		{
 			return false; //Self obsessed 1-way friend
 		}
-		return Utils.isNotMyOneWayFriend(mContactInfo);
+		return !mContactInfo.isMyOneWayFriend();
 	}
 
 	@Override
