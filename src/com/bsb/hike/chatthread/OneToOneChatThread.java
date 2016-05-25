@@ -454,8 +454,7 @@ import java.util.Map;
 		mConversation.setChatThemeId((String) chatProperties[0]);
 
 		Mute mute = (Mute) chatProperties[1];
-		if (mute.getMuteEndTime() > System.currentTimeMillis())
-		{
+		if ((mute.getMuteDuration() != HikeConstants.MuteDuration.DURATION_FOREVER && mute.getMuteEndTime() > System.currentTimeMillis()) || mute.getMuteDuration() == HikeConstants.MuteDuration.DURATION_FOREVER) {
 			mConversation.setIsMute(mute.isMute());
 		}
 		mConversation.setBlocked(ContactManager.getInstance().isBlocked(msisdn));
@@ -1628,7 +1627,7 @@ import java.util.Map;
 				}
 				else
 				{
-					Mute mute = new Mute.InitBuilder(mConversation.getMsisdn()).setIsMute(false).setMuteDuration(HikeConstants.MuteDuration.DURATION_ONE_YEAR).setShowNotifInMute(false).build();
+					Mute mute = new Mute.InitBuilder(mConversation.getMsisdn()).setIsMute(false).setMuteDuration(HikeConstants.MuteDuration.DURATION_FOREVER).setShowNotifInMute(false).build();
 					mConversation.setMute(mute);
 					Utils.toggleMuteChat(activity.getApplicationContext(), mConversation.getMute());
 				}

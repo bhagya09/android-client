@@ -8263,11 +8263,16 @@ public class Utils
 			boolean muteApproach = HikeSharedPreferenceUtil.getInstance().getData(
 					(OneToNConversationUtils.isOneToNConversation(mute.getMsisdn()) ? HikeConstants.MUTE_GC_SERVER_SWITCH : HikeConstants.MUTE_ONE_TO_ONE_SERVER_SWITCH), true);
 
-			if (mute.isMute() && muteApproach) {
-				int convHash = convInfohashCode(mute.getMsisdn());
-				Intent intent = IntentFactory.getIntentForMuteAlarm(mute);
-				HikeAlarmManager.setAlarmwithIntentPersistanceMute(context.getApplicationContext(), mute.getMuteEndTime(), HikeAlarmManager.REQUESTCODE_END_CONVERSATION_MUTE, true, intent, true, convHash);
+			if (mute.isMute()) {
+				if (muteApproach) {
+					int convHash = convInfohashCode(mute.getMsisdn());
+					Intent intent = IntentFactory.getIntentForMuteAlarm(mute);
+					HikeAlarmManager.setAlarmwithIntentPersistanceMute(context.getApplicationContext(), mute.getMuteEndTime(), HikeAlarmManager.REQUESTCODE_END_CONVERSATION_MUTE, true, intent, true, convHash);
+				} else {
+					mute.setMuteDuration(HikeConstants.MuteDuration.DURATION_FOREVER);
+				}
 			}
+
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, mute);
 		}
 	}
