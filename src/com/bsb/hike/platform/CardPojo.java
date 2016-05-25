@@ -37,7 +37,7 @@ public class CardPojo implements HikePlatformConstants{
         try {
             if (metadata.has(CARD_ACTION)) {
                 JSONObject cardActionObj = metadata.optJSONObject(CARD_ACTION);
-                cardAction = new CardComponent.ActionComponent(cardActionObj.getString(ACTION), cardActionObj.getString(ACTION_TEXT), cardActionObj.optJSONObject(ACTION_EXTRA));
+                cardAction = new CardComponent.ActionComponent(cardActionObj.getString(ACTION), cardActionObj.optString(ACTION_TEXT), cardActionObj.optJSONObject(ACTION_EXTRA));
             }
             if (metadata.has(ASSETS)) {
                 JSONObject assets = metadata.optJSONObject(ASSETS);
