@@ -493,7 +493,7 @@ public class UploadFileTask extends FileTransferBase
 	private void logCesData(int state, boolean isQuickUpload, String stackTrace)
 	{
 		FTDataInfoFormatBuilder<?> builder = new FTDataInfoFormatBuilder<>()
-				.setNetType(FTUtils.getNetworkTypeString(context))
+				.setNetType(String.valueOf(Utils.getNetworkType(context)))
 				.setFileSize(fileSize)
 				.setFileAvailability(isQuickUpload)
 				.setManualRetry(isManualRetry)
