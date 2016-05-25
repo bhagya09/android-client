@@ -174,7 +174,7 @@ public abstract class ImageWorker
         {
             Logger.d(TAG, key + " Bitmap found in cache and is not recycled.");
             // Bitmap found in memory cache
-            setImageDrawable(imageView, value);
+            imageView.setImageDrawable(value);
             sendImageCallback(imageView , true);
         }
         else if (runOnUiThread)
@@ -697,7 +697,7 @@ public abstract class ImageWorker
             if (mFadeInBitmap)
             {
                 // Transition drawable with a transparent drawable and the final drawable
-                final TransitionDrawable td = new TransitionDrawable(new Drawable[] { drawable, new ColorDrawable(mResources.getColor(android.R.color.transparent))  });
+                final TransitionDrawable td = new TransitionDrawable(new Drawable[] {new ColorDrawable(mResources.getColor(android.R.color.transparent)), drawable});
 
                 if (!dontSetBackground)
                 {
