@@ -80,7 +80,7 @@ public class UJNotifClickReceiver extends BroadcastReceiver
     private void processActionAddFriend(Context context, Intent intent, String msisdn)
     {
         ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, true, true);
-        Utils.addFavorite(context, contactInfo, false, HikeConstants.AddFriendSources.NOTIF);
+        Utils.toggleFavorite(context, contactInfo, false, HikeConstants.AddFriendSources.NOTIF);
         Intent ujActionIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, true, false, ChatThreadActivity.ChatThreadOpenSources.NOTIF);
         openActivity(context, ujActionIntent);
     }
