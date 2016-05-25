@@ -2258,4 +2258,65 @@ public class HikeNotification
 
 		notifyNotification(notificationId, mBuilder);
 	}
+
+	public void notifyRichUJ(JSONObject jsonObject)
+	{
+		Logger.d(HikeConstants.UserJoinMsg.TAG, "received jsonObj for uj notif: " + jsonObject);
+
+		if (defaultSharedPrefs.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
+		{
+			return;
+		}
+
+		JSONObject data = jsonObject.optJSONObject(HikeConstants.DATA);
+		if(!HikeNotificationUtils.isUJNotifJSONValid(data))
+		{
+			Logger.d(HikeConstants.UserJoinMsg.TAG, "invalid uj json");
+			return;
+		}
+
+		String msisdn = data.optString(HikeConstants.MSISDN);
+		int notifId = msisdn.hashCode();
+		ContactInfo contact = ContactManager.getInstance().getContact(msisdn, true, false);
+
+		String title = contact.getNameOrMsisdn();
+
+		String message = data.optString(HikeConstants.UserJoinMsg.NOTIF_TEXT);
+		if(TextUtils.isEmpty(message))
+		{
+			Logger.d(HikeConstants.UserJoinMsg.TAG, "received empty notif title. fetching default!");
+			message = context.getString(R.string.rich_uj_default_msg);
+		}
+		message = String.format(message, contact.getFirstName());
+
+		boolean isSilent = (data.optInt(HikeConstants.UserJoinMsg.PUSH_SETTING, HikeConstants.PushType.silent) != HikeConstants.PushType.loud);
+
+		Drawable avatar = Utils.getAvatarDrawableForNotification(context, msisdn, false);
+
+		int smallIcon = returnSmallIcon();
+
+		NotificationCompat.Builder mBuilder = getNotificationBuilder(title, message, message, avatar, smallIcon, isSilent, isSilent, false);
+
+		List<Action> notifActions = HikeNotificationUtils.getActionsForUJNotif(context, data.optJSONArray(HikeConstants.CTAS), msisdn);
+		for(int i = 0; i < notifActions.size(); i++)
+		{
+			mBuilder.addAction(notifActions.get(i));
+		}
+
+		Intent notifIntent = new Intent(HikeConstants.UserJoinMsg.NOTIF_ACTION_INTENT);
+		notifIntent.putExtra(HikeConstants.MqttMessageTypes.ACTION, HikeConstants.UserJoinMsg.ACTION_DEFAULT);
+		notifIntent.putExtra(HikeConstants.MSISDN, msisdn);
+		mBuilder.setContentIntent(PendingIntent.getBroadcast(context, notifId, notifIntent, PendingIntent.FLAG_UPDATE_CURRENT));
+
+		Intent deleteIntent = new Intent(context, NotificationDismissedReceiver.class);
+		deleteIntent.putExtra(HIKE_NOTIFICATION_ID_KEY, notifId);
+		deleteIntent.putExtra(HikeConstants.MqttMessageTypes.USER_JOINED, true);
+		PendingIntent pendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(), notifId, deleteIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+		mBuilder.setDeleteIntent(pendingIntent);
+
+		Logger.d(HikeConstants.UserJoinMsg.TAG, "creating uj notif with id:" + notifId);
+		notifyNotification(notifId, mBuilder);
+
+	}
+
 }
