@@ -147,6 +147,19 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 
 	public WebMetadata webMetadata;
 
+	private JSONObject messageEventData;
+
+	public JSONObject getMessageEventData()
+	{
+		return messageEventData;
+	}
+
+	public void setMessageEventData(JSONObject messageEventData)
+	{
+		this.messageEventData = messageEventData;
+	}
+
+
 	/* Adding entries to the beginning of this list is not backwards compatible */
 	public enum OriginType
 	{

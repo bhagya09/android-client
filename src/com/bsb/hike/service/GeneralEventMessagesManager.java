@@ -19,6 +19,7 @@ import com.bsb.hike.platform.CocosProcessIntentService;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
 
 import org.json.JSONException;
@@ -81,25 +82,42 @@ public class GeneralEventMessagesManager
 				if(!TextUtils.isEmpty(fromMsisdn) && ContactManager.getInstance().isBlocked(fromMsisdn))
 					return; // returning in case of blocked
 				String messageHash = data.getString(HikePlatformConstants.MESSAGE_HASH);
-				long messageId = HikeConversationsDatabase.getInstance().getMessageIdFromMessageHash(messageHash, fromMsisdn);
-				if (messageId < 0)
+				String toMsisdn = packet.getString(HikeConstants.TO);
+				long messageId = -1;
+				boolean isGroup = false;
+				if(!TextUtils.isEmpty(toMsisdn) && OneToNConversationUtils.isGroupConversation(toMsisdn))
+				{
+					messageId = HikeConversationsDatabase.getInstance().getMessageIdFromMessageHash(messageHash, toMsisdn);
+					isGroup = true;
+				}
+				else
+				{
+					messageId = HikeConversationsDatabase.getInstance().getMessageIdFromMessageHash(messageHash, fromMsisdn);
+				}
+				if(messageId < 0)
 				{
 					Logger.e("General Event", "Event is unauthenticated");
 					return;
 				}
 				long mappedId = data.getLong(HikeConstants.EVENT_ID);
-				long mappedMessageId=data.optLong(HikeConstants.MESSAGE_ID);
+				long mappedMessageId = data.optLong(HikeConstants.MESSAGE_ID);
 
 				long clientTimestamp = packet.getLong(HikeConstants.SEND_TIMESTAMP);
 				String eventMetadata = data.getString(HikePlatformConstants.EVENT_CARDDATA);
 				String namespace = data.getString(HikePlatformConstants.NAMESPACE);
 				String parent_msisdn = data.optString(HikePlatformConstants.PARENT_MSISDN);
-				String hm=data.optString(HikePlatformConstants.HIKE_MESSAGE,data.optString(HikePlatformConstants.NOTIFICATION));
+				String hm=data.optString(HikePlatformConstants.HIKE_MESSAGE, data.optString(HikePlatformConstants.NOTIFICATION));
 				MessageEvent messageEvent = new MessageEvent(HikePlatformConstants.NORMAL_EVENT, fromMsisdn, namespace, eventMetadata, messageHash,
 						HikePlatformConstants.EventStatus.EVENT_RECEIVED, clientTimestamp, mappedId, messageId, parent_msisdn,hm);
 				long eventId = HikeConversationsDatabase.getInstance().insertMessageEvent(messageEvent);
 
-				ConvMessage message = HikeConversationsDatabase.getInstance().updateMessageForGeneralEvent(messageHash, ConvMessage.State.RECEIVED_UNREAD, hm,mappedMessageId);
+				String fromUserMsisdn = null;
+				if(isGroup)
+				{
+					fromUserMsisdn = messageEvent.getFromUserMsisdn();
+				}
+
+				ConvMessage message = HikeConversationsDatabase.getInstance().updateMessageForGeneralEvent(messageHash, ConvMessage.State.RECEIVED_UNREAD, hm,mappedMessageId, isGroup, fromUserMsisdn);
 
 				if (message == null || eventId < 0)
 				{
@@ -118,8 +136,17 @@ public class GeneralEventMessagesManager
 				sendMessageEventToIntentService(messageEvent);
 				boolean increaseUnreadCount = data.optBoolean(HikePlatformConstants.INCREASE_UNREAD);
 				boolean rearrangeChat = data.optBoolean(HikePlatformConstants.REARRANGE_CHAT);
-				Utils.rearrangeChat(fromMsisdn, rearrangeChat, increaseUnreadCount);
-				showNotification(data, fromMsisdn);
+				if (OneToNConversationUtils.isGroupConversation(toMsisdn))
+				{
+					Utils.rearrangeChat(toMsisdn, rearrangeChat, increaseUnreadCount);
+					showNotification(data, toMsisdn);
+				}
+				else
+				{
+					Utils.rearrangeChat(fromMsisdn, rearrangeChat, increaseUnreadCount);
+					showNotification(data, fromMsisdn);
+				}
+
 				HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_EVENT_RECEIVED, messageEvent);
 
 			}

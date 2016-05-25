@@ -1,6 +1,7 @@
 package com.bsb.hike.platform.bridge;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.HttpURLConnection;
 
 import org.json.JSONArray;
@@ -104,18 +105,16 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void logAnalytics(String isUI, String subType, String json)
 	{
-		PlatformHelper.logAnalytics(isUI, subType, json,mBotInfo);
+		PlatformHelper.logAnalytics(isUI, subType, json, mBotInfo);
 	}
 
 	@Override
 	@JavascriptInterface
 	public void onLoadFinished(String height)
 	{
-		mHandler.post(new Runnable()
-		{
+		mHandler.post(new Runnable() {
 			@Override
-			public void run()
-			{
+			public void run() {
 				init();
 			}
 		});
@@ -899,6 +898,13 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		callbackToJS(functionId, eventData);
 	}
 
+	@JavascriptInterface
+	public void getAllEventsForMessageHashFromUser(String functionId, String messageHash, String fromUserId)
+	{
+		String eventData =PlatformHelper.getAllEventsForMessageHashFromUser(messageHash, mBotInfo.getNamespace(), fromUserId);
+		callbackToJS(functionId, eventData);
+	}
+
 	/**
 	 * Platform Version 6
 	 * Call this function to send a shared message to the contacts of the user. This function when forwards the data, returns with the contact details of
@@ -934,7 +940,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		{
 			JSONObject eventJson = new JSONObject(eventData);
 			eventJson.put(HikePlatformConstants.PARENT_MSISDN, mBotInfo.getMsisdn());
-			PlatformHelper.sendNormalEvent(messageHash, eventJson.toString(), mBotInfo.getNamespace());
+			PlatformHelper.sendNormalEvent(messageHash, eventJson.toString(), mBotInfo.getNamespace(), mBotInfo);
 		}
 		catch (JSONException e)
 		{	
@@ -1454,7 +1460,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			return;
 		}
 
-		PlatformHelper.chooseFile(id,displayCameraItem,weakActivity.get());
+		PlatformHelper.chooseFile(id, displayCameraItem, weakActivity.get());
 	}
 
 	/**
@@ -1855,17 +1861,58 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 * @param json in the new taxonomy
 	 */
 	@JavascriptInterface
-	public void logAnalyticsV2(String json)
-	{
+	public void logAnalyticsV2(String json) {
 		JSONObject jsonObject = null;
-		try
-		{
+		try {
 			jsonObject = new JSONObject(json);
-		}
-		catch (JSONException e)
-		{
+		} catch (JSONException e) {
 			e.printStackTrace();
 		}
-		PlatformHelper.logAnaLyticsV2(json,mBotInfo.getConversationName(),mBotInfo.getMsisdn(),jsonObject.optString(AnalyticsConstants.V2.UNIQUE_KEY),jsonObject.optString(AnalyticsConstants.V2.KINGDOM),mBotInfo.getMAppVersionCode());
+		PlatformHelper.logAnaLyticsV2(json, mBotInfo.getConversationName(), mBotInfo.getMsisdn(), jsonObject.optString(AnalyticsConstants.V2.UNIQUE_KEY), jsonObject.optString(AnalyticsConstants.V2.KINGDOM), mBotInfo.getMAppVersionCode());
+	}
+	/**
+	 * Platform Version 12
+	 * Method to get list of children bots
+	 */
+	@JavascriptInterface
+	public void getChildrenBots(String id)
+	{
+		try {
+			if (!TextUtils.isEmpty(id) && mBotInfo !=null)
+            {
+                String childrenBotInformation = PlatformHelper.getChildrenBots(mBotInfo.getMsisdn());
+				callbackToJS(id, childrenBotInformation);
+				return;
+            }
+		} catch (JSONException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		callbackToJS(id, "[]");
+	}
+
+	/**
+	 * Platform Version 12
+	 * Method to get bot information as string
+	 */
+	@JavascriptInterface
+	public void getBotInfoAsString(String id)
+	{
+		try {
+			if (!TextUtils.isEmpty(id) && mBotInfo !=null)
+			{
+				String childrenBotInformation = BotUtils.getBotInfoAsString(mBotInfo).toString();
+				callbackToJS(id, childrenBotInformation);
+				return;
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		callbackToJS(id, "{}");
 	}
 }

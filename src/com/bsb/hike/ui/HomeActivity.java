@@ -111,7 +111,6 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
-import org.json.JSONArray;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -120,9 +119,6 @@ import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 
 public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Listener, HikeDialogListener,
 		AccountRestoreAsyncTask.IRestoreCallback
@@ -333,7 +329,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		FTApkManager.removeApkIfNeeded();
 		moveToComposeChatScreen();
 
-		BirthdayUtils.fetchAndUpdateBdayList();
+		BirthdayUtils.fetchAndUpdateBdayList(false);
     }
 	
 	@Override
