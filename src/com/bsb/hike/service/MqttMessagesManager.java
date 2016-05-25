@@ -105,6 +105,7 @@ import com.bsb.hike.triggers.InterceptUtils;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.userlogs.UserLogInfo;
 import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.BirthdayUtils;
 import com.bsb.hike.utils.ClearGroupTypingNotification;
 import com.bsb.hike.utils.ClearTypingNotification;
 import com.bsb.hike.utils.FestivePopup;
@@ -3222,6 +3223,46 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.DISABLE_QUICK_UPLOAD, disableQuickUpload);
 		}
 
+		if(data.has(HikeConstants.TRIGGER_BIRTHDAY_ID))
+		{
+			long id = data.getLong(HikeConstants.TRIGGER_BIRTHDAY_ID);
+			long previousId = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TRIGGER_BIRTHDAY_ID, 0l);
+			if(previousId == 0l || previousId != id)
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TRIGGER_BIRTHDAY_ID, id);
+
+				BirthdayUtils.fetchAndUpdateBdayList(true);
+			}
+			else
+			{
+				Logger.d("bday_notif_", "Duplicate packet received with id " + id);
+			}
+		}
+
+		if (data.has(HikeConstants.SINGLE_BDAY_NOTIF_TITLE))
+		{
+			String singleBdayNotifTitle = data.getString(HikeConstants.SINGLE_BDAY_NOTIF_TITLE);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SINGLE_BDAY_NOTIF_TITLE, singleBdayNotifTitle);
+		}
+
+		if (data.has(HikeConstants.SINGLE_BDAY_NOTIF_SUBTEXT))
+		{
+			String singleBdayNotifSubtext = data.getString(HikeConstants.SINGLE_BDAY_NOTIF_SUBTEXT);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SINGLE_BDAY_NOTIF_SUBTEXT, singleBdayNotifSubtext);
+		}
+
+		if (data.has(HikeConstants.MULTIPLE_BDAY_NOTIF_TITLE))
+		{
+			String multipleBdayNotifTitle = data.getString(HikeConstants.SINGLE_BDAY_NOTIF_TITLE);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SINGLE_BDAY_NOTIF_TITLE, multipleBdayNotifTitle);
+		}
+
+		if (data.has(HikeConstants.MULTIPLE_BDAY_NOTIF_SUBTEXT))
+		{
+			String multipleBdayNotifSubtext = data.getString(HikeConstants.MULTIPLE_BDAY_NOTIF_SUBTEXT);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MULTIPLE_BDAY_NOTIF_SUBTEXT, multipleBdayNotifSubtext);
+		}
+
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 
@@ -4476,9 +4517,15 @@ public class MqttMessagesManager
 		 * lastPinMap is map of msisdn to a pair containing last pin message for a conversation and count of total number of pin messages in bulk packet for that conversation
 		 */
 		HashMap<String, PairModified<ConvMessage, Integer>> lastPinMap = new HashMap<String, PairModified<ConvMessage, Integer>>();
-
+		List<ConvMessage> removeMessages = new ArrayList<>();
 		for (ConvMessage convMessage : messageList)
 		{
+			if(convMessage.getMessageEventData()!=null)
+			{
+				removeMessages.add(convMessage);
+				convMessage = HikeConversationsDatabase.getInstance().getConvMessageForMsgId(convMessage.getMsgID());
+				convMessage.setMessageEventData(new JSONObject());
+			}
 			String msisdn = convMessage.getMsisdn();
 			if (messageListMap.get(msisdn) == null)
 			{
@@ -4535,7 +4582,7 @@ public class MqttMessagesManager
 			convDb.updateStatusBulk(messageStatusMap);
 			convDb.setReadByForGroupBulk(messageStatusMap);
 		}
-
+		messageList.removeAll(removeMessages);
 		/*
 		 * Since now messages contains message id and conversation object we can process ft messages
 		 */
@@ -4832,7 +4879,24 @@ public class MqttMessagesManager
 		}
 		else if (HikeConstants.MqttMessageTypes.GENERAL_EVENT_QOS_ONE.equals(type) || HikeConstants.MqttMessageTypes.GENERAL_EVENT_QOS_ZERO.equals(type))
 		{
-			GeneralEventMessagesManager.getInstance().handleGeneralMessage(jsonObj);
+			if (isBulkMessage)
+			{
+				JSONObject data = jsonObj.getJSONObject(HikeConstants.DATA);
+				if (data.has(HikeConstants.TYPE) && data.optString(HikeConstants.TYPE).equals(HikeConstants.GeneralEventMessagesTypes.MESSAGE_EVENT))
+				{
+					String messageHash = data.getString(HikePlatformConstants.MESSAGE_HASH);
+					if (!TextUtils.isEmpty(messageHash))
+					{
+						ConvMessage message = HikeConversationsDatabase.getInstance().getMessageFromMessageHash(messageHash);
+						message.setMessageEventData(jsonObj);
+						addToLists(message.getMsisdn(), message);
+					}
+				}
+			}
+			else
+			{
+				GeneralEventMessagesManager.getInstance().handleGeneralMessage(jsonObj);
+			}
 		}
 		else if (HikeConstants.MqttMessageTypes.ACTIVITY_UPDATE.equals(type))
 		{

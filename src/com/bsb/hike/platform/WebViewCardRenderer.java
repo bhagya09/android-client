@@ -100,6 +100,8 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 
 	private SparseArray<String> events;
 
+	private String downloadProgress;
+
     private static final String TAG = "WebViewCardRenderer";
 
     // Map having list of view holders as value added for listening to pubsub events
@@ -108,7 +110,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
     // usually we have seen 3 cards will be inflated, so 3 holders will be initiated (just an optimizations)
 	ArrayList<WebViewHolder> holderList = new ArrayList<WebViewCardRenderer.WebViewHolder>(3);
 
-    private String[] pubsub = new String[]{HikePubSub.PLATFORM_CARD_ALARM, HikePubSub.MESSAGE_EVENT_RECEIVED,  HikePubSub.BOT_CREATED, HikePubSub.MAPP_CREATED};
+    private String[] pubsub = new String[]{HikePubSub.PLATFORM_CARD_ALARM, HikePubSub.MESSAGE_EVENT_RECEIVED,  HikePubSub.BOT_CREATED, HikePubSub.MAPP_CREATED, HikePubSub.DOWNLOAD_PROGRESS_CARD};
 
 	public WebViewCardRenderer(Activity context, MovingList<ConvMessage> convMessages, BaseAdapter adapter)
 	{
@@ -188,7 +190,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 	
 	private void attachJSBridge(ConvMessage convMessage,WebViewHolder holder)
 	{
-		Logger.i(tag, "ataching bridge version "+convMessage.webMetadata.getPlatformJSCompatibleVersion());
+		Logger.i(tag, "ataching bridge version " + convMessage.webMetadata.getPlatformJSCompatibleVersion());
 
 		if (convMessage.webMetadata.getPlatformJSCompatibleVersion() >= HikePlatformConstants.VERSION_ALTO)
 		{
@@ -348,6 +350,20 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 				viewHolder.platformJavaScriptBridge.eventReceived(event);
 				events.remove(mId);
 			}
+			if(!TextUtils.isEmpty(downloadProgress))
+			{
+				try {
+					JSONObject jsonObject = new JSONObject(downloadProgress);
+					String callbackId = jsonObject.getString(HikeConstants.CALLBACK_ID);
+					if(viewHolder.platformJavaScriptBridge.isDownloadProgressSubsribe(jsonObject.getString(HikeConstants.CONTENT_ID)))
+					{
+						viewHolder.platformJavaScriptBridge.downloadStatus(callbackId, jsonObject.toString());
+						downloadProgress = null;
+					}
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 
 		return view;
@@ -502,7 +518,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 	private void fillContent(PlatformContentModel content, ConvMessage convMessage,WebViewHolder holder)
 	{
 		
-		Logger.d("content"+holder.id, content == null ? "CONTENT IS NULL!!":""+content.getFormedData());
+		Logger.d("content" + holder.id, content == null ? "CONTENT IS NULL!!" : "" + content.getFormedData());
 		holder.webViewClient.convMessage = convMessage;
 		holder.platformJavaScriptBridge.updateConvMessage(convMessage);
 		holder.customWebView.loadDataWithBaseURL("content://"+content.getUniqueId(), content.getFormedData(), "text/html", "UTF-8", "");
@@ -577,6 +593,23 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 					{
 						holder.platformJavaScriptBridge.eventReceived(event);
 						events.remove((int) convMessage.getMsgID());
+					}
+					if (!TextUtils.isEmpty(downloadProgress))
+					{
+						try
+						{
+							JSONObject jsonObject = new JSONObject(downloadProgress);
+							String callbackId = jsonObject.getString(HikeConstants.CALLBACK_ID);
+							if(holder.platformJavaScriptBridge.isDownloadProgressSubsribe(jsonObject.getString(HikeConstants.CONTENT_ID)))
+							{
+								holder.platformJavaScriptBridge.downloadStatus(callbackId, jsonObject.toString());
+								downloadProgress = null;
+							}
+						}
+						catch (JSONException e)
+						{
+							e.printStackTrace();
+						}
 					}
 					
 				}
@@ -742,6 +775,31 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
                 }
             }
         }
+		else if(HikePubSub.DOWNLOAD_PROGRESS_CARD.equals(type))
+		{
+			if (object instanceof Pair<?,?>)
+			{
+				try
+				{
+					Pair<String, Pair<String, PlatformContentRequest>> callback = (Pair<String, Pair<String, PlatformContentRequest>>) object;
+					JSONObject jsonObject = new JSONObject();
+					jsonObject.put(HikeConstants.CALLBACK_ID, callback.first);
+					jsonObject.put("progress", callback.second.first);
+					jsonObject.put(HikeConstants.CONTENT_ID, callback.second.second.getContentData().getId());
+					downloadProgress = jsonObject.toString();
+					uiHandler.post(new Runnable() {
+						@Override
+						public void run() {
+							adapter.notifyDataSetChanged(); // it will make sure downloadProgress is called if required
+						}
+					});
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 
 	// TODO Replace with HikeUiHandler utility

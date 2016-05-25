@@ -10,12 +10,14 @@ public class NormalEvent implements Parcelable {
     public String messageHash;
     public String eventData;
     public String namespace;
+    public String botMsisdn;
 
-    public NormalEvent(String messageHash, String eventData, String namespace)
+    public NormalEvent(String messageHash, String eventData, String namespace, String botMsisdn)
     {
         this.messageHash = messageHash;
         this.eventData = eventData;
         this.namespace = namespace;
+        this.botMsisdn = botMsisdn;
     }
 
 
@@ -31,6 +33,7 @@ public class NormalEvent implements Parcelable {
         dest.writeString(messageHash);
         dest.writeString(eventData);
         dest.writeString(namespace);
+        dest.writeString(botMsisdn);
     }
 
     public NormalEvent(Parcel source)
@@ -38,6 +41,7 @@ public class NormalEvent implements Parcelable {
         this.messageHash = source.readString();
         this.eventData = source.readString();
         this.namespace = source.readString();
+        this.botMsisdn = source.readString();
     }
 
     public static final Parcelable.Creator CREATOR = new Parcelable.Creator()

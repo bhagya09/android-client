@@ -1477,6 +1477,18 @@ public abstract class JavascriptBridge
 	}
 
 	/**
+	 * Platform Version 12
+	 * Method to get server time offset. It will return the difference in the client and server
+	 * @param id: the id of the function that native will call to call the js .
+	 */
+	@JavascriptInterface
+	public void getServerTimeOffset(String id)
+	{
+		long offset = Utils.getServerTimeOffsetInMsec(HikeMessengerApp.getInstance().getApplicationContext());
+		callbackToJS(id, String.valueOf(offset));
+	}
+
+	/**
 	 * Platform Version 9
 	 *
 	 * This function is called to request Init in case of productpopup apps

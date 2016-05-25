@@ -464,6 +464,8 @@ public class HikePubSub extends Handler implements Runnable
 	public static final String LOCATION_AVAILABLE = "locationAvailable";
 
 	public static final String DOWNLOAD_PROGRESS = "progress";
+
+	public static final String DOWNLOAD_PROGRESS_CARD = "download_progress_card";
 	
 	public static final String BOT_DISCOVERY_DOWNLOAD_SUCCESS = "botDiscoveryDownloadOk";
 	
@@ -548,6 +550,8 @@ public class HikePubSub extends Handler implements Runnable
 	public static final String ATOMIC_TIP_WITH_NOTIF = "atomic_tip_notif";
 
 	public static final String BD_PRIVACY_PREF_UPDATED = "bdPrefPpdated";
+
+	public static final String SHOW_BIRTHDAY_NOTIF = "show_bday_notif";
 
 	private final Thread mThread;
 
