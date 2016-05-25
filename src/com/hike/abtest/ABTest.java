@@ -24,9 +24,7 @@ public class ABTest {
     private static AtomicBoolean isInitialized = new AtomicBoolean(false);
     private DataManager mDataManager = null;
     private DataPersist mDataPersist = null;
-    //TODO mark these dirty in case we need to apply it again
-    //private static AtomicBoolean areExperimentsDirty = new AtomicBoolean(false);
-    //private static AtomicBoolean areRolloutsDirty = new AtomicBoolean(false);
+    private static AtomicBoolean areExperimentsForNewUserAvail = new AtomicBoolean(false);
 
     private ABTest() {
         mDataPersist = DataPersist.getInstance(mContext);
@@ -34,7 +32,7 @@ public class ABTest {
     }
 
     private static ABTest getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             synchronized (ABTest.class) {
                 instance = new ABTest();
             }
@@ -83,12 +81,12 @@ public class ABTest {
      */
     public static int getInt(String varKey, int defaultValue) {
         int result = defaultValue;
-        if(!isInitialized.get()) {
+        if (!isInitialized.get()) {
             return result;
         }
 
         Integer variableValue = getInstance().getDataManager().getVariable(varKey, Integer.class);
-        if(variableValue != null) {
+        if (variableValue != null) {
             result = variableValue.intValue();
         }
 
@@ -106,12 +104,12 @@ public class ABTest {
      */
     public static boolean getBoolean(String varKey, boolean defaultValue) {
         boolean result = defaultValue;
-        if(!isInitialized.get()) {
+        if (!isInitialized.get()) {
             return result;
         }
 
         Boolean variableValue = getInstance().getDataManager().getVariable(varKey, Boolean.class);
-        if(variableValue != null) {
+        if (variableValue != null) {
             result = variableValue.booleanValue();
         }
 
@@ -129,7 +127,7 @@ public class ABTest {
      */
     public static long getLong(String varKey, long defaultValue) {
         long result = defaultValue;
-        if(!isInitialized.get()) {
+        if (!isInitialized.get()) {
             return result;
         }
 
@@ -152,7 +150,7 @@ public class ABTest {
      */
     public static String getString(String varKey, String defaultValue) {
         String result = defaultValue;
-        if(!isInitialized.get()) {
+        if (!isInitialized.get()) {
             return result;
         }
 
@@ -172,14 +170,14 @@ public class ABTest {
      * @return Returns experiment details for the given variable if applicable, or null.
      */
     public static synchronized JSONObject getLogDetails(String varKey) {
-        if(!isInitialized.get()) {
+        if (!isInitialized.get()) {
             return null;
         }
         JSONObject experimentDetails = null;
 
         Experiment experiment = getInstance().getDataManager().getExperiment(varKey);
 
-        if(experiment != null) {
+        if (experiment != null) {
             //Logging only when experiment is running
             if (experiment.getExperimentState() == Experiment.EXPERIMENT_STATE_RUNNING) {
                 experimentDetails = AnalyticsUtil.getExperimentAnalyticsJson(experiment.getExperimentId(),
@@ -199,12 +197,12 @@ public class ABTest {
      */
     public static boolean onRequestReceived(String requestType, JSONObject requestPayload) {
         boolean result = false;
-        if(mContext == null) {
+        if (mContext == null) {
             Logger.d(TAG, "onRequestReceived, ABTesting not started, do nothing..");
             return result;
         }
 
-        if(DataParser.isABTestMessage(requestType)) {
+        if (DataParser.isABTestMessage(requestType)) {
             Logger.d(TAG,"requestType: " + requestType);
             Logger.d(TAG,"requestPayload: " + requestPayload.toString());
             try {
@@ -225,4 +223,30 @@ public class ABTest {
 
         return result;
     }
+
+    /**
+     * Retrieve ABExperiments associated with the new user on sign up complete
+     * Called only once after signup complete
+     */
+    public static void fetchNewUserExperiments() {
+        Logger.d(TAG, "Fetching new user experiments if any!");
+        new NewUserExperimentFetchTask().execute();
+    }
+
+    /**
+     * Apply new user ABExperiments, if available
+     *
+     */
+    public static void applyNewUserExperiments() {
+        Logger.d(TAG, "Checking for new User experiments...");
+        if (areExperimentsForNewUserAvail.get()) {
+            Logger.d(TAG, "New User experiments available, Applying...");
+            getInstance().loadExperiments();
+        }
+    }
+
+    /*package*/ static void setNewExperimentsAvailable() {
+        areExperimentsForNewUserAvail.getAndSet(true);
+    }
+
 }
