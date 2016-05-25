@@ -2259,6 +2259,10 @@ public class HikeNotification
 		notifyNotification(notificationId, mBuilder);
 	}
 
+	/**
+	 * Method to process uj packet to create rich uj notif
+	 * @param jsonObject
+     */
 	public void notifyRichUJ(JSONObject jsonObject)
 	{
 		Logger.d(HikeConstants.UserJoinMsg.TAG, "received jsonObj for uj notif: " + jsonObject);

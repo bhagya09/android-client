@@ -251,6 +251,11 @@ public class HikeNotificationUtils
 		return bigText.toString();
 	}
 
+	/**
+	 * This method checks whether json data received for rich uj notif is valid
+	 * @param data
+	 * @return
+     */
 	public static boolean isUJNotifJSONValid(JSONObject data)
 	{
 		if(data == null)
@@ -275,10 +280,20 @@ public class HikeNotificationUtils
 		return true;
 	}
 
+	/**
+	 * This method returns a list of {@link android.support.v4.app.NotificationCompat.Action} items. These
+	 * will be added as action buttons to make rich uj notif.
+	 * @param context - this is needed while creating {@link PendingIntent} for the action buttons
+	 * @param actionsJSON
+	 * @param msisdn - required as we are opening chatthread on uj notif click
+     * @return
+     */
 	public static List<NotificationCompat.Action> getActionsForUJNotif(Context context, JSONArray actionsJSON, String msisdn)
 	{
+		Logger.d(HikeConstants.UserJoinMsg.TAG, "creating list of actions for rich uj notif");
 		if(actionsJSON == null || actionsJSON.length() == 0)
 		{
+			Logger.d(HikeConstants.UserJoinMsg.TAG, "json array of CTAs was null/empty so returning null");
 			return null;
 		}
 		List<NotificationCompat.Action> notifActions = new ArrayList<>();
@@ -294,8 +309,17 @@ public class HikeNotificationUtils
 		return notifActions;
 	}
 
+	/**
+	 * This method is used to create a single {@link android.support.v4.app.NotificationCompat.Action} from json
+	 * sample JSON = {"action": "say_hi","l": "Say hi","md": {"msg": "Hi there!"}}
+	 * @param context
+	 * @param actionObj
+	 * @param msisdn
+     * @return
+     */
 	public static NotificationCompat.Action getUJNotifAction(Context context, JSONObject actionObj, String msisdn)
 	{
+		Logger.d(HikeConstants.UserJoinMsg.TAG, "creating individual action items for rich uj notif");
 		String action = actionObj.optString(HikeConstants.MqttMessageTypes.ACTION);
 
 		int icon;

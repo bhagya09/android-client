@@ -18,6 +18,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
+ * This Broadcast Receiver responds to broadcasts sent when rich uj notif is clicked
  * @author paramshah
  */
 public class UJNotifClickReceiver extends BroadcastReceiver
@@ -51,8 +52,15 @@ public class UJNotifClickReceiver extends BroadcastReceiver
 
     }
 
+    /**
+     * Method to process 'Say hi' action of rich uj notif
+     * @param context
+     * @param intent
+     * @param msisdn
+     */
     private void processActionSayHi(Context context, Intent intent, String msisdn)
     {
+        Logger.d(TAG, "processing say hi action for rich uj notif");
         Intent ujActionIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, true, false, ChatThreadActivity.ChatThreadOpenSources.NOTIF);
         String metadata = intent.getStringExtra(HikeConstants.METADATA);
         String msg = null;
@@ -77,32 +85,57 @@ public class UJNotifClickReceiver extends BroadcastReceiver
         openActivity(context, ujActionIntent);
     }
 
+    /**
+     * Method to process 'Add Friend' action of rich uj notif
+     * @param context
+     * @param intent
+     * @param msisdn
+     */
     private void processActionAddFriend(Context context, Intent intent, String msisdn)
     {
+        Logger.d(TAG, "processing add friend action for rich uj notif");
         ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, true, true);
         Utils.toggleFavorite(context, contactInfo, false, HikeConstants.AddFriendSources.NOTIF);
         Intent ujActionIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, true, false, ChatThreadActivity.ChatThreadOpenSources.NOTIF);
         openActivity(context, ujActionIntent);
     }
 
+    /**
+     * Method to process default action of rich uj notif
+     * @param context
+     * @param intent
+     * @param msisdn
+     */
     private void processActionDefault(Context context, Intent intent, String msisdn)
     {
+        Logger.d(TAG, "processing default action for rich uj notif");
         Intent ujActionIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, false, false, ChatThreadActivity.ChatThreadOpenSources.NOTIF);
         openActivity(context, ujActionIntent);
     }
 
+    /**
+     * Method to start activity once rich uj notif click action is processed
+     * @param context
+     * @param ujActionIntent
+     */
     private void openActivity(Context context, Intent ujActionIntent)
     {
         if(ujActionIntent != null)
         {
+            Logger.d(TAG, "launching chatthread activity for rich uj notif click");
             ujActionIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(ujActionIntent);
             closeNotifTray(context);
         }
     }
 
+    /**
+     * This method fires a broadcast which notifies android system to close dialogs such as notification tray
+     * @param context
+     */
     private void closeNotifTray(Context context)
     {
+        Logger.d(TAG, "closing device notification tray post rich uj notif click");
         Intent closeNotifTray = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
         context.sendBroadcast(closeNotifTray);
     }
