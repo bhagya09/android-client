@@ -3,6 +3,7 @@ package com.bsb.hike.bots;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.graphics.drawable.BitmapDrawable;
 import android.text.TextUtils;
 import android.util.Pair;
 
@@ -1146,4 +1147,51 @@ public class BotUtils
     }
 
 
+	public static String getParentMsisdnFromBotMsisdn(String botMsisdn)
+	{
+		if(TextUtils.isEmpty(botMsisdn))
+		{
+			return null;
+		}
+		BotInfo botInfo = getBotInfoForBotMsisdn(botMsisdn);
+		if(botInfo == null)
+		{
+			return null;
+		}
+		NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
+		return nonMessagingBotMetadata.getParentMsisdn();
+	}
+
+	public static JSONObject getBotInfoAsString(BotInfo botInfo) throws JSONException, IOException
+	{
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put(HikePlatformConstants.BOT_DESCRIPTION, botInfo.getBotDescription());
+		jsonObject.put(HikePlatformConstants.BOT_TYPE, botInfo.getBotType());
+		jsonObject.put(HikePlatformConstants.HELPER_DATA, botInfo.getHelperData());
+		jsonObject.put(HikePlatformConstants.METADATA, botInfo.getMetadata());
+		jsonObject.put(HikePlatformConstants.NAMESPACE, botInfo.getNamespace());
+		jsonObject.put(HikePlatformConstants.MSISDN, botInfo.getMsisdn());
+		jsonObject.put(HikePlatformConstants.MAPP_VERSION_CODE, botInfo.getMAppVersionCode());
+		jsonObject.put(HikePlatformConstants.VERSION, botInfo.getVersion());
+		jsonObject.put(HikePlatformConstants.NAME, botInfo.getConversationName());
+		jsonObject.put(HikePlatformConstants.TYPE, botInfo.getType());
+		BitmapDrawable bitmap = HikeMessengerApp.getLruCache().getIconFromCache(botInfo.getMsisdn());
+		if(bitmap !=null)
+		{
+			String picture = Utils.drawableToString(bitmap);
+			File botPicFile = new File(HikeMessengerApp.getInstance().getExternalCacheDir(), "bot_"+ botInfo.getMsisdn() + ".jpg");
+			if(!botPicFile.exists())
+			{
+				botPicFile.createNewFile();
+				Utils.saveByteArrayToFile(botPicFile, picture.getBytes());
+			}
+			jsonObject.put("picture", botPicFile.getAbsolutePath());
+		}
+		else
+		{
+			jsonObject.put("picture" , "");
+		}
+		return jsonObject;
+	}
+	
 }

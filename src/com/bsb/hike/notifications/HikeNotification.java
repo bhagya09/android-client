@@ -60,6 +60,7 @@ import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.triggers.InterceptUtils;
+import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.utils.*;
 import com.bsb.hike.voip.VoIPService;
@@ -120,6 +121,8 @@ public class HikeNotification
 	public static final String HIKE_STEALTH_MESSAGE_KEY = "HIKE_STEALTH_MESSAGE_KEY";
 
 	public static final int NOTIF_INTERCEPT_NON_DOWNLOAD = -94;
+
+	public static final int BIRTHDAY_NOTIF = -95;
 
 	private static final String SEPERATOR = " ";
 
@@ -946,9 +949,9 @@ public class HikeNotification
 
 		final String key = (contactInfo != null && !TextUtils.isEmpty(contactInfo.getName())) ? contactInfo.getName() : msisdn;
 
-		final String message = context.getString(R.string.add_as_friend_notification_line);
+		final String message = context.getString(Utils.isFavToFriendsMigrationAllowed() ?  R.string.add_as_friend_notification_line : R.string.add_as_favorite_notification_line);
 
-		final String text = context.getString(R.string.friend_req_inline_msg_received, key);
+		final String text = context.getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.friend_req_inline_msg_received : R.string.add_as_favorite_notification, key);
 
 		// if notification message stack is empty, add to it and proceed with single notification display
 		// else add to stack and notify clubbed messages
@@ -2204,4 +2207,55 @@ public class HikeNotification
 		notifyNotification(notificationId, mBuilder);
 	}
 
+	/**
+	 * This API generated notification for Birthdays from set of msisdns
+	 * @param msisdns
+	 */
+	public void notifyBdayNotif(List<String> msisdns)
+	{
+
+		if (defaultSharedPrefs.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
+		{
+			return;
+		}
+
+		String message = null;
+		String title = null;
+		int notificationId = BIRTHDAY_NOTIF;
+		final int smallIconId = returnSmallIcon();
+		Intent mNotificationIntent = null;
+		String msisdn = (String)msisdns.toArray()[0];
+		ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, true, false);
+		if(msisdns.size() == 1)
+		{
+			mNotificationIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, true, false, ChatThreadActivity.ChatThreadOpenSources.NOTIF);
+			mNotificationIntent.putExtra(HikeConstants.Extras.MSG, context.getString(R.string.composeview_bday));
+			title = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SINGLE_BDAY_NOTIF_TITLE, context.getString(R.string.single_bday_notif_text));
+			title = String.format(title, contactInfo.getFirstNameAndSurname());
+			message = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SINGLE_BDAY_NOTIF_SUBTEXT, context.getString(R.string.single_bday_notif_subtext));
+		}
+		else
+		{
+			mNotificationIntent = new Intent(context, ComposeChatActivity.class);
+			title = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MULTIPLE_BDAY_NOTIF_TITLE, context.getString(R.string.multiple_bday_notif_text));
+			title = String.format(title, contactInfo.getFirstNameAndSurname(), String.valueOf(msisdns.size() -1));
+			message = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MULTIPLE_BDAY_NOTIF_SUBTEXT, context.getString(R.string.multiple_bday_notif_subtext));
+		}
+
+		NotificationCompat.Builder mBuilder = getNotificationBuilder(title, message, title, null, smallIconId, false, false, false);
+
+		mNotificationIntent.putExtra(HikeConstants.Extras.BIRTHDAY_NOTIF, true);
+		mNotificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+		PendingIntent contentIntent = PendingIntent.getActivity(context, 0, mNotificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+		mBuilder.setContentIntent(contentIntent);
+
+		Intent deleteIntent = new Intent(context, NotificationDismissedReceiver.class);
+		deleteIntent.putExtra(HIKE_NOTIFICATION_ID_KEY, notificationId);
+
+		PendingIntent pendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(), notificationId, deleteIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+		mBuilder.setDeleteIntent(pendingIntent);
+
+		notifyNotification(notificationId, mBuilder);
+	}
 }

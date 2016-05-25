@@ -50,6 +50,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MessageType;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthemes.ChatThemeDrawableHelper;
 import com.bsb.hike.chatthemes.ChatThemeManager;
 import com.bsb.hike.chatthemes.HikeChatThemeConstants;
@@ -83,6 +84,7 @@ import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.ui.fragments.OfflineAnimationFragment;
 import com.bsb.hike.ui.fragments.OfflineDisconnectFragment;
@@ -424,7 +426,16 @@ import java.util.Map;
 			list.add(item);
 		}
 
+		if ((!Utils.isFavToFriendsMigrationAllowed()) && mContactInfo.isNotOrRejectedFavourite() && mConversation.isOnHike())
+		{
+			list.add(new OverFlowMenuItem(getString(Utils.isFavToFriendsMigrationAllowed() ?  R.string.add_as_friend_menu : R.string.add_as_favorite_menu), 0, 0, R.string.add_as_favorite_menu));
+		}
+
 		list.add(new OverFlowMenuItem(mConversation.isBlocked() ? getString(R.string.unblock_title) : getString(R.string.block_title), 0, 0, !isNotMyOneWayFriend(), R.string.block_title));
+		if (BotUtils.isBot(HikePlatformConstants.CUSTOMER_SUPPORT_BOT_MSISDN))
+		{
+			list.add(new OverFlowMenuItem(getString(R.string.help), 0, 0, R.string.help));
+		}
 		return list;
 	}
 
@@ -1619,6 +1630,9 @@ import java.util.Map;
 				sharedPreference.saveData(OfflineConstants.CT_HIKE_DIRECT_CLICKED, true);
 			}
 			break;
+			case R.string.help:
+				onHelpClicked();
+				break;
 		default:
 		}
 	}
@@ -2805,7 +2819,7 @@ import java.util.Map;
 
 	public void startAnotherFreeHikeConnection(Boolean startAnimation)
 	{
-		sendUIMessage(START_OFFLINE_CONNECTION, 0,startAnimation);
+		sendUIMessage(START_OFFLINE_CONNECTION, 0, startAnimation);
 	}
 	
 	private void h20NextClick()
@@ -3346,8 +3360,11 @@ import java.util.Map;
 		Utils.addFavorite(activity, mContactInfo, false, fromFtueBtn ? HikeConstants.AddFriendSources.CHAT_FTUE : HikeConstants.AddFriendSources.CHAT_ADD_FRIEND);
 		mContactInfo.setFavoriteType(favoriteType);
 
-		ConvMessage message = Utils.generateAddFriendSystemMessage(msisdn, activity.getString(R.string.friend_req_inline_msg_sent, mContactInfo.getFirstNameAndSurname()), mConversation.isOnHike(), State.RECEIVED_UNREAD);
-		HikeMessengerApp.getPubSub().publish(HikePubSub.ADD_INLINE_FRIEND_MSG, message);
+		if (Utils.isFavToFriendsMigrationAllowed())
+		{
+			ConvMessage message = Utils.generateAddFriendSystemMessage(msisdn, activity.getString(R.string.friend_req_inline_msg_sent, mContactInfo.getFirstNameAndSurname()), mConversation.isOnHike(), State.RECEIVED_UNREAD);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.ADD_INLINE_FRIEND_MSG, message);
+		}
 	}
 	
 	@Override
@@ -3416,6 +3433,9 @@ import java.util.Map;
 					overFlowMenuItem.drawableId = 0;
 				}
 				break;
+			case R.string.help:
+				overFlowMenuItem.enabled=BotUtils.isBot(HikePlatformConstants.CUSTOMER_SUPPORT_BOT_MSISDN);
+
 			}
 		}
 	}
@@ -3573,7 +3593,7 @@ import java.util.Map;
 	{
 		if(OfflineUtils.isConnectedToSameMsisdn(msisdn) ||  OfflineUtils.isConnectingToSameMsisdn(msisdn))
 		{
-			setLastSeen(getResources().getString(R.string.disconnecting_offline),true);
+			setLastSeen(getResources().getString(R.string.disconnecting_offline), true);
 		}
 		OfflineUtils.stopFreeHikeConnection(activity, msisdn);
 		
@@ -3709,7 +3729,12 @@ import java.util.Map;
 
 	private void inflateAddFriendButtonIfNeeded()
 	{
-		if (mContactInfo.isMyOneWayFriend())
+		if (!Utils.isFavToFriendsMigrationAllowed())
+		{
+			return; // Do nothing here!
+		}
+
+		else if (mContactInfo.isMyOneWayFriend())
 		{
 			return; //If I am 1-way or 2-way friends, do not inflate these views
 		}
@@ -3784,7 +3809,12 @@ import java.util.Map;
 
 	protected void doSetupForAddFriend()
 	{
-		if (mContactInfo.isMyOneWayFriend())
+		if (!Utils.isFavToFriendsMigrationAllowed())
+		{
+			return; // Do nothing here!
+		}
+
+		else if (mContactInfo.isMyOneWayFriend())
 		{
 			return; // If it already is a 1 way or a 2 way friend, no need for all this shizzle!
 		}
@@ -3971,7 +4001,7 @@ import java.util.Map;
 		{
 			return false; //Self obsessed 1-way friend
 		}
-		return !mContactInfo.isMyOneWayFriend();
+		return Utils.isNotMyOneWayFriend(mContactInfo);
 	}
 
 	@Override
@@ -4171,4 +4201,5 @@ import java.util.Map;
 			mComposeView.setText(getString(R.string.composeview_bday));
 		}
 	}
+
 }
