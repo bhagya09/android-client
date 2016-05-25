@@ -3114,10 +3114,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 						convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.CONTENT);
 						convMessage.platformMessageMetadata = new PlatformMessageMetadata(msgExtrasJson.optString(HikeConstants.METADATA), activity.getApplicationContext());
 //						convMessage.platformMessageMetadata.addThumbnailsToMetadata();
-						convMessage.setMessage(convMessage.getMessage());
-
+						convMessage.setMessage(msgExtrasJson.optString(HikeConstants.HIKE_MESSAGE));
 						sendMessage(convMessage);
-
 					}
 					else if (msgExtrasJson.has(HikeConstants.Extras.FILE_PATH))
 					{

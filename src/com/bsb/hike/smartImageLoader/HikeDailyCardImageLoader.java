@@ -8,6 +8,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.TransitionDrawable;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -26,6 +27,9 @@ import io.fabric.sdk.android.services.network.HttpRequest;
  * Created by varunarora on 11/05/16.
  */
 public class HikeDailyCardImageLoader extends ImageWorker {
+
+
+    private static final String TAG = HikeDailyCardImageLoader.class.getSimpleName();
 
     @Override
     protected Bitmap processBitmap(String data) {
@@ -46,111 +50,22 @@ public class HikeDailyCardImageLoader extends ImageWorker {
         return processBitmap(data);
     }
 
-
-
-
-    public void loadImage(String key, View imageView, boolean isFlinging, boolean runOnUiThread, Object refObj)
+    protected void setImageDrawable(ImageView imageView, Drawable drawable)
     {
-        if (key == null)
+        try
         {
-            return;
-        }
-
-		BitmapDrawable value = null;
-
-		if (setDefaultDrawableNull)
-		{
-			imageView.setBackground(null);
-		}
-
-        if (mImageCache != null)
-        {
-            value = mImageCache.get(key);
-            // if bitmap is found in cache and is recyclyed, remove this from cache and make thread get new Bitmap
-            if (value != null && value.getBitmap().isRecycled())
-            {
-                mImageCache.remove(key);
-                value = null;
+            if(TextUtils.isEmpty(foreGroundColor)){
+                imageView.setImageDrawable(drawable);
+            }else{
+                LayerDrawable layerDrawable = new LayerDrawable(new Drawable[]{drawable, new ColorDrawable(Color.parseColor(foreGroundColor))});
+                imageView.setImageDrawable(layerDrawable);
             }
-        }
-        if (value != null)
-        {
-            Logger.d(getClass().getSimpleName(), key + " Bitmap found in cache and is not recycled.");
-            // Bitmap found in memory cache
-            setImageDrawable(imageView, value);
-            sendImageCallback(imageView, true);
-        }
-        else if (runOnUiThread)
-        {
-            Bitmap b = processBitmapOnUiThread(key);
-            if (b != null && mImageCache != null)
-            {
-                BitmapDrawable bd = HikeBitmapFactory.getBitmapDrawable(mResources, b);
-                if (bd != null && cachingEnabled)
-                {
-                    mImageCache.putInCache(key, bd);
-                }
-                setImageDrawable(imageView,bd);
-                sendImageCallback(imageView,true);
-            }
-            else
-            {
-                sendImageCallback(imageView,false);
-            }
+
 
         }
-        else if (cancelPotentialWork(key, imageView) && !isFlinging)
+        catch (Exception e)
         {
-            final BitmapWorkerTask task = new BitmapWorkerTask(imageView);
-            if (refObj != null)
-            {
-                task.setContextObject(refObj);
-            }
-
-            Bitmap loadingBitmap = mLoadingBitmap;
-            TextDrawable.Builder textDrawableBuilder = null;
-            Drawable[] layers = null;
-            Drawable drawable = imageView.getBackground();
-
-            if (drawable != null)
-            {
-                if (drawable instanceof BitmapDrawable)
-                {
-                    loadingBitmap = ((BitmapDrawable) drawable).getBitmap();
-                }
-                else if (drawable instanceof TextDrawable)
-                {
-                    textDrawableBuilder = ((TextDrawable) drawable).getBuilder();
-                }else if(drawable instanceof LayerDrawable){
-                    LayerDrawable layerDrawable = (LayerDrawable)drawable;
-                    layers = new Drawable[layerDrawable.getNumberOfLayers()];
-                    for(int i=0;i<layerDrawable.getNumberOfLayers();i++){
-                        layers[i] = layerDrawable.getDrawable(i);
-                    }
-                }
-            }
-
-            if (textDrawableBuilder != null)
-            {
-                final AsyncShapeDrawable asyncDrawable = new AsyncShapeDrawable(task, textDrawableBuilder);
-                imageView.setBackground(asyncDrawable);
-            }
-            else if(layers != null && layers.length > 0){
-                final AsyncLayerDrawable layerDrawable = new AsyncLayerDrawable(layers,task);
-                imageView.setBackground(layerDrawable);
-            }
-            else
-            {
-                final AsyncDrawable asyncDrawable = new AsyncDrawable(mResources, loadingBitmap, task);
-                imageView.setBackground(asyncDrawable);
-            }
-
-            // NOTE: This uses a custom version of AsyncTask that has been pulled from the
-            // framework and slightly modified. Refer to the docs at the top of the class
-            // for more info on what was changed.
-            task.executeOnExecutor(MyAsyncTask.THREAD_POOL_EXECUTOR, key);
+            Logger.d(TAG, "Bitmap is already recycled when setImageDrawable is called in ImageWorker post processing.");
         }
     }
-
-
 }

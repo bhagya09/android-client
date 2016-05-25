@@ -21,86 +21,70 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_below="@+id/day_container"
-        android:paddingBottom="2.5dp" >
+        android:paddingBottom="2.5dp">
 
         <RelativeLayout
             android:id="@+id/message_container"
             android:layout_width="@dimen/native_card_message_container_wide_width"
-            android:minHeight="130dp"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:tag="@string/content_card_tag"
-            android:background="@drawable/card_container"
             android:layout_marginRight="10dp"
             android:layout_marginTop="3dp"
+            android:background="@drawable/card_container"
             android:elevation="5dp"
-            >
-            <RelativeLayout
+            android:minHeight="130dp"
+            android:padding="0dp"
+            android:tag="@string/content_card_tag">
+
+            <FrameLayout
                 android:id="@+id/card_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true">
-                <!--<LinearLayout-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:background="@null"-->
-                <!--android:id="@+id/text_container"-->
-                <!--android:orientation="vertical">-->
-                <RelativeLayout
-                    android:id="@+id/image_container"
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/native_card_image_height"
-                    android:gravity="center">
+                android:paddingLeft="0.5dp"
+                android:paddingRight="1.5dp"
+                android:paddingTop="1dp">
 
-                    <ImageView
-                        android:id="@+id/placeholder"
+                <com.bsb.hike.view.HikeDailyCustomImageView
+                    android:id="@+id/bg_image"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop" />
+
+                <RelativeLayout
+                    android:id="@+id/text_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <com.bsb.hike.view.CustomFontTextView
+                        android:id="@+id/quote"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_centerInParent="true"
-                        android:src="@drawable/ic_platform_loading" />
-
-                    <ImageView
-                        android:id="@+id/image"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scaleType="centerCrop"
-                        android:tag="i1"
+                        android:layout_marginBottom="8.5dp"
+                        android:layout_marginLeft="24dp"
+                        android:layout_marginTop="22.5dp"
+                        android:layout_marginRight="24dp"
+                        android:tag="T1"
+                        android:textColor="#FFFFFF"
+                        android:textSize="20sp"
+                        android:textStyle="italic"
                         android:visibility="gone" />
+
+                    <com.bsb.hike.view.CustomFontTextView
+                        android:id="@+id/author"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/quote"
+                        android:layout_marginLeft="24dp"
+                        android:paddingBottom="24dp"
+                        android:layout_marginRight="24dp"
+                        android:tag="T2"
+                        android:textColor="#FFFFFF"
+                        android:textSize="12sp"
+                        android:visibility="gone"
+                        app:maxLines="1" />
                 </RelativeLayout>
+            </FrameLayout>
 
-                <com.bsb.hike.view.CustomFontTextView
-                    android:id="@+id/quote"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/image_container"
-                    android:layout_marginBottom="4dp"
-                    android:layout_marginLeft="12dp"
-                    android:layout_marginTop="8dp"
-                    android:tag="T1"
-                    android:textColor="#FFFFFF"
-                    android:textSize="14sp"
-                    android:textStyle="italic"
-                    android:visibility="gone" />
-
-                <com.bsb.hike.view.CustomFontTextView
-                    android:id="@+id/author"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/quote"
-                    android:layout_marginLeft="12.5dp"
-                    android:paddingBottom="13.5dp"
-                    android:tag="T2"
-                    android:textColor="#FFFFFF"
-                    android:textSize="11sp"
-                    android:visibility="gone"
-                    app:maxLines="1" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="0.5dp"
-                    android:background="#0d000000" />
-                <!--</LinearLayout>-->
-            </RelativeLayout>
             <ViewStub
                 android:id="@+id/share_stub"
                 android:layout_width="match_parent"
@@ -111,13 +95,13 @@
 
         <include
             android:id="@+id/time_status"
+            layout="@layout/message_time_status_ext"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_below="@id/message_container"
             android:layout_marginRight="@dimen/chat_bubble_time_edge_spacing"
-            android:layout_marginTop="4dp"
-            layout="@layout/message_time_status_ext" />
+            android:layout_marginTop="4dp" />
     </RelativeLayout>
 
     <View
