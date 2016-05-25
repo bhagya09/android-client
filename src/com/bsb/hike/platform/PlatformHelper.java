@@ -202,8 +202,8 @@ public class PlatformHelper
 			NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
 			JSONObject cardObj = new JSONObject(cardObject);
 
-			boolean isGroupFirst = true; // TODO: change the value to false
-			boolean isRecentJoined = false; // TODO: change the value to true
+			boolean isGroupFirst = false; // TODO: change the value to false
+			boolean isRecentJoined = true; // TODO: change the value to true
 			ArrayList<String> composeExcludedList = new ArrayList<>();
 			if(cardObj.has(HikeConstants.Extras.IS_GROUP_FIRST))
 			{
@@ -334,22 +334,7 @@ public class PlatformHelper
 			GroupDetails groupDetails = ContactManager.getInstance().getGroupDetails(groupId);
 			JSONObject groupDetailsJson = new JSONObject();
 			groupDetailsJson.put("name", groupDetails.getGroupName());
-			BitmapDrawable bitmap = HikeMessengerApp.getLruCache().getIconFromCache(groupId);
-			if(bitmap !=null)
-			{
-				String picture = Utils.drawableToString(bitmap);
-				File groupPicFile = new File(HikeMessengerApp.getInstance().getExternalCacheDir(), "group_"+ groupId + ".jpg");
-				if(!groupPicFile.exists())
-				{
-					groupPicFile.createNewFile();
-					Utils.saveByteArrayToFile(groupPicFile, picture.getBytes());
-				}
-				groupDetailsJson.put("picture" , groupPicFile.getAbsolutePath());
-			}
-			else
-			{
-				groupDetailsJson.put("picture" , "");
-			}
+			groupDetailsJson.put("picture", getContactPicture(groupId, "group_"+ groupId + ".base64"));
 
 			Map<String, JSONObject> msisdnDetailsMap = new HashMap<>();
 			Iterator<PairModified<GroupParticipant, String>> iterator = ContactManager.getInstance().getGroupParticipants(groupId, false, false).iterator();
@@ -361,25 +346,18 @@ public class PlatformHelper
 
 				JSONObject nameJSON = new JSONObject();
 				nameJSON.put("name", name);
-				BitmapDrawable participantBitmap = HikeMessengerApp.getLruCache().getIconFromCache(msisdn);
-				if(participantBitmap !=null)
-				{
-					String picture = Utils.drawableToString(participantBitmap);
-					File contactPicFile = new File(HikeMessengerApp.getInstance().getExternalCacheDir(), groupId + "_" + name + ".jpg");
-					if(!contactPicFile.exists())
-					{
-						contactPicFile.createNewFile();
-						Utils.saveByteArrayToFile(contactPicFile, picture.getBytes());
-					}
-					nameJSON.put("picture", contactPicFile);
-				}
-				else
-				{
-					nameJSON.put("picture", "");
-				}
+				nameJSON.put("picture", getContactPicture(msisdn, groupId + "_" + name + ".base64"));
 				msisdnDetailsMap.put(msisdn, nameJSON);
 			}
-
+			String ownMsisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
+			JSONObject ownContactJSON = new JSONObject();
+			if(!TextUtils.isEmpty(ownMsisdn))
+			{
+				String name = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.NAME_SETTING, null);
+				ownContactJSON.put("name", name);
+				ownContactJSON.put("picture", getContactPicture(ownMsisdn, groupId + "_" + name + ".base64"));
+				msisdnDetailsMap.put(ownMsisdn, ownContactJSON);
+			}
 			JSONObject groupParticipants = new JSONObject(new Gson().toJson(msisdnDetailsMap));
 			groupDetailsJson.put("participants", groupParticipants);
 			return groupDetailsJson.toString();
@@ -389,6 +367,26 @@ public class PlatformHelper
 			e.printStackTrace();
 		}
 		return "{}";
+	}
+
+	private static String getContactPicture(String msisdn, String fileName) throws IOException
+	{
+		BitmapDrawable participantBitmap = HikeMessengerApp.getLruCache().getIconFromCache(msisdn);
+		if(participantBitmap !=null)
+		{
+			String picture = Utils.drawableToString(participantBitmap);
+			File contactPicFile = new File(HikeMessengerApp.getInstance().getExternalCacheDir(), fileName);
+			if(!contactPicFile.exists())
+			{
+				contactPicFile.createNewFile();
+				Utils.saveByteArrayToFile(contactPicFile, picture.getBytes());
+			}
+			return contactPicFile.getAbsolutePath();
+		}
+		else
+		{
+			return "";
+		}
 	}
 
 	public static void pickContactAndSend(ConvMessage message, final Activity activity, int hashcode)
