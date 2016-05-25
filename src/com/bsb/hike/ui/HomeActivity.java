@@ -325,7 +325,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		FTApkManager.removeApkIfNeeded();
 		moveToComposeChatScreen();
 
-		BirthdayUtils.fetchAndUpdateBdayList(false);
+		BirthdayUtils.fetchAndUpdateBdayList(false, 0);
     }
 	
 	@Override

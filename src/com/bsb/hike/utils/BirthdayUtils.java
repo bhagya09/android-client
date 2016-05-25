@@ -229,8 +229,9 @@ public class BirthdayUtils
     /**
      * This API makes HTTP call to fetch Bday list and save in Shared pref
      * @param fromServerPacket
+     * @param packetId
      */
-    public static void fetchAndUpdateBdayList(final boolean fromServerPacket)
+    public static void fetchAndUpdateBdayList(final boolean fromServerPacket, final String packetId)
     {
         if(!Utils.isBDayInNewChatEnabled())
         {
@@ -275,11 +276,20 @@ public class BirthdayUtils
                         sharedPreferenceUtil.saveData(HikeConstants.BDAY_HTTP_CALL_TS, System.currentTimeMillis());
                         HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeConstants.BDAYS_LIST, bdayMsisdnSet);
 
-                        if(fromServerPacket && !bdayMsisdnSet.isEmpty())
-                        {
-                            BirthdayUtils.showBdayNotifcations(bdayMsisdnSet);
-                        }
-                    }
+						if (fromServerPacket)
+						{
+                            BirthdayUtils.recordBirthdayAnalytics(
+                                    AnalyticsConstants.BirthdayEvents.BIRTHDAY_REQ_RESPONSE,
+                                    AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
+                                    AnalyticsConstants.BirthdayEvents.BIRTHDAY_REQ_RESPONSE,
+                                    String.valueOf(packetId), null, null);
+
+							if (!bdayMsisdnSet.isEmpty())
+							{
+								BirthdayUtils.showBdayNotifcations(bdayMsisdnSet, packetId);
+							}
+						}
+					}
                     catch (JSONException e)
                     {
                         e.printStackTrace();
@@ -381,7 +391,7 @@ public class BirthdayUtils
      * Fetched list of bday msisdns from Shared pref
      * Publish Pubsub to show notifications if list is non empty
      */
-    public static void showBdayNotifcations(Set<String> bdayMsisdnSet)
+    public static void showBdayNotifcations(Set<String> bdayMsisdnSet, String packetId)
     {
         ArrayList<String> bdayMsisdns = new ArrayList<String>(bdayMsisdnSet);
 
@@ -390,7 +400,8 @@ public class BirthdayUtils
         if(bdayMsisdns != null && bdayMsisdns.size() > 0)
         {
             Logger.d("bday_notif_", "Going to show notif for " + bdayMsisdns);
-            HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_BIRTHDAY_NOTIF, bdayMsisdns);
+            Pair<ArrayList<String>, String> bdayNotifPair = new Pair<ArrayList<String>, String>(bdayMsisdns, packetId);
+            HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_BIRTHDAY_NOTIF, bdayNotifPair);
         }
         else
         {
