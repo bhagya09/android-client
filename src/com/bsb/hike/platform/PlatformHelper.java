@@ -388,7 +388,7 @@ public class PlatformHelper
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return null;
+		return "{}";
 	}
 
 	public static void pickContactAndSend(ConvMessage message, final Activity activity, int hashcode)
