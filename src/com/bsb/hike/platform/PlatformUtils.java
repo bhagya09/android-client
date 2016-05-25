@@ -100,6 +100,7 @@ import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.TellAFriend;
 import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.BirthdayUtils;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
@@ -280,7 +281,7 @@ public class PlatformUtils
 			if (activityName.equals(HIKESCREEN.COMPOSE_CHAT_WITH_BDAY.toString()))
 			{
 				if (mmObject.has(HikeConstants.MSISDNS)) {
-					ChatHeadUtils.saveBirthdaysFromTip(mmObject);
+					BirthdayUtils.saveBirthdaysFromTip(mmObject);
 				}
 				context.startActivity(IntentFactory.getComposeChatIntent(context));
 			}
@@ -437,8 +438,6 @@ public class PlatformUtils
 						if(!TextUtils.isEmpty(preTypedText))
 						{
 							in.putExtra(HikeConstants.Extras.MSG, preTypedText);
-							in.putExtra(HikeConstants.Extras.SHOW_KEYBOARD, true);
-							in.putExtra(HikeConstants.STICKER_TAG_REFRESH_TIME_INTERVAL, mmObject.optLong(HikeConstants.STICKER_TAG_REFRESH_TIME_INTERVAL, HikeConstants.DEFAULT_STICKER_SEARCH_TRIGGER_DELAY));
 						}
 					}
 					context.startActivity(in);

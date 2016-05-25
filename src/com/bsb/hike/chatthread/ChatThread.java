@@ -3033,25 +3033,10 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		 */
 		if (intent.hasExtra(HikeConstants.Extras.MSG))
 		{
-			final String msg = intent.getStringExtra(HikeConstants.Extras.MSG);
+			String msg = intent.getStringExtra(HikeConstants.Extras.MSG);
 			mComposeView.setText(msg);
 			mComposeView.setSelection(mComposeView.length());
 			SmileyParser.getInstance().addSmileyToEditable(mComposeView.getText(), false);
-			/**
-			 * sticker recommendation view requires that keyboard should be open
-			 */
-			if(activity.getIntent().getBooleanExtra(HikeConstants.Extras.SHOW_KEYBOARD, false))
-			{
-				activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-				uiHandler.postDelayed(new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						stickerTagWatcher.onTextChanged(msg, 0, 0, msg.length());
-					}
-				}, activity.getIntent().getLongExtra(HikeConstants.STICKER_TAG_REFRESH_TIME_INTERVAL, HikeConstants.DEFAULT_STICKER_SEARCH_TRIGGER_DELAY));
-			}
 		}
 
 		/**
@@ -3454,59 +3439,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	public void onLoaderReset(Loader<Object> arg0)
 	{
 		
-	}
-
-	private static class ConversationLoader extends AsyncTaskLoader<Object>
-	{
-		int loaderId;
-
-		private Conversation conversation;
-
-		private List<ConvMessage> list;
-
-		WeakReference<ChatThread> chatThread;
-
-		public ConversationLoader(Context context, int loaderId, ChatThread chatThread)
-		{
-			super(context);
-			Logger.i(TAG, "conversation loader object " + loaderId);
-			this.loaderId = loaderId;
-			this.chatThread = new WeakReference<ChatThread>(chatThread);
-		}
-
-		@Override
-		public Object loadInBackground()
-		{
-			Logger.i(TAG, "load in background of conversation loader");
-
-			if (chatThread.get() != null)
-			{
-				return loaderId == FETCH_CONV ? (conversation = chatThread.get().fetchConversation()) : (loaderId == LOAD_MORE_MESSAGES ? list = chatThread.get()
-						.loadMoreMessages() : null);
-			}
-			return null;
-		}
-
-		/**
-		 * This has to be done due to some bug in compat library -- http://stackoverflow.com/questions/10524667/android-asynctaskloader-doesnt-start-loadinbackground
-		 */
-		protected void onStartLoading()
-		{
-			Logger.i(TAG, "conversation loader onStartLoading");
-			if (loaderId == FETCH_CONV && conversation != null)
-			{
-				deliverResult(conversation);
-			}
-			else if (loaderId == LOAD_MORE_MESSAGES && list != null)
-			{
-				deliverResult(list);
-			}
-			else
-			{
-				forceLoad();
-			}
-		}
-
 	}
 
 	private static class MessageInitializer extends AsyncTaskLoader<Object>
@@ -6866,6 +6798,23 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		default:
 			return "unknown";
 		}
+
+	}
+	public void onHelpClicked()
+	{
+		Intent intent =IntentFactory.getNonMessagingBotIntent(HikePlatformConstants.CUSTOMER_SUPPORT_BOT_MSISDN,activity.getApplicationContext());
+		JSONObject jsonObject = new JSONObject();
+		try
+		{
+			jsonObject.put(HikePlatformConstants.MSISDN, msisdn);
+
+		}
+		catch (JSONException e)
+		{
+			Logger.d(TAG, "Error on Help Click");
+		}
+		intent.putExtra(HikePlatformConstants.EXTRA_DATA,jsonObject.toString());
+		activity.startActivity(intent);
 
 	}
 
