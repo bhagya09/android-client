@@ -408,6 +408,7 @@ public class MqttMessagesManager
 			{
 				boolean isRichNotif = data.optBoolean(HikeConstants.UserJoinMsg.RICH_NOTIF, false);
 				isRichNotif = (isRichNotif && data.optInt(HikeConstants.UserJoinMsg.PUSH_SETTING, HikeConstants.PushType.silent) != HikeConstants.PushType.none);
+				isRichNotif = isRichNotif && !StealthModeManager.getInstance().isStealthMsisdn(msisdn);
 
 				if (data.optBoolean(HikeConstants.UserJoinMsg.PERSIST_CHAT, HikeConstants.UserJoinMsg.defaultPersistChat))
 				{
