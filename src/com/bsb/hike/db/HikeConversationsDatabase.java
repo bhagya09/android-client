@@ -1227,6 +1227,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 			}
 
 		}
+		if(oldVersion < 54)
+		{
+			if(!Utils.isColumnExistsInTable(db, DBConstants.STATUS_TABLE, DBConstants.IS_READ))
+			{
+				String sql = "ALTER TABLE " + DBConstants.STATUS_TABLE + " ADD COLUMN " + DBConstants.IS_READ + " INTEGER DEFAULT 0";
+				db.execSQL(sql);
+			}
+		}
 	}
 
 	public void reinitializeDB()
@@ -1264,7 +1272,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				+ DBConstants.SHOW_IN_TIMELINE + " INTEGER, " // Whether this status should be shown in the timeline or not.
 				+ DBConstants.MOOD_ID + " INTEGER, " // The mood id of the status
 				+ DBConstants.TIME_OF_DAY + " INTEGER, " // Deprecated.
-				+ DBConstants.FILE_KEY + " TEXT" // Text of the status
+				+ DBConstants.FILE_KEY + " TEXT, " // Text of the status
+				+ DBConstants.IS_READ + " INTEGER DEFAULT 0" // Text of the status
 				+ " )";
 	}
 
