@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:descendantFocusability="blocksDescendants"
-    android:gravity="center_vertical"
-    android:minHeight="30dp"
-    android:paddingBottom="5dp" >
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:descendantFocusability="blocksDescendants"
+                android:gravity="center_vertical"
+                android:minHeight="30dp"
+                android:paddingBottom="5dp" >
 
     <ViewStub
         android:id="@+id/day_stub"
@@ -49,12 +49,5 @@
         android:layout_alignBottom="@id/overlay"
         android:layout_alignTop="@id/overlay" />
 
-    <ViewStub
-        android:id="@+id/message_info_stub"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_below="@id/overlay"
-        android:layout="@layout/message_sent_info" />
 
 </RelativeLayout>

@@ -236,7 +236,7 @@ public class MessageInfoView
 			NudgeViewHolder nudgeHolder = null;
 			if(v==null) {
 				nudgeHolder = new NudgeViewHolder();
-				v = inflater.inflate(R.layout.message_sent_nudge, null, false);
+				v = inflater.inflate(R.layout.messageinfo_sent_nudge, null, false);
 				nudgeHolder.nudge = (ImageView) v.findViewById(R.id.nudge);
 				nudgeHolder.time = (TextView) v.findViewById(R.id.time);
 				nudgeHolder.status = (ImageView) v.findViewById(R.id.status);
@@ -1530,7 +1530,7 @@ public class MessageInfoView
 		if ((message.getState() != null)
 				&& ((message.getState() == ConvMessage.State.SENT_DELIVERED_READ) || message.getState() == ConvMessage.State.SENT_UNCONFIRMED || message.getState() == ConvMessage.State.SENT_CONFIRMED))
 		{
-			inflateNSetMessageInfo(convMessage, detailHolder);
+			//inflateNSetMessageInfo(convMessage, detailHolder);
 		}
 		else if (detailHolder.messageInfoInflated != null)
 		{
@@ -1564,7 +1564,7 @@ public class MessageInfoView
 				public void onInflate(ViewStub stub, View inflated)
 				{
 					detailHolder.messageInfoInflated = inflated;
-					setMessageInfo(message, detailHolder.messageInfoInflated);
+					//setMessageInfo(message, detailHolder.messageInfoInflated);
 				}
 			});
 			try
@@ -1579,17 +1579,15 @@ public class MessageInfoView
 		else
 		{
 			detailHolder.messageInfoInflated.setVisibility(View.VISIBLE);
-			setMessageInfo(message, detailHolder.messageInfoInflated);
+			//setMessageInfo(message, detailHolder.messageInfoInflated);
 		}
 	}
 
 	private void setMessageInfo(ConvMessage message, View inflated)
 	{
 		TextView messageInfo = (TextView) inflated.findViewById(R.id.message_info);
-		ImageView sending = (ImageView) inflated.findViewById(R.id.sending_anim);
 
 		messageInfo.setVisibility(View.GONE);
-		sending.setVisibility(View.GONE);
 		inflated.setVisibility(View.GONE);
 		if (message.getState() == ConvMessage.State.SENT_DELIVERED_READ && isGroupChat)
 		{
