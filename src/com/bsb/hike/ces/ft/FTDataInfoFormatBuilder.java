@@ -138,8 +138,8 @@ public class FTDataInfoFormatBuilder < B extends FTDataInfoFormatBuilder<B> > ex
 		try {
 			l1Data = new JSONObject();
 			l1Data.put(AnalyticsConstants.V2.VARIETY, CesConstants.FT_MODULE);
-			l1Data.put(AnalyticsConstants.V2.VAL_STR, this.ft_unique_Id);
-			l1Data.put(AnalyticsConstants.V2.NETWORK, this.netType);
+			l1Data.put(AnalyticsConstants.V2.VAL_STR, this.ft_unique_Id == null ? "" : this.ft_unique_Id );
+			l1Data.put(AnalyticsConstants.V2.NETWORK, this.netType == null ? "-1" : this.netType);
 			l1Data.put(AnalyticsConstants.V2.FORM, this.getSizeBucket(this.fileSize));
 			l1Data.put(AnalyticsConstants.V2.VAL_INT, this.fileSize);
 			l1Data.put(AnalyticsConstants.V2.USER_STATE, this.procTime);

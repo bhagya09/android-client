@@ -371,7 +371,7 @@ public class FileUploadRequest extends Request<JSONObject>
 	private void logCesData(int state, boolean isQuickUpload, String stackTrace, long networkTime)
 	{
 		FTDataInfoFormatBuilder<?> builder = new FTDataInfoFormatBuilder<>()
-				.setNetType(FTUtils.getNetworkTypeString(HikeMessengerApp.getInstance()))
+				.setNetType(String.valueOf(Utils.getNetworkType(HikeMessengerApp.getInstance())))
 				.setFileSize(new File(filePath).length())
 				.setFileAvailability(isQuickUpload)
 				.setFileType(fileType)

@@ -6,7 +6,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import com.bsb.hike.HikeConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 
 /**
@@ -50,6 +49,10 @@ public class CesUtils{
 
 	public static double getSpeedInKbps(long fileSize, long procTime)
 	{
+		if(procTime == 0)
+		{
+			return 0;
+		}
 		return ((double)fileSize/1024)/((double)procTime/1000);
 	}
 
