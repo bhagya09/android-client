@@ -11,9 +11,7 @@ import android.content.SharedPreferences.Editor;
 import android.content.pm.ApplicationInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
@@ -28,7 +26,6 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.MenuItemCompat;
@@ -376,7 +373,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	protected static SearchManager messageSearchManager;
 
-	private String searchText;
+	protected String searchText;
 
 	protected int selectedNonForwadableMsgs;
 
@@ -2682,7 +2679,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		}
 	}
 
-	private void getMessagesFromDB(MovingList<ConvMessage> movingList, int startIndex, int endIndex)
+	
+	protected void getMessagesFromDB(MovingList<ConvMessage> movingList, int startIndex, int endIndex)
 	{
 		Logger.d("gaurav","loading more items: " + startIndex + " to " + endIndex);
 		Logger.d("gaurav","loading more msgs: " + movingList.getUniqueId(startIndex) + " to " + movingList.getUniqueId(endIndex));
@@ -2797,7 +2795,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		recordChatThreadOpen();
 	}
 
-	private OnItemsFinishedListener mOnItemsFinishedListener  = new OnItemsFinishedListener()
+	protected OnItemsFinishedListener mOnItemsFinishedListener  = new OnItemsFinishedListener()
 	{
 		@Override
 		public void getMoreItems(MovingList<? extends Unique> movingList, int startIndex, int endIndex)
@@ -3415,207 +3413,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	public void onLoaderReset(Loader<Object> arg0)
 	{
 
-	}
-
-	private static class MessageInitializer extends AsyncTaskLoader<Object>
-	{
-		static final String START_INDX = "startIndex";
-		static final String END_INDX = "endIndex";
-		private List<ConvMessage> list;
-
-		WeakReference<ChatThread> chatThread;
-
-		int startIndex;
-
-		int endIndex;
-
-		boolean taskComplete = false;
-
-		public MessageInitializer(Context context, ChatThread chatThread, Bundle bundle)
-		{
-			super(context);
-			Logger.i("gaurav", "MessageInitializer loader object");
-			this.chatThread = new WeakReference<ChatThread>(chatThread);
-			this.startIndex = bundle.getInt(START_INDX);
-			this.endIndex = bundle.getInt(END_INDX);
-		}
-
-		@Override
-		public Object loadInBackground()
-		{
-			Logger.i(TAG, "load in background of conversation loader");
-
-			if (chatThread.get() != null)
-			{
-				chatThread.get().getMessagesFromDB(chatThread.get().messages, startIndex, endIndex);
-			}
-			taskComplete = true;
-			return null;
-		}
-
-		/**
-		 * This has to be done due to some bug in compat library -- http://stackoverflow.com/questions/10524667/android-asynctaskloader-doesnt-start-loadinbackground
-		 */
-		protected void onStartLoading()
-		{
-			Logger.i(TAG, "conversation loader onStartLoading");
-			if (taskComplete)
-			{
-				deliverResult(null);
-			}
-			else
-			{
-				forceLoad();
-			}
-		}
-
-	}
-
-	private static class MessageFinder extends AsyncTaskLoader<Object>
-	{
-		static final int MaxMsgLoadCount = 3200;
-
-		int loaderId;
-
-		int position = -2;
-
-		int loadMessageCount = 50;
-
-		boolean taskComplete = false;
-
-		WeakReference<ChatThread> chatThread;
-
-		public MessageFinder(Context context, int loaderId, ChatThread chatThread)
-		{
-			super(context);
-			Logger.i(TAG, "message finder object " + loaderId);
-			this.loaderId = loaderId;
-			this.chatThread = new WeakReference<ChatThread>(chatThread);
-		}
-
-		@Override
-		public Object loadInBackground()
-		{
-			Logger.i("gaurav", "search in background: " + loaderId);
-
-			if (chatThread.get() != null && !chatThread.get().isMessageListEmpty())
-			{
-				chatThread.get().loadingMoreMessages = true;
-				int msgSize = chatThread.get().messages.size();
-				int firstVisisbleItem = chatThread.get().mConversationsView.getFirstVisiblePosition();
-				Logger.d("gaurav","firstVisisbleItem : "  + firstVisisbleItem);
-				if (firstVisisbleItem < msgSize-1)
-					firstVisisbleItem++;
-				ArrayList<ConvMessage> msgList;
-				if (loaderId == SEARCH_PREVIOUS || loaderId == SEARCH_LOOP)
-				{
-					msgSize = chatThread.get().messages.size();
-					long maxId = chatThread.get().messages.getUniqueId(firstVisisbleItem);
-					long minId = -1;
-					ArrayList<Long> ids = new ArrayList<Long>();
-					//position = messageSearchManager.searchFirstItem(chatThread.get().messages, firstVisisbleItem - 1, 0, chatThread.get().searchText);
-					while (position < 0 && messageSearchManager.isActive())
-					{
-						Logger.d("gaurav", "loadmoremessages for search: " + loadMessageCount + " " + maxId + " " + minId);
-						msgList = new ArrayList<>(chatThread.get().loadMoreMessages(loadMessageCount, maxId, minId));
-						if (msgList == null || msgList.isEmpty() || !messageSearchManager.isActive())
-						{
-							break;
-						}
-						position = messageSearchManager.searchFirstItem(msgList, msgList.size(), 0, chatThread.get().searchText);
-						ids.addAll(0, MovingList.getIds(msgList));
-						if (position >= 0)
-						{
-							Logger.d("gaurav","found at pos: "+ position + ", id:" + msgList.get(position).getSortingId());
-							int start = Math.max(position - HikeConstants.MAX_OLDER_MESSAGES_TO_LOAD_EACH_TIME, 0);
-							int end = Math.min(position + HikeConstants.MAX_OLDER_MESSAGES_TO_LOAD_EACH_TIME, msgList.size()-1);
-							ArrayList<ConvMessage> toBeAddedList = new ArrayList<ConvMessage>(ids.size());
-							Utils.preFillArrayList(toBeAddedList, ids.size());
-							for (int i = start; i <= end; i++)
-							{
-								toBeAddedList.set(i, msgList.get(i));
-							}
-							MovingList<ConvMessage> movingList = new MovingList<ConvMessage>(toBeAddedList, ids, chatThread.get().mOnItemsFinishedListener);
-							movingList.setLoadBufferSize(HikeConstants.MAX_OLDER_MESSAGES_TO_LOAD_EACH_TIME);
-							chatThread.get().sendUIMessage(chatThread.get().UPDATE_MESSAGE_LIST,new Pair<>(movingList, firstVisisbleItem));
-						}
-						else
-						{
-							//No need to load more than 3200 messaging in one go.
-							if (loadMessageCount < MaxMsgLoadCount)
-							{
-								loadMessageCount *= 2;
-							}
-							maxId = msgList.get(0).getSortingId();
-						}
-					}
-					if (loaderId == SEARCH_LOOP && position < 0)
-					{
-						Logger.d("gaurav","shifting to next");
-						loaderId = SEARCH_NEXT;
-					}
-				}
-				if (loaderId == SEARCH_NEXT)
-				{
-					msgSize = chatThread.get().messages.size();
-					int count = firstVisisbleItem;
-					long minId = chatThread.get().messages.getUniqueId(firstVisisbleItem);
-					int maxIdPosition = Math.min(count + loadMessageCount, msgSize - 1);
-					long maxId = chatThread.get().messages.getUniqueId(maxIdPosition);
-					while (position < 0 && messageSearchManager.isActive())
-					{
-						Logger.d("gaurav", "loadmoremessages for search: " + loadMessageCount + " " + maxId + " " + minId);
-						msgList = new ArrayList<>(chatThread.get().loadMoreMessages(loadMessageCount, maxId + 1, minId));
-						if (msgList == null || msgList.isEmpty() || !messageSearchManager.isActive())
-						{
-							break;
-						}
-						position = messageSearchManager.searchFirstItem(msgList, 0, msgList.size(), chatThread.get().searchText);
-						if (position >= 0)
-						{
-							Logger.d("gaurav","found at pos: "+ position + ", id:" + msgList.get(position).getSortingId());
-							count += (position + 1);
-							position = count;
-						}
-						else
-						{
-							count += msgList.size();
-							//No need to load more than 3200 messaging in one go.
-							if (loadMessageCount < MaxMsgLoadCount)
-							{
-								loadMessageCount *= 2;
-							}
-							minId = msgList.get(msgList.size() - 1).getSortingId();
-							maxIdPosition = Math.min(count + loadMessageCount, msgSize - 1);
-							maxId = chatThread.get().messages.getUniqueId(maxIdPosition);
-						}
-					}
-				}
-				msgList = null;
-			}
-			taskComplete = true;
-			Logger.d("gaurav","found at position: " + position);
-			return position;
-		}
-
-		/**
-		 * This has to be done due to some bug in compat library -- http://stackoverflow.com/questions/10524667/android-asynctaskloader-doesnt-start-loadinbackground
-		 */
-		protected void onStartLoading()
-		{
-			Logger.i(TAG, "message finder onStartLoading");
-			// The search manager returns the values greater than equal to -1
-			// So if the loader has executed, the result is always greater than -2.
-			// Else we need to start the loader.
-			if (taskComplete)
-			{
-				deliverResult(position);
-			}
-			else
-			{
-				forceLoad();
-			}
-		}
 	}
 
 	@Override
