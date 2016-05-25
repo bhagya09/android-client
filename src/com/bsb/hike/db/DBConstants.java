@@ -4,9 +4,9 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 
 public class DBConstants
 {
-	public static final int CONVERSATIONS_DATABASE_VERSION = 52;
+	public static final int CONVERSATIONS_DATABASE_VERSION = 53;
 
-	public static final int USERS_DATABASE_VERSION = 18;
+	public static final int USERS_DATABASE_VERSION = 19;
 
 	public static final String HAS_CUSTOM_PHOTO = "hascustomphoto";
 
@@ -290,6 +290,9 @@ public class DBConstants
 
 	public static final int DEFAULT_INACTIVE_STATE = 0;
 
+	public static final String BLOCK_STATUS_INDEX = "blkindex";
+
+
 	public static final String QUICK_SUGGESTED_REPLY_STICKERS = "qck_sgstd_rply_stckrs";
 
 	public static final String QUICK_SUGGESTED_SENT_STICKERS = "qck_sgstd_snt_stckrs";
@@ -324,7 +327,7 @@ public class DBConstants
 	 *
 	 */
 	public static class HIKE_CONTENT{
-		public static final int DB_VERSION = 8;
+		public static final int DB_VERSION = 9;
 		public static final String DB_NAME = "hike_content_db";
 		// CONTENT TABLE -> _id,content_id,love_id,channel_id,timestamp,metadata
 		public static final String CONTENT_TABLE = "content";
@@ -365,6 +368,8 @@ public class DBConstants
 		public static final String TRIGGER_POINT = "trigger_point";
 
 		public static final String STATUS = "status";
+
+		public static final String PID = "pid";
 		
 		// URL WHITELIST TABLE --> domain, in_hike
 		public static final String URL_WHITELIST = "url_whitelist";
@@ -423,6 +428,8 @@ public class DBConstants
 		public static final String TIP_END_TIME = "tp_et";
 		public static final String TIP_DATA = "tp_data";
 		public static final String TIP_PRIORITY = "tp_prrt";
+
+		public static final String POPUPDATA_INDEX = "popupdata_index";
 
 	}
 	
@@ -675,6 +682,16 @@ public class DBConstants
 	public static final int LONG_LIVED = 1;
 	
 	public static final String[] JOURNAL_MODE_ARRAY = { "DELETE", "TRUNCATE", "PERSIST", "MEMORY", "WAL", "OFF" };
+
+	public static final String HIKE_UID="uid";
+
+	public static final String BLOCK_STATUS = "bs";
+
+	public static final String STATUS_BLOCKED = "1";
+
+	public static final String STATUS_UNBLOCKED = "0";
+
+	public static final String DROP_TABLE="DROP TABLE IF EXISTS  ";
 
 	public static final String RECENT_STICKERS_TABLE = "recent_stickers_table";
 }

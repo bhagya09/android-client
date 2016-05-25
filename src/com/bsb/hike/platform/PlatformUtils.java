@@ -100,6 +100,7 @@ import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.TellAFriend;
 import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.BirthdayUtils;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
@@ -280,7 +281,7 @@ public class PlatformUtils
 			if (activityName.equals(HIKESCREEN.COMPOSE_CHAT_WITH_BDAY.toString()))
 			{
 				if (mmObject.has(HikeConstants.MSISDNS)) {
-					ChatHeadUtils.saveBirthdaysFromTip(mmObject);
+					BirthdayUtils.saveBirthdaysFromTip(mmObject);
 				}
 				context.startActivity(IntentFactory.getComposeChatIntent(context));
 			}

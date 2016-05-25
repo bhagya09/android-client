@@ -14,6 +14,7 @@ import com.bsb.hike.chatthemes.HikeChatThemeConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.platform.content.PlatformContentConstants;
+import com.bsb.hike.tasks.MigrateTablesForHikeUID;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
@@ -31,12 +32,10 @@ public class UpgradeIntentService extends IntentService
 	Context context;
 
 	@Override
-	protected void onHandleIntent(Intent dbIntent)
-	{
+	protected void onHandleIntent(Intent dbIntent) {
 		context = this;
 		prefs = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
-		if (prefs.getInt(HikeConstants.UPGRADE_AVATAR_CONV_DB, -1) == 1)
-		{
+		if (prefs.getInt(HikeConstants.UPGRADE_AVATAR_CONV_DB, -1) == 1) {
 			initialiseSharedMediaAndFileThumbnailTable();
 
 			// setting the preferences to 2 to indicate we're done with the
@@ -50,8 +49,7 @@ public class UpgradeIntentService extends IntentService
 			// upgrade is done and it can stop the spinner
 		}
 
-		if (prefs.getInt(HikeConstants.UPGRADE_MSG_HASH_GROUP_READBY, -1) == 1)
-		{
+		if (prefs.getInt(HikeConstants.UPGRADE_MSG_HASH_GROUP_READBY, -1) == 1) {
 			addMessageHashNMsisdnNReadByForGroup();
 			// setting the preferences to 2 to indicate we're done with the
 			// migration !
@@ -59,9 +57,8 @@ public class UpgradeIntentService extends IntentService
 			editor.putInt(HikeConstants.UPGRADE_MSG_HASH_GROUP_READBY, 2);
 			editor.commit();
 		}
-		
-		if (prefs.getInt(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, -1) == 1)
-		{
+
+		if (prefs.getInt(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, -1) == 1) {
 			upgradeForDatabaseVersion28();
 			// setting the preferences to 2 to indicate we're done with the
 			// migration !
@@ -70,60 +67,50 @@ public class UpgradeIntentService extends IntentService
 			editor.commit();
 		}
 
-		if (prefs.getInt(StickerManager.MOVED_HARDCODED_STICKERS_TO_SDCARD, 1) == 1)
-		{
-			if(StickerManager.moveHardcodedStickersToSdcard(getApplicationContext()))
-			{
+		if (prefs.getInt(StickerManager.MOVED_HARDCODED_STICKERS_TO_SDCARD, 1) == 1) {
+			if (StickerManager.moveHardcodedStickersToSdcard(getApplicationContext())) {
 				Editor editor = prefs.edit();
 				editor.putInt(StickerManager.MOVED_HARDCODED_STICKERS_TO_SDCARD, 2);
 				editor.commit();
 			}
 		}
-		
-		if (prefs.getInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1) == 1)
-		{
+
+		if (prefs.getInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1) == 1) {
 			upgradeForStickerShopVersion1();
 			Editor editor = prefs.edit();
 			editor.putInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 2);
 			editor.commit();
 		}
-		
-		if (prefs.getInt(HikeMessengerApp.UPGRADE_FOR_SERVER_ID_FIELD, 1) == 1)
-		{
-			if(upgradeForServerIdField())
-			{
+
+		if (prefs.getInt(HikeMessengerApp.UPGRADE_FOR_SERVER_ID_FIELD, 1) == 1) {
+			if (upgradeForServerIdField()) {
 				Editor editor = prefs.edit();
 				editor.putInt(HikeMessengerApp.UPGRADE_FOR_SERVER_ID_FIELD, 2);
 				editor.commit();
 			}
 		}
-		
+
 		// This value is set as 1 in onUpgrade of HikeConversationsDatabase.
-		if (prefs.getInt(HikeMessengerApp.UPGRADE_SORTING_ID_FIELD, 0) == 1)
-		{
-			if (upgradeForSortingIdField())
-			{
+		if (prefs.getInt(HikeMessengerApp.UPGRADE_SORTING_ID_FIELD, 0) == 1) {
+			if (upgradeForSortingIdField()) {
 				Logger.v(TAG, "Upgrade Sorting Id Field was successful");
 				Editor editor = prefs.edit();
 				editor.putInt(HikeMessengerApp.UPGRADE_SORTING_ID_FIELD, 2);
 				editor.commit();
 			}
 		}
-		if (prefs.getInt(HikeMessengerApp.UPGRADE_LANG_ORDER, 0) == 0)
-		{
+		if (prefs.getInt(HikeMessengerApp.UPGRADE_LANG_ORDER, 0) == 0) {
 			{
 				LocalLanguageUtils.requestLanguageOrderListFromServer();
 			}
 		}
 
-        // Schedule versioning migration if its not done already
-        if(prefs.getBoolean(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, false) == false)
-        {
-            scheduleHikeMicroAppsMigrationAlarm(getBaseContext());
-        }
+		// Schedule versioning migration if its not done already
+		if (prefs.getBoolean(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, false) == false) {
+			scheduleHikeMicroAppsMigrationAlarm(getBaseContext());
+		}
 
-		if (!prefs.getBoolean(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, false))
-		{
+		if (!prefs.getBoolean(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, false)) {
 			StickerManager.getInstance().markAllCategoriesAsDownloaded();
 			Editor editor = prefs.edit();
 			editor.putBoolean(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, true);
@@ -142,44 +129,56 @@ public class UpgradeIntentService extends IntentService
 			}
 		}
 
-		if((!prefs.getBoolean(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, false)) && Utils
-				.doesExternalDirExists())
-		{
+		if ((!prefs.getBoolean(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, false)) && Utils
+				.doesExternalDirExists()) {
 			if (StickerManager.getInstance().migrateStickerAssets(StickerManager.getInstance().getOldStickerExternalDirFilePath(),
-					StickerManager.getInstance().getNewStickerDirFilePath()))
-			{
+					StickerManager.getInstance().getNewStickerDirFilePath())) {
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, true);
 				Logger.v(TAG, "Upgrade for sticker table was successful");
-			}
-			else
-			{
+			} else {
 				Logger.v(TAG, "Upgrade for sticker table was NOT successful");
 			}
 		}
 
-		if((!prefs.getBoolean(HikeMessengerApp.MIGRATE_RECENT_STICKER_TO_DB, false)))
-		{
-			if(StickerManager.getInstance().migrateRecent())
-			{
+		if ((!prefs.getBoolean(HikeMessengerApp.MIGRATE_RECENT_STICKER_TO_DB, false))) {
+			if (StickerManager.getInstance().migrateRecent()) {
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.MIGRATE_RECENT_STICKER_TO_DB, true);
 			}
 		}
 
-		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeChatThemeConstants.MIGRATE_CHAT_THEMES_DATA_TO_DB, false)) {
-			ChatThemeManager.getInstance().migrateChatThemesToDB();
+		if (!prefs.getBoolean(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, false)) {
+			StickerManager.getInstance().markAllCategoriesAsDownloaded();
+			Editor editor = prefs.edit();
+			editor.putBoolean(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, true);
+			editor.apply();
 		}
 
-		// Set block notifications as false in shared preference i.e allow notifications to occur once Upgrade intent completes
-        Editor editor = prefs.edit();
-        editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
-        editor.apply();
+		if (prefs.getInt(HikeMessengerApp.MIGRATE_TABLE_TO_USER, 0) == 1) {
+			MigrateTablesForHikeUID migrateTablesForHikeUID = new MigrateTablesForHikeUID();
+			try {
+				boolean result = migrateTablesForHikeUID.call();
+				if (result) {
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.MIGRATE_TABLE_TO_USER, 2);
+				}
+			} catch (Exception e) {
+				Logger.e(TAG, "Exception in Migrating Tables ...");
+			}
+		}
+			if (!HikeSharedPreferenceUtil.getInstance().getData(HikeChatThemeConstants.MIGRATE_CHAT_THEMES_DATA_TO_DB, false)) {
+				ChatThemeManager.getInstance().migrateChatThemesToDB();
+			}
 
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPGRADING, false);
-		HikeMessengerApp.getPubSub().publish(HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE, null);
+			// Set block notifications as false in shared preference i.e allow notifications to occur once Upgrade intent completes
+			Editor editor = prefs.edit();
+			editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
+			editor.apply();
 
-		Utils.connectToGcmPreSignup();
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPGRADING, false);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE, null);
 
-	}
+			Utils.connectToGcmPreSignup();
+
+		}
 
 	public UpgradeIntentService()
 	{

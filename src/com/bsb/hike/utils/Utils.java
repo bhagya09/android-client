@@ -1203,6 +1203,7 @@ public class Utils
 			data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis() / 1000));
 			data.put(HikeConstants.RESOLUTION_ID, Utils.getResolutionId());
 			data.put(HikeConstants.NEW_LAST_SEEN_SETTING, true);
+			data.put(HikeConstants.FAVS_RAI,false);
 			requestAccountInfo.put(HikeConstants.DATA, data);
 			HikeMqttManagerNew.getInstance().sendMessage(requestAccountInfo, MqttConstants.MQTT_QOS_ONE);
 		}
@@ -1657,6 +1658,7 @@ public class Utils
 		{
 			AccountUtils.base = httpString + AccountUtils.host + "/v1";
 			AccountUtils.baseV2 = httpString + AccountUtils.host + "/v2";
+			AccountUtils.baseV3 = httpString + AccountUtils.host + "/v3";
 			AccountUtils.SDK_AUTH_BASE = AccountUtils.SDK_AUTH_BASE_URL_PROD;
 		}
 		else
@@ -1664,6 +1666,7 @@ public class Utils
 			setHostAndPort(whichServer, AccountUtils.ssl);
 			AccountUtils.base = httpString + AccountUtils.host + ":" + Integer.toString(AccountUtils.port) + "/v1";
 			AccountUtils.baseV2 = httpString + AccountUtils.host + ":" + Integer.toString(AccountUtils.port) + "/v2";
+			AccountUtils.baseV3 = httpString + AccountUtils.host + ":" + Integer.toString(AccountUtils.port) + "/v3";
 			AccountUtils.SDK_AUTH_BASE = AccountUtils.SDK_AUTH_BASE_URL_STAGING;
 		}
 
@@ -3134,7 +3137,12 @@ public class Utils
 
 		if (file.isDirectory())
 		{
-			for (File f : file.listFiles())
+			File listFiles[] = file.listFiles();
+			if(listFiles == null)
+			{
+				return false;
+			}
+			for (File f : listFiles)
 			{
 				result = result && deleteFile(f);
 			}
@@ -3944,33 +3952,6 @@ public class Utils
 		{
 			return;
 		}
-
-		if (!Utils.isFavToFriendsMigrationAllowed())
-		{
-			HikeDialogFactory.showDialog(context, HikeDialogFactory.FAVORITE_ADDED_DIALOG, new HikeDialogListener()
-			{
-
-				@Override
-				public void positiveClicked(HikeDialog hikeDialog)
-				{
-					hikeDialog.dismiss();
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_ADD_FAVORITE_TIP, true);
-				}
-
-				@Override
-				public void neutralClicked(HikeDialog hikeDialog)
-				{
-				}
-
-				@Override
-				public void negativeClicked(HikeDialog hikeDialog)
-				{
-					hikeDialog.dismiss();
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_ADD_FAVORITE_TIP, true);
-				}
-
-			}, contactInfo.getFirstName());
-		}
 	}
 
 	public static FavoriteType toggleFavorite(Context context, ContactInfo contactInfo, boolean isFtueContact, String addFavSource)
@@ -3992,7 +3973,7 @@ public class Utils
 			isRequestSent = true;
 			if(showToast)
 			{
-				Toast.makeText(context, Utils.isFavToFriendsMigrationAllowed() ? R.string.friend_request_sent : R.string.favorite_request_sent, Toast.LENGTH_SHORT).show();
+				Toast.makeText(context, R.string.friend_request_sent, Toast.LENGTH_SHORT).show();
 			}
 		}
 
@@ -6774,15 +6755,7 @@ public class Utils
 
 	public static boolean showContactsUpdates(ContactInfo contactInfo)
 	{
-		if (isFavToFriendsMigrationAllowed())
-		{
-			return contactInfo.isMyTwoWayFriend();
-		}
-		else
-		{
-			return ((contactInfo.getFavoriteType() == FavoriteType.FRIEND) || (contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED) || (contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED_REJECTED))
-					&& (contactInfo.isOnhike());
-		}
+		return contactInfo.isMyTwoWayFriend();
 	}
 
 	public static boolean isSelfMsisdn(String argMsisdn)
@@ -7506,83 +7479,6 @@ public class Utils
 		HikeMessengerApp.getInstance().getApplicationContext().sendBroadcast(new Intent(MqttConstants.MQTT_CONNECTION_CHECK_ACTION).putExtra("connect", true));
 	}
 
-	public static void makeFavFriendsTransition()
-	{
-		if (isFavToFriendsMigrationAllowed())
-		{
-			changeFavToFriends();
-			BirthdayUtils.modifyBDPrefForFavToFriends(true);
-		}
-		else
-		{
-			revertFavToFriendsChange();
-			BirthdayUtils.modifyBDPrefForFavToFriends(false);
-		}
-	}
-
-	public static void changeFavToFriends()
-	{
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 0) != 1)
-		{
-			Context context = HikeMessengerApp.getInstance().getApplicationContext();
-			// Change last seen pref to friends if its is not already set to friends or noone.
-			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
-			String currentValue = settings.getString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_favorites));
-			if (!currentValue.equals(context.getString(R.string.privacy_favorites)) && !currentValue.equals(context.getString(R.string.privacy_nobody)))
-			{
-				Editor settingEditor = settings.edit();
-				settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_favorites));
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LAST_SEEN_TEMP_PREF, currentValue);
-				int slectedPrivacyId = Integer.parseInt(context.getString(R.string.privacy_favorites));
-				try
-				{
-					HikePreferences.sendNLSToServer(slectedPrivacyId, true);
-					settingEditor.commit();
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 1);
-				}
-				catch (JSONException e)
-				{
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-
-	public static void revertFavToFriendsChange()
-	{
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 0) == 1)
-		{
-			Context context = HikeMessengerApp.getInstance().getApplicationContext();
-			// Change last seen pref to friends if its is not already set to friends or noone.
-			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
-			String currentValue = settings.getString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_favorites));
-			if (!currentValue.equals(context.getString(R.string.privacy_my_contacts)) && !currentValue.equals(context.getString(R.string.privacy_everyone)))
-			{
-
-				String oldLsValue = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.LAST_SEEN_TEMP_PREF, context.getString(R.string.privacy_my_contacts));
-				Editor settingEditor = settings.edit();
-				settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, oldLsValue);
-				int slectedPrivacyId = Integer.parseInt(oldLsValue);
-				try
-				{
-					HikePreferences.sendNLSToServer(slectedPrivacyId, true);
-					settingEditor.commit();
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 0); // Resetting the flag, so that when the packet might
-					// be sent again, it is able to alter the prefs
-				}
-				catch (JSONException e)
-				{
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-
-	public static boolean isFavToFriendsMigrationAllowed()
-	{
-		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FAV_TO_FRIENDS_MIGRATION, false);
-	}
-
 	public static ConvMessage generateAddFriendSystemMessage(String msisdn, String message, boolean isOnHike, State state)
 	{
 		ConvMessage convMessage = makeConvMessage(msisdn, message, isOnHike, state);
@@ -7599,11 +7495,6 @@ public class Utils
 		}
 
 		return convMessage;
-	}
-
-	public static boolean isNotMyOneWayFriend(ContactInfo contactInfo)
-	{
-		return Utils.isFavToFriendsMigrationAllowed() && !contactInfo.isMyOneWayFriend();
 	}
 
 	public static String getExternalFilesDirPath(String type)
@@ -7909,8 +7800,9 @@ public class Utils
 				result = deleteFile(newRootDir) && newRootDir.mkdirs();
 			}
 		}
+		File listFiles[] = oldRootDir.listFiles();
 
-		if (!oldRootDir.exists() || (oldRootDir.listFiles() == null))
+		if (!oldRootDir.exists() || (listFiles == null))
 		{
 			Logger.d("StickerMigration", "Migration unsuccessful but new folder created");
 			StickerManager.getInstance().recordStickerMigrationFailure("Migration unsuccessful but new folder created, The oldDir was absent or listFiles were null");
@@ -7919,7 +7811,7 @@ public class Utils
 
 		if (result)
 		{
-			for (File f : oldRootDir.listFiles())
+			for (File f : listFiles)
 			{
 				if (f.isDirectory())
 				{
