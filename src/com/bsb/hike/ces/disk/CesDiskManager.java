@@ -297,16 +297,26 @@ public class CesDiskManager
 
 	public static void deleteCesDataOnAndBefore(String date)
 	{
-		File dir = new File(HikeConstants.HIKE_DIRECTORY_ROOT + CES_ROOT_DIR + "/" + date);
+		String mDate = CesUtils.getDayBeforeUTCDate(date);
+		File dir = new File(HikeConstants.HIKE_DIRECTORY_ROOT + CES_ROOT_DIR + "/" + mDate);
+		while (deleteDir(dir))
+		{
+			mDate = CesUtils.getDayBeforeUTCDate(mDate);
+			dir = new File(HikeConstants.HIKE_DIRECTORY_ROOT + CES_ROOT_DIR + "/" + mDate);
+		}
+	}
+
+	private static boolean deleteDir(File dir)
+	{
 		if(dir != null && dir.exists())
 		{
 			Utils.deleteFile(dir);
+			return true;
 		}
 		else
 		{
-			return;
+			return false;
 		}
-		deleteCesDataOnAndBefore(CesUtils.getDayBeforeUTCDate(date));
 	}
 
 	public static void deleteAllCesData()
