@@ -2225,7 +2225,7 @@ public class HikeNotification
 		final int smallIconId = returnSmallIcon();
 		Intent mNotificationIntent = null;
 		String msisdn = (String)msisdns.toArray()[0];
-		ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, true, false);
+		ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, true, true);
 		if(msisdns.size() == 1)
 		{
 			mNotificationIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, true, false, ChatThreadActivity.ChatThreadOpenSources.NOTIF);
