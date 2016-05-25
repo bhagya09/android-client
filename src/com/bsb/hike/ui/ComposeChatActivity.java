@@ -2311,14 +2311,19 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						
 						if (file.length() > HikeConstants.MAX_FILE_SIZE)
 						{
-							showMaxFileToast = true;
+
 							if (offlineContact != null)
 							{
 								FileTransferData fileData = initialiseFileTransfer(filePath, null, hikeFileType, fileType, false, -1, true, arrayList,imageCaptions.get(i));
 								offlineFileTransferList.add(fileData);
+								continue;
+							} else {
+								if(!ChatThreadUtils.isMaxSizeUploadableFile(hikeFileType, ComposeChatActivity.this)) {
+									showMaxFileToast = true;
+									continue;
+								}
 							}
-							continue;
-								
+
 						}
 						FileTransferData fileData = initialiseFileTransfer(filePath, null, hikeFileType, fileType, false, -1, true, arrayList,imageCaptions.get(i));
 						if(fileData!=null){

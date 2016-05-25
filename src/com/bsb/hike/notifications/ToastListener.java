@@ -72,7 +72,7 @@ public class ToastListener implements Listener
 			HikePubSub.CANCEL_ALL_STATUS_NOTIFICATIONS, HikePubSub.CANCEL_ALL_NOTIFICATIONS, HikePubSub.PROTIP_ADDED, HikePubSub.UPDATE_PUSH, HikePubSub.APPLICATIONS_PUSH,
 			HikePubSub.SHOW_FREE_INVITE_SMS, HikePubSub.STEALTH_POPUP_WITH_PUSH, HikePubSub.HIKE_TO_OFFLINE_PUSH, HikePubSub.ATOMIC_POPUP_WITH_PUSH,
 			HikePubSub.BULK_MESSAGE_NOTIFICATION, HikePubSub.USER_JOINED_NOTIFICATION,HikePubSub.ACTIVITY_UPDATE_NOTIF, HikePubSub.FLUSH_PERSISTENT_NOTIF,
-			HikePubSub.SHOW_PERSISTENT_NOTIF, HikePubSub.ATOMIC_TIP_WITH_NOTIF};
+			HikePubSub.SHOW_PERSISTENT_NOTIF, HikePubSub.ATOMIC_TIP_WITH_NOTIF, HikePubSub.SHOW_BIRTHDAY_NOTIF};
 
 	/**
 	 * Used to check whether NUJ/RUJ message notifications are disabled
@@ -658,6 +658,13 @@ public class ToastListener implements Listener
 			filteredMessageList = null;
 			HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_MESSAGE_CHANGED, null);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_TIMELINE_UPDATE_CHANGED, null);
+		}
+		else if(HikePubSub.SHOW_BIRTHDAY_NOTIF.equals(type))
+		{
+			if (object != null && object instanceof List)
+			{
+				toaster.notifyBdayNotif((List<String>)object);
+			}
 		}
 	}
 
