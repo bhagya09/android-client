@@ -346,4 +346,9 @@
     <color name="green_added_friend">#7ED321</color>
     <color name="purple_my_frag_badge_counter">#734EFF</color>
     <color name="red_friends_frag_badge_counter">#FF3F55</color>
+
+    <color name="stories_title_unread">#3D475B</color>
+    <color name="stories_sub_text_unread">#3D000000</color>
+    <color name="stories_title_read">#3D000000</color>
+    <color name="stories_sub_text_read">#3D000000</color>
 </resources>

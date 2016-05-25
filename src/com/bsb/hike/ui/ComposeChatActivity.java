@@ -64,6 +64,7 @@ import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthread.ChatThreadActivity;
+import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -805,7 +806,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		boolean fetchRecentlyJoined = pref.getData(HikeConstants.SHOW_RECENTLY_JOINED_DOT, false) || pref.getData(HikeConstants.SHOW_RECENTLY_JOINED, false);
 		fetchRecentlyJoined = fetchRecentlyJoined && !isForwardingMessage && showNujNotif;
 		boolean showMicroappShowcase = BotUtils.isBotDiscoveryEnabled();
-		boolean showBdaySection = pref.getData(HikeConstants.ENABLE_BDAY_IN_CCA, true) && (pref.getStringSet(HikeConstants.BDAYS_LIST, new HashSet<String>()).size() > 0);
+		boolean showBdaySection = Utils.isBDayInNewChatEnabled() && (pref.getStringSet(HikeConstants.BDAYS_LIST, new HashSet<String>()).size() > 0);
 		
 		switch (composeMode)
 		{
@@ -821,10 +822,14 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent), isContactChooserFilter, isShowTimeline(), false);
 			break;
 		case START_CHAT_MODE:
-		default:
 			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId,
 					sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent), isContactChooserFilter, isShowTimeline(),
 					showBdaySection);
+			break;
+
+		default:
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId,
+					sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent), isContactChooserFilter, isShowTimeline(), false);
 			break;
 		}
 
@@ -1129,7 +1134,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				else if (adapter.isBirthdayContact(contactInfo))
 				{
 					Intent in = IntentFactory.createChatThreadIntentFromContactInfo(this, contactInfo, false, false, ChatThreadActivity.ChatThreadOpenSources.NEW_COMPOSE);
-					in.putExtra(HikeConstants.Extras.HIKE_BDAY_MODE, true);
+					in.putExtra(HikeConstants.Extras.MSG, getString(R.string.composeview_bday));
 					startActivity(in);
 				}
 				else
@@ -1230,7 +1235,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 	private void selectContact(ContactInfo contactInfo)
 	{
-		if (!contactInfo.isMyOneWayFriend() && Utils.isFavToFriendsMigrationAllowed() && composeMode == MULTIPLE_FWD) {
+		if (!contactInfo.isMyOneWayFriend() && composeMode == MULTIPLE_FWD) {
 			sendFriendRequest(contactInfo);
 		}
 		adapter.addContact(contactInfo);
@@ -2299,14 +2304,19 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						
 						if (file.length() > HikeConstants.MAX_FILE_SIZE)
 						{
-							showMaxFileToast = true;
+
 							if (offlineContact != null)
 							{
 								FileTransferData fileData = initialiseFileTransfer(filePath, null, hikeFileType, fileType, false, -1, true, arrayList,imageCaptions.get(i));
 								offlineFileTransferList.add(fileData);
+								continue;
+							} else {
+								if(!ChatThreadUtils.isMaxSizeUploadableFile(hikeFileType, ComposeChatActivity.this)) {
+									showMaxFileToast = true;
+									continue;
+								}
 							}
-							continue;
-								
+
 						}
 						FileTransferData fileData = initialiseFileTransfer(filePath, null, hikeFileType, fileType, false, -1, true, arrayList,imageCaptions.get(i));
 						if(fileData!=null){
@@ -2723,9 +2733,12 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					}
 					else
 					{
-						FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_1_2, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init",
-								"Compose - forwardMessageAsPerType - Max size reached.");
-						Toast.makeText(ComposeChatActivity.this, R.string.max_file_size, Toast.LENGTH_SHORT).show();
+						//CE-815: max size toast appears even before compressing a 100MB+ video
+						if(!ChatThreadUtils.isMaxSizeUploadableFile(hikeFileType, ComposeChatActivity.this)) {
+							FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_1_2, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init",
+									"Compose - forwardMessageAsPerType - Max size reached.");
+							Toast.makeText(ComposeChatActivity.this, R.string.max_file_size, Toast.LENGTH_SHORT).show();
+						}
 					}
 							
 				}

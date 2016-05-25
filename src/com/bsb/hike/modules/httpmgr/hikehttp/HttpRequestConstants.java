@@ -25,6 +25,9 @@ public class HttpRequestConstants
 	
 	public static final String STICKERS_PRODUCTION_API = "stickers.im.hike.in";
 
+	//TODO CHATTHEME Revisit PRODUCTION URL
+	public static final String CHATTHEME_PRODUCTION_API = "";
+
 	public static final String FT_PRODUCTION_API = "ft.im.hike.in";
 
 	public static final String STICKERS_CDN_PRODUCTION_API = "staticstickers.im.hike.in";
@@ -49,6 +52,9 @@ public class HttpRequestConstants
 
 	private static String BASE_STICKERS_CDN_URL = HTTP + STICKERS_CDN_PRODUCTION_API;
 
+	//TODO CHATTHEME change the URL to Production
+	private static String BASE_CHATTHEME_URL = HTTP + STAGING_API;
+
 	private static final String BASE_V1 = "/v1";
 
 	private static final String BASE_V2 = "/v2";
@@ -64,6 +70,8 @@ public class HttpRequestConstants
 	private static final String BASE_USER = "/user";
 
 	private static final String BASE_STICKER = "/stickers";
+
+	private static final String BASE_CHATTHEME = "/cbg";
 
 	private static final String BASE_SHOP = "/shop";
 
@@ -124,6 +132,7 @@ public class HttpRequestConstants
 		changeBasePlatformUrl();
 		changeBaseStickersUrl();
 		changeBaseAuthUrl();
+		changeChatThemeUrl();
 	}
 
 	public static synchronized void toggleSSL()
@@ -133,6 +142,7 @@ public class HttpRequestConstants
 		changeBasePlatformUrl();
 		changeBaseStickersUrl();
 		changeBaseAuthUrl();
+		changeChatThemeUrl();
 	}
 
 	private static void changeBaseAuthUrl()
@@ -195,10 +205,31 @@ public class HttpRequestConstants
 		BASE_STICKERS_CDN_URL += (isSSL) ? HTTPS : HTTP;
 		BASE_STICKERS_CDN_URL += (isProduction) ? STICKERS_CDN_PRODUCTION_API : STAGING_API;
 	}
-	
-	
-	
+
+	//TODO CHATTHEME Revisit PRODUCTION URL
+	private static void changeChatThemeUrl()
+	{
+		BASE_CHATTHEME_URL = "";
+		BASE_CHATTHEME_URL += HTTP;
+		//BASE_CHATTHEME_URL += (isProduction) ? CHATTHEME_PRODUCTION_API : CHATTHEME_STAGING_API;
+		BASE_CHATTHEME_URL += STAGING_API;
+	}
+
 	/*********************************************************************************************************************************************/
+	public static String chatThemeBgImgUploadBase()
+	{
+		return BASE_CHATTHEME_URL + BASE_V1 + BASE_CHATTHEME + "/custom";
+	}
+
+	public static String chatThemeAssetsDownloadBase()
+	{
+		return BASE_CHATTHEME_URL + BASE_V1 + BASE_CHATTHEME + "/assets";
+	}
+
+	public static String chatThemeAssetIdDownloadBase()
+	{
+		return BASE_CHATTHEME_URL + BASE_V1 + BASE_CHATTHEME + "/prop";
+	}
 
 	public static String singleStickerDownloadBase()
 	{
@@ -281,6 +312,11 @@ public class HttpRequestConstants
 		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER + "/categories";
 	}
 
+	public static String quickSuggestionUrl()
+	{
+		return HTTP + "54.251.141.175:8080" + "/quickSuggestions";
+	}
+
 	public static String lastSeenUrl()
 	{
 		return BASE_URL + BASE_V1 + BASE_USER + "/lastseen";
@@ -329,6 +365,11 @@ public class HttpRequestConstants
 	public static String postAddressbookBaseUrl()
 	{
 		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/addressbook";
+	}
+
+	public static String postAddressbookBaseV3Url()
+	{
+		return BASE_URL + BASE_V3 + BASE_ACCOUNT + "/addressbook";
 	}
 
 	public static String updateAddressbookBaseUrl()
@@ -417,6 +458,12 @@ public class HttpRequestConstants
 	{
 		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/profile/";
 	}
+
+	public static String getHikeJoinTimeBaseV2Url()
+	{
+		return BASE_URL + BASE_V2 + BASE_ACCOUNT + "/profile/";
+	}
+
 
 	public static String registerAccountBaseUrl()
 	{
@@ -611,7 +658,11 @@ public class HttpRequestConstants
 		return  BASE_URL + BASE_V1 + "hsu/";
 	}
 
-	public static String getSettingsUploadUrl()
+	public static String fetchUIDForMissingMsisdnUrl()
+	{
+		return BASE_URL + BASE_V2 +BASE_ACCOUNT+ "/user-identifier-update-graph";
+	}
+		public static String getSettingsUploadUrl()
 	{
 		return  BASE_URL + BASE_V5 + HIKE_SETTINGS;
 	}

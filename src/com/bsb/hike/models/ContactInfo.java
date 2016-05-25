@@ -19,6 +19,14 @@ import java.util.Date;
 
 public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 {
+	public boolean getBlockedStatus() {
+		return isBlocked;
+	}
+
+	public void setUid(String uid) {
+		this.uid = uid;
+	}
+
 	public enum FavoriteType
 	{
 		NOT_FRIEND, REQUEST_RECEIVED, FRIEND, AUTO_RECOMMENDED_FAVORITE, REQUEST_SENT, REQUEST_SENT_REJECTED, REQUEST_RECEIVED_REJECTED, REQUEST_RECEIVED_UNSEEN, FRIEND_UNSEEN
@@ -37,6 +45,10 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 	private String id;
 
 	private short bits = 0;
+
+	private boolean isBlocked = false;
+
+	private String uid = null;
 
 	/*
 	 * bits 1111
@@ -383,7 +395,7 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 		/*
 		 * For unknown contacts, we make the id and msisdn equal.
 		 */
-		return msisdn.equals(id);
+		return TextUtils.isEmpty(id) ? true : msisdn.equals(id);
 	}
 
 	public boolean isGroupConversationContact()
@@ -463,13 +475,13 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 	public ContactInfo(String id, String msisdn, String name, String phoneNum, boolean onhike, String msisdnType, long lastMessaged, boolean hasCustomPhoto, long hikeJoinTime)
 	{
 
-		this(id, msisdn, name,phoneNum, onhike, msisdnType, lastMessaged, hasCustomPhoto, hikeJoinTime, "");
+		this(id, msisdn, name,phoneNum, onhike, msisdnType, lastMessaged, hasCustomPhoto, hikeJoinTime, "",null);
 	}
 
 
-	public ContactInfo(String id, String msisdn, String name, String phoneNum, boolean onhike, String platformId)
+	public ContactInfo(String id, String msisdn, String name, String phoneNum, boolean onhike, String platformId,String uid)
 	{
-		this(id, msisdn, name, phoneNum, onhike, "", 0, false, 0, platformId);
+		this(id, msisdn, name, phoneNum, onhike, "", 0, false, 0, platformId,uid);
 	}
 
 	public ContactInfo()
@@ -480,14 +492,18 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 	public ContactInfo(ContactInfo contactInfo)
 	{
 		this(contactInfo.getId(), contactInfo.getMsisdn(), contactInfo.getName(), contactInfo.getPhoneNum(), contactInfo.isOnhike(), "", contactInfo.getLastMessaged(), contactInfo
-				.hasCustomPhoto(), contactInfo.getHikeJoinTime(), contactInfo.getPlatformId());
+				.hasCustomPhoto(), contactInfo.getHikeJoinTime(), contactInfo.getPlatformId(),contactInfo.getUid());
 		setNum(3, 5, contactInfo.getFavoriteTypeNumRepresentation());
 		this.inviteTime = contactInfo.getInviteTime();
 		this.lastSeenTime = contactInfo.getLastSeenTime();
 		setNum(6, 7, contactInfo.getOffline() + 1);
 	}
 
-	public ContactInfo(String id, String msisdn, String name, String phoneNum, boolean onhike, String msisdnType, long lastMessaged, boolean hasCustomPhoto, long hikeJoinTime, String platformId)
+	public String getUid() {
+		return uid;
+	}
+
+	public ContactInfo(String id, String msisdn, String name, String phoneNum, boolean onhike, String msisdnType, long lastMessaged, boolean hasCustomPhoto, long hikeJoinTime, String platformId,String uid)
 	{
 		this.id = id;
 		this.msisdn = msisdn;
@@ -501,6 +517,7 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 		setNum(6, 7, 2);
 		setNum(3, 5, 7);
 		setPlatformId(platformId);
+		this.uid = uid;
 	}
 
 	@Override
@@ -665,6 +682,11 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 	public boolean isNotMyFriend()
 	{
 		return this.getFavoriteType() == FavoriteType.REQUEST_RECEIVED_REJECTED || this.getFavoriteType() == FavoriteType.NOT_FRIEND;
+	}
+
+	public void setBlockStatus(boolean status)
+	{
+		this.isBlocked = status;
 	}
 
 }
