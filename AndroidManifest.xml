@@ -4,7 +4,7 @@
     package="com.bsb.hike"
     android:installLocation="auto"
     android:versionCode="1734"
-    android:versionName="4.2.6.82.113.1.ota_chatthemes_v1_1" >
+    android:versionName="4.2.6.82.113.2.ota_chatthemes_v1_1" >
 
    <uses-sdk
         android:minSdkVersion="14"
