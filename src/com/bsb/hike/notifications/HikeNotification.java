@@ -2213,6 +2213,12 @@ public class HikeNotification
 	 */
 	public void notifyBdayNotif(List<String> msisdns)
 	{
+
+		if (defaultSharedPrefs.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
+		{
+			return;
+		}
+
 		String message = null;
 		String title = null;
 		int notificationId = BIRTHDAY_NOTIF;
