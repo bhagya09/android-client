@@ -235,6 +235,10 @@ public class DBConstants
 
 	public static final String EVENT_TYPE = "eventType";
 
+	public static final String EVENT_FROM_USER_MSISDN = "eventFromUserMsisdn";
+
+	public static final String EVENT_PARENT_MSISDN = "eventParentMsisdn";
+
 	// ActionsTable
 	public static final String ACTIONS_TABLE = "actions";
 
