@@ -34,12 +34,12 @@ public class CesUtils{
 	public static String getDayBeforeUTCDate(String date)
 	{
 		Calendar cldr = Calendar.getInstance();
-		cldr.add(Calendar.DAY_OF_YEAR, -1);
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 		try {
 			Date time = sdf.parse(date);
 			cldr.setTime(time);
+			cldr.add(Calendar.DAY_OF_YEAR, -1);
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
