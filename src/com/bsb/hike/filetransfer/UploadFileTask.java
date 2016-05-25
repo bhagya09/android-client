@@ -501,7 +501,7 @@ public class UploadFileTask extends FileTransferBase
 				.setFTStatus(state)
 				.setFTTaskType(CesConstants.FT_UPLOAD)
 				.setNetProcTime(networkTimeMs)
-				.setProcTime((System.currentTimeMillis() - startTime))
+				.setProcTime((System.nanoTime() / (1000 * 1000)) - startTime)
 				.setUniqueId(msgId + "_" + AccountUtils.mUid);
 
 		if (!TextUtils.isEmpty(stackTrace))
