@@ -1037,6 +1037,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			{
 				Intent intent = IntentFactory.createChatThreadIntentFromConversation(getActivity(), convInfo,
 						ChatThreadActivity.ChatThreadOpenSources.CONV_FRAGMENT);
+				intent.putExtra(AnalyticsConstants.BOT_NOTIF_TRACKER, "Conversation");
 				startActivity(intent);
 			}
 			else
@@ -3002,9 +3003,9 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 					// If this convInfo is coming from the memory map, then we do not need to set mute here, WebViewActivity has already taken care of that.
 					// If the source is not memory map, then we're in trouble.
 					BotInfo botinfo=BotUtils.getBotInfoForBotMsisdn(mMsisdn); // Taking out of trouble hopefully.
-					convInfo.setMute(botinfo.isMute());
-					if (convInfo != null)
+					if (convInfo != null && botinfo !=null)
 					{
+						convInfo.setMute(botinfo.isMute());
 						View parentView = getParenViewForConversation(convInfo);
 						if (parentView == null)
 						{

@@ -88,7 +88,6 @@ import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.service.MqttMessagesManager;
 import com.bsb.hike.snowfall.SnowFallView;
@@ -98,6 +97,7 @@ import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.ui.fragments.ConversationFragment;
 import com.bsb.hike.ui.utils.LockPattern;
+import com.bsb.hike.utils.BirthdayUtils;
 import com.bsb.hike.utils.FestivePopup;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
@@ -225,8 +225,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private boolean wasFragmentRemoved = false;
 
-	private static final Long DEFAULT_CACHE_TIME_FOR_BDAY_CALL = 1* 60 * 60 * 1000l;
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -335,7 +333,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		FTApkManager.removeApkIfNeeded();
 		moveToComposeChatScreen();
 
-		fetchAndUpdateBdayList();
+		BirthdayUtils.fetchAndUpdateBdayList();
     }
 	
 	@Override
@@ -2661,51 +2659,17 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
                             // If bot exists already on device, open that only
                             if(BotUtils.isBot(msisdn))
                             {
-                                ConvInfo convInfo = new ConvInfo.ConvInfoBuilder(msisdn)
-                                        .setConvName(botInfo.getConversationName())
-                                        .setSortingTimeStamp(System.currentTimeMillis()).build();
-                                Intent chatThreadIntent = IntentFactory.createChatThreadIntentFromConversation(HomeActivity.this, convInfo,
-                                        ChatThreadActivity.ChatThreadOpenSources.INITIATE_BOT);
-
-                                startActivity(chatThreadIntent);
+                                initiateBotChatThread(msisdn,botInfo);
                                 return;
                             }
 
-                            String type = messagingBotJson.optString(HikePlatformConstants.BOT_TYPE);
-
                             boolean isSuccess = response.optBoolean(HikePlatformConstants.SUCCESS);
                             JSONObject botIntroJson = response.optJSONObject(HikePlatformConstants.INTRO);
-
                             if (isSuccess)
                             {
-                                // Scenario where bot initiate service responded with success
-                                String botChatTheme = messagingBotJson.optString(HikeConstants.BOT_CHAT_THEME);
-                                String thumbnailString = messagingBotJson.optString(HikeConstants.BOT_THUMBNAIL);
-                                if (!TextUtils.isEmpty(thumbnailString))
-                                {
-                                    BotUtils.createAndInsertBotDp(msisdn, thumbnailString);
-                                }
-
-                                String notifType = messagingBotJson.optString(HikeConstants.PLAY_NOTIFICATION, HikeConstants.OFF);
-                                if (type.equals(HikeConstants.MESSAGING_BOT))
-                                {
-                                    PlatformUtils.botCreationSuccessHandling(botInfo, true, botChatTheme, notifType);
-                                }
-                                else
-                                {
-                                    return;
-                                }
-
+                                BotUtils.createBot(messagingBotJson,Utils.getNetworkShortinOrder(Utils.getNetworkTypeAsString(HikeMessengerApp.getInstance().getApplicationContext())));
                                 MqttMessagesManager.getInstance(HomeActivity.this).saveMessage(botIntroJson);
-
-                                ConvInfo convInfo = new ConvInfo.ConvInfoBuilder(msisdn)
-                                        .setConvName(botInfo.getConversationName())
-                                        .setSortingTimeStamp(System.currentTimeMillis()).build();
-
-                                Intent chatThreadIntent = IntentFactory.createChatThreadIntentFromConversation(HomeActivity.this, convInfo,
-                                        ChatThreadActivity.ChatThreadOpenSources.INITIATE_BOT);
-
-                                startActivity(chatThreadIntent);
+                                initiateBotChatThread(msisdn,botInfo);
                             }
                             else
                             {
@@ -2739,6 +2703,26 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
             e.printStackTrace();
         }
     }
+    
+	/**
+	 * Start chat thread by providing that intent.
+	 *
+	 * @param msisdn
+	 *            the msisdn
+	 * @param botInfo
+	 *            the bot info
+	 */
+	private void initiateBotChatThread(String msisdn, BotInfo botInfo)
+    {
+        ConvInfo convInfo = new ConvInfo.ConvInfoBuilder(msisdn)
+                .setConvName(botInfo.getConversationName())
+                .setSortingTimeStamp(System.currentTimeMillis()).build();
+        Intent chatThreadIntent = IntentFactory.createChatThreadIntentFromConversation(HomeActivity.this, convInfo,
+                ChatThreadActivity.ChatThreadOpenSources.INITIATE_BOT);
+
+        startActivity(chatThreadIntent);
+    }
+    
 	private void recordOverFlowMenuClick()
 	{
 		try
@@ -2813,82 +2797,5 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			e.toString();
 		}
 	}
-
-	private void fetchAndUpdateBdayList()
-	{
-		if(!Utils.isBDayInNewChatEnabled())
-		{
-			return;
-		}
-
-		final HikeSharedPreferenceUtil sharedPreferenceUtil = HikeSharedPreferenceUtil.getInstance();
-
-		final long ts = sharedPreferenceUtil.getData(HikeConstants.BDAY_HTTP_CALL_TS, 0l);
-
-		if(System.currentTimeMillis() - ts > sharedPreferenceUtil.getData(HikeConstants.BDAY_HTTP_CALL_TIME_GAP, DEFAULT_CACHE_TIME_FOR_BDAY_CALL)) {
-			RequestToken requestToken = HttpRequests.fetchBdaysForCCA(new IRequestListener() {
-
-				@Override
-				public void onRequestSuccess(Response result)
-				{
-					JSONObject response = (JSONObject) result.getBody().getContent();
-					Logger.d("bday_HTTP_Sucess", "The result from server is " + response);
-
-					if(!Utils.isResponseValid(response))
-					{
-						Logger.d("bday_HTTP_Sucess", "as stat fail so returning " + response);
-						return;
-					}
-
-					Set<String> bdayMsisdnSet = null;
-					try
-					{
-						final JSONArray bdayJSONArray = response.getJSONArray(HikeConstants.BIRTHDAY_DATA);
-
-						if (bdayJSONArray == null || bdayJSONArray.length() == 0)
-						{
-							Logger.d("bday_HTTP_Sucess", "No list in server responce ");
-						}
-						else
-						{
-							bdayMsisdnSet = new HashSet<String>();
-							for (int i = 0; i < bdayJSONArray.length(); i++)
-							{
-								JSONObject bdayInfo = (JSONObject) bdayJSONArray.get(i);
-								bdayMsisdnSet.add(bdayInfo.getString(HikeConstants.MSISDN));
-							}
-						}
-
-						Logger.d("bday_HTTP_Sucess", "Updating time and list in Sp " + bdayMsisdnSet);
-						sharedPreferenceUtil.saveData(HikeConstants.BDAY_HTTP_CALL_TS, System.currentTimeMillis());
-						HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeConstants.BDAYS_LIST, bdayMsisdnSet);
-					}
-					catch (JSONException e)
-					{
-						e.printStackTrace();
-					}
-				}
-
-				@Override
-				public void onRequestProgressUpdate(float progress)
-				{
-				}
-
-				@Override
-				public void onRequestFailure(HttpException httpException)
-				{
-					Date currentDate = new Date(System.currentTimeMillis());
-					Date previousDate = new Date(ts);
-					if (!currentDate.equals(previousDate))
-					{
-						Logger.d("bday_HTTP_FAIL", "As Date is changed and call failed, so emptying the bday list");
-						sharedPreferenceUtil.saveData(HikeConstants.BDAYS_LIST, null);
-					}
-				}
-			});
-			requestToken.execute();
-		}
-	}
-
 
 }

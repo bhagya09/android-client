@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:id="@+id/text_container_layout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -28,30 +29,5 @@
             android:textColor="#262626"
             android:textSize="14sp" />
     </RelativeLayout>
+</FrameLayout>
 
-    <View
-        android:id="@+id/selected_state_overlay"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@id/message_container"
-        android:layout_below="@id/day_container"
-        android:layout_alignWithParentIfMissing="true" />
-
-    <ViewStub
-        android:id="@+id/message_info_stub"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_below="@id/message_container"
-        android:layout="@layout/message_sent_info" />
-
-    <ViewStub
-        android:id="@+id/sdr_ftue_tip"
-        android:layout_width="218dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_below="@id/message_container"
-        android:layout_marginRight="@dimen/chat_bubble_nudge_edge_spacing"
-        android:layout="@layout/sdr_tool_tip" />
-
-</RelativeLayout>

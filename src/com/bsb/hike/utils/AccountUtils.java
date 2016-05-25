@@ -104,6 +104,10 @@ public class AccountUtils
 
 	public static String baseV2 = HTTP_STRING + host + "/v2";
 
+	public static String baseV3 = HTTP_STRING + host + "/v3";
+
+	public static final String PRODUCTION_FT_HOST = "ft.im.hike.in";
+
 	public static String fileTransferHost = HttpRequestConstants.FT_PRODUCTION_API;
 
 	public static String fileTransferBase = HTTP_STRING + fileTransferHost + ":" + Integer.toString(port) + "/v1";
@@ -393,7 +397,7 @@ public class AccountUtils
 	 */
 	public static List<ContactInfo> updateAddressBook(Map<String, List<ContactInfo>> new_contacts_by_id, JSONArray ids_json) throws IllegalStateException
 	{
-		HttpPost request = new HttpPost(base + "/account/addressbook-update");
+		HttpPost request = new HttpPost(baseV3 + "/account/addressbook-update");
 		addToken(request);
 		JSONObject data = new JSONObject();
 

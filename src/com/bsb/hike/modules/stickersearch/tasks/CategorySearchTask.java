@@ -8,6 +8,10 @@ import com.bsb.hike.modules.stickersearch.provider.db.CategorySearchManager;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Utils;
 
+/**
+ * Created by akhiltripathi on 12/04/16.
+ */
+
 public class CategorySearchTask implements Runnable
 {
 	private String query;

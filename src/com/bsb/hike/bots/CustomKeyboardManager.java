@@ -21,6 +21,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The type Custom keyboard manager.
@@ -32,8 +33,6 @@ public class CustomKeyboardManager implements ShareablePopup, TextPickerListener
 
 	private StickerPickerListener stickerPickerListener;
 
-	private boolean isInputBoxButtonShowing = false;
-
 	/**
 	 * The constant CUSTOM_INPUT_BOX_KEY.
 	 */
@@ -44,6 +43,8 @@ public class CustomKeyboardManager implements ShareablePopup, TextPickerListener
 	private CustomKeyboardInputBoxAdapter customKeyboardInputBoxAdapter;
 
 	private View viewToDisplay;
+
+    private ConcurrentHashMap<String,Boolean> botsKeyboardsDisplayMap = new ConcurrentHashMap<>();
 
 	private CustomKeyboardManager()
 	{
@@ -79,17 +80,17 @@ public class CustomKeyboardManager implements ShareablePopup, TextPickerListener
 		customKeyboardInputBoxAdapter = new CustomKeyboardInputBoxAdapter(context, textPickerListener, stickerPickerListener);
 
         CustomKeyboard customKeyboard = getCustomKeyboardObject(msisdn);
-		if (customKeyboard != null && customKeyboard.getType() != null && customKeyboardInputBoxAdapter != null && customKeyboard.getType().equals(HikePlatformConstants.BOT_CUSTOM_KEYBOARD_TYPE_TEXT))
+		if (customKeyboard != null && customKeyboard.getT() != null && customKeyboardInputBoxAdapter != null && customKeyboard.getT().equals(HikePlatformConstants.BOT_CUSTOM_KEYBOARD_TYPE_TEXT))
 		{
-			ArrayList<ArrayList<TextKey>> customKeyboardTextKeys = customKeyboard.getTextKeys();
+			ArrayList<ArrayList<Tk>> customKeyboardTextKeys = customKeyboard.getTk();
 
 			viewToDisplay = customKeyboardInputBoxAdapter.initTextKeyboardView(customKeyboardTextKeys);
 		}
-		else if (customKeyboard != null && customKeyboard.getType() != null && customKeyboardInputBoxAdapter != null && customKeyboard.getType().equals(HikePlatformConstants.BOT_CUSTOM_KEYBOARD_TYPE_STICKER))
+		else if (customKeyboard != null && customKeyboard.getT() != null && customKeyboardInputBoxAdapter != null && customKeyboard.getT().equals(HikePlatformConstants.BOT_CUSTOM_KEYBOARD_TYPE_STICKER))
 		{
-			ArrayList<StkrKey> customKeyboardStkrKeys = customKeyboard.getStkrKeys();
+			ArrayList<Sk> customKeyboardSks = customKeyboard.getSk();
 
-			viewToDisplay = customKeyboardInputBoxAdapter.initStickerKeyboardView(customKeyboardStkrKeys);
+			viewToDisplay = customKeyboardInputBoxAdapter.initStickerKeyboardView(customKeyboardSks);
 		}
 
 	}
@@ -136,9 +137,17 @@ public class CustomKeyboardManager implements ShareablePopup, TextPickerListener
 	 *
 	 * @return the boolean
 	 */
-	public boolean isInputBoxButtonShowing()
+	public boolean isInputBoxButtonShowing(String msisdn)
 	{
-		return isInputBoxButtonShowing;
+		if(TextUtils.isEmpty(msisdn))
+            return false;
+
+        Boolean isInputBoxShowing = botsKeyboardsDisplayMap.get(msisdn);
+
+        if(isInputBoxShowing == null)
+            return false;
+        else
+            return isInputBoxShowing;
 	}
 
 	/**
@@ -147,9 +156,10 @@ public class CustomKeyboardManager implements ShareablePopup, TextPickerListener
 	 * @param isInputBoxButtonShowing
 	 *            the is input box button showing
 	 */
-	public void setInputBoxButtonShowing(boolean isInputBoxButtonShowing)
+	public void setInputBoxButtonShowing(String msisdn,boolean isInputBoxButtonShowing)
 	{
-		this.isInputBoxButtonShowing = isInputBoxButtonShowing;
+        if(!TextUtils.isEmpty(msisdn))
+           botsKeyboardsDisplayMap.put(msisdn,isInputBoxButtonShowing);
 	}
     
 	/**

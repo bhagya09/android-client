@@ -63,11 +63,15 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.chatThemeBgImgUploadBase;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.authSDKBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.bulkLastSeenUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.chatThemeAssetIdDownloadBase;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.chatThemeAssetsDownloadBase;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.deleteAccountBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.editDOBBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.editProfileAvatarBase;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.fetchUIDForMissingMsisdnUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.editProfileEmailGenderBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.editProfileNameBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getActionsUpdateUrl;
@@ -82,6 +86,7 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getForc
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getGroupBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getGroupBaseUrlForLinkSharing;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getHikeJoinTimeBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getHikeJoinTimeBaseV2Url;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getHistoricalStatusUpdatesUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getPostImageSUUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getStaticAvatarBaseUrl;
@@ -96,7 +101,7 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.languag
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.lastSeenUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.multiStickerDownloadUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.multiStickerImageDownloadUrl;
-import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.postAddressbookBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.postAddressbookBaseV3Url;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.postDeviceDetailsBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.postGreenBlueDetailsBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.preActivationBaseUrl;
@@ -131,6 +136,30 @@ import static com.bsb.hike.modules.httpmgr.request.Request.REQUEST_TYPE_SHORT;
 
 public class HttpRequests
 {
+	public static RequestToken downloadChatThemeAssets(JSONObject data, IRequestListener requestListener)
+	{
+		IRequestBody body = new JsonBody(data);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(chatThemeAssetsDownloadBase() + "?resId=" + Utils.getResolutionId())
+				.post(body)
+				.setRequestListener(requestListener)
+				.setRequestType(REQUEST_TYPE_SHORT)
+				.setPriority(PRIORITY_HIGH).build();
+		return requestToken;
+	}
+
+	public static RequestToken downloadChatThemeAssetId(JSONObject data, IRequestListener requestListener)
+	{
+		IRequestBody body = new JsonBody(data);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(chatThemeAssetIdDownloadBase() + "?resId=" + Utils.getResolutionId() + "&platform=1")
+				.post(body)
+				.setRequestListener(requestListener)
+				.setRequestType(REQUEST_TYPE_SHORT)
+				.setPriority(PRIORITY_HIGH).build();
+		return requestToken;
+	}
+	
 	public static RequestToken singleStickerDownloadRequest(String requestId, String stickerId, String categoryId, IRequestListener requestListener, String keyboardList)
 	{
 		RequestToken requestToken = new JSONObjectRequest.Builder()
@@ -141,6 +170,13 @@ public class HttpRequests
 				.setPriority(PRIORITY_HIGH)
 				.setAnalyticsParam(HttpAnalyticsConstants.HTTP_SINGLE_STICKER_DOWNLOAD_ANALYTICS_PARAM)
 				.build();
+		return requestToken;
+	}
+
+	public static RequestToken fetchUIDForMissingMsisdn(IRequestListener requestListener,JSONObject d) {
+		RequestToken requestToken = new JSONObjectRequest.Builder().setUrl(fetchUIDForMissingMsisdnUrl()).setRequestListener(requestListener)
+				.setRequestType(REQUEST_TYPE_LONG).setPriority(PRIORITY_HIGH).post(new JsonBody(d)).build();
+
 		return requestToken;
 	}
 
@@ -332,6 +368,25 @@ public class HttpRequests
 				.setRequestListener(requestListener)
 				.setRequestType(REQUEST_TYPE_SHORT)
 				.build();
+		return requestToken;
+	}
+
+	public static RequestToken postCustomChatThemeBgImgUpload(String imageFilePath, String sessionId, IRequestListener requestListener) {
+		RequestToken requestToken = null;
+		try {
+			final MediaType MEDIA_TYPE_PNG = MediaType.parse("image/png");
+			MultipartBuilder multipartBuilder = new MultipartBuilder().type(MultipartBuilder.FORM);
+			File imageFile = new File(imageFilePath);
+			if (imageFile.exists()) {
+				multipartBuilder.addPart(Headers.of("Content-Disposition", "form-data; name=\"file\";filename=\"" + imageFile.getName() + "\""),
+						RequestBody.create(MEDIA_TYPE_PNG, new File(imageFilePath)));
+				final RequestBody requestBody = multipartBuilder.build();
+				MultipartRequestBody body = new MultipartRequestBody(requestBody);
+				requestToken = new JSONObjectRequest.Builder().setUrl(chatThemeBgImgUploadBase()).addHeader(new Header("X-SESSION-ID", sessionId)).setRequestListener(requestListener).post(body).build();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		return requestToken;
 	}
 
@@ -594,7 +649,7 @@ public class HttpRequests
 	{
 		JsonBody body = new JsonBody(json);
 		RequestToken requestToken = new JSONObjectRequest.Builder()
-				.setUrl(postAddressbookBaseUrl())
+				.setUrl(postAddressbookBaseV3Url())
 				.setRequestType(Request.REQUEST_TYPE_LONG)
 				.setRequestListener(requestListener)
 				.setRetryPolicy(retryPolicy)
@@ -974,7 +1029,7 @@ public class HttpRequests
 	public static RequestToken getHikeJoinTimeRequest(String msisdn, IRequestListener requestListener)
 	{
 		RequestToken requestToken = new JSONObjectRequest.Builder()
-				.setUrl(getHikeJoinTimeBaseUrl() + msisdn)
+				.setUrl(getHikeJoinTimeBaseV2Url() + msisdn)
 				.setRequestType(Request.REQUEST_TYPE_SHORT)
 				.setRequestListener(requestListener)
 				.build();

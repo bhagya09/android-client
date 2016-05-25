@@ -122,7 +122,8 @@ public class BotChatThread extends OneToOneChatThread
     public void onDestroy()
     {
         super.onDestroy();
-        HAManager.getInstance().recordIndividualChatSession(msisdn,"");
+		if(activity.getIntent() != null && activity.getIntent().hasExtra(AnalyticsConstants.BOT_NOTIF_TRACKER))
+        HAManager.getInstance().recordIndividualChatSession(msisdn,activity.getIntent().getStringExtra(AnalyticsConstants.BOT_NOTIF_TRACKER));
     }
 
     @Override
@@ -402,7 +403,7 @@ public class BotChatThread extends OneToOneChatThread
 		JSONObject json = new JSONObject();
 		try
 		{
-			json.put(HikeConstants.BG_ID, currentTheme.bgId());
+			json.put(HikeConstants.BG_ID, currentThemeId);
 			BotConversation.analyticsForBots(msisdn, HikePlatformConstants.BOT_CHAT_THEME_PICKER, HikePlatformConstants.OVERFLOW_MENU, AnalyticsConstants.CLICK_EVENT, json);
 		}
 		catch (JSONException e)

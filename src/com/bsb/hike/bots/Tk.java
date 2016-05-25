@@ -3,26 +3,26 @@ package com.bsb.hike.bots;
 /**
  * Created by konarkarora on 01/05/16.
  */
-public class TextKey {
+public class Tk {
 
-    private String text;
+    private String v;
 
     /**
      *
      * @return
      * The text
      */
-    public String getText() {
-        return text;
+    public String getV() {
+        return v;
     }
 
     /**
      *
-     * @param text
+     * @param v
      * The text
      */
-    public void setText(String text) {
-        this.text = text;
+    public void setV(String v) {
+        this.v = v;
     }
 
 }
