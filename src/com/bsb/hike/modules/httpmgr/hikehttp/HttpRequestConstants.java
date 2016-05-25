@@ -25,9 +25,6 @@ public class HttpRequestConstants
 	
 	public static final String STICKERS_PRODUCTION_API = "stickers.im.hike.in";
 
-	//TODO CHATTHEME Revisit PRODUCTION URL
-	public static final String CHATTHEME_PRODUCTION_API = "";
-
 	public static final String FT_PRODUCTION_API = "ft.im.hike.in";
 
 	public static final String STICKERS_CDN_PRODUCTION_API = "staticstickers.im.hike.in";
@@ -51,9 +48,6 @@ public class HttpRequestConstants
 	private static String BASE_STICKERS_URL = HTTP + STICKERS_PRODUCTION_API;
 
 	private static String BASE_STICKERS_CDN_URL = HTTP + STICKERS_CDN_PRODUCTION_API;
-
-	//TODO CHATTHEME change the URL to Production
-	private static String BASE_CHATTHEME_URL = HTTP + STAGING_API;
 
 	private static final String BASE_V1 = "/v1";
 
@@ -132,7 +126,6 @@ public class HttpRequestConstants
 		changeBasePlatformUrl();
 		changeBaseStickersUrl();
 		changeBaseAuthUrl();
-		changeChatThemeUrl();
 	}
 
 	public static synchronized void toggleSSL()
@@ -142,7 +135,6 @@ public class HttpRequestConstants
 		changeBasePlatformUrl();
 		changeBaseStickersUrl();
 		changeBaseAuthUrl();
-		changeChatThemeUrl();
 	}
 
 	private static void changeBaseAuthUrl()
@@ -206,29 +198,20 @@ public class HttpRequestConstants
 		BASE_STICKERS_CDN_URL += (isProduction) ? STICKERS_CDN_PRODUCTION_API : STAGING_API;
 	}
 
-	//TODO CHATTHEME Revisit PRODUCTION URL
-	private static void changeChatThemeUrl()
-	{
-		BASE_CHATTHEME_URL = "";
-		BASE_CHATTHEME_URL += HTTP;
-		//BASE_CHATTHEME_URL += (isProduction) ? CHATTHEME_PRODUCTION_API : CHATTHEME_STAGING_API;
-		BASE_CHATTHEME_URL += STAGING_API;
-	}
-
 	/*********************************************************************************************************************************************/
 	public static String chatThemeBgImgUploadBase()
 	{
-		return BASE_CHATTHEME_URL + BASE_V1 + BASE_CHATTHEME + "/custom";
+		return BASE_URL + BASE_V1 + BASE_CHATTHEME + "/custom";
 	}
 
 	public static String chatThemeAssetsDownloadBase()
 	{
-		return BASE_CHATTHEME_URL + BASE_V1 + BASE_CHATTHEME + "/assets";
+		return BASE_URL + BASE_V1 + BASE_CHATTHEME + "/assets";
 	}
 
 	public static String chatThemeAssetIdDownloadBase()
 	{
-		return BASE_CHATTHEME_URL + BASE_V1 + BASE_CHATTHEME + "/prop";
+		return BASE_URL + BASE_V1 + BASE_CHATTHEME + "/prop";
 	}
 
 	public static String singleStickerDownloadBase()
