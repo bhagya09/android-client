@@ -68,6 +68,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatthread.ChatThread;
 import com.bsb.hike.chatthemes.ChatThemeManager;
 import com.bsb.hike.chatthemes.HikeChatThemeConstants;
 import com.bsb.hike.chatthread.ChatThreadActivity;
@@ -4764,13 +4765,31 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			((ChatThreadActivity)mActivity).recordMediaShareEvent(uniqueKey_Order, genus, family);
 		}
 	}
+
 	public int getVoiceMessagePlayerState(){
 		if(voiceMessagePlayer.getPlayerState()!=null)
 		return voiceMessagePlayer.getPlayerState().ordinal();
 		else
 			return VoiceMessagePlayerState.STOPPED.ordinal();
 	}
-	public String getVoiceMessagePlayerFileKey(){
+	public String getVoiceMessagePlayerFileKey() {
 		return voiceMessagePlayer.getFileKey();
+	}
+
+	public boolean onGeneralEventStateChange(ConvMessage convMessage)
+	{
+		for (int i = convMessages.size() - 1; i >= 0; i--)
+		{
+			if (convMessages.get(i).getMsgID() == convMessage.getMsgID())
+			{
+				// removing from list and add it again. This would make the message appear at the
+				// end of the thread
+				removeMessage(i);
+				addMessage(convMessage);
+				notifyDataSetChanged();
+				return true;
+			}
+		}
+		return false;
 	}
 }

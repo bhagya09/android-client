@@ -273,12 +273,8 @@ public class ChatThreadUtils
 		File file = new File(filePath);
 		Logger.d(TAG, "File size: " + file.length() + " File name: " + file.getName());
 
-		boolean skipMaxSizeCheck = (isBigVideoSharingEnabled() && hikeFileType == HikeFileType.VIDEO);
-		//Do pre-compression size check as before if compression have been turned off by the user.
-		if(skipMaxSizeCheck && (android.os.Build.VERSION.SDK_INT < 18
-				|| !PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.COMPRESS_VIDEO, true))) {
-			skipMaxSizeCheck = false;
-		}
+		boolean skipMaxSizeCheck = isMaxSizeUploadableFile(hikeFileType,context);
+
 		if (!skipMaxSizeCheck && HikeConstants.MAX_FILE_SIZE < file.length())
 		{
 			Toast.makeText(context, R.string.max_file_size, Toast.LENGTH_SHORT).show();
@@ -845,4 +841,13 @@ public class ChatThreadUtils
 	}
 
 
+	public static boolean isMaxSizeUploadableFile(HikeFileType hikeFileType, Context context){
+		boolean skipMaxSizeCheck = (isBigVideoSharingEnabled() && hikeFileType == HikeFileType.VIDEO);
+		//Do pre-compression size check as before if compression have been turned off by the user.
+		if(skipMaxSizeCheck && (android.os.Build.VERSION.SDK_INT < 18
+				|| !PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.COMPRESS_VIDEO, true))) {
+			skipMaxSizeCheck = false;
+		}
+		return skipMaxSizeCheck;
+	}
 }
