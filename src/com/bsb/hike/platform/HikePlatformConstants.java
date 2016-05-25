@@ -96,6 +96,7 @@ public interface HikePlatformConstants
 	public static final String RECIPIENT_NAMESPACES = "recipients";
 	public static final String MAPPED_EVENT_ID = "i";
 	public static final String EVENT_CARDDATA = "cd";
+	public static final String EVENT_FROM_USER_MSISDN = "from_user_msisdn";
 	public static final String CLIENT_TIMESTAMP = "c";
 	public static final String MICROAPP_DATA = "mmData";
 	public static final String PARENT_MSISDN = "parent_msisdn";
@@ -226,6 +227,8 @@ public interface HikePlatformConstants
 	public static final String NOTIFICATION_SOUND = "notification_sound";
 
 	public static final String INCREASE_UNREAD = "increase_unread";
+
+	public static final String REARRANGE_CARD = "rearrange_card";
 
 	public static final String REARRANGE_CHAT = "rearrange_chat";
 
