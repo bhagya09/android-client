@@ -3412,59 +3412,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		
 	}
 
-	private static class ConversationLoader extends AsyncTaskLoader<Object>
-	{
-		int loaderId;
-
-		private Conversation conversation;
-
-		private List<ConvMessage> list;
-
-		WeakReference<ChatThread> chatThread;
-
-		public ConversationLoader(Context context, int loaderId, ChatThread chatThread)
-		{
-			super(context);
-			Logger.i(TAG, "conversation loader object " + loaderId);
-			this.loaderId = loaderId;
-			this.chatThread = new WeakReference<ChatThread>(chatThread);
-		}
-
-		@Override
-		public Object loadInBackground()
-		{
-			Logger.i(TAG, "load in background of conversation loader");
-
-			if (chatThread.get() != null)
-			{
-				return loaderId == FETCH_CONV ? (conversation = chatThread.get().fetchConversation()) : (loaderId == LOAD_MORE_MESSAGES ? list = chatThread.get()
-						.loadMoreMessages() : null);
-			}
-			return null;
-		}
-
-		/**
-		 * This has to be done due to some bug in compat library -- http://stackoverflow.com/questions/10524667/android-asynctaskloader-doesnt-start-loadinbackground
-		 */
-		protected void onStartLoading()
-		{
-			Logger.i(TAG, "conversation loader onStartLoading");
-			if (loaderId == FETCH_CONV && conversation != null)
-			{
-				deliverResult(conversation);
-			}
-			else if (loaderId == LOAD_MORE_MESSAGES && list != null)
-			{
-				deliverResult(list);
-			}
-			else
-			{
-				forceLoad();
-			}
-		}
-
-	}
-
 	private static class MessageInitializer extends AsyncTaskLoader<Object>
 	{
 		static final String START_INDX = "startIndex";
