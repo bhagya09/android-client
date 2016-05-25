@@ -1611,8 +1611,8 @@
     <string name="composeview_bday">Happy Birthday!</string>
     <string name="forward_to_single_timeline">Send message to %1$s and on Timeline?</string>
     <string name="forward_to_singular">Send message to %1$s?</string>
-    <string name="single_bday_notif_text">$person has his birthday today!</string>
-    <string name="multiple_bday_notif_text">$person and $count others has his birthday today!</string>
+    <string name="single_bday_notif_text">%1$s has his birthday today!</string>
+    <string name="multiple_bday_notif_text">%1$s and %2$s others has his birthday today!</string>
     <string name="single_bday_notif_subtext"> Tap here to wish your friend a Happy Birthday!</string>
     <string name="multiple_bday_notif_subtext">Tap here to wish them a Happy Birthday!</string>
 </resources>

@@ -4313,7 +4313,7 @@ public class HikeConstants
 
 	public static final String SHOW_BDAY_NOTIF = "s_b_n";
 
-	public static final String BIRTHDAY_NOTIF_ID = "b_n_id";
+	public static final String TRIGGER_BIRTHDAY_ID = "t_b_id";
 
 	public static final String SINGLE_BDAY_NOTIF_TITLE = "s_b_n_t";
 

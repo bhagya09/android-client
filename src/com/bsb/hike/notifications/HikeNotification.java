@@ -2228,22 +2228,21 @@ public class HikeNotification
 		ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, true, false);
 		if(msisdns.size() == 1)
 		{
-			mNotificationIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, true, false, ChatThreadActivity.ChatThreadOpenSources.UNSAVED_CONTACT_CLICK);
+			mNotificationIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, true, false, ChatThreadActivity.ChatThreadOpenSources.BIRTHDAY_NOTIFICATION);
 			mNotificationIntent.putExtra(HikeConstants.Extras.MSG, context.getString(R.string.composeview_bday));
 			title = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SINGLE_BDAY_NOTIF_TITLE, context.getString(R.string.single_bday_notif_text));
-			title = title.replace("$person", contactInfo.getFirstNameAndSurname());
+			title = String.format(title, contactInfo.getFirstNameAndSurname());
 			message = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SINGLE_BDAY_NOTIF_SUBTEXT, context.getString(R.string.single_bday_notif_subtext));
 		}
 		else
 		{
 			mNotificationIntent = new Intent(context, ComposeChatActivity.class);
 			title = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MULTIPLE_BDAY_NOTIF_TITLE, context.getString(R.string.multiple_bday_notif_text));
-			title = title.replace("$person", contactInfo.getFirstNameAndSurname());
-			title = title.replace("$count", String.valueOf(msisdns.size() -1));
+			title = String.format(title, contactInfo.getFirstNameAndSurname(), String.valueOf(msisdns.size() -1));
 			message = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MULTIPLE_BDAY_NOTIF_SUBTEXT, context.getString(R.string.multiple_bday_notif_subtext));
 		}
 
-		NotificationCompat.Builder mBuilder = getNotificationBuilder(title, message, message, null, smallIconId, false, false, false);
+		NotificationCompat.Builder mBuilder = getNotificationBuilder(title, message, title, null, smallIconId, false, false, false);
 
 		mNotificationIntent.putExtra(HikeConstants.Extras.BIRTHDAY_NOTIF, true);
 		mNotificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

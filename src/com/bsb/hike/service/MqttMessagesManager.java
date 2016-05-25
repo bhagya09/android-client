@@ -3173,13 +3173,13 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.DISABLE_QUICK_UPLOAD, disableQuickUpload);
 		}
 
-		if(data.has(HikeConstants.BIRTHDAY_NOTIF_ID))
+		if(data.has(HikeConstants.TRIGGER_BIRTHDAY_NOTIFICATION))
 		{
-			long id = data.getLong(HikeConstants.BIRTHDAY_NOTIF_ID);
-			long previousId = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.BIRTHDAY_NOTIF_ID, 0l);
+			long id = data.getLong(HikeConstants.TRIGGER_BIRTHDAY_NOTIFICATION);
+			long previousId = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TRIGGER_BIRTHDAY_NOTIFICATION, 0l);
 			if(previousId == 0l || previousId != id)
 			{
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BIRTHDAY_NOTIF_ID, id);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TRIGGER_BIRTHDAY_NOTIFICATION, id);
 
 				BirthdayUtils.fetchAndUpdateBdayList(true);
 			}
