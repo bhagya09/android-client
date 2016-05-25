@@ -26,22 +26,22 @@
             android:defaultValue="false"
             android:key="profilePicPref"
             android:layout="@layout/icon_preference"
-            android:summary="@string/profile_pic_display_info"
+            android:summary="@string/profile_pic_display_info_frn"
             android:title="@string/profile_pic_header"
             android:widgetLayout="@layout/switch_widget" />
 
         <com.bsb.hike.view.IconListPreference
-            android:defaultValue="@string/privacy_my_contacts"
+            android:defaultValue="@string/privacy_favorites"
             android:key="lastSeenPrefList"
             android:layout="@layout/list_preference"
-            android:summary="@string/ls_my_contacts_summary"
+            android:summary="@string/ls_friends_summary"
             android:title="@string/last_seen_header" />
 
         <com.bsb.hike.view.IconListPreference
-            android:defaultValue="@string/privacy_my_contacts"
+            android:defaultValue="@string/privacy_favorites"
             android:key="birthdayPrivacyPref"
             android:layout="@layout/list_preference"
-            android:summary="@string/bd_my_contacts_summary"
+            android:summary="@string/bd_friends_summary"
             android:title="@string/birthday_privacy_header" />
 
         <com.bsb.hike.view.SwitchPreferenceCompat
@@ -68,8 +68,8 @@
         <com.bsb.hike.view.IconPreference
             android:key="favoriteList"
             android:layout="@layout/icon_preference"
-            android:summary="@string/fav_list_summary"
-            android:title="@string/privacy_favorites_key" />
+            android:summary="@string/frn_list_summary"
+            android:title="@string/privacy_friends_key" />
     </PreferenceCategory>
     
 </PreferenceScreen>

@@ -754,7 +754,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		}
 		else
 		{
-			refreshStickers = stickerAdapter.removeQuickSuggestionCategory();
+			refreshStickers = refreshStickers ? refreshStickers : stickerAdapter.removeQuickSuggestionCategory();
 		}
 	}
 
