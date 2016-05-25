@@ -341,6 +341,10 @@ public class ChatThemeDrawableHelper {
         if (!dir.exists()) {
             dir.mkdirs();
         }
+        File file = new File(dir.getPath(), ".nomedia");
+        if(file.exists()){
+            file.delete();
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             HikeMessengerApp.getInstance().getApplicationContext().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + directory)));
         } else {
