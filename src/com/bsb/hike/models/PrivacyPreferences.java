@@ -30,6 +30,26 @@ public class PrivacyPreferences
 		return ((config << bitPosition) & 1) == 1;
 	}
 
+	/**
+	 * Sets the specified bit position to 1
+	 *
+	 * @param bitPosition
+	 */
+	private void setBit(int bitPosition)
+	{
+		config = config | (1 << bitPosition);
+	}
+
+	/**
+	 * Sets the specified bit position to 1
+	 *
+	 * @param bitPosition
+	 */
+	private void resetBit(int bitPosition)
+	{
+		config = config & (~(1 << bitPosition));
+	}
+
 	public int getConfig()
 	{
 		return config;
@@ -48,6 +68,52 @@ public class PrivacyPreferences
 	public boolean shouldShowStatusUpdate()
 	{
 		return isBitSet(STATUS_UPDATE);
+	}
+
+	public void toggleLastSeen()
+	{
+		if (shouldShowLastSeen())
+		{
+			hideLasSeen();
+		}
+
+		else
+		{
+			showLastSeen();
+		}
+	}
+
+	public void toggleStatusUpdate()
+	{
+		if (shouldShowStatusUpdate())
+		{
+			hideStatusUpdate();
+		}
+
+		else
+		{
+			showStatusUpdate();
+		}
+	}
+
+	private void showStatusUpdate()
+	{
+		setBit(STATUS_UPDATE);
+	}
+
+	private void hideStatusUpdate()
+	{
+		resetBit(STATUS_UPDATE);
+	}
+
+	private void showLastSeen()
+	{
+		setBit(LAST_SEEN);
+	}
+
+	private void hideLasSeen()
+	{
+		resetBit(LAST_SEEN);
 	}
 
 }
