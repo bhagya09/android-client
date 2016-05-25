@@ -25,6 +25,7 @@ import com.bsb.hike.platform.nativecards.NativeCardManager;
 import com.bsb.hike.platform.nativecards.NativeCardUtils;
 import com.bsb.hike.smartImageLoader.HikeDailyCardImageLoader;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 /**
  * Created by pushkargupta on 15/04/16. This class gets the JsonObject and returns the view
@@ -61,6 +62,7 @@ public class ViewHolderFactory
 				showActionContainer(view);
 				cta1 = actionContainer.findViewById(R.id.cta1);
 				cta2 = actionContainer.findViewById(R.id.cta2);
+
 			}
 			else if (noOfAction == 1)
 			{
@@ -69,28 +71,27 @@ public class ViewHolderFactory
 			}
 			if (cta1 != null)
 			{
+				actionContainer.findViewById(R.id.divider).setVisibility(View.GONE);
 				cta1.setVisibility(View.VISIBLE);
-				cta1.setOnClickListener(new View.OnClickListener()
-				{
+				cta1.setOnClickListener(new View.OnClickListener() {
 					@Override
-					public void onClick(View v)
-					{
-						try
-						{
+					public void onClick(View v) {
+						try {
 							NativeCardUtils.performAction(mContext, containerView, actionComponents.get(0), convMessage);
-						}
-						catch (JSONException ex)
-						{
+						} catch (JSONException ex) {
 							Logger.e(TAG, ex.getMessage());
 						}
 					}
 				});
 				TextView cta1Text = (TextView) view.findViewById(R.id.cta1Text);
 				cta1Text.setText(actionComponents.get(0).getActionText());
+				cta1Text.setCompoundDrawablePadding((int)(6 * Utils.densityMultiplier));
 				cta1Text.setCompoundDrawablesWithIntrinsicBounds(NativeCardUtils.getDrawable(actionComponents.get(0)), 0, 0, 0);
+
 			}
 			if (cta2 != null)
 			{
+				actionContainer.findViewById(R.id.divider).setVisibility(View.VISIBLE);
 				cta2.setVisibility(View.VISIBLE);
 				cta2.setOnClickListener(new View.OnClickListener()
 				{
@@ -109,6 +110,7 @@ public class ViewHolderFactory
 				});
 				TextView cta2Text = (TextView) view.findViewById(R.id.cta2Text);
 				cta2Text.setText(actionComponents.get(1).getActionText());
+				cta2Text.setCompoundDrawablePadding((int) (6 * Utils.densityMultiplier));
 				cta2Text.setCompoundDrawablesWithIntrinsicBounds(NativeCardUtils.getDrawable(actionComponents.get(1)), 0, 0, 0);
 			}
 		}
@@ -130,6 +132,7 @@ public class ViewHolderFactory
 				actionContainer.findViewById(R.id.cta1).setVisibility(View.GONE);
 				actionContainer.findViewById(R.id.cta2).setVisibility(View.GONE);
 				actionContainer.setVisibility(View.GONE);
+				actionContainer.findViewById(R.id.divider).setVisibility(View.GONE);
 			}
 		}
 	}

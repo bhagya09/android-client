@@ -1,12 +1,9 @@
 package com.bsb.hike.platform.nativecards;
 
-import android.app.Notification;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.view.View;
-import android.widget.LinearLayout;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -30,8 +27,8 @@ import java.io.IOException;
 public class NativeCardUtils
 {
 	public enum ActionType{
-		FORWARD("forward", R.drawable.ic_share), POST_TIMELINE("timeline", R.drawable.ic_share), OPEN_URL("open_url", R.drawable.ic_share),OPEN_CAMERA("open_camera", R.drawable.ic_share),OPEN_VIDEO("open_video",R.drawable.ic_share),
-		OPEN_IMAGE("open_image", R.drawable.ic_share), OPEN_MAPS("maps", R.drawable.ic_share), SHARE("share", R.drawable.ic_share);
+		FORWARD("forward", R.drawable.ic_forward), POST_TIMELINE("timeline", R.drawable.ic_post_timeline), OPEN_URL("open_url", R.drawable.ic_forward),OPEN_CAMERA("open_camera", R.drawable.ic_forward),OPEN_VIDEO("open_video",R.drawable.ic_forward),
+		OPEN_IMAGE("open_image", R.drawable.ic_forward), OPEN_MAPS("maps", R.drawable.ic_forward), SHARE("share", R.drawable.ic_share);
 		private String action;
 		private int drawableId;
 		ActionType(String action, int drawableId){
