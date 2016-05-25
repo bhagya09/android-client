@@ -699,11 +699,11 @@ public class HttpRequestConstants
 
 	public static String getCesScoreUploadUrl()
 	{
-		return BASE_URL + "/ces/score";
+		return BASE_URL + "/v1/logs/ces/score";
 	}
 
 	public static String getCesLevelOneInfoUploadUrl()
 	{
-		return BASE_URL + "/ces/score" + "/l1data";
+		return BASE_URL + "/v1/logs/ces/score" + "/l1data";
 	}
 }
