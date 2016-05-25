@@ -30,6 +30,7 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatthemes.HikeChatThemeConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.filetransfer.FTMessageBuilder;
@@ -68,6 +69,16 @@ public class ChatThreadUtils
 	{
 		boolean wtRevamp = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.WT_1_REVAMP_ENABLED, false);
 		return wtRevamp;
+	}
+
+	public static boolean isCustomChatThemeEnabled()
+	{
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CUSTOM_CHATTHEME_ENABLED, false);
+	}
+
+	public static boolean disableOverlayEffectForCCT()
+	{
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CUSTOM_CHATTHEME_DISABLE_OVERLAY, false);
 	}
 
 	protected static void playUpDownAnimation(Context context, final View view)
@@ -255,12 +266,8 @@ public class ChatThreadUtils
 		File file = new File(filePath);
 		Logger.d(TAG, "File size: " + file.length() + " File name: " + file.getName());
 
-		boolean skipMaxSizeCheck = (isBigVideoSharingEnabled() && hikeFileType == HikeFileType.VIDEO);
-		//Do pre-compression size check as before if compression have been turned off by the user.
-		if(skipMaxSizeCheck && (android.os.Build.VERSION.SDK_INT < 18
-				|| !PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.COMPRESS_VIDEO, true))) {
-			skipMaxSizeCheck = false;
-		}
+		boolean skipMaxSizeCheck = isMaxSizeUploadableFile(hikeFileType,context);
+
 		if (!skipMaxSizeCheck && HikeConstants.MAX_FILE_SIZE < file.length())
 		{
 			Toast.makeText(context, R.string.max_file_size, Toast.LENGTH_SHORT).show();
@@ -323,7 +330,7 @@ public class ChatThreadUtils
 
 	protected static boolean shouldShowLastSeen(String msisdn, Context context, boolean convOnHike, boolean isBlocked)
 	{
-		if (Utils.isFavToFriendsMigrationAllowed() && !ContactManager.getInstance().isTwoWayFriend(msisdn))
+		if (!ContactManager.getInstance().isTwoWayFriend(msisdn))
 		{
 			return false; // We do not want to show the last seen in this case if the user is not 2way friend
 		}
@@ -405,7 +412,7 @@ public class ChatThreadUtils
 		}
 	}
 
-	protected static ConvMessage getChatThemeConvMessage(Context context, long timestamp, String bgId, Conversation conv)
+	protected static ConvMessage getChatThemeConvMessage(Context context, long timestamp, String bgId, Conversation conv, boolean isCustom)
 	{
 
 		JSONObject jsonObject = new JSONObject();
@@ -415,6 +422,7 @@ public class ChatThreadUtils
 		{
 			data.put(HikeConstants.MESSAGE_ID, Long.toString(timestamp));
 			data.put(HikeConstants.BG_ID, bgId);
+			data.put(HikeConstants.CUSTOM, isCustom);
 
 			jsonObject.put(HikeConstants.DATA, data);
 			jsonObject.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.CHAT_BACKGROUD);
@@ -758,4 +766,13 @@ public class ChatThreadUtils
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.LARGE_VIDEO_SHARING_ENABLED, false);
 	}
 
+	public static boolean isMaxSizeUploadableFile(HikeFileType hikeFileType, Context context){
+		boolean skipMaxSizeCheck = (isBigVideoSharingEnabled() && hikeFileType == HikeFileType.VIDEO);
+		//Do pre-compression size check as before if compression have been turned off by the user.
+		if(skipMaxSizeCheck && (android.os.Build.VERSION.SDK_INT < 18
+				|| !PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.COMPRESS_VIDEO, true))) {
+			skipMaxSizeCheck = false;
+		}
+		return skipMaxSizeCheck;
+	}
 }

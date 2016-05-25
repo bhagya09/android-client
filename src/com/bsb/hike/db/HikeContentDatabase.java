@@ -34,7 +34,6 @@ import com.bsb.hike.productpopup.AtomicTipContentModel;
 import com.bsb.hike.productpopup.AtomicTipManager;
 import com.bsb.hike.productpopup.ProductContentModel;
 import com.bsb.hike.productpopup.ProductInfoManager;
-import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -105,7 +104,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper
 
 	private String[] getCreateQueries()
 	{
-		String[] createAndIndexes = new String[12];
+		String[] createAndIndexes = new String[13];
 		int i = 0;
 		// CREATE TABLE
 		// CONTENT TABLE -> _id,content_id,love_id,channel_id,timestamp,metadata
@@ -140,7 +139,8 @@ public class HikeContentDatabase extends SQLiteOpenHelper
 				  + STATUS + " INTEGER ," 
 				  + START_TIME + " INTEGER," 
 				  + END_TIME + " INTEGER," 
-				  + TRIGGER_POINT + " INTEGER " + ")";
+				  + TRIGGER_POINT + " INTEGER, "
+				  + PID+ " TEXT " + ")";
 		// URL_WHITELIST_TABLE
 		String urlWhitelistTable = CREATE_TABLE + URL_WHITELIST + "(" 
 				+ _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
@@ -187,6 +187,9 @@ public class HikeContentDatabase extends SQLiteOpenHelper
 
 		createAndIndexes[i++] = getPlatformDownloadStateTableQuery();
 		// INDEX ENDS HERE
+
+		String caretePopupdataIndex = CREATE_INDEX + POPUPDATA_INDEX + " ON " + POPUPDATA + " ( " + PID + " ) ";
+		createAndIndexes[i++] = caretePopupdataIndex;
 
 		return createAndIndexes;
 	}
@@ -284,7 +287,14 @@ public class HikeContentDatabase extends SQLiteOpenHelper
 			String atomicTipTableCreateQuery = getAtomicTipTableCreateQuery();
 			queries.add(atomicTipTableCreateQuery);
 		}
-		
+		if(oldVersion < 9)
+		{
+			String alterPopupTable = "ALTER TABLE " + POPUPDATA + " ADD COLUMN " + PID + " TEXT ";
+			queries.add(alterPopupTable);
+
+			String caretePopupdataIndex = CREATE_INDEX + POPUPDATA_INDEX + " ON " + POPUPDATA + " ( " + PID + " ) ";
+			queries.add(caretePopupdataIndex);
+		}
 		return queries.toArray(new String[]{});
 	}
 
@@ -371,11 +381,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper
 
 	/**
 	 * 
-	 * @param pkt
-	 * @param notifTime
-	 * @param TriggerPoint
-	 * 
-	 *            Saving the popUp in the database
+	 *  Saving the popUp in the database
 	 */
 	public void savePopup(ProductContentModel productContentModel, int status)
 	{
@@ -386,11 +392,13 @@ public class HikeContentDatabase extends SQLiteOpenHelper
 		cv.put(END_TIME, productContentModel.getEndtime());
 		cv.put(TRIGGER_POINT, productContentModel.getTriggerpoint());
 		cv.put(_ID, productContentModel.hashCode());
+		cv.put(PID, productContentModel.getPid());
 		productContentModel = getPopupFromId(productContentModel.hashCode());
 		if (productContentModel != null)
 		{
 			ProductInfoManager.recordPopupEvent(productContentModel.getAppName(), productContentModel.getPid(), productContentModel.isFullScreen(),
 					ProductPopupsConstants.RECEIVED_NOT_SHOWN);
+			Logger.d("ProductPopup", "same start + trigger time so overriding "+ productContentModel.hashCode() + ", pid :- " + productContentModel.getPid());
 		}
 		long val = mDB.insertWithOnConflict(POPUPDATA, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
 		Logger.d("ProductPopup", "DB Inserted Successfully..." + val + "");
@@ -433,6 +441,31 @@ public class HikeContentDatabase extends SQLiteOpenHelper
 			}
 		}
 		return productContentModel;
+	}
+
+	public boolean isDuplicatePopup(String pid)
+	{
+		boolean isDuplicate = false;
+		Cursor c = null;
+		try
+		{
+			String query = "select * from "+POPUPDATA +" where " + PID +" = '"+  pid+"'";
+
+			c = mDB.rawQuery(query, null);
+
+			if (c!= null && c.moveToFirst())
+			{
+				isDuplicate = true;
+			}
+		}
+		finally
+		{
+			if(c!=null)
+			{
+				c.close();
+			}
+		}
+		return isDuplicate;
 	}
 
 	/**

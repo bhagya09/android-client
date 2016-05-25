@@ -38,6 +38,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -99,11 +100,13 @@ import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.TellAFriend;
 import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.BirthdayUtils;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.PairModified;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
@@ -275,6 +278,13 @@ public class PlatformUtils
 					context.startActivity(IntentFactory.getComposeChatIntent(context));
 				}
 			}
+			if (activityName.equals(HIKESCREEN.COMPOSE_CHAT_WITH_BDAY.toString()))
+			{
+				if (mmObject.has(HikeConstants.MSISDNS)) {
+					BirthdayUtils.saveBirthdaysFromTip(mmObject);
+				}
+				context.startActivity(IntentFactory.getComposeChatIntent(context));
+			}
 			if (activityName.equals(HIKESCREEN.INVITE_SMS.toString()))
 			{
 				boolean selectAll = mmObject.optBoolean(ProductPopupsConstants.SELECTALL, false);
@@ -411,10 +421,25 @@ public class PlatformUtils
 					Logger.e(TAG, "Msisdn is missing in the packet");
 					return;
 				}
+				if(StealthModeManager.getInstance().isStealthMsisdn(msisdn) && !StealthModeManager.getInstance().isActive() &&
+						PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.STEALTH_INDICATOR_ENABLED, false))
+				{
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STEALTH_INDICATOR_SHOW_REPEATED, true);
+					HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_INDICATOR, null);
+					return;
+				}
 				Intent in = IntentFactory.getIntentForAnyChatThread(context, msisdn, mmObject.optBoolean("isBot"),
 						ChatThreadActivity.ChatThreadOpenSources.MICRO_APP);
 				if (in != null)
 				{
+					if(mmObject.has(HikeConstants.Extras.MSG))
+					{
+						String preTypedText = mmObject.optString(HikeConstants.Extras.MSG);
+						if(!TextUtils.isEmpty(preTypedText))
+						{
+							in.putExtra(HikeConstants.Extras.MSG, preTypedText);
+						}
+					}
 					context.startActivity(in);
 				}
 				else

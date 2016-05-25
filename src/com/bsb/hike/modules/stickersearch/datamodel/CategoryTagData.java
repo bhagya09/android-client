@@ -12,6 +12,9 @@ import java.util.List;
 
 /**
  * Created by akhiltripathi on 12/04/16.
+ *
+ * Model class to store Category Tag Information
+ *
  */
 public class CategoryTagData
 {
@@ -19,17 +22,17 @@ public class CategoryTagData
 
 	protected int ucid;
 
-	private List<String> languages;
+	private List<String> languages; // Language / Script list of the Category
 
-	private List<String> keywords;
+	private List<String> keywords; // Keywords / Tags list describing the Category
 
-	private List<String> themes;
+	private List<String> themes; // Category level Theme/Mood list
 
-	protected String name;
+	protected String name; // Category Display Name
 
-	protected int forGender;
+	protected int forGender; // Category Targeted Gender
 
-	private long categoryLastUpdatedTime;
+	private long categoryLastUpdatedTime; // Timestamp in millis since info was last updated
 
 	protected CategoryTagData(Builder builder)
 	{

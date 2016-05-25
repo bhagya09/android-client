@@ -1,27 +1,31 @@
 package com.bsb.hike.chatthread;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Pair;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.http.HikeHttpRequest;
-import com.bsb.hike.http.HikeHttpRequest.HikeHttpCallback;
-import com.bsb.hike.http.HikeHttpRequest.RequestType;
+import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.FetchUIDTaskPojo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.contactmgr.HikeUserDatabase;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.tasks.HikeHTTPTask;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class FetchHikeUser
 {
@@ -47,15 +51,26 @@ public class FetchHikeUser
 				Logger.d(TAG, "Response for account/profile request: " + response.toString());
 				try
 				{
-					boolean onHike = response.getBoolean(HikeConstants.ON_HIKE);
+					boolean onHike = response.getBoolean("oh");
 					if (onHike)
 					{
 						JSONObject profile = response.getJSONObject(HikeConstants.PROFILE);
+						String uid = profile.optString(DBConstants.HIKE_UID, null);
 						long hikeJoinTime = profile.optLong(HikeConstants.JOIN_TIME, 0);
 						if (hikeJoinTime > 0)
 						{
 							hikeJoinTime = Utils.applyServerTimeOffset(ctx, hikeJoinTime);
 							HikeMessengerApp.getPubSub().publish(HikePubSub.HIKE_JOIN_TIME_OBTAINED, new Pair<String, Long>(msisdn, hikeJoinTime));
+							if(!TextUtils.isEmpty(uid)) {
+								Set<FetchUIDTaskPojo> fetchUIDTaskPojoSet = new HashSet<>(1);
+								fetchUIDTaskPojoSet.add(new FetchUIDTaskPojo(msisdn, uid));
+								HikeUserDatabase.getInstance().updateContactUid(fetchUIDTaskPojoSet);
+								//Update only in present in cache
+								ContactInfo ci = ContactManager.getInstance().getContact(msisdn);
+								if (ci != null) {
+									ci.setUid(uid);
+								}
+							}
 							ContactManager.getInstance().updateHikeStatus(ctx, msisdn, true);
 							HikeConversationsDatabase.getInstance().updateOnHikeStatus(msisdn, true);
 							HikeMessengerApp.getPubSub().publish(HikePubSub.USER_JOINED, msisdn);
