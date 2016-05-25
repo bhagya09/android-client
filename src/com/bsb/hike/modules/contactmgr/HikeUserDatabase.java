@@ -147,7 +147,9 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 				+ DBConstants.PLATFORM_USER_ID + " TEXT DEFAULT '' ,"    // Platform user id
 				+ DBConstants.HIKE_UID + " TEXT DEFAULT NULL , "
 				+ DBConstants.BLOCK_STATUS + " TEXT DEFAULT 0 ,"
-				+ DBConstants.FAVORITE_TYPE + " TEXT DEFAULT 0 "
+				+ DBConstants.FAVORITE_TYPE + " TEXT DEFAULT 0, "
+				+ DBConstants.LAST_SEEN_SETTINGS + " INTEGER DEFAULT 0, "
+				+ DBConstants.STATUS_UPDATE_SETTINGS + " INTEGER DEFAULT 1" // SUs are by default visible to friends
 				+ " )";
 
 		db.execSQL(create);
@@ -351,6 +353,21 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 			}
 			// Need to migrate the DBs in upgradeIntentService
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.MIGRATE_TABLE_TO_USER, 1);
+		}
+
+		if (oldVersion < 20)
+		{
+			if (!Utils.isColumnExistsInTable(mDb, DBConstants.USERS_TABLE, DBConstants.LAST_SEEN_SETTINGS))
+			{
+				String alter = "ALTER TABLE " + DBConstants.USERS_TABLE + " ADD COLUMN " + DBConstants.LAST_SEEN_SETTINGS + " INTEGER DEFAULT 0";
+				db.execSQL(alter);
+			}
+
+			if (!Utils.isColumnExistsInTable(mDb, DBConstants.USERS_TABLE, DBConstants.STATUS_UPDATE_SETTINGS))
+			{
+				String alter = "ALTER TABLE " + DBConstants.USERS_TABLE + " ADD COLUMN " + DBConstants.STATUS_UPDATE_SETTINGS + " INTEGER DEFAULT 1"; // By default SU will be shown to friends
+				db.execSQL(alter);
+			}
 		}
 
 	}
