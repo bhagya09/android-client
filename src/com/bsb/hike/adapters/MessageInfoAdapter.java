@@ -203,6 +203,7 @@ public class MessageInfoAdapter extends BaseAdapter
 				viewHolder.expandedDeliveredDescription = (TextView) viewHolder.parent.findViewById(R.id.expand_delivered_text);
 				viewHolder.divider = viewHolder.parent.findViewById(R.id.dividermiddle);
 				viewHolder.dividerend = viewHolder.parent.findViewById(R.id.dividerend);
+				viewHolder.expandMe=viewHolder.parent.findViewById(R.id.expandme);
 				v.setTag(viewHolder);
 				break;
 
@@ -342,24 +343,16 @@ public class MessageInfoAdapter extends BaseAdapter
 	}
 	public void animateViews(ViewHolder viewHolder,View v,MessageInfoItem.MesageInfoParticipantItem participant) {
 
-
-		final View expandedReadLayout = viewHolder.expandedReadLayout;
-		final View expandedDeliveredLayout = viewHolder.expandedDeliveredLayout;
-		final View defaultTimeStampLayout = viewHolder.defaulttimestampLayout;
-
 		if (expandSet.contains(participant.getHashCode())) {
 
-			defaultTimeStampLayout.setVisibility(View.GONE);
-			expandedReadLayout.setVisibility(View.VISIBLE);
-			expandedDeliveredLayout.setVisibility(View.VISIBLE);
+			viewHolder.timeStamp.setVisibility(View.GONE);
+			viewHolder.expandMe.setVisibility(View.VISIBLE);
 
 		} else  {
 
-			defaultTimeStampLayout.setVisibility(View.VISIBLE);
-			expandedReadLayout.setVisibility(View.GONE);
-			expandedDeliveredLayout.setVisibility(View.GONE);
+			viewHolder.timeStamp.setVisibility(View.VISIBLE);
+			viewHolder.expandMe.setVisibility(View.GONE);
 		}
-
 
 	}
 	public View.OnClickListener remainingItemonClick = new View.OnClickListener()
@@ -510,6 +503,8 @@ public class MessageInfoAdapter extends BaseAdapter
 		View divider;
 
 		View dividerend;
+
+		View expandMe;
 
 
 	}
