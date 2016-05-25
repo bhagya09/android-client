@@ -1248,7 +1248,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	protected ArrayList<OverFlowMenuItem> getOverFlowMenuItems()
 	{
-		ArrayList<OverFlowMenuItem> listOverFlow = new ArrayList<OverFlowMenuItem>();
+		ArrayList<OverFlowMenuItem> listOverFlow = new ArrayList<>();
 		listOverFlow.add(new OverFlowMenuItem(getString(R.string.hide_chat), 0, 0, R.string.hide_chat));
 		listOverFlow.add(new OverFlowMenuItem(getString(R.string.clear_chat), 0, 0, true, R.string.clear_chat));
 		listOverFlow.add(new OverFlowMenuItem(getString(R.string.email_chat), 0, 0, true, R.string.email_chat));
