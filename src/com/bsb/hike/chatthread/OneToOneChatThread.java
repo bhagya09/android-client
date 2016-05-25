@@ -454,8 +454,7 @@ import java.util.Map;
 		mConversation.setChatThemeId((String) chatProperties[0]);
 
 		Mute mute = (Mute) chatProperties[1];
-		if (mute.getMuteEndTime() > System.currentTimeMillis())
-		{
+		if ((mute.getMuteDuration() != HikeConstants.MuteDuration.DURATION_FOREVER && mute.getMuteEndTime() > System.currentTimeMillis()) || mute.getMuteDuration() == HikeConstants.MuteDuration.DURATION_FOREVER) {
 			mConversation.setIsMute(mute.isMute());
 		}
 		mConversation.setBlocked(ContactManager.getInstance().isBlocked(msisdn));
