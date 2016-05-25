@@ -2287,7 +2287,16 @@ public class HikeNotification
 			Logger.d(HikeConstants.UserJoinMsg.TAG, "received empty notif title. fetching default!");
 			message = context.getString(R.string.rich_uj_default_msg);
 		}
-		message = String.format(message, contact.getFirstName());
+
+		try
+		{
+			message = String.format(message, contact.getFirstName());
+		}
+		catch (IllegalFormatException ife)
+		{
+			Logger.d(HikeConstants.UserJoinMsg.TAG, "error in formatting uj notif message. check value sent from server");
+			return;
+		}
 
 		boolean isSilent = (data.optInt(HikeConstants.UserJoinMsg.PUSH_SETTING, HikeConstants.PushType.silent) != HikeConstants.PushType.loud);
 
