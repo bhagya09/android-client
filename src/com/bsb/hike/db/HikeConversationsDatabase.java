@@ -1305,6 +1305,19 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		}
 	}
 
+	public int markStatusAsRead(List<String> suIDsList) {
+		if (Utils.isEmpty(suIDsList)) {
+			return -1;
+		}
+
+		String selection = DBConstants.STATUS_MAPPED_ID + " in "+ Utils.valuesToCommaSepratedString(suIDsList);
+
+		ContentValues newValues = new ContentValues();
+		newValues.put(DBConstants.IS_READ, 1);
+
+		return mDb.update(DBConstants.STATUS_TABLE, newValues, selection, null);
+	}
+
 	private String getMessageEventTableCreateStatement()
 	{
 		return CREATE_TABLE + DBConstants.MESSAGE_EVENT_TABLE
