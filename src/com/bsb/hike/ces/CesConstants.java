@@ -35,6 +35,8 @@ public final class CesConstants {
 	public static final String CES = "ces";
 	public static final String CES_L2_DATA = "ces_l2";
 	public static final String CES_ACT_REL = "act_rel";
+	public static final String CES_ALARM_PERF = "ces_alarm_perf";
+	public static final int DAY_IN_HOUR = 24;
 
 	public static final int FT_STATUS_COMPLETE = 0;
 	public static final int FT_STATUS_INCOMPLETE = 1;
@@ -93,5 +95,7 @@ public final class CesConstants {
 		public static final String MAX_NET_SPEED = "max_nw_speed";
 		public static final String COMPUTE_SCORE_ALGO = "cs_algo";
 		public static final String UTILIZE_DISK_PERCENT = "udc";
+		public static final String CES_MODULE = "m";
+		public static final String CES_DATE = "dt";
 	}
 }

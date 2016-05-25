@@ -249,7 +249,7 @@ public class FTScoreComputation implements ScoreComputationImpl{
 		    score = (int) ((as * 100 / CesUtils.getMaxSpeed(network)) / mRetryFactor);
 		    if (fas == 1)
 		    {
-		    	score = Math.min(score, 100/(2 ^ mr));
+		    	score = Math.min(score, 100/mRetryFactor);
 		    }
 		}
 		if(scores.containsKey(network))

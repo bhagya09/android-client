@@ -95,6 +95,8 @@ public class HikeAlarmManager
 
 	public static final int REQUESTCODE_FETCH_PACK_ORDER = 4582;
 
+	public static final int REQUESTCODE_PERIODIC_CES_DATA_SYNC = 4583;
+
 	// ******************************************************//
 	
 	public static final String INTENT_EXTRA = "intent_extra";
@@ -309,7 +311,6 @@ public class HikeAlarmManager
 		case HikeAlarmManager.REQUESTCODE_PERIODIC_BACKUP:
 			AccountBackupRestore.getInstance(context).backup();
 			AccountBackupRestore.getInstance(context).scheduleNextAutoBackup();
-			CustomerExperienceScore.getInstance().processCesScoreAndL1Data();
 			break;
 		case HikeAlarmManager.REQUESTCODE_PRODUCT_POPUP:
 			Logger.d("ProductPopup","Alarm recieved in process Tasks");
@@ -354,6 +355,9 @@ public class HikeAlarmManager
             break;
 		case HikeAlarmManager.REQUESTCODE_SHOW_CORRUPT_DB_NOTIF:
 			HikeNotification.getInstance().showCorruptDbNotification();
+			break;
+		case REQUESTCODE_PERIODIC_CES_DATA_SYNC:
+			CustomerExperienceScore.getInstance().processCesScoreAndL1Data();
 			break;
 		default:
 			if (intent.hasExtra(HikePlatformConstants.BOT_TYPE))
@@ -459,6 +463,9 @@ public class HikeAlarmManager
             break;
 		case HikeAlarmManager.REQUESTCODE_SHOW_CORRUPT_DB_NOTIF:
 			HikeNotification.getInstance().showCorruptDbNotification();
+			break;
+		case REQUESTCODE_PERIODIC_CES_DATA_SYNC:
+			processTasks(intent, context);
 			break;
 		default:
 			if (intent.hasExtra(HikePlatformConstants.BOT_TYPE))
