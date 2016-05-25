@@ -64,6 +64,7 @@ import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthread.ChatThreadActivity;
+import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -2303,14 +2304,19 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						
 						if (file.length() > HikeConstants.MAX_FILE_SIZE)
 						{
-							showMaxFileToast = true;
+
 							if (offlineContact != null)
 							{
 								FileTransferData fileData = initialiseFileTransfer(filePath, null, hikeFileType, fileType, false, -1, true, arrayList,imageCaptions.get(i));
 								offlineFileTransferList.add(fileData);
+								continue;
+							} else {
+								if(!ChatThreadUtils.isMaxSizeUploadableFile(hikeFileType, ComposeChatActivity.this)) {
+									showMaxFileToast = true;
+									continue;
+								}
 							}
-							continue;
-								
+
 						}
 						FileTransferData fileData = initialiseFileTransfer(filePath, null, hikeFileType, fileType, false, -1, true, arrayList,imageCaptions.get(i));
 						if(fileData!=null){
@@ -2727,9 +2733,12 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					}
 					else
 					{
-						FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_1_2, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init",
-								"Compose - forwardMessageAsPerType - Max size reached.");
-						Toast.makeText(ComposeChatActivity.this, R.string.max_file_size, Toast.LENGTH_SHORT).show();
+						//CE-815: max size toast appears even before compressing a 100MB+ video
+						if(!ChatThreadUtils.isMaxSizeUploadableFile(hikeFileType, ComposeChatActivity.this)) {
+							FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_1_2, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init",
+									"Compose - forwardMessageAsPerType - Max size reached.");
+							Toast.makeText(ComposeChatActivity.this, R.string.max_file_size, Toast.LENGTH_SHORT).show();
+						}
 					}
 							
 				}
