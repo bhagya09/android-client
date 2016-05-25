@@ -180,4 +180,11 @@ public class QuickStickerSuggestionController
         }
         return false;
     }
+
+    public int getSetIdForQuickSuggestions()
+    {
+        String uid = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.UID_SETTING, null);
+        return Math.abs(TextUtils.isEmpty(uid) ? 0 : uid.hashCode() % 100) + 1;
+    }
+
 }

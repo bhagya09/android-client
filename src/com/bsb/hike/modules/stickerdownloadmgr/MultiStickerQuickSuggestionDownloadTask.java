@@ -82,7 +82,7 @@ public class MultiStickerQuickSuggestionDownloadTask implements IHikeHTTPTask, I
 			json.put("stickers", array);
 			json.put(HikeConstants.LANG, new JSONArray(StickerLanguagesManager.getInstance().getAccumulatedSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE, StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE)));
 			json.put(HikeConstants.GENDER, HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.GENDER, 0));
-
+			json.put(HikeConstants.SET_ID, QuickStickerSuggestionController.getInstance().getSetIdForQuickSuggestions());
 
 			RequestToken requestToken = quickSuggestionsForMultiStickerRequest(getRequestId(), json, getResponseListener());
 

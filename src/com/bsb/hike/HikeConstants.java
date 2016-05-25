@@ -4309,4 +4309,5 @@ public class HikeConstants
 
 	public static final String DISABLE_QUICK_UPLOAD = "disable_md5";
 
+	public static final String SET_ID = "setId";
 }
