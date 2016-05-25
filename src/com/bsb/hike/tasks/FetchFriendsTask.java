@@ -143,6 +143,8 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 
 	private List<ContactInfo> contactsInfo;
 
+	private List<String> composeExcludeList;
+
 	private boolean showBdaySection;
 
 	public FetchFriendsTask(FriendsAdapter friendsAdapter, Context context, List<ContactInfo> friendsList, List<ContactInfo> hikeContactsList, List<ContactInfo> smsContactsList,
@@ -235,7 +237,7 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 			List<ContactInfo> filteredRecentsList, List<ContactInfo> filteredRecentlyJoinedContactsList, Map<String, ContactInfo> selectedPeople, String sendingMsisdn,
 			boolean fetchGroups, String existingGroupId, boolean creatingOrEditingGrou, boolean fetchSmsContacts, boolean checkFavTypeInComparision, boolean fetchRecents,
 			boolean fetchRecentlyJoined, boolean showDefaultEmptyList, boolean fetchHikeContacts, boolean fetchFavContacts, boolean fetchRecommendedContacts,
-			boolean filterHideList, List<BotInfo> microappShowcaseList, List<BotInfo> filteredMicroAppShowcaseList, boolean showMicroappShowcase, boolean showBdaySection)
+			boolean filterHideList, List<BotInfo> microappShowcaseList, List<BotInfo> filteredMicroAppShowcaseList, boolean showMicroappShowcase, List<String> composeExcludeList, boolean showBdaySection)
 	{
 		this.friendsAdapter = friendsAdapter;
 
@@ -287,6 +289,8 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 
 		this.microappShowcaseList = microappShowcaseList;
 		this.filteredMicroAppShowcaseList = filteredMicroAppShowcaseList;
+		this.composeExcludeList = composeExcludeList;
+
 		this.showBdaySection = showBdaySection;
 	}
 
@@ -317,6 +321,7 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		if (showFilteredContacts && !TextUtils.isEmpty(msisdnList))
 		{
 			contactsInfo = ContactManager.getInstance().getContactInfoListForMsisdnFilter(msisdnList);
+			removeExcludedParticipants(contactsInfo, composeExcludeList);
 			/**
 			 * Removing Birthday users from contacts list
 			 */
@@ -330,10 +335,12 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		{
 			groupTaskList = ContactManager.getInstance().getConversationGroupsAsContacts(true);
 			removeSendingMsisdnAndStealthContacts(groupTaskList, groupsStealthList, true);
+			removeExcludedParticipants(groupTaskList, composeExcludeList);
 		}
 
 		long queryTime = System.currentTimeMillis();
 		List<ContactInfo> allContacts = ContactManager.getInstance().getAllContacts();
+		removeExcludedParticipants(allContacts, composeExcludeList);
 		Set<String> blockSet = ContactManager.getInstance().getBlockedMsisdnSet();
 
 		NUXManager nm = NUXManager.getInstance();
@@ -342,7 +349,7 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		{
 			List<ContactInfo> convContacts = ContactManager.getInstance().getAllConversationContactsSorted(true, false);
 			recentTaskList = new ArrayList<ContactInfo>();
-
+			removeExcludedParticipants(convContacts, composeExcludeList);
 			for (ContactInfo recentContact : convContacts)
 			{
 				if (recentTaskList.size() >= HikeConstants.MAX_RECENTS_TO_SHOW)
@@ -622,6 +629,22 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 			if (groupParticipants.containsKey(contactInfo.getMsisdn()))
 			{
 				iter.remove();
+			}
+		}
+	}
+
+	private void removeExcludedParticipants(List<ContactInfo> contactList, List<String> composeExcludeList)
+	{
+		if(contactList != null && contactList.size() > 0 && composeExcludeList != null && composeExcludeList.size() > 0)
+		{
+			Iterator<ContactInfo> i = contactList.iterator();
+			while(i.hasNext())
+			{
+				ContactInfo contactInfo = i.next();
+				if(composeExcludeList.contains(contactInfo.getId()))
+				{
+					i.remove();
+				}
 			}
 		}
 	}

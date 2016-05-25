@@ -303,6 +303,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	protected static final int SEND_CUSTOM_THEME_MESSAGE = 42;
 
+	protected static final int GENERAL_EVENT_STATE_CHANGE = 43;
+
 	protected static final int REMOVE_CHAT_BACKGROUND = 0;
 
 	protected final int NUDGE_COOLOFF_TIME = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NUDGE_SEND_COOLOFF_TIME, 300);
@@ -583,6 +585,9 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			break;
 		case SEND_CUSTOM_THEME_MESSAGE:
 			sendChatThemeMessage(true);
+			break;
+		case GENERAL_EVENT_STATE_CHANGE:
+			onGeneralEventStateChange(msg.obj);
 			break;
 		default:
 			Logger.d(TAG, "Did not find any matching event for msg.what : " + msg.what);
@@ -4193,8 +4198,10 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			FileTransferManager.getInstance(activity).clearConversation(msisdn);
 			break;
 		case HikePubSub.GENERAL_EVENT_STATE_CHANGE:
-			//TODO Proper handling in next release. It is safe to comment this out for now.
-			//onGeneralEventStateChange(object);
+			Message generalEventMessage = Message.obtain();
+			generalEventMessage.what = GENERAL_EVENT_STATE_CHANGE;
+			generalEventMessage.obj = object;
+			uiHandler.sendMessage(generalEventMessage);
 			break;
 		case HikePubSub.FILE_OPENED:
 			uiHandler.sendEmptyMessage(FILE_OPENED);
@@ -6606,20 +6613,15 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	 */
 	private void onGeneralEventStateChange(Object object)
 	{
-		ConvMessage eventMessage=(ConvMessage)object;
+		final ConvMessage eventMessage=(ConvMessage)object;
 		if(eventMessage!=null&&this.msisdn.equals(eventMessage.getMsisdn()))
 		{
-			long messageId = eventMessage.getMsgID();
-			for (int i = messages.size() - 1; i >= 0; i--)
+			if(!mAdapter.onGeneralEventStateChange(eventMessage))
 			{
-				ConvMessage mesg = messages.get(i);
-				if (mesg.getMsgID() == messageId)
-				{
-					mesg.setStateForced(eventMessage.getState());
-					uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
-					break;
-				}
+				addMessage(eventMessage);
 			}
+			setMessagesRead();
+			tryScrollingToBottom(eventMessage, 1);
 		}
 	}
 	

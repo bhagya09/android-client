@@ -1986,6 +1986,12 @@ public class HikeConstants
 
         public static final String RESULT_CODE = "result_code";
 
+		public static final String IS_GROUP_FIRST = "is_group_first";
+
+		public static final String IS_RECENT_JOINED = "is_recent_joined";
+
+		public static final String COMPOSE_EXCLUDE_LIST = "compose_exclude_list";
+
 		public static final String PROFILE_DOB = "profile_dob";
 
 		public static final String GENUS = "genus_extra";
@@ -2956,7 +2962,7 @@ public class HikeConstants
 	public static final class GeneralEventMessagesTypes
 	{
 		public static final String MESSAGE_EVENT = "me";
-		
+
 		public static final String OFFLINE = "offline";
 
 		public static final String GENERAL_EVENT_DR = "dr";
