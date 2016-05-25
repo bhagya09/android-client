@@ -4445,8 +4445,7 @@ public class MqttMessagesManager
 			if(convMessage.getMessageEventData()!=null)
 			{
 				removeMessages.add(convMessage);
-				String messageHash = HikeConversationsDatabase.getInstance().getMessageHashFromMessageId(convMessage.getMsgID()); // TODO :Write a direct query
-				convMessage = HikeConversationsDatabase.getInstance().getMessageFromMessageHash(messageHash);
+				convMessage = HikeConversationsDatabase.getInstance().getConvMessageForMsgId(convMessage.getMsgID());
 				convMessage.setMessageEventData(new JSONObject());
 			}
 			String msisdn = convMessage.getMsisdn();
