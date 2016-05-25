@@ -518,7 +518,13 @@ public class PlatformUtils
 
                     // In case of assoc mapp failure, remove entry from hashmap
                     assocMappRequestStatusMap.remove(botInfo.getMsisdn());
-					removeFromPlatformDownloadStateTable(botMetadata.getAppName(),botInfo.getMAppVersionCode());
+					if (botMetadata.getAutoResume() && !(PlatformContent.EventCode.UNZIP_FAILED.toString().equals(event.toString())) && !(PlatformContent.EventCode.INCOMPLETE_ZIP_DOWNLOAD.toString().equals(event.toString()))) {
+						// In case of failure updating status
+						updatePlatformDownloadState(botMetadata.getAppName(), botMetadata.getmAppVersionCode(), HikePlatformConstants.PlatformDwnldState.FAILED);
+						sendDownloadPausedAnalytics(botMetadata.getAppName());
+					} else {
+						removeFromPlatformDownloadStateTable(botMetadata.getAppName(), botInfo.getMAppVersionCode());
+					}
 					microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOAD_FAILED, platformContentModel, jsonObject);
 					Logger.wtf(TAG, "microapp download packet failed.Because it is" + event.toString());
 				}
