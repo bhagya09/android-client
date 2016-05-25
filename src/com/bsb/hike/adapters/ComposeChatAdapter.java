@@ -241,7 +241,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 				switch (contactInfo.getPhoneNum())
 				{
 				case FRIEND_PHONE_NUM:
-					tv.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(Utils.isFavToFriendsMigrationAllowed() ? R.drawable.ic_section_header_friends : R.drawable.ic_section_header_favorite), null, null, null);
+					tv.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(R.drawable.ic_section_header_friends), null, null, null);
 					break;
 
 				case CONTACT_PHONE_NUM:
@@ -518,7 +518,6 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			if (showCheckbox)
 			{
 				if (!contactInfo.isMyOneWayFriend()
-						&& Utils.isFavToFriendsMigrationAllowed()
 						&& !OneToNConversationUtils.isOneToNConversation(contactInfo.getMsisdn())
 						&& addFriendOption)
 				{
@@ -818,7 +817,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		ContactInfo friendsSection = null;
 		if (!filteredFriendsList.isEmpty())
 		{
-			friendsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredFriendsList.size()), context.getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.friends_upper_case : R.string.favorites_upper_case), FRIEND_PHONE_NUM);
+			friendsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredFriendsList.size()), context.getString(R.string.friends_upper_case), FRIEND_PHONE_NUM);
 		}
 		updateFriendsList(friendsSection, false, false);
 	}
@@ -1080,7 +1079,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 				{
 					if(contactInfo.isOnhike())
 					{
-						if (Utils.isFavToFriendsMigrationAllowed() && !OneToNConversationUtils.isOneToNConversation(contactInfo.getMsisdn()))
+						if (!OneToNConversationUtils.isOneToNConversation(contactInfo.getMsisdn()))
 						{
 							if (contactInfo.isMyOneWayFriend())
 								selectedPeople.put(contactInfo.getMsisdn(), contactInfo);
