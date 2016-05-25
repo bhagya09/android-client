@@ -17,6 +17,7 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.utils.BirthdayUtils;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.PairModified;
@@ -142,17 +143,19 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 
 	private List<ContactInfo> contactsInfo;
 
+	private boolean showBdaySection;
+
 	public FetchFriendsTask(FriendsAdapter friendsAdapter, Context context, List<ContactInfo> friendsList, List<ContactInfo> hikeContactsList, List<ContactInfo> smsContactsList,
-			List<ContactInfo> recentContactsList, List<ContactInfo> recentlyJoinedHikeContactsList, List<ContactInfo> friendsStealthList,
-			List<ContactInfo> hikeStealthContactsList, List<ContactInfo> smsStealthContactsList, List<ContactInfo> recentsStealthList, List<ContactInfo> filteredFriendsList,
-			List<ContactInfo> filteredHikeContactsList, List<ContactInfo> filteredSmsContactsList, List<ContactInfo> suggestedContactsList,
-			List<ContactInfo> filteredSuggestedContactsList, boolean fetchSmsContacts, boolean checkFavTypeInComparision, boolean fetchRecents, boolean fetchRecentlyJoined,
-			boolean showDefaultEmptyList, boolean fetchHikeContacts, boolean fetchFavContacts, boolean showFilteredContacts, String msisdnList)
+							List<ContactInfo> recentContactsList, List<ContactInfo> recentlyJoinedHikeContactsList, List<ContactInfo> friendsStealthList,
+							List<ContactInfo> hikeStealthContactsList, List<ContactInfo> smsStealthContactsList, List<ContactInfo> recentsStealthList, List<ContactInfo> filteredFriendsList,
+							List<ContactInfo> filteredHikeContactsList, List<ContactInfo> filteredSmsContactsList, List<ContactInfo> suggestedContactsList,
+							List<ContactInfo> filteredSuggestedContactsList, boolean fetchSmsContacts, boolean checkFavTypeInComparision, boolean fetchRecents, boolean fetchRecentlyJoined,
+							boolean showDefaultEmptyList, boolean fetchHikeContacts, boolean fetchFavContacts, boolean showFilteredContacts, String msisdnList, boolean showBirthdaySection)
 	{
 		this(friendsAdapter, context, friendsList, hikeContactsList, smsContactsList, recentContactsList, recentlyJoinedHikeContactsList, friendsStealthList,
 				hikeStealthContactsList, smsStealthContactsList, recentsStealthList, filteredFriendsList, filteredHikeContactsList, filteredSmsContactsList, null, null, null,
 				null, null, null, null, null, null, false, null, false, fetchSmsContacts, checkFavTypeInComparision, fetchRecents, fetchRecentlyJoined, showDefaultEmptyList,
-				fetchHikeContacts, fetchFavContacts, false, false, null, null, false, showFilteredContacts, msisdnList, suggestedContactsList, filteredSuggestedContactsList);
+				fetchHikeContacts, fetchFavContacts, false, false, null, null, false, showFilteredContacts, msisdnList, suggestedContactsList, filteredSuggestedContactsList, showBirthdaySection);
 	}
 
 	public FetchFriendsTask(FriendsAdapter friendsAdapter, Context context, List<ContactInfo> friendsList, List<ContactInfo> hikeContactsList, List<ContactInfo> smsContactsList,
@@ -164,7 +167,7 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 			boolean fetchGroups, String existingGroupId, boolean creatingOrEditingGrou, boolean fetchSmsContacts, boolean checkFavTypeInComparision, boolean fetchRecents,
 			boolean fetchRecentlyJoined, boolean showDefaultEmptyList, boolean fetchHikeContacts, boolean fetchFavContacts, boolean fetchRecommendedContacts,
 			boolean filterHideList, List<BotInfo> microappShowcaseList, List<BotInfo> filteredMicroAppShowcaseList, boolean showMicroappShowcase, boolean showFilteredContacts,
-			String msisdnList, List<ContactInfo> suggestedContactsList, List<ContactInfo> filteredSuggestedContactsList)
+			String msisdnList, List<ContactInfo> suggestedContactsList, List<ContactInfo> filteredSuggestedContactsList, boolean showBdaySection)
 	{
 		this.friendsAdapter = friendsAdapter;
 
@@ -221,6 +224,7 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 
 		this.showFilteredContacts = showFilteredContacts;
 		this.msisdnList = msisdnList;
+		this.showBdaySection = showBdaySection;
 	}
 
 	public FetchFriendsTask(FriendsAdapter friendsAdapter, Context context, List<ContactInfo> friendsList, List<ContactInfo> hikeContactsList, List<ContactInfo> smsContactsList,
@@ -231,7 +235,7 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 			List<ContactInfo> filteredRecentsList, List<ContactInfo> filteredRecentlyJoinedContactsList, Map<String, ContactInfo> selectedPeople, String sendingMsisdn,
 			boolean fetchGroups, String existingGroupId, boolean creatingOrEditingGrou, boolean fetchSmsContacts, boolean checkFavTypeInComparision, boolean fetchRecents,
 			boolean fetchRecentlyJoined, boolean showDefaultEmptyList, boolean fetchHikeContacts, boolean fetchFavContacts, boolean fetchRecommendedContacts,
-			boolean filterHideList, List<BotInfo> microappShowcaseList, List<BotInfo> filteredMicroAppShowcaseList, boolean showMicroappShowcase)
+			boolean filterHideList, List<BotInfo> microappShowcaseList, List<BotInfo> filteredMicroAppShowcaseList, boolean showMicroappShowcase, boolean showBdaySection)
 	{
 		this.friendsAdapter = friendsAdapter;
 
@@ -283,7 +287,7 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 
 		this.microappShowcaseList = microappShowcaseList;
 		this.filteredMicroAppShowcaseList = filteredMicroAppShowcaseList;
-
+		this.showBdaySection = showBdaySection;
 	}
 
 	public void addOtherFeaturesList(List<ContactInfo> otherFeaturesList, List<ContactInfo> filteredOtherFeaturesList)
@@ -300,9 +304,10 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 
 		List<ContactInfo> bdayContactList = null;
 
-		if(Utils.isBDayInNewChatEnabled())
+		if(showBdaySection)
 		{
-			bdayContactList = ChatHeadUtils.getSortedBdayContactListFromSharedPref();
+			bdayContactList = BirthdayUtils.getSortedBdayContactListFromSharedPref();
+			BirthdayUtils.removeHiddenMsisdnFromContactInfoList(bdayContactList);
 		}
 		else
 		{

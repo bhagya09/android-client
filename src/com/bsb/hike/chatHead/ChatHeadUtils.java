@@ -1067,40 +1067,4 @@ public class ChatHeadUtils
 			}
 		});
 	}
-
-	public static void resetBdayHttpCallInfo()
-	{
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BDAY_HTTP_CALL_TS, 0l);
-		HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeConstants.BDAYS_LIST, null);
-	}
-
-	public static List<ContactInfo> getSortedBdayContactListFromSharedPref()
-	{
-		List<ContactInfo> bdayList = new ArrayList<ContactInfo>();
-		Set<String> bdayMsisdns = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeConstants.BDAYS_LIST, null);
-
-		if (bdayMsisdns != null)
-		{
-			List<String> msisdns = new ArrayList<String>(bdayMsisdns);
-			bdayList = ContactManager.getInstance().getContact(msisdns, false, true);
-
-			// Sorting alphabetically
-			if (bdayList != null && !bdayList.isEmpty())
-			{
-				Collections.sort(bdayList, new Comparator<ContactInfo>()
-				{
-					@Override
-
-					public int compare(ContactInfo lhs, ContactInfo rhs)
-					{
-						return lhs.getFirstName().compareTo(rhs.getFirstName());
-
-					}
-
-				});
-			}
-		}
-		return bdayList;
-	}
-
 }

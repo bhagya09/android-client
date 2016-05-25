@@ -1606,13 +1606,17 @@
     <string name="bd_everyone_summary">Birthday is visible to everyone on hike</string>
     <string name="bd_nobody_summary">Birthday is not shared with anyone on hike</string>
     <string name="bd_change_failed">Birthday privacy update failed!</string>
-    <string name="hike_bday_contacts">TODAY\'S BIRTHDAYS</string>
-    <string name="bday_list_view_subheading">WISH HAPPY BIRTHDAY!</string>
-    <string name="composeview_bday">HAPPY BIRTHDAY</string>
+    <string name="hike_bday_contacts">BIRTHDAYS TODAY</string>
+    <string name="bday_list_view_subheading">Wish Happy Birthday!</string>
+    <string name="composeview_bday">Happy Birthday!</string>
     <string name="forward_to_single_timeline">Send message to %1$s and on Timeline?</string>
     <string name="forward_to_singular">Send message to %1$s?</string>
     <string name="services">Services</string>
     <string name="ADD_FRIENDS">ADD FRIENDS</string>
     <string name="ADDED_ME">ADDED ME</string>
     <string name="SERVICES">SERVICES</string>
+    <string name="single_bday_notif_text">%1$s has his birthday today!</string>
+    <string name="multiple_bday_notif_text">%1$s and %2$s others has his birthday today!</string>
+    <string name="single_bday_notif_subtext"> Tap here to wish your friend a Happy Birthday!</string>
+    <string name="multiple_bday_notif_subtext">Tap here to wish them a Happy Birthday!</string>
 </resources>
