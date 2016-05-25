@@ -2215,6 +2215,7 @@ public class HikeNotification
 	{
 		String message = null;
 		String title = null;
+		int notificationId = BIRTHDAY_NOTIF;
 		final int smallIconId = returnSmallIcon();
 		Intent mNotificationIntent = null;
 		String msisdn = (String)msisdns.toArray()[0];
@@ -2237,7 +2238,6 @@ public class HikeNotification
 		}
 
 		NotificationCompat.Builder mBuilder = getNotificationBuilder(title, message, message, null, smallIconId, false, false, false);
-		mBuilder.setOngoing(true);
 
 		mNotificationIntent.putExtra(HikeConstants.Extras.BIRTHDAY_NOTIF, true);
 		mNotificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -2245,7 +2245,12 @@ public class HikeNotification
 		PendingIntent contentIntent = PendingIntent.getActivity(context, 0, mNotificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 		mBuilder.setContentIntent(contentIntent);
 
-		int notificationId = BIRTHDAY_NOTIF;
+		Intent deleteIntent = new Intent(context, NotificationDismissedReceiver.class);
+		deleteIntent.putExtra(HIKE_NOTIFICATION_ID_KEY, notificationId);
+
+		PendingIntent pendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(), notificationId, deleteIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+		mBuilder.setDeleteIntent(pendingIntent);
+
 		notifyNotification(notificationId, mBuilder);
 	}
 }
