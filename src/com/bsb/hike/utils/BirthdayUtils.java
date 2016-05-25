@@ -397,4 +397,25 @@ public class BirthdayUtils
             Logger.d("bday_", "As list is null or empty, so showing no notification " + bdayMsisdns);
         }
     }
+
+	public static void recordBirthdayAnalytics(String uk, String eventClass, String order, String family, String form, String race)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_EXPERIMENT);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.BirthdayEvents.BIRTHDAY);
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, uk);
+			json.put(AnalyticsConstants.V2.CLASS, eventClass);
+			json.put(AnalyticsConstants.V2.ORDER, order);
+			json.put(AnalyticsConstants.V2.FAMILY, family);
+
+			HAManager.getInstance().recordV2(json);
+		}
+
+		catch (JSONException e)
+		{
+			e.toString();
+		}
+	}
 }

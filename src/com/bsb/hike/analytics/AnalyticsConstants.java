@@ -922,4 +922,34 @@ public class AnalyticsConstants
 		public static final String GROUP_CREATE = "create";
 	}
 
+	public static final class BirthdayEvents
+	{
+		public static final String BIRTHDAY = "bday";
+
+		public static final String BIRTHDAY_PUSH_NOTIF = "bday_psuh_notif";
+
+		public static final String BIRTHDAY_NOTIF_PACKET_RECV = "bday_rcvd";
+
+		public static final String BIRTHDAY_HTTP_REQ = "bday_clnt_req";
+
+		public static final String BIRTHDAY_REQ_RESPONSE = "bday_dcod";
+
+		public static final String BIRTHDAY_NOTIF_CREATED = "bday_ntf_crt";
+
+		public static final String BIRTHDAY_NOTIF_CHAT_OPEN = "bday_chat_open";
+
+		public static final String BIRTHDAY_NOTIF_COMPOSE_CHAT = "bday_nw_compose";
+
+		public static final String BIRTHDAY_NOTIF_SWIPE_OFF = "bday_ntf_swp";
+
+		public static final String BIRTHDAY_DIALOG_OPEN = "bday_dialog_open";
+
+		public static final String BIRTHDAY_STORE = "bday_store";
+
+		public static final String BIRTHDAY_SAVED = "bday_saved";
+
+		public static final String BIRTHDAY_OK = "bday_ok";
+
+		public static final String BIRTHDAY_CANCEL = "bday_cancel";
+	}
 }
