@@ -73,8 +73,6 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		public static final int NEW_GROUP = 16;
 
 		public static final int MICRO_APP = 17;
-
-		public static final int BIRTHDAY_NOTIFICATION = 18;
 	}
 
 	@Override

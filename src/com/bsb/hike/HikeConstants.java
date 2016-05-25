@@ -4309,10 +4309,6 @@ public class HikeConstants
 
 	public static final String DISABLE_QUICK_UPLOAD = "disable_md5";
 
-	public static final long DEFAULT_STICKER_SEARCH_TRIGGER_DELAY = 1500;
-
-	public static final String SHOW_BDAY_NOTIF = "s_b_n";
-
 	public static final String TRIGGER_BIRTHDAY_ID = "t_b_id";
 
 	public static final String SINGLE_BDAY_NOTIF_TITLE = "s_b_n_t";

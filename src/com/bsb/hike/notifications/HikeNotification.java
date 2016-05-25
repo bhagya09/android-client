@@ -2228,7 +2228,7 @@ public class HikeNotification
 		ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, true, false);
 		if(msisdns.size() == 1)
 		{
-			mNotificationIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, true, false, ChatThreadActivity.ChatThreadOpenSources.BIRTHDAY_NOTIFICATION);
+			mNotificationIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, true, false, ChatThreadActivity.ChatThreadOpenSources.NOTIF);
 			mNotificationIntent.putExtra(HikeConstants.Extras.MSG, context.getString(R.string.composeview_bday));
 			title = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SINGLE_BDAY_NOTIF_TITLE, context.getString(R.string.single_bday_notif_text));
 			title = String.format(title, contactInfo.getFirstNameAndSurname());
