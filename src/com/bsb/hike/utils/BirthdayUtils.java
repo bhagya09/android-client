@@ -140,7 +140,8 @@ public class BirthdayUtils
     public static String getCurrentBDPref()
     {
         Context hikeAppContext = HikeMessengerApp.getInstance().getApplicationContext();
-        String defValue = hikeAppContext.getString(R.string.privacy_favorites);
+        String defValue = Utils.isFavToFriendsMigrationAllowed() ?
+                hikeAppContext.getString(R.string.privacy_favorites) : hikeAppContext.getString(R.string.privacy_my_contacts);
         return PreferenceManager.getDefaultSharedPreferences(hikeAppContext).getString(HikeConstants.BIRTHDAY_PRIVACY_PREF, defValue);
     }
 
