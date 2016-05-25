@@ -306,6 +306,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	protected static final int CUSTOM_CT_COMPATABILITY_ERROR_MESSAGE = 43;
 
+	protected static final int SET_CUSTOM_THEME_BACKGROUND = 44;
+
 	protected static final int REMOVE_CHAT_BACKGROUND = 0;
 
 	protected final int NUDGE_COOLOFF_TIME = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NUDGE_SEND_COOLOFF_TIME, 300);
@@ -415,6 +417,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	};
 
 	private FutureTask<Conversation> conversationFuture=new FutureTask<>(callable);
+
+	private String mThemeIdBGRendered = null;
 
 	private class ChatThreadBroadcasts extends BroadcastReceiver
 	{
@@ -589,6 +593,9 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			break;
 		case CUSTOM_CT_COMPATABILITY_ERROR_MESSAGE:
 			customThemeErrorNotifier((String)msg.obj);
+			break;
+		case SET_CUSTOM_THEME_BACKGROUND:
+			setCustomThemeBackground();
 			break;
 		default:
 			Logger.d(TAG, "Did not find any matching event for msg.what : " + msg.what);
@@ -1143,16 +1150,16 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		case HikeConstants.ResultCodes.CHATTHEME_GALLERY_REQUEST_CODE:
 			if(resultCode == Activity.RESULT_OK)
 			{
-				if (themePicker != null && themePicker.isShowing()) {
-					themePicker.dismiss();
-				}
-				setCustomThemeBackground();
-				if(ChatThemeManager.getInstance().customThemeTempUploadImagePath != null) {
-					if(Utils.isUserOnline(activity)) {
+				if(Utils.isUserOnline(activity)) {
+					if(ChatThemeManager.getInstance().customThemeTempUploadImagePath != null) {
 						FileTransferManager.getInstance(activity).uploadCustomThemeBackgroundImage(ChatThemeManager.getInstance().customThemeTempUploadImagePath);
-					} else {
-						Toast.makeText(activity, R.string.admin_task_error, Toast.LENGTH_LONG).show();
 					}
+					uiHandler.sendEmptyMessageDelayed(SET_CUSTOM_THEME_BACKGROUND, 1000);
+					if (themePicker != null && themePicker.isShowing()) {
+						themePicker.dismiss();
+					}
+				} else {
+					Toast.makeText(activity, R.string.admin_task_error, Toast.LENGTH_LONG).show();
 				}
 			}
 			break;
@@ -1835,6 +1842,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 			setThemeBackground(backgroundImage, drawable, ChatThemeManager.getInstance().getTheme(themeId).isTiled(), ChatThemeManager.getInstance().getTheme(themeId).isCustomTheme(), true);
 		}
+		mThemeIdBGRendered = themeId;
 	}
 
 	private void setThemeBackground(CustomBGRecyclingImageView backgroundImage, Drawable drawable, boolean isTiled, boolean isCustom, boolean showTransistionEffect) {
@@ -1857,6 +1865,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			backgroundImage.setOverLay(true);
 		}
 
+		showTransistionEffect = !HikeChatThemeConstants.THEME_PALETTE_CAMERA_ICON.equalsIgnoreCase(mThemeIdBGRendered);
 		if(showTransistionEffect) {
 			TransitionDrawable td = new TransitionDrawable(new Drawable[]{new ColorDrawable(activity.getResources().getColor(android.R.color.transparent)), drawable});
 			backgroundImage.setImageDrawable(td);
@@ -1877,7 +1886,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		Bitmap bmp = HikeBitmapFactory.decodeSampledBitmapFromFile(ChatThemeManager.getInstance().customThemeTempUploadImagePath, width, height);
 		Drawable drawable = new BitmapDrawable(getResources(), bmp);
 
-		setThemeBackground(backgroundImage, drawable, false, true, false);
+		setThemeBackground(backgroundImage, drawable, false, true, true);
+		mThemeIdBGRendered = HikeChatThemeConstants.THEME_PALETTE_CAMERA_ICON;
 	}
 
 	@Override
