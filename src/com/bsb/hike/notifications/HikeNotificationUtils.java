@@ -302,12 +302,12 @@ public class HikeNotificationUtils
 		String label;
 		if(action.equals(HikeConstants.UserJoinMsg.ACTION_SAY_HI))
 		{
-			icon = R.drawable.ic_fallback_message;
+			icon = R.drawable.nuj_message;
 			label = actionObj.optString(HikeConstants.LABEL, context.getString(R.string.uj_default_cta_say_hi));
 		}
 		else
 		{
-			icon = R.drawable.ic_section_header_favorite;
+			icon = R.drawable.nuj_favourite;
 			label = actionObj.optString(HikeConstants.LABEL, context.getString(R.string.uj_default_cta_add_friend));
 		}
 
