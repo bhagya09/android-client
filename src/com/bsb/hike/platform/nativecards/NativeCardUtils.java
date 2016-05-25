@@ -96,7 +96,7 @@ public class NativeCardUtils
 
 	public static void performAction(Context context, View shareView, CardComponent.ActionComponent actionComponent, ConvMessage convMessage) throws JSONException {
 		if(actionComponent.getAction().equals(ActionType.FORWARD.getAction())){
-			shareCard(context,shareView,convMessage);
+			forwardCard(context,shareView,convMessage);
 		}else if(actionComponent.getAction().equals(ActionType.POST_TIMELINE.getAction())){
 			postToTimeLine(context, shareView);
 		}else if(actionComponent.getAction().equals(ActionType.SHARE.getAction())){
@@ -138,7 +138,7 @@ public class NativeCardUtils
 		}
 	}
 
-	public static void shareCard(Context context, View view, ConvMessage convMessage){
+	public static void forwardCard(Context context, View view, ConvMessage convMessage){
 		File fileUri = NativeCardUtils.getFileForView(view, HikeMessengerApp.getInstance());
 		Intent intent = IntentFactory.getForwardIntentForCards(context, convMessage, fileUri);
 		context.startActivity(intent);

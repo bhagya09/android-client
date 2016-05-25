@@ -1004,22 +1004,32 @@ public class MqttMessagesManager
 		/*
 		 * We need to add the name here in order to fix the bug where if the client receives two files of the same name, it shows the same file under both files.
 		 */
+		HikeFile hikeFile = null;
 		if (convMessage.isFileTransferMessage())
 		{
-			HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
+			hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
 			Logger.d(getClass().getSimpleName(), "FT MESSAGE: " + " NAME: " + hikeFile.getFileName() + " KEY: " + hikeFile.getFileKey() + "MSG ID: " + convMessage.getMsgID());
+		}
+		else if (convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.CONTENT)
+		{
+			hikeFile = convMessage.platformMessageMetadata.getHikeFiles().get(0);
+			Logger.d(getClass().getSimpleName(),
+					"Native Card MESSAGE: " + " NAME: " + hikeFile.getFileName() + " KEY: " + hikeFile.getFileKey() + "MSG ID: " + convMessage.getMsgID());
+
+		}
+		if(hikeFile != null){
 			Utils.addFileName(hikeFile.getFileName(), hikeFile.getFileKey());
 		}
-
 		ContactManager manager = ContactManager.getInstance();
 		String msisdn = convMessage.getMsisdn();
 		/*
 		 * Start auto download for media files
 		 */
 		String name = OneToNConversationUtils.isGroupConversation(msisdn) ? manager.getName(msisdn) : manager.getContact(msisdn, false, true).getName();
-		if (convMessage.isFileTransferMessage() && ((!TextUtils.isEmpty(name)) || BotUtils.isBot(msisdn)) && (manager.isConvExists(msisdn)))
+		if ((convMessage.isFileTransferMessage() || convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.CONTENT) && ((!TextUtils.isEmpty(name)) || BotUtils.isBot(msisdn))
+				&& (manager.isConvExists(msisdn)) && hikeFile != null)
 		{
-			HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
+
 			NetworkType networkType = FTUtils.getNetworkType(context);
 			if (hikeFile.getHikeFileType() == HikeFileType.IMAGE)
 			{
@@ -1027,7 +1037,7 @@ public class MqttMessagesManager
 						|| (networkType != NetworkType.WIFI && appPrefs.getBoolean(HikeConstants.MD_AUTO_DOWNLOAD_IMAGE_PREF, true)))
 				{
 					FileTransferManager.getInstance(context).downloadFile(hikeFile.getFile(), hikeFile.getFileKey(), convMessage.getMsgID(), hikeFile.getHikeFileType(),
-							convMessage, false);
+							convMessage, false, hikeFile);
 				}
 			}
 			else if (hikeFile.getHikeFileType() == HikeFileType.AUDIO || hikeFile.getHikeFileType() == HikeFileType.AUDIO_RECORDING)
@@ -1036,7 +1046,7 @@ public class MqttMessagesManager
 						|| (networkType != NetworkType.WIFI && appPrefs.getBoolean(HikeConstants.MD_AUTO_DOWNLOAD_AUDIO_PREF, false)))
 				{
 					FileTransferManager.getInstance(context).downloadFile(hikeFile.getFile(), hikeFile.getFileKey(), convMessage.getMsgID(), hikeFile.getHikeFileType(),
-							convMessage, false);
+							convMessage, false, hikeFile);
 				}
 			}
 			else if (hikeFile.getHikeFileType() == HikeFileType.VIDEO)
@@ -1045,7 +1055,7 @@ public class MqttMessagesManager
 						|| (networkType != NetworkType.WIFI && appPrefs.getBoolean(HikeConstants.MD_AUTO_DOWNLOAD_VIDEO_PREF, false)))
 				{
 					FileTransferManager.getInstance(context).downloadFile(hikeFile.getFile(), hikeFile.getFileKey(), convMessage.getMsgID(), hikeFile.getHikeFileType(),
-							convMessage, false);
+							convMessage, false, hikeFile);
 				}
 			}
 

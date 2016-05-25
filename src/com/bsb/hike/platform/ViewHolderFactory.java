@@ -1,9 +1,12 @@
 package com.bsb.hike.platform;
 
+import java.util.HashMap;
+import java.util.List;
+
+import org.json.JSONException;
+
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
@@ -13,26 +16,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.MessagesAdapter;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.nativecards.NativeCardManager;
 import com.bsb.hike.platform.nativecards.NativeCardUtils;
-import com.bsb.hike.smartImageLoader.ImageWorker;
 import com.bsb.hike.smartImageLoader.HikeDailyCardImageLoader;
-import com.bsb.hike.smartImageLoader.NativeCardImageLoader;
 import com.bsb.hike.utils.Logger;
-
-import org.json.JSONException;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 /**
  * Created by pushkargupta on 15/04/16. This class gets the JsonObject and returns the view
@@ -40,7 +32,9 @@ import java.util.List;
 public class ViewHolderFactory
 {
 	private static final String TAG = ViewHolderFactory.class.getSimpleName();
+
 	private Context mContext;
+
 	public ViewHolderFactory(Context context)
 	{
 		mContext = context;
@@ -52,58 +46,75 @@ public class ViewHolderFactory
 	public abstract class ActionViewHolder extends MessagesAdapter.DetailViewHolder
 	{
 		public View actionContainer;
+
 		protected ConvMessage convMessage;
+
 		protected void showActionContainer(final View view, final View containerView, final List<CardComponent.ActionComponent> actionComponents)
 		{
 			clearViewHolder(view);
 			final int noOfAction = actionComponents.size();
 			View cta1 = null;
 			View cta2 = null;
-			switch (noOfAction){
-				case 2:
-					showActionContainer(view);
-					cta1 = actionContainer.findViewById(R.id.cta1);
-					cta2 = actionContainer.findViewById(R.id.cta2);
-					break;
-				case 1:
-					showActionContainer(view);
-					cta1 = actionContainer.findViewById(R.id.cta1);
-					break;
+
+			if (noOfAction >= 2)
+			{
+				showActionContainer(view);
+				cta1 = actionContainer.findViewById(R.id.cta1);
+				cta2 = actionContainer.findViewById(R.id.cta2);
 			}
-			if(cta1 != null){
+			else if (noOfAction == 1)
+			{
+				showActionContainer(view);
+				cta1 = actionContainer.findViewById(R.id.cta1);
+			}
+			if (cta1 != null)
+			{
 				cta1.setVisibility(View.VISIBLE);
-				cta1.setOnClickListener(new View.OnClickListener() {
+				cta1.setOnClickListener(new View.OnClickListener()
+				{
 					@Override
-					public void onClick(View v) {
-						try{
+					public void onClick(View v)
+					{
+						try
+						{
 							NativeCardUtils.performAction(mContext, containerView, actionComponents.get(0), convMessage);
-						}catch (JSONException ex){
-							Logger.e(TAG,ex.getMessage());
+						}
+						catch (JSONException ex)
+						{
+							Logger.e(TAG, ex.getMessage());
 						}
 					}
 				});
-				TextView cta1Text = (TextView)view.findViewById(R.id.cta1Text);
+				TextView cta1Text = (TextView) view.findViewById(R.id.cta1Text);
 				cta1Text.setText(actionComponents.get(0).getActionText());
 				cta1Text.setCompoundDrawablesWithIntrinsicBounds(NativeCardUtils.getDrawable(actionComponents.get(0)), 0, 0, 0);
 			}
-            if(cta2 != null){
+			if (cta2 != null)
+			{
 				cta2.setVisibility(View.VISIBLE);
-				cta2.setOnClickListener(new View.OnClickListener() {
+				cta2.setOnClickListener(new View.OnClickListener()
+				{
 					@Override
-					public void onClick(View v) {
-						try{
+					public void onClick(View v)
+					{
+						try
+						{
 							NativeCardUtils.performAction(mContext, containerView, actionComponents.get(1), convMessage);
-						}catch (JSONException ex){
-							Logger.e(TAG,ex.getMessage());
+						}
+						catch (JSONException ex)
+						{
+							Logger.e(TAG, ex.getMessage());
 						}
 					}
 				});
-				TextView cta2Text = (TextView)view.findViewById(R.id.cta2Text);
+				TextView cta2Text = (TextView) view.findViewById(R.id.cta2Text);
 				cta2Text.setText(actionComponents.get(1).getActionText());
 				cta2Text.setCompoundDrawablesWithIntrinsicBounds(NativeCardUtils.getDrawable(actionComponents.get(1)), 0, 0, 0);
 			}
 		}
-		protected void showActionContainer(View view){
+
+		protected void showActionContainer(View view)
+		{
 			if (actionContainer == null)
 			{
 				ViewStub actionContainerStub = (ViewStub) view.findViewById(R.id.share_stub);
@@ -112,8 +123,10 @@ public class ViewHolderFactory
 			actionContainer.setVisibility(View.VISIBLE);
 		}
 
-		public void clearViewHolder(View view){
-			if(actionContainer != null){
+		public void clearViewHolder(View view)
+		{
+			if (actionContainer != null)
+			{
 				actionContainer.findViewById(R.id.cta1).setVisibility(View.GONE);
 				actionContainer.findViewById(R.id.cta2).setVisibility(View.GONE);
 				actionContainer.setVisibility(View.GONE);
@@ -124,6 +137,7 @@ public class ViewHolderFactory
 	public abstract class ViewHolder extends ActionViewHolder
 	{
 		protected HashMap<String, View> viewHashMap;
+
 		protected View cardContainer;
 
 		public void initializeHolder(View view, final ConvMessage convMessage)
@@ -132,7 +146,6 @@ public class ViewHolderFactory
 			List<CardComponent.MediaComponent> mediaComponents = convMessage.platformMessageMetadata.cards.get(0).mediaComponents;
 			List<CardComponent.ActionComponent> actionComponents = convMessage.platformMessageMetadata.cards.get(0).actionComponents;
 			List<CardComponent.ImageComponent> imageComponents = convMessage.platformMessageMetadata.cards.get(0).imageComponents;
-
 
 			boolean isSent = convMessage.isSent();
 			viewHashMap = new HashMap<String, View>();
@@ -144,10 +157,13 @@ public class ViewHolderFactory
 			dayStub = (ViewStub) view.findViewById(R.id.day_stub);
 			messageInfoStub = (ViewStub) view.findViewById(R.id.message_info_stub);
 			this.convMessage = convMessage;
-			if(convMessage.platformMessageMetadata.isWideCard()){
-				messageContainer.getLayoutParams().width = (int)mContext.getResources().getDimension(R.dimen.native_card_message_container_wide_width);
-			}else{
-				messageContainer.getLayoutParams().width = (int)mContext.getResources().getDimension(R.dimen.native_card_message_container_narror_width);
+			if (convMessage.platformMessageMetadata.isWideCard())
+			{
+				messageContainer.getLayoutParams().width = (int) mContext.getResources().getDimension(R.dimen.native_card_message_container_wide_width);
+			}
+			else
+			{
+				messageContainer.getLayoutParams().width = (int) mContext.getResources().getDimension(R.dimen.native_card_message_container_narror_width);
 			}
 
 			for (CardComponent.TextComponent textComponent : textComponents)
@@ -157,7 +173,7 @@ public class ViewHolderFactory
 					viewHashMap.put(tag, view.findViewWithTag(tag));
 			}
 
-			for (int i=0;i<mediaComponents.size();i++)
+			for (int i = 0; i < mediaComponents.size(); i++)
 			{
 				CardComponent.MediaComponent mediaComponent = mediaComponents.get(i);
 				String tag = mediaComponent.getTag();
@@ -165,7 +181,7 @@ public class ViewHolderFactory
 					viewHashMap.put(tag, view.findViewWithTag(tag));
 
 			}
-			for (int i=0;i<imageComponents.size();i++)
+			for (int i = 0; i < imageComponents.size(); i++)
 			{
 				CardComponent.ImageComponent mediaComponent = imageComponents.get(i);
 				String tag = mediaComponent.getTag();
@@ -184,18 +200,26 @@ public class ViewHolderFactory
 			cardContainer = view.findViewById(R.id.card_container);
 			showActionContainer(view, cardContainer, actionComponents);
 			final CardComponent.ActionComponent cardAction = convMessage.platformMessageMetadata.cards.get(0).cardAction;
-			if(cardAction != null){
-                cardContainer.setOnClickListener(new View.OnClickListener() {
+			if (cardAction != null)
+			{
+				cardContainer.setOnClickListener(new View.OnClickListener()
+				{
 					@Override
-					public void onClick(View v) {
-						try {
-							NativeCardUtils.performAction(mContext,cardContainer,cardAction,convMessage);
-						} catch (JSONException e) {
+					public void onClick(View v)
+					{
+						try
+						{
+							NativeCardUtils.performAction(mContext, cardContainer, cardAction, convMessage);
+						}
+						catch (JSONException e)
+						{
 							e.printStackTrace();
 						}
 					}
 				});
-			}else {
+			}
+			else
+			{
 				cardContainer.setOnClickListener(null);
 			}
 		}
@@ -215,7 +239,6 @@ public class ViewHolderFactory
 
 		}
 
-
 		public abstract void processViewHolder(View view);
 
 	}
@@ -223,9 +246,7 @@ public class ViewHolderFactory
 	public class HikeDailyViewHolder extends ViewHolder
 	{
 		private HikeDailyCardImageLoader hikeDailyCardImageLoader;
-		public HikeDailyViewHolder(){
 
-		}
 		public void initializeHolder(View view, ConvMessage convMessage)
 		{
 			super.initializeHolder(view, convMessage);
@@ -235,39 +256,41 @@ public class ViewHolderFactory
 		public void clearViewHolder(View view)
 		{
 			TextView t1Text = (TextView) view.findViewWithTag("T1");
+			t1Text.setTextColor(ContextCompat.getColor(mContext, R.color.white));
 			t1Text.setVisibility(View.GONE);
+			t1Text.setTextSize(20);
 			TextView t2Text = (TextView) view.findViewWithTag("T2");
+			t2Text.setTextColor(ContextCompat.getColor(mContext, R.color.white));
 			t2Text.setVisibility(View.GONE);
+			t2Text.setTextSize(12);
 
 		}
 
 		@Override
 		public void processViewHolder(final View view)
 		{
-			String foregraoundColor = convMessage.platformMessageMetadata.cards.get(0).backgroundColor != null?convMessage.platformMessageMetadata.cards.get(0).backgroundColor:"#ffffffff";
-			Drawable backgroundDrawable = null;
-			final View containerView = view.findViewById(R.id.card_container);
-
-
-			if (convMessage.platformMessageMetadata.cards.get(0).background != null)
+			String foregraoundColor = convMessage.platformMessageMetadata.cards.get(0).backgroundColor != null ? convMessage.platformMessageMetadata.cards.get(0).backgroundColor
+					: "#ffffffff";
+			Drawable backgroundDrawable;
+			if (!TextUtils.isEmpty(foregraoundColor))
 			{
 				ColorDrawable colorDrawable = new ColorDrawable(Color.parseColor(foregraoundColor));
-				backgroundDrawable = new LayerDrawable(new Drawable[]{
-						colorDrawable
-				});
-				containerView.setBackground(backgroundDrawable);
+				backgroundDrawable = new LayerDrawable(new Drawable[] { colorDrawable });
+			}
+			else
+			{
+				backgroundDrawable = ContextCompat.getDrawable(mContext, R.drawable.hike_daily_bg);
+			}
+			ImageView background_image = (ImageView) view.findViewById(R.id.bg_image);
+			background_image.setImageDrawable(backgroundDrawable);
+			if (convMessage.platformMessageMetadata.cards.get(0).background != null)
+			{
 				hikeDailyCardImageLoader = new HikeDailyCardImageLoader();
 				hikeDailyCardImageLoader.setImageFadeIn(false);
-				hikeDailyCardImageLoader.setDefaultDrawableNull(false);
-				hikeDailyCardImageLoader.setDefaultDrawable(backgroundDrawable);
 				hikeDailyCardImageLoader.setDontSetBackground(true);
-				hikeDailyCardImageLoader.setForeGroundColor(convMessage.platformMessageMetadata.cards.get(0).backgroundColor != null ? convMessage.platformMessageMetadata.cards.get(0).backgroundColor : null);
-				hikeDailyCardImageLoader.loadImage(convMessage.platformMessageMetadata.cards.get(0).background, containerView, false, false, null);
-			}else
-			{
-				backgroundDrawable = new LayerDrawable(new Drawable[] { ContextCompat.getDrawable(mContext, R.drawable.hike_daily_bg),
-						new ColorDrawable(Color.parseColor(foregraoundColor)) });
-				containerView.setBackground(backgroundDrawable);
+				hikeDailyCardImageLoader.setDefaultDrawableNull(false);
+				hikeDailyCardImageLoader.setForeGroundColor(convMessage.platformMessageMetadata.cards.get(0).backgroundColor);
+				hikeDailyCardImageLoader.loadImage(convMessage.platformMessageMetadata.cards.get(0).background, background_image);
 			}
 		}
 
@@ -279,6 +302,7 @@ public class ViewHolderFactory
 		{
 			super.initializeHolder(view, convMessage);
 		}
+
 		public void clearViewHolder(View view)
 		{
 		}
@@ -286,35 +310,38 @@ public class ViewHolderFactory
 		@Override
 		public void processViewHolder(View view)
 		{
-			if(actionContainer != null){
+			if (actionContainer != null)
+			{
 				ViewGroup.LayoutParams actionContainerParams = actionContainer.getLayoutParams();
 				actionContainerParams.width = view.findViewById(R.id.file_thumb).getLayoutParams().width;
 				actionContainer.setLayoutParams(actionContainerParams);
 			}
 		}
 	}
+
 	public class ImageCardHolder extends ViewHolder
 	{
-		private NativeCardImageLoader nativeCardImageLoader;
 
 		public void initializeHolder(View view, ConvMessage convMessage)
 		{
 			super.initializeHolder(view, convMessage);
 		}
+
 		public void clearViewHolder(View view)
 		{
 			TextView t1Text = (TextView) view.findViewWithTag("T1");
-			t1Text.setTextColor(Color.parseColor("#000000"));
+			t1Text.setTextColor(ContextCompat.getColor(mContext, R.color.black));
 			t1Text.setVisibility(View.GONE);
 			t1Text.setTextSize(14);
 			TextView t2Text = (TextView) view.findViewWithTag("T2");
 			t2Text.setVisibility(View.GONE);
-			t2Text.setTextColor(Color.parseColor("#000000"));
+			t1Text.setTextColor(ContextCompat.getColor(mContext, R.color.black));
 			t2Text.setTextSize(11);
 			ImageView i1Image = (ImageView) view.findViewWithTag("i1");
 			i1Image.setVisibility(View.GONE);
-			ImageView placeholderImage = (ImageView)view.findViewById(R.id.placeholder);
-			if(placeholderImage != null){
+			ImageView placeholderImage = (ImageView) view.findViewById(R.id.placeholder);
+			if (placeholderImage != null)
+			{
 				placeholderImage.setVisibility(View.VISIBLE);
 			}
 		}
@@ -325,6 +352,7 @@ public class ViewHolderFactory
 
 		}
 	}
+
 	public ViewHolder getViewHolder(int type)
 	{
 		switch (cardTypes[type])
@@ -339,7 +367,5 @@ public class ViewHolderFactory
 			return null;
 		}
 	}
-
-
 
 }

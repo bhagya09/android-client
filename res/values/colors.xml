@@ -342,4 +342,8 @@
     <color name="atomic_tip_header_text">#f7f8f9</color>
     <color name="atomic_tip_body_text">#e6f7f8f9</color>
     <color name="rec_duration_color">#3D475B</color>
+
+
+    <!--native cards-->
+    <color name="share_text">#3d475b</color>
 </resources>
