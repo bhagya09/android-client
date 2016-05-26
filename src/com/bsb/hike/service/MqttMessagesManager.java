@@ -101,7 +101,7 @@ import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.triggers.InterceptUtils;
 import com.bsb.hike.ui.HomeActivity;
-import com.bsb.hike.userlogs.UserLogInfo;
+import com.hike.cognito.UserLogInfo;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.BirthdayUtils;
 import com.bsb.hike.utils.ClearGroupTypingNotification;
