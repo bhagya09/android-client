@@ -901,7 +901,7 @@ public class HikeNotification
 			return;
 		}
 
-		boolean isSilentNotification =isSilentNotification(msisdn) || (ContactManager.getInstance().isChatMuted(msisdn) && ContactManager.getInstance().shouldShowNotifForMutedConversation(msisdn));
+		boolean isSilentNotification =isSilentNotification(msisdn) || (ContactManager.getInstance().isChatMuted(msisdn));
 
 		// if notification message stack is empty, add to it and proceed with single notification display
 		// else add to stack and notify clubbed messages
