@@ -260,7 +260,7 @@ public class FileUploadRequest extends Request<JSONObject>
 						String fileExtension = Utils.getFileExtension(filePath);
 						String fileType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
 						FTAnalyticEvents.logFTProcessingTime(FTAnalyticEvents.UPLOAD_FILE_TASK, X_SESSION_ID, isCompleted, fileBytes.length, (System.currentTimeMillis() - time), contentRange, netType, fileType);
-						logCesData(CesConstants.FT_STATUS_IN_PROGRESS, false, null, (System.currentTimeMillis() - cesNetworkStartTime));
+						logCesData(CesConstants.FT_STATUS_IN_PROGRESS, false, null, chunkSize, start, end, (System.currentTimeMillis() - cesNetworkStartTime));
 						LogFull.d("content range  : " + contentRange + " time taken : " + (System.currentTimeMillis() - time));
 					}
 				}
@@ -368,7 +368,7 @@ public class FileUploadRequest extends Request<JSONObject>
 		}
 	}
 
-	private void logCesData(int state, boolean isQuickUpload, String stackTrace, long networkTime)
+	private void logCesData(int state, boolean isQuickUpload, String stackTrace, int chunkSize, int chunkStart, int chunkEnd, long networkTime)
 	{
 		FTDataInfoFormatBuilder<?> builder = new FTDataInfoFormatBuilder<>()
 				.setNetType(String.valueOf(Utils.getNetworkType(HikeMessengerApp.getInstance())))
@@ -379,6 +379,7 @@ public class FileUploadRequest extends Request<JSONObject>
 				.setFTTaskType(CesConstants.FT_UPLOAD)
 				.setNetProcTime(networkTime)
 				.setProcTime(0)
+				.setChunkSize(chunkSize)
 				.setSessionId(X_SESSION_ID)
 				.setUniqueId(getCustomId() + "_" + AccountUtils.mUid);
 
