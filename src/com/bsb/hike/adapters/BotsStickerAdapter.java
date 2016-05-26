@@ -28,6 +28,7 @@ import com.bsb.hike.smartImageLoader.StickerLoader;
 import com.bsb.hike.ui.utils.RecyclingImageView;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.Utils;
 
 import java.util.List;
 
@@ -175,20 +176,22 @@ public class BotsStickerAdapter extends BaseAdapter implements View.OnClickListe
 		StickerPageAdapterItem item = getItem(position);
 		ViewHolder viewHolder;
         AbsListView.LayoutParams ll = new AbsListView.LayoutParams(sizeEachImage, sizeEachImage);
-
 		if (convertView == null)
 		{
 			viewHolder = new ViewHolder();
+            int padding = (int) (5 * Utils.scaledDensityMultiplier);
 			switch (viewType)
 			{
 			case STICKER:
 				convertView = new RecyclingImageView(mContext);
                 convertView.setLayoutParams(ll);
+                (convertView).setPadding(padding, padding, padding, padding);
 				((ImageView) convertView).setScaleType(ImageView.ScaleType.CENTER_INSIDE);
 				break;
 			case DOWNLOADING:
 				convertView = inflater.inflate(R.layout.update_sticker_set, null);
                 convertView.setLayoutParams(ll);
+                (convertView).setPadding(padding, padding, padding, padding);
 				viewHolder.text = (TextView) convertView.findViewById(R.id.new_number_stickers);
 				viewHolder.image = (ImageView) convertView.findViewById(R.id.update_btn);
 				viewHolder.progress = (ProgressBar) convertView.findViewById(R.id.download_progress);
@@ -248,8 +251,12 @@ public class BotsStickerAdapter extends BaseAdapter implements View.OnClickListe
 
 			if (itemList.contains(item))
 			{
-				itemList.remove(item);
-				itemList.add(new StickerPageAdapterItem(StickerPageAdapterItem.STICKER, sticker));
+				int stickerPosition = itemList.indexOf(item);
+				if (stickerPosition <= itemList.size())
+					itemList.add(stickerPosition, new StickerPageAdapterItem(StickerPageAdapterItem.STICKER, sticker));
+				if (stickerPosition + 1 < itemList.size())
+					itemList.remove(stickerPosition + 1);
+
 				notifyDataSetChanged();
 			}
 		}
