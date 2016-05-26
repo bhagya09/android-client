@@ -1093,6 +1093,23 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	}
 
 	/**
+	 * This method updates the favorite type of a contact in memory as well as in database
+	 *
+	 * @param contact
+	 * @param ftype
+	 */
+	public void updateUnreadRequestTime(ContactInfo contact, long unreadRequestTime)
+	{
+		if (null != contact)
+		{
+			ContactInfo updatedContact = new ContactInfo(contact);
+			updatedContact.setUnreadRequestReceivedTime(unreadRequestTime);
+			updateContacts(updatedContact);
+		}
+		hDb.updateUnreadRequestTime(contact.getMsisdn(), contact.getUnreadRequestReceivedTime());
+	}
+
+	/**
 	 * This method deletes the msisdn from the block table when a contact is unblocked
 	 * 
 	 * @param msisdn

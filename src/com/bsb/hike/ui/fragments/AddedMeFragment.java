@@ -7,6 +7,7 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -28,13 +29,16 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 
 /**
  * Created by gauravmittal on 22/05/16.
  */
-public class AddedMeFragment extends ListFragment {
+public class AddedMeFragment extends ListFragment implements HikePubSub.Listener {
 
     private static final String ADDED_ME_BADGE_COUNT = "added_me_badge_count";
 
@@ -44,22 +48,30 @@ public class AddedMeFragment extends ListFragment {
 
     private FriendRequestAdapter mAdapter;
 
-    private List<ContactInfo> getAddedMeContactList() {
+    private List<ContactInfo> addedMeContacts;
 
-        HashSet<ContactInfo.FavoriteType> set = new HashSet<>();
-        set.add(ContactInfo.FavoriteType.REQUEST_RECEIVED);
-        set.add(ContactInfo.FavoriteType.REQUEST_RECEIVED_REJECTED);
+    private String[] pubSubListeners = { HikePubSub.FAVORITE_TOGGLED, HikePubSub.FRIEND_REQUEST_ACCEPTED };
 
+    private List<ContactInfo> setupAddedMeContactList() {
         List<ContactInfo> allContacts = ContactManager.getInstance().getAllContacts();
-        List<ContactInfo> toAddcontacts = new ArrayList<>();
-        for (ContactInfo info : allContacts) {
-            if (!info.isBot() && set.contains(info.getFavoriteType())) {
-                toAddcontacts.add(info);
+        if (addedMeContacts == null)
+        {
+            addedMeContacts = new ArrayList<>();
+            for (ContactInfo info : allContacts) {
+                if (info.getUnreadRequestReceivedTime() > 0) {
+                    addedMeContacts.add(info);
+                }
             }
+            // so it gets GC-ed
+            allContacts.clear();
+            Collections.sort(addedMeContacts, new Comparator<ContactInfo>() {
+                @Override
+                public int compare(ContactInfo lhs, ContactInfo rhs) {
+                    return lhs.getUnreadRequestReceivedTime() > rhs.getUnreadRequestReceivedTime() ? 1:-1;
+                }
+            });
         }
-        // so it gets GC-ed
-        allContacts.clear();
-        return toAddcontacts;
+        return addedMeContacts;
     }
 
     @Nullable
@@ -67,8 +79,20 @@ public class AddedMeFragment extends ListFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setHasOptionsMenu(true);
         View parent = inflater.inflate(R.layout.fragment_friend_request, null);
-        mAdapter = new FriendRequestAdapter(getAddedMeContactList(), getActivity());
+        mAdapter = new FriendRequestAdapter(setupAddedMeContactList(), getActivity());
+        markFriendsRead();
         return parent;
+    }
+
+    public void markFriendsRead()
+    {
+        for (ContactInfo info : addedMeContacts)
+        {
+            if (info.getFavoriteType() == ContactInfo.FavoriteType.FRIEND)
+            {
+                ContactManager.getInstance().updateUnreadRequestTime(info, 0);
+            }
+        }
     }
 
     @Override
@@ -78,6 +102,7 @@ public class AddedMeFragment extends ListFragment {
         listView.setAdapter(mAdapter);
         listView.setOnItemClickListener(onItemClickListener);
         resetBadgeCount();
+        HikeMessengerApp.getPubSub().addListeners(this, pubSubListeners);
     }
 
     private AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
@@ -181,5 +206,56 @@ public class AddedMeFragment extends ListFragment {
         {
             HikeSharedPreferenceUtil.getInstance().saveData(ADDED_ME_BADGE_COUNT, value);
         }
+    }
+
+    @Override
+    public void onEventReceived(String type, Object object) {
+        if (type.equals(HikePubSub.FAVORITE_TOGGLED) || type.equals(HikePubSub.FRIEND_REQUEST_ACCEPTED))
+        {
+            final Pair<ContactInfo, ContactInfo.FavoriteType> favoriteToggle = (Pair<ContactInfo, ContactInfo.FavoriteType>) object;
+            ContactInfo contactInfo = favoriteToggle.first;
+            ContactInfo.FavoriteType favoriteType = favoriteToggle.second;
+            ContactInfo exitingContact = null;
+            for (ContactInfo info : addedMeContacts)
+            {
+                if (info.getMsisdn().equals(contactInfo.getMsisdn()))
+                {
+                    exitingContact = info;
+                }
+            }
+            if (exitingContact != null)
+            {
+                exitingContact.setFavoriteType(favoriteType);
+                if (favoriteType == ContactInfo.FavoriteType.FRIEND)
+                    ContactManager.getInstance().updateUnreadRequestTime(exitingContact, 0);
+                else if (favoriteType != ContactInfo.FavoriteType.REQUEST_RECEIVED)
+                    addedMeContacts.remove(exitingContact);
+            }
+            else
+            {
+                ContactInfo newContact = new ContactInfo(contactInfo);
+                newContact.setFavoriteType(favoriteType);
+                addedMeContacts.add(0, newContact);
+                if (favoriteType == ContactInfo.FavoriteType.FRIEND)
+                    ContactManager.getInstance().updateUnreadRequestTime(newContact, 0);
+            }
+            getActivity().runOnUiThread(
+                    new Runnable()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            mAdapter.notifyDataSetChanged();
+                        }
+                    }
+            );
+            resetBadgeCount();
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        HikeMessengerApp.getPubSub().removeListeners(this, pubSubListeners);
+        super.onDestroyView();
     }
 }
