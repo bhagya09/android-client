@@ -14,11 +14,13 @@ import android.widget.Filter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -203,7 +205,8 @@ public class FriendRequestAdapter extends BaseAdapter {
         @Override
         public void onClick(View v) {
             ContactInfo contact = displayList.get((Integer) v.getTag());
-
+            contact.setFavoriteType(Utils.toggleFavorite(context, contact, false, HikeConstants.AddFriendSources.ADDED_ME_SCREEN));
+            notifyDataSetChanged();
         }
     };
 
