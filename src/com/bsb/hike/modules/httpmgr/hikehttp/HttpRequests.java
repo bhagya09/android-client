@@ -71,6 +71,7 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.chatThe
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.deleteAccountBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.editDOBBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.editProfileAvatarBase;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.fetchUIDForMissingMsisdnUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.editProfileEmailGenderBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.editProfileNameBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getActionsUpdateUrl;
@@ -85,6 +86,7 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getForc
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getGroupBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getGroupBaseUrlForLinkSharing;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getHikeJoinTimeBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getHikeJoinTimeBaseV2Url;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getHistoricalStatusUpdatesUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getPostImageSUUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getStaticAvatarBaseUrl;
@@ -99,7 +101,7 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.languag
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.lastSeenUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.multiStickerDownloadUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.multiStickerImageDownloadUrl;
-import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.postAddressbookBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.postAddressbookBaseV3Url;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.postDeviceDetailsBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.postGreenBlueDetailsBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.preActivationBaseUrl;
@@ -168,6 +170,13 @@ public class HttpRequests
 				.setPriority(PRIORITY_HIGH)
 				.setAnalyticsParam(HttpAnalyticsConstants.HTTP_SINGLE_STICKER_DOWNLOAD_ANALYTICS_PARAM)
 				.build();
+		return requestToken;
+	}
+
+	public static RequestToken fetchUIDForMissingMsisdn(IRequestListener requestListener,JSONObject d) {
+		RequestToken requestToken = new JSONObjectRequest.Builder().setUrl(fetchUIDForMissingMsisdnUrl()).setRequestListener(requestListener)
+				.setRequestType(REQUEST_TYPE_LONG).setPriority(PRIORITY_HIGH).post(new JsonBody(d)).build();
+
 		return requestToken;
 	}
 
@@ -640,7 +649,7 @@ public class HttpRequests
 	{
 		JsonBody body = new JsonBody(json);
 		RequestToken requestToken = new JSONObjectRequest.Builder()
-				.setUrl(postAddressbookBaseUrl())
+				.setUrl(postAddressbookBaseV3Url())
 				.setRequestType(Request.REQUEST_TYPE_LONG)
 				.setRequestListener(requestListener)
 				.setRetryPolicy(retryPolicy)
@@ -1020,7 +1029,7 @@ public class HttpRequests
 	public static RequestToken getHikeJoinTimeRequest(String msisdn, IRequestListener requestListener)
 	{
 		RequestToken requestToken = new JSONObjectRequest.Builder()
-				.setUrl(getHikeJoinTimeBaseUrl() + msisdn)
+				.setUrl(getHikeJoinTimeBaseV2Url() + msisdn)
 				.setRequestType(Request.REQUEST_TYPE_SHORT)
 				.setRequestListener(requestListener)
 				.build();
@@ -1277,7 +1286,7 @@ public class HttpRequests
 				.post(body)
 				.setAsynchronous(false)
 				.setPriority(PRIORITY_HIGH)
-				.setRetryPolicy(new BasicRetryPolicy(0, 1, 1))
+				.setRetryPolicy(new BasicRetryPolicy(0, 1, BasicRetryPolicy.DEFAULT_BACKOFF_MULTIPLIER))
 				.build();
 		return requestToken;
 	}
@@ -1300,7 +1309,7 @@ public class HttpRequests
                 .setRequestType(REQUEST_TYPE_SHORT)
                 .setAsynchronous(true)
 				.setPriority(PRIORITY_LOW)
-                .setRetryPolicy(new BasicRetryPolicy(0, 1, 1))
+                .setRetryPolicy(new BasicRetryPolicy(0, 1, BasicRetryPolicy.DEFAULT_BACKOFF_MULTIPLIER))
                 .build();
         Logger.e("HikeHttpRequests", "Making http call to " + url);
         return requestToken;
@@ -1356,7 +1365,7 @@ public class HttpRequests
                 .setAsynchronous(true)
                 .setId(requestId)
                 .setRequestListener(requestListener)
-                .setRetryPolicy(new BasicRetryPolicy(retryCount, delayBeforeRetry, 1))
+                .setRetryPolicy(new BasicRetryPolicy(retryCount, delayBeforeRetry, BasicRetryPolicy.DEFAULT_BACKOFF_MULTIPLIER))
                 .post(null)
                 .build();
         requestToken.getRequestInterceptors().addFirst("analytics", requestInterceptor);
@@ -1418,7 +1427,7 @@ public class HttpRequests
 				.setRequestListener(requestListener)
 				.setId(String.valueOf(msgId))
 				.head()
-				.setRetryPolicy(new BasicRetryPolicy(FileTransferManager.MAX_RETRY_COUNT, 0, 1))
+				.setRetryPolicy(new BasicRetryPolicy(FileTransferManager.MAX_RETRY_COUNT, 0, BasicRetryPolicy.DEFAULT_BACKOFF_MULTIPLIER))
 				.build();
 		return requestToken;
 	}
@@ -1431,7 +1440,7 @@ public class HttpRequests
 				.setRequestType(REQUEST_TYPE_SHORT)
 				.setRequestListener(requestListener)
 				.head()
-				.setRetryPolicy(new BasicRetryPolicy(FileTransferManager.MAX_RETRY_COUNT, 0, 1))
+				.setRetryPolicy(new BasicRetryPolicy(FileTransferManager.MAX_RETRY_COUNT, 0, BasicRetryPolicy.DEFAULT_BACKOFF_MULTIPLIER))
 				.build();
 		requestToken.getRequestInterceptors().addFirst("initFileUpload", initFileUploadInterceptor);
 		return requestToken;
@@ -1480,7 +1489,7 @@ public class HttpRequests
 				.addHeader(new Header("X-SESSION-ID", sessionId))
 				.setAsynchronous(false)
 				.setId(sessionId)
-				.setRetryPolicy(new BasicRetryPolicy(1, FileTransferManager.RETRY_DELAY, 1))
+				.setRetryPolicy(new BasicRetryPolicy(1, FileTransferManager.RETRY_DELAY, BasicRetryPolicy.DEFAULT_BACKOFF_MULTIPLIER))
 				.setRequestListener(listener)
 				.build();
 		return requestToken;
@@ -1540,7 +1549,7 @@ public class HttpRequests
 				.setUrl(HttpRequestConstants.getSettingsUploadUrl())
 				.setRequestListener(requestListener)
 				.setId(Utils.StringToMD5(settingsJSON.toString()))
-				.setRetryPolicy(new BasicRetryPolicy(retryCount, delayBeforeRetry, 1))
+				.setRetryPolicy(new BasicRetryPolicy(retryCount, delayBeforeRetry, BasicRetryPolicy.DEFAULT_BACKOFF_MULTIPLIER))
 				.post(jsonBody)
 				.build();
 //		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
@@ -1557,7 +1566,7 @@ public class HttpRequests
 				.setUrl(HttpRequestConstants.getSettingsDownloadUrl())
 				.setRequestListener(requestListener)
 				.setId(downloadSettingsID)
-				.setRetryPolicy(new BasicRetryPolicy(retryCount, delayBeforeRetry, 1))
+				.setRetryPolicy(new BasicRetryPolicy(retryCount, delayBeforeRetry, BasicRetryPolicy.DEFAULT_BACKOFF_MULTIPLIER))
 				.build();
 		return requestToken;
 	}
@@ -1632,6 +1641,23 @@ public class HttpRequests
 				.setResponseOnUIThread(true)
 				.setRequestListener(requestListener)
 				.post(jsonBody)
+				.build();
+		return requestToken;
+	}
+
+	public static RequestToken getAbTestNewUserRequestToken(IRequestListener requestListener,
+															JSONObject requestPayload, int retryCount,
+															int delayBeforeRetry) {
+		JsonBody requestBody = new JsonBody(requestPayload);
+
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(HttpRequestConstants.getAbTestingNewUserExpUrl())
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setAsynchronous(true)
+				.setId(HttpRequestConstants.getAbTestingNewUserExpUrl())
+				.setRequestListener(requestListener)
+				.setRetryPolicy(new BasicRetryPolicy(retryCount, delayBeforeRetry, BasicRetryPolicy.DEFAULT_BACKOFF_MULTIPLIER))
+				.post(requestBody)
 				.build();
 		return requestToken;
 	}

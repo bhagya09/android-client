@@ -1,6 +1,10 @@
 
 package com.bsb.hike.chatthread;
 
+import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.voip.VoIPUtils;
+
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -161,6 +165,10 @@ public class GroupChatThread extends OneToNChatThread
 		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CHAT_SEARCH_ENABLED, true))
 			list.add(new OverFlowMenuItem(getString(R.string.search), 0, 0, R.string.search));
 		list.add(new OverFlowMenuItem(isMuted() ? getString(R.string.unmute_group) : getString(R.string.mute_group), 0, 0, R.string.mute_group));
+		if (BotUtils.isBot(HikePlatformConstants.CUSTOMER_SUPPORT_BOT_MSISDN))
+		{
+			list.add(new OverFlowMenuItem(getString(R.string.help), 0, 0, R.string.help));
+		}
 		
 		for (OverFlowMenuItem item : super.getOverFlowMenuItems())
 		{
@@ -331,6 +339,9 @@ public class GroupChatThread extends OneToNChatThread
 			break;
 		case R.string.create_pin:
 			showPinCreateView(null);
+			break;
+		case R.string.help:
+			onHelpClicked();
 			break;
 		default:
 		}
@@ -1108,4 +1119,5 @@ public class GroupChatThread extends OneToNChatThread
 		if(!checkForDeadOrBlocked())
 			super.initKeyboardOffBoarding();
 	}
+
 }

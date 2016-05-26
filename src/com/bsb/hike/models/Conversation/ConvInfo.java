@@ -49,6 +49,8 @@ public class ConvInfo implements Comparable<ConvInfo>
 	
 	private boolean lastMsgTyping = false;
 
+	private String uid = null;
+
 	protected ConvInfo(InitBuilder<?> builder)
 	{
 		this.msisdn = builder.msisdn;
@@ -57,6 +59,7 @@ public class ConvInfo implements Comparable<ConvInfo>
 		this.isStealth = builder.isStealth;
 		this.mute = builder.mute;
 		this.isOnHike = builder.isOnHike;
+		this.uid = builder.uid;
 	}
 
 	/**
@@ -299,6 +302,11 @@ public class ConvInfo implements Comparable<ConvInfo>
 		}
 	}
 
+	public String getUid()
+	{
+		return uid;
+	}
+
 	@Override
 	public String toString()
 	{
@@ -432,6 +440,8 @@ public class ConvInfo implements Comparable<ConvInfo>
 		
 		private boolean isOnHike;
 
+		private String uid = null;
+
 		protected InitBuilder(String msisdn)
 		{
 			this.msisdn = msisdn;
@@ -482,6 +492,11 @@ public class ConvInfo implements Comparable<ConvInfo>
 			return getSelfObject();
 		}
 
+		public P setUid(String uid)
+		{
+			this.uid = uid;
+			return getSelfObject();
+		}
 		public ConvInfo build()
 		{
 			if (this.validateConvInfo())

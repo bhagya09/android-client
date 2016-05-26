@@ -55,6 +55,7 @@ import com.bsb.hike.service.RegisterToGCMTrigger;
 import com.bsb.hike.service.SendGCMIdToServerTrigger;
 import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.smartcache.HikeLruCache.ImageCacheParams;
+import com.bsb.hike.tasks.FetchHikeUIDTaskForUpgrade;
 import com.bsb.hike.ui.CustomTabsHelper;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.ActivityTimeLogger;
@@ -68,6 +69,28 @@ import com.bsb.hike.utils.Utils;
 import com.hike.abtest.ABTest;
 import com.crashlytics.android.Crashlytics;
 import com.twinprime.TwinPrimeSDK.TwinPrimeSDK;
+
+import org.acra.ACRA;
+import org.acra.ErrorReporter;
+import org.acra.ReportField;
+import org.acra.annotation.ReportsCrashes;
+import org.acra.collector.CrashReportData;
+import org.acra.sender.HttpSender;
+import org.acra.sender.ReportSender;
+import org.acra.sender.ReportSenderException;
+import org.acra.util.HttpRequest;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.acra.ACRA;
 import org.acra.ErrorReporter;
@@ -611,6 +634,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public static final String SHOWN_PACK_PREVIEW_FTUE = "shownPackPreviewFtue";
 
+	public static final String MIGRATE_TABLE_TO_USER="migblktbl";
+
 	public static final String MIGRATE_RECENT_STICKER_TO_DB = "migrateRecentStickersToDb";
 
 	public static final String QUICK_SUGGESTION_RETRY_SET = "quickSuggestionRetrySet";
@@ -888,6 +913,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 				|| settings.getBoolean(HikeMessengerApp.MIGRATE_RECENT_STICKER_TO_DB, false) == false
 				|| settings.getBoolean(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, false) == false
 				|| settings.getInt(HikeConstants.CHAT_BG_TABLE_MIGRATION, 0) == 0
+				|| settings.getInt(MIGRATE_TABLE_TO_USER, 0) == 1
 				|| TEST)
 		{
 			startUpdgradeIntent();
@@ -959,23 +985,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		}
 
 
-		if (token != null)
-		{
-			AccountUtils.setToken(token);
-		}
-		if (uid != null)
-		{
-			AccountUtils.setUID(uid);
-		}
-		try
-		{
-			AccountUtils.setAppVersion(getPackageManager().getPackageInfo(getPackageName(), 0).versionName);
-		}
-		catch (NameNotFoundException e)
-		{
-			Logger.e(getClass().getSimpleName(), "Invalid package", e);
-		}
-
 		/*
 		 * Replacing GB keys' strings.
 		 */
@@ -1016,6 +1025,25 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	}
 
+	private void initCredentials()
+	{
+		if (token != null)
+		{
+			AccountUtils.setToken(token);
+		}
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.UID_SETTING, null) != null)
+		{
+			AccountUtils.setUID(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.UID_SETTING, null));
+		}
+		try
+		{
+			AccountUtils.setAppVersion(getPackageManager().getPackageInfo(getPackageName(), 0).versionName);
+		}
+		catch (NameNotFoundException e)
+		{
+			Logger.e(getClass().getSimpleName(), "Invalid package", e);
+		}
+	}
 	private void validateCriticalDirs()
 	{
 		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
@@ -1061,6 +1089,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	{
 		// we're basically banking on the fact here that init() would be
 		// succeeded by the onUpgrade() calls being triggered in the respective databases.
+		initCredentials();
 		initTwinPrime();
 		HikeConversationsDatabase.init(this);
 
@@ -1124,6 +1153,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 		initCrashReportingTool();
 
+		fetchHikeUIDForUpgrade();
+
 		ChatThemeManager.getInstance().initialize();
 
 		checkAndTriggerPendingGcmNetworkCalls();
@@ -1173,6 +1204,12 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		if (prefs.getData(HikeMessengerApp.PLATFORM_UID_SETTING, null) == null && prefs.getData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, null) == null)
 		{
 			PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformFetchType.SELF);
+		}
+	}
+
+	private void fetchHikeUIDForUpgrade() {
+		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FETCH_UID_UPGRADE_SUCCESSFULL, false)&&(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MIGRATE_TABLE_TO_USER,0))>0) {
+			new FetchHikeUIDTaskForUpgrade().execute();
 		}
 	}
 
