@@ -12,6 +12,7 @@ import android.os.Message;
 import android.provider.ContactsContract.Contacts;
 import android.provider.MediaStore;
 import android.provider.Settings;
+import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -202,7 +203,14 @@ public class IntentFactory
 		}
 		return intent;
 	}
-
+    public static Intent shareIntentWithFileProviderPath(Context context, String mimeType, File file){
+		Intent shareIntent = new Intent(Intent.ACTION_SEND);
+		shareIntent.setType(mimeType);
+		Uri contentUri = FileProvider.getUriForFile(context, "com.bsb.hike.fileprovider", file);
+		shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+		shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
+		return shareIntent;
+	}
 	public static void openSettingSMS(Context context)
 	{
 		Intent intent = new Intent(context, HikePreferences.class);

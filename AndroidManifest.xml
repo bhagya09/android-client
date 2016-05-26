@@ -124,6 +124,15 @@
         android:logo="@drawable/hike_logo_top_bar"
         tools:replace="android:name,android:allowBackup"
         android:theme="@style/AppTheme" >
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="com.bsb.hike.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_provider_paths" />
+        </provider>
         <uses-library
             android:name="com.google.android.maps"
             android:required="false" />
