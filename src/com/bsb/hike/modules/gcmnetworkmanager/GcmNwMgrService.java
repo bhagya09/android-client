@@ -1,5 +1,6 @@
 package com.bsb.hike.modules.gcmnetworkmanager;
 
+import com.bsb.hike.modules.gcmnetworkmanager.tasks.CognitoUploadGcmTask;
 import com.bsb.hike.modules.gcmnetworkmanager.tasks.GcmTaskConstants;
 import com.bsb.hike.modules.gcmnetworkmanager.tasks.SingleStickerDownloadGcmTask;
 import com.bsb.hike.utils.Logger;
@@ -25,6 +26,11 @@ public class GcmNwMgrService extends GcmTaskService
             SingleStickerDownloadGcmTask singleStickerDownloadGcmTask = new SingleStickerDownloadGcmTask();
             singleStickerDownloadGcmTask.execute(taskParams);
         }
+		else if (tag.startsWith(GcmTaskConstants.COGNITO_UPLOAD_GCM_TASK))
+		{
+			CognitoUploadGcmTask cognitoUploadGcmTask = new CognitoUploadGcmTask();
+			cognitoUploadGcmTask.execute(taskParams);
+		}
 		return GcmNetworkManager.RESULT_SUCCESS;
 	}
 }
