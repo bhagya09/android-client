@@ -281,18 +281,9 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		nuxFilteredRecoList = new ArrayList<ContactInfo>(0);
 		lastStatusMessagesMap = new HashMap<String, StatusMessage>();
 
-		if(Utils.isBDayInNewChatEnabled())
-		{
-			hikeBdayContactList = BirthdayUtils.getSortedBdayContactListFromSharedPref();
-			BirthdayUtils.removeHiddenMsisdnFromContactInfoList(hikeBdayContactList);
-		}
-		else
-		{
-			hikeBdayContactList = new ArrayList<ContactInfo>();
-		}
-		
+        hikeBdayContactList = new ArrayList<ContactInfo>();
+
 		filteredHikeBdayContactList = new ArrayList<ContactInfo>();
-		filteredHikeBdayContactList.addAll(hikeBdayContactList);
 
 		listFetchedOnce = false;
 
@@ -327,7 +318,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
         msisdnList = showFilteredContacts ? (msisdnList) : "";
 
         fetchFriendsTask = new FetchFriendsTask(this, context, friendsList, hikeContactsList, smsContactsList, recentContactsList, recentlyJoinedHikeContactsList,friendsStealthList, hikeStealthContactsList,
-                smsStealthContactsList, recentStealthContactsList, filteredFriendsList, filteredHikeContactsList, filteredSmsContactsList,suggestedContactsList,filteredSuggestedContactsList, false, true, false, false, false,true,true,showFilteredContacts,msisdnList, showBdaySection);
+                smsStealthContactsList, recentStealthContactsList, filteredFriendsList, filteredHikeContactsList, filteredSmsContactsList,suggestedContactsList,filteredSuggestedContactsList, false, true, false, false, false,true,true,showFilteredContacts,msisdnList);
 		fetchFriendsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 
