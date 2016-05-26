@@ -55,14 +55,16 @@ public class AnalyticsStore
 		mSingleThreadExecutor.allowCoreThreadTimeOut(true);
 		try 
 		{
-			normalPriorityEventFile = createNewEventFile(EventPriority.NORMAL);
+         // clean up the existing normal.txt file as well as generate only  the high priortity file 
+
+			deleteNormalPriorityData();
 			
 			highPriorityEventFile = createNewEventFile(EventPriority.HIGH);
 		}
 		catch (IOException e) 
 		{
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "IO exception while creating new event file");
-		}		
+		}
 	}
 	
 	/**

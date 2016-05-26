@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1734"
-    android:versionName="4.2.6.82.113.6.ces" >
+    android:versionCode="1742"
+    android:versionName="4.2.6.82.120.4.ces" >
 
    <uses-sdk
         android:minSdkVersion="14"
@@ -623,6 +623,13 @@
         <service
             android:name="com.hike.abtest.UpdateExperimentService"
             android:exported="false" />
+
+        <receiver
+            android:name=".notifications.UJNotifClickReceiver">
+            <intent-filter>
+                <action android:name="com.bsb.hike.UJ_NOTIF_ACTION_INTENT" />
+            </intent-filter>
+        </receiver>
 </application>
 
 </manifest>

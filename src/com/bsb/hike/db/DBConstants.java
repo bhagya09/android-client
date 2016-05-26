@@ -4,7 +4,7 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 
 public class DBConstants
 {
-	public static final int CONVERSATIONS_DATABASE_VERSION = 53;
+	public static final int CONVERSATIONS_DATABASE_VERSION = 54;
 
 	public static final int USERS_DATABASE_VERSION = 19;
 
@@ -235,6 +235,10 @@ public class DBConstants
 
 	public static final String EVENT_TYPE = "eventType";
 
+	public static final String EVENT_FROM_USER_MSISDN = "eventFromUserMsisdn";
+
+	public static final String EVENT_PARENT_MSISDN = "eventParentMsisdn";
+
 	// ActionsTable
 	public static final String ACTIONS_TABLE = "actions";
 
@@ -327,7 +331,7 @@ public class DBConstants
 	 *
 	 */
 	public static class HIKE_CONTENT{
-		public static final int DB_VERSION = 8;
+		public static final int DB_VERSION = 9;
 		public static final String DB_NAME = "hike_content_db";
 		// CONTENT TABLE -> _id,content_id,love_id,channel_id,timestamp,metadata
 		public static final String CONTENT_TABLE = "content";
@@ -368,6 +372,8 @@ public class DBConstants
 		public static final String TRIGGER_POINT = "trigger_point";
 
 		public static final String STATUS = "status";
+
+		public static final String PID = "pid";
 		
 		// URL WHITELIST TABLE --> domain, in_hike
 		public static final String URL_WHITELIST = "url_whitelist";
@@ -426,6 +432,8 @@ public class DBConstants
 		public static final String TIP_END_TIME = "tp_et";
 		public static final String TIP_DATA = "tp_data";
 		public static final String TIP_PRIORITY = "tp_prrt";
+
+		public static final String POPUPDATA_INDEX = "popupdata_index";
 
 	}
 	

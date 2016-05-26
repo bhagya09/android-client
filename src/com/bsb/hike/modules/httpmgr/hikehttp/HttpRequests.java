@@ -1288,7 +1288,7 @@ public class HttpRequests
 				.post(body)
 				.setAsynchronous(false)
 				.setPriority(PRIORITY_HIGH)
-				.setRetryPolicy(new BasicRetryPolicy(0, 1, 1))
+				.setRetryPolicy(new BasicRetryPolicy(0, 1, BasicRetryPolicy.DEFAULT_BACKOFF_MULTIPLIER))
 				.build();
 		return requestToken;
 	}
@@ -1311,7 +1311,7 @@ public class HttpRequests
                 .setRequestType(REQUEST_TYPE_SHORT)
                 .setAsynchronous(true)
 				.setPriority(PRIORITY_LOW)
-                .setRetryPolicy(new BasicRetryPolicy(0, 1, 1))
+                .setRetryPolicy(new BasicRetryPolicy(0, 1, BasicRetryPolicy.DEFAULT_BACKOFF_MULTIPLIER))
                 .build();
         Logger.e("HikeHttpRequests", "Making http call to " + url);
         return requestToken;
@@ -1367,7 +1367,7 @@ public class HttpRequests
                 .setAsynchronous(true)
                 .setId(requestId)
                 .setRequestListener(requestListener)
-                .setRetryPolicy(new BasicRetryPolicy(retryCount, delayBeforeRetry, 1))
+                .setRetryPolicy(new BasicRetryPolicy(retryCount, delayBeforeRetry, BasicRetryPolicy.DEFAULT_BACKOFF_MULTIPLIER))
                 .post(null)
                 .build();
         requestToken.getRequestInterceptors().addFirst("analytics", requestInterceptor);
@@ -1429,7 +1429,7 @@ public class HttpRequests
 				.setRequestListener(requestListener)
 				.setId(String.valueOf(msgId))
 				.head()
-				.setRetryPolicy(new BasicRetryPolicy(FileTransferManager.MAX_RETRY_COUNT, 0, 1))
+				.setRetryPolicy(new BasicRetryPolicy(FileTransferManager.MAX_RETRY_COUNT, 0, BasicRetryPolicy.DEFAULT_BACKOFF_MULTIPLIER))
 				.build();
 		return requestToken;
 	}
@@ -1442,7 +1442,7 @@ public class HttpRequests
 				.setRequestType(REQUEST_TYPE_SHORT)
 				.setRequestListener(requestListener)
 				.head()
-				.setRetryPolicy(new BasicRetryPolicy(FileTransferManager.MAX_RETRY_COUNT, 0, 1))
+				.setRetryPolicy(new BasicRetryPolicy(FileTransferManager.MAX_RETRY_COUNT, 0, BasicRetryPolicy.DEFAULT_BACKOFF_MULTIPLIER))
 				.build();
 		requestToken.getRequestInterceptors().addFirst("initFileUpload", initFileUploadInterceptor);
 		return requestToken;
@@ -1491,7 +1491,7 @@ public class HttpRequests
 				.addHeader(new Header("X-SESSION-ID", sessionId))
 				.setAsynchronous(false)
 				.setId(sessionId)
-				.setRetryPolicy(new BasicRetryPolicy(1, FileTransferManager.RETRY_DELAY, 1))
+				.setRetryPolicy(new BasicRetryPolicy(1, FileTransferManager.RETRY_DELAY, BasicRetryPolicy.DEFAULT_BACKOFF_MULTIPLIER))
 				.setRequestListener(listener)
 				.build();
 		return requestToken;
@@ -1551,7 +1551,7 @@ public class HttpRequests
 				.setUrl(HttpRequestConstants.getSettingsUploadUrl())
 				.setRequestListener(requestListener)
 				.setId(Utils.StringToMD5(settingsJSON.toString()))
-				.setRetryPolicy(new BasicRetryPolicy(retryCount, delayBeforeRetry, 1))
+				.setRetryPolicy(new BasicRetryPolicy(retryCount, delayBeforeRetry, BasicRetryPolicy.DEFAULT_BACKOFF_MULTIPLIER))
 				.post(jsonBody)
 				.build();
 //		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
@@ -1568,7 +1568,7 @@ public class HttpRequests
 				.setUrl(HttpRequestConstants.getSettingsDownloadUrl())
 				.setRequestListener(requestListener)
 				.setId(downloadSettingsID)
-				.setRetryPolicy(new BasicRetryPolicy(retryCount, delayBeforeRetry, 1))
+				.setRetryPolicy(new BasicRetryPolicy(retryCount, delayBeforeRetry, BasicRetryPolicy.DEFAULT_BACKOFF_MULTIPLIER))
 				.build();
 		return requestToken;
 	}
@@ -1674,6 +1674,22 @@ public class HttpRequests
 				.setAsynchronous(false)
 				.build();
 		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
+	}
+	
+	public static RequestToken getAbTestNewUserRequestToken(IRequestListener requestListener,
+															JSONObject requestPayload, int retryCount,
+															int delayBeforeRetry) {
+		JsonBody requestBody = new JsonBody(requestPayload);
+
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(HttpRequestConstants.getAbTestingNewUserExpUrl())
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setAsynchronous(true)
+				.setId(HttpRequestConstants.getAbTestingNewUserExpUrl())
+				.setRequestListener(requestListener)
+				.setRetryPolicy(new BasicRetryPolicy(retryCount, delayBeforeRetry, BasicRetryPolicy.DEFAULT_BACKOFF_MULTIPLIER))
+				.post(requestBody)
+				.build();
 		return requestToken;
 	}
 }

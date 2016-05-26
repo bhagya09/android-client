@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.util.SparseArray;
@@ -35,6 +36,11 @@ import com.bsb.hike.productpopup.ProductPopupsConstants.PopupStateEnum;
 import com.bsb.hike.productpopup.ProductPopupsConstants.PopupTriggerPoints;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.END_TIME;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.POPUPDATA;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.START_TIME;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.TRIGGER_POINT;
 
 /**
  * 
@@ -325,11 +331,17 @@ public class ProductInfoManager
 		ProductContentModel productContentModel = ProductContentModel.makeProductContentModel(metaData);
 
 		recordPopupEvent(productContentModel.getAppName(), productContentModel.getPid(), productContentModel.isFullScreen(), ProductPopupsConstants.RECEIVED);
-		
-		HikeContentDatabase.getInstance().savePopup(productContentModel, PopupStateEnum.NOT_DOWNLOADED.ordinal());
 
-		parseAndShowPopup(productContentModel, null);
+		if(!HikeContentDatabase.getInstance().isDuplicatePopup(productContentModel.getPid()))
+		{
+			HikeContentDatabase.getInstance().savePopup(productContentModel, PopupStateEnum.NOT_DOWNLOADED.ordinal());
 
+			parseAndShowPopup(productContentModel, null);
+		}
+		else
+		{
+			Logger.d("ProductPopup", "Popup received is duplicate with pid :" + productContentModel.getPid());
+		}
 	}
 
 	/**
