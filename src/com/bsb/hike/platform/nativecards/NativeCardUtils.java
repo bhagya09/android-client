@@ -13,6 +13,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.CardComponent;
+import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Utils;
 
@@ -103,6 +104,7 @@ public class NativeCardUtils
 			shareCard(context,shareView);
 		}else if(actionComponent.getAction().equals(ActionType.OPEN_URL.getAction())){
             Intent intent = IntentFactory.getWebViewActivityIntent(context, actionComponent.getActionUrl().getString(HikeConstants.URL), actionComponent.getActionUrl().optString(HikeConstants.TITLE));
+			intent.putExtra(WebViewActivity.WEBVIEW_MODE,WebViewActivity.CUSTOM_TAB_URL_MODE);
 			context.startActivity(intent);
 		}else if(actionComponent.getAction().equals(ActionType.OPEN_CAMERA.getAction())){
 
