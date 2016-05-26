@@ -1,11 +1,14 @@
 package com.bsb.hike.notifications;
 
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Color;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -25,9 +28,14 @@ import com.bsb.hike.models.NotificationPreview;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class HikeNotificationUtils
@@ -242,4 +250,107 @@ public class HikeNotificationUtils
 		}
 		return bigText.toString();
 	}
+
+	/**
+	 * This method checks whether json data received for rich uj notif is valid
+	 * @param data
+	 * @return
+     */
+	public static boolean isUJNotifJSONValid(JSONObject data)
+	{
+		if(data == null)
+		{
+			Logger.d(HikeConstants.UserJoinMsg.TAG, "received null data for uj notif");
+			return false;
+		}
+
+		if(TextUtils.isEmpty(data.optString(HikeConstants.MSISDN)))
+		{
+			Logger.d(HikeConstants.UserJoinMsg.TAG, "empty/null msisdn received for uj notif");
+			return false;
+		}
+
+		JSONArray ujNotifCTAs = data.optJSONArray(HikeConstants.CTAS);
+		if(ujNotifCTAs == null || ujNotifCTAs.length() == 0 || ujNotifCTAs.length() > 2)
+		{
+			Logger.d(HikeConstants.UserJoinMsg.TAG, "invalid ctas received for uj notif");
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * This method returns a list of {@link android.support.v4.app.NotificationCompat.Action} items. These
+	 * will be added as action buttons to make rich uj notif.
+	 * @param context - this is needed while creating {@link PendingIntent} for the action buttons
+	 * @param actionsJSON
+	 * @param msisdn - required as we are opening chatthread on uj notif click
+     * @return
+     */
+	public static List<NotificationCompat.Action> getActionsForUJNotif(Context context, JSONArray actionsJSON, String msisdn)
+	{
+		Logger.d(HikeConstants.UserJoinMsg.TAG, "creating list of actions for rich uj notif");
+		if(actionsJSON == null || actionsJSON.length() == 0)
+		{
+			Logger.d(HikeConstants.UserJoinMsg.TAG, "json array of CTAs was null/empty so returning null");
+			return null;
+		}
+		List<NotificationCompat.Action> notifActions = new ArrayList<>();
+		for(int i = 0; i < actionsJSON.length(); i++)
+		{
+			JSONObject actionObj = actionsJSON.optJSONObject(i);
+			if(actionObj != null)
+			{
+
+				notifActions.add(getUJNotifAction(context, actionObj, msisdn));
+			}
+		}
+		return notifActions;
+	}
+
+	/**
+	 * This method is used to create a single {@link android.support.v4.app.NotificationCompat.Action} from json
+	 * sample JSON = {"action": "say_hi","l": "Say hi","md": {"msg": "Hi there!"}}
+	 * @param context
+	 * @param actionObj
+	 * @param msisdn
+     * @return
+     */
+	public static NotificationCompat.Action getUJNotifAction(Context context, JSONObject actionObj, String msisdn)
+	{
+		Logger.d(HikeConstants.UserJoinMsg.TAG, "creating individual action items for rich uj notif");
+		String action = actionObj.optString(HikeConstants.ACTION);
+
+		int icon;
+		String label;
+		if(action.equals(HikeConstants.UserJoinMsg.ACTION_SAY_HI))
+		{
+			icon = R.drawable.nuj_message;
+			label = actionObj.optString(HikeConstants.LABEL, context.getString(R.string.uj_default_cta_say_hi));
+		}
+		else
+		{
+			icon = R.drawable.nuj_favourite;
+			label = actionObj.optString(HikeConstants.LABEL, context.getString(R.string.uj_default_cta_add_friend));
+		}
+
+		Intent actionIntent = new Intent(HikeConstants.UserJoinMsg.NOTIF_ACTION_INTENT);
+		actionIntent.putExtra(HikeConstants.ACTION, action);
+
+		if(!TextUtils.isEmpty(msisdn))
+		{
+			actionIntent.putExtra(HikeConstants.MSISDN, msisdn);
+		}
+
+		JSONObject metadata = actionObj.optJSONObject(HikeConstants.METADATA);
+		if(metadata != null)
+		{
+			actionIntent.putExtra(HikeConstants.METADATA, metadata.toString());
+		}
+
+		PendingIntent actionPI = PendingIntent.getBroadcast(context, action.hashCode(), actionIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+		return new NotificationCompat.Action(icon, label, actionPI);
+	}
+
 }

@@ -75,6 +75,13 @@ public class NotificationDismissedReceiver extends BroadcastReceiver
 			{
 				//Log here swipe events
 			}
+			else
+			{
+				if(intent.getBooleanExtra(HikeConstants.MqttMessageTypes.USER_JOINED, false))
+				{
+					Logger.d(HikeConstants.UserJoinMsg.TAG, "uj notif dismissed");
+				}
+			}
 		}
 
 	}
