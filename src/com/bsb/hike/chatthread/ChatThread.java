@@ -164,6 +164,7 @@ import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.tasks.EmailConversationsAsyncTask;
 import com.bsb.hike.ui.ComposeViewWatcher;
+import com.bsb.hike.ui.CustomTabActivityHelper;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.utils.LockPattern;
 import com.bsb.hike.ui.utils.StatusBarColorChanger;
@@ -420,6 +421,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	};
 
 	private FutureTask<Conversation> conversationFuture=new FutureTask<>(callable);
+
+	private CustomTabActivityHelper mCustomTabActivityHelper;
 
 	private class ChatThreadBroadcasts extends BroadcastReceiver
 	{
@@ -688,6 +691,10 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		uiHandler.sendEmptyMessage(SET_WINDOW_BG);
 		StickerManager.getInstance().checkAndDownLoadStickerData();
 		StickerSearchManager.getInstance().downloadTagsForCurrentLanguage();
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikePlatformConstants.CUSTOM_TABS, true) && Utils.isJellybeanOrHigher())
+		{
+			setupCustomTabHelper();
+		}
 	}
 
 	/**
@@ -4399,6 +4406,9 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			tipVisibilityAnimator.dismissInfoTipIfShowing();
 			tipVisibilityAnimator = null;
 		}
+		if(mCustomTabActivityHelper != null && Utils.isJellybeanOrHigher()) {
+			mCustomTabActivityHelper.unbindCustomTabsService(activity);
+		}
 	}
 
     private void releaseBotsKeyboardResources()
@@ -6807,6 +6817,11 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		String themeId = (String) data;
 		sendUIMessage(CHAT_THEME, themeId);
 		sendUIMessage(SEND_CUSTOM_THEME_MESSAGE, null);
+	}
+
+	private void setupCustomTabHelper(){
+		mCustomTabActivityHelper = CustomTabActivityHelper.getInstance();
+		mCustomTabActivityHelper.bindCustomTabsService(activity);
 	}
 
 }
