@@ -3137,7 +3137,12 @@ public class Utils
 
 		if (file.isDirectory())
 		{
-			for (File f : file.listFiles())
+			File listFiles[] = file.listFiles();
+			if(listFiles == null)
+			{
+				return false;
+			}
+			for (File f : listFiles)
 			{
 				result = result && deleteFile(f);
 			}
@@ -7912,8 +7917,9 @@ public class Utils
 				result = deleteFile(newRootDir) && newRootDir.mkdirs();
 			}
 		}
+		File listFiles[] = oldRootDir.listFiles();
 
-		if (!oldRootDir.exists() || (oldRootDir.listFiles() == null))
+		if (!oldRootDir.exists() || (listFiles == null))
 		{
 			Logger.d("StickerMigration", "Migration unsuccessful but new folder created");
 			StickerManager.getInstance().recordStickerMigrationFailure("Migration unsuccessful but new folder created, The oldDir was absent or listFiles were null");
@@ -7922,7 +7928,7 @@ public class Utils
 
 		if (result)
 		{
-			for (File f : oldRootDir.listFiles())
+			for (File f : listFiles)
 			{
 				if (f.isDirectory())
 				{

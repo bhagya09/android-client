@@ -16,10 +16,13 @@ import android.text.TextUtils;
 import com.bsb.hike.HikeConstants.NotificationType;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.chatthread.OneToNChatThread;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
 
 public class MessagingBotAlarmManager implements HikePlatformConstants
 {
@@ -53,9 +56,9 @@ public class MessagingBotAlarmManager implements HikePlatformConstants
 
 	/*
 	 * Assuming Format of metadata for platform is :
-	 * 
+	 *
 	 * metadata:{'layout_id':'','file_id':'','card_data':{},'helper_data':{}}
-	 * 
+	 *
 	 * On alarm of any card, we save it in ALARM TABLE
 	 */
 	public static final void processTasks(Intent intent, Context context)
@@ -68,17 +71,54 @@ public class MessagingBotAlarmManager implements HikePlatformConstants
 			int messageId = data.getInt(MESSAGE_ID);
 			if (messageId != 0) // validation
 			{
+				String messageHash = HikeConversationsDatabase.getInstance().getMessageHashFromMessageId(messageId);
+				if(TextUtils.isEmpty(messageHash))
+				{
+					return;
+				}
 				HikeConversationsDatabase.getInstance().insertMicroAppALarm(messageId, data.getString(HikePlatformConstants.ALARM_DATA));
 				if (!deleteMessage(messageId, data, context))
 				{
 					increaseUnreadCount(data, context);
 					showNotification(data, context);
+					rearrangeCard(data, context);
 					Message m = Message.obtain();
 					m.arg1 = messageId;
 					m.obj = data.get(ALARM_DATA);
 					HikeMessengerApp.getPubSub().publish(HikePubSub.PLATFORM_CARD_ALARM, m);
 				}
 			}
+		}
+	}
+
+	private static void rearrangeCard(Bundle data, Context context)
+	{
+		if (data.containsKey(CONV_MSISDN) && data.containsKey(REARRANGE_CARD))
+		{
+			// increase unread count
+			if(!Boolean.valueOf(data.getString(REARRANGE_CARD)))
+			{
+				return;
+			}
+			HikeConversationsDatabase db = HikeConversationsDatabase.getInstance();
+			String msisdn = data.getString(CONV_MSISDN);
+			int messageId = data.getInt(MESSAGE_ID);
+			String messageHash = db.getMessageHashFromMessageId(messageId);
+			if(TextUtils.isEmpty(messageHash))
+			{
+				return;
+			}
+
+			ConvMessage convMessage = db.getMessageFromMessageHash(messageHash);
+			boolean isGroup = false;
+			String groupParticipant = null;
+			if(OneToNConversationUtils.isGroupConversation(msisdn))
+			{
+				isGroup = true;
+				groupParticipant = convMessage.getGroupParticipantMsisdn();
+			}
+			db.updateMessageForGeneralEvent(messageHash, convMessage.getState(), data.getString(NOTIFICATION), convMessage.getMappedMsgID(), isGroup, groupParticipant);
+
 		}
 	}
 
@@ -108,9 +148,9 @@ public class MessagingBotAlarmManager implements HikePlatformConstants
 			if (!TextUtils.isEmpty(message))
 			{
 				String playS = data.getString(NOTIFICATION_SOUND);
-				
+
 				boolean playSound = playS!=null ? Boolean.valueOf(playS) : false;
-				
+
 				HikeNotification.getInstance().sendNotificationToChatThread(data.getString(CONV_MSISDN), message, !playSound);
 			}
 		}

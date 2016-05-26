@@ -81,6 +81,7 @@ public class QuickStickerSuggestionController
     public void refreshQuickSuggestionTtl(long ttl)
     {
         this.ttl = ttl;
+        HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.QUICK_SUGGESTED_STICKERS_TTL, ttl);
     }
 
     public boolean isQuickSuggestionEnabled()

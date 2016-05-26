@@ -4,7 +4,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.1.0'
+        classpath 'com.android.tools.build:gradle:0.14.4'
     }
 }
 
@@ -14,7 +14,7 @@ android {
         abortOnError false
     }
     compileSdkVersion 19
-    buildToolsVersion '23.0.2'
+    buildToolsVersion '22.0.1'
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'

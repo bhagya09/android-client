@@ -36,6 +36,7 @@ import com.bsb.hike.platform.PlatformUIDFetch;
 import com.bsb.hike.ui.SignupActivity;
 import com.bsb.hike.utils.*;
 import com.crashlytics.android.Crashlytics;
+import com.hike.abtest.ABTest;
 
 import java.io.File;
 import java.util.List;
@@ -431,6 +432,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 			msisdn = accountInfo.getMsisdn();
 			/* save the new msisdn */
 			Utils.savedAccountCredentials(accountInfo, settings.edit());
+			ABTest.fetchNewUserExperiments();
 			//Check for crash reporting tool
 			if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CRASH_REPORTING_TOOL, HikeConstants.ACRA).equals(HikeConstants.CRASHLYTICS))
 			{

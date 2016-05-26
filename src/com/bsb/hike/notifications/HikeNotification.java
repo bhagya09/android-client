@@ -60,6 +60,7 @@ import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.triggers.InterceptUtils;
+import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.utils.*;
 import com.bsb.hike.voip.VoIPService;
@@ -120,6 +121,8 @@ public class HikeNotification
 	public static final String HIKE_STEALTH_MESSAGE_KEY = "HIKE_STEALTH_MESSAGE_KEY";
 
 	public static final int NOTIF_INTERCEPT_NON_DOWNLOAD = -94;
+
+	public static final int BIRTHDAY_NOTIF = -95;
 
 	private static final String SEPERATOR = " ";
 
@@ -2202,6 +2205,131 @@ public class HikeNotification
 
 		int notificationId = CRITICAL_DB_CORRUPT_NOTIF;
 		notifyNotification(notificationId, mBuilder);
+	}
+
+	/**
+	 * This API generated notification for Birthdays from set of msisdns
+	 * @param msisdns
+	 */
+	public void notifyBdayNotif(List<String> msisdns)
+	{
+
+		if (defaultSharedPrefs.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
+		{
+			return;
+		}
+
+		String message = null;
+		String title = null;
+		int notificationId = BIRTHDAY_NOTIF;
+		final int smallIconId = returnSmallIcon();
+		Intent mNotificationIntent = null;
+		String msisdn = (String)msisdns.toArray()[0];
+		ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, true, false);
+		if(msisdns.size() == 1)
+		{
+			mNotificationIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, true, false, ChatThreadActivity.ChatThreadOpenSources.NOTIF);
+			mNotificationIntent.putExtra(HikeConstants.Extras.MSG, context.getString(R.string.composeview_bday));
+			title = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SINGLE_BDAY_NOTIF_TITLE, context.getString(R.string.single_bday_notif_text));
+			title = String.format(title, contactInfo.getFirstNameAndSurname());
+			message = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SINGLE_BDAY_NOTIF_SUBTEXT, context.getString(R.string.single_bday_notif_subtext));
+		}
+		else
+		{
+			mNotificationIntent = new Intent(context, ComposeChatActivity.class);
+			title = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MULTIPLE_BDAY_NOTIF_TITLE, context.getString(R.string.multiple_bday_notif_text));
+			title = String.format(title, contactInfo.getFirstNameAndSurname(), String.valueOf(msisdns.size() -1));
+			message = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MULTIPLE_BDAY_NOTIF_SUBTEXT, context.getString(R.string.multiple_bday_notif_subtext));
+		}
+
+		NotificationCompat.Builder mBuilder = getNotificationBuilder(title, message, title, null, smallIconId, false, false, false);
+
+		mNotificationIntent.putExtra(HikeConstants.Extras.BIRTHDAY_NOTIF, true);
+		mNotificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+		PendingIntent contentIntent = PendingIntent.getActivity(context, 0, mNotificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+		mBuilder.setContentIntent(contentIntent);
+
+		Intent deleteIntent = new Intent(context, NotificationDismissedReceiver.class);
+		deleteIntent.putExtra(HIKE_NOTIFICATION_ID_KEY, notificationId);
+
+		PendingIntent pendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(), notificationId, deleteIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+		mBuilder.setDeleteIntent(pendingIntent);
+
+		notifyNotification(notificationId, mBuilder);
+	}
+
+	/**
+	 * Method to process uj packet to create rich uj notif
+	 * @param jsonObject
+     */
+	public void notifyRichUJ(JSONObject jsonObject)
+	{
+		Logger.d(HikeConstants.UserJoinMsg.TAG, "received jsonObj for uj notif: " + jsonObject);
+
+		if (defaultSharedPrefs.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
+		{
+			return;
+		}
+
+		JSONObject data = jsonObject.optJSONObject(HikeConstants.DATA);
+		if(!HikeNotificationUtils.isUJNotifJSONValid(data))
+		{
+			Logger.d(HikeConstants.UserJoinMsg.TAG, "invalid uj json");
+			return;
+		}
+
+		String msisdn = data.optString(HikeConstants.MSISDN);
+		int notifId = msisdn.hashCode();
+		ContactInfo contact = ContactManager.getInstance().getContact(msisdn, true, true);
+
+		String title = contact.getNameOrMsisdn();
+
+		String message = data.optString(HikeConstants.UserJoinMsg.NOTIF_TEXT);
+		if(TextUtils.isEmpty(message))
+		{
+			Logger.d(HikeConstants.UserJoinMsg.TAG, "received empty notif title. fetching default!");
+			message = context.getString(R.string.rich_uj_default_msg);
+		}
+
+		try
+		{
+			message = String.format(message, contact.getFirstName());
+		}
+		catch (IllegalFormatException ife)
+		{
+			Logger.d(HikeConstants.UserJoinMsg.TAG, "error in formatting uj notif message. check value sent from server");
+			return;
+		}
+
+		boolean isSilent = (data.optInt(HikeConstants.UserJoinMsg.PUSH_SETTING, HikeConstants.PushType.silent) != HikeConstants.PushType.loud);
+
+		Drawable avatar = Utils.getAvatarDrawableForNotification(context, msisdn, false);
+
+		int smallIcon = returnSmallIcon();
+
+		NotificationCompat.Builder mBuilder = getNotificationBuilder(title, message, message, avatar, smallIcon, isSilent, isSilent, false);
+
+		List<Action> notifActions = HikeNotificationUtils.getActionsForUJNotif(context, data.optJSONArray(HikeConstants.CTAS), msisdn);
+		for(int i = 0; i < notifActions.size(); i++)
+		{
+			mBuilder.addAction(notifActions.get(i));
+		}
+
+		Intent notifIntent = new Intent(HikeConstants.UserJoinMsg.NOTIF_ACTION_INTENT);
+		notifIntent.putExtra(HikeConstants.ACTION, HikeConstants.UserJoinMsg.ACTION_DEFAULT);
+		notifIntent.putExtra(HikeConstants.MSISDN, msisdn);
+		mBuilder.setContentIntent(PendingIntent.getBroadcast(context, notifId, notifIntent, PendingIntent.FLAG_UPDATE_CURRENT));
+
+		Intent deleteIntent = new Intent(context, NotificationDismissedReceiver.class);
+		deleteIntent.putExtra(HIKE_NOTIFICATION_ID_KEY, notifId);
+		deleteIntent.putExtra(HikeConstants.MqttMessageTypes.USER_JOINED, true);
+		PendingIntent pendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(), notifId, deleteIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+		mBuilder.setDeleteIntent(pendingIntent);
+
+		Logger.d(HikeConstants.UserJoinMsg.TAG, "creating uj notif with id:" + notifId);
+		notifyNotification(notifId, mBuilder);
+
 	}
 
 }
