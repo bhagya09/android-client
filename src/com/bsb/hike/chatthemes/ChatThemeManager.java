@@ -349,10 +349,11 @@ public class ChatThemeManager {
         return mDrawableHelper.getDrawableForTheme(getTheme(themeId), assetIndex);
     }
 
-    public void downloadThemeAssetsMetadata(String themeId, boolean isCustom) {
+    public void downloadThemeAssetsMetadata(String themeId, String msisdn, boolean isCustom) {
         // Automatically enabling the Chatthemes for the receiver, though the packet is not enabled from server. This will help to organically grow chat themes
         // https://hikeapp.atlassian.net/browse/CE-764
         if(isCustom && !ChatThreadUtils.isCustomChatThemeEnabled()){
+            postAnalyticOrganicCTPacket(themeId, msisdn);
             HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CUSTOM_CHATTHEME_ENABLED, true);
         }
 
@@ -410,4 +411,22 @@ public class ChatThemeManager {
         return R.drawable.bg_system_message_dark;
     }
 
+    private void postAnalyticOrganicCTPacket(String themeID, String msisdn) {
+        try
+        {
+            JSONObject metadata = new JSONObject();
+            metadata.put(AnalyticsConstants.V2.KINGDOM, ChatAnalyticConstants.ACT_CORE_LOGS);
+            metadata.put(AnalyticsConstants.V2.UNIQUE_KEY, ChatAnalyticConstants.CUSTOM_THEME_ENABLE);
+            metadata.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.NON_UI_EVENT);
+            metadata.put(AnalyticsConstants.V2.ORDER, ChatAnalyticConstants.CUSTOM_THEME_ENABLE);
+            metadata.put(AnalyticsConstants.V2.ORDER, ChatAnalyticConstants.CUSTOM_THEME_ENABLE);
+            metadata.put(AnalyticsConstants.V2.VAL_STR, themeID);
+            metadata.put(AnalyticsConstants.V2.SPECIES, ChatThreadUtils.getChatThreadType(msisdn));
+            metadata.put(AnalyticsConstants.TO_USER, msisdn);
+            HAManager.getInstance().recordV2(metadata);
+        } catch (JSONException e)
+        {
+            Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+        }
+    }
 }
