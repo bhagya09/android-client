@@ -143,6 +143,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 
 	private static Context mContext;
 
+	private static int oldVersion;
+
+	private static int newVerion;
+
 	public static void init(Context context)
 	{
 		if (hikeConversationsDatabase == null)
@@ -451,6 +455,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
 	{
+		this.oldVersion = oldVersion;
+		this.newVerion = newVersion;
+
 		if (db == null)
 		{
 			db = mDb;
@@ -11212,5 +11219,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		}
 
 		return null;
+	}
+
+	public int getOldDbVersion() {
+		return oldVersion;
+	}
+
+	public int getNewDbVersion() {
+		return newVerion;
 	}
 }

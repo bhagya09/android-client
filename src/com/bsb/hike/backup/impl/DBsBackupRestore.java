@@ -51,7 +51,10 @@ public class DBsBackupRestore implements BackupableRestorable
 				}
 
                 StickerManager.getInstance().postRestoreSetup();
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CHAT_BG_TABLE_MIGRATION, 0);
+
+				if(HikeConversationsDatabase.getInstance().getOldDbVersion() <= 52 && HikeConversationsDatabase.getInstance().getNewDbVersion() >= 53) {
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CHAT_BG_TABLE_MIGRATION, 0);
+				}
 			}
 		};
 
