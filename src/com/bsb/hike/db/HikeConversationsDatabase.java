@@ -173,32 +173,6 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
-<<<<<<< HEAD
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import static com.bsb.hike.db.DBConstants.*;
-import static com.bsb.hike.db.DBConstants.HIKE_CONV_DB.*;
-
-import static com.bsb.hike.chatthemes.HikeChatThemeConstants.*;
-
-=======
->>>>>>> a1d582dcaf03dc47df4dab214aad5ac2d75d0780
 public class HikeConversationsDatabase extends SQLiteOpenHelper
 {
 
