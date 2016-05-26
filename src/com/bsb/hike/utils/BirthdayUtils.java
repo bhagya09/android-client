@@ -341,11 +341,13 @@ public class BirthdayUtils
         boolean isActive = StealthModeManager.getInstance().isActive();
         if(!isActive)
         {
-            for(ContactInfo contactInfo : bdayContactList)
+            Iterator<ContactInfo> iterator = bdayContactList.iterator();
+            while(iterator.hasNext())
             {
+                ContactInfo contactInfo = iterator.next();
                 if(StealthModeManager.getInstance().isStealthMsisdn(contactInfo.getMsisdn()))
                 {
-                    bdayContactList.remove(contactInfo);
+                    iterator.remove();
                 }
             }
         }
@@ -362,12 +364,14 @@ public class BirthdayUtils
         boolean isActive = StealthModeManager.getInstance().isActive();
         if(!isActive)
         {
-            for(String msisdn : bdayMsisdnList)
+            Iterator<String> iterator = bdayMsisdnList.iterator();
+            while(iterator.hasNext())
             {
+                String msisdn = iterator.next();
                 if(StealthModeManager.getInstance().isStealthMsisdn(msisdn))
                 {
                     Logger.d("bday_notif_", "Removing stealth misidn from list " + msisdn);
-                    bdayMsisdnList.remove(msisdn);
+                    iterator.remove();
                 }
             }
         }
