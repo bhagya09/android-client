@@ -13,7 +13,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.BaseAdapter;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -29,7 +28,6 @@ import com.bsb.hike.smartImageLoader.StickerLoader;
 import com.bsb.hike.ui.utils.RecyclingImageView;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
-import com.bsb.hike.utils.Utils;
 
 import java.util.List;
 
@@ -176,7 +174,7 @@ public class BotsStickerAdapter extends BaseAdapter implements View.OnClickListe
 		ViewType viewType = ViewType.values()[getItemViewType(position)];
 		StickerPageAdapterItem item = getItem(position);
 		ViewHolder viewHolder;
-        FrameLayout.LayoutParams ll = new FrameLayout.LayoutParams(sizeEachImage, sizeEachImage);
+        AbsListView.LayoutParams ll = new AbsListView.LayoutParams(sizeEachImage, sizeEachImage);
 
 		if (convertView == null)
 		{
@@ -185,14 +183,12 @@ public class BotsStickerAdapter extends BaseAdapter implements View.OnClickListe
 			{
 			case STICKER:
 				convertView = new RecyclingImageView(mContext);
-				int padding = (int) (5 * Utils.scaledDensityMultiplier);
-				convertView.setLayoutParams(ll);
+                convertView.setLayoutParams(ll);
 				((ImageView) convertView).setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-				(convertView).setPadding(padding, padding, padding, padding);
 				break;
 			case DOWNLOADING:
 				convertView = inflater.inflate(R.layout.update_sticker_set, null);
-				convertView.setLayoutParams(ll);
+                convertView.setLayoutParams(ll);
 				viewHolder.text = (TextView) convertView.findViewById(R.id.new_number_stickers);
 				viewHolder.image = (ImageView) convertView.findViewById(R.id.update_btn);
 				viewHolder.progress = (ProgressBar) convertView.findViewById(R.id.download_progress);

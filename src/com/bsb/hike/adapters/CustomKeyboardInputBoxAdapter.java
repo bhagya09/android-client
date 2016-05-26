@@ -26,6 +26,7 @@ import com.bsb.hike.utils.Utils;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * The type Custom keyboard input box adapter.
@@ -142,8 +143,8 @@ public class CustomKeyboardInputBoxAdapter implements OnClickListener
 		int stickerGridNumCols = HikePlatformConstants.stickerGridNoOfCols;
 
 		stickerGridView.setNumColumns(stickerGridNumCols);
-		List<Sticker> stickersList = new ArrayList<>();
-		List<StickerPageAdapterItem> stickerPageList = new ArrayList<>();
+		List<Sticker> stickersList = new CopyOnWriteArrayList<>();
+		List<StickerPageAdapterItem> stickerPageList = new CopyOnWriteArrayList<>();
 
 		Iterator<Sk> customKeyboardStickerKeysIterator = customKeyboardStickerKeys.iterator();
 		while (customKeyboardStickerKeysIterator.hasNext())
