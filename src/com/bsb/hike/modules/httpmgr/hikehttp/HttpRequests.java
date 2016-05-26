@@ -10,11 +10,13 @@ import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.gcmnetworkmanager.Config;
 import com.bsb.hike.modules.gcmnetworkmanager.GcmNwMgrService;
+import com.bsb.hike.modules.gcmnetworkmanager.tasks.CognitoUploadGcmTask;
 import com.bsb.hike.modules.gcmnetworkmanager.tasks.GcmTaskConstants;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.interceptor.GzipRequestInterceptor;
 import com.bsb.hike.modules.httpmgr.interceptor.IRequestInterceptor;
 import com.bsb.hike.modules.httpmgr.interceptor.IResponseInterceptor;
@@ -35,13 +37,14 @@ import com.bsb.hike.modules.httpmgr.request.requestbody.FileBody;
 import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
 import com.bsb.hike.modules.httpmgr.request.requestbody.JsonBody;
 import com.bsb.hike.modules.httpmgr.request.requestbody.MultipartRequestBody;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.httpmgr.retry.BasicRetryPolicy;
 import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
-import com.bsb.hike.userlogs.PhoneSpecUtils;
+import com.bsb.hike.utils.PhoneSpecUtils;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
@@ -85,7 +88,6 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getFast
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getForcedStickersUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getGroupBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getGroupBaseUrlForLinkSharing;
-import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getHikeJoinTimeBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getHikeJoinTimeBaseV2Url;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getHistoricalStatusUpdatesUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getPostImageSUUrl;
@@ -1625,6 +1627,40 @@ public class HttpRequests
 				.setRequestListener(requestListener)
 				.post(jsonBody)
 				.build();
+		return requestToken;
+	}
+
+	public static RequestToken cognitoUploadRequest(String url, final String dataType, JSONObject payload, IRequestListener requestListener)
+	{
+		url = sendUserLogsInfoBaseUrl() + url;
+		final String requestId = url + dataType;
+
+		Bundle payloadBundle = new Bundle();
+		payloadBundle.putString(CognitoUploadGcmTask.URL, url);
+		payloadBundle.putString(CognitoUploadGcmTask.REQUEST_ID, requestId);
+		payloadBundle.putString(CognitoUploadGcmTask.DATA_TO_UPLOAD, payload.toString());
+		Config config = new Config.Builder()
+				.setExecutionWindow(0, 1)
+				.setPersisted(true)
+				.setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
+				.setTag(GcmTaskConstants.COGNITO_UPLOAD_GCM_TASK)
+				.setService(GcmNwMgrService.class)
+				.setExtras(payloadBundle)
+				.build();
+
+		JsonBody jsonBody = new JsonBody(payload);
+
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(url)
+				.setId(requestId)
+				.setRequestListener(requestListener)
+				.setRequestType(REQUEST_TYPE_SHORT)
+				.setPriority(PRIORITY_HIGH)
+				.setRetryPolicy(new BasicRetryPolicy(Integer.MAX_VALUE, BasicRetryPolicy.DEFAULT_RETRY_DELAY, 4f))
+				.setGcmTaskConfig(config)
+				.post(jsonBody)
+				.build();
+		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
 		return requestToken;
 	}
 
