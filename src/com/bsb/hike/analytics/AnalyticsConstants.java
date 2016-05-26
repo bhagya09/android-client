@@ -920,4 +920,5 @@ public class AnalyticsConstants
 		public static final String GROUP_CREATE = "create";
 	}
 
+	public static final String ACT_MSG = "act_msg";
 }

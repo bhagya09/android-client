@@ -53,6 +53,10 @@ public class QuickSuggestionStickerCategory extends CustomStickerCategory
 		this.sentStickers = sentStickers;
 	}
 
+	public boolean isShowReplyStickers() {
+		return showReplyStickers;
+	}
+
 	private QuickSuggestionStickerCategory(Init<?> builder)
 	{
 		super(builder);
@@ -144,6 +148,12 @@ public class QuickSuggestionStickerCategory extends CustomStickerCategory
 	public void loadStickers()
 	{
 		QuickStickerSuggestionController.getInstance().loadQuickStickerSuggestions(this);
+	}
+
+	@Override
+	public Set<Sticker> getStickerSet()
+	{
+		return showReplyStickers ? replyStickers : sentStickers;
 	}
 
 	@Override

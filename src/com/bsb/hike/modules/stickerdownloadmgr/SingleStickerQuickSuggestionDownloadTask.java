@@ -111,5 +111,6 @@ public class SingleStickerQuickSuggestionDownloadTask implements IHikeHTTPTask, 
 	public void doOnFailure(HttpException exception)
 	{
 		Logger.e(TAG, "response failed for single sticker quick suggestions", exception);
+		QuickStickerSuggestionController.getInstance().sendFetchFailedSignalToUi(sticker);
 	}
 }

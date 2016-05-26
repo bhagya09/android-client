@@ -140,7 +140,11 @@ public class StickerManager
 
 	public static final String STICKER_PREVIEW_DOWNLOADED = "stickerPreviewDownloaded";
 
-	public static final String QUICK_STICKER_SUGGESTION_FETCHED = "quickStickerSuggestionFetched";
+	public static final String QUICK_STICKER_SUGGESTION_FETCH_SUCCESS = "quickStickerSuggestionFetchSuccess";
+
+	public static final String QUICK_STICKER_SUGGESTION_FETCH_FAILED = "quickStickerSuggestionFetchFailed";
+
+	public static final String QUICK_STICKER_SUGGESTION_FTUE_STICKER_CLICKED = "quickStickerSuggestionFtueStickerClicked";
 
 	public static final String ADD_NO_MEDIA_FILE_FOR_STICKERS = "addNoMediaFileForStickers";
 
@@ -253,6 +257,10 @@ public class StickerManager
 	public static final String FROM_STICKER_RECOMMENDATION_FTUE = "ft";
 
 	public static final String FROM_OTHER = "o";
+
+	public static final String FROM_QR = "qr";
+
+	public static final String FROM_QF = "qf";
 
 	public static final String REJECT_FROM_CROSS = "crs";
 
@@ -3889,6 +3897,11 @@ public class StickerManager
 			return;
 		}
 		HikeHandlerUtil.getInstance().postRunnable(new FetchForAllStickerQuickSuggestionTask());
+	}
+
+	public boolean isRecentCategory(String categotyId)
+	{
+		return (TextUtils.isEmpty(categotyId) || !categotyId.equalsIgnoreCase(RECENT)) ? false : true;
 	}
 
 	public boolean isQuickSuggestionCategory(String categotyId)

@@ -1,5 +1,8 @@
 package com.bsb.hike.modules.quickstickersuggestions;
 
+import android.content.Intent;
+import android.support.v4.content.LocalBroadcastManager;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.ConvMessage;
@@ -12,10 +15,12 @@ import com.bsb.hike.modules.quickstickersuggestions.tasks.InsertQuickSuggestionT
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.StickerManager;
 
+import org.apache.http.util.TextUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -171,11 +176,10 @@ public class QuickStickerSuggestionController
         HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeMessengerApp.QUICK_SUGGESTION_RETRY_SET, retrySet);
     }
 
-    public boolean checkIfNeedsRefresh(QuickSuggestionStickerCategory quickSuggestionStickerCategory)
+    public boolean needsRefresh(QuickSuggestionStickerCategory quickSuggestionStickerCategory)
     {
         if((System.currentTimeMillis() - quickSuggestionStickerCategory.getLastRefreshTime()) > ttl)
         {
-            StickerManager.getInstance().initiateSingleStickerQuickSuggestionDownloadTask(quickSuggestionStickerCategory.getQuickSuggestSticker());
             return true;
         }
         return false;
@@ -187,4 +191,28 @@ public class QuickStickerSuggestionController
         return Math.abs(TextUtils.isEmpty(uid) ? 0 : uid.hashCode() % 100) + 1;
     }
 
+
+    public boolean shouldShowFtuePage()
+    {
+        return true;
+    }
+
+    public void sendFetchSuccessSignalToUi(List<StickerCategory> quickStickerCategoryList)
+    {
+        for(StickerCategory category : quickStickerCategoryList)
+        {
+            QuickSuggestionStickerCategory quickSuggestionCategory = (QuickSuggestionStickerCategory) category;
+            LocalBroadcastManager.getInstance(HikeMessengerApp.getInstance()).sendBroadcast(new Intent(StickerManager.QUICK_STICKER_SUGGESTION_FETCH_SUCCESS).putExtra(HikeConstants.BUNDLE, quickSuggestionCategory.toBundle()));
+        }
+    }
+
+    public void sendFetchFailedSignalToUi(Sticker sticker)
+    {
+        QuickSuggestionStickerCategory stickerCategory = new QuickSuggestionStickerCategory.Builder()
+                .setCategoryId(StickerManager.QUICK_SUGGESTIONS)
+                .setIsCustom(true)
+                .setQuickSuggestSticker(sticker)
+                .build();
+        LocalBroadcastManager.getInstance(HikeMessengerApp.getInstance()).sendBroadcast(new Intent(StickerManager.QUICK_STICKER_SUGGESTION_FETCH_FAILED).putExtra(HikeConstants.BUNDLE, stickerCategory.toBundle()));
+    }
 }
