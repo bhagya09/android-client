@@ -96,22 +96,22 @@ public class PrivacyPreferences
 		}
 	}
 
-	private void showStatusUpdate()
+	public void showStatusUpdate()
 	{
 		setBit(STATUS_UPDATE);
 	}
 
-	private void hideStatusUpdate()
+	public void hideStatusUpdate()
 	{
 		resetBit(STATUS_UPDATE);
 	}
 
-	private void showLastSeen()
+	public void showLastSeen()
 	{
 		setBit(LAST_SEEN);
 	}
 
-	private void hideLasSeen()
+	public void hideLasSeen()
 	{
 		resetBit(LAST_SEEN);
 	}

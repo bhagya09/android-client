@@ -38,10 +38,6 @@ class PersistenceCache extends ContactsCache
 
 	private Set<String> blockedMsisdns;
 
-	private Map<String, PrivacyPreferences> lastSeenPrivacyList; // This list contains a subset of msisdns to which LS is enabled or disabled based on LS preferences
-
-	private Map<String, PrivacyPreferences> statusUpdatePrivacyList; // This list contains a subset of msisdns for which SU disabled based on LS preferences
-
 	private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
 
 	private final Lock readLock = readWriteLock.readLock();
@@ -58,8 +54,6 @@ class PersistenceCache extends ContactsCache
 		groupContactsPersistence = new HashMap<String, PairModified<ContactInfo, Integer>>();
 		groupPersistence = new HashMap<String, GroupDetails>();
 		blockedMsisdns = new HashSet<String>();
-		lastSeenPrivacyList = new HashMap<String, PrivacyPreferences>();
-		statusUpdatePrivacyList = new HashMap<String, PrivacyPreferences>();
 		loadMemory();
 	}
 

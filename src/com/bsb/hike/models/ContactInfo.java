@@ -701,4 +701,14 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 		mPrivacyPrefs.toggleStatusUpdate();
 	}
 
+	public void setPrivacyPrefs(PrivacyPreferences prefs)
+	{
+		this.mPrivacyPrefs = prefs;
+	}
+
+	public PrivacyPreferences getPrivacyPrefs()
+	{
+		return mPrivacyPrefs;
+	}
+
 }
