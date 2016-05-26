@@ -344,12 +344,13 @@ public class HikeNotification
 			deleteIntent.putExtra(HIKE_NOTIFICATION_ID_KEY, notifId);
 			deleteIntent.putExtra(HikeConstants.TIP_ID, tipContentModel.getTipId());
 			deleteIntent.putExtra(ProductPopupsConstants.IS_CANCELLABLE, tipContentModel.isCancellable());
+            deleteIntent.putExtra(AnalyticsConstants.EXP_ANALYTICS_TAG, tipContentModel.getAnalyticsTag());
 
 			PendingIntent pendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(), notifId, deleteIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 			mBuilder.setDeleteIntent(pendingIntent);
 
 			Logger.d(getClass().getSimpleName(), "recording atomic tip notif creation");
-			AtomicTipManager.getInstance().tipFromNotifAnalytics(AnalyticsConstants.AtomicTipsAnalyticsConstants.TIP_NOTIF_CREATED, tipContentModel.getTipId(), tipContentModel.isCancellable());
+			AtomicTipManager.getInstance().tipFromNotifAnalytics(AnalyticsConstants.AtomicTipsAnalyticsConstants.TIP_NOTIF_CREATED, tipContentModel.getTipId(), tipContentModel.isCancellable(), tipContentModel.getAnalyticsTag());
 			notifyNotification(notifId, mBuilder);
 		}
 	}

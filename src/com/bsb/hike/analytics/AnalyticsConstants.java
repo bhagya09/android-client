@@ -888,6 +888,8 @@ public class AnalyticsConstants
 		public static final String TIP_FLUSH = "tip_flush";
 		public static final String HOME_SCREEN = "home_scrn";
 		public static final String FUNNEL = "funnel";
+        public static final String OPEN_SCREEN = "opnScrn";
+        public static final String HTTP_CALL = "http";
 		public static final String EXIT = "exit";
 
 	}
@@ -919,5 +921,7 @@ public class AnalyticsConstants
 
 		public static final String GROUP_CREATE = "create";
 	}
+
+    public static final String EXP_ANALYTICS_TAG = "a_t";
 
 }
