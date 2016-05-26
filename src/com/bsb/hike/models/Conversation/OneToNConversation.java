@@ -597,7 +597,7 @@ public abstract class OneToNConversation extends Conversation
 			boolean onHike = nameMsisdn.optBoolean(HikeConstants.ON_HIKE);
 			boolean onDnd = nameMsisdn.optBoolean(HikeConstants.DND);
 			int type = nameMsisdn.optInt(HikeConstants.ROLE);
-			String uid = nameMsisdn.optString(DBConstants.HIKE_UID,null);
+			String uid = nameMsisdn.optString("muid",null);
 			ContactInfo ci =new ContactInfo(contactNum, contactNum, contactName, contactNum, onHike);
 			ci.setUid(uid);
 			GroupParticipant groupParticipant = new GroupParticipant(ci, false, onDnd, type, msisdn);

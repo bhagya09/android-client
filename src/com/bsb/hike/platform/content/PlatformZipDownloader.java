@@ -226,6 +226,7 @@ public class PlatformZipDownloader
 		{
 			token.execute();
 			HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "downloadStarted"));
+			HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS_CARD, new Pair<String, Pair<String, PlatformContentRequest>>(callbackId, new Pair<String, PlatformContentRequest>("downloadStarted", mRequest)));
 //			PlatformRequestManager.getCurrentDownloadingTemplates().add(mRequest.getContentData().appHashCode());
 			PlatformZipDownloader.putInCurrentDownloadingRequests(mRequest.getContentData().getId(), new PairModified<RequestToken, Integer>(token, HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MAX_RETRY_COUNT_MAPPS, HikePlatformConstants.MAPP_DEFAULT_RETRY_COUNT)),autoResume);
 		}
@@ -366,6 +367,7 @@ public class PlatformZipDownloader
 									PlatformUtils.microAppDiskConsumptionAnalytics(mRequest.getContentData().cardObj.appName);
 								}
 								HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "unzipSuccess"));
+								HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS_CARD, new Pair<String, Pair<String, PlatformContentRequest>>(callbackId, new Pair<String, PlatformContentRequest>("unzipSuccess", mRequest)));
 							}
 							else
 							{
@@ -373,6 +375,7 @@ public class PlatformZipDownloader
 								mRequest.getListener().onEventOccured(0, EventCode.UNZIP_FAILED);
 								PlatformUtils.sendMicroAppServerAnalytics(false, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.mAppVersionCode);
 								HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "unzipFailed"));
+								HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS_CARD, new Pair<String, Pair<String, PlatformContentRequest>>(callbackId, new Pair<String, PlatformContentRequest>("unzipFailed", mRequest)));
 
 									PlatformUtils.removeFromPlatformDownloadStateTable(mRequest.getContentData().cardObj.appName,
 											mRequest.getContentData().cardObj.getmAppVersionCode()); // Incase of unzip fail we will remove from state table.
@@ -581,6 +584,7 @@ public class PlatformZipDownloader
 				}
 
 				HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "downloadSuccess"));
+				HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS_CARD, new Pair<String, Pair<String, PlatformContentRequest>>(callbackId, new Pair<String, PlatformContentRequest>("downloadSuccess", mRequest)));
 				callbackProgress.remove(callbackId);
 				unzipMicroApp(zipFile);
 			}
@@ -595,6 +599,7 @@ public class PlatformZipDownloader
 					{
 						callbackProgress.put(callbackId, progress);
 						HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, String.valueOf(progress)));
+						HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS_CARD, new Pair<String, Pair<String, PlatformContentRequest>>(callbackId, new Pair<String, PlatformContentRequest>(String.valueOf(progress), mRequest)));
 					}
 				}
 			}
@@ -616,7 +621,8 @@ public class PlatformZipDownloader
 					PlatformUtils.removeFromPlatformDownloadStateTable(mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.getmAppVersionCode());
 				}
 				PlatformZipDownloader.removeDownloadingRequest(mRequest.getContentData().getId());
-				HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String,String>(callbackId, "downloadFailure"));
+				HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "downloadFailure"));
+				HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS_CARD, new Pair<String, Pair<String, PlatformContentRequest>>(callbackId, new Pair<String, PlatformContentRequest>("downloadFailure", mRequest)));
 				PlatformUtils.sendMicroAppServerAnalytics(false, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.mAppVersionCode,httpException.getErrorCode());
 
 				PlatformRequestManager.failure(mRequest, eventCode, isTemplatingEnabled);

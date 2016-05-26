@@ -814,7 +814,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 							&& !OfflineUtils.isConnectedToSameMsisdn(contactInfo.getMsisdn()))
 					{
 						friendItem.setVisible(true);
-						friendItem.setTitle(R.string.remove_from_friends);
+						friendItem.setTitle(Utils.isFavToFriendsMigrationAllowed() ? R.string.remove_from_friends : R.string.remove_from_favorites);
 					}
 					else
 					{
@@ -980,7 +980,14 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			dualText = (TextView) headerView.findViewById(R.id.add_fav_tv_2);
 
 			String infoSubText = getString(Utils.isLastSeenSetToFavorite() ? R.string.both_ls_status_update : R.string.status_updates_proper_casing);
-			((TextView) headerView.findViewById(R.id.update_text)).setText(getString(R.string.sent_you_friend_req));
+			if (Utils.isFavToFriendsMigrationAllowed())
+			{
+				((TextView) headerView.findViewById(R.id.update_text)).setText(getString(R.string.sent_you_friend_req));
+			}
+			else
+			{
+				((TextView) headerView.findViewById(R.id.update_text)).setText(getString(R.string.add_fav_msg, infoSubText));
+			}
 			msisdn = contactInfo.getMsisdn();
 			name = TextUtils.isEmpty(contactInfo.getName()) ? contactInfo.getMsisdn() : contactInfo.getName();
 			text.setText(name);
@@ -1005,16 +1012,23 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				{	
 					// Show add/not now screen.
 					req_layout.setVisibility(View.VISIBLE);
-					req_layout.findViewById(R.id.no).setVisibility(View.GONE);
-					((Button)req_layout.findViewById(R.id.yes)).setText(R.string.ACCEPT);
+					if (Utils.isFavToFriendsMigrationAllowed())
+					{
+						req_layout.findViewById(R.id.no).setVisibility(View.GONE);
+						((Button)req_layout.findViewById(R.id.yes)).setText(R.string.ACCEPT);
+					}
+					else
+					{
+						req_layout.findViewById(R.id.no).setVisibility(View.VISIBLE);
+					}
 				}
 				
 				else if(contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED_REJECTED && !contactInfo.isUnknownContact())
 				{	
 					fav_layout.setVisibility(View.VISIBLE);  //Simply show add to fav view if contact is unsaved
-					extraInfo.setTextColor(getResources().getColor(R.color.blue_color_span));
-					extraInfo.setText(getResources().getString(R.string.add_frn));
-					smallIcon.setImageResource(R.drawable.ic_add_friend);
+					extraInfo.setTextColor(getResources().getColor(Utils.isFavToFriendsMigrationAllowed() ? R.color.blue_color_span : R.color.add_fav));
+					extraInfo.setText(getResources().getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.add_frn : R.string.add_fav));
+					smallIcon.setImageResource(Utils.isFavToFriendsMigrationAllowed() ? R.drawable.ic_add_friend : R.drawable.ic_add_favourite);
 				}
 				
 				if (contactInfo.isUnknownContact())
@@ -1022,9 +1036,9 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 						if(contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED_REJECTED)
 						{
 							dual_layout.setVisibility(View.VISIBLE);
-							dualText.setTextColor(getResources().getColor(R.color.blue_color_span));
-							dualText.setText(getString(R.string.add_frn));
-							smallIconFrame.setImageResource(R.drawable.ic_add_friend);
+							dualText.setTextColor(getResources().getColor(Utils.isFavToFriendsMigrationAllowed() ? R.color.blue_color_span : R.color.add_fav));
+							dualText.setText(getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.add_frn : R.string.add_fav));
+							smallIconFrame.setImageResource(Utils.isFavToFriendsMigrationAllowed() ? R.drawable.ic_add_friend : R.drawable.ic_add_favourite);
 						}
 						else
 						{
@@ -1046,17 +1060,17 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 						{
 							// Show dual layout
 							dual_layout.setVisibility(View.VISIBLE);
-							dualText.setTextColor(getResources().getColor(R.color.blue_color_span));
-							dualText.setText(getString(R.string.add_frn));
-							smallIconFrame.setImageResource(R.drawable.ic_add_friend);
+							dualText.setTextColor(getResources().getColor(Utils.isFavToFriendsMigrationAllowed() ? R.color.blue_color_span : R.color.add_fav));
+							dualText.setText(getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.add_frn : R.string.add_fav));
+							smallIconFrame.setImageResource(Utils.isFavToFriendsMigrationAllowed() ? R.drawable.ic_add_friend : R.drawable.ic_add_favourite);
 						}
 						else
 						{
 							dual_layout.setVisibility(View.GONE);
 							fav_layout.setVisibility(View.VISIBLE);
-							extraInfo.setTextColor(getResources().getColor(R.color.blue_color_span));
-							extraInfo.setText(getResources().getString(R.string.add_frn));
-							smallIcon.setImageResource(R.drawable.ic_add_friend);
+							extraInfo.setTextColor(getResources().getColor(Utils.isFavToFriendsMigrationAllowed() ? R.color.blue_color_span : R.color.add_fav));
+							extraInfo.setText(getResources().getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.add_frn : R.string.add_fav));
+							smallIcon.setImageResource(Utils.isFavToFriendsMigrationAllowed() ? R.drawable.ic_add_friend : R.drawable.ic_add_favourite);
 						}
 					}
 					else if (contactInfo.getFavoriteType() == FavoriteType.REQUEST_SENT || contactInfo.getFavoriteType() == FavoriteType.REQUEST_SENT_REJECTED)
@@ -1167,7 +1181,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	{
 		StatusMessageType[] statusMessagesTypesToFetch = {StatusMessageType.TEXT};
 		StatusMessage status = HikeConversationsDatabase.getInstance().getLastStatusMessage(statusMessagesTypesToFetch, contactInfo);
-		if((contactInfo.getFavoriteType() != FavoriteType.FRIEND) || status == null)
+		if((Utils.isFavToFriendsMigrationAllowed() && contactInfo.getFavoriteType() != FavoriteType.FRIEND)
+			|| status == null)
 		{
 			status = StatusMessage.getJoinedHikeStatus(contactInfo);
 			setStatusText(status, subText, name);
@@ -3770,7 +3785,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	
 	public void callBtnClicked(View v)
 	{
-		if (!contactInfo.isMyOneWayFriend()) //If Not one way friend, no need to initiate Voip
+		if (Utils.isNotMyOneWayFriend(contactInfo)) //If Not one way friend, no need to initiate Voip
 		{
 			String messageToDisplay = getString(R.string.voip_friend_error, contactInfo.getFirstNameAndSurname());
 			Toast.makeText(this, messageToDisplay, Toast.LENGTH_LONG).show();

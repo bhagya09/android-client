@@ -70,6 +70,18 @@ public class NotificationDismissedReceiver extends BroadcastReceiver
 					InterceptUtils.recordInterceptEventV2(type, AnalyticsConstants.InterceptEvents.INTERCEPT_NOTIF_SWIPED, AnalyticsConstants.InterceptEvents.SWIPED);
 				}
 			}
+
+			else if (notificationId == HikeNotification.BIRTHDAY_NOTIF)
+			{
+				//Log here swipe events
+			}
+			else
+			{
+				if(intent.getBooleanExtra(HikeConstants.MqttMessageTypes.USER_JOINED, false))
+				{
+					Logger.d(HikeConstants.UserJoinMsg.TAG, "uj notif dismissed");
+				}
+			}
 		}
 
 	}
