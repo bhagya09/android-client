@@ -596,13 +596,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 
 	/**
-<<<<<<< HEAD
 	 * This method handles the UI part of Mute conversation It is to be strictly called from the UI Thread
 	 * 
-=======
-	 * This method handles the UI part of Mute group conversation It is to be strictly called from the UI Thread
-	 *
->>>>>>> 3bfc37619ba448d9e5d8560f34cc109e499cd9c3
 	 * @param isMuted
 	 */
 	private void muteConvToggledUIChange(boolean isMuted)
@@ -2780,11 +2775,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 		setEditTextListeners();
 
-<<<<<<< HEAD
 		toggleConversationMuteViewVisibility(mConversation.isMuted());
 		
-=======
->>>>>>> 3bfc37619ba448d9e5d8560f34cc109e499cd9c3
 		activity.supportInvalidateOptionsMenu(); // Calling the onCreate menu here
 		// Register broadcasts
 		mBroadCastReceiver = new ChatThreadBroadcasts();

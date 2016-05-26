@@ -2,7 +2,10 @@ package com.bsb.hike.backup.impl;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.backup.AccountBackupRestore;
+import com.bsb.hike.backup.BackupUtils;
 import com.bsb.hike.backup.iface.BackupableRestorable;
+import com.bsb.hike.backup.model.BackupMetadata;
 import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -51,7 +54,7 @@ public class DBsBackupRestore implements BackupableRestorable
 				}
 
                 StickerManager.getInstance().postRestoreSetup();
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CHAT_BG_TABLE_MIGRATION, 0);
+				postRestoreMuteSetup();
 			}
 		};
 
@@ -151,5 +154,17 @@ public class DBsBackupRestore implements BackupableRestorable
 	public void selfDestruct() {
 		for (DB db : DBs)
 			db.selfDestruct();
+	}
+
+	public void postRestoreMuteSetup() {
+
+		BackupMetadata metadata = BackupUtils.getBackupMetadata();
+		if (metadata != null) {
+			int oldBackupVersion = metadata.getAppVersion();
+
+			if (oldBackupVersion <= AccountBackupRestore.MUTE_BACKUP_THRESHOLD_VERSION) {
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CHAT_BG_TABLE_MIGRATION, 0);
+			}
+		}
 	}
 }

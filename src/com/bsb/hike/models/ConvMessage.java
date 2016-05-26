@@ -1235,10 +1235,7 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 
 		if (ContactManager.getInstance().isChatMuted(mMsisdn))
 		{
-			if (ContactManager.getInstance().shouldShowNotifForMutedConversation(mMsisdn))
-			{
-				return true;
-			}
+			return true;
 		}
 
 		if (getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT && webMetadata != null)
