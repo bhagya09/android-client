@@ -7575,6 +7575,7 @@ public class Utils
 			try
 			{
 				HikePreferences.sendNLSToServer(slectedPrivacyId, true);
+				ContactManager.getInstance().flushOldPrivacyValues(true, true);
 				settingEditor.commit();
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 0); // Resetting the flag, so that when the packet might
 				// be sent again, it is able to alter the prefs

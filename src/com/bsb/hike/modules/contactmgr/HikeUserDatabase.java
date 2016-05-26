@@ -2912,4 +2912,24 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 
 		mDb.update(DBConstants.USERS_TABLE, cv, DBConstants.MSISDN + " IN " + msisdnsString, null);
 	}
+
+	/**
+	 * Reset all the privacy values to the default statue
+	 */
+	public void flushOldPrivacyValues(boolean lastSeenFlush, boolean statusUpdateFlush)
+	{
+		if ((!lastSeenFlush) && (!statusUpdateFlush))
+		{
+			return;
+		}
+
+		ContentValues values = new ContentValues();
+		if (lastSeenFlush)
+			values.put(DBConstants.LAST_SEEN_SETTINGS, 0);
+
+		if (statusUpdateFlush)
+			values.put(DBConstants.STATUS_UPDATE_SETTINGS, 1);
+
+		mDb.update(DBConstants.USERS_TABLE, values, null, null);
+	}
 }

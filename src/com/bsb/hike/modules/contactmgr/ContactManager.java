@@ -3164,5 +3164,10 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	{
 		return getFriendshipStatus(msisdn) == FavoriteType.FRIEND;
 	}
+
+	public void flushOldPrivacyValues(boolean lastSeenFlush, boolean statusUpdateFlush)
+	{
+		hDb.flushOldPrivacyValues(lastSeenFlush, statusUpdateFlush);
+	}
 }
 
