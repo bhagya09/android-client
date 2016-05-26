@@ -404,16 +404,22 @@ public class MqttMessagesManager
 			ContactInfo contact = ContactManager.getInstance().getContact(msisdn, true, false);
 			boolean showRecentlyJoined = contact.getHikeJoinTime() > 0 && !contact.isUnknownContact();
 
+			JSONObject data = jsonObj.getJSONObject(HikeConstants.DATA);
+
 			if (appPrefs.getBoolean(HikeConstants.NUJ_NOTIF_BOOLEAN_PREF, true) && !ContactManager.getInstance().isBlocked(msisdn)
-					&& jsonObj.getJSONObject(HikeConstants.DATA).optBoolean(HikeConstants.SHOW_NOTIFICATION, true))
+					&& data.optBoolean(HikeConstants.SHOW_NOTIFICATION, true))
 			{
-				if (jsonObj.getJSONObject(HikeConstants.DATA).optBoolean(HikeConstants.UserJoinMsg.PERSIST_CHAT, HikeConstants.UserJoinMsg.defaultPersistChat))
+				boolean isRichNotif = data.optBoolean(HikeConstants.UserJoinMsg.RICH_NOTIF, false);
+				isRichNotif = (isRichNotif && data.optInt(HikeConstants.UserJoinMsg.PUSH_SETTING, HikeConstants.PushType.silent) != HikeConstants.PushType.none);
+				isRichNotif = isRichNotif && !StealthModeManager.getInstance().isStealthMsisdn(msisdn);
+
+				if (data.optBoolean(HikeConstants.UserJoinMsg.PERSIST_CHAT, HikeConstants.UserJoinMsg.defaultPersistChat))
 				{
 					if (showRecentlyJoined)
 					{
 						this.settings.edit().putBoolean(HikeConstants.SHOW_RECENTLY_JOINED, true).commit();
 					}
-					saveStatusMsg(jsonObj, msisdn);
+					saveStatusMsg(jsonObj, msisdn, isRichNotif);
 				}
 				else
 				{
@@ -421,10 +427,18 @@ public class MqttMessagesManager
 					{
 						this.settings.edit().putBoolean(HikeConstants.SHOW_RECENTLY_JOINED_DOT, true).commit();
 					}
-					ConvMessage convMessage = statusMessagePreProcess(jsonObj, msisdn);
-					if (convMessage != null)
+					if(isRichNotif)
 					{
-						this.pubSub.publish(HikePubSub.USER_JOINED_NOTIFICATION, convMessage);
+						Logger.d(HikeConstants.UserJoinMsg.TAG, "firing pubsub to show rich uj notif without persist chat");
+						this.pubSub.publish(HikePubSub.RICH_USER_JOINED_NOTIFICATION, jsonObj);
+					}
+					else
+					{
+						ConvMessage convMessage = statusMessagePreProcess(jsonObj, msisdn);
+						if (convMessage != null)
+						{
+							this.pubSub.publish(HikePubSub.USER_JOINED_NOTIFICATION, convMessage);
+						}
 					}
 				}
 			}
@@ -1708,8 +1722,11 @@ public class MqttMessagesManager
 		{
 			incrementUnseenStatusCount();
 
-			ConvMessage message = Utils.generateAddFriendSystemMessage(msisdn, HikeMessengerApp.getInstance().getString(R.string.friend_req_inline_msg_received, contactInfo.getFirstNameAndSurname()), true, State.RECEIVED_UNREAD);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.ADD_INLINE_FRIEND_MSG, message);
+			if (Utils.isFavToFriendsMigrationAllowed())
+			{
+				ConvMessage message = Utils.generateAddFriendSystemMessage(msisdn, HikeMessengerApp.getInstance().getString(R.string.friend_req_inline_msg_received, contactInfo.getFirstNameAndSurname()), true, State.RECEIVED_UNREAD);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.ADD_INLINE_FRIEND_MSG, message);
+			}
 		}
 		else if (favoriteType == favoriteType.REQUEST_RECEIVED && currentType != favoriteType.REQUEST_RECEIVED)
 		{
@@ -1719,8 +1736,11 @@ public class MqttMessagesManager
 				Utils.incrementOrDecrementFriendRequestCount(settings, 1);
 			}
 
-			ConvMessage message = Utils.generateAddFriendSystemMessage(msisdn, HikeMessengerApp.getInstance().getString(R.string.friend_req_inline_msg_received, contactInfo.getFirstNameAndSurname()), true, State.RECEIVED_UNREAD);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.ADD_INLINE_FRIEND_MSG, message);
+			if (Utils.isFavToFriendsMigrationAllowed())
+			{
+				ConvMessage message = Utils.generateAddFriendSystemMessage(msisdn, HikeMessengerApp.getInstance().getString(R.string.friend_req_inline_msg_received, contactInfo.getFirstNameAndSurname()), true, State.RECEIVED_UNREAD);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.ADD_INLINE_FRIEND_MSG, message);
+			}
 		}
 
 		contactInfo.setFavoriteType(favoriteType);
@@ -3110,6 +3130,13 @@ public class MqttMessagesManager
 			boolean enabled = data.getBoolean(HikeConstants.LARGE_VIDEO_SHARING_ENABLED);
 			editor.putBoolean(HikeConstants.LARGE_VIDEO_SHARING_ENABLED, enabled);
 		}
+		if (data.has(HikeConstants.FAV_TO_FRIENDS_MIGRATION))
+		{
+			boolean fav_to_friends_switch = data.getBoolean(HikeConstants.FAV_TO_FRIENDS_MIGRATION);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FAV_TO_FRIENDS_MIGRATION, fav_to_friends_switch);
+			Utils.makeFavFriendsTransition();
+		}
+
 		if (data.has(HikeConstants.IS_NEW_USER))
 		{
 			boolean isNewUser = data.getBoolean(HikeConstants.IS_NEW_USER);
@@ -3465,7 +3492,7 @@ public class MqttMessagesManager
 		 */
 		if (statusMessage.getStatusMessageType() == null
 				|| conMgr.isBlocked(statusMessage.getMsisdn())
-				|| (!conMgr.isTwoWayFriend(statusMessage.getMsisdn()))
+				|| (Utils.isFavToFriendsMigrationAllowed() && !conMgr.isTwoWayFriend(statusMessage.getMsisdn()))
 				)
 		{
 			return;
@@ -5163,6 +5190,19 @@ public class MqttMessagesManager
 
 	private ConvMessage saveStatusMsg(JSONObject jsonObj, String msisdn) throws JSONException
 	{
+		return saveStatusMsg(jsonObj, msisdn, false);
+	}
+
+	/**
+	 * Overridden existing saveStatusMsg method to introduce boolean isRichUJNotif, which if true, creates a rich uj notif
+	 * @param jsonObj
+	 * @param msisdn
+	 * @param isRichUJNotif
+	 * @return
+	 * @throws JSONException
+     */
+	private ConvMessage saveStatusMsg(JSONObject jsonObj, String msisdn, boolean isRichUJNotif) throws JSONException
+	{
 		if (isBulkMessage)
 		{
 			ConvMessage convMessage = saveStatusMsgBulk(jsonObj, msisdn);
@@ -5177,7 +5217,15 @@ public class MqttMessagesManager
 
 		convDb.addConversationMessages(convMessage, true);
 
-		this.pubSub.publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
+		if(isRichUJNotif)
+		{
+			Logger.d(HikeConstants.UserJoinMsg.TAG, "firing pubsub to show rich uj notif with persist chat");
+			this.pubSub.publish(HikePubSub.RICH_USER_JOINED_NOTIFICATION, jsonObj);
+		}
+		else
+		{
+			this.pubSub.publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
+		}
 
 		statusMessagePostProcess(convMessage, jsonObj);
 

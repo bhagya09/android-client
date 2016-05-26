@@ -41,11 +41,13 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.view.inputmethod.EditorInfo;
 import android.widget.*;
 
 public class ShareLocation extends HikeAppStateBaseFragmentActivity implements ILocationUpdates, GoogleMap.OnCameraChangeListener, CustomRelativeLayout.IDragCallback
@@ -225,39 +227,55 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements I
 		{
 			public void onClick(View v)
 			{
-				try
-				{
-					String searchString = ((EditText) findViewById(R.id.search)).getText().toString().trim();
-					if (!searchString.equals(""))
-					{
-						searchString = URLEncoder.encode(searchString, "UTF-8");
-						double lat = 0;
-						double lng = 0;
-						if (myLocation != null)
-						{
-							lat = myLocation.getLatitude();
-							lng = myLocation.getLongitude();
-							selectedPosition = 0;
-							adapter.notifyDataSetChanged();
+				searchLocation();
+			}
+		});
 
-						}
-						searchStr = "https://maps.googleapis.com/maps/api/place/textsearch/" + "json?query=" + searchString + "&location=" + lat + "," + lng + "&radius="
-								+ SEARCH_RADIUS + "&sensor=true" + "&key=" + getResources().getString(R.string.places_api_key);// ADD
-						// KEY
-						isTextSearch = true;
-
-						new GetPlaces().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, searchStr);
-
-					}
+		EditText searchEditText = ((EditText) findViewById(R.id.search));
+		searchEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+			@Override
+			public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+				if (i == EditorInfo.IME_ACTION_SEARCH) {
+					searchLocation();
+					return true;
 				}
-				catch (UnsupportedEncodingException e)
-				{
-					Logger.w(TAG, "in nearby search url encoding", e);
-				}
+				return false;
 			}
 		});
 
 		setupActionBar();
+	}
+
+	private void searchLocation() {
+		try
+        {
+            String searchString = ((EditText) findViewById(R.id.search)).getText().toString().trim();
+            if (!searchString.equals(""))
+            {
+                searchString = URLEncoder.encode(searchString, "UTF-8");
+                double lat = 0;
+                double lng = 0;
+                if (myLocation != null)
+                {
+                    lat = myLocation.getLatitude();
+                    lng = myLocation.getLongitude();
+                    selectedPosition = 0;
+                    adapter.notifyDataSetChanged();
+
+                }
+                searchStr = "https://maps.googleapis.com/maps/api/place/textsearch/" + "json?query=" + searchString + "&location=" + lat + "," + lng + "&radius="
+                        + SEARCH_RADIUS + "&sensor=true" + "&key=" + getResources().getString(R.string.places_api_key);// ADD
+                // KEY
+                isTextSearch = true;
+
+                new GetPlaces().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, searchStr);
+
+            }
+        }
+        catch (UnsupportedEncodingException e)
+        {
+            Logger.w(TAG, "in nearby search url encoding", e);
+        }
 	}
 
 	private void init()

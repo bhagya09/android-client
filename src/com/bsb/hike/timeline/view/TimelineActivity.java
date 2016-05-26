@@ -299,7 +299,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 			optionsList.add(new OverFlowMenuItem(getString(R.string.clear_timeline), 0, 0, R.string.clear_timeline));
 		}
 		
-		optionsList.add(new OverFlowMenuItem(getString(R.string.friends), 0, 0, R.string.favourites));
+		optionsList.add(new OverFlowMenuItem(getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.friends : R.string.favourites), 0, 0, R.string.favourites));
 
 		optionsList.add(new OverFlowMenuItem(getString(R.string.my_profile), 0, 0, R.string.my_profile));
 
