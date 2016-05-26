@@ -2281,7 +2281,7 @@ public class HikeNotification
 
 		String msisdn = data.optString(HikeConstants.MSISDN);
 		int notifId = msisdn.hashCode();
-		ContactInfo contact = ContactManager.getInstance().getContact(msisdn, true, false);
+		ContactInfo contact = ContactManager.getInstance().getContact(msisdn, true, true);
 
 		String title = contact.getNameOrMsisdn();
 
@@ -2317,7 +2317,7 @@ public class HikeNotification
 		}
 
 		Intent notifIntent = new Intent(HikeConstants.UserJoinMsg.NOTIF_ACTION_INTENT);
-		notifIntent.putExtra(HikeConstants.MqttMessageTypes.ACTION, HikeConstants.UserJoinMsg.ACTION_DEFAULT);
+		notifIntent.putExtra(HikeConstants.ACTION, HikeConstants.UserJoinMsg.ACTION_DEFAULT);
 		notifIntent.putExtra(HikeConstants.MSISDN, msisdn);
 		mBuilder.setContentIntent(PendingIntent.getBroadcast(context, notifId, notifIntent, PendingIntent.FLAG_UPDATE_CURRENT));
 

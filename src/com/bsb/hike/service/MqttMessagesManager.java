@@ -5143,7 +5143,15 @@ public class MqttMessagesManager
 		return saveStatusMsg(jsonObj, msisdn, false);
 	}
 
-	private ConvMessage saveStatusMsg(JSONObject jsonObj, String msisdn, boolean isRichNotif) throws JSONException
+	/**
+	 * Overridden existing saveStatusMsg method to introduce boolean isRichUJNotif, which if true, creates a rich uj notif
+	 * @param jsonObj
+	 * @param msisdn
+	 * @param isRichUJNotif
+	 * @return
+	 * @throws JSONException
+     */
+	private ConvMessage saveStatusMsg(JSONObject jsonObj, String msisdn, boolean isRichUJNotif) throws JSONException
 	{
 		if (isBulkMessage)
 		{
@@ -5159,7 +5167,7 @@ public class MqttMessagesManager
 
 		convDb.addConversationMessages(convMessage, true);
 
-		if(isRichNotif)
+		if(isRichUJNotif)
 		{
 			Logger.d(HikeConstants.UserJoinMsg.TAG, "firing pubsub to show rich uj notif with persist chat");
 			this.pubSub.publish(HikePubSub.RICH_USER_JOINED_NOTIFICATION, jsonObj);

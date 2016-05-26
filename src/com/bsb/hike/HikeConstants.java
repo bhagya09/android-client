@@ -4345,4 +4345,6 @@ public class HikeConstants
 
 	public static final String CTAS = "ctas";
 
+	public static final String ACTION = "action";
+
 }

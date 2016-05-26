@@ -320,7 +320,7 @@ public class HikeNotificationUtils
 	public static NotificationCompat.Action getUJNotifAction(Context context, JSONObject actionObj, String msisdn)
 	{
 		Logger.d(HikeConstants.UserJoinMsg.TAG, "creating individual action items for rich uj notif");
-		String action = actionObj.optString(HikeConstants.MqttMessageTypes.ACTION);
+		String action = actionObj.optString(HikeConstants.ACTION);
 
 		int icon;
 		String label;
@@ -336,7 +336,7 @@ public class HikeNotificationUtils
 		}
 
 		Intent actionIntent = new Intent(HikeConstants.UserJoinMsg.NOTIF_ACTION_INTENT);
-		actionIntent.putExtra(HikeConstants.MqttMessageTypes.ACTION, action);
+		actionIntent.putExtra(HikeConstants.ACTION, action);
 
 		if(!TextUtils.isEmpty(msisdn))
 		{

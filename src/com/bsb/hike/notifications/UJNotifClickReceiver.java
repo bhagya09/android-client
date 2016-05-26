@@ -32,7 +32,7 @@ public class UJNotifClickReceiver extends BroadcastReceiver
         String broadcastAction = intent.getAction();
         if(broadcastAction.equals(HikeConstants.UserJoinMsg.NOTIF_ACTION_INTENT))
         {
-            String ujAction = intent.getStringExtra(HikeConstants.MqttMessageTypes.ACTION);
+            String ujAction = intent.getStringExtra(HikeConstants.ACTION);
             String msisdn = intent.getStringExtra(HikeConstants.MSISDN);
             switch (ujAction)
             {
