@@ -1659,6 +1659,7 @@ public class MqttMessagesManager
 
 		Pair<ContactInfo, FavoriteType> favoriteToggle = new Pair<ContactInfo, FavoriteType>(contactInfo, favoriteType);
 		contactInfo.setUnreadRequestReceivedTime(System.currentTimeMillis());
+		Utils.incrementFriendRequestReceivedCounters();
 		this.pubSub.publish(favoriteType == FavoriteType.REQUEST_RECEIVED ? HikePubSub.FAVORITE_TOGGLED : HikePubSub.FRIEND_REQUEST_ACCEPTED, favoriteToggle);
 
 		if (favoriteType == favoriteType.FRIEND)

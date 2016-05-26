@@ -18,6 +18,7 @@ import android.widget.TextView;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
@@ -29,6 +30,7 @@ import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.ServicesActivity;
 import com.bsb.hike.ui.SettingsActivity;
 import com.bsb.hike.utils.EmoticonConstants;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
@@ -38,7 +40,9 @@ import java.io.File;
 /**
  * Created by gauravmittal on 14/04/16.
  */
-public class MyFragment extends Fragment {
+public class MyFragment extends Fragment implements HikePubSub.Listener {
+
+    private static final String MY_FRAGMENT_BADGE_COUNT = "my_frag_badge_count";
 
     private ImageView profileImgView;
 
@@ -50,7 +54,18 @@ public class MyFragment extends Fragment {
 
     private ContactInfo contactInfo;
 
-    private CustomTabsBar.CustomTabBadgeCounterListener badgeCounterListener;
+    private CustomTabsBar.CustomTabBadgeCounterListener tabBadgeCounterListener;
+
+    private TextView addedMeCounter;
+
+    private String[] pubSubListeners = { HikePubSub.FAVORITE_TOGGLED, HikePubSub.FRIEND_REQUEST_ACCEPTED };
+
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        HikeMessengerApp.getPubSub().addListeners(this, pubSubListeners);
+    }
 
     @Nullable
     @Override
@@ -122,6 +137,7 @@ public class MyFragment extends Fragment {
         setupAddedMeBadgeIcon(view.findViewById(R.id.ic_added_me));
         setupServicesBadgeIcon(view.findViewById(R.id.ic_services));
 
+        updateTabBadgeCounter();
     }
 
     private void setupAddFriendBadgeIcon(View parentView)
@@ -136,7 +152,9 @@ public class MyFragment extends Fragment {
     {
         ((ImageView) parentView.findViewById(R.id.img_icon)).setImageResource(R.drawable.ic_added_me);
         ((TextView) parentView.findViewById(R.id.txt_title)).setText(R.string.ADDED_ME);
+        addedMeCounter = (TextView) parentView.findViewById(R.id.txt_counter);
         parentView.setOnClickListener(badgeIconClickListener);
+        updateAddedMeBadgeCounter();
     }
 
     private void setupServicesBadgeIcon(View parentView)
@@ -191,6 +209,89 @@ public class MyFragment extends Fragment {
 
     public void setCustomTabBadgeCounterListener(CustomTabsBar.CustomTabBadgeCounterListener listener)
     {
-        this.badgeCounterListener = listener;
+        this.tabBadgeCounterListener = listener;
+    }
+
+    public void updateTabBadgeCounter()
+    {
+        if (tabBadgeCounterListener != null)
+            tabBadgeCounterListener.onBadgeCounterUpdated(getBadgeCount());
+    }
+
+    public void updateAddedMeBadgeCounter()
+    {
+        Integer badgeCount = AddedMeFragment.getBadgeCount();
+        if (badgeCount > 0)
+        {
+            addedMeCounter.setText(badgeCount.toString());
+            addedMeCounter.setVisibility(View.VISIBLE);
+        }
+        else
+        {
+            addedMeCounter.setVisibility(View.GONE);
+        }
+    }
+
+    public static int getBadgeCount()
+    {
+        return HikeSharedPreferenceUtil.getInstance().getData(MY_FRAGMENT_BADGE_COUNT, 0);
+    }
+
+    public static void incrementBadgeCount()
+    {
+        increaseBadgeCount(1);
+    }
+
+    public static void increaseBadgeCount(int increaseBy)
+    {
+        setBadgeCount(getBadgeCount() + increaseBy);
+    }
+
+    public static void resetBadgeCount()
+    {
+        setBadgeCount(0);
+    }
+
+    public static void setBadgeCount(int value)
+    {
+        int oldValue = getBadgeCount();
+        if (oldValue != value)
+        {
+            HikeSharedPreferenceUtil.getInstance().saveData(MY_FRAGMENT_BADGE_COUNT, value);
+        }
+    }
+
+    @Override
+    public void onEventReceived(String type, Object object) {
+        if (type.equals(HikePubSub.FAVORITE_TOGGLED) || type.equals(HikePubSub.FRIEND_REQUEST_ACCEPTED))
+        {
+            if (isVisible())
+            {
+                updateAddedMeBadgeCounter();
+            }
+            else
+            {
+                updateTabBadgeCounter();
+            }
+        }
+    }
+
+    /*
+    This is to detect the visibility change in the fragment
+     */
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser) {
+            updateAddedMeBadgeCounter();
+            resetBadgeCount();
+            updateTabBadgeCounter();
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        HikeMessengerApp.getPubSub().removeListeners(this, pubSubListeners);
+        super.onDestroy();
     }
 }

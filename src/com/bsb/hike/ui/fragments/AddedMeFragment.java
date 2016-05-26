@@ -16,11 +16,14 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.FriendRequestAdapter;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Utils;
 
@@ -33,6 +36,8 @@ import java.util.List;
  */
 public class AddedMeFragment extends ListFragment {
 
+    private static final String ADDED_ME_BADGE_COUNT = "added_me_badge_count";
+
     private ListView listView;
 
     private MenuItem searchMenuItem;
@@ -44,8 +49,6 @@ public class AddedMeFragment extends ListFragment {
         HashSet<ContactInfo.FavoriteType> set = new HashSet<>();
         set.add(ContactInfo.FavoriteType.REQUEST_RECEIVED);
         set.add(ContactInfo.FavoriteType.REQUEST_RECEIVED_REJECTED);
-        set.add(ContactInfo.FavoriteType.REQUEST_RECEIVED_UNSEEN);
-        set.add(ContactInfo.FavoriteType.FRIEND_UNSEEN);
 
         List<ContactInfo> allContacts = ContactManager.getInstance().getAllContacts();
         List<ContactInfo> toAddcontacts = new ArrayList<>();
@@ -74,6 +77,7 @@ public class AddedMeFragment extends ListFragment {
         listView = getListView();
         listView.setAdapter(mAdapter);
         listView.setOnItemClickListener(onItemClickListener);
+        resetBadgeCount();
     }
 
     private AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
@@ -148,5 +152,34 @@ public class AddedMeFragment extends ListFragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         return super.onOptionsItemSelected(item);
+    }
+
+    public static int getBadgeCount()
+    {
+        return HikeSharedPreferenceUtil.getInstance().getData(ADDED_ME_BADGE_COUNT, 0);
+    }
+
+    public static void incrementBadgeCount()
+    {
+        increaseAddedMeBadgeCount(1);
+    }
+
+    public static void increaseAddedMeBadgeCount(int increaseBy)
+    {
+        setBadgeCount(getBadgeCount() + increaseBy);
+    }
+
+    public static void resetBadgeCount()
+    {
+        setBadgeCount(0);
+    }
+
+    public static void setBadgeCount(int value)
+    {
+        int oldValue = getBadgeCount();
+        if (oldValue != value)
+        {
+            HikeSharedPreferenceUtil.getInstance().saveData(ADDED_ME_BADGE_COUNT, value);
+        }
     }
 }
