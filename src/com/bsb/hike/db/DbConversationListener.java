@@ -500,7 +500,15 @@ public class DbConversationListener implements Listener
 
 			long eventId = HikeConversationsDatabase.getInstance().insertMessageEvent(messageEvent);
 
-			if (eventId < 0 || (HikeConversationsDatabase.getInstance().updateMessageForGeneralEvent(messageEvent.getMessageHash(), State.SENT_UNCONFIRMED, hm,null) == null))
+			boolean isGroup = false;
+			String fromUserMsisdn = null;
+			if(!TextUtils.isEmpty(messageEvent.getMsisdn()) && OneToNConversationUtils.isGroupConversation(messageEvent.getMsisdn()))
+			{
+				isGroup = true;
+				fromUserMsisdn = messageEvent.getFromUserMsisdn();
+			}
+
+			if (eventId < 0 || (HikeConversationsDatabase.getInstance().updateMessageForGeneralEvent(messageEvent.getMessageHash(), State.SENT_UNCONFIRMED, hm,null, isGroup, fromUserMsisdn) == null))
 			{
 				Logger.e(HikePlatformConstants.TAG, "Error inserting message event");
 			}

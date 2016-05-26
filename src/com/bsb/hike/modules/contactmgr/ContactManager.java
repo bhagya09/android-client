@@ -1013,10 +1013,10 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 
 	/**
 	 * This method deletes the contacts of particular set of ids given by parameter <code>keySet</code> from users database
-	 * 
+	 *
 	 * @param keySet
 	 */
-	public void deleteMultipleContactInDB(Set<String> keySet)
+	public void deleteMultipleContactInDB(Map<String, List<ContactInfo>> keySet)
 	{
 		hDb.deleteMultipleRows(keySet);
 	}
@@ -1103,6 +1103,17 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	{
 		persistenceCache.block(msisdn);
 		hDb.block(msisdn);
+	}
+
+	public void block(List<String> msisdns)
+	{
+		persistenceCache.block(msisdns);
+		List<PairModified<String,String>> list=new ArrayList<>(msisdns.size());
+		for (String s:msisdns)
+		{
+			list.add(new PairModified<String, String>(s,null));
+		}
+		hDb.addBlockList(list);
 	}
 
 	/**
@@ -1207,7 +1218,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	 * 
 	 * @param favorites
 	 */
-	public void setMultipleContactsToFavorites(JSONObject favorites)
+	public void setMultipleContactsToFavorites(JSONArray favorites)
 	{
 		hDb.setMultipleContactsToFavorites(favorites);
 	}
@@ -1342,9 +1353,14 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	 * @param blockedMsisdns
 	 * @throws DbException
 	 */
-	public void setAddressBookAndBlockList(List<ContactInfo> contacts, List<String> blockedMsisdns) throws DbException
+	public void setAddressBookAndBlockList(List<ContactInfo> contacts, List<PairModified<String,String>> blockedMsisdns) throws DbException
 	{
-		persistenceCache.block(blockedMsisdns);
+		List<String> blockList=new ArrayList<>(blockedMsisdns.size());
+		for(PairModified<String,String> pm:blockedMsisdns)
+		{
+			blockList.add(pm.getFirst());
+		}
+		persistenceCache.block(blockList);
 		hDb.setAddressBookAndBlockList(contacts, blockedMsisdns);
 	}
 
@@ -1826,7 +1842,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 			deleteContacts(contactsToDelete);
 
 			/* Delete ids from hike user DB */
-			deleteMultipleContactInDB(hike_contacts_by_id.keySet());
+			deleteMultipleContactInDB(hike_contacts_by_id);
 			updateContactsinDB(updatedContacts);
 			syncContacts(updatedContacts);
 
@@ -2079,7 +2095,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 			deleteContacts(contactsToDelete);
 
 			/* Delete ids from hike user DB */
-			deleteMultipleContactInDB(hike_contacts_by_id.keySet());
+			deleteMultipleContactInDB(hike_contacts_by_id);
 			updateContactsinDB(updatedContacts);
 			syncContacts(updatedContacts);
 
