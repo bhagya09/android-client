@@ -991,4 +991,14 @@ public class NativeBridge
 		return String.valueOf(offset);
 	}
 
+	/**
+	 * Platform Version 12
+	 * Method to get group details. It will return the participants and the group information
+	 * timestamp
+	 */
+	public String getGroupDetails(String groupId)
+	{
+		return PlatformHelper.getGroupDetails(groupId);
+	}
+
 }
