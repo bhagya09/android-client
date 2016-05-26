@@ -8163,4 +8163,18 @@ public class Utils
 		}
 
 	}
+
+	public static void clearNoMediaAndRescan(File dir, boolean rescan) {
+		File file = new File(dir.getPath(), ".nomedia");
+		if(file.exists()){
+			file.delete();
+		}
+		if(rescan) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+				HikeMessengerApp.getInstance().getApplicationContext().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + dir)));
+			} else {
+				HikeMessengerApp.getInstance().getApplicationContext().sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED, Uri.parse("file://" + dir)));
+			}
+		}
+	}
 }

@@ -341,11 +341,7 @@ public class ChatThemeDrawableHelper {
         if (!dir.exists()) {
             dir.mkdirs();
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            HikeMessengerApp.getInstance().getApplicationContext().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + directory)));
-        } else {
-            HikeMessengerApp.getInstance().getApplicationContext().sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED, Uri.parse("file://" + directory)));
-        }
+        Utils.clearNoMediaAndRescan(dir, true);
         return directory;
     }
 
