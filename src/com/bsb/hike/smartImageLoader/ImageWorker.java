@@ -26,6 +26,7 @@ import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -174,7 +175,12 @@ public abstract class ImageWorker
         {
             Logger.d(TAG, key + " Bitmap found in cache and is not recycled.");
             // Bitmap found in memory cache
-            imageView.setImageDrawable(value);
+            if(android.text.TextUtils.isEmpty(foreGroundColor)){
+                imageView.setImageDrawable(value);
+            }else{
+                LayerDrawable layerDrawable = new LayerDrawable(new Drawable[]{value, new ColorDrawable(Color.parseColor(foreGroundColor))});
+                imageView.setImageDrawable(layerDrawable);
+            }
             sendImageCallback(imageView , true);
         }
         else if (runOnUiThread)

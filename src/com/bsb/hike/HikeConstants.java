@@ -32,7 +32,7 @@ public class HikeConstants
 	public static final String MESSAGE = "msg";
 
 	public static final String CUSTOM_MESSAGE = "cmsg";
-
+	public static final String FAV_TO_FRIENDS_MIGRATION = "f2f_mig";
 	public static final String TOAST = "tst";
 	
 	public static final String UI_TOPIC = "/u";
@@ -4191,7 +4191,6 @@ public class HikeConstants
 
 	}
 
-	public static final String FAV_TO_FRIENDS_MIGRATION = "f2f_mig";
 
 	public static final String IS_NEW_USER = "is_new_user";
 

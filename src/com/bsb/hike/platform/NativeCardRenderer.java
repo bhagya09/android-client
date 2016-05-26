@@ -113,6 +113,7 @@ public class NativeCardRenderer implements View.OnLongClickListener, View.OnClic
 		viewHolder.clearViewHolder(view);
 		cardDataFiller(convMessage, viewHolder);
 		viewHolder.processViewHolder(view);
+		view.findViewById(R.id.card_container).setOnLongClickListener(this);
 		return view;
 	}
 
@@ -175,6 +176,7 @@ public class NativeCardRenderer implements View.OnLongClickListener, View.OnClic
 					if (hikeFile != null)
 					{
 						mediaView.setVisibility(View.VISIBLE);
+						mediaView.setOnLongClickListener(this);
 						populateMediaComponent(mediaView, convMessage, hikeFile);
 					}
 					else
@@ -192,6 +194,7 @@ public class NativeCardRenderer implements View.OnLongClickListener, View.OnClic
 			{
 				ImageView imageView = (ImageView) viewHolder.viewHashMap.get(tag);
 				imageView.setVisibility(View.VISIBLE);
+				imageView.setOnLongClickListener(this);
 				if (imageComponent.getUrl() != null)
 				{
 					populateImageWithUrl(imageView, imageComponent);

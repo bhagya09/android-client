@@ -45,6 +45,8 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 
     private boolean mIsPaddingDisabled = false;
 
+    protected boolean isCustomKeyboardPopup = false;
+
     /**
      *
      * @param mainView
@@ -432,7 +434,8 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
                 updatePadding(0);
             }
 
-            updateDimension(LayoutParams.MATCH_PARENT, temp);
+            if(!isCustomKeyboardPopup)
+                updateDimension(LayoutParams.MATCH_PARENT, temp);
         }
         else
         {
@@ -452,7 +455,8 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
                 updatePadding(0);
             }
 
-            updateDimension(LayoutParams.MATCH_PARENT, temp);
+            if(!isCustomKeyboardPopup)
+                updateDimension(LayoutParams.MATCH_PARENT, temp);
         }
         else
         {
@@ -597,5 +601,15 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 
         return true;
     }
+
+	public boolean isCustomKeyboardPopup()
+	{
+		return isCustomKeyboardPopup;
+	}
+
+	public void setCustomKeyboardPopup(boolean customKeyboardPopup)
+	{
+		isCustomKeyboardPopup = customKeyboardPopup;
+	}
 
 }

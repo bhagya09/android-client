@@ -1017,10 +1017,8 @@ public class MqttMessagesManager
 		}
 		else if (convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.CONTENT)
 		{
-			hikeFile = convMessage.platformMessageMetadata.getHikeFiles().get(0);
-			Logger.d(getClass().getSimpleName(),
-					"Native Card MESSAGE: " + " NAME: " + hikeFile.getFileName() + " KEY: " + hikeFile.getFileKey() + "MSG ID: " + convMessage.getMsgID());
-
+			hikeFile = convMessage.platformMessageMetadata.getHikeFiles() != null && convMessage.platformMessageMetadata.getHikeFiles().size() > 0 ? convMessage.platformMessageMetadata
+					.getHikeFiles().get(0) : null;
 		}
 		if(hikeFile != null){
 			Utils.addFileName(hikeFile.getFileName(), hikeFile.getFileKey());
