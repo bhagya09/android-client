@@ -4,7 +4,7 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 
 public class DBConstants
 {
-	public static final int CONVERSATIONS_DATABASE_VERSION = 53;
+	public static final int CONVERSATIONS_DATABASE_VERSION = 55;
 
 	public static final int USERS_DATABASE_VERSION = 19;
 
@@ -234,6 +234,10 @@ public class DBConstants
 	public static final String EVENT_METADATA = "eventMetadata";
 
 	public static final String EVENT_TYPE = "eventType";
+
+	public static final String EVENT_FROM_USER_MSISDN = "eventFromUserMsisdn";
+
+	public static final String EVENT_PARENT_MSISDN = "eventParentMsisdn";
 
 	// ActionsTable
 	public static final String ACTIONS_TABLE = "actions";

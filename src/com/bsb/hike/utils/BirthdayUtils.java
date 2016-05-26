@@ -140,7 +140,8 @@ public class BirthdayUtils
     public static String getCurrentBDPref()
     {
         Context hikeAppContext = HikeMessengerApp.getInstance().getApplicationContext();
-        String defValue = hikeAppContext.getString(R.string.privacy_favorites);
+        String defValue = Utils.isFavToFriendsMigrationAllowed() ?
+                hikeAppContext.getString(R.string.privacy_favorites) : hikeAppContext.getString(R.string.privacy_my_contacts);
         return PreferenceManager.getDefaultSharedPreferences(hikeAppContext).getString(HikeConstants.BIRTHDAY_PRIVACY_PREF, defValue);
     }
 
@@ -225,11 +226,13 @@ public class BirthdayUtils
 
     /**
      * This API makes HTTP call to fetch Bday list and save in Shared pref
+     * @param fromServerPacket
      */
-    public static void fetchAndUpdateBdayList()
+    public static void fetchAndUpdateBdayList(final boolean fromServerPacket)
     {
         if(!Utils.isBDayInNewChatEnabled())
         {
+            Logger.d("bday_", "Birthday feature is disabled, so no HHTP call ");
             return;
         }
 
@@ -237,7 +240,7 @@ public class BirthdayUtils
 
         final long ts = sharedPreferenceUtil.getData(HikeConstants.BDAY_HTTP_CALL_TS, 0l);
 
-        if(System.currentTimeMillis() - ts > sharedPreferenceUtil.getData(HikeConstants.BDAY_HTTP_CALL_TIME_GAP, DEFAULT_CACHE_TIME_FOR_BDAY_CALL)) {
+        if(fromServerPacket || System.currentTimeMillis() - ts > sharedPreferenceUtil.getData(HikeConstants.BDAY_HTTP_CALL_TIME_GAP, DEFAULT_CACHE_TIME_FOR_BDAY_CALL)) {
             RequestToken requestToken = HttpRequests.fetchBdaysForCCA(new IRequestListener() {
 
                 @Override
@@ -269,6 +272,11 @@ public class BirthdayUtils
                         Logger.d("bday_HTTP_Sucess", "Updating time and list in Sp " + bdayMsisdnSet);
                         sharedPreferenceUtil.saveData(HikeConstants.BDAY_HTTP_CALL_TS, System.currentTimeMillis());
                         HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeConstants.BDAYS_LIST, bdayMsisdnSet);
+
+                        if(fromServerPacket && !bdayMsisdnSet.isEmpty())
+                        {
+                            BirthdayUtils.showBdayNotifcations(bdayMsisdnSet);
+                        }
                     }
                     catch (JSONException e)
                     {
@@ -326,7 +334,7 @@ public class BirthdayUtils
      *
      * @param bdayContactList
      */
-    public static void removeHiddenMsisdn(List<ContactInfo> bdayContactList)
+    public static void removeHiddenMsisdnFromContactInfoList(List<ContactInfo> bdayContactList)
     {
         boolean isActive = StealthModeManager.getInstance().isActive();
         if(!isActive)
@@ -341,4 +349,46 @@ public class BirthdayUtils
         }
     }
 
+    /**
+     * Iterates List of Contacts and removes any hidden mode contact from list
+     * if hidden mode is inactive
+     *
+     * @param bdayMsisdnList
+     */
+    public static void removeHiddenMsisdn(List<String> bdayMsisdnList)
+    {
+        boolean isActive = StealthModeManager.getInstance().isActive();
+        if(!isActive)
+        {
+            for(String msisdn : bdayMsisdnList)
+            {
+                if(StealthModeManager.getInstance().isStealthMsisdn(msisdn))
+                {
+                    Logger.d("bday_notif_", "Removing stealth misidn from list " + msisdn);
+                    bdayMsisdnList.remove(msisdn);
+                }
+            }
+        }
+    }
+
+    /*
+     * Fetched list of bday msisdns from Shared pref
+     * Publish Pubsub to show notifications if list is non empty
+     */
+    public static void showBdayNotifcations(Set<String> bdayMsisdnSet)
+    {
+        ArrayList<String> bdayMsisdns = new ArrayList<String>(bdayMsisdnSet);
+
+        removeHiddenMsisdn(bdayMsisdns);
+
+        if(bdayMsisdns != null && bdayMsisdns.size() > 0)
+        {
+            Logger.d("bday_notif_", "Going to show notif for " + bdayMsisdns);
+            HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_BIRTHDAY_NOTIF, bdayMsisdns);
+        }
+        else
+        {
+            Logger.d("bday_", "As list is null or empty, so showing no notification " + bdayMsisdns);
+        }
+    }
 }
