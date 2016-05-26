@@ -27,7 +27,7 @@ public class FTDataInfoFormatBuilder < B extends FTDataInfoFormatBuilder<B> > ex
 	private String ft_type; // upload or download
 	private boolean isManualRetry;
 	private boolean file_available_on_server; // success or fail
-	private int chunk_number; // which number of chunk is getting uploaded
+	private int chunk_start; // which number of chunk is getting uploaded
 	private int ft_status; // complete or fail
 	private long procTime;
 	private long networkProcTime;
@@ -82,9 +82,9 @@ public class FTDataInfoFormatBuilder < B extends FTDataInfoFormatBuilder<B> > ex
 		return self();
 	}
 
-	public B setWhichChunk(int chunk_number)
+	public B setChunkStart(int chunk_start)
 	{
-		this.chunk_number = chunk_number;
+		this.chunk_start = chunk_start;
 		return self();
 	}
 
@@ -199,7 +199,7 @@ public class FTDataInfoFormatBuilder < B extends FTDataInfoFormatBuilder<B> > ex
 			l2Data.put(CesConstants.AnalyticsV2.DIVISON, this.ft_status);
 			l2Data.put(AnalyticsConstants.V2.SECTION, this.file_available_on_server ? 1 : 0);
 			l2Data.put(AnalyticsConstants.V2.POPULATION, this.chunkSize);
-			l2Data.put(AnalyticsConstants.V2.CENSUS, this.chunk_number);
+			l2Data.put(AnalyticsConstants.V2.CENSUS, this.chunk_start);
 			l2Data.put(AnalyticsConstants.V2.SERIES, this.stackTrace == null ? "" : this.stackTrace);
 			l2Data.put(AnalyticsConstants.V2.KINGDOM, CesConstants.CES_ACT_REL);
 			l2Data.put(AnalyticsConstants.V2.ORDER, CesConstants.CES_L2_DATA);
