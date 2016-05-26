@@ -66,13 +66,9 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MessageType;
 import com.bsb.hike.analytics.HAManager;
-<<<<<<< HEAD
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.CallerContentModel;
 import com.bsb.hike.chatHead.ChatHeadUtils;
-=======
-import com.bsb.hike.bots.BotUtils;
-import com.bsb.hike.chatthemes.ChatThemeDrawableHelper;
->>>>>>> b6b4fca8d945d5826bc5c15780a596afc8457b0c
 import com.bsb.hike.chatthemes.ChatThemeManager;
 import com.bsb.hike.chatthemes.HikeChatThemeConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;

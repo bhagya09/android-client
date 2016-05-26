@@ -298,11 +298,11 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	protected static final int FILE_OPENED = 41;
 
-	protected static final int SPAM_UNSPAM_USER = 42;
-
 	protected static final int SEND_CUSTOM_THEME_MESSAGE = 43;
 
-	protected static final int GENERAL_EVENT_STATE_CHANGE = 43;
+	protected static final int GENERAL_EVENT_STATE_CHANGE = 44;
+
+	protected static final int SPAM_UNSPAM_USER = 45;
 
 	protected static final int REMOVE_CHAT_BACKGROUND = 0;
 
