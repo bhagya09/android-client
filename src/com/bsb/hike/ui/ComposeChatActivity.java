@@ -815,7 +815,14 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		case PICK_CONTACT_AND_SEND_MODE:
 		case PICK_CONTACT_MODE:
 			//We do not show sms contacts in broadcast mode
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false, false,isContactChooserFilter,isShowTimeline(), false);
+			// read intent to find if group chat is enabled or not. also read to find out if any chats are excluded
+			boolean isGroupFirst = getIntent().getBooleanExtra(HikeConstants.Extras.IS_GROUP_FIRST, false);
+			boolean isRecentJoined = getIntent().getBooleanExtra(HikeConstants.Extras.IS_RECENT_JOINED, fetchRecentlyJoined);
+			List<String> excludeGroupList = getIntent().getStringArrayListExtra(HikeConstants.Extras.COMPOSE_EXCLUDE_LIST);
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage || isGroupFirst, (isForwardingMessage && !isSharingFile), isRecentJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false, false,isContactChooserFilter,isShowTimeline(), false);
+
+			adapter.setGroupFirst(isGroupFirst);
+			adapter.setComposeExcludeList(excludeGroupList);
 			break;
 		case CREATE_GROUP_MODE:
 			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId,
@@ -1235,7 +1242,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 	private void selectContact(ContactInfo contactInfo)
 	{
-		if (!contactInfo.isMyOneWayFriend() && composeMode == MULTIPLE_FWD) {
+		if (!contactInfo.isMyOneWayFriend() && Utils.isFavToFriendsMigrationAllowed() && composeMode == MULTIPLE_FWD) {
 			sendFriendRequest(contactInfo);
 		}
 		adapter.addContact(contactInfo);
@@ -2304,14 +2311,19 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						
 						if (file.length() > HikeConstants.MAX_FILE_SIZE)
 						{
-							showMaxFileToast = true;
+
 							if (offlineContact != null)
 							{
 								FileTransferData fileData = initialiseFileTransfer(filePath, null, hikeFileType, fileType, false, -1, true, arrayList,imageCaptions.get(i));
 								offlineFileTransferList.add(fileData);
+								continue;
+							} else {
+								if(!ChatThreadUtils.isMaxSizeUploadableFile(hikeFileType, ComposeChatActivity.this)) {
+									showMaxFileToast = true;
+									continue;
+								}
 							}
-							continue;
-								
+
 						}
 						FileTransferData fileData = initialiseFileTransfer(filePath, null, hikeFileType, fileType, false, -1, true, arrayList,imageCaptions.get(i));
 						if(fileData!=null){
