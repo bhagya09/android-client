@@ -52,7 +52,7 @@ public class DBsBackupRestore implements BackupableRestorable
 
                 StickerManager.getInstance().postRestoreSetup();
 
-				if(HikeConversationsDatabase.getInstance().getOldDbVersion() <= 52 && HikeConversationsDatabase.getInstance().getNewDbVersion() >= 53) {
+				if(HikeConversationsDatabase.getInstance().getOldDbVersion() <= 54 && HikeConversationsDatabase.getInstance().getNewDbVersion() >= 55) {
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CHAT_BG_TABLE_MIGRATION, 0);
 				}
 			}
