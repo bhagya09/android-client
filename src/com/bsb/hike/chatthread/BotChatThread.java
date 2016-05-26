@@ -185,11 +185,11 @@ public class BotChatThread extends OneToOneChatThread
 	};
 	
 	@Override
-	protected void sendPoke()
+	protected void sendNudge()
 	{
 		if (configuration.isNudgeEnabled())
 		{
-			super.sendPoke();
+			super.sendNudge();
 		}
 	}
 
