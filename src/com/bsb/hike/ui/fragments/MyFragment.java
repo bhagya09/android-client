@@ -27,7 +27,6 @@ import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.ui.CustomTabsBar;
 import com.bsb.hike.ui.ProfileActivity;
-import com.bsb.hike.ui.ServicesActivity;
 import com.bsb.hike.ui.SettingsActivity;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -59,13 +58,6 @@ public class MyFragment extends Fragment implements HikePubSub.Listener {
     private TextView addedMeCounter;
 
     private String[] pubSubListeners = { HikePubSub.FAVORITE_TOGGLED, HikePubSub.FRIEND_REQUEST_ACCEPTED };
-
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        HikeMessengerApp.getPubSub().addListeners(this, pubSubListeners);
-    }
 
     @Nullable
     @Override
@@ -138,6 +130,7 @@ public class MyFragment extends Fragment implements HikePubSub.Listener {
         setupServicesBadgeIcon(view.findViewById(R.id.ic_services));
 
         updateTabBadgeCounter();
+        HikeMessengerApp.getPubSub().addListeners(this, pubSubListeners);
     }
 
     private void setupAddFriendBadgeIcon(View parentView)
@@ -265,32 +258,47 @@ public class MyFragment extends Fragment implements HikePubSub.Listener {
     public void onEventReceived(String type, Object object) {
         if (type.equals(HikePubSub.FAVORITE_TOGGLED) || type.equals(HikePubSub.FRIEND_REQUEST_ACCEPTED))
         {
-            if (isVisible())
-            {
-                updateAddedMeBadgeCounter();
-            }
-            else
-            {
-                updateTabBadgeCounter();
-            }
+            getActivity().runOnUiThread(
+                new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        // isVisible is giving true even if not visible.
+                        // Therfore using getUserVisibleHint
+                        if (getUserVisibleHint())
+                        {
+                            resetBadgeCount();
+                        }
+                        updateTabBadgeCounter();
+                        updateAddedMeBadgeCounter();
+                    }
+                }
+            );
         }
     }
 
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateAddedMeBadgeCounter();
+    }
+
     /*
-    This is to detect the visibility change in the fragment
-     */
+        This is to detect the visibility change in the fragment
+         */
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         if (isVisibleToUser) {
-            updateAddedMeBadgeCounter();
             resetBadgeCount();
             updateTabBadgeCounter();
         }
     }
 
     @Override
-    public void onDestroy() {
+    public void onDestroyView() {
         HikeMessengerApp.getPubSub().removeListeners(this, pubSubListeners);
         super.onDestroy();
     }
