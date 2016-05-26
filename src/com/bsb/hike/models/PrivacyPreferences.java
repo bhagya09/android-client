@@ -116,4 +116,22 @@ public class PrivacyPreferences
 		resetBit(LAST_SEEN);
 	}
 
+	public void setLastSeen(boolean showLastSeen)
+	{
+		if (showLastSeen)
+			showLastSeen();
+		else
+			hideLasSeen();
+	}
+
+	public void setStatusUpdate(boolean showStatusUpdate)
+	{
+		if (showStatusUpdate)
+			showStatusUpdate();
+		else
+			hideStatusUpdate();
+	}
+
+
+
 }
