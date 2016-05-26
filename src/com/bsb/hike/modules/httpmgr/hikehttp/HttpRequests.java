@@ -1674,6 +1674,7 @@ public class HttpRequests
 				.setAsynchronous(false)
 				.build();
 		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
+		return requestToken;
 	}
 	
 	public static RequestToken getAbTestNewUserRequestToken(IRequestListener requestListener,
