@@ -7543,22 +7543,20 @@ public class Utils
 			// Change last seen pref to friends if its is not already set to friends or noone.
 			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
 			String currentValue = settings.getString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_favorites));
-			if (!currentValue.equals(context.getString(R.string.privacy_favorites)) && !currentValue.equals(context.getString(R.string.privacy_nobody)))
+			Editor settingEditor = settings.edit();
+			settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_favorites));
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LAST_SEEN_TEMP_PREF, currentValue);
+			int slectedPrivacyId = Integer.parseInt(context.getString(R.string.privacy_favorites));
+			try
 			{
-				Editor settingEditor = settings.edit();
-				settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_favorites));
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LAST_SEEN_TEMP_PREF, currentValue);
-				int slectedPrivacyId = Integer.parseInt(context.getString(R.string.privacy_favorites));
-				try
-				{
-					HikePreferences.sendNLSToServer(slectedPrivacyId, true);
-					settingEditor.commit();
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 1);
-				}
-				catch (JSONException e)
-				{
-					e.printStackTrace();
-				}
+				HikePreferences.sendULSToServer(slectedPrivacyId, true);
+				settingEditor.commit();
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 1);
+			}
+			catch (JSONException e)
+			{
+				Logger.e("FavToFriends", "Got error while sending uls packet "+ e.toString());
+				e.printStackTrace();
 			}
 		}
 	}

@@ -2117,6 +2117,20 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 
 		HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
 	}
+
+	public static void sendULSToServer(int selectedPrivacyId, boolean isLSEnabled) throws JSONException
+	{
+		JSONObject object = new JSONObject();
+		object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.ACCOUNT_CONFIG);
+
+		JSONObject data = new JSONObject();
+		data.put(HikeConstants.UPDATED_LAST_SEEN_SETTING, selectedPrivacyId);
+		data.put(HikeConstants.LAST_SEEN_SETTING, isLSEnabled);
+		data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis()));
+		object.put(HikeConstants.DATA, data);
+
+		HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
+	}
 	
 	private void showSMSDialog()
 	{
