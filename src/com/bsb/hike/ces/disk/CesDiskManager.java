@@ -47,7 +47,7 @@ public class CesDiskManager
 	/**
 	 * 
 	 */
-	public CesDiskManager(int module, String date, int mode)
+	public CesDiskManager(int module, String date, int mode, boolean createDirIfNotExist)
 	{
 		String moduleName = null;
 		switch (module) {
@@ -63,16 +63,16 @@ public class CesDiskManager
 		default:
 			break;
 		}
-		makeDir(moduleName, date);
+		makeDir(moduleName, date, createDirIfNotExist);
 		dataFlushMode = mode;
 		l1_dataList = new LinkedList<JSONObject>();
 		l2_dataList = new LinkedList<JSONObject>();
 	}
 
-	private void makeDir(String moduleName, String date)
+	private void makeDir(String moduleName, String date, boolean createDirIfNotExist)
 	{
 		File dir = new File(HikeConstants.HIKE_DIRECTORY_ROOT + CES_ROOT_DIR + "/" + date + "/" + moduleName);
-		if(!dir.exists())
+		if(createDirIfNotExist && !dir.exists())
 		{
 			if(!dir.mkdirs())
 			{

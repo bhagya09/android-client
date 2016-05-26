@@ -3177,9 +3177,12 @@ public class MqttMessagesManager
 		if (data.has(CesConstants.ConfigureKey.FETCH_L2_DATA))
 		{
 			JSONObject fetchL2Data = data.getJSONObject(CesConstants.ConfigureKey.FETCH_L2_DATA);
-			final String module = fetchL2Data.getString(CesConstants.ConfigureKey.CES_MODULE);
-			final String date = fetchL2Data.getString(CesConstants.ConfigureKey.CES_DATE);
-			CustomerExperienceScore.getInstance().processCesL2Data(module, date);
+			if(fetchL2Data.has(CesConstants.ConfigureKey.CES_MODULE) && fetchL2Data.has(CesConstants.ConfigureKey.CES_DATE))
+			{
+				final String module = fetchL2Data.getString(CesConstants.ConfigureKey.CES_MODULE);
+				final String date = fetchL2Data.getString(CesConstants.ConfigureKey.CES_DATE);
+				CustomerExperienceScore.getInstance().processCesL2Data(module, date);
+			}
 		}
 
 		if (data.has(CesConstants.ConfigureKey.MAX_NET_SPEED))
