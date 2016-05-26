@@ -48,6 +48,14 @@ public class ChatAnalyticConstants {
 
     public static final String OVERFLOW_MENU_CLICKED = "ctOvrFlw";
 
+    public static final String CUSTOM_THEME_CAMERA_UK = "ctCam";
+
+    public static final String CUSTOM_THEME_ENABLE = "ctEnable";
+
+    public static final String VAL_STR = "val_str";
+
+    public static final String CUSTOM_THEME_DONE = "ctDone";
+
     public static final class GCEvents
     {
         public static final String GC_PIN_CANCEL = "pinCncl";
