@@ -28,6 +28,7 @@ import com.bsb.hike.smartImageLoader.StickerOtherIconLoader;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.voip.protobuf.VoIPSerializer;
 
 public class StickerShopFragment extends StickerShopBaseFragment implements OnScrollListener, AdapterView.OnItemClickListener
 {
@@ -163,9 +164,9 @@ public class StickerShopFragment extends StickerShopBaseFragment implements OnSc
 	@Override
 	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount)
 	{
-		if (firstVisibleItem > maxIndexShown)
+		if ((firstVisibleItem + visibleItemCount) > maxIndexShown)
 		{
-			maxIndexShown = firstVisibleItem;
+			maxIndexShown = firstVisibleItem + visibleItemCount;
 		}
 
 		if (downloadState == NOT_DOWNLOADING && (!mAdapter.isEmpty()) && (firstVisibleItem + visibleItemCount) > (totalItemCount - (StickerManager.SHOP_PAGE_SIZE/2))
