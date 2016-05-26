@@ -65,6 +65,7 @@ import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
+import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -98,6 +99,7 @@ import com.bsb.hike.tasks.InitiateMultiFileTransferTask;
 import com.bsb.hike.tasks.MultipleStatusUpdateTask;
 import com.bsb.hike.tasks.StatusUpdateTask;
 import com.bsb.hike.timeline.view.TimelineActivity;
+import com.bsb.hike.utils.BirthdayUtils;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -880,6 +882,16 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		if(triggerPointForPopup!=ProductPopupsConstants.PopupTriggerPoints.UNKNOWN.ordinal())
 		{
 			showProductPopup(triggerPointForPopup);
+		}
+
+		if(getIntent().getBooleanExtra(HikeConstants.Extras.BIRTHDAY_NOTIF, false))
+		{
+			String packetId = getIntent().getStringExtra(HikeConstants.ID);
+			BirthdayUtils.recordBirthdayAnalytics(
+					AnalyticsConstants.BirthdayEvents.BIRTHDAY_NOTIF_COMPOSE_CHAT,
+					AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
+					AnalyticsConstants.BirthdayEvents.BIRTHDAY_NOTIF_COMPOSE_CHAT,
+					String.valueOf(packetId), null, null);
 		}
 	}
 

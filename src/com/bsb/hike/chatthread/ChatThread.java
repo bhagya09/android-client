@@ -3145,7 +3145,20 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		}
 
 		/**
-		 * 7. Since the message was not forwarded, we check if we have any drafts saved for this conversation, if we do we enter it in the compose box.
+		 * 7.Chat opened via Tap on Birthday notification clicked
+		 */
+		else if(intent.hasExtra(HikeConstants.TRIGGER_BIRTHDAY_ID))
+		{
+			String packetId = intent.getStringExtra(HikeConstants.TRIGGER_BIRTHDAY_ID);
+			BirthdayUtils.recordBirthdayAnalytics(
+					AnalyticsConstants.BirthdayEvents.BIRTHDAY_NOTIF_CHAT_OPEN,
+					AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
+					AnalyticsConstants.BirthdayEvents.BIRTHDAY_NOTIF_CHAT_OPEN,
+					String.valueOf(packetId), null, null);
+		}
+
+		/**
+		 * 8. Since the message was not forwarded, we check if we have any drafts saved for this conversation, if we do we enter it in the compose box.
 		 */
 		else
 		{

@@ -926,7 +926,7 @@ public class AnalyticsConstants
 	{
 		public static final String BIRTHDAY = "bday";
 
-		public static final String BIRTHDAY_PUSH_NOTIF = "bday_psuh_notif";
+		public static final String BIRTHDAY_PUSH_NOTIF = "bday_push_notif";
 
 		public static final String BIRTHDAY_NOTIF_PACKET_RECV = "bday_rcvd";
 

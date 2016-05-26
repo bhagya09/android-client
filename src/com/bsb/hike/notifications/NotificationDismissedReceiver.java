@@ -12,6 +12,7 @@ import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.productpopup.AtomicTipManager;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.triggers.InterceptUtils;
+import com.bsb.hike.utils.BirthdayUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 
@@ -73,7 +74,13 @@ public class NotificationDismissedReceiver extends BroadcastReceiver
 
 			else if (notificationId == HikeNotification.BIRTHDAY_NOTIF)
 			{
-				//Log here swipe events
+				String packetId = intent.getStringExtra(HikeConstants.ID);
+				BirthdayUtils.recordBirthdayAnalytics(
+						AnalyticsConstants.BirthdayEvents.BIRTHDAY_NOTIF_SWIPE_OFF,
+						AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
+						AnalyticsConstants.BirthdayEvents.BIRTHDAY_NOTIF_SWIPE_OFF,
+						String.valueOf(packetId), null, null);
+
 			}
 			else
 			{

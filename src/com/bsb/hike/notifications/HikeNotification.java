@@ -2223,12 +2223,13 @@ public class HikeNotification
 		String message = null;
 		String title = null;
 		int notificationId = BIRTHDAY_NOTIF;
+		List<String> msisdns = bdayNotifPair.first;
 		String packetId = bdayNotifPair.second;
 		final int smallIconId = returnSmallIcon();
 		Intent mNotificationIntent = null;
-		String msisdn = (String)bdayNotifPair.first.toArray()[0];
+		String msisdn = (String)msisdns.toArray()[0];
 		ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, true, true);
-		if(bdayNotifPair.first.size() == 1)
+		if(msisdns.size() == 1)
 		{
 			mNotificationIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, true, false, ChatThreadActivity.ChatThreadOpenSources.NOTIF);
 			mNotificationIntent.putExtra(HikeConstants.Extras.MSG, context.getString(R.string.composeview_bday));
@@ -2240,7 +2241,7 @@ public class HikeNotification
 		{
 			mNotificationIntent = new Intent(context, ComposeChatActivity.class);
 			title = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MULTIPLE_BDAY_NOTIF_TITLE, context.getString(R.string.multiple_bday_notif_text));
-			title = String.format(title, contactInfo.getFirstNameAndSurname(), String.valueOf(bdayNotifPair.first.size() -1));
+			title = String.format(title, contactInfo.getFirstNameAndSurname(), String.valueOf(msisdns.size() -1));
 			message = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MULTIPLE_BDAY_NOTIF_SUBTEXT, context.getString(R.string.multiple_bday_notif_subtext));
 		}
 

@@ -115,6 +115,7 @@ import com.bsb.hike.timeline.view.UpdatesFragment;
 import com.bsb.hike.ui.fragments.ImageViewerFragment;
 import com.bsb.hike.ui.fragments.PhotoViewerFragment;
 import com.bsb.hike.ui.utils.StatusBarColorChanger;
+import com.bsb.hike.utils.BirthdayUtils;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -1502,13 +1503,10 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		}
 		DatePickerDialog dialog = new DatePickerDialog(this, dobDateListener, year, month, day);
 		Logger.d(getClass().getSimpleName(), "overriding negative button on date picker dialog");
-		dialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.cancel), new DialogInterface.OnClickListener()
-		{
+		dialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.cancel), new DialogInterface.OnClickListener() {
 			@Override
-			public void onClick(DialogInterface dialog, int which)
-			{
-				if(which == DialogInterface.BUTTON_NEGATIVE)
-				{
+			public void onClick(DialogInterface dialog, int which) {
+				if (which == DialogInterface.BUTTON_NEGATIVE) {
 					Logger.d(TAG, "cancelling date picker dialog");
 					dialog.dismiss();
 					dobEdited = false;
@@ -1517,6 +1515,12 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		});
 		Logger.d(getClass().getSimpleName(), "calling show on date picker dialog");
 		dialog.show();
+
+		BirthdayUtils.recordBirthdayAnalytics(
+				AnalyticsConstants.BirthdayEvents.BIRTHDAY_DIALOG_OPEN,
+				AnalyticsConstants.BirthdayEvents.BIRTHDAY_STORE,
+				AnalyticsConstants.BirthdayEvents.BIRTHDAY_DIALOG_OPEN,
+				null, null, null);
 	}
 
 	private void setupEditScreen()

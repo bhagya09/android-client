@@ -4,12 +4,15 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
+import android.util.Pair;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -278,11 +281,11 @@ public class BirthdayUtils
 
 						if (fromServerPacket)
 						{
-                            BirthdayUtils.recordBirthdayAnalytics(
-                                    AnalyticsConstants.BirthdayEvents.BIRTHDAY_REQ_RESPONSE,
-                                    AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
-                                    AnalyticsConstants.BirthdayEvents.BIRTHDAY_REQ_RESPONSE,
-                                    String.valueOf(packetId), null, null);
+                            recordBirthdayAnalytics(
+                            AnalyticsConstants.BirthdayEvents.BIRTHDAY_REQ_RESPONSE,
+                            AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
+                            AnalyticsConstants.BirthdayEvents.BIRTHDAY_REQ_RESPONSE,
+                            String.valueOf(packetId), null, null);
 
 							if (!bdayMsisdnSet.isEmpty())
 							{
@@ -314,7 +317,15 @@ public class BirthdayUtils
                 }
             });
             requestToken.execute();
-        }
+			if (fromServerPacket)
+			{
+				recordBirthdayAnalytics(
+                AnalyticsConstants.BirthdayEvents.BIRTHDAY_HTTP_REQ,
+                AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
+                AnalyticsConstants.BirthdayEvents.BIRTHDAY_HTTP_REQ,
+                String.valueOf(packetId), null, null);
+			}
+		}
     }
 
     /**
@@ -420,6 +431,8 @@ public class BirthdayUtils
 			json.put(AnalyticsConstants.V2.CLASS, eventClass);
 			json.put(AnalyticsConstants.V2.ORDER, order);
 			json.put(AnalyticsConstants.V2.FAMILY, family);
+            json.put(AnalyticsConstants.V2.FORM, form);
+            json.put(AnalyticsConstants.V2.RACE, race);
 
 			HAManager.getInstance().recordV2(json);
 		}
