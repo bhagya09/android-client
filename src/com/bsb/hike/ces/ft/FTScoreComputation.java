@@ -81,7 +81,10 @@ public class FTScoreComputation implements ScoreComputationImpl{
 				}
 			}
 		}
-		Logger.d(TAG, "Score Json for level one data = " + scoreJson.toString());
+		if(scoreJson != null)
+		{
+			Logger.d(TAG, "Score Json for level one data = " + scoreJson.toString());
+		}
 		return scoreJson;
 	}
 
@@ -110,7 +113,10 @@ public class FTScoreComputation implements ScoreComputationImpl{
 				e.printStackTrace();
 			}
 		}
-		Logger.d(TAG, "Required Json for level one data = " + resultData.toString());
+		if(resultData != null)
+		{
+			Logger.d(TAG, "Required Json for level one data = " + resultData.toString());
+		}
 		return resultData;
 	}
 

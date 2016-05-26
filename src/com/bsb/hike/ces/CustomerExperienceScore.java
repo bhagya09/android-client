@@ -147,33 +147,33 @@ public class CustomerExperienceScore {
 					if(ft_score != null)
 					{
 						sData.put(CesConstants.CES_SCORE, ft_score);
-					}
-					cesScore_data.put(CesUtils.getDayBeforeUTCDate(), sData);
-					
-					CesTransport transport = new CesTransport();
-					JSONObject response = transport.sendCesScore(cesScore_data);
-					if(response != null && response.has(HikeConstants.DATA_2))
-					{
-						JSONObject respL1Data = response.getJSONObject(HikeConstants.DATA_2);
-						if(respL1Data.has(CesConstants.L1_DATA_REQUIRED))
+						cesScore_data.put(CesUtils.getDayBeforeUTCDate(), sData);
+						
+						CesTransport transport = new CesTransport();
+						JSONObject response = transport.sendCesScore(cesScore_data);
+						if(response != null && response.has(HikeConstants.DATA_2))
 						{
-							JSONObject respData = respL1Data.getJSONObject(CesConstants.L1_DATA_REQUIRED);
-							String date = CesUtils.getDayBeforeUTCDate();
-							if(respData.has(date))
+							JSONObject respL1Data = response.getJSONObject(HikeConstants.DATA_2);
+							if(respL1Data.has(CesConstants.L1_DATA_REQUIRED))
 							{
-								JSONObject requiredData = respData.getJSONObject(date);
-								JSONObject cesl1Data = new JSONObject();
-								JSONObject allModuleData = new JSONObject();
-								if(requiredData.has(CesConstants.FT_MODULE))
+								JSONObject respData = respL1Data.getJSONObject(CesConstants.L1_DATA_REQUIRED);
+								String date = CesUtils.getDayBeforeUTCDate();
+								if(respData.has(date))
 								{
-									JSONObject ftModuleData = ftCompute.getL1Data(requiredData.getJSONArray(CesConstants.FT_MODULE));
-									if(ftModuleData != null)
+									JSONObject requiredData = respData.getJSONObject(date);
+									JSONObject cesl1Data = new JSONObject();
+									JSONObject allModuleData = new JSONObject();
+									if(requiredData.has(CesConstants.FT_MODULE))
 									{
-										allModuleData.put(CesConstants.FT_MODULE, ftModuleData);
+										JSONObject ftModuleData = ftCompute.getL1Data(requiredData.getJSONArray(CesConstants.FT_MODULE));
+										if(ftModuleData != null)
+										{
+											allModuleData.put(CesConstants.FT_MODULE, ftModuleData);
+										}
 									}
+									cesl1Data.put(CesUtils.getDayBeforeUTCDate(), allModuleData);
+									transport.sendCesLevelOneInfo(cesl1Data);
 								}
-								cesl1Data.put(CesUtils.getDayBeforeUTCDate(), allModuleData);
-								transport.sendCesLevelOneInfo(cesl1Data);
 							}
 						}
 					}
