@@ -46,7 +46,7 @@ public class CesFtTask extends CesBaseCallable{
 		{
 			return;
 		}
-		CesDiskManager disk = new CesDiskManager(CesConstants.CESModule.FT, CesUtils.getCurrentUTCDate(), CesDiskManager.DataFlushMode.FLUSH);
+		CesDiskManager disk = new CesDiskManager(CesConstants.CESModule.FT, CesUtils.getCurrentUTCDate(), CesDiskManager.DataFlushMode.FLUSH, true);
 		disk.add(CesConstants.CESInfoType.L2, l2Data);
 	}
 
@@ -56,7 +56,7 @@ public class CesFtTask extends CesBaseCallable{
 		{
 			return;
 		}
-		CesDiskManager disk = new CesDiskManager(CesConstants.CESModule.FT, CesUtils.getCurrentUTCDate(), CesDiskManager.DataFlushMode.FLUSH);
+		CesDiskManager disk = new CesDiskManager(CesConstants.CESModule.FT, CesUtils.getCurrentUTCDate(), CesDiskManager.DataFlushMode.FLUSH, true);
 		List<JSONObject> storedL1DataList = disk.get(CesConstants.CESInfoType.L1);
 		if(storedL1DataList != null && !storedL1DataList.isEmpty())
 		{

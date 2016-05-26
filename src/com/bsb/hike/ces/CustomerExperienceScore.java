@@ -199,7 +199,7 @@ public class CustomerExperienceScore {
 			{
 				if(CesUtils.whichModule(module) != -1)
 				{
-					CesDiskManager disk = new CesDiskManager(CesUtils.whichModule(module), date, CesDiskManager.DataFlushMode.FLUSH);
+					CesDiskManager disk = new CesDiskManager(CesUtils.whichModule(module), date, CesDiskManager.DataFlushMode.FLUSH, false);
 					disk.dumpCesL2Data();
 				}
 			}

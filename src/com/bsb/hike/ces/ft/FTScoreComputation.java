@@ -54,7 +54,7 @@ public class FTScoreComputation implements ScoreComputationImpl{
 	public JSONObject computeScore() {
 		JSONObject scoreJson = null;
 		ConcurrentHashMap<String, List<Integer>> scores = new ConcurrentHashMap<>();
-		CesDiskManager disk = new CesDiskManager(CESModule.FT, CesUtils.getDayBeforeUTCDate(), CesDiskManager.DataFlushMode.FLUSH);
+		CesDiskManager disk = new CesDiskManager(CESModule.FT, CesUtils.getDayBeforeUTCDate(), CesDiskManager.DataFlushMode.FLUSH, true);
 		File mFile = new File(disk.getFilePath(CESInfoType.L1));
 		if(mFile != null && mFile.exists())
 		{
