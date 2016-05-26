@@ -380,6 +380,7 @@ public class FileUploadRequest extends Request<JSONObject>
 				.setNetProcTime(networkTime)
 				.setProcTime(0)
 				.setChunkSize(chunkSize)
+				.setChunkStart(chunkStart)
 				.setSessionId(X_SESSION_ID)
 				.setUniqueId(getCustomId() + "_" + AccountUtils.mUid);
 

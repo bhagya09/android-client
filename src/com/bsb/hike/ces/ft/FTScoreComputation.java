@@ -226,7 +226,7 @@ public class FTScoreComputation implements ScoreComputationImpl{
 						netObj.put(mData.getString(CesConstants.LevelOneDataKey.FILE_SIZE_BUCKET), bucketObj);
 
 						moduleData.put(network, netObj);
-						computScore(avg_speed, manual_retry, fti, fas_value, network, scores);
+						computeScoreForIndividualSession(avg_speed, manual_retry, fti, fas_value, network, scores);
 					}
 					l1Data = new JSONObject();
 					l1Data.put(CesConstants.FT_MODULE, moduleData);
@@ -240,7 +240,7 @@ public class FTScoreComputation implements ScoreComputationImpl{
 		return scores;
 	}
 
-	private void computScore(double as, int mr, int fti, int fas, String network, ConcurrentHashMap<String, List<Integer>> scores)
+	private void computeScoreForIndividualSession(double as, int mr, int fti, int fas, String network, ConcurrentHashMap<String, List<Integer>> scores)
 	{
 		int score = 0;
 		if (fti == CesConstants.FT_STATUS_COMPLETE)
