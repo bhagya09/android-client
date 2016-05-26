@@ -5252,7 +5252,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		Cursor muteCursor = null;
 		try
 		{
-			muteCursor = mDb.query(DBConstants.CHAT_PROPERTIES_TABLE, new String[]{DBConstants.MSISDN, DBConstants.IS_MUTE, DBConstants.MUTE_TIMESTAMP, DBConstants.MUTE_DURATION, DBConstants.MUTE_NOTIFICATION}, null, null, null, null, null);
+			muteCursor = mDb.query(DBConstants.CHAT_PROPERTIES_TABLE, new String[]{DBConstants.MSISDN, DBConstants.IS_MUTE, DBConstants.MUTE_TIMESTAMP, DBConstants.MUTE_DURATION, DBConstants.MUTE_NOTIFICATION}, DBConstants.IS_MUTE + "= 1", null, null, null, null);
 
 			Map<String, Mute> map = new HashMap<>();
 
