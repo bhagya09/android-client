@@ -182,10 +182,32 @@ public class FTScoreComputation implements ScoreComputationImpl{
 							if(netObj.has(mData.getString(CesConstants.LevelOneDataKey.FILE_SIZE_BUCKET)))
 							{
 								bucketObj = (JSONObject) netObj.get(mData.getString(CesConstants.LevelOneDataKey.FILE_SIZE_BUCKET));
-								as = bucketObj.getJSONArray(CesConstants.LevelOneDataKey.AVERAGE_SPEED);
-								mr = bucketObj.getJSONArray(CesConstants.LevelOneDataKey.MANUAL_RETRIES);
-								fas = bucketObj.getJSONArray(CesConstants.LevelOneDataKey.FILE_AVAILABLE_ON_SERVER);
-								fti_count = bucketObj.getInt(CesConstants.LevelOneDataKey.FT_INCOMPLETE);
+								if(bucketObj.has(CesConstants.LevelOneDataKey.AVERAGE_SPEED))
+								{
+									as = bucketObj.getJSONArray(CesConstants.LevelOneDataKey.AVERAGE_SPEED);
+								}
+								else
+								{
+									as = new JSONArray();
+								}
+								if(bucketObj.has(CesConstants.LevelOneDataKey.MANUAL_RETRIES))
+								{
+									mr = bucketObj.getJSONArray(CesConstants.LevelOneDataKey.MANUAL_RETRIES);
+								}
+								else
+								{
+									mr = new JSONArray();
+								}
+								if(bucketObj.has(CesConstants.LevelOneDataKey.FILE_AVAILABLE_ON_SERVER))
+								{
+									fas = bucketObj.getJSONArray(CesConstants.LevelOneDataKey.FILE_AVAILABLE_ON_SERVER);
+								}
+								else
+								{
+									fas = new JSONArray();
+								}
+								if(bucketObj.has(CesConstants.LevelOneDataKey.FT_INCOMPLETE))
+									fti_count = bucketObj.getInt(CesConstants.LevelOneDataKey.FT_INCOMPLETE);
 								if(fti == CesConstants.FT_STATUS_INCOMPLETE)
 								{
 									fti_count += 1;
