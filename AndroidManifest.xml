@@ -4,7 +4,7 @@
     package="com.bsb.hike"
     android:installLocation="auto"
     android:versionCode="1738"
-    android:versionName="4.2.6.82.116" >
+    android:versionName="4.2.6.82.116.1.caller_quick_reply" >
 
    <uses-sdk
         android:minSdkVersion="14"
