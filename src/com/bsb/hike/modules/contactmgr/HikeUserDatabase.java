@@ -754,7 +754,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		long unreadRequestTime = 0;
 		if (unreadRequestTimeIdx != -1)
 		{
-			unreadRequestTime = (long)(c.getInt(unreadRequestTimeIdx) * 1000);
+			unreadRequestTime = c.getLong(unreadRequestTimeIdx) * 1000;
 		}
 		String id = TextUtils.isEmpty(c.getString(idx)) ? c.getString(msisdnIdx) : c.getString(idx);
 
@@ -2039,7 +2039,9 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		Logger.d(TAG, "Adding msisdb to favourite" + msisdn);
 		cv.put(DBConstants.MSISDN, msisdn);
 		cv.put(DBConstants.FAVORITE_TYPE, favoriteType.ordinal());
-		cv.put(DBConstants.UNREAD_RECEIVED_REQ_TIME, (int)unreadRequestTime/1000);
+		// convert millisecond timestamp to seconds(int) before storing
+		unreadRequestTime /= 1000;
+		cv.put(DBConstants.UNREAD_RECEIVED_REQ_TIME, (int)(unreadRequestTime));
 		long value = mDb.update(DBConstants.USERS_TABLE, cv, DBConstants.MSISDN + "=?", new String[]{msisdn});
 		if (value == -1 || value == 0) {
 			value = mDb.insertWithOnConflict(DBConstants.USERS_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
