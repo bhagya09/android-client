@@ -32,6 +32,7 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.FetchUIDTaskPojo;
 import com.bsb.hike.models.FtueContactsData;
+import com.bsb.hike.models.PrivacyPreferences;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
@@ -2795,5 +2796,120 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 			}
 		}
 		return isAddressBookContact;
+	}
+
+	/**
+	 * Queries Privacy Settings for a given msisdn from the user table Can return null if not found in the table or msisdn is empty
+	 * 
+	 * @param msisdn
+	 * @return
+	 */
+	PrivacyPreferences getPrivacyPreferencesForAGivenMsisdn(String msisdn)
+	{
+		if (TextUtils.isEmpty(msisdn))
+		{
+			return null;
+		}
+
+		Cursor c = null;
+
+		try
+		{
+
+			c = mDb.query(DBConstants.USERS_TABLE, new String[] { DBConstants.LAST_SEEN_SETTINGS, DBConstants.STATUS_UPDATE_SETTINGS }, DBConstants.MSISDN + "=?",
+					new String[] { msisdn }, null, null, null);
+
+			if (c.moveToFirst())
+			{
+				int lsSettingIdx = c.getColumnIndex(DBConstants.LAST_SEEN_SETTINGS);
+
+				int suSettingIdx = c.getColumnIndex(DBConstants.STATUS_UPDATE_SETTINGS);
+
+				PrivacyPreferences pref = new PrivacyPreferences(PrivacyPreferences.DEFAULT_VALUE);
+
+				int lsSetting = c.getInt(lsSettingIdx);
+
+				int suSetting = c.getInt(suSettingIdx);
+
+				pref.setLastSeen(lsSetting == 1);
+
+				pref.setStatusUpdate(suSetting == 1);
+
+				return pref;
+
+			}
+		}
+
+		finally
+		{
+			if (null != c)
+			{
+				c.close();
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Sets the Last Seen to the given value for a list of msisdns provided
+	 *
+	 * @param msisdns
+	 * @param newValue
+	 */
+	void setLastSeenForMsisdns(List<String> msisdns, int newValue)
+	{
+		if (Utils.isEmpty(msisdns))
+		{
+			return;
+		}
+
+		StringBuilder msisdnsString = new StringBuilder("(");
+		for (String msisdn : msisdns)
+		{
+			msisdnsString.append(DatabaseUtils.sqlEscapeString(msisdn) + ",");
+		}
+
+		int idx = msisdnsString.lastIndexOf(",");
+		if (idx >= 0)
+		{
+			msisdnsString.replace(idx, msisdnsString.length(), ")");
+		}
+
+		ContentValues cv = new ContentValues();
+		cv.put(DBConstants.LAST_SEEN_SETTINGS, newValue);
+
+		mDb.update(DBConstants.USERS_TABLE, cv, DBConstants.MSISDN + " IN " + msisdnsString, null);
+	}
+
+	/**
+	 * Sets the Status update setting to the given value for the list of msisdns
+	 * 
+	 * @param msisdns
+	 * @param newValue
+	 */
+	void setSUSettingForMsisdns(List<String> msisdns, int newValue)
+	{
+		if (Utils.isEmpty(msisdns))
+		{
+			return;
+		}
+
+		StringBuilder msisdnsString = new StringBuilder("(");
+		for (String msisdn : msisdns)
+		{
+			msisdnsString.append(DatabaseUtils.sqlEscapeString(msisdn) + ",");
+		}
+
+		int idx = msisdnsString.lastIndexOf(",");
+		if (idx >= 0)
+		{
+			msisdnsString.replace(idx, msisdnsString.length(), ")");
+		}
+
+		ContentValues cv = new ContentValues();
+		cv.put(DBConstants.LAST_SEEN_SETTINGS, newValue);
+
+		mDb.update(DBConstants.USERS_TABLE, cv, DBConstants.MSISDN + " IN " + msisdnsString, null);
 	}
 }
