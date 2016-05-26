@@ -7568,25 +7568,20 @@ public class Utils
 			Context context = HikeMessengerApp.getInstance().getApplicationContext();
 			// Change last seen pref to friends if its is not already set to friends or noone.
 			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
-			String currentValue = settings.getString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_favorites));
-			if (!currentValue.equals(context.getString(R.string.privacy_my_contacts)) && !currentValue.equals(context.getString(R.string.privacy_everyone)))
+			String oldLsValue = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.LAST_SEEN_TEMP_PREF, context.getString(R.string.privacy_my_contacts));
+			Editor settingEditor = settings.edit();
+			settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, oldLsValue);
+			int slectedPrivacyId = Integer.parseInt(oldLsValue);
+			try
 			{
-
-				String oldLsValue = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.LAST_SEEN_TEMP_PREF, context.getString(R.string.privacy_my_contacts));
-				Editor settingEditor = settings.edit();
-				settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, oldLsValue);
-				int slectedPrivacyId = Integer.parseInt(oldLsValue);
-				try
-				{
-					HikePreferences.sendNLSToServer(slectedPrivacyId, true);
-					settingEditor.commit();
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 0); // Resetting the flag, so that when the packet might
-					// be sent again, it is able to alter the prefs
-				}
-				catch (JSONException e)
-				{
-					e.printStackTrace();
-				}
+				HikePreferences.sendNLSToServer(slectedPrivacyId, true);
+				settingEditor.commit();
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 0); // Resetting the flag, so that when the packet might
+				// be sent again, it is able to alter the prefs
+			}
+			catch (JSONException e)
+			{
+				e.printStackTrace();
 			}
 		}
 	}
