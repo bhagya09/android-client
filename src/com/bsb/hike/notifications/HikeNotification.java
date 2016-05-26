@@ -2247,7 +2247,10 @@ public class HikeNotification
 		mNotificationIntent.putExtra(HikeConstants.Extras.BIRTHDAY_NOTIF, true);
 		mNotificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
-		PendingIntent contentIntent = PendingIntent.getActivity(context, 0, mNotificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+		Intent homeIntent = Utils.getHomeActivityIntent(context);
+		Intent[] intentSequence = new Intent[] { homeIntent, mNotificationIntent } ;
+
+		PendingIntent contentIntent = PendingIntent.getActivities(context, 0, intentSequence, PendingIntent.FLAG_ONE_SHOT);
 		mBuilder.setContentIntent(contentIntent);
 
 		Intent deleteIntent = new Intent(context, NotificationDismissedReceiver.class);
