@@ -1293,7 +1293,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	protected ArrayList<OverFlowMenuItem> getOverFlowMenuItems()
 	{
-		ArrayList<OverFlowMenuItem> listOverFlow = new ArrayList<OverFlowMenuItem>();
+		ArrayList<OverFlowMenuItem> listOverFlow = new ArrayList<>();
 		listOverFlow.add(new OverFlowMenuItem(getString(R.string.hide_chat), 0, 0, R.string.hide_chat));
 		listOverFlow.add(new OverFlowMenuItem(getString(R.string.clear_chat), 0, 0, true, R.string.clear_chat));
 		listOverFlow.add(new OverFlowMenuItem(getString(R.string.email_chat), 0, 0, true, R.string.email_chat));
@@ -2535,7 +2535,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		}
 	}
 	/**
-	 * This method calls {@link #fetchConversation(String)} in UI or non UI thread, depending upon async variable For non UI, it starts asyncloader, see {@link ConversationLoader}
+	 * This method calls {@link #fetchConversation()} in UI or non UI thread, depending upon async variable For non UI, it starts asyncloader, see {@link ConversationLoader}
 	 *
 	 * @param async
 	 */
@@ -2602,7 +2602,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	}
 
 	/**
-	 * This method calls {@link #fetchConversation(String)} in UI or non UI thread, depending upon async variable For non UI, it starts asyncloader, see {@link ConversationLoader}
+	 * This method loads messages in UI or non UI thread, depending upon async variable For non UI, it starts asyncloader, see {@link ConversationLoader}
 	 *
 	 * @param async
 	 */
@@ -2694,7 +2694,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	}
 
 	/**
-	 * This method is either called in either UI thread or non UI, check {@link #fetchConversation(boolean, String)}
+	 * This method is either called in either UI thread or non UI
 	 *
 	 */
 	protected abstract Conversation fetchConversation();
@@ -4225,8 +4225,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	/**
 	 * Utility method for adding listeners for pubSub
-	 *
-	 * @param listeners
 	 */
 	protected void addToPubSub()
 	{
@@ -4935,7 +4933,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	}
 
 	/**
-	 * Deletes the messages based on the message Ids present in the {@link ArrayList<Long>} in {@link Pair.second}
+	 * Deletes the messages based on the message Ids present in the {@link ArrayList<Long>} in {@link Pair#second}
 	 *
 	 * Called from the UI thread
 	 *
@@ -5162,7 +5160,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	 * This method is used to construct {@link ConvMessage} with a given sticker and send it.
 	 *
 	 * @param sticker
-	 * @param categoryIdIfUnkown
 	 * @param source
 	 */
 	protected void sendSticker(Sticker sticker, String source)
@@ -5189,7 +5186,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	/**
 	 * Called from the UI Handler to change the chat theme
 	 *
-	 * @param chatTheme
+	 * @param chatThemeId
 	 */
 	private void changeChatTheme(String chatThemeId)
 	{
@@ -6113,7 +6110,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 
 	/**
-	 * Used to call {@link #showOverlay(boolean, String, String, String)} from {@link OneToOneChatThread} or {@link OneToNChatThread}
+	 * Used to call {@link #showOverlay(String, String, String, SpannableString, int, int)} from {@link OneToOneChatThread} or {@link OneToNChatThread}
 	 *
 	 * @param label
 	 */
