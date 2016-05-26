@@ -1,6 +1,65 @@
 package com.bsb.hike.db;
 
 
+import static com.bsb.hike.chatthemes.HikeChatThemeConstants.ASSET_INDEX_ACTION_BAR_BG;
+import static com.bsb.hike.chatthemes.HikeChatThemeConstants.ASSET_INDEX_BG_LANDSCAPE;
+import static com.bsb.hike.chatthemes.HikeChatThemeConstants.ASSET_INDEX_BG_PORTRAIT;
+import static com.bsb.hike.chatthemes.HikeChatThemeConstants.ASSET_INDEX_BUBBLE_COLOR;
+import static com.bsb.hike.chatthemes.HikeChatThemeConstants.ASSET_INDEX_CHAT_BUBBLE_BG;
+import static com.bsb.hike.chatthemes.HikeChatThemeConstants.ASSET_INDEX_INLINE_STATUS_MSG_BG;
+import static com.bsb.hike.chatthemes.HikeChatThemeConstants.ASSET_INDEX_MULTISELECT_CHAT_BUBBLE_BG;
+import static com.bsb.hike.chatthemes.HikeChatThemeConstants.ASSET_INDEX_OFFLINE_MESSAGE_BG;
+import static com.bsb.hike.chatthemes.HikeChatThemeConstants.ASSET_INDEX_RECEIVED_NUDGE_BG;
+import static com.bsb.hike.chatthemes.HikeChatThemeConstants.ASSET_INDEX_SENT_NUDGE_BG;
+import static com.bsb.hike.chatthemes.HikeChatThemeConstants.ASSET_INDEX_SMS_TOGGLE_BG;
+import static com.bsb.hike.chatthemes.HikeChatThemeConstants.ASSET_INDEX_STATUS_BAR_BG;
+import static com.bsb.hike.chatthemes.HikeChatThemeConstants.ASSET_INDEX_THUMBNAIL;
+import static com.bsb.hike.db.DBConstants.ACTIONS_TABLE;
+import static com.bsb.hike.db.DBConstants.ACTION_COUNT;
+import static com.bsb.hike.db.DBConstants.ACTION_ID;
+import static com.bsb.hike.db.DBConstants.ACTION_OBJECT_ID;
+import static com.bsb.hike.db.DBConstants.ACTION_OBJECT_TYPE;
+import static com.bsb.hike.db.DBConstants.ACTORS;
+import static com.bsb.hike.db.DBConstants.BOT_CONFIGURATION;
+import static com.bsb.hike.db.DBConstants.BOT_TABLE;
+import static com.bsb.hike.db.DBConstants.COLUMN_TYPE_INTEGER;
+import static com.bsb.hike.db.DBConstants.COLUMN_TYPE_TEXT;
+import static com.bsb.hike.db.DBConstants.COMMA_SEPARATOR;
+import static com.bsb.hike.db.DBConstants.CONFIG_DATA;
+import static com.bsb.hike.db.DBConstants.CONVERSATIONS_TABLE;
+import static com.bsb.hike.db.DBConstants.CONVERSATION_METADATA;
+import static com.bsb.hike.db.DBConstants.CREATE_TABLE;
+import static com.bsb.hike.db.DBConstants.ChatThemes;
+import static com.bsb.hike.db.DBConstants.EVENT_FROM_USER_MSISDN;
+import static com.bsb.hike.db.DBConstants.EVENT_ID;
+import static com.bsb.hike.db.DBConstants.EVENT_METADATA;
+import static com.bsb.hike.db.DBConstants.EVENT_PARENT_MSISDN;
+import static com.bsb.hike.db.DBConstants.EVENT_STATUS;
+import static com.bsb.hike.db.DBConstants.EVENT_TYPE;
+import static com.bsb.hike.db.DBConstants.FEED_ACTOR;
+import static com.bsb.hike.db.DBConstants.FEED_OBJECT_ID;
+import static com.bsb.hike.db.DBConstants.FEED_OBJECT_TYPE;
+import static com.bsb.hike.db.DBConstants.FEED_TABLE;
+import static com.bsb.hike.db.DBConstants.FEED_TS;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT;
+import static com.bsb.hike.db.DBConstants.HIKE_CONV_DB.LOVE_TABLE;
+import static com.bsb.hike.db.DBConstants.HIKE_CONV_DB.REF_COUNT;
+import static com.bsb.hike.db.DBConstants.HIKE_UID;
+import static com.bsb.hike.db.DBConstants.IS_MUTE;
+import static com.bsb.hike.db.DBConstants.LAST_QUICK_SUGGESTION_REFRESH_TIME;
+import static com.bsb.hike.db.DBConstants.MESSAGES_TABLE;
+import static com.bsb.hike.db.DBConstants.MESSAGE_EVENT_TABLE;
+import static com.bsb.hike.db.DBConstants.MESSAGE_HASH;
+import static com.bsb.hike.db.DBConstants.MESSAGE_ID;
+import static com.bsb.hike.db.DBConstants.MESSAGE_METADATA;
+import static com.bsb.hike.db.DBConstants.MSISDN;
+import static com.bsb.hike.db.DBConstants.QUICK_SUGGESTED_REPLY_STICKERS;
+import static com.bsb.hike.db.DBConstants.QUICK_SUGGESTED_SENT_STICKERS;
+import static com.bsb.hike.db.DBConstants.STATUS_MAPPED_ID;
+import static com.bsb.hike.db.DBConstants.STATUS_TABLE;
+import static com.bsb.hike.db.DBConstants.UNREAD_COUNT;
+
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -9,17 +68,18 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.net.MalformedURLException;
 import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences.Editor;
@@ -68,6 +128,7 @@ import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
 import com.bsb.hike.models.Conversation.OneToOneConversation;
 import com.bsb.hike.models.CustomStickerCategory;
+import com.bsb.hike.models.FetchUIDTaskPojo;
 import com.bsb.hike.models.FileListItem;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeChatTheme;
@@ -78,21 +139,21 @@ import com.bsb.hike.models.HikeSharedFile;
 import com.bsb.hike.models.MessageEvent;
 import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.Protip;
-import com.bsb.hike.modules.quickstickersuggestions.model.QuickSuggestionStickerCategory;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.contactmgr.ConversationMsisdns;
 import com.bsb.hike.modules.contactmgr.GroupDetails;
+import com.bsb.hike.modules.quickstickersuggestions.model.QuickSuggestionStickerCategory;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickersearch.datamodel.CategoryTagData;
-import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.ContentLove;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformMessageMetadata;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.WebMetadata;
+import com.bsb.hike.service.GeneralEventMessagesManager;
 import com.bsb.hike.service.UpgradeIntentService;
 import com.bsb.hike.timeline.model.ActionsDataModel;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
@@ -109,28 +170,6 @@ import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import static com.bsb.hike.db.DBConstants.*;
-import static com.bsb.hike.db.DBConstants.HIKE_CONV_DB.*;
-
-import static com.bsb.hike.chatthemes.HikeChatThemeConstants.*;
 
 public class HikeConversationsDatabase extends SQLiteOpenHelper
 {
@@ -276,8 +315,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				+ DBConstants.HAS_LEFT + " INTEGER, " // Whether the participant has left the group or not.
 				+ DBConstants.ON_DND + " INTEGER, " // Whether the participant is on DND or not
 				+ DBConstants.SHOWN_STATUS + " INTEGER, " // Whether we have shown a DND status for this participant or not. 
-				+ DBConstants.TYPE + " INTEGER  DEFAULT 0" // Whether the participant is an admin or not.
-				+ " )";
+				+ DBConstants.TYPE + " INTEGER  DEFAULT 0 , " // Whether the participant is an admin or not.
+				+ DBConstants.HIKE_UID + " TEXT DEFAULT NULL"
+				+	")";
 		db.execSQL(sql);
 		sql = "CREATE UNIQUE INDEX IF NOT EXISTS " + DBConstants.GROUP_INDEX + " ON " + DBConstants.GROUP_MEMBERS_TABLE + " ( " + DBConstants.GROUP_ID + ", " + DBConstants.MSISDN
 				+ " ) ";
@@ -347,9 +387,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		sql = "CREATE INDEX IF NOT EXISTS " + DBConstants.ChatThemes.CHAT_BG_INDEX + " ON " + DBConstants.ChatThemes.CHAT_BG_TABLE + " (" + DBConstants.MSISDN + ")";
 		db.execSQL(sql);
 
-		sql = getStickerShopTableCreateQuery();
-		db.execSQL(sql);
-		
 		sql = CREATE_TABLE + DBConstants.BOT_TABLE
 				+ " ("
 				+ DBConstants.MSISDN + " TEXT UNIQUE, "        //msisdn of bot
@@ -365,7 +402,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				+ HIKE_CONTENT.BOT_VERSION + " INTEGER DEFAULT 0,"//bot version for bot upgrade scenario
 				+ HIKE_CONTENT.BOT_TRIGGER_POINT + " INTEGER DEFAULT 0, " //by default ... its hould be 0 as not any trigger point
 				+ HIKE_CONTENT.CLIENT_ID + " TEXT, "  
-				+ HIKE_CONTENT.CLIENT_HASH + " TEXT "  
+				+ HIKE_CONTENT.CLIENT_HASH + " TEXT, "
+				+ DBConstants.HIKE_UID + " TEXT " // UID of the bot
 				+ ")";
 		db.execSQL(sql);
 		sql = getActionsTableCreateQuery();
@@ -410,6 +448,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		sql = getRecentStickersTableCreateQuery();
 		db.execSQL(sql);
 
+		sql = "DROP TABLE IF EXISTS " + DBConstants.STICKER_SHOP_TABLE;
+		db.execSQL(sql);
+
 		//creating tables for OTA ChatThemes
 		String assetTableQuery = getAssetTableCreateQuery();
 		db.execSQL(assetTableQuery);
@@ -434,7 +475,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		mDb.delete(DBConstants.EMOTICON_TABLE, null, null);
 		mDb.delete(DBConstants.STATUS_TABLE, null, null);
 		mDb.delete(DBConstants.STICKER_CATEGORIES_TABLE, null, null);
-		mDb.delete(DBConstants.STICKER_SHOP_TABLE, null, null);
 		mDb.delete(DBConstants.PROTIP_TABLE, null, null);
 		mDb.delete(DBConstants.SHARED_MEDIA_TABLE, null, null);
 		mDb.delete(DBConstants.FILE_THUMBNAIL_TABLE, null, null);
@@ -811,7 +851,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		if (oldVersion < 31)
 		{
 			db.execSQL(getStickerCategoryTableCreateQuery());
-			db.execSQL(getStickerShopTableCreateQuery());
 			// Edit the preference to ensure that HikeMessenger app knows we've
 			// reached the
 			// upgrade flow for version 31
@@ -1063,39 +1102,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				String alter4 = "ALTER TABLE " + DBConstants.STICKER_CATEGORIES_TABLE + " ADD COLUMN " + DBConstants.COPYRIGHT_STRING + " TEXT";
 				db.execSQL(alter4);
 			}
-
-			if(!Utils.isColumnExistsInTable(db, DBConstants.STICKER_SHOP_TABLE, DBConstants.CATEGORY_DESCRIPTION))
-			{
-				String alter1 = "ALTER TABLE " + DBConstants.STICKER_SHOP_TABLE + " ADD COLUMN " + DBConstants.CATEGORY_DESCRIPTION + " TEXT";
-				db.execSQL(alter1);
-			}
-			if(!Utils.isColumnExistsInTable(db, DBConstants.STICKER_SHOP_TABLE, DBConstants.STICKER_LIST))
-			{
-				String alter2 = "ALTER TABLE " + DBConstants.STICKER_SHOP_TABLE + " ADD COLUMN " + DBConstants.STICKER_LIST + " TEXT";
-				db.execSQL(alter2);
-			}
-			if(!Utils.isColumnExistsInTable(db, DBConstants.STICKER_SHOP_TABLE, DBConstants.SIMILAR_CATEGORIES))
-			{
-				String alter4 = "ALTER TABLE " + DBConstants.STICKER_SHOP_TABLE + " ADD COLUMN " + DBConstants.SIMILAR_CATEGORIES + " TEXT";
-				db.execSQL(alter4);
-			}
-
-			if(!Utils.isColumnExistsInTable(db, DBConstants.STICKER_SHOP_TABLE, DBConstants.AUTHOR))
-			{
-				String alter4 = "ALTER TABLE " + DBConstants.STICKER_SHOP_TABLE + " ADD COLUMN " + DBConstants.AUTHOR + " TEXT";
-				db.execSQL(alter4);
-			}
-
-			if(!Utils.isColumnExistsInTable(db, DBConstants.STICKER_SHOP_TABLE, DBConstants.COPYRIGHT_STRING))
-			{
-				String alter4 = "ALTER TABLE " + DBConstants.STICKER_SHOP_TABLE + " ADD COLUMN " + DBConstants.COPYRIGHT_STRING + " TEXT";
-				db.execSQL(alter4);
-			}
-
 			 sql = getStickerTableCreateQuery();
 			db.execSQL(sql);
         }
-		if (oldVersion < 50)
+		if(oldVersion < 50)
 		{
 			if (!Utils.isColumnExistsInTable(db, DBConstants.STICKER_CATEGORIES_TABLE, DBConstants.UCID))
 			{
@@ -1152,6 +1162,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				db.execSQL(alter3);
 			}
 		}
+
 		if(oldVersion < 52)
 		{
 			//creating tables for OTA ChatThemes
@@ -1168,6 +1179,44 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 
 			String themeTableQuery = getThemeTableCreateQuery();
 			db.execSQL(themeTableQuery);
+		}
+
+		if(oldVersion < 53)
+		{
+			// Adding UID coloum in Bots Table
+			if (!Utils.isColumnExistsInTable(db, DBConstants.BOT_TABLE, DBConstants.HIKE_UID))
+			{
+				String sql = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + DBConstants.HIKE_UID + " TEXT";
+				db.execSQL(sql);
+			}
+
+			if (!Utils.isColumnExistsInTable(db, DBConstants.GROUP_MEMBERS_TABLE, DBConstants.HIKE_UID))
+			{
+				String sql = "ALTER TABLE " + DBConstants.GROUP_MEMBERS_TABLE + " ADD COLUMN " + DBConstants.HIKE_UID + " TEXT DEFAULT NULL";
+				db.execSQL(sql);
+			}
+
+		}
+
+		if(oldVersion < 54)
+		{
+			// adding EVENT_PARENT_MSISDN and EVENT_FROM_USER_MSISDN column in MESSAGE_EVENT_TABLE
+			if (!Utils.isColumnExistsInTable(db, DBConstants.MESSAGE_EVENT_TABLE, DBConstants.EVENT_PARENT_MSISDN))
+			{
+				String alter1 = "ALTER TABLE " + DBConstants.MESSAGE_EVENT_TABLE + " ADD COLUMN " + DBConstants.EVENT_PARENT_MSISDN + " TEXT";
+				db.execSQL(alter1);
+			}
+			if (!Utils.isColumnExistsInTable(db, DBConstants.MESSAGE_EVENT_TABLE, DBConstants.EVENT_FROM_USER_MSISDN))
+			{
+				String alter2 = "ALTER TABLE " + DBConstants.MESSAGE_EVENT_TABLE + " ADD COLUMN " + DBConstants.EVENT_FROM_USER_MSISDN + " TEXT";
+				db.execSQL(alter2);
+			}
+		}
+
+		if (oldVersion < 55)
+		{
+			String sql = "DROP TABLE IF EXISTS " + DBConstants.STICKER_SHOP_TABLE;
+			db.execSQL(sql);
 		}
 	}
 
@@ -1250,6 +1299,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				+ DBConstants.TIMESTAMP + " INTEGER, " // Event time stamp
 				+ DBConstants.MAPPED_EVENT_ID + " INTEGER, " // The message id of the message on the sender's side (Only applicable for received messages)
 				+ DBConstants.MSISDN + " TEXT, " // The conversation's msisdn. This will be the msisdn for one-to-one and the group id for groups
+				+ DBConstants.EVENT_PARENT_MSISDN + " TEXT, " // The conversation's parent msisdn. This will be the parent msisdn for one-to-one and the group id for groups
+				+ DBConstants.EVENT_FROM_USER_MSISDN + " TEXT, " // The user id of the person sending the event
 				+ DBConstants.EVENT_HASH + " TEXT DEFAULT NULL, " // Used for duplication checks.
 				+ HIKE_CONTENT.NAMESPACE + " TEXT DEFAULT 'message'"  //namespace for uniqueness of content
 				+ ")";
@@ -2744,61 +2795,68 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 
 			for (ConvMessage conv : convMessages)
 			{
-
-				String thumbnailString = extractThumbnailFromMetadata(conv.getMetadata());
-				bindConversationInsert(insertStatement, conv,true);
-
-				try
+				if(conv.getMessageEventData()!=null)
 				{
-					msgId = insertMessage(insertStatement, conv);
+					try
+					{
+						resultList.add(conv);
+						GeneralEventMessagesManager.getInstance().handleGeneralMessage(conv.getMessageEventData());
+					}
+					catch (JSONException e)
+					{
+						Logger.e("HikeConversationDataBase", "Error in message event");
+					}
+
 				}
-				catch (Exception e)
+				else
 				{
-					// duplicate message . Skip further processing
-					continue;
-				}
-				addThumbnailStringToMetadata(conv.getMetadata(), thumbnailString);
+					String thumbnailString = extractThumbnailFromMetadata(conv.getMetadata());
+					bindConversationInsert(insertStatement, conv, true);
+
+					try {
+						msgId = insertMessage(insertStatement, conv);
+					} catch (Exception e) {
+						// duplicate message . Skip further processing
+						continue;
+					}
+					addThumbnailStringToMetadata(conv.getMetadata(), thumbnailString);
 				/*
 				 * Represents we dont have any conversation made for this msisdn. Here we are also checking whether the message is a group message, If it is and the conversation
 				 * does not exist we do not add a conversation.
 				 */
-				if (msgId <= 0 && !OneToNConversationUtils.isOneToNConversation(conv.getMsisdn()))
-				{
-					addConversation(conv.getMsisdn(), !conv.isSMS(), null, null, conv, -1l, null);
+					if (msgId <= 0 && !OneToNConversationUtils.isOneToNConversation(conv.getMsisdn())) {
+						addConversation(conv.getMsisdn(), !conv.isSMS(), null, null, conv, -1l, null);
 
-					bindConversationInsert(insertStatement, conv,true);
-					try
-					{
-						msgId = insertMessage(insertStatement, conv);
-					}
-					catch (Exception e)
-					{
-						// duplicate message . Skip further processing
-						continue;
-					}
+						bindConversationInsert(insertStatement, conv, true);
+						try {
+							msgId = insertMessage(insertStatement, conv);
+						} catch (Exception e) {
+							// duplicate message . Skip further processing
+							continue;
+						}
 
-					assert (msgId >= 0);
-				}
-				conv.setMsgID(msgId);
-				com.bsb.hike.chatthread.ChatThread.addtoMessageMap(conv);
+						assert (msgId >= 0);
+					}
+					conv.setMsgID(msgId);
+					com.bsb.hike.chatthread.ChatThread.addtoMessageMap(conv);
 
 				/*
 				 * msdId > 0 means that the conversation exists.
 				 */
-				if (conv.isFileTransferMessage() && msgId > 0)
-				{
-					addSharedMedia(conv);
-				}
+					if (conv.isFileTransferMessage() && msgId > 0) {
+						addSharedMedia(conv);
+					}
 
 				/*
 				 * Shared data for platform card messages
 				 */
-				if ((conv.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT || conv.getMessageType() == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT) && conv.getParticipantInfoState() == ParticipantInfoState.NO_INFO)
-				{
-					PlatformUtils.sharedDataHandlingForMessages(conv);
+					if ((conv.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT || conv.getMessageType() == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT) && conv.getParticipantInfoState() == ParticipantInfoState.NO_INFO) {
+						PlatformUtils.sharedDataHandlingForMessages(conv);
+					}
+					resultList.add(conv);
 				}
-				resultList.add(conv);
 			}
+
 			Logger.d("BulkProcess", "adding conversation returning");
 			return resultList;
 		}
@@ -3373,7 +3431,27 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		values.put(HIKE_CONTENT.BOT_TRIGGER_POINT, botInfo.getTriggerPointFormenu());
 		values.put(HIKE_CONTENT.CLIENT_ID, botInfo.getClientId());
 		values.put(HIKE_CONTENT.CLIENT_HASH, botInfo.getClientHash());
+		values.put(DBConstants.HIKE_UID,botInfo.getUid());
 		mDb.insertWithOnConflict(DBConstants.BOT_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+	}
+
+	public void updateUIDForBot(Set<FetchUIDTaskPojo> fecTaskPojo) {
+		if (Utils.isEmpty(fecTaskPojo)) {
+			return;
+		}
+		mDb.beginTransaction();
+		try {
+
+			ContentValues cv = new ContentValues();
+			for (FetchUIDTaskPojo pojo : fecTaskPojo) {
+				cv.put(HIKE_UID, pojo.getUid());
+				mDb.update(DBConstants.BOT_TABLE, cv, DBConstants.MSISDN + " =?", new String[]{pojo.getMsisdn()});
+				cv.clear();
+			}
+			mDb.setTransactionSuccessful();
+		} finally {
+			mDb.endTransaction();
+		}
 	}
 
 	public boolean isBotMuted(String msisdn)
@@ -4790,6 +4868,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 					participantsAlreadyAdded = false;
 					infoChangeOnly = true;
 				}
+				String currentUID=currentParticipant.getUid();
+				String newUidFromServer= newParticipantEntry.getValue().getFirst().getUid();
+
+				if (TextUtils.isEmpty(currentUID) && !TextUtils.isEmpty(newUidFromServer))
+				{
+					participantsAlreadyAdded = false;
+					infoChangeOnly = true;
+				}
 				currentParticipants.remove(newParticipantEntry.getKey());
 			}
 		}
@@ -4833,9 +4919,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 			{
 				ih = new InsertHelper(mDb, DBConstants.GROUP_MEMBERS_TABLE);
 				insertStatement = mDb.compileStatement("INSERT OR REPLACE INTO " + DBConstants.GROUP_MEMBERS_TABLE + " ( " + DBConstants.GROUP_ID + ", " + DBConstants.MSISDN
-						+ ", " + DBConstants.NAME + ", " + DBConstants.ONHIKE + ", " + DBConstants.HAS_LEFT + ", " + DBConstants.ON_DND + ", " + DBConstants.SHOWN_STATUS + ", " + DBConstants.TYPE 
+						+ ", " + DBConstants.NAME + ", " + DBConstants.ONHIKE + ", " + DBConstants.HAS_LEFT + ", " + DBConstants.ON_DND + ", " + DBConstants.SHOWN_STATUS + ", " + DBConstants.TYPE  + " , " + DBConstants.HIKE_UID
 						+" ) "
-						+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+						+ " VALUES (?, ?, ?, ?, ?, ?, ?, ? ,?)");
 				for (Entry<String, PairModified<GroupParticipant, String>> participant : participantList.entrySet())
 				{
 					GroupParticipant groupParticipant = participant.getValue().getFirst();
@@ -4847,8 +4933,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 					insertStatement.bindLong(ih.getColumnIndex(DBConstants.ON_DND), groupParticipant.onDnd() ? 1 : 0);
 					insertStatement.bindLong(ih.getColumnIndex(DBConstants.SHOWN_STATUS), groupParticipant.getContactInfo().isOnhike() ? 1 : 0);
 					insertStatement.bindLong(ih.getColumnIndex(DBConstants.TYPE), groupParticipant.isAdmin() ? 1 : 0);
+					if (!TextUtils.isEmpty(groupParticipant.getUid()))
+						insertStatement.bindString(ih.getColumnIndex(DBConstants.HIKE_UID), groupParticipant.getUid());
 					insertStatement.executeInsert();
-
+					insertStatement.clearBindings();
 					newParticipants.put(participant.getKey(), new PairModified<GroupParticipant, String>(groupParticipant, participant.getValue().getSecond()));
 				}
 				ContactManager.getInstance().addGroupParticipants(groupId, newParticipants);
@@ -5019,7 +5107,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		Cursor c = null;
 		try
 		{
-			c = mDb.query(DBConstants.GROUP_MEMBERS_TABLE, new String[] { DBConstants.MSISDN, DBConstants.HAS_LEFT, DBConstants.ONHIKE, DBConstants.NAME, DBConstants.ON_DND, DBConstants.TYPE },
+			c = mDb.query(DBConstants.GROUP_MEMBERS_TABLE, new String[] { DBConstants.MSISDN, DBConstants.HAS_LEFT, DBConstants.ONHIKE, DBConstants.NAME, DBConstants.ON_DND, DBConstants.TYPE,DBConstants.HIKE_UID },
 					selection, new String[] { groupId }, null, null, null);
 
 			Map<String, PairModified<GroupParticipant, String>> participantList = new HashMap<String, PairModified<GroupParticipant, String>>();
@@ -5029,7 +5117,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				String msisdn = c.getString(c.getColumnIndex(DBConstants.MSISDN));
 				allMsisdns.add(msisdn);
 				String name = c.getString(c.getColumnIndex(DBConstants.NAME));
-				GroupParticipant groupParticipant = new GroupParticipant(new ContactInfo(msisdn, msisdn, name, msisdn, c.getInt(c.getColumnIndex(DBConstants.ONHIKE)) != 0),
+				String uid = c.getString(c.getColumnIndex(DBConstants.HIKE_UID));
+				ContactInfo ci = new ContactInfo(msisdn, msisdn, name, msisdn, c.getInt(c.getColumnIndex(DBConstants.ONHIKE)) != 0);
+				ci.setUid(uid);
+				GroupParticipant groupParticipant = new GroupParticipant(ci,
 						c.getInt(c.getColumnIndex(DBConstants.HAS_LEFT)) != 0, c.getInt(c.getColumnIndex(DBConstants.ON_DND)) != 0, c.getInt(c.getColumnIndex(DBConstants.TYPE)), groupId);
 				participantList.put(msisdn, new PairModified<GroupParticipant, String>(groupParticipant, name));
 			}
@@ -5104,6 +5195,26 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				c.close();
 			}
 		}
+	}
+
+
+	public int getRankCountFromCategoryTable()
+	{
+		Cursor cursor = null;
+		int count;
+		try
+		{
+			cursor = mDb.query(DBConstants.STICKER_CATEGORY_RANK_TABLE, new String[] { DBConstants.RANK }, null, null, null, null, null);
+			count = cursor.getCount();
+		}
+		finally
+		{
+			if (cursor != null)
+			{
+				cursor.close();
+			}
+		}
+		return count;
 	}
 
 	public void toggleGroupMute(String groupId, boolean isMuted)
@@ -5955,16 +6066,33 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		updateStickerCategoryData(categoryId, null, totalNum, -1, null, null);
 	}
 
-	public void removeStickerCategory(String categoryId, boolean removeFromShopTable)
+	public void removeStickerCategory(String categoryId, boolean forceRemoveCategory)
 	{
-		if (removeFromShopTable)
+		try
 		{
-			mDb.delete(DBConstants.STICKER_CATEGORIES_TABLE, DBConstants._ID + "=?", new String[] { categoryId });
-			mDb.delete(DBConstants.STICKER_SHOP_TABLE, DBConstants._ID + "=?", new String[] { categoryId });
+
+			mDb.beginTransaction();
+
+			if (forceRemoveCategory)
+			{
+				Cursor cursor = mDb.query(DBConstants.STICKER_CATEGORIES_TABLE, new String[] { DBConstants.UCID }, DBConstants._ID + "=?", new String[] { categoryId }, null, null,
+						null);
+				if (cursor != null && cursor.moveToFirst())
+				{
+					String ucid = Integer.toString(cursor.getInt(cursor.getColumnIndex(DBConstants.UCID)));
+					mDb.delete(DBConstants.STICKER_CATEGORY_RANK_TABLE, DBConstants.UCID + "=?", new String[] { ucid });
+				}
+				mDb.delete(DBConstants.STICKER_CATEGORIES_TABLE, DBConstants._ID + "=?", new String[] { categoryId });
+			}
+			else
+			{
+				mDb.update(DBConstants.STICKER_CATEGORIES_TABLE, getDefaultStickerCategoryValues(categoryId), DBConstants._ID + "=?", new String[] { categoryId });
+			}
+			mDb.setTransactionSuccessful();
 		}
-		else
+		finally
 		{
-			mDb.update(DBConstants.STICKER_CATEGORIES_TABLE, getDefaultStickerCategoryValues(categoryId), DBConstants._ID + "=?", new String[] { categoryId });
+			mDb.endTransaction();
 		}
 	}
 
@@ -6004,17 +6132,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		}
 
 		mDb.update(DBConstants.STICKER_CATEGORIES_TABLE, contentValues, DBConstants._ID + "=?", new String[] { categoryId });
-		/*
-		 * There is no field as UPDATE_AVAILABLE in sticker shop
-		 */
-		contentValues.remove(DBConstants.UPDATE_AVAILABLE);
-		if(contentValues.size() > 0)
-		{
-			/*
-			 * if this category is also there in shop we need to update values there as well
-			 */
-			mDb.update(DBConstants.STICKER_SHOP_TABLE, contentValues, DBConstants._ID + "=?", new String[] { categoryId });
-		}
 	}
 
 	public LinkedHashMap<String, StickerCategory> getAllStickerCategoriesWithVisibility(boolean isVisible)
@@ -7508,7 +7625,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		}
 	}
 
-	public Pair<List<StickerCategory>, List<String>> getStickerCategoriesForDataUpdate()
+	public Pair<List<StickerCategory>, List<String>> getStickerCategoriesForDataUpdate(int limit)
 	{
 		Cursor cursor = null;
 		List<StickerCategory> metadataUpdateList = null;
@@ -7525,7 +7642,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 					+ " LEFT OUTER JOIN " + DBConstants.STICKER_CATEGORIES_TABLE + " ON " + DBConstants.STICKER_CATEGORY_RANK_TABLE + "." + DBConstants.UCID + "="
 					+ DBConstants.STICKER_CATEGORIES_TABLE + "." + DBConstants.UCID  + " order by "
 					+ DBConstants.STICKER_CATEGORY_RANK_TABLE + "." + DBConstants.RANK + " asc " + " limit "
-					+ HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FETCH_METADATA_PACK_COUNT, StickerConstants.DEFAULT_CATEGORIES_TO_FETCH_DATA);
+					+ limit;
 			cursor = mDb.rawQuery(query, null);
 			metadataUpdateList = new ArrayList<StickerCategory>(cursor.getCount());
 			tagdataUpdateList = new ArrayList<String>(cursor.getCount());
@@ -7565,6 +7682,78 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		}
 
 		return new Pair<List<StickerCategory>, List<String>>(metadataUpdateList, tagdataUpdateList);
+	}
+
+	public Cursor getCursorFromStickerCategoryTable(int limit)
+	{
+		/*
+		 * This will fetch the top categories from the order table and the corresponding ts of the categories from the categories in sorted order based on order table whose pack
+		 * metadata is not updated
+		 */
+		String query = "Select " + DBConstants._ID + ", " + DBConstants.CATEGORY_NAME + ", " + DBConstants.TOTAL_NUMBER + ", " + DBConstants.CATEGORY_SIZE + " from "
+				+ DBConstants.STICKER_CATEGORY_RANK_TABLE + " LEFT OUTER JOIN " + DBConstants.STICKER_CATEGORIES_TABLE + " ON " + DBConstants.STICKER_CATEGORY_RANK_TABLE + "."
+				+ DBConstants.UCID + "=" + DBConstants.STICKER_CATEGORIES_TABLE + "." + DBConstants.UCID + " order by " + DBConstants.STICKER_CATEGORY_RANK_TABLE + "."
+				+ DBConstants.RANK + " asc " + " limit " + limit;
+		Cursor cursor = mDb.rawQuery(query, null);
+		return cursor;
+	}
+
+	public Cursor getCursorForShopMetaDataUpdate(int limit)
+	{
+		/*
+		 * This will fetch the top 10000 categories from the order table and the corresponding ts of the categories from the categories in sorted order based on order table whose
+		 * pack metadata is not updated
+		 */
+		String query = "Select " + DBConstants.STICKER_CATEGORY_RANK_TABLE + "." + DBConstants.UCID + "," + DBConstants.STICKER_CATEGORY_RANK_TABLE + "."
+				+ DBConstants.IS_PACK_METADATA_UPDATED + ", " + DBConstants.STICKER_CATEGORIES_TABLE + "." + DBConstants.UPDATED_METADATA_TIMESTAMP + " from "
+				+ DBConstants.STICKER_CATEGORY_RANK_TABLE + " LEFT OUTER JOIN " + DBConstants.STICKER_CATEGORIES_TABLE + " ON " + DBConstants.STICKER_CATEGORY_RANK_TABLE + "."
+				+ DBConstants.UCID + "=" + DBConstants.STICKER_CATEGORIES_TABLE + "." + DBConstants.UCID + " order by " + DBConstants.STICKER_CATEGORY_RANK_TABLE + "."
+				+ DBConstants.RANK + " asc " + " limit " + limit;
+
+		Cursor cursor = mDb.rawQuery(query, null);
+
+		return cursor;
+	}
+
+	public List<StickerCategory> getCategoriesForShopMetadataUpdate(Cursor cursor)
+	{
+		List<StickerCategory> list = null;
+		try
+		{
+			/*
+			 * This will fetch the top 10000 categories from the order table and the corresponding ts of the categories from the categories in sorted order based on order table
+			 * whose pack metadata is not updated
+			 */
+			if (cursor!= null && cursor.getCount() > 0)
+			{
+				list = new ArrayList<>(cursor.getCount());
+
+				int updatedMetadataTsIdx = cursor.getColumnIndex(DBConstants.UPDATED_METADATA_TIMESTAMP);
+				int ucidIdx = cursor.getColumnIndex(DBConstants.UCID);
+				int isPackMetadataUpdatedIdx = cursor.getColumnIndex(DBConstants.IS_PACK_METADATA_UPDATED);
+				while (cursor.moveToNext())
+				{
+					if (cursor.getInt(isPackMetadataUpdatedIdx) == 0)
+					{
+						StickerCategory stickerCategory = new StickerCategory.Builder().setPackUpdationTime(cursor.getInt(updatedMetadataTsIdx)).setUcid(cursor.getInt(ucidIdx))
+								.build();
+						list.add(stickerCategory);
+					}
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			Logger.e(getClass().getSimpleName(), "getStickerCatToBeSendForMetaData", e);
+		}
+		finally
+		{
+			if (cursor != null)
+			{
+				cursor.close();
+			}
+		}
+		return list;
 	}
 
 	private class SharedMediaCursorIterator implements Iterator<HikeSharedFile>
@@ -7847,7 +8036,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		catch (Exception e)
 		{
 			e.printStackTrace();
-			Logger.e(getClass().getSimpleName(), "Exception in updateToNewStickerCategoryTable",e);
+			Logger.e(getClass().getSimpleName(), "Exception in updateToNewStickerCategoryTable", e);
 		}
 		finally
 		{
@@ -7872,15 +8061,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				+ DBConstants.IS_CUSTOM + " INTEGER DEFAULT 0," + DBConstants.CATEGORY_INDEX + " INTEGER," + DBConstants.CATEGORY_SIZE + " INTEGER DEFAULT 0,"
 				+ DBConstants.CATEGORY_DESCRIPTION + " TEXT," + DBConstants.STICKER_LIST + " TEXT, " + DBConstants.IS_DOWNLOADED + " INTEGER DEFAULT 0, " + DBConstants.SIMILAR_CATEGORIES + " TEXT, " + DBConstants.AUTHOR + " TEXT, " + DBConstants.COPYRIGHT_STRING + " TEXT, "
 				+ DBConstants.UCID + " INTEGER," + DBConstants.UPDATED_METADATA_TIMESTAMP + " INTEGER  DEFAULT 0," + DBConstants.UPDATED_PREVIEW_TIMESTAMP + " INTEGER  DEFAULT 0," + DBConstants.IS_DISABLED + " INTEGER DEFAULT 0" + " )";
-		return sql;
-	}
-
-	public String getStickerShopTableCreateQuery()
-	{
-		String sql = "CREATE TABLE IF NOT EXISTS " + DBConstants.STICKER_SHOP_TABLE + " (" + DBConstants._ID + " TEXT PRIMARY KEY, " + DBConstants.CATEGORY_NAME + " TEXT, "
-				+ DBConstants.TOTAL_NUMBER + " INTEGER, " + DBConstants.CATEGORY_SIZE + " INTEGER DEFAULT 0," + DBConstants.CATEGORY_DESCRIPTION + " TEXT,"
-				+ DBConstants.STICKER_LIST + " TEXT, " + DBConstants.SIMILAR_CATEGORIES + " TEXT, " + DBConstants.AUTHOR + " TEXT, " + DBConstants.COPYRIGHT_STRING + " TEXT " + " )";
-
 		return sql;
 	}
 
@@ -8010,31 +8190,36 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		contentValues.put(DBConstants.AUTHOR, stickerCategory.getAuthor());
 		contentValues.put(DBConstants.COPYRIGHT_STRING, stickerCategory.getCopyRightString());
 		contentValues.put(DBConstants.IS_DOWNLOADED, stickerCategory.isDownloaded());
-
+		contentValues.put(DBConstants.UPDATED_PREVIEW_TIMESTAMP, stickerCategory.getPreviewUpdationTime());
 		if (mDb.update(DBConstants.STICKER_CATEGORIES_TABLE, contentValues, DBConstants._ID + "=?", new String[] { stickerCategory.getCategoryId() }) <= 0)
 		{
 			mDb.insert(DBConstants.STICKER_CATEGORIES_TABLE, null, contentValues);
 		}
 	}
 
-	public long updateStickerCategoryRanks(JSONArray array)
+	public long updateStickerCategoryRanks(JSONArray array, boolean isUpdate)
 	{
 		ContentValues contentValues;
-		long count = 0;
+		long rank = 0;
 		try
 		{
 			mDb.beginTransaction();
-			mDb.delete(DBConstants.STICKER_CATEGORY_RANK_TABLE, null, null);
+			if (!isUpdate)
+			{
+				rank = 0;
+				mDb.delete(DBConstants.STICKER_CATEGORY_RANK_TABLE, null, null);
+			}
+			else
+			{
+				rank = getRankCountFromCategoryTable();
+			}
 			for (int i = 0; i < array.length(); i++)
 			{
 				contentValues = new ContentValues();
-				contentValues.put(DBConstants.RANK, i);
+				contentValues.put(DBConstants.RANK, rank);
 				contentValues.put(DBConstants.UCID, array.optInt(i, -1));
-				if(mDb.insert(DBConstants.STICKER_CATEGORY_RANK_TABLE, null, contentValues) > 0)
-				{
-					count++;
-				}
-
+				mDb.insertWithOnConflict(DBConstants.STICKER_CATEGORY_RANK_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_IGNORE);
+				rank++;
 			}
 			mDb.setTransactionSuccessful();
 		}
@@ -8046,13 +8231,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		{
 			mDb.endTransaction();
 		}
-		return count;
+		return rank;
 	}
 
 	/*
 	 * This method is called from sticker shop call responce.
 	 */
-	public void updateStickerCategoriesInDb(JSONArray jsonArray, boolean insertInShopTable)
+	public boolean updateStickerCategoriesInDb(JSONArray jsonArray, boolean insertInShopTable)
 	{
 		try
 		{
@@ -8085,17 +8270,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				{
 					mDb.insert(DBConstants.STICKER_CATEGORIES_TABLE, null, contentValues);
 				}
-				if (insertInShopTable)
-				{
-					mDb.insertWithOnConflict(DBConstants.STICKER_SHOP_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
-				}
 			}
 			mDb.setTransactionSuccessful();
+			return true;
 		}
 		catch (Exception e)
 		{
 			Logger.e(getClass().getSimpleName(), "Exception : ", e);
-			e.printStackTrace();
+			return false;
 		}
 		finally
 		{
@@ -8186,22 +8368,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 			mDb.endTransaction();
 		}
 	}
-
-    public Cursor getCursorForStickerShop()
-    {
-        Cursor c = null;
-        try
-        {
-            c = mDb.query(DBConstants.STICKER_SHOP_TABLE, new String[]{DBConstants._ID, DBConstants.TOTAL_NUMBER, DBConstants.CATEGORY_NAME, DBConstants.CATEGORY_SIZE}, null, null,
-                    null, null, null);
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            Logger.e(getClass().getSimpleName(), "Exception in updateToNewStickerCategoryTable",e);
-        }
-        return c;
-    }
 
 	public Map<Integer, StickerCategory> getCategoriesForShopSearch()
 	{
@@ -8383,7 +8549,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 			String author = c.getString(c.getColumnIndex(DBConstants.AUTHOR));
 			String copyRightString = c.getString(c.getColumnIndex(DBConstants.COPYRIGHT_STRING));
 			boolean isDisabled = c.getInt(c.getColumnIndex(DBConstants.IS_DISABLED)) == 1 ;
-			int updatedMetadataTs = c.getInt(c.getColumnIndex(DBConstants.UPDATED_METADATA_TIMESTAMP));
+			long updatedMetadataTs = c.getLong(c.getColumnIndex(DBConstants.UPDATED_METADATA_TIMESTAMP));
+			long updatedPreviewTs = c.getLong(c.getColumnIndex(DBConstants.UPDATED_PREVIEW_TIMESTAMP));
 			int ucid = c.getInt(c.getColumnIndex(DBConstants.UCID));
 			stickerCategory = new StickerCategory.Builder()
 					.setCategoryId(categoryId)
@@ -8405,6 +8572,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 					.setUcid(ucid)
 					.setIsDiabled(isDisabled)
 					.setPackUpdationTime(updatedMetadataTs)
+					.setPreviewUpdationTime(updatedPreviewTs)
 					.build();
 		}
 
@@ -8428,7 +8596,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 
 	public String getMetadataOfMessage(long messageId){
 		String selection = DBConstants.MESSAGE_ID + "=?";
-		Cursor c = mDb.query(MESSAGES_TABLE, new String[] { DBConstants.MESSAGE_METADATA }, selection, new String[] { String.valueOf(messageId) }, null, null, null);
+		Cursor c = mDb.query(MESSAGES_TABLE, new String[]{DBConstants.MESSAGE_METADATA}, selection, new String[]{String.valueOf(messageId)}, null, null, null);
 		if(c.moveToFirst()){
 			return c.getString(c.getColumnIndex(MESSAGE_METADATA));
 		}
@@ -8726,7 +8894,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 	{
 		ContentValues contentValues = new ContentValues();
 		contentValues.put(BOT_CONFIGURATION, configuration);
-		mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { botMsisdn });
+		mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[]{botMsisdn});
 	}
 
     /**
@@ -8739,7 +8907,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
     {
         ContentValues contentValues = new ContentValues();
         contentValues.put(CONVERSATION_METADATA, metadata);
-        mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { botMsisdn });
+        mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[]{botMsisdn});
     }
 
 	/**
@@ -8950,7 +9118,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		values.put(DBConstants.MSG_STATUS, newState);
 		//Reset the unread count
 		values.put(DBConstants.UNREAD_COUNT, 0);	
-		mDb.updateWithOnConflict(DBConstants.CONVERSATIONS_TABLE, values, MSISDN + "=?", new String[] { msisdn }, SQLiteDatabase.CONFLICT_REPLACE);
+		mDb.updateWithOnConflict(DBConstants.CONVERSATIONS_TABLE, values, MSISDN + "=?", new String[]{msisdn}, SQLiteDatabase.CONFLICT_REPLACE);
 	}
 
 	public BotInfo getBotInfoForMsisdn(String msisdn)
@@ -9082,13 +9250,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		{
 			if (!includeNormalEvent)
 			{
-				c = mDb.query(MESSAGE_EVENT_TABLE, new String[] { EVENT_ID, MESSAGE_HASH, EVENT_METADATA, MSISDN, EVENT_STATUS, DBConstants.TIMESTAMP},
+				c = mDb.query(MESSAGE_EVENT_TABLE, new String[] { EVENT_ID, MESSAGE_HASH, EVENT_METADATA, MSISDN, EVENT_STATUS, EVENT_PARENT_MSISDN, EVENT_FROM_USER_MSISDN, DBConstants.TIMESTAMP},
 						HIKE_CONTENT.NAMESPACE + "=? AND " + DBConstants.EVENT_TYPE + "=?", new String[] { nameSpace,
 								String.valueOf(HikePlatformConstants.EventType.SHARED_EVENT) }, null, null, DBConstants.TIMESTAMP + " DESC");
 			}
 			else
 			{
-				c = mDb.query(MESSAGE_EVENT_TABLE, new String[] { EVENT_ID, MESSAGE_HASH, EVENT_METADATA, MSISDN, EVENT_STATUS, EVENT_TYPE, DBConstants.TIMESTAMP },
+				c = mDb.query(MESSAGE_EVENT_TABLE, new String[] { EVENT_ID, MESSAGE_HASH, EVENT_METADATA, MSISDN, EVENT_STATUS, EVENT_PARENT_MSISDN, EVENT_FROM_USER_MSISDN, EVENT_TYPE, DBConstants.TIMESTAMP },
 						HIKE_CONTENT.NAMESPACE + "=?", new String[] { nameSpace }, null, null, DBConstants.TIMESTAMP + " DESC");
 			}
 
@@ -9103,6 +9271,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 			int eventMetadataIdx = c.getColumnIndex(DBConstants.EVENT_METADATA);
 			int msisdnIndex = c.getColumnIndex(MSISDN);
 			int eventStatusIdx = c.getColumnIndex(EVENT_STATUS);
+			int parentMsisdnIdx = c.getColumnIndex(EVENT_PARENT_MSISDN);
+			int fromUserIdx = c.getColumnIndex(EVENT_FROM_USER_MSISDN);
 			int timestampIdx = c.getColumnIndex(DBConstants.TIMESTAMP);
 
 			while (c.moveToNext())
@@ -9113,6 +9283,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				jsonObject.put(HikePlatformConstants.MESSAGE_HASH, c.getString(messageHashIdx));
 				jsonObject.put(HikePlatformConstants.EVENT_ID , c.getString(eventIdx));
 				jsonObject.put(HikePlatformConstants.EVENT_STATUS, c.getInt(eventStatusIdx));
+				jsonObject.put(EVENT_PARENT_MSISDN, c.getString(parentMsisdnIdx));
+				jsonObject.put(EVENT_FROM_USER_MSISDN, c.getString(fromUserIdx));
 				jsonObject.put(HikeConstants.TIMESTAMP, c.getInt(timestampIdx));
 				if (includeNormalEvent)
 				{
@@ -9142,7 +9314,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 
 		try
 		{
-			c = mDb.query(MESSAGE_EVENT_TABLE, new String[] { EVENT_ID, EVENT_METADATA, MSISDN, EVENT_STATUS, EVENT_TYPE, DBConstants.TIMESTAMP },
+			c = mDb.query(MESSAGE_EVENT_TABLE, new String[] { EVENT_ID, EVENT_METADATA, MSISDN, EVENT_STATUS, EVENT_TYPE, EVENT_PARENT_MSISDN, EVENT_FROM_USER_MSISDN, DBConstants.TIMESTAMP },
 					MESSAGE_HASH + "=? AND " + HIKE_CONTENT.NAMESPACE + "=?", new String[] { messageHash, namespace }, null, null, DBConstants.TIMESTAMP + " DESC");
 			if (c.getCount() <= 0)
 			{
@@ -9154,6 +9326,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 			int eventMetadataIdx = c.getColumnIndex(DBConstants.EVENT_METADATA);
 			int msisdnIndex = c.getColumnIndex(MSISDN);
 			int eventStatusIdx = c.getColumnIndex(EVENT_STATUS);
+			int parentMsisdnIdx = c.getColumnIndex(EVENT_PARENT_MSISDN);
+			int fromUserIdx = c.getColumnIndex(EVENT_FROM_USER_MSISDN);
 			int timestampIdx = c.getColumnIndex(DBConstants.TIMESTAMP);
 
 			while (c.moveToNext())
@@ -9163,6 +9337,59 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				jsonObject.put(HikePlatformConstants.EVENT_DATA, c.getString(eventMetadataIdx));
 				jsonObject.put(HikePlatformConstants.EVENT_ID, c.getString(eventIdx));
 				jsonObject.put(HikePlatformConstants.EVENT_STATUS, c.getInt(eventStatusIdx));
+				jsonObject.put(EVENT_PARENT_MSISDN, c.getString(parentMsisdnIdx));
+				jsonObject.put(EVENT_FROM_USER_MSISDN, c.getString(fromUserIdx));
+				jsonObject.put(HikeConstants.TIMESTAMP, c.getInt(timestampIdx));
+				jsonObject.put(HikePlatformConstants.EVENT_TYPE, c.getInt(c.getColumnIndex(EVENT_TYPE)));
+				dataList.add(jsonObject);
+			}
+			return dataList.toString();
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+			return "{}";
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+	}
+
+	public String getEventsForMessageHashFromUser(String messageHash, String namespace, String fromUserId)
+	{
+		Cursor c = null;
+
+		try
+		{
+			c = mDb.query(MESSAGE_EVENT_TABLE, new String[] { EVENT_ID, EVENT_METADATA, MSISDN, EVENT_STATUS, EVENT_TYPE, EVENT_PARENT_MSISDN, EVENT_FROM_USER_MSISDN, DBConstants.TIMESTAMP },
+					MESSAGE_HASH + "=? AND " + HIKE_CONTENT.NAMESPACE + "=? AND " + EVENT_FROM_USER_MSISDN + "=?", new String[] { messageHash, namespace, fromUserId }, null, null, DBConstants.TIMESTAMP + " DESC");
+			if (c.getCount() <= 0)
+			{
+				return "{}";
+			}
+
+			ArrayList<JSONObject> dataList = new ArrayList<>();
+			int eventIdx = c.getColumnIndex(DBConstants.EVENT_ID);
+			int eventMetadataIdx = c.getColumnIndex(DBConstants.EVENT_METADATA);
+			int msisdnIndex = c.getColumnIndex(MSISDN);
+			int eventStatusIdx = c.getColumnIndex(EVENT_STATUS);
+			int parentMsisdnIdx = c.getColumnIndex(EVENT_PARENT_MSISDN);
+			int fromUserIdx = c.getColumnIndex(EVENT_FROM_USER_MSISDN);
+			int timestampIdx = c.getColumnIndex(DBConstants.TIMESTAMP);
+
+			while (c.moveToNext())
+			{
+				String msisdn = c.getString(msisdnIndex);
+				JSONObject jsonObject = PlatformUtils.getPlatformContactInfo(msisdn);
+				jsonObject.put(HikePlatformConstants.EVENT_DATA, c.getString(eventMetadataIdx));
+				jsonObject.put(HikePlatformConstants.EVENT_ID, c.getString(eventIdx));
+				jsonObject.put(HikePlatformConstants.EVENT_STATUS, c.getInt(eventStatusIdx));
+				jsonObject.put(EVENT_PARENT_MSISDN, c.getString(parentMsisdnIdx));
+				jsonObject.put(EVENT_FROM_USER_MSISDN, c.getString(fromUserIdx));
 				jsonObject.put(HikeConstants.TIMESTAMP, c.getInt(timestampIdx));
 				jsonObject.put(HikePlatformConstants.EVENT_TYPE, c.getInt(c.getColumnIndex(EVENT_TYPE)));
 				dataList.add(jsonObject);
@@ -9185,7 +9412,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 
 	public void deleteEvent(String eventId)
 	{
-		mDb.delete(DBConstants.MESSAGE_EVENT_TABLE, DBConstants.EVENT_ID  + "=?", new String[]{eventId});
+		mDb.delete(DBConstants.MESSAGE_EVENT_TABLE, DBConstants.EVENT_ID + "=?", new String[]{eventId});
 	}
 
 	public void deleteAllEventsForMessage(String messageHash)
@@ -9208,6 +9435,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		values.put(DBConstants.TIMESTAMP, messageEvent.getSentTimeStamp());
 		values.put(DBConstants.MAPPED_EVENT_ID, messageEvent.getMappedEventId());
 		values.put(DBConstants.MSISDN, messageEvent.getMsisdn());
+		values.put(DBConstants.EVENT_PARENT_MSISDN, messageEvent.getParent_msisdn());
+		values.put(DBConstants.EVENT_FROM_USER_MSISDN, messageEvent.getFromUserMsisdn());
 		values.put(HIKE_CONTENT.NAMESPACE, messageEvent.getNameSpace());
 		String eventHash = messageEvent.createEventHash();
 		if (!TextUtils.isEmpty(eventHash))
@@ -9537,7 +9766,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 	}
 
 
-	public ConvMessage updateMessageForGeneralEvent(String msgHash, ConvMessage.State state, String hm,Long mappedMessageID)
+	public ConvMessage updateMessageForGeneralEvent(String msgHash, ConvMessage.State state, String hm,Long mappedMessageID, boolean isGroup, String fromUserMsisdn)
 	{
 		ConvMessage msg = null;
 		try
@@ -9553,18 +9782,31 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 			{
 				mappedmsgIdUpdate="";
 			}
-			updateStatement = "UPDATE " + DBConstants.MESSAGES_TABLE + " SET " + DBConstants.SORTING_ID + " = "
-					+ " ( ( " + "SELECT" + " MAX( " + DBConstants.SORTING_ID + " ) " + " FROM " + DBConstants.MESSAGES_TABLE + " )" + " + 1 ), "
-					+ DBConstants.MSG_STATUS + " = " + state.ordinal()+","
-					+ DBConstants.TIMESTAMP + " = " + System.currentTimeMillis()/1000+","
-					+ DBConstants.MESSAGE + " = " + DatabaseUtils.sqlEscapeString(hm)
-					+ mappedmsgIdUpdate
-					+ " WHERE " + DBConstants.MESSAGE_HASH + " = " + DatabaseUtils.sqlEscapeString(msgHash);
-
+			if(!isGroup)
+			{
+				updateStatement = "UPDATE " + DBConstants.MESSAGES_TABLE + " SET " + DBConstants.SORTING_ID + " = "
+						+ " ( ( " + "SELECT" + " MAX( " + DBConstants.SORTING_ID + " ) " + " FROM " + DBConstants.MESSAGES_TABLE + " )" + " + 1 ), "
+						+ DBConstants.MSG_STATUS + " = " + state.ordinal() + ","
+						+ DBConstants.TIMESTAMP + " = " + System.currentTimeMillis() / 1000 + ","
+						+ DBConstants.MESSAGE + " = " + DatabaseUtils.sqlEscapeString(hm)
+						+ mappedmsgIdUpdate
+						+ " WHERE " + DBConstants.MESSAGE_HASH + " = " + DatabaseUtils.sqlEscapeString(msgHash);
+			}
+			else
+			{
+				updateStatement = "UPDATE " + DBConstants.MESSAGES_TABLE + " SET " + DBConstants.SORTING_ID + " = "
+						+ " ( ( " + "SELECT" + " MAX( " + DBConstants.SORTING_ID + " ) " + " FROM " + DBConstants.MESSAGES_TABLE + " )" + " + 1 ), "
+						+ DBConstants.MSG_STATUS + " = " + state.ordinal() + ","
+						+ DBConstants.GROUP_PARTICIPANT + " = " + DatabaseUtils.sqlEscapeString(fromUserMsisdn) + ","
+						+ DBConstants.TIMESTAMP + " = " + System.currentTimeMillis() / 1000 + ","
+						+ DBConstants.MESSAGE + " = " + DatabaseUtils.sqlEscapeString(hm)
+						+ mappedmsgIdUpdate
+						+ " WHERE " + DBConstants.MESSAGE_HASH + " = " + DatabaseUtils.sqlEscapeString(msgHash);
+			}
 			mDb.execSQL(updateStatement);
 
 			msg =getMessageFromMessageHash(msgHash);
-			updateConvTable(msg);
+			updateConvTable(msg, isGroup, fromUserMsisdn);
 			mDb.setTransactionSuccessful();
 			HikeMessengerApp.getPubSub().publish(HikePubSub.GENERAL_EVENT_STATE_CHANGE,msg);
 		}
@@ -9662,9 +9904,25 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				final int contentIdColumn = c.getColumnIndex(DBConstants.HIKE_CONTENT.CONTENT_ID);
 				final int nameSpaceColumn = c.getColumnIndex(HIKE_CONTENT.NAMESPACE);
 				final int sortId = c.getColumnIndex(DBConstants.SORTING_ID);
+				final int metadataColumn = c.getColumnIndex(DBConstants.MESSAGE_METADATA);
 
 				ConvMessage message = new ConvMessage(c.getString(msgColumn), c.getString(msisdnColumn), c.getInt(tsColumn), ConvMessage.stateValue(c.getInt(msgStatusColumn)),
 						c.getLong(msgIdColumn), c.getLong(mappedMsgIdColumn), c.getString(groupParticipantColumn), true, c.getInt(typeColumn), c.getInt(contentIdColumn), c.getString(nameSpaceColumn), c.getLong(sortId));
+				String metadata = c.getString(metadataColumn);
+				try
+				{
+					if(message.getMessageType() == com.bsb.hike.HikeConstants.MESSAGE_TYPE.CONTENT){
+						message.platformMessageMetadata = new PlatformMessageMetadata(metadata, mContext);
+					}else if(message.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT || message.getMessageType() == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT){
+						message.webMetadata = new WebMetadata(metadata);
+					}else{
+						message.setMetadata(metadata);
+					}
+				}
+				catch (JSONException e)
+				{
+					Logger.w(HikeConversationsDatabase.class.getName(), "Invalid JSON metadata", e);
+				}
 				
 				return message;
 
@@ -9686,7 +9944,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		return null;
 	}
 
-	public void updateConvTable(ConvMessage convMessage)
+	public void updateConvTable(ConvMessage convMessage, boolean isGroup, String fromUserMsisdn)
 	{
 		ContentValues value=getContentValueForConversationMessage(convMessage, convMessage.getTimestamp());
 
@@ -9711,6 +9969,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 			contentValues.put(DBConstants.LAST_MESSAGE_TIMESTAMP, convMessage.getTimestamp());
 			contentValues.put(DBConstants.SORTING_TIMESTAMP, convMessage.getTimestamp());
 			contentValues.put(DBConstants.MESSAGE_ID, convMessage.getMsgID());
+			if(isGroup)
+			{
+				contentValues.put(DBConstants.GROUP_PARTICIPANT, fromUserMsisdn);
+			}
 
 			/**
 			 * InsertWithOnConflict returns -1 on error while inserting/replacing a new row
@@ -10242,6 +10504,44 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		return stickerSet;
 	}
 
+	public Set<String> getAllMsisdnsForMissingUID()
+	{
+		String query="Select distinct msisdn from " + DBConstants.GROUP_MEMBERS_TABLE + " where uid is null and " + DBConstants.ONHIKE  + " = 1";
+
+		Cursor c =mDb.rawQuery(query,null);
+
+		Set<String> msisdns = new HashSet<>(c.getCount());
+		String msisdn = null;
+		while(c.moveToNext())
+		{
+			msisdn = c.getString(c.getColumnIndex(DBConstants.MSISDN));
+			msisdns.add(msisdn);
+		}
+		return msisdns;
+	}
+
+	public void updateContactUidForGroupMembers(Set<FetchUIDTaskPojo> data) {
+		if (Utils.isEmpty(data)) {
+			return;
+		}
+		mDb.beginTransaction();
+		try {
+			ContentValues cv = new ContentValues();
+			for (FetchUIDTaskPojo d : data) {
+				if (TextUtils.isEmpty(d.getUid())) {    // onHike is false
+					cv.put(DBConstants.ONHIKE, 0);
+				} else {
+					cv.put(DBConstants.HIKE_UID, d.getUid());
+					cv.put(DBConstants.ONHIKE, 1);
+				}
+				long rows = mDb.update(DBConstants.GROUP_MEMBERS_TABLE, cv, DBConstants.MSISDN + "=?", new String[]{d.getMsisdn()});
+				cv.clear();
+			}
+			mDb.setTransactionSuccessful();
+		} finally {
+			mDb.endTransaction();
+		}
+	}
 	//Methods to create the query for table creation for OTA Chat Themes
 	/**
 	 * Method to create a query for creating CHAT_THEME_ASSET_TABLE in the database

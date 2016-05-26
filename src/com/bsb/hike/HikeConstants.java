@@ -769,7 +769,7 @@ public class HikeConstants
 	public static final String TOGGLE = "toggle";
 
     public static final String HTTP_NETWORK_CHECK_CALL = "httpNetworkCheckCall";
-
+	public static final String FETCH_UID_UPGRADE_SUCCESSFULL = "uid_up_suc";
 	public static String ADD_URL = "addUrl";
 	public static String DELETE_URL = "deleteUrl";
 
@@ -1986,11 +1986,19 @@ public class HikeConstants
 
         public static final String RESULT_CODE = "result_code";
 
+		public static final String IS_GROUP_FIRST = "is_group_first";
+
+		public static final String IS_RECENT_JOINED = "is_recent_joined";
+
+		public static final String COMPOSE_EXCLUDE_LIST = "compose_exclude_list";
+
 		public static final String PROFILE_DOB = "profile_dob";
 
 		public static final String GENUS = "genus_extra";
 
 		public static final String SPECIES = "species_extra";
+
+		public static final String BIRTHDAY_NOTIF = "birthday_notif";
     }
 
 	public static final class LogEvent
@@ -2954,7 +2962,7 @@ public class HikeConstants
 	public static final class GeneralEventMessagesTypes
 	{
 		public static final String MESSAGE_EVENT = "me";
-		
+
 		public static final String OFFLINE = "offline";
 
 		public static final String GENERAL_EVENT_DR = "dr";
@@ -3089,6 +3097,18 @@ public class HikeConstants
 		public static final String PERSIST_CHAT = "Cht";
 
 		public static final boolean defaultPersistChat = false;
+
+		public static final String RICH_NOTIF = "Rich";
+
+		public static final String NOTIF_ACTION_INTENT = "com.bsb.hike.UJ_NOTIF_ACTION_INTENT";
+
+		public static final String ACTION_SAY_HI = "say_hi";
+
+		public static final String ACTION_DEFAULT = "open_chat";
+
+		public static final String ACTION_ADD_FRIEND = "add_friend";
+
+		public static final String TAG = "ujTag";
 
 	}
 
@@ -3270,6 +3290,8 @@ public class HikeConstants
 	public static final String STATE = "state";
 
 	public static final String UPDATE_SHOP_RANK_TIMESTAMP = "updateOrderTimeStamp";
+
+	public static final String ALREDAY_FETCHED_CATEGORIES_RANK_LIMIT = "alreadyFetchedCategoriesRankLimit";
 
 	public static final long DEFAULT_RETRY_NOTIF_TIME = 20 * 60 * 1000; // 20
 																		// minutes
@@ -4232,6 +4254,8 @@ public class HikeConstants
 
 		public static final String FORWARD_SCREEN = "fwd_screen";
 
+		public static final String NOTIF = "notif";
+
 		public static final String UNKNOWN = "unknown";
 	}
 
@@ -4244,6 +4268,8 @@ public class HikeConstants
 	public static final String POSITION = "pos";
 
 	public static final String VIEW_ALL_CLICKED = "viewAllClicked";
+
+    public static final String FAVS_RAI="favs";
 
 	public static final int DEFAULT_RETRIES_GCM_NW_MANAGER = 5;
 
@@ -4310,4 +4336,18 @@ public class HikeConstants
 	public static final String DISABLE_QUICK_UPLOAD = "disable_md5";
 
 	public static final String SET_ID = "setId";
+
+	public static final String TRIGGER_BIRTHDAY_ID = "t_b_id";
+
+	public static final String SINGLE_BDAY_NOTIF_TITLE = "s_b_n_t";
+
+	public static final String MULTIPLE_BDAY_NOTIF_TITLE = "m_b_n_t";
+
+	public static final String SINGLE_BDAY_NOTIF_SUBTEXT = "s_b_n_st";
+
+	public static final String MULTIPLE_BDAY_NOTIF_SUBTEXT = "m_b_n_st";
+
+	public static final String CTAS = "ctas";
+
+	public static final String ACTION = "action";
 }
