@@ -2838,7 +2838,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
         if(CustomKeyboardManager.getInstance().shouldShowInputBox(mConversation.getMsisdn()))
         {
-            CustomKeyboardManager.getInstance().initInputBox(activity,this,this,mConversation.getMsisdn());
+            CustomKeyboardManager.getInstance().initInputBox(activity.getApplicationContext(),this,this,mConversation.getMsisdn());
             sendUIMessage(SHOW_INPUT_BOX, mConversation.getMsisdn());
         }
 
@@ -4213,7 +4213,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
             if(CustomKeyboardManager.getInstance().shouldShowInputBox(senderMsisdn))
             {
-                CustomKeyboardManager.getInstance().initInputBox(activity,this,this,senderMsisdn);
+                CustomKeyboardManager.getInstance().initInputBox(activity.getApplicationContext(),this,this,senderMsisdn);
                 sendUIMessage(SHOW_INPUT_BOX, senderMsisdn);
             }
             else
@@ -6670,7 +6670,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
     private void createInputBox(Object object)
     {
-        CustomKeyboardManager.getInstance().initInputBox(activity,this,this,msisdn);
+        CustomKeyboardManager.getInstance().initInputBox(activity.getApplicationContext(),this,this,msisdn);
         sendUIMessage(SHOW_INPUT_BOX, object);
     }
 
@@ -6685,7 +6685,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
             customKeyboardManager.setInputBoxButtonShowing(msisdn,true);
         }
 
-		CustomKeyboard customKeyboard = CustomKeyboardManager.getInstance().getCustomKeyboardObject(msisdn);
+		final CustomKeyboard customKeyboard = CustomKeyboardManager.getInstance().getCustomKeyboardObject(msisdn);
 		final int customKeyBoardHeight = CustomKeyboardInputBoxAdapter.getCustomKeyBoardHeight(customKeyboard);
 
         // Added show popup method on post delayed so that main view gets inflated till now and so that mainView window token not get null  in keyboard popup layout code.
@@ -6695,15 +6695,15 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
                 if(mShareablePopupLayout != null)
                     mShareablePopupLayout.showPopup(CustomKeyboardManager.getInstance(), activity.getResources().getConfiguration().orientation, customKeyBoardHeight);
 
+                if(customKeyboard != null && customKeyboard.isHidden())
+                {
+                    mShareablePopupLayout.dismiss();
+                    setComposeViewDefaultState();
+                    customKeyboard.setHidden(false);
+                }
             }
         },100);
 
-        if(customKeyboard != null && customKeyboard.isHidden())
-        {
-            mShareablePopupLayout.dismiss();
-            setComposeViewDefaultState();
-            customKeyboard.setHidden(false);
-        }
     }
 
 	private void dismissInputBox()
