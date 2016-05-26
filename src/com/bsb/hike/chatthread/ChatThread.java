@@ -596,17 +596,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 
 	/**
-<<<<<<< HEAD
 	 * This method handles the UI part of Mute conversation It is to be strictly called from the UI Thread
 	 * 
-=======
-	 * This method handles the UI part of Mute group conversation It is to be strictly called from the UI Thread
-	 *
-<<<<<<< HEAD
->>>>>>> a1d582dcaf03dc47df4dab214aad5ac2d75d0780
-=======
->>>>>>> 3bfc37619ba448d9e5d8560f34cc109e499cd9c3
->>>>>>> 137330cc4bc3998b359646e5d7780493b22830b9
 	 * @param isMuted
 	 */
 	private void muteConvToggledUIChange(boolean isMuted)
