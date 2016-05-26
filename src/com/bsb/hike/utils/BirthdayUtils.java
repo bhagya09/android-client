@@ -27,7 +27,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Set;
 
 /**
@@ -184,12 +186,12 @@ public class BirthdayUtils
                     @Override
 
                     public int compare(ContactInfo lhs, ContactInfo rhs) {
-                        return lhs.getFirstName().compareTo(rhs.getFirstName());
-
+                        return lhs.getNameOrMsisdn().compareTo(rhs.getNameOrMsisdn());
                     }
 
                 });
             }
+            Logger.d("bday_", " Now Sorted list is  " + bdayList);
         }
         return bdayList;
     }
