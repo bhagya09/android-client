@@ -179,6 +179,7 @@ public class BotsStickerAdapter extends BaseAdapter implements View.OnClickListe
 		if (convertView == null)
 		{
 			viewHolder = new ViewHolder();
+            // Adding padding around stickers in custom keyboard
             int padding = (int) (5 * Utils.scaledDensityMultiplier);
 			switch (viewType)
 			{
@@ -251,6 +252,10 @@ public class BotsStickerAdapter extends BaseAdapter implements View.OnClickListe
 
 			if (itemList.contains(item))
 			{
+                /*
+                 * Here logic is to add the downloaded sticker with updating its state at the same position in the list where it was earlier placed
+                 * Remove the sticker item from the list which was in downloading state earlier (It would be at the next position after adding sticker)
+                 */
 				int stickerPosition = itemList.indexOf(item);
 				if (stickerPosition <= itemList.size())
 					itemList.add(stickerPosition, new StickerPageAdapterItem(StickerPageAdapterItem.STICKER, sticker));
