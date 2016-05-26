@@ -64,6 +64,7 @@ import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthread.ChatThreadActivity;
+import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -814,7 +815,14 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		case PICK_CONTACT_AND_SEND_MODE:
 		case PICK_CONTACT_MODE:
 			//We do not show sms contacts in broadcast mode
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false, false,isContactChooserFilter,isShowTimeline(), false);
+			// read intent to find if group chat is enabled or not. also read to find out if any chats are excluded
+			boolean isGroupFirst = getIntent().getBooleanExtra(HikeConstants.Extras.IS_GROUP_FIRST, false);
+			boolean isRecentJoined = getIntent().getBooleanExtra(HikeConstants.Extras.IS_RECENT_JOINED, fetchRecentlyJoined);
+			List<String> excludeGroupList = getIntent().getStringArrayListExtra(HikeConstants.Extras.COMPOSE_EXCLUDE_LIST);
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage || isGroupFirst, (isForwardingMessage && !isSharingFile), isRecentJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false, false,isContactChooserFilter,isShowTimeline(), false);
+
+			adapter.setGroupFirst(isGroupFirst);
+			adapter.setComposeExcludeList(excludeGroupList);
 			break;
 		case CREATE_GROUP_MODE:
 			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId,
@@ -1134,8 +1142,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				{
 					Intent in = IntentFactory.createChatThreadIntentFromContactInfo(this, contactInfo, false, false, ChatThreadActivity.ChatThreadOpenSources.NEW_COMPOSE);
 					in.putExtra(HikeConstants.Extras.MSG, getString(R.string.composeview_bday));
-					in.putExtra(HikeConstants.Extras.SHOW_KEYBOARD, true);
-					in.putExtra(HikeConstants.STICKER_TAG_REFRESH_TIME_INTERVAL, HikeConstants.DEFAULT_STICKER_SEARCH_TRIGGER_DELAY);
 					startActivity(in);
 				}
 				else
@@ -2305,14 +2311,19 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						
 						if (file.length() > HikeConstants.MAX_FILE_SIZE)
 						{
-							showMaxFileToast = true;
+
 							if (offlineContact != null)
 							{
 								FileTransferData fileData = initialiseFileTransfer(filePath, null, hikeFileType, fileType, false, -1, true, arrayList,imageCaptions.get(i));
 								offlineFileTransferList.add(fileData);
+								continue;
+							} else {
+								if(!ChatThreadUtils.isMaxSizeUploadableFile(hikeFileType, ComposeChatActivity.this)) {
+									showMaxFileToast = true;
+									continue;
+								}
 							}
-							continue;
-								
+
 						}
 						FileTransferData fileData = initialiseFileTransfer(filePath, null, hikeFileType, fileType, false, -1, true, arrayList,imageCaptions.get(i));
 						if(fileData!=null){
@@ -2729,9 +2740,12 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					}
 					else
 					{
-						FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_1_2, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init",
-								"Compose - forwardMessageAsPerType - Max size reached.");
-						Toast.makeText(ComposeChatActivity.this, R.string.max_file_size, Toast.LENGTH_SHORT).show();
+						//CE-815: max size toast appears even before compressing a 100MB+ video
+						if(!ChatThreadUtils.isMaxSizeUploadableFile(hikeFileType, ComposeChatActivity.this)) {
+							FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_1_2, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init",
+									"Compose - forwardMessageAsPerType - Max size reached.");
+							Toast.makeText(ComposeChatActivity.this, R.string.max_file_size, Toast.LENGTH_SHORT).show();
+						}
 					}
 							
 				}

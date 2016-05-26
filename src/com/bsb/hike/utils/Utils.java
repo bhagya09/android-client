@@ -1207,6 +1207,7 @@ public class Utils
 			data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis() / 1000));
 			data.put(HikeConstants.RESOLUTION_ID, Utils.getResolutionId());
 			data.put(HikeConstants.NEW_LAST_SEEN_SETTING, true);
+			data.put(HikeConstants.FAVS_RAI,false);
 			requestAccountInfo.put(HikeConstants.DATA, data);
 			HikeMqttManagerNew.getInstance().sendMessage(requestAccountInfo, MqttConstants.MQTT_QOS_ONE);
 		}
@@ -1661,6 +1662,7 @@ public class Utils
 		{
 			AccountUtils.base = httpString + AccountUtils.host + "/v1";
 			AccountUtils.baseV2 = httpString + AccountUtils.host + "/v2";
+			AccountUtils.baseV3 = httpString + AccountUtils.host + "/v3";
 			AccountUtils.SDK_AUTH_BASE = AccountUtils.SDK_AUTH_BASE_URL_PROD;
 		}
 		else
@@ -1668,6 +1670,7 @@ public class Utils
 			setHostAndPort(whichServer, AccountUtils.ssl);
 			AccountUtils.base = httpString + AccountUtils.host + ":" + Integer.toString(AccountUtils.port) + "/v1";
 			AccountUtils.baseV2 = httpString + AccountUtils.host + ":" + Integer.toString(AccountUtils.port) + "/v2";
+			AccountUtils.baseV3 = httpString + AccountUtils.host + ":" + Integer.toString(AccountUtils.port) + "/v3";
 			AccountUtils.SDK_AUTH_BASE = AccountUtils.SDK_AUTH_BASE_URL_STAGING;
 		}
 
@@ -3127,16 +3130,30 @@ public class Utils
 		return convMessage.getMessage();
 	}
 
-	public static void deleteFile(File file)
+	public static boolean deleteFile(File file)
 	{
+		boolean result = true;
+
+		if (!file.exists())
+		{
+			return false;
+		}
+
 		if (file.isDirectory())
 		{
-			for (File f : file.listFiles())
+			File listFiles[] = file.listFiles();
+			if(listFiles == null)
 			{
-				deleteFile(f);
+				return false;
+			}
+			for (File f : listFiles)
+			{
+				result = result && deleteFile(f);
 			}
 		}
-		file.delete();
+		result = result && file.delete();
+
+		return result;
 	}
 
 	public static void deleteFile(Context context, String filename, HikeFileType type)
@@ -7902,22 +7919,36 @@ public class Utils
 
 		if (!newRootDir.exists())
 		{
-			result = result && newRootDir.mkdirs();
+			result = newRootDir.mkdirs();
 		}
 
-		if (!oldRootDir.exists() || (oldRootDir.listFiles() == null))
+		else // newRootDir exists, but can it be a simple file instead of DIR ?
+		{
+			if (!newRootDir.isDirectory())
+			{
+				result = deleteFile(newRootDir) && newRootDir.mkdirs();
+			}
+		}
+		File listFiles[] = oldRootDir.listFiles();
+
+		if (!oldRootDir.exists() || (listFiles == null))
 		{
 			Logger.d("StickerMigration", "Migration unsuccessful but new folder created");
-			return true; // Migration unsuccessful but new folder created
+			StickerManager.getInstance().recordStickerMigrationFailure("Migration unsuccessful but new folder created, The oldDir was absent or listFiles were null");
+			return result; // Migration unsuccessful but new folder created
 		}
 
 		if (result)
 		{
-			for (File f : oldRootDir.listFiles())
+			for (File f : listFiles)
 			{
 				if (f.isDirectory())
 				{
 					File newDir = new File(newRootDir, f.getName());
+					if (!newDir.exists())
+					{
+						newDir.mkdirs();
+					}
 					result = result && moveDirectoryByRename(f, newDir);
 				}
 				else
@@ -7925,8 +7956,9 @@ public class Utils
 					File newFile = new File(newRootDir, f.getName());
 					if (newFile.exists())
 					{
-						result = result && newFile.delete();
+						result = result && Utils.deleteFile(newFile);
 					}
+
 					result = result && f.renameTo(newFile);
 				}
 			}
@@ -8222,5 +8254,44 @@ public class Utils
 	public static boolean isEmpty(byte[] argument)
 	{
 		return (argument == null) || argument.length == 0;
+	}
+
+	public static int getFilesCountRecursive(File file)
+	{
+		if (file == null)
+		{
+			return 0;
+		}
+
+		try
+		{
+			if (!file.exists() || file.listFiles() == null)
+			{
+				return 0;
+			}
+
+			int count = 0;
+
+			for (File newFile : file.listFiles())
+			{
+				if (newFile.isDirectory())
+				{
+					count += getFilesCountRecursive(newFile);
+				}
+
+				else
+				{
+					count++;
+				}
+			}
+
+			return count;
+		}
+
+		catch (Exception e) // To prevent any File I/O exceptions!
+		{
+			return 0;
+		}
+
 	}
 }

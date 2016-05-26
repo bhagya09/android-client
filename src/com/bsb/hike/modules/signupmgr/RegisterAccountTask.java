@@ -15,6 +15,7 @@ import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.httpmgr.retry.BasicRetryPolicy;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -152,6 +153,8 @@ public class RegisterAccountTask
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
+			String paUid = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Preactivation.UID, "");
+
 			String os = HikeConstants.ANDROID;
 			String carrier = manager.getNetworkOperatorName();
 			String device = Build.MANUFACTURER + " " + Build.MODEL;
@@ -174,6 +177,7 @@ public class RegisterAccountTask
 			data.put("deviceid", deviceId);
 			data.put("devicetoken", deviceId);
 			data.put("deviceversion", device);
+			data.put(HikeConstants.Preactivation.UID, paUid);
 			data.put(HikeConstants.DEVICE_KEY, deviceKey);
 			data.put("appversion", appVersion);
 			data.put("invite_token", context.getSharedPreferences(HikeMessengerApp.REFERRAL, Context.MODE_PRIVATE).getString("utm_source", ""));

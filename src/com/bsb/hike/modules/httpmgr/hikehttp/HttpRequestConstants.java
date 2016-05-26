@@ -55,6 +55,14 @@ public class HttpRequestConstants
 	//TODO CHATTHEME change the URL to Production
 	private static String BASE_CHATTHEME_URL = HTTP + STAGING_API;
 
+    private static final String BASE_PRODUCTION_ABTEST_EXPERIMENT_URL = HTTP + "eps.analytics.hike.in";
+
+	private static final String BASE_STAGING_ABTEST_EXPERIMENT_URL = HTTP + "eps-staging.analytics.hike.in";
+
+	private static final String ABTEST_NEW_EXPERIMENT_API = "/new_user_experiments";
+
+	private static String ABTEST_EXPERIMENT_URL = BASE_PRODUCTION_ABTEST_EXPERIMENT_URL + ABTEST_NEW_EXPERIMENT_API;
+
 	private static final String BASE_V1 = "/v1";
 
 	private static final String BASE_V2 = "/v2";
@@ -135,6 +143,7 @@ public class HttpRequestConstants
 		changeBaseUrl();
 		changeBasePlatformUrl();
 		changeBaseStickersUrl();
+		changeABTestExpFetchUrl();
 		changeBaseAuthUrl();
 		changeChatThemeUrl();
 	}
@@ -210,6 +219,12 @@ public class HttpRequestConstants
 		BASE_STICKERS_CDN_URL += (isProduction) ? STICKERS_CDN_PRODUCTION_API : STAGING_API;
 	}
 
+	//TODO Check on SSL URL
+	private static void changeABTestExpFetchUrl()
+	{
+		ABTEST_EXPERIMENT_URL = (isProduction) ? BASE_PRODUCTION_ABTEST_EXPERIMENT_URL : BASE_STAGING_ABTEST_EXPERIMENT_URL;
+		ABTEST_EXPERIMENT_URL+= ABTEST_NEW_EXPERIMENT_API;
+	}
 	//TODO CHATTHEME Revisit PRODUCTION URL
 	private static void changeChatThemeUrl()
 	{
@@ -371,6 +386,11 @@ public class HttpRequestConstants
 		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/addressbook";
 	}
 
+	public static String postAddressbookBaseV3Url()
+	{
+		return BASE_URL + BASE_V3 + BASE_ACCOUNT + "/addressbook";
+	}
+
 	public static String updateAddressbookBaseUrl()
 	{
 		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/addressbook-update";
@@ -457,6 +477,12 @@ public class HttpRequestConstants
 	{
 		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/profile/";
 	}
+
+	public static String getHikeJoinTimeBaseV2Url()
+	{
+		return BASE_URL + BASE_V2 + BASE_ACCOUNT + "/profile/";
+	}
+
 
 	public static String registerAccountBaseUrl()
 	{
@@ -649,6 +675,11 @@ public class HttpRequestConstants
 		}
 	}
 
+	public static String getAbTestingNewUserExpUrl()
+	{
+		return  ABTEST_EXPERIMENT_URL;
+	}
+
     /*
      * Async Method to fetch latest micro app from server for forward card case
      */
@@ -671,7 +702,11 @@ public class HttpRequestConstants
 		return  BASE_URL + BASE_V1 + "hsu/";
 	}
 
-	public static String getSettingsUploadUrl()
+	public static String fetchUIDForMissingMsisdnUrl()
+	{
+		return BASE_URL + BASE_V2 +BASE_ACCOUNT+ "/user-identifier-update-graph";
+	}
+		public static String getSettingsUploadUrl()
 	{
 		return  BASE_URL + BASE_V5 + HIKE_SETTINGS;
 	}

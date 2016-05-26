@@ -33,11 +33,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -99,10 +101,12 @@ import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.TellAFriend;
 import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.BirthdayUtils;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
@@ -279,7 +283,7 @@ public class PlatformUtils
 			if (activityName.equals(HIKESCREEN.COMPOSE_CHAT_WITH_BDAY.toString()))
 			{
 				if (mmObject.has(HikeConstants.MSISDNS)) {
-					ChatHeadUtils.saveBirthdaysFromTip(mmObject);
+					BirthdayUtils.saveBirthdaysFromTip(mmObject);
 				}
 				context.startActivity(IntentFactory.getComposeChatIntent(context));
 			}
@@ -419,10 +423,10 @@ public class PlatformUtils
 					Logger.e(TAG, "Msisdn is missing in the packet");
 					return;
 				}
-				if(StealthModeManager.getInstance().isStealthMsisdn(msisdn))
+				if(StealthModeManager.getInstance().isStealthMsisdn(msisdn) && !StealthModeManager.getInstance().isActive() &&
+						PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.STEALTH_INDICATOR_ENABLED, false))
 				{
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STEALTH_INDICATOR_SHOW_REPEATED, true);
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STEALTH_INDICATOR_SHOW_ONCE, true);
 					HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_INDICATOR, null);
 					return;
 				}
@@ -436,8 +440,6 @@ public class PlatformUtils
 						if(!TextUtils.isEmpty(preTypedText))
 						{
 							in.putExtra(HikeConstants.Extras.MSG, preTypedText);
-							in.putExtra(HikeConstants.Extras.SHOW_KEYBOARD, true);
-							in.putExtra(HikeConstants.STICKER_TAG_REFRESH_TIME_INTERVAL, mmObject.optLong(HikeConstants.STICKER_TAG_REFRESH_TIME_INTERVAL, HikeConstants.DEFAULT_STICKER_SEARCH_TRIGGER_DELAY));
 						}
 					}
 					context.startActivity(in);
@@ -1546,9 +1548,13 @@ public class PlatformUtils
 					{
 						mappedEventId = sharedData.getLong(HikePlatformConstants.MAPPED_EVENT_ID);
 					}
-					String metadata = sharedData.getString(HikePlatformConstants.EVENT_CARDDATA);
+					JSONObject metadata = new JSONObject(sharedData.getString(HikePlatformConstants.EVENT_CARDDATA));
+
+					metadata.put(HikePlatformConstants.EVENT_FROM_USER_MSISDN, sharedData.getJSONObject(HikePlatformConstants.EVENT_CARDDATA).optString(HikePlatformConstants.EVENT_FROM_USER_MSISDN, conv.getSenderMsisdn()));
+					metadata.put(HikePlatformConstants.PARENT_MSISDN, sharedData.getJSONObject(HikePlatformConstants.EVENT_CARDDATA).optString(HikePlatformConstants.PARENT_MSISDN, ""));
+
 					int state = conv.isSent() ? HikePlatformConstants.EventStatus.EVENT_SENT : HikePlatformConstants.EventStatus.EVENT_RECEIVED;
-					MessageEvent messageEvent = new MessageEvent(eventType, conv.getMsisdn(), namespace, metadata, conv.createMessageHash(), state, conv.getSendTimestamp(),
+					MessageEvent messageEvent = new MessageEvent(eventType, conv.getMsisdn(), namespace, metadata.toString(), conv.createMessageHash(), state, conv.getSendTimestamp(),
 							mappedEventId);
 					long eventId = HikeConversationsDatabase.getInstance().insertMessageEvent(messageEvent);
 					if (eventId < 0)
@@ -1579,7 +1585,7 @@ public class PlatformUtils
 	 * @param messageHash
 	 * @param nameSpace
 	 */
-	public static void sendPlatformMessageEvent(String eventMetadata, String messageHash, String nameSpace)
+	public static void sendPlatformMessageEvent(String eventMetadata, String messageHash, String nameSpace, BotInfo botInfo)
 	{
 		String msisdn = HikeConversationsDatabase.getInstance().getMsisdnFromMessageHash(messageHash);
 		if (TextUtils.isEmpty(msisdn))
@@ -1591,10 +1597,11 @@ public class PlatformUtils
 		try
 		{
 			JSONObject data = new JSONObject(eventMetadata);
-			String cardData = data.getString(HikePlatformConstants.EVENT_CARDDATA);
-			MessageEvent messageEvent = new MessageEvent(HikePlatformConstants.NORMAL_EVENT, msisdn, nameSpace, cardData, messageHash,
+			data.getJSONObject(HikePlatformConstants.EVENT_CARDDATA).put(HikePlatformConstants.EVENT_FROM_USER_MSISDN, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null));
+			data.getJSONObject(HikePlatformConstants.EVENT_CARDDATA).put(HikePlatformConstants.PARENT_MSISDN, BotUtils.getParentMsisdnFromBotMsisdn(botInfo.getMsisdn()));
+			JSONObject cardData = new JSONObject(data.getString(HikePlatformConstants.EVENT_CARDDATA));
+			MessageEvent messageEvent = new MessageEvent(HikePlatformConstants.NORMAL_EVENT, msisdn, nameSpace, cardData.toString(), messageHash,
 					HikePlatformConstants.EventStatus.EVENT_SENT, System.currentTimeMillis());
-
 			HikeMessengerApp.getPubSub().publish(HikePubSub.PLATFORM_CARD_EVENT_SENT, new Pair<MessageEvent, JSONObject>(messageEvent, data));
 		}
 		catch (JSONException e)
@@ -1634,14 +1641,39 @@ public class PlatformUtils
 			{
 				jsonObject = new JSONObject();
 				jsonObject.put("name", msisdn);
+				jsonObject.put(HikePlatformConstants.MSISDN, msisdn);
 			}
 			else
 			{
 				jsonObject = info.getPlatformInfo();
 			}
+			if(OneToNConversationUtils.isGroupConversation(msisdn)) {
+				jsonObject.put("name", ContactManager.getInstance().getGroupDetails(msisdn).getGroupName());
+			}
+			BitmapDrawable bitmap = HikeMessengerApp.getLruCache().getIconFromCache(msisdn);
+			if(bitmap !=null)
+			{
+				String picture = Utils.drawableToString(bitmap);
+				File contactPicFile = new File(HikeMessengerApp.getInstance().getExternalCacheDir(), "contact_"+ msisdn + ".jpg");
+				if(!contactPicFile.exists())
+				{
+					contactPicFile.createNewFile();
+					Utils.saveByteArrayToFile(contactPicFile, picture.getBytes());
+				}
+				jsonObject.put("picture", contactPicFile.getAbsolutePath());
+			}
+			else
+			{
+				jsonObject.put("picture" , "");
+			}
 			return jsonObject;
 		}
 		catch (JSONException e)
+		{
+			e.printStackTrace();
+			return new JSONObject();
+		}
+		catch(IOException e)
 		{
 			e.printStackTrace();
 			return new JSONObject();
