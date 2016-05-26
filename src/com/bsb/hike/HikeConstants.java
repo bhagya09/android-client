@@ -4329,4 +4329,6 @@ public class HikeConstants
 
 	public static final String MULTIPLE_BDAY_NOTIF_SUBTEXT = "m_b_n_st";
 
+	public static final String UPDATED_LAST_SEEN_SETTING = "uls";
+
 }
