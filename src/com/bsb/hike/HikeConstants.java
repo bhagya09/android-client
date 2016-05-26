@@ -3098,6 +3098,18 @@ public class HikeConstants
 
 		public static final boolean defaultPersistChat = false;
 
+		public static final String RICH_NOTIF = "Rich";
+
+		public static final String NOTIF_ACTION_INTENT = "com.bsb.hike.UJ_NOTIF_ACTION_INTENT";
+
+		public static final String ACTION_SAY_HI = "say_hi";
+
+		public static final String ACTION_DEFAULT = "open_chat";
+
+		public static final String ACTION_ADD_FRIEND = "add_friend";
+
+		public static final String TAG = "ujTag";
+
 	}
 
 	public static class MESSAGE_TYPE
@@ -3278,6 +3290,8 @@ public class HikeConstants
 	public static final String STATE = "state";
 
 	public static final String UPDATE_SHOP_RANK_TIMESTAMP = "updateOrderTimeStamp";
+
+	public static final String ALREDAY_FETCHED_CATEGORIES_RANK_LIMIT = "alreadyFetchedCategoriesRankLimit";
 
 	public static final long DEFAULT_RETRY_NOTIF_TIME = 20 * 60 * 1000; // 20
 																		// minutes
@@ -4240,6 +4254,8 @@ public class HikeConstants
 
 		public static final String FORWARD_SCREEN = "fwd_screen";
 
+		public static final String NOTIF = "notif";
+
 		public static final String UNKNOWN = "unknown";
 	}
 
@@ -4328,5 +4344,9 @@ public class HikeConstants
 	public static final String SINGLE_BDAY_NOTIF_SUBTEXT = "s_b_n_st";
 
 	public static final String MULTIPLE_BDAY_NOTIF_SUBTEXT = "m_b_n_st";
+
+	public static final String CTAS = "ctas";
+
+	public static final String ACTION = "action";
 
 }

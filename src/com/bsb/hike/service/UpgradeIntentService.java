@@ -117,8 +117,10 @@ public class UpgradeIntentService extends IntentService
 			editor.apply();
 		}
 
-		if (prefs.getInt(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 1) == 1) {
-			if (upgradeForStickerTable()) {
+        if (prefs.getInt(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 1) == 1)
+		{
+			if (upgradeForStickerTable())
+			{
 				Logger.v(TAG, "Upgrade for sticker table was successful");
 				Editor editor = prefs.edit();
 				editor.putInt(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 2);

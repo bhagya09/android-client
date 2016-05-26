@@ -72,7 +72,7 @@ public class ToastListener implements Listener
 			HikePubSub.CANCEL_ALL_STATUS_NOTIFICATIONS, HikePubSub.CANCEL_ALL_NOTIFICATIONS, HikePubSub.PROTIP_ADDED, HikePubSub.UPDATE_PUSH, HikePubSub.APPLICATIONS_PUSH,
 			HikePubSub.SHOW_FREE_INVITE_SMS, HikePubSub.STEALTH_POPUP_WITH_PUSH, HikePubSub.HIKE_TO_OFFLINE_PUSH, HikePubSub.ATOMIC_POPUP_WITH_PUSH,
 			HikePubSub.BULK_MESSAGE_NOTIFICATION, HikePubSub.USER_JOINED_NOTIFICATION,HikePubSub.ACTIVITY_UPDATE_NOTIF, HikePubSub.FLUSH_PERSISTENT_NOTIF,
-			HikePubSub.SHOW_PERSISTENT_NOTIF, HikePubSub.ATOMIC_TIP_WITH_NOTIF, HikePubSub.SHOW_BIRTHDAY_NOTIF};
+			HikePubSub.SHOW_PERSISTENT_NOTIF, HikePubSub.ATOMIC_TIP_WITH_NOTIF, HikePubSub.SHOW_BIRTHDAY_NOTIF, HikePubSub.RICH_USER_JOINED_NOTIFICATION};
 
 	/**
 	 * Used to check whether NUJ/RUJ message notifications are disabled
@@ -418,6 +418,15 @@ public class ToastListener implements Listener
 			{
 				AtomicTipContentModel tipContentModel = (AtomicTipContentModel) object;
 				toaster.notifyAtomicTip(tipContentModel);
+			}
+		}
+		else if(HikePubSub.RICH_USER_JOINED_NOTIFICATION.equals(type))
+		{
+			Logger.d(getClass().getSimpleName(), "Recived pubsub to show rich uj notif");
+			if (object != null && object instanceof JSONObject)
+			{
+				JSONObject jsonObject = (JSONObject) object;
+				toaster.notifyRichUJ(jsonObject);
 			}
 		}
 		else if (HikePubSub.HIKE_TO_OFFLINE_PUSH.equals(type))

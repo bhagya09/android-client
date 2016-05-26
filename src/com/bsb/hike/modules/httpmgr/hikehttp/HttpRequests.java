@@ -10,11 +10,13 @@ import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.gcmnetworkmanager.Config;
 import com.bsb.hike.modules.gcmnetworkmanager.GcmNwMgrService;
+import com.bsb.hike.modules.gcmnetworkmanager.tasks.CognitoUploadGcmTask;
 import com.bsb.hike.modules.gcmnetworkmanager.tasks.GcmTaskConstants;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.interceptor.GzipRequestInterceptor;
 import com.bsb.hike.modules.httpmgr.interceptor.IRequestInterceptor;
 import com.bsb.hike.modules.httpmgr.interceptor.IResponseInterceptor;
@@ -35,13 +37,14 @@ import com.bsb.hike.modules.httpmgr.request.requestbody.FileBody;
 import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
 import com.bsb.hike.modules.httpmgr.request.requestbody.JsonBody;
 import com.bsb.hike.modules.httpmgr.request.requestbody.MultipartRequestBody;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.httpmgr.retry.BasicRetryPolicy;
 import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
-import com.bsb.hike.userlogs.PhoneSpecUtils;
+import com.bsb.hike.utils.PhoneSpecUtils;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
@@ -85,7 +88,6 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getFast
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getForcedStickersUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getGroupBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getGroupBaseUrlForLinkSharing;
-import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getHikeJoinTimeBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getHikeJoinTimeBaseV2Url;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getHistoricalStatusUpdatesUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getPostImageSUUrl;
@@ -261,23 +263,6 @@ public class HttpRequests
 		return requestToken;
 	}
 
-	public static RequestToken StickerShopDownloadRequest(String requestId, int offset, IRequestListener requestListener)
-	{
-		List<String> unsupportedLanguages = StickerLanguagesManager.getInstance().getUnsupportedLanguagesCollection();
-
-		String url = stickerShopDownloadUrl() + "?offset=" + offset + "&resId=" + Utils.getResolutionId() + "&lang=" + StickerSearchUtils.getISOCodeFromLocale(Utils.getCurrentLanguageLocale());
-		url = Utils.isEmpty(unsupportedLanguages) ? url : (url + "&unknown_langs=" + StickerLanguagesManager.getInstance().listToString(unsupportedLanguages));
-
-		RequestToken requestToken = new JSONObjectRequest.Builder()
-				.setUrl(url)
-				.setId(requestId)
-				.setRequestListener(requestListener)
-				.setRequestType(REQUEST_TYPE_SHORT)
-				.setPriority(PRIORITY_HIGH)
-				.build();
-		return requestToken;
-	}
-
 	public static RequestToken fetchCategoryData(String requestId, JSONObject json, IRequestListener requestListener)
 	{
 		JsonBody body = new JsonBody(json);
@@ -286,8 +271,8 @@ public class HttpRequests
 				.setId(requestId)
 				.post(body)
 				.setRequestListener(requestListener)
-				.setRequestType(REQUEST_TYPE_LONG)
-				.setPriority(PRIORITY_LOW)
+				.setRequestType(REQUEST_TYPE_SHORT)
+				.setPriority(PRIORITY_NORMAL)
 				.build();
 		return requestToken;
 	}
@@ -1286,7 +1271,7 @@ public class HttpRequests
 				.post(body)
 				.setAsynchronous(false)
 				.setPriority(PRIORITY_HIGH)
-				.setRetryPolicy(new BasicRetryPolicy(0, 1, 1))
+				.setRetryPolicy(new BasicRetryPolicy(0, 1, BasicRetryPolicy.DEFAULT_BACKOFF_MULTIPLIER))
 				.build();
 		return requestToken;
 	}
@@ -1309,7 +1294,7 @@ public class HttpRequests
                 .setRequestType(REQUEST_TYPE_SHORT)
                 .setAsynchronous(true)
 				.setPriority(PRIORITY_LOW)
-                .setRetryPolicy(new BasicRetryPolicy(0, 1, 1))
+                .setRetryPolicy(new BasicRetryPolicy(0, 1, BasicRetryPolicy.DEFAULT_BACKOFF_MULTIPLIER))
                 .build();
         Logger.e("HikeHttpRequests", "Making http call to " + url);
         return requestToken;
@@ -1365,7 +1350,7 @@ public class HttpRequests
                 .setAsynchronous(true)
                 .setId(requestId)
                 .setRequestListener(requestListener)
-                .setRetryPolicy(new BasicRetryPolicy(retryCount, delayBeforeRetry, 1))
+                .setRetryPolicy(new BasicRetryPolicy(retryCount, delayBeforeRetry, BasicRetryPolicy.DEFAULT_BACKOFF_MULTIPLIER))
                 .post(null)
                 .build();
         requestToken.getRequestInterceptors().addFirst("analytics", requestInterceptor);
@@ -1427,7 +1412,7 @@ public class HttpRequests
 				.setRequestListener(requestListener)
 				.setId(String.valueOf(msgId))
 				.head()
-				.setRetryPolicy(new BasicRetryPolicy(FileTransferManager.MAX_RETRY_COUNT, 0, 1))
+				.setRetryPolicy(new BasicRetryPolicy(FileTransferManager.MAX_RETRY_COUNT, 0, BasicRetryPolicy.DEFAULT_BACKOFF_MULTIPLIER))
 				.build();
 		return requestToken;
 	}
@@ -1440,7 +1425,7 @@ public class HttpRequests
 				.setRequestType(REQUEST_TYPE_SHORT)
 				.setRequestListener(requestListener)
 				.head()
-				.setRetryPolicy(new BasicRetryPolicy(FileTransferManager.MAX_RETRY_COUNT, 0, 1))
+				.setRetryPolicy(new BasicRetryPolicy(FileTransferManager.MAX_RETRY_COUNT, 0, BasicRetryPolicy.DEFAULT_BACKOFF_MULTIPLIER))
 				.build();
 		requestToken.getRequestInterceptors().addFirst("initFileUpload", initFileUploadInterceptor);
 		return requestToken;
@@ -1489,7 +1474,7 @@ public class HttpRequests
 				.addHeader(new Header("X-SESSION-ID", sessionId))
 				.setAsynchronous(false)
 				.setId(sessionId)
-				.setRetryPolicy(new BasicRetryPolicy(1, FileTransferManager.RETRY_DELAY, 1))
+				.setRetryPolicy(new BasicRetryPolicy(1, FileTransferManager.RETRY_DELAY, BasicRetryPolicy.DEFAULT_BACKOFF_MULTIPLIER))
 				.setRequestListener(listener)
 				.build();
 		return requestToken;
@@ -1549,7 +1534,7 @@ public class HttpRequests
 				.setUrl(HttpRequestConstants.getSettingsUploadUrl())
 				.setRequestListener(requestListener)
 				.setId(Utils.StringToMD5(settingsJSON.toString()))
-				.setRetryPolicy(new BasicRetryPolicy(retryCount, delayBeforeRetry, 1))
+				.setRetryPolicy(new BasicRetryPolicy(retryCount, delayBeforeRetry, BasicRetryPolicy.DEFAULT_BACKOFF_MULTIPLIER))
 				.post(jsonBody)
 				.build();
 //		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
@@ -1566,7 +1551,7 @@ public class HttpRequests
 				.setUrl(HttpRequestConstants.getSettingsDownloadUrl())
 				.setRequestListener(requestListener)
 				.setId(downloadSettingsID)
-				.setRetryPolicy(new BasicRetryPolicy(retryCount, delayBeforeRetry, 1))
+				.setRetryPolicy(new BasicRetryPolicy(retryCount, delayBeforeRetry, BasicRetryPolicy.DEFAULT_BACKOFF_MULTIPLIER))
 				.build();
 		return requestToken;
 	}
@@ -1641,6 +1626,57 @@ public class HttpRequests
 				.setResponseOnUIThread(true)
 				.setRequestListener(requestListener)
 				.post(jsonBody)
+				.build();
+		return requestToken;
+	}
+
+	public static RequestToken cognitoUploadRequest(String url, final String dataType, JSONObject payload, IRequestListener requestListener)
+	{
+		url = sendUserLogsInfoBaseUrl() + url;
+		final String requestId = url + dataType;
+
+		Bundle payloadBundle = new Bundle();
+		payloadBundle.putString(CognitoUploadGcmTask.URL, url);
+		payloadBundle.putString(CognitoUploadGcmTask.REQUEST_ID, requestId);
+		payloadBundle.putString(CognitoUploadGcmTask.DATA_TO_UPLOAD, payload.toString());
+		Config config = new Config.Builder()
+				.setExecutionWindow(0, 1)
+				.setPersisted(true)
+				.setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
+				.setTag(GcmTaskConstants.COGNITO_UPLOAD_GCM_TASK)
+				.setService(GcmNwMgrService.class)
+				.setExtras(payloadBundle)
+				.build();
+
+		JsonBody jsonBody = new JsonBody(payload);
+
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(url)
+				.setId(requestId)
+				.setRequestListener(requestListener)
+				.setRequestType(REQUEST_TYPE_SHORT)
+				.setPriority(PRIORITY_HIGH)
+				.setRetryPolicy(new BasicRetryPolicy(Integer.MAX_VALUE, BasicRetryPolicy.DEFAULT_RETRY_DELAY, 4f))
+				.setGcmTaskConfig(config)
+				.post(jsonBody)
+				.build();
+		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
+		return requestToken;
+	}
+
+	public static RequestToken getAbTestNewUserRequestToken(IRequestListener requestListener,
+															JSONObject requestPayload, int retryCount,
+															int delayBeforeRetry) {
+		JsonBody requestBody = new JsonBody(requestPayload);
+
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(HttpRequestConstants.getAbTestingNewUserExpUrl())
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setAsynchronous(true)
+				.setId(HttpRequestConstants.getAbTestingNewUserExpUrl())
+				.setRequestListener(requestListener)
+				.setRetryPolicy(new BasicRetryPolicy(retryCount, delayBeforeRetry, BasicRetryPolicy.DEFAULT_BACKOFF_MULTIPLIER))
+				.post(requestBody)
 				.build();
 		return requestToken;
 	}

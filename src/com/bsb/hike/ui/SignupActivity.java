@@ -68,6 +68,7 @@ import com.bsb.hike.tasks.SignupTask.StateValue;
 import com.bsb.hike.utils.*;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 import com.bsb.hike.view.CustomFontEditText;
+import com.hike.abtest.ABTest;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -535,7 +536,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		@Override
 		public void run()
 		{
-			openHomeActivity();
+			onOnBoardingComplete();
 		}
 	};
 
@@ -2588,7 +2589,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 					{
 						hikeDialog.dismiss();
 						recordStickerRestoreDialogOkClick();
-						openHomeActivity();
+						onOnBoardingComplete();
 					}
 
 					@Override
@@ -2597,6 +2598,12 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 					}
 				}, null);
+	}
+
+	private void onOnBoardingComplete() {
+		//Apply New User ABTest experiments if received from servers
+		ABTest.applyNewUserExperiments();
+		openHomeActivity();
 	}
 
 	private void openHomeActivity()
