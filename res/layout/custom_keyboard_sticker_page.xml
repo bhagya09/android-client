@@ -12,6 +12,7 @@
         android:divider="@null"
         android:drawSelectorOnTop="false"
         android:fadingEdge="none"
+        android:padding="5dp"
         android:listSelector="@android:color/transparent"
         android:horizontalSpacing="@dimen/sticker_grid_horizontal_padding"
         android:verticalSpacing="@dimen/sticker_padding"
