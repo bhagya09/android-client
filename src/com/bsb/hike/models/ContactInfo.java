@@ -29,7 +29,7 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 
 	public enum FavoriteType
 	{
-		NOT_FRIEND, REQUEST_RECEIVED, FRIEND, AUTO_RECOMMENDED_FAVORITE, REQUEST_SENT, REQUEST_SENT_REJECTED, REQUEST_RECEIVED_REJECTED, REQUEST_RECEIVED_UNSEEN, FRIEND_UNSEEN
+		NOT_FRIEND, REQUEST_RECEIVED, FRIEND, AUTO_RECOMMENDED_FAVORITE, REQUEST_SENT, REQUEST_SENT_REJECTED, REQUEST_RECEIVED_REJECTED
 	}
 
 	@Override
@@ -91,6 +91,8 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 	private long lastSeenTime;
 
 	private long inviteTime;
+
+	private long unreadRequestReceivedTime = 0;
 
 	private String platformId;
 
@@ -496,6 +498,7 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 		setNum(3, 5, contactInfo.getFavoriteTypeNumRepresentation());
 		this.inviteTime = contactInfo.getInviteTime();
 		this.lastSeenTime = contactInfo.getLastSeenTime();
+		this.unreadRequestReceivedTime = contactInfo.getUnreadRequestReceivedTime();
 		setNum(6, 7, contactInfo.getOffline() + 1);
 	}
 
@@ -689,4 +692,11 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 		this.isBlocked = status;
 	}
 
+	public void setUnreadRequestReceivedTime(long unreadRequestReceivedTime) {
+		this.unreadRequestReceivedTime = unreadRequestReceivedTime;
+	}
+
+	public long getUnreadRequestReceivedTime() {
+		return unreadRequestReceivedTime;
+	}
 }

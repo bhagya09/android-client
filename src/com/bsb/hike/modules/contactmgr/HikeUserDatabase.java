@@ -148,6 +148,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 				+ DBConstants.HIKE_UID + " TEXT DEFAULT NULL , "
 				+ DBConstants.BLOCK_STATUS + " TEXT DEFAULT 0 ,"
 				+ DBConstants.FAVORITE_TYPE + " TEXT DEFAULT 0 "
+				+ DBConstants.UNREAD_RECEIVED_REQ_TIME + " INTEGER DEFAULT 0, " // When this user sent a friend request
 				+ " )";
 
 		db.execSQL(create);
@@ -351,6 +352,13 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 			}
 			// Need to migrate the DBs in upgradeIntentService
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.MIGRATE_TABLE_TO_USER, 1);
+		}
+		if(oldVersion < 20)
+		{
+			if (!Utils.isColumnExistsInTable(mDb, DBConstants.USERS_TABLE, DBConstants.UNREAD_RECEIVED_REQ_TIME)) {
+				String alter = "ALTER TABLE " + DBConstants.USERS_TABLE + " ADD COLUMN " + DBConstants.UNREAD_RECEIVED_REQ_TIME + " INTEGER DEFAULT 0 ";
+				db.execSQL(alter);
+			}
 		}
 
 	}
@@ -735,6 +743,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		int platformIdIndex = c.getColumnIndex(DBConstants.PLATFORM_USER_ID);
 		int blockStatusIndex = c.getColumnIndex(DBConstants.BLOCK_STATUS);
 		int hikeIdIndex = c.getColumnIndex(DBConstants.HIKE_UID);
+		int unreadRequestTimeIdx = c.getColumnIndex(DBConstants.UNREAD_RECEIVED_REQ_TIME);
 
 
 		long hikeJoinTime = 0;
@@ -742,10 +751,20 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		{
 			hikeJoinTime = c.getLong(hikeJoinTimeIdx);
 		}
+		long unreadRequestTime = 0;
+		if (unreadRequestTimeIdx != -1)
+		{
+			unreadRequestTime = (long)(c.getInt(unreadRequestTimeIdx) * 1000);
+		}
 		String id = TextUtils.isEmpty(c.getString(idx)) ? c.getString(msisdnIdx) : c.getString(idx);
 
 		ContactInfo contactInfo = new ContactInfo(id, c.getString(msisdnIdx), c.getString(nameIdx), c.getString(phoneNumIdx), c.getInt(onhikeIdx) != 0,
 				c.getString(msisdnTypeIdx), c.getLong(lastMessagedIdx), c.getInt(hasCustomPhotoIdx) == 1, hikeJoinTime);
+
+		if (unreadRequestTime > 0)
+		{
+			contactInfo.setUnreadRequestReceivedTime(unreadRequestTime);
+		}
 		if (favoriteIdx != -1)
 		{
 
@@ -2004,7 +2023,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		}
 	}
 
-	void toggleContactFavorite(String msisdn, FavoriteType favoriteType) {
+	void toggleContactFavorite(String msisdn, FavoriteType favoriteType, long unreadRequestTime) {
 		/*
 		 * If we are setting the type as not favorite, we'll remove the row itself.
 		 */
@@ -2012,6 +2031,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		Logger.d(TAG, "Adding msisdb to favourite" + msisdn);
 		cv.put(DBConstants.MSISDN, msisdn);
 		cv.put(DBConstants.FAVORITE_TYPE, favoriteType.ordinal());
+		cv.put(DBConstants.UNREAD_RECEIVED_REQ_TIME, (int)unreadRequestTime/1000);
 		long value = mDb.update(DBConstants.USERS_TABLE, cv, DBConstants.MSISDN + "=?", new String[]{msisdn});
 		if (value == -1 || value == 0) {
 			value = mDb.insertWithOnConflict(DBConstants.USERS_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);

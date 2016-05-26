@@ -120,6 +120,7 @@ import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.VoIPUtils;
 import com.google.android.gcm.GCMRegistrar;
 import com.hike.abtest.ABTest;
+import com.squareup.okhttp.internal.Util;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -1657,6 +1658,7 @@ public class MqttMessagesManager
 				: FavoriteType.FRIEND;
 
 		Pair<ContactInfo, FavoriteType> favoriteToggle = new Pair<ContactInfo, FavoriteType>(contactInfo, favoriteType);
+		contactInfo.setUnreadRequestReceivedTime(System.currentTimeMillis());
 		this.pubSub.publish(favoriteType == FavoriteType.REQUEST_RECEIVED ? HikePubSub.FAVORITE_TOGGLED : HikePubSub.FRIEND_REQUEST_ACCEPTED, favoriteToggle);
 
 		if (favoriteType == favoriteType.FRIEND)

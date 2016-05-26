@@ -6,7 +6,7 @@ public class DBConstants
 {
 	public static final int CONVERSATIONS_DATABASE_VERSION = 53;
 
-	public static final int USERS_DATABASE_VERSION = 19;
+	public static final int USERS_DATABASE_VERSION = 20;
 
 	public static final String HAS_CUSTOM_PHOTO = "hascustomphoto";
 
@@ -298,6 +298,8 @@ public class DBConstants
 	public static final String QUICK_SUGGESTED_SENT_STICKERS = "qck_sgstd_snt_stckrs";
 
 	public static final String LAST_QUICK_SUGGESTION_REFRESH_TIME = "lst_qck_sug_rfsh_time";
+
+	public static final String UNREAD_RECEIVED_REQ_TIME = "unreadRecReqTime";
 
 	public static class HIKE_CONV_DB
 	{
