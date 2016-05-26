@@ -182,7 +182,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	public static final String EXTRA_CUSTOM_TABS_MENU_ITEMS = "android.support.customtabs.extra.MENU_ITEMS";
 	public static final String KEY_CUSTOM_TABS_PENDING_INTENT = "android.support.customtabs.customaction.PENDING_INTENT";
 	private String source = "unDefined";
-	public static final int CUSTOM_TAB_URL_MODE =6;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -361,14 +360,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		else if (mode == SERVER_CONTROLLED_WEB_URL_MODE)
 		{
 			setServerControlledWebUrlMode();
-		}
-
-		else if (mode == CUSTOM_TAB_URL_MODE)
-		{
-			String urlToLoad = getIntent().getStringExtra(HikeConstants.Extras.URL_TO_LOAD);
-			String title = getIntent().getStringExtra(HikeConstants.Extras.TITLE);
-			startWebViewWithBridge(urlToLoad,title);
-			this.finish();
 		}
 		
 		else

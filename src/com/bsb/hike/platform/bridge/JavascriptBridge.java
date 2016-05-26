@@ -67,7 +67,6 @@ import com.bsb.hike.platform.auth.PlatformAuthenticationManager;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.ui.ComposeChatActivity;
-import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.ui.fragments.ShareLinkFragment;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.CustomAnnotation.DoNotObfuscate;
@@ -313,7 +312,6 @@ public abstract class JavascriptBridge
 					if(weakActivity.get()!=null)
 					{
 						Intent intent = IntentFactory.getWebViewActivityIntent(weakActivity.get(), url, title);
-						intent.putExtra(WebViewActivity.WEBVIEW_MODE,WebViewActivity.CUSTOM_TAB_URL_MODE);
 						weakActivity.get().startActivity(intent);
 					}
 				}
