@@ -1183,7 +1183,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		if(HikeSharedPreferenceUtil.getInstance().getData(HikePlatformConstants.CUSTOM_TABS, true) && Utils.isJellybeanOrHigher())
 		{
 			//TODO: Analytics impl
-			openCustomTab(url, title);
+			PlatformUtils.openCustomTab(url, title, this, this);
 		}
 		else
 		{
@@ -1805,31 +1805,10 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	}
 
-	private void openCustomTab(String url, String title)
-	{
-		CustomTabsIntent.Builder intentBuilder = new CustomTabsIntent.Builder();
-		intentBuilder.enableUrlBarHiding();
-		int titleColor = getResources().getColor(R.color.credits_blue);
-		intentBuilder.setToolbarColor(titleColor);
-		intentBuilder.setShowTitle(true);
-		Bitmap bm = HikeBitmapFactory.drawableToBitmap(ContextCompat.getDrawable(this, R.drawable.ic_arrow_back));
-		intentBuilder.setCloseButtonIcon(bm);
-
-		//set overflow menu
-		PendingIntent sharePendingIntent = PendingIntent.getActivity(this, HikePlatformConstants.CHROME_TABS_PENDING_INTENT_SHARE, IntentFactory.getShareIntentForPlainText(url), PendingIntent.FLAG_UPDATE_CURRENT);
-		intentBuilder.addMenuItem(getResources().getString(R.string.share), sharePendingIntent);
-
-		PendingIntent forwardPendingIntent = PendingIntent.getActivity(this, HikePlatformConstants.CHROME_TABS_PENDING_INTENT_FORWARD, IntentFactory.getForwardIntentForPlainText(this, url,AnalyticsConstants.CHROME_CUSTOM_TABS), PendingIntent.FLAG_UPDATE_CURRENT);
-		intentBuilder.addMenuItem(getResources().getString(R.string.forward), forwardPendingIntent);
-
-		CustomTabsIntent intent = intentBuilder.build();
-		CustomTabActivityHelper.openCustomTab(this, intent, url, this, title);
-	}
-
 	private void setupCustomTabHelper(){
-		mCustomTabActivityHelper = CustomTabActivityHelper.getInstance();
-		mCustomTabActivityHelper.bindCustomTabsService(this);
-	}
+	mCustomTabActivityHelper = CustomTabActivityHelper.getInstance();
+	mCustomTabActivityHelper.bindCustomTabsService(this);
+}
 
 	@Override
 	protected void onStart() {

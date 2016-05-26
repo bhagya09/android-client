@@ -55,6 +55,7 @@ import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.platform.CocosGamingActivity;
+import com.bsb.hike.platform.CustomTabFallBackImpl;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.IFileUploadListener;
@@ -311,8 +312,7 @@ public abstract class JavascriptBridge
 				{
 					if(weakActivity.get()!=null)
 					{
-						Intent intent = IntentFactory.getWebViewActivityIntent(weakActivity.get(), url, title);
-						weakActivity.get().startActivity(intent);
+						PlatformUtils.openCustomTab(url,title,weakActivity.get(),new CustomTabFallBackImpl(weakActivity.get()));
 					}
 				}
 			});

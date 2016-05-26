@@ -28,6 +28,7 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -40,6 +41,8 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.customtabs.CustomTabsIntent;
+import android.support.v4.content.ContextCompat;
 import android.text.Html;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -50,6 +53,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -97,6 +101,7 @@ import com.bsb.hike.productpopup.ProductPopupsConstants.HIKESCREEN;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.ui.CreateNewGroupOrBroadcastActivity;
+import com.bsb.hike.ui.CustomTabActivityHelper;
 import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.TellAFriend;
@@ -2822,5 +2827,26 @@ public class PlatformUtils
 			}
 		}
 		return null;
+	}
+
+	public static void openCustomTab(String url, String title,Context activity,CustomTabActivityHelper.CustomTabFallback fallback)
+	{
+		CustomTabsIntent.Builder intentBuilder = new CustomTabsIntent.Builder();
+		intentBuilder.enableUrlBarHiding();
+		int titleColor = activity.getResources().getColor(R.color.credits_blue);
+		intentBuilder.setToolbarColor(titleColor);
+		intentBuilder.setShowTitle(true);
+		Bitmap bm = HikeBitmapFactory.drawableToBitmap(ContextCompat.getDrawable(activity, R.drawable.ic_arrow_back));
+		intentBuilder.setCloseButtonIcon(bm);
+
+		//set overflow menu
+		PendingIntent sharePendingIntent = PendingIntent.getActivity(activity, HikePlatformConstants.CHROME_TABS_PENDING_INTENT_SHARE, IntentFactory.getShareIntentForPlainText(url), PendingIntent.FLAG_UPDATE_CURRENT);
+		intentBuilder.addMenuItem(activity.getResources().getString(R.string.share), sharePendingIntent);
+
+		PendingIntent forwardPendingIntent = PendingIntent.getActivity(activity, HikePlatformConstants.CHROME_TABS_PENDING_INTENT_FORWARD, IntentFactory.getForwardIntentForPlainText(activity, url,AnalyticsConstants.CHROME_CUSTOM_TABS), PendingIntent.FLAG_UPDATE_CURRENT);
+		intentBuilder.addMenuItem(activity.getResources().getString(R.string.forward), forwardPendingIntent);
+
+		CustomTabsIntent intent = intentBuilder.build();
+		CustomTabActivityHelper.openCustomTab((Activity)activity, intent, url, fallback, title);
 	}
 }
