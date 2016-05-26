@@ -42,6 +42,7 @@ import com.bsb.hike.tasks.FetchFriendsTask;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.SmileyParser;
@@ -96,6 +97,10 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
 	private boolean addFriendOption;
 
+	private List<String> composeExcludeList;
+
+	private boolean isGroupFirst;
+
     public ComposeChatAdapter(Context context, ListView listView, boolean fetchGroups, boolean fetchRecents, boolean fetchRecentlyJoined, String existingGroupId, String sendingMsisdn, FriendsListFetchedCallback friendsListFetchedCallback, boolean showSMSContacts, boolean showMicroappShowcase,boolean isContactChooserFilter, boolean showTimeline, boolean showBdaySection)
 	{
 		super(context, listView, friendsListFetchedCallback, ContactInfo.lastSeenTimeComparatorWithoutFav);
@@ -144,6 +149,10 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		this.nuxStateActive = nuxStateActive;
 	}
 
+	public void setComposeExcludeList(List<String> composeExcludeList) { this.composeExcludeList = composeExcludeList; }
+
+	public void setGroupFirst(boolean isGroupFirst) { this.isGroupFirst = isGroupFirst; }
+
 	@Override
 	public void executeFetchTask()
 	{
@@ -180,12 +189,11 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
 			fetchFriendsTask = new FetchFriendsTask(this, context, friendsList, hikeContactsList, smsContactsList, recentContactsList,recentlyJoinedHikeContactsList, friendsStealthList, hikeStealthContactsList,
 					smsStealthContactsList, recentStealthContactsList, filteredFriendsList, filteredHikeContactsList, filteredSmsContactsList, groupsList, groupsStealthList, nuxRecommendedList, nuxFilteredRecoList, filteredGroupsList, filteredRecentsList,filteredRecentlyJoinedHikeContactsList,
-					existingParticipants, sendingMsisdn, false, existingGroupId, isCreatingOrEditingGroup, fetchSMSContacts, false, false , false, showDefaultEmptyList, fetchHikeContacts, false, fetchRecommendedContacts, fetchHideListContacts, null, null, false, showBdaySection);
-
+					existingParticipants, sendingMsisdn, false, existingGroupId, isCreatingOrEditingGroup, fetchSMSContacts, false, false , false, showDefaultEmptyList, fetchHikeContacts, false, fetchRecommendedContacts, fetchHideListContacts, null, null, false, null, showBdaySection);
 		} else {
 			fetchFriendsTask = new FetchFriendsTask(this, context, friendsList, hikeContactsList, smsContactsList, recentContactsList,recentlyJoinedHikeContactsList, friendsStealthList, hikeStealthContactsList,
 					smsStealthContactsList, recentStealthContactsList, filteredFriendsList, filteredHikeContactsList, filteredSmsContactsList, groupsList, groupsStealthList, null, null, filteredGroupsList, filteredRecentsList,filteredRecentlyJoinedHikeContactsList,
-					existingParticipants, sendingMsisdn, fetchGroups, existingGroupId, isCreatingOrEditingGroup, showSMSContacts, false, fetchRecents , fetchRecentlyJoined, showDefaultEmptyList, true, true, false , false, microappShowcaseList , filteredmicroAppShowcaseList, showMicroappShowcase, showBdaySection);
+					existingParticipants, sendingMsisdn, fetchGroups, existingGroupId, isCreatingOrEditingGroup, showSMSContacts, false, fetchRecents , fetchRecentlyJoined, showDefaultEmptyList, true, true, false , false, microappShowcaseList , filteredmicroAppShowcaseList, showMicroappShowcase, composeExcludeList, showBdaySection);
 		}
 
 		if(showTimeline)
@@ -233,7 +241,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 				switch (contactInfo.getPhoneNum())
 				{
 				case FRIEND_PHONE_NUM:
-					tv.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(R.drawable.ic_section_header_friends), null, null, null);
+					tv.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(Utils.isFavToFriendsMigrationAllowed() ? R.drawable.ic_section_header_friends : R.drawable.ic_section_header_favorite), null, null, null);
 					break;
 
 				case CONTACT_PHONE_NUM:
@@ -510,6 +518,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			if (showCheckbox)
 			{
 				if (!contactInfo.isMyOneWayFriend()
+						&& Utils.isFavToFriendsMigrationAllowed()
 						&& !OneToNConversationUtils.isOneToNConversation(contactInfo.getMsisdn())
 						&& addFriendOption)
 				{
@@ -758,13 +767,22 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		if (groupsList.size() < filteredFriendsList.size()) {
 			addFirstGroups = false;
 		}
-       
-		if(addFirstGroups){
+
+		if(!isGroupFirst)
+		{
+			if (addFirstGroups) {
+				addGroupList();
+				addFriendList();
+			} else {
+				addFriendList();
+				addGroupList();
+			}
+		}
+		else
+		{
+			Logger.d("ComposeChatAdapter","isGroupFirst");
 			addGroupList();
 			addFriendList();
-		}else{
-			addFriendList();
-			addGroupList();
 		}
 		if (isHikeContactsPresent())
 		{
@@ -800,7 +818,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		ContactInfo friendsSection = null;
 		if (!filteredFriendsList.isEmpty())
 		{
-			friendsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredFriendsList.size()), context.getString(R.string.friends_upper_case), FRIEND_PHONE_NUM);
+			friendsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredFriendsList.size()), context.getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.friends_upper_case : R.string.favorites_upper_case), FRIEND_PHONE_NUM);
 		}
 		updateFriendsList(friendsSection, false, false);
 	}
@@ -1062,7 +1080,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 				{
 					if(contactInfo.isOnhike())
 					{
-						if (!OneToNConversationUtils.isOneToNConversation(contactInfo.getMsisdn()))
+						if (Utils.isFavToFriendsMigrationAllowed() && !OneToNConversationUtils.isOneToNConversation(contactInfo.getMsisdn()))
 						{
 							if (contactInfo.isMyOneWayFriend())
 								selectedPeople.put(contactInfo.getMsisdn(), contactInfo);
