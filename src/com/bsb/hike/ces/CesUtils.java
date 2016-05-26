@@ -1,5 +1,6 @@
 package com.bsb.hike.ces;
 
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -53,7 +54,9 @@ public class CesUtils{
 		{
 			return 0;
 		}
-		return ((double)fileSize/1024)/((double)procTime/1000);
+		double value = ((double)fileSize/1024)/((double)procTime/1000);
+		value = Double.parseDouble(new DecimalFormat("##.##").format(value));
+		return value;
 	}
 
 	public static int getMaxSpeed(String network)
