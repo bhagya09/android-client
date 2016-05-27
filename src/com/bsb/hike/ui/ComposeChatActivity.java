@@ -882,16 +882,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		{
 			showProductPopup(triggerPointForPopup);
 		}
-
-		if(getIntent().getBooleanExtra(HikeConstants.Extras.BIRTHDAY_NOTIF, false))
-		{
-			String packetId = getIntent().getStringExtra(HikeConstants.ID);
-			BirthdayUtils.recordBirthdayAnalytics(
-					AnalyticsConstants.BirthdayEvents.BIRTHDAY_NOTIF_COMPOSE_CHAT,
-					AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
-					AnalyticsConstants.BirthdayEvents.BIRTHDAY_NOTIF_COMPOSE_CHAT,
-					String.valueOf(packetId), null, null, null);
-		}
 	}
 
 	private boolean isShowTimeline(){

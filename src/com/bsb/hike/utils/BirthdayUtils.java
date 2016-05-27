@@ -283,15 +283,15 @@ public class BirthdayUtils
 						{
 							if (!bdayMsisdnSet.isEmpty())
 							{
-								BirthdayUtils.showBdayNotifcations(bdayMsisdnSet, packetId);
+								showBdayNotifcations(bdayMsisdnSet, packetId);
 							}
                             else
                             {
                                 recordBirthdayAnalytics(
-                                        AnalyticsConstants.BirthdayEvents.BIRTHDAY_REQ_RESPONSE,
-                                        AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
-                                        AnalyticsConstants.BirthdayEvents.BIRTHDAY_REQ_RESPONSE,
-                                        String.valueOf(packetId), null, null, null);
+                                AnalyticsConstants.BirthdayEvents.BIRTHDAY_REQ_RESPONSE,
+                                AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
+                                AnalyticsConstants.BirthdayEvents.BIRTHDAY_REQ_RESPONSE,
+                                String.valueOf(packetId), null, null, null);
                             }
 						}
 					}

@@ -136,7 +136,6 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		
 		if (StealthModeManager.getInstance().isStealthMsisdn(msisdn) && !StealthModeManager.getInstance().isActive())
 		{
-			if (Utils.isBDayInNewChatEnabled() && intent.hasExtra(HikeConstants.Extras.BIRTHDAY_NOTIF))
 			/**
 			 * If Birthday feature is enabled, then for case
 			 * Hidden mode was off, Notification was generated for Birthday for Hidden contact

@@ -1503,10 +1503,13 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		}
 		DatePickerDialog dialog = new DatePickerDialog(this, dobDateListener, year, month, day);
 		Logger.d(getClass().getSimpleName(), "overriding negative button on date picker dialog");
-		dialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.cancel), new DialogInterface.OnClickListener() {
+		dialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.cancel), new DialogInterface.OnClickListener()
+		{
 			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				if (which == DialogInterface.BUTTON_NEGATIVE) {
+			public void onClick(DialogInterface dialog, int which)
+			{
+				if (which == DialogInterface.BUTTON_NEGATIVE)
+				{
 					Logger.d(TAG, "cancelling date picker dialog");
 					dialog.dismiss();
 					dobEdited = false;
