@@ -33,6 +33,8 @@ public class MDRootLayout extends ViewGroup
 
 	private View mButtonContainer;
 
+	private View mCheckboxContainer;
+
 	private boolean mDrawTopDivider = false;
 
 	private boolean mDrawBottomDivider = false;
@@ -49,6 +51,10 @@ public class MDRootLayout extends ViewGroup
 
 	private int mButtonBarHeight;
 
+	private int mCheckboxPaddingFull;
+
+	private int mCheckboxBarHeight;
+
 	private Paint mDividerPaint;
 
 	private ViewTreeObserver.OnScrollChangedListener mTopOnScrollChangedListener;
@@ -56,6 +62,8 @@ public class MDRootLayout extends ViewGroup
 	private ViewTreeObserver.OnScrollChangedListener mBottomOnScrollChangedListener;
 
 	private int mDividerWidth;
+
+	private int mTitlePadding;
 
 	public MDRootLayout(Context context)
 	{
@@ -92,6 +100,11 @@ public class MDRootLayout extends ViewGroup
 
 		mButtonBarHeight = r.getDimensionPixelSize(R.dimen.md_button_height);
 
+		mCheckboxPaddingFull = r.getDimensionPixelSize(R.dimen.md_checkbox_frame_vertical_padding);
+		mCheckboxBarHeight = r.getDimensionPixelSize(R.dimen.md_checkbox_height);
+
+		mTitlePadding = r.getDimensionPixelSize(R.dimen.md_title_vertical_padding_popup2);
+
 		mDividerPaint = new Paint();
 		mDividerWidth = r.getDimensionPixelSize(R.dimen.md_divider_height);
 		mDividerPaint.setColor(r.getColor(R.color.home_screen_list_divider));
@@ -117,6 +130,10 @@ public class MDRootLayout extends ViewGroup
 			else if (v.getId() == R.id.button_panel)
 			{
 				mButtonContainer = v;
+			}
+			else if (v.getId() == R.id.checkbox_container)
+			{
+				mCheckboxContainer = v;
 			}
 			else
 			{
@@ -155,6 +172,25 @@ public class MDRootLayout extends ViewGroup
 			fullPadding += 2 * mButtonPaddingFull;
 		}
 
+		boolean hasCheckbox = false;
+
+		if (mCheckboxContainer != null && isVisible(mCheckboxContainer))
+		{
+			measureChild(mCheckboxContainer, widthMeasureSpec, heightMeasureSpec);
+			hasCheckbox = true;
+		}
+
+		if (hasCheckbox)
+		{
+			availableHeight -= mCheckboxBarHeight;
+			fullPadding += 2 * mCheckboxPaddingFull;
+			fullPadding += mTitlePadding;
+		}
+		else
+		{
+			fullPadding += 2 * mCheckboxPaddingFull;
+		}
+
 		if (isVisible(mTitleBar))
 		{
 			mTitleBar.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY), MeasureSpec.UNSPECIFIED);
@@ -171,7 +207,7 @@ public class MDRootLayout extends ViewGroup
 
 			if (mContent.getMeasuredHeight() <= availableHeight - fullPadding)
 			{
-				if (!mReducePaddingNoTitleNoButtons || isVisible(mTitleBar) || hasButtons)
+				if (!mReducePaddingNoTitleNoButtons || isVisible(mTitleBar) || hasButtons || hasCheckbox)
 				{
 					mUseFullPadding = true;
 					availableHeight -= mContent.getMeasuredHeight() + fullPadding;
@@ -232,6 +268,12 @@ public class MDRootLayout extends ViewGroup
 		else if (!mNoTitleNoPadding && mUseFullPadding)
 		{
 			t += mNoTitlePaddingFull;
+		}
+
+		if (isVisible(mCheckboxContainer))
+		{
+			mCheckboxContainer.layout(l, b - mCheckboxBarHeight - mButtonBarHeight, r, b - mButtonBarHeight);
+			t += mTitlePadding;
 		}
 
 		if (isVisible(mContent))

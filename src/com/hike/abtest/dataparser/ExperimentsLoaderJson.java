@@ -35,7 +35,7 @@ public class ExperimentsLoaderJson extends ExperimentsLoader {
         parseExperiments(getJSONArrayRequest());
 
         //If empty, throw exception.
-        if(mExperimentMap==null || mExperimentMap.size()==0 || mVariableMap==null || mVariableMap.size()==0) {
+        if (mExperimentMap == null || mExperimentMap.size() == 0 || mVariableMap == null || mVariableMap.size() == 0) {
             mExperimentMap = null;
             mVariableMap = null;
             return;
@@ -50,7 +50,7 @@ public class ExperimentsLoaderJson extends ExperimentsLoader {
     private JSONArray getJSONArrayRequest() {
         JSONArray jsonArray = null;
         try {
-            if(mRequest!=null && mRequest.size() > 0) {
+            if (mRequest != null && mRequest.size() > 0) {
                 Collection<String> expList = (Collection<String>) mRequest.values();
                 jsonArray = new JSONArray();
                 for (String exp : expList) {
@@ -58,7 +58,7 @@ public class ExperimentsLoaderJson extends ExperimentsLoader {
                     jsonArray.put(jObj);
                 }
             }
-        } catch(NullPointerException npe) {
+        } catch (NullPointerException npe) {
             Logger.d(TAG, "No experiments..");
             return null;
         } catch (JSONException jse) {
@@ -68,16 +68,17 @@ public class ExperimentsLoaderJson extends ExperimentsLoader {
         return jsonArray;
     }
 
-    public void parseExperiments(JSONArray experiments) throws ParserException{
-        if(mExperimentMap == null || mVariableMap == null) {
+    public void parseExperiments(JSONArray experiments) throws ParserException {
+        if (mExperimentMap == null || mVariableMap == null) {
             throw new NullPointerException();
         }
         Gson gson = new Gson();
-        Type type = new TypeToken<List<ProtoMapper.ExperimentInitMapper>>() {}.getType();
+        Type type = new TypeToken<List<ProtoMapper.ExperimentInitMapper>>() {
+        }.getType();
         List<ProtoMapper.ExperimentInitMapper> fromJson = gson.fromJson(experiments.toString(), type);
 
-        for(ProtoMapper.ExperimentInitMapper expMap : fromJson) {
-            if(expMap.experimentId == null || expMap.variantId == null
+        for (ProtoMapper.ExperimentInitMapper expMap : fromJson) {
+            if (expMap.experimentId == null || expMap.variantId == null
                     || expMap.startTime <= 0 || expMap.endTime <= 0) {
                 throw new ParserException("Invalid Experiment", ParserException.ERROR_INVALID_EXPERIMENT);
             }
@@ -85,9 +86,9 @@ public class ExperimentsLoaderJson extends ExperimentsLoader {
             mExperimentMap.put(expMap.experimentId, new Experiment(expMap.experimentId, expMap.variantId,
                     expMap.description, expMap.startTime, expMap.endTime, expMap.isRollout, expMap.callbackUrl));
 
-            for(ProtoMapper.VariableMapper varMap : expMap.variableList) {
-                if(varMap.variableName ==null || varMap.type==0 || varMap.type>4 ||
-                        varMap.defaultValue ==null || varMap.experimentValue ==null) {
+            for (ProtoMapper.VariableMapper varMap : expMap.variableList) {
+                if (varMap.variableName == null || varMap.type == 0 || varMap.type > 4 ||
+                        varMap.defaultValue == null || varMap.experimentValue == null) {
                     throw new ParserException("Invalid Experiment", ParserException.ERROR_INVALID_VARIABLE);
                 }
 

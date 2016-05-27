@@ -26,9 +26,13 @@ import java.io.File;
  */
 public class AnalyticsUploadTask implements IHikeHTTPTask, IHikeHttpTaskResult {
     private final Context mContext;
-    /** maximum retry counts */
+    /**
+     * maximum retry counts
+     */
     private static final int MAX_RETRY_COUNT = 3;
-    /** delay before making first retry request(in ms) */
+    /**
+     * delay before making first retry request(in ms)
+     */
     private static final int DELAY_BEFORE_RETRY = 5000;
     private String mFileToUpload = null;
     private boolean mIsSessionComplete = false;
@@ -44,7 +48,7 @@ public class AnalyticsUploadTask implements IHikeHTTPTask, IHikeHttpTaskResult {
         RequestToken requestToken = HttpRequests.getAnalyticsUploadRequestToken(getRequestListener(),
                 getRequestInterceptor(), getRequestId(), MAX_RETRY_COUNT, DELAY_BEFORE_RETRY);
         //Double checking.. Execute request if not already running.
-        if(!requestToken.isRequestRunning()) requestToken.execute();
+        if (!requestToken.isRequestRunning()) requestToken.execute();
     }
 
     private String getRequestId() {
@@ -69,7 +73,7 @@ public class AnalyticsUploadTask implements IHikeHTTPTask, IHikeHttpTaskResult {
 
     @Override
     public void doOnFailure(HttpException exception) {
-        if(!HAManager.getInstance().isSendAnalyticsDataWhenConnected()) {
+        if (!HAManager.getInstance().isSendAnalyticsDataWhenConnected()) {
             HAManager.getInstance().setIsSendAnalyticsDataWhenConnected(true);
         }
     }
@@ -77,9 +81,9 @@ public class AnalyticsUploadTask implements IHikeHTTPTask, IHikeHttpTaskResult {
     private IRequestInterceptor getRequestInterceptor() {
         return new IRequestInterceptor() {
             @Override
-            public void intercept(Chain chain)  throws Exception {
+            public void intercept(Chain chain) throws Exception {
                 Logger.d(AnalyticsConstants.ANALYTICS_TAG, "Intercepting HTTP request");
-                Logger.d(AnalyticsConstants.ANALYTICS_TAG, "Uploading: "+mFileToUpload);
+                Logger.d(AnalyticsConstants.ANALYTICS_TAG, "Uploading: " + mFileToUpload);
                 IRequestBody body = new FileBody("text/plain", new File(mFileToUpload));
                 chain.getRequestFacade().setBody(body);
                 chain.getRequestFacade().getHeaders().add(new Header("Content-Encoding", "gzip"));
@@ -106,7 +110,7 @@ public class AnalyticsUploadTask implements IHikeHTTPTask, IHikeHttpTaskResult {
             }
 
             @Override
-            public void onRequestProgressUpdate(float progress){
+            public void onRequestProgressUpdate(float progress) {
             }
 
             @Override

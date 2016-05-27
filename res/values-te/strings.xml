@@ -298,7 +298,7 @@
     <string name="system_health_hinttext">hike సిస్టమ్ స్టేటస్ చూడండి</string>
     <string name="app_version">వెర్షన్ %1$s</string>
     <string name="remind">గుర్తు చేయి</string>
-    <string name="OK">సరే</string>
+    <string name="OK">ఓకే</string>
     <string name="not_show_call_alert_msg">మళ్లీ చూపించవద్దు</string>
     <string name="view_profile">ప్రొఫైల్ వీక్షించు</string>
     <string name="normal_update_head">ముఖ్యమైన అప్‌డేట్ లభ్యం అయ్యింది</string>
@@ -689,7 +689,7 @@
     <string name="update_all">అన్నింటిని అప్‌డేట్ చేయి</string>
     <string name="RETRY">తిరిగి ప్రయత్నించండి</string>
     <string name="see_them">పూర్తి అయింది</string>
-    <string name="CANCEL">రద్దు చేయి</string>
+    <string name="CANCEL">రద్దు</string>
     <string name="n_more">%1$d మరిన్ని</string>
     <string name="n_stickers">%1$d స్టిక్కర్లు</string>
     <string name="last_backup">చివరి బ్యాకప్</string>
@@ -1422,6 +1422,14 @@
     <string name="recording_help_text">రికార్డింగ్ కొరకు నోక్కి ఉంచు, పంపుటకు రిలీజ్ చేయు</string>
     <string name="max_duration_recorded">రికార్డింగ్ టైం పరిమితి మించినది</string>
     <string name="stream_volume_muted_or_low">దయచేసి వాల్యూమ్ పెంచండి</string>
+    <string name="group_mute_dialog_title">గ్రూపు ను మ్యూట్ చేయి</string>
+    <string name="chat_mute_dialog_title">చాట్ ను మ్యూట్ చేయి</string>
+    <string name="mute_chat_eight_hrs">8 గంటలు</string>
+    <string name="mute_chat_one_week">1 వారం</string>
+    <string name="mute_chat_one_yr">1 సంవత్సరం</string>
+    <string name="show_notif">నోటిఫికేషన్లను చూపించు</string>
+    <string name="mute_chat">మ్యూట్ చాట్</string>
+    <string name="unmute_chat">అన్ మ్యూట్ చాట్</string>
     <string name="shop_search_hint">లవ్,హిందీ,బాలీవుడ్ మొదలైనవిी</string>
     <string name="no_sticker_pack_match_found">మీరు సెర్చ్ చేసిన \'%1$s\' ఏ ఒక్క స్టిక్కర్ ప్యాక్ కి సరిపోలడం లేదుી</string>
     <string name="pack_search_again_hint">లవ్,హిందీ,బాలీవుడ్ మొదలైన పదాలను పూర్తిగా టైపు చెయ్యండిा</string>
