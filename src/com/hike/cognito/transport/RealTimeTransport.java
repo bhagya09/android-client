@@ -31,14 +31,14 @@ public class RealTimeTransport extends Transport {
     public void sendJsonData(JSONObject logData) {
         logData = secureData(logData);
 
-        HttpRequests.cognitoUploadRequest(getUrl(), mDataType, logData, getRequestListener()).execute();
+        HttpRequests.cognitoUploadRequest(getUrl(), mDataType, logData, getRequestListener(mDataType)).execute();
     }
 
     @Override
     public void sendJsonArrayData(JSONArray logData) {
         JSONObject logJsonData = secureData(logData.toString());
 
-        HttpRequests.cognitoUploadRequest(getUrl(), mDataType, logJsonData, getRequestListener()).execute();
+        HttpRequests.cognitoUploadRequest(getUrl(), mDataType, logJsonData, getRequestListener(mDataType)).execute();
     }
 
     private JSONObject secureData(JSONObject data) {
@@ -69,7 +69,7 @@ public class RealTimeTransport extends Transport {
         return null;
     }
 
-    public IRequestListener getRequestListener() {
+    public IRequestListener getRequestListener(final String dataToUpload) {
         IRequestListener requestListener = new IRequestListener() {
 
             @Override
@@ -84,6 +84,7 @@ public class RealTimeTransport extends Transport {
 
             @Override
             public void onRequestFailure(final HttpException httpException) {
+                Logger.d("Cognito", "Failed to upload: " + dataToUpload);
                 httpException.printStackTrace();
             }
         };

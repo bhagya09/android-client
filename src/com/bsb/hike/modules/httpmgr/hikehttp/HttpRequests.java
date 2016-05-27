@@ -1632,18 +1632,16 @@ public class HttpRequests
 
 	public static RequestToken cognitoUploadRequest(String url, final String dataType, JSONObject payload, IRequestListener requestListener)
 	{
+		final String requestId = url;
 		url = sendUserLogsInfoBaseUrl() + url;
-		final String requestId = url + dataType;
 
 		Bundle payloadBundle = new Bundle();
-		payloadBundle.putString(CognitoUploadGcmTask.URL, url);
 		payloadBundle.putString(CognitoUploadGcmTask.REQUEST_ID, requestId);
-		payloadBundle.putString(CognitoUploadGcmTask.DATA_TO_UPLOAD, payload.toString());
 		Config config = new Config.Builder()
 				.setExecutionWindow(0, 1)
 				.setPersisted(true)
 				.setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
-				.setTag(GcmTaskConstants.COGNITO_UPLOAD_GCM_TASK)
+				.setTag(GcmTaskConstants.COGNITO_UPLOAD_GCM_TASK+requestId)
 				.setService(GcmNwMgrService.class)
 				.setExtras(payloadBundle)
 				.build();
