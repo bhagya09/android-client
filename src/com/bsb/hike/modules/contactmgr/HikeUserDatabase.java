@@ -148,7 +148,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 				+ DBConstants.HIKE_UID + " TEXT DEFAULT NULL , "
 				+ DBConstants.BLOCK_STATUS + " TEXT DEFAULT 0 ,"
 				+ DBConstants.FAVORITE_TYPE + " TEXT DEFAULT 0 "
-				+ DBConstants.UNREAD_RECEIVED_REQ_TIME + " INTEGER DEFAULT 0, " // When this user sent a friend request
+				+ DBConstants.UNREAD_RECEIVED_REQ_TIME + " INTEGER DEFAULT 0, " // When this user received a friend request
 				+ " )";
 
 		db.execSQL(create);
