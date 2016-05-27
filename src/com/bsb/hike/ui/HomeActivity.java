@@ -582,8 +582,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 	}
 
-	private void setupFragments()
-	{
+	private void setupFragments() {
 		mPager = (ViewPager) findViewById(R.id.pager_frag);
 		mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
 		mPager.setOffscreenPageLimit(2);
@@ -592,14 +591,36 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		mPager.setOnPageChangeListener(pageChangeListener);
 	}
 
-	private void setupTabsBar()
-	{
-		tabsBar = new CustomTabsBar(this, (ViewGroup)findViewById(R.id.tab_action_bar_parent));
-		tabsBar.addTab(tabsBar.newTab(SU_FRAGMENT_POSITION).setIcon(R.drawable.ic_tab_friend_selector).setCustomTabListener(tabsListener));
+	private void setupTabsBar() {
+		tabsBar = new CustomTabsBar(this, (ViewGroup) findViewById(R.id.tab_action_bar_parent));
+		tabsBar.addTab(tabsBar.newTab(SU_FRAGMENT_POSITION).setIcon(R.drawable.ic_tab_friend_selector).setCustomTabListener(tabsListener)
+				.setBadgeCounterBG(R.drawable.bg_badge_counter_friends_frag));
 		tabsBar.addTab(tabsBar.newTab(CONV_FRAGMENT_POSITION).setIcon(R.drawable.ic_tab_chat_selector).setCustomTabListener(tabsListener));
-		tabsBar.addTab(tabsBar.newTab(MY_FRAGMENT_POSITION).setIcon(R.drawable.ic_tab_me_selector).setCustomTabListener(tabsListener));
+		tabsBar.addTab(tabsBar.newTab(MY_FRAGMENT_POSITION).setIcon(R.drawable.ic_tab_me_selector).setCustomTabListener(tabsListener)
+				.setBadgeCounterBG(R.drawable.bg_badge_counter_my_frag));
 		tabsBar.selectTab(DEAFULT_FRAGMENT_POSITION);
 	}
+
+	CustomTabsBar.CustomTabBadgeCounterListener suFragCounterListener = new CustomTabsBar.CustomTabBadgeCounterListener() {
+		@Override
+		public void onBadgeCounterUpdated(int newCount) {
+			tabsBar.getTab(SU_FRAGMENT_POSITION).updateBadgeCounter(newCount);
+		}
+	};
+
+	CustomTabsBar.CustomTabBadgeCounterListener convFragCounterListener = new CustomTabsBar.CustomTabBadgeCounterListener() {
+		@Override
+		public void onBadgeCounterUpdated(int newCount) {
+			tabsBar.getTab(CONV_FRAGMENT_POSITION).updateBadgeCounter(newCount);
+		}
+	};
+
+	CustomTabsBar.CustomTabBadgeCounterListener myFragCounterListener = new CustomTabsBar.CustomTabBadgeCounterListener() {
+		@Override
+		public void onBadgeCounterUpdated(int newCount) {
+			tabsBar.getTab(MY_FRAGMENT_POSITION).updateBadgeCounter(newCount);
+		}
+	};
 
 	private CustomTabsBar.CustomTabListener tabsListener = new CustomTabsBar.CustomTabListener() {
 		@Override
@@ -610,12 +631,13 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 
 		@Override
-		public void onTabUnselected(CustomTabsBar.Tab tab) {}
+		public void onTabUnselected(CustomTabsBar.Tab tab) {
+		}
 
 		@Override
-		public void onTabReselected(CustomTabsBar.Tab tab) {}
+		public void onTabReselected(CustomTabsBar.Tab tab) {
+		}
 	};
-
 
 	private class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter {
 		public ScreenSlidePagerAdapter(FragmentManager fm) {
@@ -644,7 +666,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	private ViewPager.OnPageChangeListener pageChangeListener = new ViewPager.OnPageChangeListener() {
 		@Override
 		public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
 		}
 
 		@Override
@@ -654,33 +675,28 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		@Override
 		public void onPageScrollStateChanged(int state) {
-
 		}
 	};
 
-	private Fragment getStoryFragment()
-	{
-		if (storyFragment == null)
-		{
+	private Fragment getStoryFragment() {
+		if (storyFragment == null) {
 			storyFragment = StoryFragment.newInstance(null);
 		}
 		return storyFragment;
 	}
 
-	private Fragment getConversationFragment()
-	{
-		if (conversationFragment == null)
-		{
+	private Fragment getConversationFragment() {
+		if (conversationFragment == null) {
 			conversationFragment = new ConversationFragment();
+			conversationFragment.setCustomTabBadgeCounterListener(convFragCounterListener);
 		}
 		return conversationFragment;
 	}
 
-	private Fragment getMyFragment()
-	{
-		if (myFragment == null)
-		{
+	private Fragment getMyFragment() {
+		if (myFragment == null) {
 			myFragment = new MyFragment();
+			myFragment.setCustomTabBadgeCounterListener(myFragCounterListener);
 		}
 		return myFragment;
 	}
@@ -902,18 +918,18 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
-		switch (item.getItemId())
+		if (item.getItemId() == android.R.id.home)
 		{
-			case android.R.id.home:
-				hikeLogoClicked();
-				break;
-			case R.id.search:
-				showProductPopup(ProductPopupsConstants.PopupTriggerPoints.SEARCH.ordinal());
-				if (hiButton != null)
-				{
-					hiButton.clearAnimation();
-				}
-				break;
+			hikeLogoClicked();
+			return true;
+		}
+		if (item.getItemId() == R.id.search)
+		{
+			showProductPopup(ProductPopupsConstants.PopupTriggerPoints.SEARCH.ordinal());
+			if (hiButton != null)
+			{
+				hiButton.clearAnimation();
+			}
 		}
 		return super.onOptionsItemSelected(item);
 	}

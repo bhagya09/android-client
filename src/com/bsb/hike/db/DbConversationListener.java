@@ -253,7 +253,7 @@ public class DbConversationListener implements Listener
 			ContactInfo contactInfo = favoriteToggle.first;
 			FavoriteType favoriteType = favoriteToggle.second;
 
-			ContactManager.getInstance().toggleContactFavorite(contactInfo.getMsisdn(), favoriteType);
+			ContactManager.getInstance().toggleContactFavorite(contactInfo, favoriteType);
 
 			if (favoriteType != FavoriteType.REQUEST_RECEIVED && favoriteType != FavoriteType.REQUEST_SENT_REJECTED && !HikePubSub.FRIEND_REQUEST_ACCEPTED.equals(type))
 			{

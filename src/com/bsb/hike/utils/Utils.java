@@ -75,6 +75,8 @@ import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.ui.*;
+import com.bsb.hike.ui.fragments.AddedMeFragment;
+import com.bsb.hike.ui.fragments.MyFragment;
 import com.bsb.hike.userlogs.AESEncryption;
 import com.bsb.hike.voip.VoIPUtils;
 import com.google.android.gms.common.ConnectionResult;
@@ -8162,5 +8164,11 @@ public class Utils
 			return 0;
 		}
 
+	}
+
+	public static void incrementFriendRequestReceivedCounters()
+	{
+		AddedMeFragment.incrementBadgeCount();
+		MyFragment.incrementBadgeCount();
 	}
 }

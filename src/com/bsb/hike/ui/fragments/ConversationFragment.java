@@ -103,6 +103,7 @@ import com.bsb.hike.productpopup.AtomicTipManager;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.tasks.EmailConversationsAsyncTask;
+import com.bsb.hike.ui.CustomTabsBar;
 import com.bsb.hike.ui.HikeFragmentable;
 import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HomeActivity;
@@ -233,6 +234,8 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 	View parent;
 
 	private MenuItem searchMenuItem;
+
+	private CustomTabsBar.CustomTabBadgeCounterListener badgeCounterListener;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -1376,7 +1379,8 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 	}
 
 	@Override
-	public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id)
+	public boolean
+	onItemLongClick(AdapterView<?> adapterView, View view, int position, long id)
 	{
 
 		if (position < getListView().getHeaderViewsCount())
@@ -4177,6 +4181,11 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			}
 		});
 
+	}
+
+	public void setCustomTabBadgeCounterListener(CustomTabsBar.CustomTabBadgeCounterListener listener)
+	{
+		this.badgeCounterListener = listener;
 	}
 
 }
