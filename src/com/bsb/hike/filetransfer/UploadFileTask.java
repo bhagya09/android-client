@@ -1096,10 +1096,11 @@ public class UploadFileTask extends FileTransferBase
 		long timeInNs = 0;
 		for (Header header : headers)
 		{
-			if (header.getName().equals(HttpHeaderConstants.NETWORK_TIME_INCLUDING_RETRIES))
+			if (HttpHeaderConstants.NETWORK_TIME_INCLUDING_RETRIES.equals(header.getName()))
 			{
 				String timeString = header.getValue();
-				timeInNs = Long.valueOf(timeString);
+				if (!TextUtils.isEmpty(timeString))
+					timeInNs = Long.valueOf(timeString);
 			}
 		}
 		return timeInNs / (1000 * 1000);
