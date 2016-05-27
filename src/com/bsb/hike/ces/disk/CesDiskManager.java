@@ -304,11 +304,13 @@ public class CesDiskManager
 			mDate = CesUtils.getDayBeforeUTCDate(mDate);
 			dir = new File(HikeConstants.HIKE_DIRECTORY_ROOT + CES_ROOT_DIR + "/" + mDate);
 		}
+		String [] fileNotToDel = {date, CesUtils.getCurrentUTCDate()};
+		deleteOldDirIfAny(fileNotToDel);
 	}
 
 	private static boolean deleteDir(File dir)
 	{
-		if(dir != null && dir.exists())
+		if(dir != null && dir.exists() && dir.isDirectory())
 		{
 			Utils.deleteFile(dir);
 			return true;
@@ -319,10 +321,39 @@ public class CesDiskManager
 		}
 	}
 
+	private static void deleteOldDirIfAny(String [] fileNotToDel)
+	{
+		File dir = new File(HikeConstants.HIKE_DIRECTORY_ROOT + CES_ROOT_DIR);
+		if(dir != null && dir.exists() && dir.isDirectory())
+		{
+			String [] fileNames = dir.list();
+			if(fileNames.length == fileNotToDel.length)
+			{
+				return;
+			}
+			for (int i = 0; i < fileNames.length; i++)
+			{
+				boolean del = true;
+				for (int j = 0; j < fileNotToDel.length; j++)
+				{
+					if(fileNames[i].equals(fileNotToDel[j]))
+					{
+						del = false;
+						break;
+					}
+				}
+				if(del)
+				{
+					Utils.deleteFile(new File(dir, fileNames[i]));
+				}
+			}
+		}
+	}
+
 	public static void deleteAllCesData()
 	{
 		File dir = new File(HikeConstants.HIKE_DIRECTORY_ROOT + CES_ROOT_DIR);
-		if(dir.exists())
+		if(dir.exists() && dir.isDirectory())
 		{
 			Utils.deleteFile(dir);
 		}

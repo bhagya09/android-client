@@ -226,7 +226,7 @@ public class CustomerExperienceScore {
 	/**
 	 * Schedules next auto CES data sync
 	 */
-	public void scheduleNextCesDataSync()
+	private void scheduleNextCesDataSync()
 	{
 		Random rand = new Random();		
 		int hr = rand.nextInt(CesConstants.DAY_IN_HOUR);
