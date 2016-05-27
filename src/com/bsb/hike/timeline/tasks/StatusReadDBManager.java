@@ -24,17 +24,14 @@ public class StatusReadDBManager {
         return mInstance;
     }
 
-    public void execute(StatusReadDBRunnable suReadDBRunnable)
-    {
-        if(!runnableList.contains(suReadDBRunnable))
-        {
+    public void execute(StatusReadDBRunnable suReadDBRunnable) {
+        if (!runnableList.contains(suReadDBRunnable)) {
             runnableList.add(suReadDBRunnable);
-            HikeHandlerUtil.getInstance().postRunnableWithDelay(suReadDBRunnable,2000);
+            HikeHandlerUtil.getInstance().postRunnableWithDelay(suReadDBRunnable, 2000);
         }
     }
 
-    public void setFinished(StatusReadDBRunnable finished)
-    {
+    public void setFinished(StatusReadDBRunnable finished) {
         runnableList.remove(finished);
     }
 }
