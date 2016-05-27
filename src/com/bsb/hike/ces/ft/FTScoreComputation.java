@@ -54,7 +54,7 @@ public class FTScoreComputation implements ScoreComputationImpl{
 	public JSONObject computeScore() {
 		JSONObject scoreJson = null;
 		ConcurrentHashMap<String, List<Integer>> scores = new ConcurrentHashMap<>();
-		CesDiskManager disk = new CesDiskManager(CESModule.FT, CesUtils.getDayBeforeUTCDate(), CesDiskManager.DataFlushMode.FLUSH, true);
+		CesDiskManager disk = new CesDiskManager(CESModule.FT, CesUtils.getDayBeforeUTCDate(), CesDiskManager.DataFlushMode.FLUSH, false);
 		File mFile = new File(disk.getFilePath(CESInfoType.L1));
 		if(mFile != null && mFile.exists())
 		{
@@ -132,7 +132,15 @@ public class FTScoreComputation implements ScoreComputationImpl{
 		switch (mType)
 		{
 			case MEDIAN_SCORE:
-				score = list.get(list.size()*1/2);
+				int index = list.size()*1/2;
+				if((list.size()%2) == 0 && list.size() > 1)
+				{
+					score = (list.get(index) + list.get(index-1))/2;
+				}
+				else
+				{
+					score = list.get(index);
+				}
 				break;
 			case MEAN90_SCORE:
 				score = list.get(list.size()*9/10);	
