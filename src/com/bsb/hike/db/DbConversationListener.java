@@ -634,7 +634,7 @@ public class DbConversationListener implements Listener
                 listOfContacts.add(new ContactInfo(msisdn, msisdn, null, null,!convMessage.isSMS()));
             }
             convMessage.platformMessageMetadata.thumbnailMap.clear();
-            convMessage.platformMessageMetadata.addThumbnailsToMetadata();
+//            convMessage.platformMessageMetadata.addThumbnailsToMetadata();
             long timeStamp = System.currentTimeMillis()/1000;
 			String source = jsonObject.optString(HikePlatformConstants.SOURCE);
             MultipleConvMessage multipleConvMessage = new MultipleConvMessage(listOfMessages, listOfContacts, timeStamp, true, source);

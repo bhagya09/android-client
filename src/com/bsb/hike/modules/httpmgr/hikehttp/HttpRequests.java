@@ -1556,6 +1556,28 @@ public class HttpRequests
 		return requestToken;
 	}
 
+    public static RequestToken makeBotJoinPostRequest(JSONObject json, IRequestListener requestListener)
+    {
+        if(json==null)
+        {
+            return null;
+        }
+        else
+        {
+            JsonBody body = new JsonBody(json);
+            RequestToken requestToken = new StringRequest.Builder()
+                    .setUrl(HttpRequestConstants.getBotInitiateUrl())
+                    .setRequestType(Request.REQUEST_TYPE_SHORT)
+                    .addHeader(PlatformUtils.getHeaders())
+                    .setRequestListener(requestListener)
+                    .setRetryPolicy(new BasicRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER))
+                    .post(body)
+                    .build();
+
+            return requestToken;
+        }
+    }
+
 	public static RequestToken fetchBdaysForCCA(IRequestListener requestListener) {
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setUrl(HttpRequestConstants.getFetchBdayUrl())
@@ -1630,6 +1652,22 @@ public class HttpRequests
 		return requestToken;
 	}
 
+	public static RequestToken microAppSubscribeRequest(String url, JSONObject json, IRequestListener requestListener) {
+		if (json == null) {
+			return null;
+		} else {
+			JsonBody body = new JsonBody(json);
+			RequestToken requestToken = new StringRequest.Builder()
+					.setUrl(url)
+					.setRequestType(Request.REQUEST_TYPE_SHORT)
+					.addHeader(PlatformUtils.getHeaders())
+					.setRequestListener(requestListener)
+					.post(body)
+					.build();
+
+			return requestToken;
+		}
+	}
 	public static RequestToken cognitoUploadRequest(String url, final String dataType, JSONObject payload, IRequestListener requestListener)
 	{
 		final String requestId = url;

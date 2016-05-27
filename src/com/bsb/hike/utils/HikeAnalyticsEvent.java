@@ -20,6 +20,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -243,6 +244,22 @@ public class HikeAnalyticsEvent
 		}
 	}
 
+	public static void platformAnalytics(String json,String uniqueKey,String kingdom) {
+		if (TextUtils.isEmpty(uniqueKey) || TextUtils.isEmpty(kingdom)) {
+			Logger.e(TAG, "Either unique key or kingdom is null");
+		}
+		try {
+			JSONObject jsonObject = new JSONObject(json);
+
+			jsonObject.put(AnalyticsConstants.V2.NETWORK, (Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
+			jsonObject.put(AnalyticsConstants.V2.KINGDOM, kingdom);
+			jsonObject.put(AnalyticsConstants.V2.UNIQUE_KEY, uniqueKey);
+			HAManager.getInstance().recordV2(jsonObject);
+		} catch (JSONException e) {
+			Logger.e(TAG, e.toString());
+		}
+
+	}
 	public static void recordAnalyticsForGCPins(String uniqueKey_order, String genus, String source, String species)
 	{
 		try

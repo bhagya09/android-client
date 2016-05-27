@@ -466,7 +466,7 @@ public class FileUploadRequest extends Request<JSONObject>
 		return res.toString();
 	}
 
-	private List<Header> getFileUploadHeaders(File srcFile, String contentRange)
+	public List<Header> getFileUploadHeaders(File srcFile, String contentRange)
 	{
 		List<Header> headers = new ArrayList<Header>();
 		headers.add(new Header("Connection", "Keep-Alive"));
