@@ -231,7 +231,8 @@ public class UploadFileTask extends FileTransferBase
 						FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FK_VALIDATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "http", "UPLOAD_FAILED - ", httpException);
 						removeTaskAndShowToast(HikeConstants.FTResult.UPLOAD_FAILED);
 					}
-					logCesData(CesConstants.FT_STATUS_INCOMPLETE, false, httpException.getCause().toString());
+					Throwable throwable = httpException.getCause();
+					logCesData(CesConstants.FT_STATUS_INCOMPLETE, false, throwable == null ? "" : throwable.toString());
 				}
 			}
 		};
@@ -593,7 +594,8 @@ public class UploadFileTask extends FileTransferBase
 							removeTaskAndShowToast(HikeConstants.FTResult.UPLOAD_FAILED);
 						}
 					}
-					logCesData(CesConstants.FT_STATUS_INCOMPLETE, false, httpException.getCause().toString());
+					Throwable throwable = httpException.getCause();
+					logCesData(CesConstants.FT_STATUS_INCOMPLETE, false, throwable == null ? "" : throwable.toString());
 				}
 			}
 
@@ -837,7 +839,8 @@ public class UploadFileTask extends FileTransferBase
 									httpException);
 							removeTaskAndShowToast(HikeConstants.FTResult.UPLOAD_FAILED);
 						}
-						logCesData(CesConstants.FT_STATUS_INCOMPLETE, false, httpException.getCause().toString());
+						Throwable throwable = httpException.getCause();
+						logCesData(CesConstants.FT_STATUS_INCOMPLETE, false, throwable == null ? "" : throwable.toString());
 					}
 				}
 			}, getUploadFileInterceptor(), new FileTransferChunkSizePolicy(context));
@@ -1093,10 +1096,11 @@ public class UploadFileTask extends FileTransferBase
 		long timeInNs = 0;
 		for (Header header : headers)
 		{
-			if (header.getName().equals(HttpHeaderConstants.NETWORK_TIME_INCLUDING_RETRIES))
+			if (HttpHeaderConstants.NETWORK_TIME_INCLUDING_RETRIES.equals(header.getName()))
 			{
 				String timeString = header.getValue();
-				timeInNs = Long.valueOf(timeString);
+				if (!TextUtils.isEmpty(timeString))
+					timeInNs = Long.valueOf(timeString);
 			}
 		}
 		return timeInNs / (1000 * 1000);
