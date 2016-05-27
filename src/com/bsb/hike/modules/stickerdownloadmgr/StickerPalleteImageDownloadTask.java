@@ -1,6 +1,7 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
 import android.support.annotation.Nullable;
+import android.os.Bundle;
 
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_OUT_OF_SPACE;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.StickerPalleteImageDownloadRequest;
@@ -51,7 +52,7 @@ public class StickerPalleteImageDownloadTask implements IHikeHTTPTask, IHikeHttp
 		
 		String requestId = getRequestId();
 		
-		token = StickerPalleteImageDownloadRequest(requestId, categoryId, getRequestInterceptor(), getRequestListener());
+		token = StickerPalleteImageDownloadRequest(requestId, categoryId, getRequestInterceptor(), getRequestListener(), getRequestBundle());
 		if(token.isRequestRunning()) // return request already running
 		{
 			return ;
@@ -182,5 +183,12 @@ public class StickerPalleteImageDownloadTask implements IHikeHTTPTask, IHikeHttp
 	{
 		HikeMessengerApp.getLruCache().remove(StickerManager.getInstance().getCategoryOtherAssetLoaderKey(categoryId, StickerManager.PALLATE_ICON_SELECTED_TYPE));
 		HikeMessengerApp.getLruCache().remove(StickerManager.getInstance().getCategoryOtherAssetLoaderKey(categoryId, StickerManager.PALLATE_ICON_TYPE));
+	}
+
+	private Bundle getRequestBundle()
+	{
+		Bundle extras = new Bundle();
+		extras.putString(HikeConstants.CATEGORY_ID, categoryId);
+		return extras;
 	}
 }

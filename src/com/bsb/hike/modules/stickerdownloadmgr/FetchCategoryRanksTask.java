@@ -2,6 +2,8 @@ package com.bsb.hike.modules.stickerdownloadmgr;
 
 import android.support.annotation.Nullable;
 
+import android.os.Bundle;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;

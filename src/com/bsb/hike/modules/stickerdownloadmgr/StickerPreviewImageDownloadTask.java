@@ -9,6 +9,7 @@ import org.json.JSONObject;
 
 import android.content.Intent;
 import android.support.annotation.Nullable;
+import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 
 import com.bsb.hike.HikeConstants;
@@ -53,7 +54,7 @@ public class StickerPreviewImageDownloadTask implements IHikeHTTPTask, IHikeHttp
 		}
 
 		String requestId = getRequestId();
-		token = StickerPreviewImageDownloadRequest(requestId, categoryId, getRequestInterceptor(), getRequestListener());
+		token = StickerPreviewImageDownloadRequest(requestId, categoryId, getRequestInterceptor(), getRequestListener(), getRequestBundle());
 
 		if (token.isRequestRunning()) // duplicate check
 		{
@@ -174,5 +175,13 @@ public class StickerPreviewImageDownloadTask implements IHikeHTTPTask, IHikeHttp
 	public void doOnFailure(HttpException e)
 	{
 		Logger.e(TAG, "on failure, exception ", e);
+	}
+
+	private Bundle getRequestBundle()
+	{
+		Bundle extras = new Bundle();
+		extras.putInt(HikeConstants.TYPE, previewType);
+		extras.putString(HikeConstants.CATEGORY_ID, categoryId);
+		return extras;
 	}
 }

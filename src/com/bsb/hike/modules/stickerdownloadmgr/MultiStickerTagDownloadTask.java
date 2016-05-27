@@ -1,6 +1,7 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
 import android.support.annotation.Nullable;
+import android.os.Bundle;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -122,7 +123,7 @@ public class MultiStickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTask
 			json.put(HikeConstants.KEYBOARD_LIST, new JSONArray(languagesList));
 
 
-			RequestToken requestToken = tagsForMultiStickerRequest(getRequestId(), json, getResponseListener());
+			RequestToken requestToken = tagsForMultiStickerRequest(getRequestId(), json, getResponseListener(), getRequestBundle());
 
 			if (requestToken.isRequestRunning())
 			{
@@ -210,5 +211,14 @@ public class MultiStickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTask
 	public void doOnFailure(HttpException exception)
 	{
 		Logger.d(TAG, "response failed.");
+	}
+
+	private Bundle getRequestBundle()
+	{
+		Bundle extras = new Bundle();
+		extras.putStringArrayList(HikeConstants.STICKERS, stickerCategoryList);
+		extras.putInt(HikeConstants.STATE, state);
+		extras.putStringArrayList(HikeConstants.LANGUAGES, languagesList);
+		return extras;
 	}
 }
