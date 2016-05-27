@@ -79,7 +79,7 @@ public class NotificationDismissedReceiver extends BroadcastReceiver
 						AnalyticsConstants.BirthdayEvents.BIRTHDAY_NOTIF_SWIPE_OFF,
 						AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
 						AnalyticsConstants.BirthdayEvents.BIRTHDAY_NOTIF_SWIPE_OFF,
-						String.valueOf(packetId), null, null, null);
+						String.valueOf(packetId), null, null, null, null);
 
 			}
 			else

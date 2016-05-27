@@ -291,7 +291,7 @@ public class BirthdayUtils
                                 AnalyticsConstants.BirthdayEvents.BIRTHDAY_REQ_RESPONSE,
                                 AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
                                 AnalyticsConstants.BirthdayEvents.BIRTHDAY_REQ_RESPONSE,
-                                String.valueOf(packetId), null, null, null);
+                                String.valueOf(packetId), String.valueOf(Utils.isBDayInNewChatEnabled()), null, null, "0");
                             }
 						}
 					}
@@ -325,7 +325,7 @@ public class BirthdayUtils
                 AnalyticsConstants.BirthdayEvents.BIRTHDAY_HTTP_REQ,
                 AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
                 AnalyticsConstants.BirthdayEvents.BIRTHDAY_HTTP_REQ,
-                String.valueOf(packetId), null, null, null);
+                String.valueOf(packetId), null, null, null, null);
 			}
 		}
     }
@@ -414,7 +414,7 @@ public class BirthdayUtils
                 AnalyticsConstants.BirthdayEvents.BIRTHDAY_REQ_RESPONSE,
                 AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
                 AnalyticsConstants.BirthdayEvents.BIRTHDAY_REQ_RESPONSE,
-                String.valueOf(packetId), null, null, String.valueOf(bdayMsisdnSet.size() - bdayMsisdns.size()));
+                String.valueOf(packetId), String.valueOf(Utils.isBDayInNewChatEnabled()), null, null, String.valueOf(bdayMsisdnSet.size() - bdayMsisdns.size()));
 
         if(bdayMsisdns != null && bdayMsisdns.size() > 0)
         {
@@ -428,7 +428,7 @@ public class BirthdayUtils
         }
     }
 
-	public static void recordBirthdayAnalytics(String uk, String eventClass, String order, String family, String form, String race, String valInt)
+	public static void recordBirthdayAnalytics(String uk, String eventClass, String order, String family, String species, String form, String race, String valInt)
 	{
 		try
 		{
@@ -439,6 +439,7 @@ public class BirthdayUtils
 			json.put(AnalyticsConstants.V2.CLASS, eventClass);
 			json.put(AnalyticsConstants.V2.ORDER, order);
 			json.put(AnalyticsConstants.V2.FAMILY, family);
+            json.put(AnalyticsConstants.V2.SPECIES, species);
             json.put(AnalyticsConstants.V2.FORM, form);
             json.put(AnalyticsConstants.V2.RACE, race);
             json.put(AnalyticsConstants.V2.VAL_INT, valInt);
@@ -460,6 +461,6 @@ public class BirthdayUtils
 		recordBirthdayAnalytics(AnalyticsConstants.BirthdayEvents.BIRTHDAY_EXPIRY,
                 AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
 				AnalyticsConstants.BirthdayEvents.BIRTHDAY_EXPIRY,
-                String.valueOf(packetId), null, null, null);
+                String.valueOf(packetId), String.valueOf(System.currentTimeMillis()), null, null, null);
 	}
 }
