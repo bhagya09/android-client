@@ -8,7 +8,6 @@ import android.util.Pair;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
-import com.bsb.hike.bots.CustomKeyboardManager;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.MessageEvent;
@@ -128,12 +127,6 @@ public class GeneralEventMessagesManager
 			{
 				handleGeneralEventDRPacket(packet);
 			}
-            else if(HikeConstants.GeneralEventMessagesTypes.CUSTOM_KEYBOARD.equals(type))
-            {
-                CustomKeyboardManager.getInstance().saveToSharedPreferences(packet.getString(HikeConstants.FROM), data.getJSONObject(HikeConstants.DATA));
-
-                HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_INPUT_BOX, packet.getString(HikeConstants.FROM));
-            }
 			
 		}
 	}
