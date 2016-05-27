@@ -2475,7 +2475,10 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
             {
                 boolean isKeyBoardPersistent = new JSONObject(keyboardDataJson).optBoolean(HikePlatformConstants.IS_KEYBOARD_PERSISTENT, false);
                 if (!isKeyBoardPersistent)
+                {
                     CustomKeyboardManager.getInstance().removeFromSharedPreferences(msisdn);
+                    dismissInputBox();
+                }
             }
         }
         catch (JSONException e)
@@ -7024,8 +7027,11 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			{
 				boolean isKeyBoardPersistent = new JSONObject(keyboardDataJson).optBoolean(HikePlatformConstants.IS_KEYBOARD_PERSISTENT, false);
 				if (!isKeyBoardPersistent)
-					CustomKeyboardManager.getInstance().removeFromSharedPreferences(msisdn);
-			}
+                {
+                    CustomKeyboardManager.getInstance().removeFromSharedPreferences(msisdn);
+                    dismissInputBox();
+                }
+            }
 		}
 		catch (JSONException e)
 		{
