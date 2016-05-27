@@ -384,4 +384,32 @@ public class HikeNotificationUtils
         }
     }
 
+    public static void recordUJReceived(JSONObject ujJSON)
+    {
+        int pushType = ujJSON.optInt(HikeConstants.UserJoinMsg.PUSH_SETTING, HikeConstants.PushType.silent);
+        boolean isRich = ujJSON.optBoolean(HikeConstants.UserJoinMsg.RICH_NOTIF, false);
+        String msisdn = ujJSON.optString(HikeConstants.MSISDN);
+        String race = isRich ? RICH : (pushType == 0 ? SILENT : NORMAL);
+        String variety = pushType == HikeConstants.PushType.loud ? LOUD : SILENT;
+        String family = String.valueOf(msisdn.hashCode());
+        String genus = ujJSON.optString(AnalyticsConstants.EXP_ANALYTICS_TAG);
+        recordUJNotifAnalytics(UJ_RECEIVED, FUNNEL, UJ_RECEIVED, family, genus, variety, race, null, null, null, msisdn);
+    }
+
+    public static void recordUJNotifCreate(String id, String tag, boolean silent, String title, String message, String numCTAs, String msisdn)
+    {
+        String variety = silent ? SILENT : LOUD;
+        recordUJNotifAnalytics(UJ_NOTIF_CREATED, FUNNEL, UJ_NOTIF_CREATED, id, tag, variety, RICH, title, message, numCTAs, msisdn);
+    }
+
+    public static void recordUJNotifSwipe(String id, String tag, String msisdn)
+    {
+        recordUJNotifAnalytics(UJ_NOTIF_SWIPED, AnalyticsConstants.UI_EVENT, UJ_NOTIF_SWIPED, id, tag, null, null, null, null, null, msisdn);
+    }
+
+    public static void recordUJNotifClick(int id, String tag, String cta, String msisdn)
+    {
+        recordUJNotifAnalytics(cta, AnalyticsConstants.UI_EVENT, cta, String.valueOf(id), tag, null, null, null, null, null, msisdn);
+    }
+
 }
