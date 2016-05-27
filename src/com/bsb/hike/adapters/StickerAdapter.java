@@ -72,8 +72,6 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 
 	private int NUM_COLUMNS;
 
-	private boolean shown ;
-
 	public StickerAdapter(Context context, StickerPickerListener listener)
 	{
 		this.inflater = LayoutInflater.from(context);
@@ -176,7 +174,7 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 			{
 				if(Utils.isEmpty(category.getStickerList()))
 				{
-					setUpEmptyPage(stickerPageObject);
+					setUpQsEmptyPage(stickerPageObject);
 				}
 				else
 				{
@@ -210,7 +208,7 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 		}
 	}
 
-	public void setUpEmptyPage(StickerPageObject stickerPageObject)
+	public void setUpQsEmptyPage(StickerPageObject stickerPageObject)
 	{
 		inflateEmptyView(stickerPageObject);
 		stickerPageObject.getStickerGridView().setVisibility(View.GONE);
@@ -548,7 +546,6 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 				{
 					return;
 				}
-				shown = true;
 				setupStickerPage(stickerPageObject.getParentView(), stickerPageObject.getStickerCategory());
 			}
 			/**
