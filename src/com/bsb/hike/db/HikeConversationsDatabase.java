@@ -5517,7 +5517,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		}
 
 		String[] columns = new String[] { DBConstants.STATUS_ID, DBConstants.STATUS_MAPPED_ID, DBConstants.MSISDN, DBConstants.STATUS_TEXT, DBConstants.STATUS_TYPE,
-				DBConstants.TIMESTAMP, DBConstants.MOOD_ID, DBConstants.TIME_OF_DAY, DBConstants.FILE_KEY };
+				DBConstants.TIMESTAMP, DBConstants.MOOD_ID, DBConstants.TIME_OF_DAY, DBConstants.FILE_KEY, DBConstants.IS_READ };
 
 		StringBuilder selection = new StringBuilder();
 
@@ -5559,6 +5559,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 			int moodIdIdx = c.getColumnIndex(DBConstants.MOOD_ID);
 			int timeOfDayIdx = c.getColumnIndex(DBConstants.TIME_OF_DAY);
 			int fileKeyIdx = c.getColumnIndex(DBConstants.FILE_KEY);
+			int isReadIdx = c.getColumnIndex(DBConstants.IS_READ);
 
 			List<String> msisdns = new ArrayList<String>();
 
@@ -5575,7 +5576,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				}
 
 				StatusMessage statusMessage = new StatusMessage(c.getLong(idIdx), c.getString(mappedIdIdx), msisdn, null, c.getString(textIdx),
-						StatusMessageType.values()[c.getInt(typeIdx)], c.getLong(tsIdx), c.getInt(moodIdIdx), c.getInt(timeOfDayIdx), c.getString(fileKeyIdx));
+						StatusMessageType.values()[c.getInt(typeIdx)], c.getLong(tsIdx), c.getInt(moodIdIdx), c.getInt(timeOfDayIdx), c.getString(fileKeyIdx), c.getInt(isReadIdx) == 1 ? true : false);
 				statusMessages.add(statusMessage);
 
 				List<StatusMessage> msisdnMessages = statusMessagesMap.get(msisdn);
@@ -5618,7 +5619,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 	public List<StatusMessage> getStatusMessages(boolean timelineUpdatesOnly, int limit, int lastStatusId, String... msisdnList)
 	{
 		String[] columns = new String[] { DBConstants.STATUS_ID, DBConstants.STATUS_MAPPED_ID, DBConstants.MSISDN, DBConstants.STATUS_TEXT, DBConstants.STATUS_TYPE,
-				DBConstants.TIMESTAMP, DBConstants.MOOD_ID, DBConstants.TIME_OF_DAY, DBConstants.FILE_KEY};
+				DBConstants.TIMESTAMP, DBConstants.MOOD_ID, DBConstants.TIME_OF_DAY, DBConstants.FILE_KEY, DBConstants.IS_READ};
 
 		StringBuilder selection = new StringBuilder();
 
@@ -5670,6 +5671,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 			int moodIdIdx = c.getColumnIndex(DBConstants.MOOD_ID);
 			int timeOfDayIdx = c.getColumnIndex(DBConstants.TIME_OF_DAY);
 			int fileKeyIdx = c.getColumnIndex(DBConstants.FILE_KEY);
+			int isReadIdx = c.getColumnIndex(DBConstants.IS_READ);
 
 			List<String> msisdns = new ArrayList<String>();
 
@@ -5678,7 +5680,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				String msisdn = c.getString(msisdnIdx);
 
 				StatusMessage statusMessage = new StatusMessage(c.getLong(idIdx), c.getString(mappedIdIdx), msisdn, null, c.getString(textIdx),
-						StatusMessageType.values()[c.getInt(typeIdx)], c.getLong(tsIdx), c.getInt(moodIdIdx), c.getInt(timeOfDayIdx),c.getString(fileKeyIdx));
+						StatusMessageType.values()[c.getInt(typeIdx)], c.getLong(tsIdx), c.getInt(moodIdIdx), c.getInt(timeOfDayIdx), c.getString(fileKeyIdx), c.getInt(isReadIdx) == 1 ? true : false);
 				statusMessages.add(statusMessage);
 
 				List<StatusMessage> msisdnMessages = statusMessagesMap.get(msisdn);
@@ -5735,7 +5737,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 			return statusMessagesMap;
 		}
 		String[] columns = new String[] { DBConstants.STATUS_ID, DBConstants.STATUS_MAPPED_ID, DBConstants.MSISDN, DBConstants.STATUS_TEXT, DBConstants.STATUS_TYPE,
-				DBConstants.TIMESTAMP, DBConstants.MOOD_ID, DBConstants.TIME_OF_DAY };
+				DBConstants.TIMESTAMP, DBConstants.MOOD_ID, DBConstants.TIME_OF_DAY, DBConstants.IS_READ };
 
 		StringBuilder selection = new StringBuilder();
 
@@ -5790,13 +5792,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 			int tsIdx = c.getColumnIndex(DBConstants.TIMESTAMP);
 			int moodIdIdx = c.getColumnIndex(DBConstants.MOOD_ID);
 			int timeOfDayIdx = c.getColumnIndex(DBConstants.TIME_OF_DAY);
+			int isReadIdx = c.getColumnIndex(DBConstants.IS_READ);
 
 			while (c.moveToNext())
 			{
 				String msisdn = c.getString(msisdnIdx);
 
 				StatusMessage statusMessage = new StatusMessage(c.getLong(idIdx), c.getString(mappedIdIdx), msisdn, null, c.getString(textIdx),
-						StatusMessageType.values()[c.getInt(typeIdx)], c.getLong(tsIdx), c.getInt(moodIdIdx), c.getInt(timeOfDayIdx));
+						StatusMessageType.values()[c.getInt(typeIdx)], c.getLong(tsIdx), c.getInt(moodIdIdx), c.getInt(timeOfDayIdx), null, c.getInt(isReadIdx) == 1? true: false);
 				statusMessagesMap.put(msisdn, statusMessage);
 
 			}
@@ -5816,7 +5819,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		StatusMessage statusMessage = null;
 
 		String[] columns = new String[] { DBConstants.STATUS_ID, DBConstants.STATUS_MAPPED_ID, DBConstants.MSISDN, DBConstants.STATUS_TEXT, DBConstants.STATUS_TYPE,
-				DBConstants.TIMESTAMP, DBConstants.MOOD_ID, DBConstants.TIME_OF_DAY };
+				DBConstants.TIMESTAMP, DBConstants.MOOD_ID, DBConstants.TIME_OF_DAY, DBConstants.IS_READ };
 
 		String selection = DBConstants.STATUS_MAPPED_ID + " = ?";
 		
@@ -5833,13 +5836,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 			int tsIdx = c.getColumnIndex(DBConstants.TIMESTAMP);
 			int moodIdIdx = c.getColumnIndex(DBConstants.MOOD_ID);
 			int timeOfDayIdx = c.getColumnIndex(DBConstants.TIME_OF_DAY);
+			int isReadIdx = c.getColumnIndex(DBConstants.IS_READ);
 
 			while (c.moveToNext())
 			{
 				String msisdn = c.getString(msisdnIdx);
 
 				statusMessage = new StatusMessage(c.getLong(idIdx), c.getString(mappedIdIdx), msisdn, null, c.getString(textIdx), StatusMessageType.values()[c.getInt(typeIdx)],
-						c.getLong(tsIdx), c.getInt(moodIdIdx), c.getInt(timeOfDayIdx));
+						c.getLong(tsIdx), c.getInt(moodIdIdx), c.getInt(timeOfDayIdx), null, c.getInt(isReadIdx) == 1?true:false);
 			}
 		}
 		finally
