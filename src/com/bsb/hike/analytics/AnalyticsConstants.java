@@ -300,6 +300,8 @@ public class AnalyticsConstants
 		public static final String RACE = "ra";
 
 		public static final String POPULATION = "pop";
+
+        public static final String DIVISION = "d";
 	}
 
 	// Edit picture flags and events
@@ -923,5 +925,32 @@ public class AnalyticsConstants
 	}
 
     public static final String EXP_ANALYTICS_TAG = "a_t";
+
+    public static final class UJNotifAnalyticsConstants
+    {
+        public static final String UJ_NOTIF = "uj_notif";
+
+        public static final String UJ_RECEIVED = "uj_rcvd";
+
+        public static final String FUNNEL = "funnel";
+
+        public static final String UJ_NOTIF_CREATED = "uj_ntf_crt";
+
+        public static final String UJ_NOTIF_CLICKED = "uj_ntf_clk";
+
+        public static final String UJ_NOTIF_SWIPED = "uj_ntf_swp";
+
+        public static final String UJ_NOTIF_SAY_HI = "uj_ntf_say_hi";
+
+        public static final String UJ_NOTIF_ADD_FRIEND = "uj_ntf_add_frnd";
+
+        public static final String NORMAL = "normal";
+
+        public static final String RICH = "rich";
+
+        public static final String LOUD = "loud";
+
+        public static final String SILENT = "silent";
+    }
 
 }

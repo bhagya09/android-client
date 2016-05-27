@@ -17,6 +17,8 @@ import android.text.style.ForegroundColorSpan;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
@@ -26,17 +28,19 @@ import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.NotificationPreview;
 import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.bsb.hike.analytics.AnalyticsConstants.UJNotifAnalyticsConstants.*;
 
 public class HikeNotificationUtils
 {
@@ -352,5 +356,32 @@ public class HikeNotificationUtils
 		PendingIntent actionPI = PendingIntent.getBroadcast(context, action.hashCode(), actionIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 		return new NotificationCompat.Action(icon, label, actionPI);
 	}
+
+    public static void recordUJNotifAnalytics(String uk, String cls, String order, String family, String genus, String variety, String race, String division, String section, String val_int, String to_user)
+    {
+        try
+        {
+            JSONObject json = new JSONObject();
+            json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_EXPERIMENT);
+            json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UJNotifAnalyticsConstants.UJ_NOTIF);
+            json.put(AnalyticsConstants.V2.UNIQUE_KEY, uk);
+            json.put(AnalyticsConstants.V2.CLASS, cls);
+            json.put(AnalyticsConstants.V2.ORDER, order);
+            json.put(AnalyticsConstants.V2.FAMILY, family);
+            json.put(AnalyticsConstants.V2.GENUS, genus);
+            json.put(AnalyticsConstants.V2.VARIETY, variety);
+            json.put(AnalyticsConstants.V2.RACE, race);
+            json.put(AnalyticsConstants.V2.DIVISION, division);
+            json.put(AnalyticsConstants.V2.SECTION, section);
+            json.put(AnalyticsConstants.V2.VAL_INT, val_int);
+            json.put(AnalyticsConstants.V2.TO_USER, to_user);
+
+            HAManager.getInstance().recordV2(json);
+        }
+        catch (JSONException jse)
+        {
+            Logger.d(HikeConstants.UserJoinMsg.TAG, "json exception while creating analytics json for uj notif");
+        }
+    }
 
 }
