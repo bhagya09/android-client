@@ -23,7 +23,7 @@ import org.json.JSONObject;
 
 import java.util.Calendar;
 
-import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.getPrefOrderForCategories;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.fetchCategoryRanks;
 
 /**
  * Created by ashishagarwal on 15/04/16.
@@ -125,8 +125,8 @@ public class FetchCategoryRanksTask implements IHikeHTTPTask, IHikeHttpTaskResul
 	@Override
 	public void execute()
 	{
-		token = getPrefOrderForCategories(getRequestId(), getRequestListener(),
-				HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NUMBER_OF_ROWS_FOR_ORDER, StickerConstants.DEFAULT_NUMBER_OF_ROWS_FOR_ORDER), offset);
+		token = fetchCategoryRanks(getRequestId(), getRequestListener(),
+                HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NUMBER_OF_ROWS_FOR_ORDER, StickerConstants.DEFAULT_NUMBER_OF_ROWS_FOR_ORDER), offset);
 		if (!token.isRequestRunning())
 		{
 			token.execute();

@@ -346,7 +346,7 @@ public class HttpRequests
         return requestToken;
     }
 
-	public static RequestToken getPrefOrderForCategories(String requestId, IRequestListener requestListener, int catSize, int offset)
+	public static RequestToken fetchCategoryRanks(String requestId, IRequestListener requestListener, int catSize, int offset)
 	{
 		String url = stickerCategoryFetchPrefOrderUrl() + "?N=" + catSize + "&offset=" + offset;
 		RequestToken requestToken = new JSONObjectRequest.Builder()
