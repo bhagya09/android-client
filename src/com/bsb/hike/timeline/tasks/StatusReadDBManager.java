@@ -34,4 +34,13 @@ public class StatusReadDBManager {
     public void setFinished(StatusReadDBRunnable finished) {
         runnableList.remove(finished);
     }
+
+    public void stopAll()
+    {
+        for (StatusReadDBRunnable runnable: runnableList)
+        {
+            HikeHandlerUtil.getInstance().removeRunnable(runnable);
+        }
+        runnableList.clear();
+    }
 }
