@@ -1615,6 +1615,9 @@
     <string name="ADD_FRIENDS">ADD FRIENDS</string>
     <string name="ADDED_ME">ADDED ME</string>
     <string name="SERVICES">SERVICES</string>
+    <string name="add_friends">Add Friends</string>
+    <string name="added_me">Added Me</string>
+    <string name="add_btn_txt">+ ADD</string>
     <string name="single_bday_notif_text">%1$s has his birthday today!</string>
     <string name="multiple_bday_notif_text">%1$s and %2$s others has his birthday today!</string>
     <string name="single_bday_notif_subtext"> Tap here to wish your friend a Happy Birthday!</string>

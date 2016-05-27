@@ -148,6 +148,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 				+ DBConstants.HIKE_UID + " TEXT DEFAULT NULL , "
 				+ DBConstants.BLOCK_STATUS + " TEXT DEFAULT 0 ,"
 				+ DBConstants.FAVORITE_TYPE + " TEXT DEFAULT 0 "
+				+ DBConstants.UNREAD_RECEIVED_REQ_TIME + " INTEGER DEFAULT 0, " // When this user received a friend request
 				+ " )";
 
 		db.execSQL(create);
@@ -351,6 +352,13 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 			}
 			// Need to migrate the DBs in upgradeIntentService
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.MIGRATE_TABLE_TO_USER, 1);
+		}
+		if(oldVersion < 20)
+		{
+			if (!Utils.isColumnExistsInTable(mDb, DBConstants.USERS_TABLE, DBConstants.UNREAD_RECEIVED_REQ_TIME)) {
+				String alter = "ALTER TABLE " + DBConstants.USERS_TABLE + " ADD COLUMN " + DBConstants.UNREAD_RECEIVED_REQ_TIME + " INTEGER DEFAULT 0 ";
+				db.execSQL(alter);
+			}
 		}
 
 	}
@@ -735,6 +743,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		int platformIdIndex = c.getColumnIndex(DBConstants.PLATFORM_USER_ID);
 		int blockStatusIndex = c.getColumnIndex(DBConstants.BLOCK_STATUS);
 		int hikeIdIndex = c.getColumnIndex(DBConstants.HIKE_UID);
+		int unreadRequestTimeIdx = c.getColumnIndex(DBConstants.UNREAD_RECEIVED_REQ_TIME);
 
 
 		long hikeJoinTime = 0;
@@ -742,10 +751,20 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		{
 			hikeJoinTime = c.getLong(hikeJoinTimeIdx);
 		}
+		long unreadRequestTime = 0;
+		if (unreadRequestTimeIdx != -1)
+		{
+			unreadRequestTime = c.getLong(unreadRequestTimeIdx) * 1000;
+		}
 		String id = TextUtils.isEmpty(c.getString(idx)) ? c.getString(msisdnIdx) : c.getString(idx);
 
 		ContactInfo contactInfo = new ContactInfo(id, c.getString(msisdnIdx), c.getString(nameIdx), c.getString(phoneNumIdx), c.getInt(onhikeIdx) != 0,
 				c.getString(msisdnTypeIdx), c.getLong(lastMessagedIdx), c.getInt(hasCustomPhotoIdx) == 1, hikeJoinTime);
+
+		if (unreadRequestTime > 0)
+		{
+			contactInfo.setUnreadRequestReceivedTime(unreadRequestTime);
+		}
 		if (favoriteIdx != -1)
 		{
 
@@ -894,7 +913,8 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		{
 			c = mReadDb.rawQuery("SELECT max(" + DBConstants.ID + ") AS " + DBConstants.ID + ", " + DBConstants.NAME + ", " + DBConstants.MSISDN + ", " + DBConstants.PHONE + ", "
 					+ DBConstants.LAST_MESSAGED + ", " + DBConstants.MSISDN_TYPE + ", " + DBConstants.ONHIKE + ", " + DBConstants.HAS_CUSTOM_PHOTO + ", "
-					+ DBConstants.HIKE_JOIN_TIME + ", " + DBConstants.LAST_SEEN + ", " + DBConstants.IS_OFFLINE + ", " + DBConstants.INVITE_TIMESTAMP +  ", " + DBConstants.PLATFORM_USER_ID +  ", "+ DBConstants.FAVORITE_TYPE +" , " + DBConstants.HIKE_UID + " , "+ DBConstants.BLOCK_STATUS +  " from "
+					+ DBConstants.HIKE_JOIN_TIME + ", " + DBConstants.LAST_SEEN + ", " + DBConstants.IS_OFFLINE + ", " + DBConstants.INVITE_TIMESTAMP +  ", "
+					+ DBConstants.PLATFORM_USER_ID +  ", "+ DBConstants.FAVORITE_TYPE +" , "  + DBConstants.UNREAD_RECEIVED_REQ_TIME + " , " + DBConstants.HIKE_UID + " , "+ DBConstants.BLOCK_STATUS +  " from "
 					+ DBConstants.USERS_TABLE + " GROUP BY " + DBConstants.MSISDN + " ORDER BY " + DBConstants.NAME + " COLLATE NOCASE ", null);
 
 			int msisdnIdx = c.getColumnIndex(DBConstants.MSISDN);
@@ -931,7 +951,8 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		{
 			c = mReadDb.rawQuery("SELECT max(" + DBConstants.ID + ") AS " + DBConstants.ID + ", " + DBConstants.NAME + ", " + DBConstants.MSISDN + ", " + DBConstants.PHONE + ", "
 					+ DBConstants.LAST_MESSAGED + ", " + DBConstants.MSISDN_TYPE + ", " + DBConstants.ONHIKE + ", " + DBConstants.HAS_CUSTOM_PHOTO + ", "
-					+ DBConstants.HIKE_JOIN_TIME + ", " + DBConstants.LAST_SEEN + ", " + DBConstants.IS_OFFLINE + ", " + DBConstants.INVITE_TIMESTAMP + ", " + DBConstants.PLATFORM_USER_ID + ", "+ DBConstants.FAVORITE_TYPE  + " , " + DBConstants.HIKE_UID + " , "+ DBConstants.BLOCK_STATUS + " from "
+					+ DBConstants.HIKE_JOIN_TIME + ", " + DBConstants.LAST_SEEN + ", " + DBConstants.IS_OFFLINE + ", " + DBConstants.INVITE_TIMESTAMP + ", " + DBConstants.UNREAD_RECEIVED_REQ_TIME  +" , "
+					+ DBConstants.PLATFORM_USER_ID + ", "+ DBConstants.FAVORITE_TYPE  + " , " + DBConstants.HIKE_UID + " , "+ DBConstants.BLOCK_STATUS + " from "
 					+ DBConstants.USERS_TABLE + " WHERE " + DBConstants.MSISDN + " IN " + msisdns + " GROUP BY " + DBConstants.MSISDN, null);
 
 			contactMap = extractContactInfoMap(c);
@@ -957,7 +978,8 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		{
 			c = mReadDb.rawQuery("SELECT max(" + DBConstants.ID + ") AS " + DBConstants.ID + ", " + DBConstants.NAME + ", " + DBConstants.MSISDN + ", " + DBConstants.PHONE + ", "
 					+ DBConstants.LAST_MESSAGED + ", " + DBConstants.MSISDN_TYPE + ", " + DBConstants.ONHIKE + ", " + DBConstants.HAS_CUSTOM_PHOTO + ", "
-					+ DBConstants.HIKE_JOIN_TIME + ", " + DBConstants.LAST_SEEN + ", " + DBConstants.IS_OFFLINE + ", " + DBConstants.INVITE_TIMESTAMP + ", " + DBConstants.PLATFORM_USER_ID+ ", "+ DBConstants.FAVORITE_TYPE + " , " + DBConstants.HIKE_UID + " , "+ DBConstants.BLOCK_STATUS +  " from "
+					+ DBConstants.HIKE_JOIN_TIME + ", " + DBConstants.LAST_SEEN + ", " + DBConstants.IS_OFFLINE + ", " + DBConstants.INVITE_TIMESTAMP + ", " + DBConstants.UNREAD_RECEIVED_REQ_TIME + ", "
+					+ DBConstants.PLATFORM_USER_ID+ ", "+ DBConstants.FAVORITE_TYPE + " , " + DBConstants.HIKE_UID + " , "+ DBConstants.BLOCK_STATUS +  " from "
 					+ DBConstants.USERS_TABLE + " WHERE " + DBConstants.ONHIKE + " = " + onHike + " GROUP BY " + DBConstants.MSISDN, null);
 
 			contactMap = extractContactInfoMap(c);
@@ -988,7 +1010,8 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		{
 			c = mReadDb.rawQuery("SELECT max(" + DBConstants.ID + ") AS " + DBConstants.ID + ", " + DBConstants.NAME + ", " + DBConstants.MSISDN + ", " + DBConstants.PHONE + ", "
 					+ DBConstants.LAST_MESSAGED + ", " + DBConstants.MSISDN_TYPE + ", " + DBConstants.ONHIKE + ", " + DBConstants.HAS_CUSTOM_PHOTO + ", "
-					+ DBConstants.HIKE_JOIN_TIME + ", " + DBConstants.LAST_SEEN + ", " + DBConstants.IS_OFFLINE + ", " + DBConstants.INVITE_TIMESTAMP + ", " + DBConstants.PLATFORM_USER_ID + " , " + DBConstants.FAVORITE_TYPE + " , " + DBConstants.HIKE_UID + " , "+ DBConstants.BLOCK_STATUS +  " from "
+					+ DBConstants.HIKE_JOIN_TIME + ", " + DBConstants.LAST_SEEN + ", " + DBConstants.IS_OFFLINE + ", " + DBConstants.INVITE_TIMESTAMP + ", "
+					+ DBConstants.PLATFORM_USER_ID + " , " + DBConstants.FAVORITE_TYPE + " , " + DBConstants.UNREAD_RECEIVED_REQ_TIME + " , " + DBConstants.HIKE_UID + " , "+ DBConstants.BLOCK_STATUS +  " from "
 					+ DBConstants.USERS_TABLE + " WHERE " + DBConstants.PHONE + " IN " + phoneNumbers + " AND " + DBConstants.ONHIKE + "=" + onHike + " GROUP BY "
 					+ DBConstants.MSISDN + " LIMIT " + limit, null);
 
@@ -1014,7 +1037,9 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		try
 		{
 			StringBuilder queryBuilder = new StringBuilder("SELECT max(" + DBConstants.ID + ") AS " + DBConstants.ID + ", " + DBConstants.NAME + ", " + DBConstants.MSISDN + ", "
-					+ DBConstants.PHONE + ", " + DBConstants.LAST_MESSAGED + ", " + DBConstants.MSISDN_TYPE + ", " + DBConstants.ONHIKE + ", " + DBConstants.HAS_CUSTOM_PHOTO +", " +DBConstants.FAVORITE_TYPE + " , " + DBConstants.HIKE_UID + " , "+ DBConstants.BLOCK_STATUS +  ", " + DBConstants.HIKE_JOIN_TIME + ", " + DBConstants.LAST_SEEN + ", " + DBConstants.IS_OFFLINE + ", " + DBConstants.INVITE_TIMESTAMP + ", " + DBConstants.PLATFORM_USER_ID + " from "
+					+ DBConstants.PHONE + ", " + DBConstants.LAST_MESSAGED + ", " + DBConstants.MSISDN_TYPE + ", " + DBConstants.ONHIKE + ", " + DBConstants.HAS_CUSTOM_PHOTO +", "
+					+DBConstants.FAVORITE_TYPE + " , " + DBConstants.HIKE_UID + " , "+ DBConstants.BLOCK_STATUS +  ", " + DBConstants.HIKE_JOIN_TIME + ", " + DBConstants.UNREAD_RECEIVED_REQ_TIME + " , "
+					+ DBConstants.LAST_SEEN + ", " + DBConstants.IS_OFFLINE + ", " + DBConstants.INVITE_TIMESTAMP + ", " + DBConstants.PLATFORM_USER_ID + " from "
 					+ DBConstants.USERS_TABLE + " WHERE ");
 
 			if (onHike != HikeConstants.BOTH_VALUE)
@@ -1262,8 +1287,10 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		List<ContactInfo> contacts = new ArrayList<ContactInfo>();
 		try
 		{
-			c = mReadDb.rawQuery("SELECT " + DBConstants.ID + ", " + DBConstants.NAME + ", " + DBConstants.MSISDN + ", " + DBConstants.PHONE + ", " + DBConstants.LAST_MESSAGED
-					+ ", " + DBConstants.MSISDN_TYPE + ", " + DBConstants.ONHIKE + ", " + DBConstants.HAS_CUSTOM_PHOTO + ", " + DBConstants.HIKE_JOIN_TIME + ", " + DBConstants.FAVORITE_TYPE + " , " + DBConstants.HIKE_UID + " , "+ DBConstants.BLOCK_STATUS + ","+  DBConstants.LAST_SEEN + ", " + DBConstants.IS_OFFLINE + ", " + DBConstants.INVITE_TIMESTAMP + ", " + DBConstants.PLATFORM_USER_ID + " from " + DBConstants.USERS_TABLE, null);
+			c = mReadDb.rawQuery("SELECT " + DBConstants.ID + ", " + DBConstants.NAME + ", " + DBConstants.MSISDN + ", " + DBConstants.PHONE + ", " + DBConstants.LAST_MESSAGED + ", "
+					+ DBConstants.MSISDN_TYPE + ", " + DBConstants.ONHIKE + ", " + DBConstants.HAS_CUSTOM_PHOTO + ", " + DBConstants.HIKE_JOIN_TIME + ", " + DBConstants.FAVORITE_TYPE + " , "
+					+ DBConstants.UNREAD_RECEIVED_REQ_TIME + " , " + DBConstants.HIKE_UID + " , "+ DBConstants.BLOCK_STATUS + ","+  DBConstants.LAST_SEEN + ", " + DBConstants.IS_OFFLINE + ", "
+					+ DBConstants.INVITE_TIMESTAMP + ", " + DBConstants.PLATFORM_USER_ID + " from " + DBConstants.USERS_TABLE, null);
 
 			int msisdnIdx = c.getColumnIndex(DBConstants.MSISDN);
 			while (c.moveToNext())
@@ -1307,7 +1334,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 			{
 				c = mReadDb.query(DBConstants.USERS_TABLE, new String[] { DBConstants.MSISDN, "max(" + DBConstants.ID + ") as " + DBConstants.ID, DBConstants.NAME,
 						DBConstants.ONHIKE, DBConstants.PHONE, DBConstants.MSISDN_TYPE, DBConstants.LAST_MESSAGED, DBConstants.HAS_CUSTOM_PHOTO,
-						DBConstants.FAVORITE_TYPE,DBConstants.HIKE_UID,DBConstants.BLOCK_STATUS, DBConstants.HIKE_JOIN_TIME, DBConstants.IS_OFFLINE, DBConstants.LAST_SEEN }, selectionBuilder.toString()
+						DBConstants.FAVORITE_TYPE,DBConstants.HIKE_UID,DBConstants.BLOCK_STATUS, DBConstants.HIKE_JOIN_TIME, DBConstants.UNREAD_RECEIVED_REQ_TIME, DBConstants.IS_OFFLINE, DBConstants.LAST_SEEN }, selectionBuilder.toString()
 						+ DBConstants.MSISDN + "!=" + DatabaseUtils.sqlEscapeString(myMsisdn) + " AND " + DBConstants.ONHIKE + "=1", null, DBConstants.MSISDN, null, null,
 						Integer.toString(limit));
 			}
@@ -1315,7 +1342,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 			{
 				c = mReadDb.query(DBConstants.USERS_TABLE, new String[] { DBConstants.MSISDN, "max(" + DBConstants.ID + ") as " + DBConstants.ID, DBConstants.NAME,
 						DBConstants.ONHIKE, DBConstants.PHONE, DBConstants.MSISDN_TYPE, DBConstants.LAST_MESSAGED, DBConstants.HAS_CUSTOM_PHOTO,
-						DBConstants.FAVORITE_TYPE,DBConstants.FAVORITE_TYPE,DBConstants.BLOCK_STATUS, DBConstants.HIKE_JOIN_TIME, DBConstants.IS_OFFLINE, DBConstants.LAST_SEEN }, selectionBuilder.toString()
+						DBConstants.FAVORITE_TYPE,DBConstants.FAVORITE_TYPE,DBConstants.BLOCK_STATUS, DBConstants.HIKE_JOIN_TIME, DBConstants.UNREAD_RECEIVED_REQ_TIME, DBConstants.IS_OFFLINE, DBConstants.LAST_SEEN }, selectionBuilder.toString()
 						+ DBConstants.MSISDN + "!=" + DatabaseUtils.sqlEscapeString(myMsisdn) + " AND " + DBConstants.ONHIKE + "=1", null, DBConstants.MSISDN, null, null);
 			}
 			contactInfos = extractContactInfo(c, true);
@@ -1691,7 +1718,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 
             c = mReadDb.query(DBConstants.USERS_TABLE, new String[] { DBConstants.MSISDN, "max(" + DBConstants.ID + ") as " + DBConstants.ID, DBConstants.NAME,
                     DBConstants.ONHIKE, DBConstants.PHONE, DBConstants.MSISDN_TYPE, DBConstants.LAST_MESSAGED, DBConstants.HAS_CUSTOM_PHOTO,
-                    DBConstants.FAVORITE_TYPE_SELECTION, DBConstants.HIKE_JOIN_TIME, DBConstants.IS_OFFLINE, DBConstants.LAST_SEEN }, selectionBuilder.toString()
+                    DBConstants.FAVORITE_TYPE_SELECTION, DBConstants.HIKE_JOIN_TIME, DBConstants.UNREAD_RECEIVED_REQ_TIME, DBConstants.IS_OFFLINE, DBConstants.LAST_SEEN }, selectionBuilder.toString()
                     + DBConstants.MSISDN + "!='null'" , null, null, null, null);
 
             contactInfos = extractContactInfo(c, true);
@@ -2004,7 +2031,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		}
 	}
 
-	void toggleContactFavorite(String msisdn, FavoriteType favoriteType) {
+	void toggleContactFavorite(String msisdn, FavoriteType favoriteType, long unreadRequestTime) {
 		/*
 		 * If we are setting the type as not favorite, we'll remove the row itself.
 		 */
@@ -2012,6 +2039,24 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		Logger.d(TAG, "Adding msisdb to favourite" + msisdn);
 		cv.put(DBConstants.MSISDN, msisdn);
 		cv.put(DBConstants.FAVORITE_TYPE, favoriteType.ordinal());
+		// convert millisecond timestamp to seconds(int) before storing
+		unreadRequestTime /= 1000;
+		cv.put(DBConstants.UNREAD_RECEIVED_REQ_TIME, (int)(unreadRequestTime));
+		long value = mDb.update(DBConstants.USERS_TABLE, cv, DBConstants.MSISDN + "=?", new String[]{msisdn});
+		if (value == -1 || value == 0) {
+			value = mDb.insertWithOnConflict(DBConstants.USERS_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+			Logger.d(TAG, "MSISDN FAVOUTITE" + msisdn + "result -->" + value + "INSERT EXECUTED");
+		} else {
+			Logger.d(TAG, "MSISDN FAVOURITE" + msisdn + "result -->" + value + "UPDATE EXECUTED");
+		}
+	}
+
+	void updateUnreadRequestTime(String msisdn, long unreadRequestTime)
+	{
+		ContentValues cv = new ContentValues();
+		Logger.d(TAG, "Adding msisdb to favourite" + msisdn);
+		cv.put(DBConstants.MSISDN, msisdn);
+		cv.put(DBConstants.UNREAD_RECEIVED_REQ_TIME, (int)unreadRequestTime/1000);
 		long value = mDb.update(DBConstants.USERS_TABLE, cv, DBConstants.MSISDN + "=?", new String[]{msisdn});
 		if (value == -1 || value == 0) {
 			value = mDb.insertWithOnConflict(DBConstants.USERS_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
@@ -2386,7 +2431,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		{
 			c = mReadDb.query(DBConstants.USERS_TABLE, new String[] { DBConstants.MSISDN, "max(" + DBConstants.ID + ") as " + DBConstants.ID, DBConstants.NAME, DBConstants.ONHIKE,
 					DBConstants.PHONE, DBConstants.MSISDN_TYPE, DBConstants.LAST_MESSAGED, DBConstants.HAS_CUSTOM_PHOTO, DBConstants.FAVORITE_TYPE_SELECTION,
-					DBConstants.HIKE_JOIN_TIME, DBConstants.IS_OFFLINE, DBConstants.LAST_SEEN, DBConstants.PLATFORM_USER_ID }, selection, null, null, null, DBConstants.LAST_MESSAGED + " DESC LIMIT 1");
+					DBConstants.HIKE_JOIN_TIME, DBConstants.UNREAD_RECEIVED_REQ_TIME, DBConstants.IS_OFFLINE, DBConstants.LAST_SEEN, DBConstants.PLATFORM_USER_ID }, selection, null, null, null, DBConstants.LAST_MESSAGED + " DESC LIMIT 1");
 			if (c.getCount() != 0)
 			{
 				ContactInfo ci = extractContactInfo(c).get(0);

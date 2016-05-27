@@ -59,6 +59,7 @@ import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.timeline.model.TimelineActions;
+import com.bsb.hike.ui.CustomTabsBar;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
@@ -125,6 +126,8 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	public static final int MSG_DELETE = -12;
 	
 	private boolean reachedEnd;
+
+	private CustomTabsBar.CustomTabBadgeCounterListener badgeCounterListener;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -1223,5 +1226,9 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		}
 	}
 
+	public void setCustomTabBadgeCounterListener(CustomTabsBar.CustomTabBadgeCounterListener listener)
+	{
+		this.badgeCounterListener = listener;
+	}
 
 }

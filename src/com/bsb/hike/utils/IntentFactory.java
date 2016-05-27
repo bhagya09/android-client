@@ -53,6 +53,7 @@ import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.ConnectedAppsActivity;
 import com.bsb.hike.ui.CreateNewGroupOrBroadcastActivity;
 import com.bsb.hike.ui.FileSelectActivity;
+import com.bsb.hike.ui.FriendRequestActivity;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.GallerySelectionViewer;
 import com.bsb.hike.ui.HikeAuthActivity;
@@ -69,6 +70,7 @@ import com.bsb.hike.ui.PictureEditer;
 import com.bsb.hike.ui.PinHistoryActivity;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.ProfilePicActivity;
+import com.bsb.hike.ui.ServicesActivity;
 import com.bsb.hike.ui.SettingsActivity;
 import com.bsb.hike.modules.fusedlocation.ShareLocation;
 import com.bsb.hike.ui.SignupActivity;
@@ -1629,4 +1631,22 @@ public class IntentFactory
 		hikeAppContext.startService(storageSpecIntent);
 	}
 
+	public static Intent getServicesActivityIntent(Context context)
+	{
+		Intent intent = new Intent(context, ServicesActivity.class);
+		return intent;
+	}
+
+	public static Intent getFriendReqActivityAddFriendsIntent(Context context)
+	{
+		Intent intent = new Intent(context, FriendRequestActivity.class);
+		intent.putExtra(FriendRequestActivity.ADD_FRIENDS, "");
+		return intent;
+	}
+	public static Intent getFriendReqActivityAddedMeIntent(Context context)
+	{
+		Intent intent = new Intent(context, FriendRequestActivity.class);
+		intent.putExtra(FriendRequestActivity.ADDED_ME, "");
+		return intent;
+	}
 }
