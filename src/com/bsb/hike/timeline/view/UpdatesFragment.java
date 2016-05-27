@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 
+import com.bsb.hike.AppConfig;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -741,6 +742,10 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 								{
 									suMsg.setRead(true);
 								}
+							}
+
+							if(AppConfig.TIMELINE_READ_DEBUG) {
+								HikeMessengerApp.getInstance().getPubSub().publish(HikePubSub.ACTIVITY_UPDATE, null);
 							}
 						}
 					});

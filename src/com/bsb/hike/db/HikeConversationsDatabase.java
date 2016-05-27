@@ -1318,6 +1318,17 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		return mDb.update(DBConstants.STATUS_TABLE, newValues, selection, null);
 	}
 
+	/**
+	 * TODO REMOVE THIS. JUST FOR TESTING PURPOSE.
+	 * @return
+     */
+	public int markAllStatusUnread() {
+		ContentValues newValues = new ContentValues();
+		newValues.put(DBConstants.IS_READ, 0);
+
+		return mDb.update(DBConstants.STATUS_TABLE, newValues, null, null);
+	}
+
 	private String getMessageEventTableCreateStatement()
 	{
 		return CREATE_TABLE + DBConstants.MESSAGE_EVENT_TABLE
