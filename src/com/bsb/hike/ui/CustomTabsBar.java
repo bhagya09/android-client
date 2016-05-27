@@ -100,26 +100,25 @@ public class CustomTabsBar
 
 	public class Tab
 	{
+		private int id;
 
-		int id;
+		private View mView;
 
-		View mView;
+		private View mCustomView;
 
-		View mCustomView;
+		private Drawable iconDrawable;
 
-		Drawable iconDrawable;
+		private int iconResId;
 
-		int iconResId;
+		private Drawable badgeCounterBG;
 
-		Drawable badgeCounterBG;
+		private int badgeCounterBGResId;
 
-		int badgeCounterBGResId;
+		private ImageView icon;
 
-		ImageView icon;
+		private TextView badgeCounter;
 
-		TextView badgeCounter;
-
-		CustomTabListener customTabListener;
+		private CustomTabListener customTabListener;
 
 		Tab(int id)
 		{
