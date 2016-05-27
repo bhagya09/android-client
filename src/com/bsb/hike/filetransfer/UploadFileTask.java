@@ -231,7 +231,8 @@ public class UploadFileTask extends FileTransferBase
 						FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FK_VALIDATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "http", "UPLOAD_FAILED - ", httpException);
 						removeTaskAndShowToast(HikeConstants.FTResult.UPLOAD_FAILED);
 					}
-					logCesData(CesConstants.FT_STATUS_INCOMPLETE, false, httpException.getCause().toString());
+					Throwable throwable = httpException.getCause();
+					logCesData(CesConstants.FT_STATUS_INCOMPLETE, false, throwable == null ? "" : throwable.toString());
 				}
 			}
 		};
@@ -593,7 +594,8 @@ public class UploadFileTask extends FileTransferBase
 							removeTaskAndShowToast(HikeConstants.FTResult.UPLOAD_FAILED);
 						}
 					}
-					logCesData(CesConstants.FT_STATUS_INCOMPLETE, false, httpException.getCause().toString());
+					Throwable throwable = httpException.getCause();
+					logCesData(CesConstants.FT_STATUS_INCOMPLETE, false, throwable == null ? "" : throwable.toString());
 				}
 			}
 
@@ -837,7 +839,8 @@ public class UploadFileTask extends FileTransferBase
 									httpException);
 							removeTaskAndShowToast(HikeConstants.FTResult.UPLOAD_FAILED);
 						}
-						logCesData(CesConstants.FT_STATUS_INCOMPLETE, false, httpException.getCause().toString());
+						Throwable throwable = httpException.getCause();
+						logCesData(CesConstants.FT_STATUS_INCOMPLETE, false, throwable == null ? "" : throwable.toString());
 					}
 				}
 			}, getUploadFileInterceptor(), new FileTransferChunkSizePolicy(context));
