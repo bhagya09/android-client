@@ -104,7 +104,7 @@ import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.triggers.InterceptUtils;
 import com.bsb.hike.ui.HomeActivity;
-import com.bsb.hike.userlogs.UserLogInfo;
+import com.hike.cognito.UserLogInfo;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.BirthdayUtils;
 import com.bsb.hike.utils.ClearGroupTypingNotification;
@@ -407,16 +407,22 @@ public class MqttMessagesManager
 			ContactInfo contact = ContactManager.getInstance().getContact(msisdn, true, false);
 			boolean showRecentlyJoined = contact.getHikeJoinTime() > 0 && !contact.isUnknownContact();
 
+			JSONObject data = jsonObj.getJSONObject(HikeConstants.DATA);
+
 			if (appPrefs.getBoolean(HikeConstants.NUJ_NOTIF_BOOLEAN_PREF, true) && !ContactManager.getInstance().isBlocked(msisdn)
-					&& jsonObj.getJSONObject(HikeConstants.DATA).optBoolean(HikeConstants.SHOW_NOTIFICATION, true))
+					&& data.optBoolean(HikeConstants.SHOW_NOTIFICATION, true))
 			{
-				if (jsonObj.getJSONObject(HikeConstants.DATA).optBoolean(HikeConstants.UserJoinMsg.PERSIST_CHAT, HikeConstants.UserJoinMsg.defaultPersistChat))
+				boolean isRichNotif = data.optBoolean(HikeConstants.UserJoinMsg.RICH_NOTIF, false);
+				isRichNotif = (isRichNotif && data.optInt(HikeConstants.UserJoinMsg.PUSH_SETTING, HikeConstants.PushType.silent) != HikeConstants.PushType.none);
+				isRichNotif = isRichNotif && !StealthModeManager.getInstance().isStealthMsisdn(msisdn);
+
+				if (data.optBoolean(HikeConstants.UserJoinMsg.PERSIST_CHAT, HikeConstants.UserJoinMsg.defaultPersistChat))
 				{
 					if (showRecentlyJoined)
 					{
 						this.settings.edit().putBoolean(HikeConstants.SHOW_RECENTLY_JOINED, true).commit();
 					}
-					saveStatusMsg(jsonObj, msisdn);
+					saveStatusMsg(jsonObj, msisdn, isRichNotif);
 				}
 				else
 				{
@@ -424,10 +430,18 @@ public class MqttMessagesManager
 					{
 						this.settings.edit().putBoolean(HikeConstants.SHOW_RECENTLY_JOINED_DOT, true).commit();
 					}
-					ConvMessage convMessage = statusMessagePreProcess(jsonObj, msisdn);
-					if (convMessage != null)
+					if(isRichNotif)
 					{
-						this.pubSub.publish(HikePubSub.USER_JOINED_NOTIFICATION, convMessage);
+						Logger.d(HikeConstants.UserJoinMsg.TAG, "firing pubsub to show rich uj notif without persist chat");
+						this.pubSub.publish(HikePubSub.RICH_USER_JOINED_NOTIFICATION, jsonObj);
+					}
+					else
+					{
+						ConvMessage convMessage = statusMessagePreProcess(jsonObj, msisdn);
+						if (convMessage != null)
+						{
+							this.pubSub.publish(HikePubSub.USER_JOINED_NOTIFICATION, convMessage);
+						}
 					}
 				}
 			}
@@ -972,14 +986,7 @@ public class MqttMessagesManager
 					if (activeStealthChat || stealthNotifPref || !StealthModeManager.getInstance().isStealthMsisdn(msisdn))
 					{
 
-						if (OneToNConversationUtils.isGroupConversation(msisdn))
-						{
-							if (!HikeConversationsDatabase.getInstance().isGroupMuted(msisdn))
-							{
-								vibrate = true;
-							}
-						}
-						else
+						if (!ContactManager.getInstance().isChatMuted(msisdn))
 						{
 							vibrate = true;
 						}
@@ -2386,6 +2393,18 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.KPT_EXIT_SERVER_SWITCH, showExitUI);
 		}
 
+		if (data.has(HikeConstants.MUTE_GC_SERVER_SWITCH))
+		{
+			boolean muteGCapproach = data.getBoolean(HikeConstants.MUTE_GC_SERVER_SWITCH);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MUTE_GC_SERVER_SWITCH, muteGCapproach);
+		}
+
+		if (data.has(HikeConstants.MUTE_ONE_TO_ONE_SERVER_SWITCH))
+		{
+			boolean muteApproach = data.getBoolean(HikeConstants.MUTE_ONE_TO_ONE_SERVER_SWITCH);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MUTE_ONE_TO_ONE_SERVER_SWITCH, muteApproach);
+		}
+
 		if (data.has(HikeConstants.KPT_EXIT_SERVER_TEXT))
 		{
 			String text = data.getString(HikeConstants.KPT_EXIT_SERVER_TEXT);
@@ -3655,7 +3674,6 @@ public class MqttMessagesManager
 			/*
 			 * reseting sticker shop update time so that next time we fetch a fresh sicker shop
 			 */
-			StickerManager.getInstance().resetStickerShopLastUpdateTime();
 			if (showBadge)
 			{
 				HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.SHOW_STICKER_SHOP_BADGE, true);
@@ -4312,7 +4330,7 @@ public class MqttMessagesManager
 
 						Utils.rearrangeChat(destination, rearrangeChat, updateUnreadCount);
 
-						if (!Utils.isConversationMuted(destination) && data.optBoolean(HikeConstants.PUSH, true))
+						if (!ContactManager.getInstance().isChatMuted(destination) && data.optBoolean(HikeConstants.PUSH, true))
 						{
 
 							if(data.has(HikePlatformConstants.HIKE_AFFINITY) && !data.optBoolean(HikePlatformConstants.HIKE_AFFINITY))
@@ -4351,7 +4369,7 @@ public class MqttMessagesManager
 
 							if (convDb.isContentMessageExist(destination, contentId, nameSpace))
 							{
-								if (!Utils.isConversationMuted(destination))
+								if (!ContactManager.getInstance().isChatMuted(destination))
 								{
 									Utils.rearrangeChat(destination, rearrangeChat, updateUnreadCount);
 								}
@@ -5166,6 +5184,19 @@ public class MqttMessagesManager
 
 	private ConvMessage saveStatusMsg(JSONObject jsonObj, String msisdn) throws JSONException
 	{
+		return saveStatusMsg(jsonObj, msisdn, false);
+	}
+
+	/**
+	 * Overridden existing saveStatusMsg method to introduce boolean isRichUJNotif, which if true, creates a rich uj notif
+	 * @param jsonObj
+	 * @param msisdn
+	 * @param isRichUJNotif
+	 * @return
+	 * @throws JSONException
+     */
+	private ConvMessage saveStatusMsg(JSONObject jsonObj, String msisdn, boolean isRichUJNotif) throws JSONException
+	{
 		if (isBulkMessage)
 		{
 			ConvMessage convMessage = saveStatusMsgBulk(jsonObj, msisdn);
@@ -5180,7 +5211,15 @@ public class MqttMessagesManager
 
 		convDb.addConversationMessages(convMessage, true);
 
-		this.pubSub.publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
+		if(isRichUJNotif)
+		{
+			Logger.d(HikeConstants.UserJoinMsg.TAG, "firing pubsub to show rich uj notif with persist chat");
+			this.pubSub.publish(HikePubSub.RICH_USER_JOINED_NOTIFICATION, jsonObj);
+		}
+		else
+		{
+			this.pubSub.publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
+		}
 
 		statusMessagePostProcess(convMessage, jsonObj);
 

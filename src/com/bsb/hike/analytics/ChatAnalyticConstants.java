@@ -8,8 +8,8 @@ public class ChatAnalyticConstants {
     public static final String ACT_CORE_LOGS = "act_core";
 
     public static final String CAMERA_ICON_CLICK = "camicon";
-    public static final String AUDIO_ICON_CLICK  = "audicon";
-    public static final String VIDEO_ICON_CLICK  = "vidicon";
+    public static final String AUDIO_ICON_CLICK = "audicon";
+    public static final String VIDEO_ICON_CLICK = "vidicon";
     public static final String LOCATION_ICON_CLICK = "locicon";
     public static final String FILE_ICON_CLICK = "fileicon";
     public static final String GALLERY_ICON_CLICK = "galicon";
@@ -22,7 +22,7 @@ public class ChatAnalyticConstants {
 
     public static final String WT_CLICKED_TOUCHED = "wticon";
 
-    public static final String LOCATION_SHARING_CANCELLED= "cnclLoc";
+    public static final String LOCATION_SHARING_CANCELLED = "cnclLoc";
 
     public static final String STEALTH_CHAT_THREAD = "stealth";
 
@@ -48,8 +48,10 @@ public class ChatAnalyticConstants {
 
     public static final String OVERFLOW_MENU_CLICKED = "ctOvrFlw";
 
-    public static final class GCEvents
-    {
+    public static final String MUTE_CANCEL_UK = "muteCncl";
+
+    public static final class GCEvents {
+
         public static final String GC_PIN_CANCEL = "pinCncl";
 
         public static final String GC_PIN_CROSS = "pinCross";

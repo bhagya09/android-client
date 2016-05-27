@@ -138,10 +138,9 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		
 		if (StealthModeManager.getInstance().isStealthMsisdn(msisdn) && !StealthModeManager.getInstance().isActive())
 		{
-			if (Utils.isBDayInNewChatEnabled() && intent.hasExtra(HikeConstants.Extras.BIRTHDAY_NOTIF));
+			if (Utils.isBDayInNewChatEnabled() && intent.hasExtra(HikeConstants.Extras.BIRTHDAY_NOTIF))
 			{
-				if (StealthModeManager.getInstance().isStealthMsisdn(msisdn) && !StealthModeManager.getInstance().isActive()
-						&& PreferenceManager.getDefaultSharedPreferences(ChatThreadActivity.this).getBoolean(HikeConstants.STEALTH_INDICATOR_ENABLED, false))
+				if (PreferenceManager.getDefaultSharedPreferences(ChatThreadActivity.this).getBoolean(HikeConstants.STEALTH_INDICATOR_ENABLED, false))
 				{
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STEALTH_INDICATOR_SHOW_REPEATED, true);
 					HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_INDICATOR, null);

@@ -5,6 +5,8 @@ import android.util.Pair;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.StickerCategory;
+import com.bsb.hike.modules.httpmgr.request.PriorityConstants;
+import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.modules.stickersearch.datamodel.CategoryTagData;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchDatabase;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -38,7 +40,7 @@ public class StickerCategoryDataUpdateTask implements Runnable
 	@Override
 	public void run()
 	{
-		Pair<List<StickerCategory>, List<String>> updataLists = HikeConversationsDatabase.getInstance().getStickerCategoriesForDataUpdate();
+		Pair<List<StickerCategory>, List<String>> updataLists = HikeConversationsDatabase.getInstance().getStickerCategoriesForDataUpdate(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FETCH_METADATA_PACK_COUNT, StickerConstants.DEFAULT_CATEGORIES_TO_FETCH_DATA));
 		List<StickerCategory> stickerCategoriesMetadataList = updataLists.first;
 		List<String> stickerCategoriesTagdataList = updataLists.second;
 
@@ -80,7 +82,6 @@ public class StickerCategoryDataUpdateTask implements Runnable
 				{
 					StickerManager.getInstance().fetchCategoryMetadataTask(createList);
 					createList = new ArrayList<StickerCategory>();
-					;
 				}
 			}
 			else

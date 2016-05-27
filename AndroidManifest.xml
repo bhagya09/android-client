@@ -238,6 +238,7 @@
         </activity>
         <activity
             android:name=".ui.ProfileActivity"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
             android:windowSoftInputMode="stateHidden"
             android:theme="@style/AppTheme.Overlay" >
             <intent-filter android:label="@string/set_profile_pic" >
@@ -636,6 +637,13 @@
         <service
             android:name="com.hike.abtest.UpdateExperimentService"
             android:exported="false" />
+
+        <receiver
+            android:name=".notifications.UJNotifClickReceiver">
+            <intent-filter>
+                <action android:name="com.bsb.hike.UJ_NOTIF_ACTION_INTENT" />
+            </intent-filter>
+        </receiver>
 </application>
 
 </manifest>

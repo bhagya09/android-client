@@ -27,7 +27,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Set;
 
 /**
@@ -184,12 +186,12 @@ public class BirthdayUtils
                     @Override
 
                     public int compare(ContactInfo lhs, ContactInfo rhs) {
-                        return lhs.getFirstName().compareTo(rhs.getFirstName());
-
+                        return lhs.getNameOrMsisdn().compareTo(rhs.getNameOrMsisdn());
                     }
 
                 });
             }
+            Logger.d("bday_", " Now Sorted list is  " + bdayList);
         }
         return bdayList;
     }
@@ -339,11 +341,13 @@ public class BirthdayUtils
         boolean isActive = StealthModeManager.getInstance().isActive();
         if(!isActive)
         {
-            for(ContactInfo contactInfo : bdayContactList)
+            Iterator<ContactInfo> iterator = bdayContactList.iterator();
+            while(iterator.hasNext())
             {
+                ContactInfo contactInfo = iterator.next();
                 if(StealthModeManager.getInstance().isStealthMsisdn(contactInfo.getMsisdn()))
                 {
-                    bdayContactList.remove(contactInfo);
+                    iterator.remove();
                 }
             }
         }
@@ -360,12 +364,14 @@ public class BirthdayUtils
         boolean isActive = StealthModeManager.getInstance().isActive();
         if(!isActive)
         {
-            for(String msisdn : bdayMsisdnList)
+            Iterator<String> iterator = bdayMsisdnList.iterator();
+            while(iterator.hasNext())
             {
+                String msisdn = iterator.next();
                 if(StealthModeManager.getInstance().isStealthMsisdn(msisdn))
                 {
                     Logger.d("bday_notif_", "Removing stealth misidn from list " + msisdn);
-                    bdayMsisdnList.remove(msisdn);
+                    iterator.remove();
                 }
             }
         }

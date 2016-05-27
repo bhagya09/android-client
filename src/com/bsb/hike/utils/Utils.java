@@ -131,7 +131,6 @@ import android.provider.ContactsContract.RawContacts;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.Settings.Secure;
-import android.support.v4.content.FileProvider;
 import android.support.v4.content.LocalBroadcastManager;
 import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
@@ -211,9 +210,11 @@ import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.GroupParticipant;
+import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.models.Mute;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -238,7 +239,6 @@ import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.SignupActivity;
 import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.ui.WelcomeActivity;
-import com.bsb.hike.userlogs.AESEncryption;
 import com.bsb.hike.voip.VoIPUtils;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -351,8 +351,6 @@ public class Utils
 		}
 		return false;
 	}
-
-	static final private int ANIMATION_DURATION = 400;
 
 	public static long gettingMidnightTimeinMilliseconds()
 	{
@@ -1172,11 +1170,6 @@ public class Utils
 		}
 	}
 
-	public static String ellipsizeName(String name)
-	{
-		return name.length() <= HikeConstants.MAX_CHAR_IN_NAME ? name : (name.substring(0, HikeConstants.MAX_CHAR_IN_NAME - 3) + "...");
-	}
-
 	public static String getInviteMessage(Context context, int messageResId)
 	{
 		String inviteToken = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeConstants.INVITE_TOKEN, "");
@@ -1398,7 +1391,7 @@ public class Utils
 
 	}
 
-	public static enum ExternalStorageState
+	public enum ExternalStorageState
 	{
 		WRITEABLE, READ_ONLY, NONE
 	}
@@ -5558,25 +5551,6 @@ public class Utils
 		return viewToBitmap(view);
 	}
 
-	public static boolean isConversationMuted(String msisdn)
-	{
-		if ((OneToNConversationUtils.isGroupConversation(msisdn)))
-		{
-			if (HikeConversationsDatabase.getInstance().isGroupMuted(msisdn))
-			{
-				return true;
-			}
-		}
-		else if (BotUtils.isBot(msisdn))
-		{
-			if (HikeConversationsDatabase.getInstance().isBotMuted(msisdn))
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-
 	public static boolean isLastSeenSetToFavorite()
 	{
 		Context appContext = HikeMessengerApp.getInstance().getApplicationContext();
@@ -5879,63 +5853,10 @@ public class Utils
 		return createTimelinePostForDPChange(response, true);
 	}
 
-	public static boolean isDeviceRooted()
-	{
-		return RootUtil.isDeviceRooted();
-	}
-
-	private static class RootUtil
-	{
-		public static boolean isDeviceRooted()
-		{
-			return checkRootMethod1() || checkRootMethod2() || checkRootMethod3() || checkRootMethod4();
-		}
-
-		private static boolean checkRootMethod1()
-		{
-			String buildTags = android.os.Build.TAGS;
-			return buildTags != null && buildTags.contains("test-keys");
-		}
-
-		private static boolean checkRootMethod2()
-		{
-			return new File("/system/app/Superuser.apk").exists();
-		}
-
-		private static boolean checkRootMethod3()
-		{
-			String[] paths = { "/sbin/su", "/system/bin/su", "/system/xbin/su", "/data/local/xbin/su", "/data/local/bin/su", "/system/sd/xbin/su", "/system/bin/failsafe/su",
-					"/data/local/su" };
-			for (String path : paths)
-			{
-				if (new File(path).exists())
-					return true;
-			}
-			return false;
-		}
-
-		private static boolean checkRootMethod4()
-		{
-			Process process = null;
-			try
-			{
-				process = Runtime.getRuntime().exec(new String[] { "/system/xbin/which", "su" });
-				BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
-				if (in.readLine() != null)
-					return true;
-				return false;
-			}
-			catch (Throwable t)
-			{
-				return false;
-			}
-			finally
-			{
-				if (process != null)
-					process.destroy();
-			}
-		}
-	}
+//	public static boolean isDeviceRooted()
+//	{
+//		return RootUtil.isDeviceRooted();
+//	}
 
 	public static boolean isPhotosEditEnabled()
 	{
@@ -8246,5 +8167,37 @@ public class Utils
 			return 0;
 		}
 
+	}
+
+	/**
+	 * Used to toggle mute and unmute for chat
+	 */
+	public static void toggleMuteChat(Context context, Mute mute) {
+		if (mute != null) {
+			mute.setIsMute(!(mute.isMute()));
+
+			boolean muteApproach = HikeSharedPreferenceUtil.getInstance().getData(
+					(OneToNConversationUtils.isOneToNConversation(mute.getMsisdn()) ? HikeConstants.MUTE_GC_SERVER_SWITCH : HikeConstants.MUTE_ONE_TO_ONE_SERVER_SWITCH), true);
+
+			if (mute.isMute()) {
+				if (muteApproach) {
+					int convHash = convInfohashCode(mute.getMsisdn());
+					Intent intent = IntentFactory.getIntentForMuteAlarm(mute);
+					HikeAlarmManager.setAlarmwithIntentPersistanceMute(context.getApplicationContext(), mute.getMuteEndTime(), HikeAlarmManager.REQUESTCODE_END_CONVERSATION_MUTE, true, intent, true, convHash);
+				} else {
+					mute.setMuteDuration(HikeConstants.MuteDuration.DURATION_FOREVER);
+				}
+			}
+
+			HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, mute);
+		}
+	}
+
+	public static int convInfohashCode(String msisdn) {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + msisdn.hashCode();
+
+		return result;
 	}
 }

@@ -87,7 +87,7 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 			return;
 		}
 
-		if(!Utils.doesExternalDirExists())
+		if (!Utils.doesExternalDirExists())
 		{
 			Logger.e(TAG, "Sticker download failed external dir path is null");
 			doOnFailure(null);
@@ -116,14 +116,13 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 									StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE)));
 		}
 
-
 		if (token.isRequestRunning()) // return if request is running
 		{
-            Logger.i(TAG, categoryId+":"+stickerId+" : ignored");
+			Logger.i(TAG, categoryId + ":" + stickerId + " : ignored");
 			return;
 		}
 
-        Logger.i(TAG, categoryId+":"+stickerId+" : started");
+		Logger.i(TAG, categoryId + ":" + stickerId + " : started");
 		token.execute();
 	}
 
@@ -167,7 +166,7 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 						doOnFailure(null);
 						return;
 					}
-					
+
 					if (!data.has(HikeConstants.PACKS))
 					{
 						Logger.e(TAG, "Sticker download failed null pack data");
@@ -214,9 +213,9 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 					if (type.equals(StickerConstants.StickerType.MINI.getValue()))
 					{
 
-						if(saveMiniSticker(sticker, stickerImage))
+						if (saveMiniSticker(sticker, stickerImage))
 						{
-                            StickerManager.getInstance().saveMiniStickerSetFromJSON(stickers, categoryId);
+							StickerManager.getInstance().saveMiniStickerSetFromJSON(stickers, categoryId);
 							doOnSuccess(sticker);
 						}
 						else
@@ -228,22 +227,23 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 					{
 						boolean failed = !saveFullSticker(stickerImage, stickerData);
 
-                        if (!failed)
-                        {
-                            StickerManager.getInstance().saveStickerSetFromJSON(stickers, categoryId);
+						if (!failed)
+						{
+							StickerManager.getInstance().saveStickerSetFromJSON(stickers, categoryId);
 
-                            getStickerTags(data);
+							getStickerTags(data);
 
 							getQuickSuggestions(sticker);
 
 							boolean cdn = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SINGLE_STICKER_CDN, true);
 
-                            StickerManager.getInstance().sendResponseTimeAnalytics(result, cdn ? HikeConstants.SINGLE_STICKER_CDN : HikeConstants.SINGLE_STICKER, categoryId, stickerId);
+							StickerManager.getInstance().sendResponseTimeAnalytics(result, cdn ? HikeConstants.SINGLE_STICKER_CDN : HikeConstants.SINGLE_STICKER, categoryId,
+									stickerId);
 
-                            StickerManager.getInstance().checkAndRemoveUpdateFlag(categoryId);
+							StickerManager.getInstance().checkAndRemoveUpdateFlag(categoryId);
 
-                            doOnSuccess(sticker);
-                        }
+							doOnSuccess(sticker);
+						}
 
 					}
 
@@ -282,9 +282,9 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 	public void doOnSuccess(Object result)
 	{
 
-		Sticker sticker = (Sticker)result;
+		Sticker sticker = (Sticker) result;
 		Logger.i(TAG, sticker.getStickerCode() + " : done");
-        if (convMessage != null && !(TextUtils.isEmpty(categoryId)))
+		if (convMessage != null && !(TextUtils.isEmpty(categoryId)))
 		{
 
 			StickerManager.getInstance().checkAndRemoveUpdateFlag(sticker.getCategoryId());
@@ -306,20 +306,20 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 		}
 
 		HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_DOWNLOADED, sticker);
-        finish();
+		finish();
 	}
 
 	@Override
 	public void doOnFailure(HttpException e)
 	{
 		StickerManager.getInstance().logStickerDownloadError(HikeConstants.SINGLE_STICKER);
-        Logger.e(TAG, categoryId + ":" + stickerId + " : failed");
+		Logger.e(TAG, categoryId + ":" + stickerId + " : failed");
 		if (largeStickerPath != null)
 		{
-            (new File(largeStickerPath)).delete();
+			(new File(largeStickerPath)).delete();
 		}
 
-        finish();
+		finish();
 	}
 
 	private boolean saveMiniSticker(Sticker sticker, String stickerImage)

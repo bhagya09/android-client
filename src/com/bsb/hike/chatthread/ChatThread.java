@@ -88,6 +88,7 @@ import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.MsgRelLogManager;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthemes.ChatThemeManager;
 import com.bsb.hike.chatthemes.CustomBGRecyclingImageView;
 import com.bsb.hike.chatthemes.HikeChatThemeConstants;
@@ -135,10 +136,12 @@ import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.GalleryItem;
+import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.MovingList;
 import com.bsb.hike.models.MovingList.OnItemsFinishedListener;
+import com.bsb.hike.models.Mute;
 import com.bsb.hike.models.PhonebookContact;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.TypingNotification;
@@ -195,7 +198,6 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -204,12 +206,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 
 import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
-
-
-
-/**
- * @generated
- */
 
 @SuppressLint("ResourceAsColor") public abstract class ChatThread extends SimpleOnGestureListener implements OverflowItemClickListener, View.OnClickListener, ThemePickerListener, ImageParserListener,
 		PickFileListener, StickerPickerListener, HikeAudioRecordListener, LoaderCallbacks<Object>, OnItemLongClickListener, OnTouchListener, OnScrollListener,
@@ -314,15 +310,9 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	protected static final int REMOVE_CHAT_BACKGROUND = 0;
 
-	protected final int NUDGE_COOLOFF_TIME = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NUDGE_SEND_COOLOFF_TIME, 300);
+    private final NudgeManager nudgeManager;
 
-	private long lastNudgeTime = -1;
-
-	private int NUDGE_TOAST_OCCURENCE = 2;
-
-	private int currentNudgeCount = 0;
-
-	protected ChatThreadActivity activity;
+    protected ChatThreadActivity activity;
 
 	protected ThemePicker themePicker;
 
@@ -355,9 +345,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	protected boolean isActivityVisible = true;
 
-	protected boolean reachedEnd = false;
-
-	private volatile boolean _doubleTapPref = false;
+	protected boolean reachedEnd;
 
 	private int currentFirstVisibleItem = Integer.MAX_VALUE;
 
@@ -369,7 +357,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	protected ComposeViewWatcher mComposeViewWatcher;
 
-	private int unreadMessageCount = 0;
+	private int unreadMessageCount;
 
 	protected CustomFontEditText mComposeView;
 
@@ -388,8 +376,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	protected int selectedNonForwadableMsgs;
 
 	protected int shareableMessagesCount;
-
-	protected int selectedCancelableMsgs;
 
 	protected ChatThreadTips mTips;
 
@@ -413,14 +399,14 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	public static final int RESULT_CODE_STICKER_SHOP_ACTIVITY = 100;
 
-	Callable<Conversation> callable=new Callable<Conversation>() {
+	private final Callable<Conversation> callable=new Callable<Conversation>() {
 		@Override
 		public Conversation call() throws Exception {
 			return fetchConversation();
 		}
 	};
 
-	private FutureTask<Conversation> conversationFuture=new FutureTask<>(callable);
+	private final FutureTask<Conversation> conversationFuture=new FutureTask<>(callable);
 
 	private CustomTabActivityHelper mCustomTabActivityHelper;
 
@@ -455,23 +441,18 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	private ChatThreadBroadcasts mBroadCastReceiver;
 
-	protected OfflineController offlineController = null;
+	protected OfflineController offlineController;
 
-	protected Handler uiHandler = new Handler()
-	{
-		public void handleMessage(android.os.Message msg)
-		{
-			/**
-			 * Defensive check
-			 */
-			if (msg == null)
-			{
-				Logger.e(TAG, "Getting a null message in chat thread");
+	protected Handler uiHandler = new Handler() {
+
+		@Override
+		public void handleMessage(Message msg) {
+			if (msg == null) {
+				Logger.w(TAG, "Getting a null message in chat thread");
 				return;
 			}
 			handleUIMessage(msg);
 		}
-
 	};
 
 	/**
@@ -481,136 +462,135 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	 *
 	 * @param msg
 	 */
-	protected void handleUIMessage(android.os.Message msg)
-	{
-		switch (msg.what)
-		{
-		case UPDATE_AVATAR:
-			setAvatar();
-			break;
-		case UPDATE_STEALTH_BADGE:
-			setAvatarStealthBadge();
-			break;
-		case SET_WINDOW_BG:
-			setWindowBackGround();
-			break;
-		case SHOW_TOAST:
-			showToast((Integer)msg.obj);
-			break;
-		case MESSAGE_RECEIVED:
-		case MESSAGE_SENT:
-			addMessage((ConvMessage) msg.obj);
-			break;
-		case NOTIFY_DATASET_CHANGED:
-			Logger.i(TAG, "notifying data set changed on UI Handler");
-			Logger.i("gaurav", "notifying data set changed on UI Handler");
-			mAdapter.notifyDataSetChanged();
-			break;
-		case END_TYPING_CONVERSATION:
-			setTypingText(false, (TypingNotification) msg.obj);
-			break;
-		case TYPING_CONVERSATION:
-			setTypingText(true, (TypingNotification) msg.obj);
-			break;
-		case FILE_MESSAGE_CREATED:
-        case MULTI_MSG_DB_INSERTED:
-			addMessage((ConvMessage) msg.obj);
-			break;
-		case DELETE_MESSAGE:
-			deleteMessages((Pair<Boolean, ArrayList<Long>>) msg.obj);
-			break;
-		case CHAT_THEME:
-			changeChatTheme((String) msg.obj);
-			if (themePicker != null && themePicker.isShowing()) {
-				themePicker.dismiss();
-			}
-			break;
-		case CLOSE_CURRENT_STEALTH_CHAT:
-			closeStealthChat();
-			break;
-		case CLOSE_PHOTO_VIEWER_FRAGMENT:
-			removeFragment(HikeConstants.IMAGE_FRAGMENT_TAG, true);
-			break;
-		case UPDATE_NETWORK_STATE:
-			updateNetworkState();
-			break;
-		case HIDE_DOWN_FAST_SCROLL_INDICATOR:
-			hideView(R.id.scroll_bottom_indicator);
-			break;
-		case HIDE_UP_FAST_SCROLL_INDICATOR:
-			hideView(R.id.scroll_top_indicator);
-			break;
-		case SET_LABEL:
-			setLabel((String) msg.obj);
-			break;
-		case STICKER_CATEGORY_MAP_UPDATED:
-			if (mStickerPicker != null)
-			{
-				mStickerPicker.notifyDataSetChanged();
-				mStickerPicker.setRefreshStickers(true);
-			}
-			break;
-		case SCROLL_TO_END:
-			mConversationsView.setSelection(messages.size() - 1);
-			break;
-		case STICKER_FTUE_TIP:
-			mTips.showStickerFtueTip();
-			break;
-		case DISABLE_TRANSCRIPT_MODE:
-			mConversationsView.setTranscriptMode(ListView.TRANSCRIPT_MODE_DISABLED);		
-			break;
-		case SHARING_FUNCTIONALITY:
-			if (mActionMode!= null && mActionMode.whichActionModeIsOn() == MULTI_SELECT_ACTION_MODE)
-			{
-				mActionMode.finish();
-			}
-			 break;
-		case BLOCK_UNBLOCK_USER:
-			blockUnBlockUser((boolean) msg.obj);
-			break;
-		case ACTION_MODE_CONFIG_CHANGE:
-			handleActionModeOrientationChange(mActionMode.whichActionModeIsOn());
-			break;
-		case MUTE_CONVERSATION_TOGGLED:
-			muteConvToggledUIChange((boolean) msg.obj);
-			break;
-		case UPDATE_MESSAGE_LIST:
-			Pair<MovingList<ConvMessage>, Integer> pair = (Pair<MovingList<ConvMessage>, Integer>)(msg.obj);
-			updateMessageList(pair.first,pair.second);
-			break;
-		case SEARCH_RESULT:
-			updateUIforSearchResult((int) msg.obj);
-			break;
-		case FILE_OPENED:
-			removeKeyboardShutdownIfShowing();
-			break;
-		case SCROLL_LISTENER_ATTACH:
-			mConversationsView.setOnScrollListener(this);
-			break;
-		case SHOW_INPUT_BOX:
-			showInputBox();
-			break;
-		case REMOVE_INPUT_BOX:
-			dismissInputBox();
-			break;
-		case OPEN_PICKER:
-			mStickerPicker.setShowLastCategory(StickerManager.getInstance().getShowLastCategory());
-			StickerManager.getInstance().setShowLastCategory(false);
-			stickerButtonClicked();
-			break;
-		case SEND_CUSTOM_THEME_MESSAGE:
-			sendChatThemeMessage(true);
-			break;
-		default:
-			Logger.d(TAG, "Did not find any matching event for msg.what : " + msg.what);
-			break;
+	@SuppressWarnings("unchecked")
+	protected void handleUIMessage(Message msg) {
+		switch (msg.what) {
+			case UPDATE_AVATAR:
+				setAvatar();
+				break;
+			case UPDATE_STEALTH_BADGE:
+				setAvatarStealthBadge();
+				break;
+			case SET_WINDOW_BG:
+				setWindowBackGround();
+				break;
+			case SHOW_TOAST:
+				showToast((Integer) msg.obj);
+				break;
+			case MESSAGE_RECEIVED:
+			case MESSAGE_SENT:
+				addMessage((ConvMessage) msg.obj);
+				break;
+			case NOTIFY_DATASET_CHANGED:
+				Logger.i(TAG, "notifying data set changed on UI Handler");
+				mAdapter.notifyDataSetChanged();
+				break;
+			case END_TYPING_CONVERSATION:
+				setTypingText(false, (TypingNotification) msg.obj);
+				break;
+			case TYPING_CONVERSATION:
+				setTypingText(true, (TypingNotification) msg.obj);
+				break;
+			case FILE_MESSAGE_CREATED:
+			case MULTI_MSG_DB_INSERTED:
+				addMessage((ConvMessage) msg.obj);
+				break;
+			case DELETE_MESSAGE:
+				deleteMessages((Pair<Boolean, ArrayList<Long>>) msg.obj);
+				break;
+			case CHAT_THEME:
+				changeChatTheme((String) msg.obj);
+				if (themePicker != null && themePicker.isShowing()) {
+					themePicker.dismiss();
+				}
+				break;
+			case CLOSE_CURRENT_STEALTH_CHAT:
+				closeStealthChat();
+				break;
+			case CLOSE_PHOTO_VIEWER_FRAGMENT:
+				removeFragment(HikeConstants.IMAGE_FRAGMENT_TAG, true);
+				break;
+			case UPDATE_NETWORK_STATE:
+				updateNetworkState();
+				break;
+			case HIDE_DOWN_FAST_SCROLL_INDICATOR:
+				hideView(R.id.scroll_bottom_indicator);
+				break;
+			case HIDE_UP_FAST_SCROLL_INDICATOR:
+				hideView(R.id.scroll_top_indicator);
+				break;
+			case SET_LABEL:
+				setLabel((String) msg.obj);
+				break;
+			case STICKER_CATEGORY_MAP_UPDATED:
+				if (mStickerPicker != null) {
+					mStickerPicker.notifyDataSetChanged();
+					mStickerPicker.setRefreshStickers(true);
+				}
+				break;
+			case SCROLL_TO_END:
+				mConversationsView.setSelection(messages.size() - 1);
+				break;
+			case STICKER_FTUE_TIP:
+				mTips.showStickerFtueTip();
+				break;
+			case DISABLE_TRANSCRIPT_MODE:
+				mConversationsView.setTranscriptMode(ListView.TRANSCRIPT_MODE_DISABLED);
+				break;
+			case SHARING_FUNCTIONALITY:
+				if (mActionMode != null && mActionMode.whichActionModeIsOn() == MULTI_SELECT_ACTION_MODE) {
+					mActionMode.finish();
+				}
+				break;
+			case BLOCK_UNBLOCK_USER:
+				blockUnBlockUser((boolean) msg.obj);
+				break;
+			case ACTION_MODE_CONFIG_CHANGE:
+				handleActionModeOrientationChange(mActionMode.whichActionModeIsOn());
+				break;
+			case MUTE_CONVERSATION_TOGGLED:
+				muteConvToggledUIChange((boolean) msg.obj);
+				break;
+			case UPDATE_MESSAGE_LIST:
+				Pair<MovingList<ConvMessage>, Integer> pair = (Pair<MovingList<ConvMessage>, Integer>) (msg.obj);
+				updateMessageList(pair.first, pair.second);
+				break;
+			case SEARCH_RESULT:
+				updateUIforSearchResult((int) msg.obj);
+				break;
+			case FILE_OPENED:
+				removeKeyboardShutdownIfShowing();
+				break;
+			case SCROLL_LISTENER_ATTACH:
+				mConversationsView.setOnScrollListener(this);
+				break;
+			case OPEN_PICKER:
+				mStickerPicker.setShowLastCategory(StickerManager.getInstance().getShowLastCategory());
+				StickerManager.getInstance().setShowLastCategory(false);
+				stickerButtonClicked();
+				break;
+			case SEND_CUSTOM_THEME_MESSAGE:
+				sendChatThemeMessage(true);
+				break;
+			case GENERAL_EVENT_STATE_CHANGE:
+				onGeneralEventStateChange(msg.obj);
+				break;
+			case SHOW_INPUT_BOX:
+				showInputBox();
+				break;
+			case REMOVE_INPUT_BOX:
+				dismissInputBox();
+				break;
+			default:
+				Logger.d(TAG, "Did not find any matching event for msg.what : " + msg.what);
+				break;
 		}
 	}
 
 
 	/**
-	 * This method handles the UI part of Mute group conversation It is to be strictly called from the UI Thread
-	 *
+	 * This method handles the UI part of Mute conversation It is to be strictly called from the UI Thread
+	 * 
 	 * @param isMuted
 	 */
 	private void muteConvToggledUIChange(boolean isMuted)
@@ -650,29 +630,14 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		this.activity = activity;
 		this.msisdn = msisdn;
 		useWTRevamped = ChatThreadUtils.isWT1RevampEnabled(activity.getApplicationContext());
-	}
-
-	/**
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 *
-	 * @generated
-	 * @ordered
-	 */
-
-	public MessageSenderLayout messageSenderLayout;
-
-	/**
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 *
-	 * @generated
-	 * @ordered
-	 */
+        nudgeManager = new NudgeManager(activity);
+    }
 
 	public HikeActionBar mActionBar;
 
 	protected Bundle savedState;
 
-	FetchConversationAsyncTask fetchConversationAsyncTask=null;
+	FetchConversationAsyncTask fetchConversationAsyncTask;
 
 	public void onCreate(Bundle savedState)
 	{
@@ -859,7 +824,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			initStickerPicker();
 			initEmoticonPicker();
 
-			int firstTimeHeight = (int) (activity.getResources().getDimension(R.dimen.emoticon_pallete));
+			int firstTimeHeight = (int) activity.getResources().getDimension(R.dimen.emoticon_pallete);
 
 			mShareablePopupLayout = new ShareablePopupLayout(activity.getApplicationContext(), activity.findViewById(R.id.chatThreadParentLayout),
 
@@ -918,13 +883,16 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	private void initStickerPicker()
 	{
-
-		mStickerPicker = mStickerPicker != null ? mStickerPicker : (new StickerPicker(activity, this, this));
+		if (mStickerPicker == null) {
+			mStickerPicker = new StickerPicker(activity, this, this);
+		}
 	}
 
 	private void initEmoticonPicker()
 	{
-		mEmoticonPicker = mEmoticonPicker != null ? mEmoticonPicker : (new EmoticonPicker(activity, mComposeView));
+		if (mEmoticonPicker == null) {
+			mEmoticonPicker = new EmoticonPicker(activity, mComposeView);
+		}
 	}
 
 	public boolean onCreateOptionsMenu(Menu menu)
@@ -970,7 +938,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			return;
 		}
 
-		boolean isMessageListEmpty = isMessageListEmpty();
 		for (OverFlowMenuItem overFlowMenuItem : overflowItems)
 		{
 			switch (overFlowMenuItem.id)
@@ -994,9 +961,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 					overFlowMenuItem.enabled = shouldEnableEmailChat();
 					break;
 				case R.string.hide_chat:
-					overFlowMenuItem.text = getString(StealthModeManager.getInstance().isActive() ?
-							(mConversation.isStealth() ? R.string.mark_visible : R.string.mark_hidden)
-							: R.string.hide_chat);
+					int stealthModeVisibility = mConversation.isStealth() ? R.string.mark_visible : R.string.mark_hidden;
+					overFlowMenuItem.text = getString(StealthModeManager.getInstance().isActive() ? stealthModeVisibility : R.string.hide_chat);
 					break;
 			}
 		}
@@ -1078,9 +1044,10 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 					}
 					else
 					{
-						final int numOfImagesCaptioned = (imageCaptions != null) ? imageCaptions.size() : 0;
+						final int numOfImagesCaptioned = imageCaptions != null ? imageCaptions.size() : 0;
 						final ArrayList<String> editedImages = data.getStringArrayListExtra(HikeConstants.EDITED_IMAGE_PATHS);
-						final int numOfImagesEdited = (editedImages != null && !TextUtils.isEmpty(editedImages.get(0))) ? 1 : 0;
+						boolean hasEditedImages = editedImages != null && !TextUtils.isEmpty(editedImages.get(0));
+						final int numOfImagesEdited = hasEditedImages ? 1 : 0;
 
 						ImageParser.showSMODialog(activity, new File(imagePathArrayList.get(0).getPath()), new ImageParserListener()
 						{
@@ -1088,18 +1055,18 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 							public void imageParsed(Uri uri)
 							{
 
-								recordImageShareAnalyticEvent(imagePathArrayList.size(), numOfImagesCaptioned, numOfImagesEdited);
-								channelSelector.uploadFile(activity.getApplicationContext(), msisdn, uri.getPath(), HikeFileType.IMAGE, mConversation.isOnHike(),
-										FTAnalyticEvents.CAMERA_ATTACHEMENT, imageCaptions == null ? null : imageCaptions.get(0));
+								imageParsed(uri.getPath());
 							}
 
 							@Override
 							public void imageParsed(String imagePath)
 							{
 								recordImageShareAnalyticEvent(imagePathArrayList.size(), numOfImagesCaptioned, numOfImagesEdited);
-
+								String caption = null;
+								if (imageCaptions != null)
+									caption = imageCaptions.get(0);
 								channelSelector.uploadFile(activity.getApplicationContext(), msisdn, imagePath, HikeFileType.IMAGE, mConversation.isOnHike(),
-										FTAnalyticEvents.CAMERA_ATTACHEMENT, imageCaptions == null ? null : imageCaptions.get(0));
+										FTAnalyticEvents.CAMERA_ATTACHEMENT, caption);
 							}
 
 							@Override
@@ -1174,7 +1141,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	}
 
 	private void recordImageShareAnalyticEvent(int numberTotal, int numOfImagesCaptions, int numOfEditedImages){
-		String species = ChatThreadUtils.getChatThreadType(msisdn);
 		try {
 			JSONObject json = new JSONObject();
 			json.put(AnalyticsConstants.V2.UNIQUE_KEY, ChatAnalyticConstants.SHARE_IMAGES);
@@ -1312,7 +1278,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	protected ArrayList<OverFlowMenuItem> getOverFlowMenuItems()
 	{
-		ArrayList<OverFlowMenuItem> listOverFlow = new ArrayList<OverFlowMenuItem>();
+		ArrayList<OverFlowMenuItem> listOverFlow = new ArrayList<>();
 		listOverFlow.add(new OverFlowMenuItem(getString(R.string.hide_chat), 0, 0, R.string.hide_chat));
 		listOverFlow.add(new OverFlowMenuItem(getString(R.string.clear_chat), 0, 0, true, R.string.clear_chat));
 		listOverFlow.add(new OverFlowMenuItem(getString(R.string.email_chat), 0, 0, true, R.string.email_chat));
@@ -1593,14 +1559,14 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	protected void closeStickerTip()
 	{
-		if (mTips.isGivenTipShowing(ChatThreadTips.STICKER_TIP) || (!mTips.seenTip(ChatThreadTips.STICKER_TIP)))
+		if (mTips.isGivenTipShowing(ChatThreadTips.STICKER_TIP) || !mTips.seenTip(ChatThreadTips.STICKER_TIP))
 		{
 			mTips.setTipSeen(ChatThreadTips.STICKER_TIP);
 		}
 	}
 
 	protected void closeWTTip() {
-		if (mTips.isGivenTipShowing(ChatThreadTips.WT_RECOMMEND_TIP) || (!mTips.seenTip(ChatThreadTips.WT_RECOMMEND_TIP))) {
+		if (mTips.isGivenTipShowing(ChatThreadTips.WT_RECOMMEND_TIP) || !mTips.seenTip(ChatThreadTips.WT_RECOMMEND_TIP)) {
 			mTips.setTipSeen(ChatThreadTips.WT_RECOMMEND_TIP);
 			showRecordingErrorTip(R.string.recording_help_text);
 			mComposeViewWatcher.setSendBtnChangeListener(null);
@@ -1632,9 +1598,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			return ;
 		}
 
-		boolean shouldDismiss = dismissIfVisible ? mTips.isGivenTipVisible(whichTip) : true;
-
-		if (shouldDismiss)
+		if (!dismissIfVisible || mTips.isGivenTipVisible(whichTip))
 		{
 			Logger.d(TAG, "set sticker recommend tip seen : " + true);
 			mTips.setTipSeen(whichTip);
@@ -1858,7 +1822,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	}
 
 	private void setThemeBackground(CustomBGRecyclingImageView backgroundImage, Drawable drawable, boolean isTiled, boolean isCustom) {
-		if((drawable == null) || (backgroundImage == null)){
+		if(drawable == null || backgroundImage == null){
 			return;
 		}
 		if(isTiled){
@@ -2052,14 +2016,17 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	private void setupStickerSearch()
 	{
-		if (!(sharedPreference.getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, false) && sharedPreference.getData(HikeConstants.STICKER_RECOMMEND_PREF, true))
-				|| (Utils.getExternalStorageState() == ExternalStorageState.NONE) || (HikeMessengerApp.getInstance().getExternalFilesDir(null) == null))
+		boolean isStickerRecommendationEnabled = sharedPreference.getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, false);
+		boolean stickerRecommendPref = sharedPreference.getData(HikeConstants.STICKER_RECOMMEND_PREF, true);
+		boolean externalFiles = HikeMessengerApp.getInstance().getExternalFilesDir(null) == null;
+		if (!(isStickerRecommendationEnabled && stickerRecommendPref) || Utils.getExternalStorageState() == ExternalStorageState.NONE || externalFiles)
 		{
 			return;
 		}
 
-		stickerTagWatcher = (stickerTagWatcher != null) ? (stickerTagWatcher)
-				: (new StickerTagWatcher(activity, this, mComposeView, getResources().getColor(R.color.sticker_recommend_highlight_text)));
+		if (stickerTagWatcher == null) {
+			stickerTagWatcher = new StickerTagWatcher(activity, this, mComposeView, getResources().getColor(R.color.sticker_recommend_highlight_text));
+		}
 
 		StickerSearchManager.getInstance().loadChatProfile(msisdn, !ChatThreadUtils.getChatThreadType(msisdn).equals(HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD),
 				activity.getLastMessageTimeStamp(), StickerSearchUtils.getCurrentLanguageISOCode());
@@ -2078,7 +2045,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 		if(stickerTagWatcher.isStickerRecommendationPopupShowing())
 		{
-			stickerTagWatcher.dismissStickerSearchPopup();;
+			stickerTagWatcher.dismissStickerSearchPopup();
 			return true;
 		}
 		return false;
@@ -2124,14 +2091,10 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	{
 //		Putting an NP check to make sure we don't try to show the keyboardOffBoarding UI when the object is null
 		if (keyboardOffBoarding != null && shouldShowKeyboardOffBoardingUI()) {
-
 			if (keyboardOffBoarding.showView()) {
-
 				Utils.hideSoftKeyboard(activity, mComposeView);
 				activity.findViewById(R.id.compose_container).setVisibility(View.INVISIBLE);
-
 			} else {
-
 				initKeyboardOffBoarding();
 			}
 		}
@@ -2200,8 +2163,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			//AND-3276 Begin
 			if (!TextUtils.isEmpty(s.toString())) {
 				CharacterStyle[] spansToRemove = s.getSpans(0, s.length(), ForegroundColorSpan.class);
-				for (int i = 0; i < spansToRemove.length; i++)
-					s.removeSpan(spansToRemove[i]);
+				for (CharacterStyle span : spansToRemove) s.removeSpan(span);
 			}
 			//AND-3276 End
 			searchText = s.toString().toLowerCase();
@@ -2399,6 +2361,11 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				this.dialog = null;
 				break;
 
+			case HikeDialogFactory.MUTE_CHAT_DIALOG:
+				HikeAnalyticsEvent.recordAnalyticsForMuteCancel(msisdn);
+				dialog.dismiss();
+				this.dialog = null;
+				break;
 		}
 	}
 
@@ -2433,6 +2400,10 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				mActionMode.finish();
 				break;
 
+		case HikeDialogFactory.MUTE_CHAT_DIALOG:
+			Utils.toggleMuteChat(activity.getApplicationContext(), mConversation.getMute());
+			dialog.dismiss();
+			break;
 		}
 
 	}
@@ -2579,7 +2550,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		}
 	}
 	/**
-	 * This method calls {@link #fetchConversation(String)} in UI or non UI thread, depending upon async variable For non UI, it starts asyncloader, see {@link ConversationLoader}
+	 * This method calls {@link #fetchConversation()} in UI or non UI thread, depending upon async variable For non UI, it starts asyncloader, see {@link ConversationLoader}
 	 *
 	 * @param async
 	 */
@@ -2646,7 +2617,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	}
 
 	/**
-	 * This method calls {@link #fetchConversation(String)} in UI or non UI thread, depending upon async variable For non UI, it starts asyncloader, see {@link ConversationLoader}
+	 * This method loads messages in UI or non UI thread, depending upon async variable For non UI, it starts asyncloader, see {@link ConversationLoader}
 	 *
 	 * @param async
 	 */
@@ -2738,7 +2709,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	}
 
 	/**
-	 * This method is either called in either UI thread or non UI, check {@link #fetchConversation(boolean, String)}
+	 * This method is either called in either UI thread or non UI
 	 *
 	 */
 	protected abstract Conversation fetchConversation();
@@ -2808,6 +2779,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 		setEditTextListeners();
 
+		toggleConversationMuteViewVisibility(mConversation.isMuted());
+		
 		activity.supportInvalidateOptionsMenu(); // Calling the onCreate menu here
 		// Register broadcasts
 		mBroadCastReceiver = new ChatThreadBroadcasts();
@@ -2859,13 +2832,13 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	protected boolean shouldShowKeyboard()
 	{
-		return ((mConversation.getMessagesList().isEmpty() && !mConversation.isBlocked() && !activity.getIntent().getBooleanExtra(HikeConstants.Extras.HIKE_DIRECT_MODE,false) && !shouldShowKeyboardOffBoardingUI())
-				|| shouldShowKeyboardInActionMode());
+		return (mConversation.getMessagesList().isEmpty() && !mConversation.isBlocked() && !activity.getIntent().getBooleanExtra(HikeConstants.Extras.HIKE_DIRECT_MODE,false) && !shouldShowKeyboardOffBoardingUI())
+				|| shouldShowKeyboardInActionMode();
 	}
 
 	protected boolean shouldShowKeyboardInActionMode()
 	{
-		return (mActionMode.whichActionModeIsOn() == SEARCH_ACTION_MODE);
+		return mActionMode.whichActionModeIsOn() == SEARCH_ACTION_MODE;
 	}
 
 	/**
@@ -2946,50 +2919,26 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	 */
 	private void initGestureDetector()
 	{
-		_doubleTapPref = PreferenceManager.getDefaultSharedPreferences(activity.getApplicationContext()).getBoolean(HikeConstants.DOUBLE_TAP_PREF, true);
+		nudgeManager.updateLatestNudgeSetting();
 		mGestureDetector = new GestureDetector(activity.getApplicationContext(), this);
 	}
 
 	@Override
-	public boolean onDoubleTap(MotionEvent e)
-	{
-		Logger.d(TAG, "Double Tap motion");
-		if(mActionMode.isActionModeOn())
-		{
+	public boolean onDoubleTap(MotionEvent e) {
+
+		if (mActionMode.isActionModeOn()) {
 			return false;
 		}
-		if ((System.currentTimeMillis() - lastNudgeTime) < NUDGE_COOLOFF_TIME && lastNudgeTime > 0)
-		{
-			return false;
+
+		if(nudgeManager.shouldSendNudge()) {
+			sendNudge();
 		}
-		if (!_doubleTapPref)
-		{
-			try
-			{
-				JSONObject metadata = new JSONObject();
-				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.UNCHECKED_NUDGE);
-				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-			}
-			catch(JSONException ex)
-			{
-				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-			}
-			currentNudgeCount++;
-			if(currentNudgeCount>NUDGE_TOAST_OCCURENCE)
-			{
-				Toast.makeText(activity.getApplicationContext(), R.string.nudge_toast, Toast.LENGTH_SHORT).show();
-				currentNudgeCount=0;
-			}
-			return false;
-		}
-		lastNudgeTime = System.currentTimeMillis();
-		sendPoke();
 		return true;
 	}
 
-	protected void sendPoke()
-	{
-		ConvMessage convMessage = Utils.makeConvMessage(msisdn, getString(R.string.poke_msg_english_only), mConversation.isOnHike());
+	protected void sendNudge() {
+		ConvMessage convMessage = Utils.makeConvMessage(msisdn,
+				getString(R.string.poke_msg_english_only), mConversation.isOnHike());
 		ChatThreadUtils.setPokeMetadata(convMessage);
 		sendMessage(convMessage);
 	}
@@ -3011,8 +2960,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			{
 				// message size could be less than that of the unread count coz microapps have the authority
 				//to increase the unread count of the bot they are in. So a safety check to prevent exception.
-				int index = (messages.size() - mConversation.getUnreadCount() - 1) ;
-				index = index >= 0 ? index : 0;
+				int index = Math.max(messages.size() - mConversation.getUnreadCount() - 1, 0);
 				mConversationsView.setSelection(index);
 			}
 			else
@@ -3041,13 +2989,13 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		Logger.i(TAG, "take action based on intent");
 		Intent intent = activity.getIntent();
 
-		if ((intent == null) || (intent.getExtras() == null) || (TextUtils.isEmpty(intent.getExtras().toString())))
+		if (intent == null || intent.getExtras() == null || TextUtils.isEmpty(intent.getExtras().toString()))
 		{
 			Logger.w(TAG, "Either intent was null or could not find extras!");
 			return;
 		}
 
-		if(savedState!=null && (savedState.getInt(HikeConstants.CONSUMED_FORWARDED_DATA) == intent.getExtras().toString().hashCode())) {
+		if(savedState!=null && savedState.getInt(HikeConstants.CONSUMED_FORWARDED_DATA) == intent.getExtras().toString().hashCode()) {
 			Logger.i(TAG, "consumed forwarded data");
 			return;
 		}
@@ -3114,7 +3062,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 					}
 					else if (msgExtrasJson.has(HikeConstants.Extras.POKE))
 					{
-						sendPoke();
+						sendNudge();
 					}
 					else if(msgExtrasJson.optInt(HikeConstants.MESSAGE_TYPE.MESSAGE_TYPE) == HikeConstants.MESSAGE_TYPE.CONTENT){
 						// as we will be changing msisdn and hike status while inserting in DB
@@ -3131,9 +3079,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 						if (msgExtrasJson.has(HikeConstants.Extras.FILE_KEY))
 						{
 							fileKey = msgExtrasJson.getString(HikeConstants.Extras.FILE_KEY);
-						}
-						else
-						{
 						}
 						String filePath = msgExtrasJson.getString(HikeConstants.Extras.FILE_PATH);
 						String fileType = msgExtrasJson.getString(HikeConstants.Extras.FILE_TYPE);
@@ -3224,11 +3169,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 							json.put(AnalyticsConstants.TO, msisdn);
 							HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
 						}
-						catch (JSONException e)
-						{
-							e.printStackTrace();
-						}
-						catch (NullPointerException e)
+						catch (JSONException | NullPointerException e)
 						{
 							e.printStackTrace();
 						}
@@ -3440,7 +3381,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			int id = loader.loaderId;
 			if (id == SEARCH_LOOP || id == SEARCH_NEXT || id == SEARCH_PREVIOUS)
 			{
-				sendUIMessage(SEARCH_RESULT, 320, (int) arg1);
+				sendUIMessage(SEARCH_RESULT, 320, arg1);
 				recordSearchInputWithResult(id, searchText, (int) arg1);
 			}
 		}
@@ -3562,12 +3503,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		/**
 		 * Exit Condition 3
 		 */
-		if (whichActionMode != -1 && whichActionMode != MULTI_SELECT_ACTION_MODE)
-		{
-			return false;
-		}
-
-		return true;
+		return whichActionMode == -1 || whichActionMode == MULTI_SELECT_ACTION_MODE;
 	}
 
 	private void processMessageOnTap(ConvMessage message, boolean isMsgSelected)
@@ -3849,7 +3785,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			}
 		}
 
-		mAdapter.setIsListFlinging(!(isScrollStateIdle(scrollState)));
+		mAdapter.setIsListFlinging(!isScrollStateIdle(scrollState));
 
 	}
 
@@ -3950,148 +3886,145 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		 */
 		switch (type)
 		{
-		case HikePubSub.MESSAGE_RECEIVED:
-			onMessageReceived(object);
-			break;
-		case HikePubSub.END_TYPING_CONVERSATION:
-			onEndTypingNotificationReceived(object);
-			break;
-		case HikePubSub.TYPING_CONVERSATION:
-			onTypingConversationNotificationReceived(object);
-			break;
-		case HikePubSub.MESSAGE_DELIVERED:
-			onMessageDelivered(object);
-			break;
-		case HikePubSub.SERVER_RECEIVED_MSG:
-			long msgId = ((Long) object).longValue();
-			setStateAndUpdateView(msgId, true);
-			break;
-		case HikePubSub.SERVER_RECEIVED_MULTI_MSG:
-			onServerReceivedMultiMessage(object);
-			break;
-		case HikePubSub.ICON_CHANGED:
-			onIconChanged(object);
-			break;
-		case HikePubSub.UPLOAD_FINISHED:
-			uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
-			break;
-		case HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED:
-			uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
-			break;
-		case HikePubSub.FILE_MESSAGE_CREATED:
-			onFileMessageCreated(object);
-			break;
-		case HikePubSub.DELETE_MESSAGE:
-			onDeleteMessage(object);
-			break;
-		case HikePubSub.STICKER_DOWNLOADED:
-			uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
-			break;
-		case HikePubSub.MESSAGE_FAILED:
-			onMessageFailed(object);
-			break;
-		case HikePubSub.CHAT_BACKGROUND_CHANGED:
-			onChatBackgroundChanged(object);
-			break;
-		case HikePubSub.CLOSE_CURRENT_STEALTH_CHAT:
-			/**
-			 * Closing only if the current chat thread is stealth
-			 */
-			if (mConversation != null && mConversation.isStealth())
-			{
-				uiHandler.sendEmptyMessage(CLOSE_CURRENT_STEALTH_CHAT);
-			}
-			break;
-		case HikePubSub.ClOSE_PHOTO_VIEWER_FRAGMENT:
-			uiHandler.sendEmptyMessage(CLOSE_PHOTO_VIEWER_FRAGMENT);
-			break;
-		case HikePubSub.BLOCK_USER:
-			blockUser(object, true);
-			break;
-		case HikePubSub.UNBLOCK_USER:
-			blockUser(object, false);
-			break;
-		case HikePubSub.UPDATE_NETWORK_STATE:
-			uiHandler.sendEmptyMessage(UPDATE_NETWORK_STATE);
-			break;
-		case HikePubSub.BULK_MESSAGE_DELIVERED_READ:
-			onBulkMessageDeliveredRead(object);
-			break;
-		case HikePubSub.STICKER_CATEGORY_MAP_UPDATED:
-			uiHandler.sendEmptyMessage(STICKER_CATEGORY_MAP_UPDATED);
-			break;
-		case HikePubSub.STICKER_FTUE_TIP:
-			uiHandler.sendEmptyMessage(STICKER_FTUE_TIP);
-			break;
-        case HikePubSub.MULTI_MESSAGE_DB_INSERTED:
-            onMultiMessageDbInserted(object);
-            break;
-        case HikePubSub.SHARED_WHATSAPP:		
-          	 uiHandler.sendEmptyMessage(SHARING_FUNCTIONALITY);		
-        	 break;	   
-        case HikePubSub.MUTE_CONVERSATION_TOGGLED:
-			onMuteConversationToggled(object);
-			break;
-        case HikePubSub.STICKER_RECOMMEND_PREFERENCE_CHANGED:
-        	onStickerRecommendPreferenceChanged();
-        case HikePubSub.STEALTH_CONVERSATION_MARKED:
-        case HikePubSub.STEALTH_CONVERSATION_UNMARKED:
-        	onConversationStealthToggle(object,HikePubSub.STEALTH_CONVERSATION_MARKED.equals(type));
-			break;
-        case HikePubSub.ENTER_TO_SEND_SETTINGS_CHANGED:
-        	onEnterToSendSettingsChanged();
-        	break;
-        case HikePubSub.NUDGE_SETTINGS_CHANGED:
-        	onNudgeSettingsChnaged();
-        	break;
-        case HikePubSub.UPDATE_THREAD:
-        	ConvMessage msg = (ConvMessage) object;
-        	if (this.msisdn.equals(msg.getMsisdn()))
-        	{
-        		sendUIMessage(MESSAGE_SENT, msg);
-        	}
-        	break;
-		case HikePubSub.CLEAR_CONVERSATION:
-			FileTransferManager.getInstance(activity).clearConversation(msisdn);
-			break;
-		case HikePubSub.GENERAL_EVENT_STATE_CHANGE:
-			//TODO Proper handling in next release. It is safe to comment this out for now.
-			//onGeneralEventStateChange(object);
-			break;
-		case HikePubSub.FILE_OPENED:
-			uiHandler.sendEmptyMessage(FILE_OPENED);
-			break;
-		case HikePubSub.SHOW_INPUT_BOX:
-			Logger.i(TAG, "General Event: Show Custom Keyboard PubSub");
-			createInputBox(object);
-			break;
-		case HikePubSub.CHATTHEME_DOWNLOAD_SUCCESS:
-			if(object != null) {
-				String themeId = (String) object;
-				sendUIMessage(CHAT_THEME, themeId);
-			}else{
-				//if object is null an asset for this theme is downloaded
-				sendUIMessage(CHAT_THEME, ChatThemeManager.getInstance().currentDownloadingAssetsThemeId);
-				ChatThemeManager.getInstance().currentDownloadingAssetsThemeId = null;
-			}
-			break;
-		case HikePubSub.CHATTHEME_CUSTOM_IMAGE_UPLOAD_SUCCESS:
-			updateCustomChatTheme(object);
-			break;
-		case HikePubSub.CHATTHEME_CUSTOM_IMAGE_UPLOAD_FAILED:
-			break;
-		default:
-			Logger.e(TAG, "PubSub Registered But Not used : " + type);
-			break;
+			case HikePubSub.MESSAGE_RECEIVED:
+				onMessageReceived(object);
+				break;
+			case HikePubSub.END_TYPING_CONVERSATION:
+				onEndTypingNotificationReceived(object);
+				break;
+			case HikePubSub.TYPING_CONVERSATION:
+				onTypingConversationNotificationReceived(object);
+				break;
+			case HikePubSub.MESSAGE_DELIVERED:
+				onMessageDelivered(object);
+				break;
+			case HikePubSub.SERVER_RECEIVED_MSG:
+				long msgId = (Long) object;
+				setStateAndUpdateView(msgId, true);
+				break;
+			case HikePubSub.SERVER_RECEIVED_MULTI_MSG:
+				onServerReceivedMultiMessage(object);
+				break;
+			case HikePubSub.ICON_CHANGED:
+				onIconChanged(object);
+				break;
+			case HikePubSub.UPLOAD_FINISHED:
+				uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
+				break;
+			case HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED:
+				uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
+				break;
+			case HikePubSub.FILE_MESSAGE_CREATED:
+				onFileMessageCreated(object);
+				break;
+			case HikePubSub.DELETE_MESSAGE:
+				onDeleteMessage(object);
+				break;
+			case HikePubSub.STICKER_DOWNLOADED:
+				uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
+				break;
+			case HikePubSub.MESSAGE_FAILED:
+				onMessageFailed(object);
+				break;
+			case HikePubSub.CHAT_BACKGROUND_CHANGED:
+				onChatBackgroundChanged(object);
+				break;
+			case HikePubSub.CLOSE_CURRENT_STEALTH_CHAT:
+				/**
+				 * Closing only if the current chat thread is stealth
+				 */
+				if (mConversation != null && mConversation.isStealth())
+				{
+					uiHandler.sendEmptyMessage(CLOSE_CURRENT_STEALTH_CHAT);
+				}
+				break;
+			case HikePubSub.ClOSE_PHOTO_VIEWER_FRAGMENT:
+				uiHandler.sendEmptyMessage(CLOSE_PHOTO_VIEWER_FRAGMENT);
+				break;
+			case HikePubSub.BLOCK_USER:
+				blockUser(object, true);
+				break;
+			case HikePubSub.UNBLOCK_USER:
+				blockUser(object, false);
+				break;
+			case HikePubSub.UPDATE_NETWORK_STATE:
+				uiHandler.sendEmptyMessage(UPDATE_NETWORK_STATE);
+				break;
+			case HikePubSub.BULK_MESSAGE_DELIVERED_READ:
+				onBulkMessageDeliveredRead(object);
+				break;
+			case HikePubSub.STICKER_CATEGORY_MAP_UPDATED:
+				uiHandler.sendEmptyMessage(STICKER_CATEGORY_MAP_UPDATED);
+				break;
+			case HikePubSub.STICKER_FTUE_TIP:
+				uiHandler.sendEmptyMessage(STICKER_FTUE_TIP);
+				break;
+			case HikePubSub.MULTI_MESSAGE_DB_INSERTED:
+				onMultiMessageDbInserted(object);
+				break;
+			case HikePubSub.SHARED_WHATSAPP:
+				uiHandler.sendEmptyMessage(SHARING_FUNCTIONALITY);
+				break;
+			case HikePubSub.MUTE_CONVERSATION_TOGGLED:
+				onMuteConversationToggled(object);
+				break;
+			case HikePubSub.STICKER_RECOMMEND_PREFERENCE_CHANGED:
+				onStickerRecommendPreferenceChanged();
+			case HikePubSub.STEALTH_CONVERSATION_MARKED:
+			case HikePubSub.STEALTH_CONVERSATION_UNMARKED:
+				onConversationStealthToggle(object,HikePubSub.STEALTH_CONVERSATION_MARKED.equals(type));
+				break;
+			case HikePubSub.ENTER_TO_SEND_SETTINGS_CHANGED:
+				onEnterToSendSettingsChanged();
+				break;
+			case HikePubSub.NUDGE_SETTINGS_CHANGED:
+				nudgeManager.updateLatestNudgeSetting();
+				break;
+			case HikePubSub.UPDATE_THREAD:
+				ConvMessage msg = (ConvMessage) object;
+				if (this.msisdn.equals(msg.getMsisdn()))
+				{
+					sendUIMessage(MESSAGE_SENT, msg);
+				}
+				break;
+			case HikePubSub.CLEAR_CONVERSATION:
+				FileTransferManager.getInstance(activity).clearConversation(msisdn);
+				break;
+			case HikePubSub.GENERAL_EVENT_STATE_CHANGE:
+				Message generalEventMessage = Message.obtain();
+				generalEventMessage.what = GENERAL_EVENT_STATE_CHANGE;
+				generalEventMessage.obj = object;
+				uiHandler.sendMessage(generalEventMessage);
+				break;
+			case HikePubSub.FILE_OPENED:
+				uiHandler.sendEmptyMessage(FILE_OPENED);
+				break;
+			case HikePubSub.CHATTHEME_DOWNLOAD_SUCCESS:
+				if(object != null) {
+					String themeId = (String) object;
+					sendUIMessage(CHAT_THEME, themeId);
+				}else{
+					//if object is null an asset for this theme is downloaded
+					sendUIMessage(CHAT_THEME, ChatThemeManager.getInstance().currentDownloadingAssetsThemeId);
+					ChatThemeManager.getInstance().currentDownloadingAssetsThemeId = null;
+				}
+				break;
+			case HikePubSub.CHATTHEME_CUSTOM_IMAGE_UPLOAD_SUCCESS:
+				updateCustomChatTheme(object);
+				break;
+			case HikePubSub.CHATTHEME_CUSTOM_IMAGE_UPLOAD_FAILED:
+				break;
+			case HikePubSub.SHOW_INPUT_BOX:
+				Logger.i(TAG, "General Event: Show Custom Keyboard PubSub");
+				createInputBox(object);
+				break;
+			default:
+				Logger.e(TAG, "PubSub Registered But Not used : " + type);
+				break;
 		}
 	}
 
-	private void onNudgeSettingsChnaged()
-	{
-		_doubleTapPref = PreferenceManager.getDefaultSharedPreferences(activity.getApplicationContext()).getBoolean(HikeConstants.DOUBLE_TAP_PREF, true);
-	}
-
-	private void onEnterToSendSettingsChanged()
+    private void onEnterToSendSettingsChanged()
 	{
 		activity.runOnUiThread(new Runnable()
 		{
@@ -4121,7 +4054,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	private void onConversationStealthToggle(Object object, boolean markStealth)
 	{
-		if(!mConversation.getMsisdn().equals((String)object))
+		if(!mConversation.getMsisdn().equals(object))
 		{
 			return;
 		}
@@ -4131,18 +4064,17 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	private void onMuteConversationToggled(Object object)
 	{
-		Pair<String, Boolean> mutePair = (Pair<String, Boolean>) object;
+		Mute mute = (Mute) object;
 
 		/**
-		 * Proceeding only if we caught an event for this groupchat/botchat thread
+		 * Proceeding only if we caught an event for this chatThread
 		 */
-
-		if (mutePair.first.equals(msisdn))
+		if (mute.getMsisdn().equals(msisdn))
 		{
-			mConversation.setIsMute(mutePair.second);
+			mConversation.setMute(mute);
 		}
 
-		sendUIMessage(MUTE_CONVERSATION_TOGGLED, mutePair.second);
+		sendUIMessage(MUTE_CONVERSATION_TOGGLED, mute.isMute());
 	}
 
 	private void onMultiMessageDbInserted(Object object)
@@ -4269,7 +4201,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	protected void handleSystemMessages()
 	{
 		// TODO DO NOTHING. Only classes which need to handle such type of messages need to override this method
-		return;
 	}
 
 	protected void sendUIMessage(int what, Object data)
@@ -4290,8 +4221,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	/**
 	 * Utility method for adding listeners for pubSub
-	 *
-	 * @param listeners
 	 */
 	protected void addToPubSub()
 	{
@@ -4531,7 +4460,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 		if (mConversation != null)
 		{
-			HikeNotification.getInstance().cancelNotification((int) mConversation.getMsisdn().hashCode());
+			HikeNotification.getInstance().cancelNotification(mConversation.getMsisdn().hashCode());
 		}
 
 		/**
@@ -4864,7 +4793,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 		if (Utils.shouldChangeMessageState(msg, ConvMessage.State.SENT_CONFIRMED.ordinal()))
 		{
-			if (isActivityVisible && (!msg.isTickSoundPlayed()) && SoundUtils.isTickSoundEnabled(activity.getApplicationContext()))
+			if (isActivityVisible && !msg.isTickSoundPlayed() && SoundUtils.isTickSoundEnabled(activity.getApplicationContext()))
 			{
 				SoundUtils.playSoundFromRaw(activity.getApplicationContext(), R.raw.message_sent, AudioManager.STREAM_RING);
 			}
@@ -4892,7 +4821,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		long baseId = p.first;
 		int count = p.second;
 
-		for (long msgId = baseId; msgId < (baseId + count); msgId++)
+		for (long msgId = baseId; msgId < baseId + count; msgId++)
 		{
 //			View has to be updated only in case of Broadcast Conversation and not for corresponding 1-1 chats. This check is for optimization.
 //			baseId = msgId corresponding to BroadcastConversation
@@ -4976,7 +4905,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		 * Ensuring that the convMessage object belongs to the conversation
 		 */
 
-		if (!(convMessage.getMsisdn().equals(msisdn)))
+		if (!convMessage.getMsisdn().equals(msisdn))
 		{
 			return;
 		}
@@ -4999,7 +4928,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		/**
 		 * Received a delete message pubsub for a different thread, we received a false event with no msgIds
 		 */
-		if (!(msgMsisdn.equals(msisdn)) || msgIds.isEmpty())
+		if (!msgMsisdn.equals(msisdn) || msgIds.isEmpty())
 		{
 			return;
 		}
@@ -5010,7 +4939,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	}
 
 	/**
-	 * Deletes the messages based on the message Ids present in the {@link ArrayList<Long>} in {@link Pair.second}
+	 * Deletes the messages based on the message Ids present in the {@link ArrayList<Long>} in {@link Pair#second}
 	 *
 	 * Called from the UI thread
 	 *
@@ -5042,8 +4971,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				}
 			}
 		}
-		for (Iterator<ConvMessage> iterator = deleteMsgs.iterator(); iterator.hasNext();) {
-			ConvMessage convMessage = (ConvMessage) iterator.next();
+		for (ConvMessage convMessage : deleteMsgs) {
 			deleteMessage(convMessage, pair.first);
 		}
 		mAdapter.notifyDataSetChanged();
@@ -5072,7 +5000,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			// @GM cancelTask has been changed
 			HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
 			String key = hikeFile.getFileKey();
-			File file = hikeFile.getFile();
 			if (deleteMediaFromPhone && hikeFile != null)
 			{
 				hikeFile.delete(activity.getApplicationContext());
@@ -5104,11 +5031,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				json.put(AnalyticsConstants.CHAT_MSISDN, msisdn);
 				HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
 			}
-			catch (JSONException e)
-			{
-				e.printStackTrace();
-			}
-			catch (NullPointerException e)
+			catch (JSONException | NullPointerException e)
 			{
 				e.printStackTrace();
 			}
@@ -5118,7 +5041,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	private void onMessageFailed(Object object)
 	{
-		long msgId = ((Long) object).longValue();
+		long msgId = (Long) object;
 		ConvMessage convMessage = findMessageById(msgId);
 		if (convMessage != null)
 		{
@@ -5237,7 +5160,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	 * This method is used to construct {@link ConvMessage} with a given sticker and send it.
 	 *
 	 * @param sticker
-	 * @param categoryIdIfUnkown
 	 * @param source
 	 */
 	protected void sendSticker(Sticker sticker, String source)
@@ -5264,7 +5186,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	/**
 	 * Called from the UI Handler to change the chat theme
 	 *
-	 * @param chatTheme
+	 * @param chatThemeId
 	 */
 	private void changeChatTheme(String chatThemeId)
 	{
@@ -5278,7 +5200,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	 */
 	protected void openProfileScreen()
 	{
-		return;
 	}
 
 	protected String getCurrentlThemeId()
@@ -5344,6 +5265,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	protected void updateNetworkState()
 	{
 		showNetworkError(ChatThreadUtils.checkNetworkError());
+		toggleConversationMuteViewVisibility(ChatThreadUtils.checkNetworkError() ? false : mConversation.isMuted());
 	}
 
 	/**
@@ -5358,7 +5280,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	 */
 	protected void setMessagesRead()
 	{
-		List<ConvMessage> unreadConvMessages = new ArrayList<>();
+		final List<ConvMessage> unreadConvMessages = new ArrayList<>();
 		boolean readMessageExists = false;
 
 		// fetching unread messages list and if messages contains any read msg or not
@@ -5386,7 +5308,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		}
 
 
-		if (unreadConvMessages != null && !unreadConvMessages.isEmpty())
+		if (!unreadConvMessages.isEmpty())
 		{
 			// unreadConvMessages list is not empty that means we have to mark some msgs as read
 
@@ -5422,7 +5344,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	 */
 	protected void setSMSReadInNative()
 	{
-		return;
 	}
 
 	/**
@@ -5560,8 +5481,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 		if (pair != null)
 		{
-			long mrMsgId = (long) pair.getFirst().getFirst();
-			long drMsgId = (long) pair.getSecond();
+			long mrMsgId = pair.getFirst().getFirst();
+			long drMsgId = pair.getSecond();
 
 			if (mrMsgId > drMsgId)
 			{
@@ -5619,7 +5540,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	protected void removeFromUndeliverdMessages(ConvMessage msg)
 	{
-		return;
 	}
 
 
@@ -5632,7 +5552,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	protected void updateReadByInLoop(long mrMsgId, Set<String> second)
 	{
-		return;
 	}
 
 	public String getContactNumber()
@@ -5959,22 +5878,22 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			return false;
 		}
 
-		if ((view == mComposeView))
+		if (view == mComposeView)
 		{
 			//CE-497:Samsung duos2, in landscape mode when DONE is pressed onHidden method isn't called
 			if(useWTRevamped && inProcessOfShowingPopup) inProcessOfShowingPopup = false;
 			// On some phones (like: micromax A120) "actionId" always comes 0, so added one more optional check (view.getId() ==R.id.msg_compose) & (view.getId() ==R.id.search_text)
-			if ((actionId == EditorInfo.IME_ACTION_SEND)
-					|| ((view.getId() == R.id.msg_compose) && PreferenceManager
+			if (actionId == EditorInfo.IME_ACTION_SEND
+					|| view.getId() == R.id.msg_compose && PreferenceManager
 					.getDefaultSharedPreferences(
 							activity.getApplicationContext())
-					.getBoolean(HikeConstants.SEND_ENTER_PREF, false)))	{
+					.getBoolean(HikeConstants.SEND_ENTER_PREF, false))	{
 				if (!TextUtils.isEmpty(mComposeView.getText())) {
 					sendButtonClicked();
 				}
 				return true;
 			}
-			else if (actionId == EditorInfo.IME_ACTION_SEARCH||(view.getId() ==R.id.search_text))
+			else if (actionId == EditorInfo.IME_ACTION_SEARCH|| view.getId() ==R.id.search_text)
 			{
 				searchMessage(false,true);
 				return true;
@@ -5987,7 +5906,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	@Override
 	public boolean onKey(View v, int keyCode, KeyEvent event)
 	{
-		if ((event.getAction() == KeyEvent.ACTION_UP) && (keyCode == KeyEvent.KEYCODE_ENTER) && event.isAltPressed())
+		if (event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_ENTER && event.isAltPressed())
 		{
 			mComposeView.append(NEW_LINE_DELIMETER);
 			/**
@@ -6060,7 +5979,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	 */
 	public void onAttachFragment(Fragment fragment)
 	{
-		if(fragment.getTag() == HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_TAG || fragment.getTag() == HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_FTUE_TAG)
+		if(HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_TAG.equals(fragment.getTag()) || HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_FTUE_TAG.equals(fragment.getTag()))
 		{
 			return;
 		}
@@ -6101,7 +6020,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	public boolean isKeyboardOpen()
 	{
-		return ((mShareablePopupLayout != null) && (mShareablePopupLayout.isKeyboardOpen()));
+		return mShareablePopupLayout != null && mShareablePopupLayout.isKeyboardOpen();
 	}
 
 	@Override
@@ -6111,7 +6030,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		/**
 		 * If the last message was visible before opening the keyboard it can be hidden hence we need to scroll to bottom.
 		 */
-		if (mConversationsView != null && (mConversationsView.getLastVisiblePosition() == mConversationsView.getCount() - 1))
+		if (mConversationsView != null && mConversationsView.getLastVisiblePosition() == mConversationsView.getCount() - 1)
 		{
 			if (shouldKeyboardPopupShow)
 			{
@@ -6141,7 +6060,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		}
 	}
 
-	private boolean inProcessOfShowingPopup = false;
+	private boolean inProcessOfShowingPopup;
 
 	public void dismissResidualAcitonMode()
 	{
@@ -6196,7 +6115,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 
 	/**
-	 * Used to call {@link #showOverlay(boolean, String, String, String)} from {@link OneToOneChatThread} or {@link OneToNChatThread}
+	 * Used to call {@link #showOverlay(String, String, String, SpannableString, int, int)} from {@link OneToOneChatThread} or {@link OneToNChatThread}
 	 *
 	 * @param label
 	 */
@@ -6343,7 +6262,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		int LAST_FEW_MESSAGES = 4;
 		// SetSelection doesnt work for last few items.
 		// We need to enable TRANSCRIPT_MODE_ALWAYS_SCROLL in such cases.
-		if (position >= (messages.size() - 1) - LAST_FEW_MESSAGES)
+		if (position >= messages.size() - 1 - LAST_FEW_MESSAGES)
 		{
 			/**
 			 * Scrolling to bottom.
@@ -6398,6 +6317,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		intentDataHash = savedInstanceState.getInt(HikeConstants.CONSUMED_FORWARDED_DATA, 0);
 	}
 
+	@Override
 	public void connectedToMsisdn(String connectedDevice)
 	{
 		if(stickerTagWatcher != null)
@@ -6406,16 +6326,19 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		}
 	}
 
+	@Override
 	public void wifiP2PScanResults(WifiP2pDeviceList peerList)
 	{
 
 	}
 
+	@Override
 	public void wifiScanResults(Map<String, ScanResult> results)
 	{
 
 	}
 
+	@Override
 	public void onDisconnect(ERRORCODE errorCode)
 	{
 		if(stickerTagWatcher != null)
@@ -6507,7 +6430,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	public void onPostResume()
 	{
-
 	}
 
 	@Override
@@ -6521,7 +6443,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	public  static class FetchConversationAsyncTask extends AsyncTask<Void,Void,Void>
 	{
 
-		private  WeakReference<FutureTask<Conversation>> conversationFuture=null;
+		private final WeakReference<FutureTask<Conversation>> conversationFuture;
 
 		FetchConversationAsyncTask(WeakReference<FutureTask<Conversation>> callableWeakReference)
 		{
@@ -6541,11 +6463,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		}
 	}
 
-	protected int getCurrentOrientation()
-	{
-		return activity.getResources().getConfiguration().orientation;
-	}
-
 	protected void publishReadByForMessage(ConvMessage message, String msisdn, IChannelSelector channelSelector)
 	{
 		ChatThreadUtils.publishReadByForMessage(message, HikeConversationsDatabase.getInstance(), msisdn,channelSelector);
@@ -6553,22 +6470,22 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	protected boolean shouldEnableSearch()
 	{
-		return (!isMessageListEmpty() && !mConversation.isBlocked());
+		return !isMessageListEmpty() && !mConversation.isBlocked();
 	}
 
 	protected boolean shouldEnableHikeKeyboard()
 	{
-		return (!mConversation.isBlocked());
+		return !mConversation.isBlocked();
 	}
 
 	protected boolean shouldEnableClearChat()
 	{
-		return (!isMessageListEmpty());
+		return !isMessageListEmpty();
 	}
 
 	protected boolean shouldEnableEmailChat()
 	{
-		return (!isMessageListEmpty());
+		return !isMessageListEmpty();
 	}
 
 	protected void recordChatThreadOpen()
@@ -6594,14 +6511,10 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			json.put(AnalyticsConstants.V2.SPECIES, getChatThreadOpenSource(activity.getIntent().getIntExtra(ChatThreadActivity.CHAT_THREAD_SOURCE, ChatThreadOpenSources.UNKNOWN)));
 			json.put(AnalyticsConstants.V2.FORM, activity.getIntent().getStringExtra(HikeConstants.Extras.WHICH_CHAT_THREAD));
 			json.put(AnalyticsConstants.V2.TO_USER, msisdn);
-
 			return json;
-
 		}
-
 		catch (JSONException e)
 		{
-			e.toString();
 			return null;
 		}
 	}
@@ -6811,8 +6724,26 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			e.printStackTrace();
 		}
 	}
+	/*
+	 * Returns whether the chat is mute or not
+	 *
+	 * @return
+	 */
+	protected boolean isMuted()
+	{
+		/**
+		 * Defensive check
+		 */
 
-	public void updateCustomChatTheme(Object data) {
+		if (mConversation == null)
+		{
+			return false;
+		}
+		return mConversation.isMuted();
+	}
+
+	public void updateCustomChatTheme(Object data)
+	{
 		String themeId = (String) data;
 		sendUIMessage(CHAT_THEME, themeId);
 		sendUIMessage(SEND_CUSTOM_THEME_MESSAGE, null);
@@ -6822,5 +6753,4 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		mCustomTabActivityHelper = CustomTabActivityHelper.getInstance();
 		mCustomTabActivityHelper.bindCustomTabsService(activity);
 	}
-
 }
