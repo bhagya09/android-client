@@ -3274,6 +3274,12 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MULTIPLE_BDAY_NOTIF_SUBTEXT, multipleBdayNotifSubtext);
 		}
 
+		if (data.has(HikeConstants.HIKE_CES_ENABLE))
+		{
+			boolean enableCes = data.getBoolean(HikeConstants.HIKE_CES_ENABLE);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.HIKE_CES_ENABLE, enableCes);
+		}
+
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 
