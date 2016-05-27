@@ -1,6 +1,7 @@
 package com.bsb.hike.modules.platformdownloadmgr;
 
 import android.support.annotation.Nullable;
+import android.os.Bundle;
 
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.BotDiscoveryTableDownloadRequest;
 
@@ -84,7 +85,8 @@ public class BotDiscoveryDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 		}
 	}
 
-	private String getRequestId()
+    @Override
+    public String getRequestId()
 	{
 		return "bot_discovery_table";
 	}
@@ -132,5 +134,11 @@ public class BotDiscoveryDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 			}
 		};
 	}
+
+    @Override
+    public Bundle getRequestBundle()
+    {
+        return null;
+    }
 
 }

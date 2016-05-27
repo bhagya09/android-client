@@ -120,7 +120,8 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 		}
 	}
 
-	private Bundle getRequestBundle()
+    @Override
+	public Bundle getRequestBundle()
 	{
 		Bundle extras = new Bundle();
 		extras.putString(HikeConstants.STICKER_ID, stickerId);
@@ -131,7 +132,8 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 		return extras;
 	}
 
-	private String getRequestId()
+    @Override
+    public String getRequestId()
 	{
 		return (StickerRequestType.SINGLE.getLabel() + "\\" + categoryId + "\\" + stickerId);
 	}

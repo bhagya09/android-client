@@ -193,7 +193,8 @@ public class MultiStickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTask
 
 	}
 
-	private String getRequestId()
+    @Override
+    public String getRequestId()
 	{
 		return StickerRequestType.TAGS.getLabel() + "\\" + requestStep;
 	}
@@ -213,7 +214,8 @@ public class MultiStickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTask
 		Logger.d(TAG, "response failed.");
 	}
 
-	private Bundle getRequestBundle()
+    @Override
+	public Bundle getRequestBundle()
 	{
 		Bundle extras = new Bundle();
 		extras.putStringArrayList(HikeConstants.STICKERS, stickerCategoryList);

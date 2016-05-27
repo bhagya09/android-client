@@ -119,7 +119,8 @@ public class FetchCategoryRanksTask implements IHikeHTTPTask, IHikeHttpTaskResul
 
 	}
 
-	private String getRequestId()
+    @Override
+    public String getRequestId()
 	{
 		return StickerConstants.StickerRequestType.UPDATE_ORDER.getLabel();
 	}
@@ -167,4 +168,10 @@ public class FetchCategoryRanksTask implements IHikeHTTPTask, IHikeHttpTaskResul
 		Logger.e(TAG, "Exception", exception);
 		setAlarmForFetchOrder();
 	}
+
+    @Override
+    public Bundle getRequestBundle()
+    {
+        return null;
+    }
 }

@@ -69,8 +69,9 @@ public class StickerPalleteImageDownloadTask implements IHikeHTTPTask, IHikeHttp
 			token.cancel();
 		}
 	}
-	
-	private String getRequestId()
+
+    @Override
+    public String getRequestId()
 	{
 		return (StickerRequestType.ENABLE_DISABLE.getLabel() + "\\" + categoryId);
 	}
@@ -185,7 +186,8 @@ public class StickerPalleteImageDownloadTask implements IHikeHTTPTask, IHikeHttp
 		HikeMessengerApp.getLruCache().remove(StickerManager.getInstance().getCategoryOtherAssetLoaderKey(categoryId, StickerManager.PALLATE_ICON_TYPE));
 	}
 
-	private Bundle getRequestBundle()
+    @Override
+	public Bundle getRequestBundle()
 	{
 		Bundle extras = new Bundle();
 		extras.putString(HikeConstants.CATEGORY_ID, categoryId);

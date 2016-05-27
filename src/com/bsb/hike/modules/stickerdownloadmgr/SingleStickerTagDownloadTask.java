@@ -113,7 +113,8 @@ public class SingleStickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTas
         }
     }
 
-    private String getRequestId()
+    @Override
+    public String getRequestId()
     {
         return StickerConstants.StickerRequestType.SINGLE_TAG.getLabel() +"\\" + categoryId + "\\" + stickerId;
     }
@@ -130,7 +131,8 @@ public class SingleStickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTas
         Logger.d(TAG, "response failed.");
     }
 
-	private Bundle getRequestBundle()
+    @Override
+	public Bundle getRequestBundle()
 	{
 		Bundle extras = new Bundle();
 		extras.putString(HikeConstants.STICKER_ID, stickerId);

@@ -72,7 +72,8 @@ public class StickerPreviewImageDownloadTask implements IHikeHTTPTask, IHikeHttp
 		}
 	}
 
-	private String getRequestId()
+    @Override
+    public String getRequestId()
 	{
 		return (StickerRequestType.PREVIEW.getLabel() + "\\" + categoryId);
 	}
@@ -177,7 +178,8 @@ public class StickerPreviewImageDownloadTask implements IHikeHTTPTask, IHikeHttp
 		Logger.e(TAG, "on failure, exception ", e);
 	}
 
-	private Bundle getRequestBundle()
+    @Override
+	public Bundle getRequestBundle()
 	{
 		Bundle extras = new Bundle();
 		extras.putInt(HikeConstants.TYPE, previewType);

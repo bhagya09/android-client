@@ -120,7 +120,8 @@ public class DefaultTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResul
 		}
 	}
 
-	private String getRequestId()
+    @Override
+    public String getRequestId()
 	{
 		return StickerRequestType.TAGS.getLabel();
 	}
@@ -146,7 +147,8 @@ public class DefaultTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResul
 		Logger.d(TAG, "response failed.");
 	}
 
-	private Bundle getRequestBundle()
+    @Override
+	public Bundle getRequestBundle()
 	{
 		Bundle extras = new Bundle();
 		extras.putBoolean(HikeConstants.IS_NEW_USER, isSignUp);

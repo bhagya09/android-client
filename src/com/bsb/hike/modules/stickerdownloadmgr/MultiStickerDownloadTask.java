@@ -303,7 +303,8 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 		};
 	}
 
-	private String getRequestId()
+    @Override
+    public String getRequestId()
 	{
 		return (StickerRequestType.MULTIPLE.getLabel() + "\\" + category.getCategoryId() + "\\" + existingStickerNumber);
 	}
@@ -404,7 +405,8 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 		}
 	}
 
-	private Bundle getRequestBundle()
+    @Override
+	public Bundle getRequestBundle()
 	{
 		Bundle extras = new Bundle();
 		extras.putSerializable(HikeConstants.CATEGORY_ID, category);

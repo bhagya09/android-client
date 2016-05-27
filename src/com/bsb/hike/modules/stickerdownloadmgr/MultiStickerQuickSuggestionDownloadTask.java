@@ -157,7 +157,8 @@ public class MultiStickerQuickSuggestionDownloadTask implements IHikeHTTPTask, I
 
 	}
 
-	private String getRequestId()
+    @Override
+    public String getRequestId()
 	{
 		return StickerRequestType.MULTI_QUICK_SUGGESTION.getLabel() + "\\" + requestStep;
 	}
@@ -174,4 +175,10 @@ public class MultiStickerQuickSuggestionDownloadTask implements IHikeHTTPTask, I
 	{
 		Logger.e(TAG, "response failed for quick suggestions", exception);
 	}
+
+    @Override
+    public Bundle getRequestBundle()
+    {
+        return null;
+    }
 }

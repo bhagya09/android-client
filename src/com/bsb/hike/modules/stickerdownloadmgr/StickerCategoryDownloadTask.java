@@ -133,13 +133,15 @@ public class StickerCategoryDownloadTask implements IHikeHTTPTask, IHikeHttpTask
 	{
 		HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_CATEGORY_DETAILS_DOWNLOAD_FAILURE, exception);
 	}
-	
-	private String getRequestId()
+
+    @Override
+    public String getRequestId()
 	{
 		return (StickerRequestType.CATEGORY_DETAIL.getLabel() + "\\" + categoryId);
 	}
 
-	private Bundle getRequestBundle()
+    @Override
+	public Bundle getRequestBundle()
 	{
 		Bundle extras = new Bundle();
 		extras.putString(HikeConstants.CATEGORY_ID, categoryId);
