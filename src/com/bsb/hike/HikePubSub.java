@@ -551,6 +551,8 @@ public class HikePubSub extends Handler implements Runnable
 
 	public static final String SHOW_BIRTHDAY_NOTIF = "show_bday_notif";
 
+	public static final String STATUS_MARKED_READ = "su_marked_read";
+
 	private final Thread mThread;
 
 	private final BlockingQueue<Operation> mQueue;

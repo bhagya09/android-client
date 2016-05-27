@@ -2,6 +2,7 @@ package com.bsb.hike.timeline.view;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -17,6 +18,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.media.ImageParser;
 import com.bsb.hike.timeline.adapter.StoryListAdapter;
@@ -74,8 +76,16 @@ public class StoryFragment extends Fragment {
         StoryItem timelineItem = new StoryItem(StoryItem.TYPE_INTENT, getString(R.string.timeline));
         timelineItem.setIntent(IntentFactory.getTimelineIntent(getActivity()));
 
-        // TODO
-        timelineItem.setSubText("10 updates from 3 friends");
+        SharedPreferences sharedPref = getActivity().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0); // To support old code
+        int newUpdates = Utils.getNotificationCount(sharedPref, true, false, true, false); // no. of updates
+        int newLikes = Utils.getNotificationCount(sharedPref, false, true, false, false); // no. of loves
+        if (newUpdates > 0) {
+            timelineItem.setSubText(getString(R.string.timeline_sub_new_updt));
+        } else if (newLikes > 0) {
+            timelineItem.setSubText(String.format(getString(R.string.timeline_sub_likes), newLikes));
+        }
+
+
         storyItemList.add(timelineItem);
 
         // Setup adapters
