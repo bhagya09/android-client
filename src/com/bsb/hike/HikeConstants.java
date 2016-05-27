@@ -4347,4 +4347,5 @@ public class HikeConstants
 
 	public static final String ACTION = "action";
 
+	public static final String HIKE_CES_ENABLE = "ces_enable";
 }

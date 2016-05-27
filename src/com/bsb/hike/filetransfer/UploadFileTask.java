@@ -196,6 +196,7 @@ public class UploadFileTask extends FileTransferBase
 					else
 					{
 						// do this in any failure response code returned by server
+						logCesData(CesConstants.FT_STATUS_IN_PROGRESS, false, String.valueOf(httpException.getErrorCode()));
 						fileKey = null;
 						verifyMd5(false);
 					}
@@ -556,6 +557,7 @@ public class UploadFileTask extends FileTransferBase
 					}
 					else
 					{
+						logCesData(CesConstants.FT_STATUS_IN_PROGRESS, false, String.valueOf(httpException.getErrorCode()));
 						// do this in any failure response code returned by server
 						uploadFile(selectedFile);
 					}
@@ -774,6 +776,7 @@ public class UploadFileTask extends FileTransferBase
 						else
 						{
 							deleteStateFile();
+							logCesData(CesConstants.FT_STATUS_IN_PROGRESS, false, String.valueOf(httpException.getErrorCode()));
 							handler.postDelayed(new Runnable()
 							{
 								@Override
@@ -794,6 +797,7 @@ public class UploadFileTask extends FileTransferBase
 						}
 						else
 						{
+							logCesData(CesConstants.FT_STATUS_IN_PROGRESS, false, String.valueOf(httpException.getErrorCode()));
 							handler.postDelayed(new Runnable()
 							{
 								@Override

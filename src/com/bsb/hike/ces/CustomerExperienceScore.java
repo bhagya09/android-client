@@ -47,6 +47,11 @@ public class CustomerExperienceScore {
 
 	private CustomerExperienceScore()
 	{
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HIKE_CES_ENABLE, true))
+		{
+			pool = null;
+			return;
+		}
 		BlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<Runnable>();
 		pool = new ThreadPoolExecutor(1, MAXIMUM_POOL_SIZE, KEEP_ALIVE_TIME, TimeUnit.SECONDS, workQueue, Utils.threadFactory("CES Thread", false), rejectedExecutionHandler());
 		if(!HikeSharedPreferenceUtil.getInstance().getData(CesConstants.CES_ALARM_PERF, false))
@@ -113,6 +118,10 @@ public class CustomerExperienceScore {
 
 	public void recordCesData(int module, CesDataInfoFormatBuilder<?> cesData)
 	{
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HIKE_CES_ENABLE, true))
+		{
+			return;
+		}
 		CesBaseCallable mTask = null;
 		switch (module) {
 		case CesConstants.CESModule.FT:
@@ -130,6 +139,10 @@ public class CustomerExperienceScore {
 
 	public void processCesScoreAndL1Data()
 	{
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HIKE_CES_ENABLE, true))
+		{
+			return;
+		}
 		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
 		{
 			@Override
@@ -192,6 +205,10 @@ public class CustomerExperienceScore {
 
 	public void processCesL2Data(final String module, final String date)
 	{
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HIKE_CES_ENABLE, true))
+		{
+			return;
+		}
 		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
 		{
 			@Override
@@ -209,7 +226,7 @@ public class CustomerExperienceScore {
 	/**
 	 * Schedules next auto CES data sync
 	 */
-	public void scheduleNextCesDataSync()
+	private void scheduleNextCesDataSync()
 	{
 		Random rand = new Random();		
 		int hr = rand.nextInt(CesConstants.DAY_IN_HOUR);
