@@ -2270,7 +2270,7 @@ public class HikeNotification
 				AnalyticsConstants.BirthdayEvents.BIRTHDAY_NOTIF_CREATED,
 				AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
 				AnalyticsConstants.BirthdayEvents.BIRTHDAY_NOTIF_CREATED,
-				String.valueOf(packetId), null, null);
+				String.valueOf(packetId), null, null, null);
 	}
 
 	/**

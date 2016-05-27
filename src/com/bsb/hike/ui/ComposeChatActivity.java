@@ -65,7 +65,6 @@ import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
-import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -891,7 +890,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					AnalyticsConstants.BirthdayEvents.BIRTHDAY_NOTIF_COMPOSE_CHAT,
 					AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
 					AnalyticsConstants.BirthdayEvents.BIRTHDAY_NOTIF_COMPOSE_CHAT,
-					String.valueOf(packetId), null, null);
+					String.valueOf(packetId), null, null, null);
 		}
 	}
 

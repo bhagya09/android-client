@@ -951,5 +951,7 @@ public class AnalyticsConstants
 		public static final String BIRTHDAY_OK = "bday_ok";
 
 		public static final String BIRTHDAY_CANCEL = "bday_cancel";
+
+		public static final String BIRTHDAY_EXPIRY = "bday_expr";
 	}
 }

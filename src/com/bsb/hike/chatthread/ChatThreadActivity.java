@@ -143,7 +143,7 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 			 * Then Hidden mode is on and chat is hidden and then on tapping notification
 			 * Bounce Hike logo + close 1-1 Chat + open Home Screen
 			 */
-			if (Utils.isBDayInNewChatEnabled() && intent.hasExtra(HikeConstants.Extras.BIRTHDAY_NOTIF));
+			if (Utils.isBDayInNewChatEnabled() && intent.hasExtra(HikeConstants.Extras.BIRTHDAY_NOTIF))
 			{
 				if (PreferenceManager.getDefaultSharedPreferences(ChatThreadActivity.this).getBoolean(HikeConstants.STEALTH_INDICATOR_ENABLED, false))
 				{

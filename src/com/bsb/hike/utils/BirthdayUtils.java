@@ -20,6 +20,7 @@ import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.notifications.HikeNotification;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -32,7 +33,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Set;
 
 /**
@@ -281,16 +281,18 @@ public class BirthdayUtils
 
 						if (fromServerPacket)
 						{
-                            recordBirthdayAnalytics(
-                            AnalyticsConstants.BirthdayEvents.BIRTHDAY_REQ_RESPONSE,
-                            AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
-                            AnalyticsConstants.BirthdayEvents.BIRTHDAY_REQ_RESPONSE,
-                            String.valueOf(packetId), null, null);
-
 							if (!bdayMsisdnSet.isEmpty())
 							{
 								BirthdayUtils.showBdayNotifcations(bdayMsisdnSet, packetId);
 							}
+                            else
+                            {
+                                recordBirthdayAnalytics(
+                                        AnalyticsConstants.BirthdayEvents.BIRTHDAY_REQ_RESPONSE,
+                                        AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
+                                        AnalyticsConstants.BirthdayEvents.BIRTHDAY_REQ_RESPONSE,
+                                        String.valueOf(packetId), null, null, null);
+                            }
 						}
 					}
                     catch (JSONException e)
@@ -323,7 +325,7 @@ public class BirthdayUtils
                 AnalyticsConstants.BirthdayEvents.BIRTHDAY_HTTP_REQ,
                 AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
                 AnalyticsConstants.BirthdayEvents.BIRTHDAY_HTTP_REQ,
-                String.valueOf(packetId), null, null);
+                String.valueOf(packetId), null, null, null);
 			}
 		}
     }
@@ -408,6 +410,12 @@ public class BirthdayUtils
 
         removeHiddenMsisdn(bdayMsisdns);
 
+        recordBirthdayAnalytics(
+                AnalyticsConstants.BirthdayEvents.BIRTHDAY_REQ_RESPONSE,
+                AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
+                AnalyticsConstants.BirthdayEvents.BIRTHDAY_REQ_RESPONSE,
+                String.valueOf(packetId), null, null, String.valueOf(bdayMsisdnSet.size() - bdayMsisdns.size()));
+
         if(bdayMsisdns != null && bdayMsisdns.size() > 0)
         {
             Logger.d("bday_notif_", "Going to show notif for " + bdayMsisdns);
@@ -420,7 +428,7 @@ public class BirthdayUtils
         }
     }
 
-	public static void recordBirthdayAnalytics(String uk, String eventClass, String order, String family, String form, String race)
+	public static void recordBirthdayAnalytics(String uk, String eventClass, String order, String family, String form, String race, String valInt)
 	{
 		try
 		{
@@ -433,6 +441,7 @@ public class BirthdayUtils
 			json.put(AnalyticsConstants.V2.FAMILY, family);
             json.put(AnalyticsConstants.V2.FORM, form);
             json.put(AnalyticsConstants.V2.RACE, race);
+            json.put(AnalyticsConstants.V2.VAL_INT, valInt);
 
 			HAManager.getInstance().recordV2(json);
 		}
@@ -441,5 +450,16 @@ public class BirthdayUtils
 		{
 			e.toString();
 		}
+	}
+
+	public static void cleanUpBirthdayDataAndNotifications()
+	{
+		resetBdayHttpCallInfo();
+		HikeNotification.getInstance().cancelNotification(HikeNotification.BIRTHDAY_NOTIF);
+		String packetId = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TRIGGER_BIRTHDAY_ID, "0");
+		recordBirthdayAnalytics(AnalyticsConstants.BirthdayEvents.BIRTHDAY_EXPIRY,
+                AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
+				AnalyticsConstants.BirthdayEvents.BIRTHDAY_EXPIRY,
+                String.valueOf(packetId), null, null, null);
 	}
 }
