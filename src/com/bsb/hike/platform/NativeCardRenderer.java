@@ -49,6 +49,7 @@ import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.nativecards.NativeCardManager;
+import com.bsb.hike.platform.nativecards.NativeCardUtils;
 import com.bsb.hike.smartImageLoader.HighQualityThumbLoader;
 import com.bsb.hike.smartImageLoader.ImageWorker;
 import com.bsb.hike.smartImageLoader.NativeCardImageLoader;
@@ -109,11 +110,20 @@ public class NativeCardRenderer implements View.OnLongClickListener, View.OnClic
 		{
 			viewHolder = (ViewHolderFactory.ViewHolder) view.getTag();
 		}
+
 		viewHolder.initializeHolder(view, convMessage);
 		viewHolder.clearViewHolder(view);
-		cardDataFiller(convMessage, viewHolder);
+		final View cardContainer = view.findViewById(R.id.card_container);
+		cardDataFiller(convMessage, viewHolder,cardContainer);
 		viewHolder.processViewHolder(view);
-		view.findViewById(R.id.card_container).setOnLongClickListener(this);
+
+		cardContainer.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				performCardAction(convMessage,cardContainer);
+			}
+		});
+		cardContainer.setOnLongClickListener(this);
 		return view;
 	}
 
@@ -126,11 +136,12 @@ public class NativeCardRenderer implements View.OnLongClickListener, View.OnClic
 	public int getItemViewType(ConvMessage convMessage)
 	{
 		// Add the length of NativeCardType enum for received card type.
-		return convMessage.isSent() ? convMessage.platformMessageMetadata.layoutId : convMessage.platformMessageMetadata.layoutId
+		NativeCardManager.NativeCardType cardType = NativeCardManager.NativeCardType.getTypeByTemplateId(convMessage.platformMessageMetadata.layoutId);
+		return convMessage.isSent() ? cardType.ordinal() : cardType.ordinal()
 				+ NativeCardManager.NativeCardType.values().length;
 	}
 
-	private void cardDataFiller(final ConvMessage convMessage, final ViewHolderFactory.ViewHolder viewHolder)
+	private void cardDataFiller(final ConvMessage convMessage, final ViewHolderFactory.ViewHolder viewHolder, final View containerView)
 	{
 		for (CardComponent.TextComponent textComponent : convMessage.platformMessageMetadata.cards.get(0).textComponents)
 		{
@@ -190,11 +201,16 @@ public class NativeCardRenderer implements View.OnLongClickListener, View.OnClic
 		{
 			String tag = imageComponent.getTag();
 
-			if (!TextUtils.isEmpty(tag))
-			{
+			if (!TextUtils.isEmpty(tag)) {
 				ImageView imageView = (ImageView) viewHolder.viewHashMap.get(tag);
 				imageView.setVisibility(View.VISIBLE);
 				imageView.setOnLongClickListener(this);
+				imageView.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+                        performCardAction(convMessage,containerView);
+					}
+				});
 				if (imageComponent.getUrl() != null)
 				{
 					populateImageWithUrl(imageView, imageComponent);
@@ -340,7 +356,7 @@ public class NativeCardRenderer implements View.OnLongClickListener, View.OnClic
 	@Override
 	public void onClick(View v)
 	{
-		ConvMessage convMessage = (ConvMessage) v.getTag();
+		final ConvMessage convMessage = (ConvMessage) v.getTag();
 		if (convMessage == null)
 		{
 			return;
@@ -351,55 +367,75 @@ public class NativeCardRenderer implements View.OnLongClickListener, View.OnClic
 
 		// @GM
 
-		HikeFile hikeFile = convMessage.platformMessageMetadata.getHikeFiles().get(0);
-		// HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
-		if (Utils.getExternalStorageState() == Utils.ExternalStorageState.NONE && hikeFile.getHikeFileType() != HikeFile.HikeFileType.CONTACT
-				&& hikeFile.getHikeFileType() != HikeFile.HikeFileType.LOCATION)
+		if (convMessage.platformMessageMetadata.getHikeFiles() != null && convMessage.platformMessageMetadata.getHikeFiles().size() > 0)
 		{
-			Toast.makeText(context, R.string.no_external_storage, Toast.LENGTH_SHORT).show();
-			return;
-		}
-		File receivedFile = hikeFile.getFile();
-
-		FileSavedState fss = FileTransferManager.getInstance(context).getDownloadFileState(convMessage.getMsgID(), hikeFile);
-
-		Logger.d(getClass().getSimpleName(), fss.getFTState().toString());
-
-		if (fss.getFTState() == FileTransferBase.FTState.COMPLETED)
-		{
-			openFile(hikeFile, convMessage, v);
-		}
-		else if (fss.getFTState() == FileTransferBase.FTState.IN_PROGRESS)
-		{
-			FileTransferManager.getInstance(context).pauseTask(convMessage.getMsgID());
-		}
-		else if (fss.getFTState() != FileTransferBase.FTState.INITIALIZED)
-		{
-			if (hikeFile.getHikeFileType() == HikeFile.HikeFileType.VIDEO)
+			HikeFile hikeFile = convMessage.platformMessageMetadata.getHikeFiles().get(0);
+			// HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
+			if (Utils.getExternalStorageState() == Utils.ExternalStorageState.NONE && hikeFile.getHikeFileType() != HikeFile.HikeFileType.CONTACT
+					&& hikeFile.getHikeFileType() != HikeFile.HikeFileType.LOCATION)
 			{
-				if (fss.getFTState() == FileTransferBase.FTState.NOT_STARTED)
-				{
-					sendImageVideoRelatedAnalytic(ChatAnalyticConstants.VIDEO_RECEIVER_DOWNLOAD_MANUALLY);
-				}
-				else if (fss.getFTState() == FileTransferBase.FTState.ERROR)
-				{
-					sendImageVideoRelatedAnalytic(ChatAnalyticConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.VEDIO, ChatAnalyticConstants.DOWNLOAD_MEDIA);
-				}
+				Toast.makeText(context, R.string.no_external_storage, Toast.LENGTH_SHORT).show();
+				return;
 			}
-			else if (hikeFile.getHikeFileType() == HikeFile.HikeFileType.IMAGE)
+			File receivedFile = hikeFile.getFile();
+
+			FileSavedState fss = FileTransferManager.getInstance(context).getDownloadFileState(convMessage.getMsgID(), hikeFile);
+
+			Logger.d(getClass().getSimpleName(), fss.getFTState().toString());
+
+			if (fss.getFTState() == FileTransferBase.FTState.COMPLETED)
 			{
-				if (fss.getFTState() == FileTransferBase.FTState.ERROR)
-				{
-					sendImageVideoRelatedAnalytic(ChatAnalyticConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.IMAGE, ChatAnalyticConstants.DOWNLOAD_MEDIA);
-				}
+				openFile(hikeFile, convMessage, v);
 			}
-			FileTransferManager.getInstance(context).downloadFile(receivedFile, hikeFile.getFileKey(), convMessage.getMsgID(), hikeFile.getHikeFileType(), convMessage, true,
-					hikeFile);
+			else if (fss.getFTState() == FileTransferBase.FTState.IN_PROGRESS)
+			{
+				FileTransferManager.getInstance(context).pauseTask(convMessage.getMsgID());
+			}
+			else if (fss.getFTState() != FileTransferBase.FTState.INITIALIZED)
+			{
+				if (hikeFile.getHikeFileType() == HikeFile.HikeFileType.VIDEO)
+				{
+					if (fss.getFTState() == FileTransferBase.FTState.NOT_STARTED)
+					{
+						sendImageVideoRelatedAnalytic(ChatAnalyticConstants.VIDEO_RECEIVER_DOWNLOAD_MANUALLY);
+					}
+					else if (fss.getFTState() == FileTransferBase.FTState.ERROR)
+					{
+						sendImageVideoRelatedAnalytic(ChatAnalyticConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.VEDIO, ChatAnalyticConstants.DOWNLOAD_MEDIA);
+					}
+				}
+				else if (hikeFile.getHikeFileType() == HikeFile.HikeFileType.IMAGE)
+				{
+					if (fss.getFTState() == FileTransferBase.FTState.ERROR)
+					{
+						sendImageVideoRelatedAnalytic(ChatAnalyticConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.IMAGE, ChatAnalyticConstants.DOWNLOAD_MEDIA);
+					}
+				}
+				FileTransferManager.getInstance(context).downloadFile(receivedFile, hikeFile.getFileKey(), convMessage.getMsgID(), hikeFile.getHikeFileType(), convMessage, true,
+						hikeFile);
+			}
+			mBaseAdapter.notifyDataSetChanged();
 		}
-		mBaseAdapter.notifyDataSetChanged();
 
 	}
+    private void performCardAction(ConvMessage convMessage, View v){
+		if (convMessage.platformMessageMetadata.cards.get(0).cardAction != null)
+		{
+			final CardComponent.ActionComponent cardAction = convMessage.platformMessageMetadata.cards.get(0).cardAction;
 
+			if (cardAction != null)
+			{
+				try
+				{
+					NativeCardUtils.performAction(context, v, cardAction, convMessage);
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		}
+	}
 	private void openFile(HikeFile hikeFile, ConvMessage convMessage, View parent)
 	{
 		HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_OPENED, hikeFile.getHikeFileType());

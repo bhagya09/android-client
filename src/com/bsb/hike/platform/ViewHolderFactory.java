@@ -52,7 +52,7 @@ public class ViewHolderFactory
 
 		protected void showActionContainer(final View view, final View containerView, final List<CardComponent.ActionComponent> actionComponents)
 		{
-			clearViewHolder(view);
+			clearShareViewHolder(view);
 			final int noOfAction = actionComponents.size();
 			View cta1 = null;
 			View cta2 = null;
@@ -125,7 +125,7 @@ public class ViewHolderFactory
 			actionContainer.setVisibility(View.VISIBLE);
 		}
 
-		public void clearViewHolder(View view)
+		public void clearShareViewHolder(View view)
 		{
 			if (actionContainer != null)
 			{
@@ -202,29 +202,7 @@ public class ViewHolderFactory
 			}
 			cardContainer = view.findViewById(R.id.card_container);
 			showActionContainer(view, cardContainer, actionComponents);
-			final CardComponent.ActionComponent cardAction = convMessage.platformMessageMetadata.cards.get(0).cardAction;
-			if (cardAction != null)
-			{
-				cardContainer.setOnClickListener(new View.OnClickListener()
-				{
-					@Override
-					public void onClick(View v)
-					{
-						try
-						{
-							NativeCardUtils.performAction(mContext, cardContainer, cardAction, convMessage);
-						}
-						catch (JSONException e)
-						{
-							e.printStackTrace();
-						}
-					}
-				});
-			}
-			else
-			{
-				cardContainer.setOnClickListener(null);
-			}
+
 		}
 
 		public void initializeHolderForSender(View view)
@@ -243,7 +221,7 @@ public class ViewHolderFactory
 		}
 
 		public abstract void processViewHolder(View view);
-
+		public void clearViewHolder(View view) {}
 	}
 
 	public class HikeDailyViewHolder extends ViewHolder

@@ -57,7 +57,7 @@
                 android:orientation="vertical"
                 android:tag="m1"
                 android:id="@+id/card_container"
-                android:paddingLeft="0.5dp"
+                android:paddingLeft="1dp"
                 android:paddingRight="1.5dp"
                 android:paddingTop="1dp"
                 >
