@@ -75,7 +75,11 @@ public class CustomKeyboardManager implements ShareablePopup, TextPickerListener
 	 */
 	public void initInputBox(Context context, TextPickerListener textPickerListener, StickerPickerListener stickerPickerListener, String msisdn)
 	{
-		this.textPickerListener = textPickerListener;
+        // Removing listening pubsubs on previous adapter so that gc can remove previous instance
+        if(customKeyboardInputBoxAdapter != null)
+            customKeyboardInputBoxAdapter.releaseResources();
+
+        this.textPickerListener = textPickerListener;
 		this.stickerPickerListener = stickerPickerListener;
 		customKeyboardInputBoxAdapter = new CustomKeyboardInputBoxAdapter(context, textPickerListener, stickerPickerListener);
 

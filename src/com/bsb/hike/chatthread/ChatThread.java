@@ -88,13 +88,13 @@ import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.MsgRelLogManager;
-import com.bsb.hike.chatthemes.ChatThemeManager;
-import com.bsb.hike.chatthemes.CustomBGRecyclingImageView;
-import com.bsb.hike.chatthemes.HikeChatThemeConstants;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.CustomKeyboard;
 import com.bsb.hike.bots.CustomKeyboardManager;
 import com.bsb.hike.bots.TextPickerListener;
+import com.bsb.hike.chatthemes.ChatThemeManager;
+import com.bsb.hike.chatthemes.CustomBGRecyclingImageView;
+import com.bsb.hike.chatthemes.HikeChatThemeConstants;
 import com.bsb.hike.chatthread.ChatThreadActivity.ChatThreadOpenSources;
 import com.bsb.hike.chatthread.HikeActionMode.ActionModeListener;
 import com.bsb.hike.chatthread.KeyboardOffBoarding.KeyboardShutdownListener;
@@ -6707,7 +6707,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	private void dismissInputBox()
 	{
-		mShareablePopupLayout.dismiss();
+		if(mShareablePopupLayout != null)
+            mShareablePopupLayout.dismiss();
 
 		setComposeViewDefaultState();
 
