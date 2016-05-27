@@ -16,16 +16,16 @@ import com.bsb.hike.utils.Logger;
 
 /**
  * @author himanshu
- *         <p>
+ *         <p/>
  *         This class is responsible for recording the activity opening time and dump into Analytics
  */
 public class RecordActivityOpenTime {
     private static final String TAG = "RecordActivityOpenTime";
 
-	private final int MAX_ACTIVITY_OPEN = 1000;
+    private final int MAX_ACTIVITY_OPEN = 1000;
 
-    private final String LATENT_AREA="latarea";
-    
+    private final String LATENT_AREA = "latarea";
+
     private String activity = null;
 
     private long startTime = -1;
@@ -70,10 +70,9 @@ public class RecordActivityOpenTime {
 
         int randomInt = new Random().nextInt(MAX_ACTIVITY_OPEN);
         int maxAllowed = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.PROB_ACTIVITY_OPEN, HikeConstants.DEFAULT_ACTIVITY_OPEN);
-        Logger.d(TAG,"Random Int generated is"+randomInt+"Max Allowed is "+maxAllowed);
+        Logger.d(TAG, "Random Int generated is" + randomInt + "Max Allowed is " + maxAllowed);
 
-        if (randomInt > maxAllowed)
-        {
+        if (randomInt > maxAllowed) {
             return false;
         }
         return true;

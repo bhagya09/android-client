@@ -66,7 +66,7 @@ public class NewUserExperimentFetchTask implements IHikeHTTPTask, IHikeHttpTaskR
     @Override
     public void doOnSuccess(Object result) {
         Logger.d(TAG, "OnSuccess: ");
-        JSONObject requestJson = (JSONObject)result;
+        JSONObject requestJson = (JSONObject) result;
         try {
             ABTest.onRequestReceived(requestJson.getString(HikeConstants.TYPE), requestJson);
         } catch (JSONException e) {
@@ -94,7 +94,7 @@ public class NewUserExperimentFetchTask implements IHikeHTTPTask, IHikeHttpTaskR
             }
 
             @Override
-            public void onRequestProgressUpdate(float progress){
+            public void onRequestProgressUpdate(float progress) {
             }
 
             @Override
@@ -105,6 +105,7 @@ public class NewUserExperimentFetchTask implements IHikeHTTPTask, IHikeHttpTaskR
 
         return requestListener;
     }
+
     public JSONObject getRequest() throws JSONException {
         Context context = HikeMessengerApp.getInstance().getApplicationContext();
         SharedPreferences settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);

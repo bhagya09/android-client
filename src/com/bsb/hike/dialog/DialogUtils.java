@@ -1,11 +1,5 @@
 package com.bsb.hike.dialog;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Context;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
@@ -17,11 +11,18 @@ import com.bsb.hike.HikeConstants.SMSSyncState;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.ComposeChatAdapter;
+import com.bsb.hike.dialog.CustomAlertRadioButtonCheckboxDialog.CheckBoxPojo;
 import com.bsb.hike.dialog.CustomAlertRadioButtonDialog.RadioButtonPojo;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DialogUtils
 {
@@ -155,7 +156,29 @@ public class DialogUtils
 		dialog.mProgressIndeterminate.setVisibility(syncConfirmation ? View.GONE : View.VISIBLE);
 		dialog.setMessage(syncConfirmation ? R.string.import_sms_info : R.string.importing_sms_info);
 	}
-	
+
+	protected static List<RadioButtonPojo> getMuteDurationOptions(Context context)
+	{
+		RadioButtonPojo eight_hours, one_week, one_year;
+
+		eight_hours = new RadioButtonPojo(R.string.mute_chat_eight_hrs, true, "", context.getString(R.string.mute_chat_eight_hrs), "");
+		one_week = new RadioButtonPojo(R.string.mute_chat_one_week, false, "", context.getString(R.string.mute_chat_one_week), "");
+		one_year = new RadioButtonPojo(R.string.mute_chat_one_yr, false, "", context.getString(R.string.mute_chat_one_yr), "");
+
+		List<RadioButtonPojo> list = new ArrayList<>(3);
+		list.add(eight_hours);
+		list.add(one_week);
+		list.add(one_year);
+
+		return list;
+	}
+
+	protected static CheckBoxPojo showNotificationCheckBox(Context context)
+	{
+		CheckBoxPojo showNotifications = new CheckBoxPojo(R.string.show_notif, true, context.getString(R.string.show_notif));
+		return showNotifications;
+	}
+
 	protected static List<RadioButtonPojo> getImageQualityOptions(Context ctx, Object... data)
 	{
 		int quality = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DEFAULT_IMG_QUALITY_FOR_SMO, ImageQuality.QUALITY_DEFAULT);

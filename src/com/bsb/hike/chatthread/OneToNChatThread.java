@@ -91,24 +91,6 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 		// TODO implement me
 	}
 
-	/**
-	 * Returns whether the group is mute or not
-	 * 
-	 * @return
-	 */
-	protected boolean isMuted()
-	{
-		/**
-		 * Defensive check
-		 */
-
-		if (oneToNConversation == null)
-		{
-			return false;
-		}
-		return oneToNConversation.isMuted();
-	}
-
 	@Override
 	public void itemClicked(OverFlowMenuItem item)
 	{
@@ -654,14 +636,6 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 		return oneToNConversation.getConversationParticipantName(oneToNConversation.getConversationOwner());
 	}
 
-	@Override
-	protected void updateNetworkState()
-	{
-		super.updateNetworkState();
-		boolean networkError = ChatThreadUtils.checkNetworkError();
-		toggleConversationMuteViewVisibility(networkError ? false : oneToNConversation.isMuted());
-	}
-	
 	@Override
 	protected boolean shouldShowKeyboard()
 	{

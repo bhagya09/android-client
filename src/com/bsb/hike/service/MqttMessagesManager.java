@@ -954,14 +954,7 @@ public class MqttMessagesManager
 					if (activeStealthChat || stealthNotifPref || !StealthModeManager.getInstance().isStealthMsisdn(msisdn))
 					{
 
-						if (OneToNConversationUtils.isGroupConversation(msisdn))
-						{
-							if (!HikeConversationsDatabase.getInstance().isGroupMuted(msisdn))
-							{
-								vibrate = true;
-							}
-						}
-						else
+						if (!ContactManager.getInstance().isChatMuted(msisdn))
 						{
 							vibrate = true;
 						}
@@ -2358,6 +2351,18 @@ public class MqttMessagesManager
 		{
 			boolean showExitUI = data.getBoolean(HikeConstants.KPT_EXIT_SERVER_SWITCH);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.KPT_EXIT_SERVER_SWITCH, showExitUI);
+		}
+
+		if (data.has(HikeConstants.MUTE_GC_SERVER_SWITCH))
+		{
+			boolean muteGCapproach = data.getBoolean(HikeConstants.MUTE_GC_SERVER_SWITCH);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MUTE_GC_SERVER_SWITCH, muteGCapproach);
+		}
+
+		if (data.has(HikeConstants.MUTE_ONE_TO_ONE_SERVER_SWITCH))
+		{
+			boolean muteApproach = data.getBoolean(HikeConstants.MUTE_ONE_TO_ONE_SERVER_SWITCH);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MUTE_ONE_TO_ONE_SERVER_SWITCH, muteApproach);
 		}
 
 		if (data.has(HikeConstants.KPT_EXIT_SERVER_TEXT))
@@ -4285,7 +4290,7 @@ public class MqttMessagesManager
 
 						Utils.rearrangeChat(destination, rearrangeChat, updateUnreadCount);
 
-						if (!Utils.isConversationMuted(destination) && data.optBoolean(HikeConstants.PUSH, true))
+						if (!ContactManager.getInstance().isChatMuted(destination) && data.optBoolean(HikeConstants.PUSH, true))
 						{
 
 							if(data.has(HikePlatformConstants.HIKE_AFFINITY) && !data.optBoolean(HikePlatformConstants.HIKE_AFFINITY))
@@ -4324,7 +4329,7 @@ public class MqttMessagesManager
 
 							if (convDb.isContentMessageExist(destination, contentId, nameSpace))
 							{
-								if (!Utils.isConversationMuted(destination))
+								if (!ContactManager.getInstance().isChatMuted(destination))
 								{
 									Utils.rearrangeChat(destination, rearrangeChat, updateUnreadCount);
 								}

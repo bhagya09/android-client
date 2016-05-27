@@ -176,7 +176,16 @@ public class UpgradeIntentService extends IntentService
 		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PRIVACY_SETTINGS_LAST_SEEN_UPGRADE, false))
 		{
 			upgradeForLastSeenPrivacySettingsChange();
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.PRIVACY_SETTINGS_LAST_SEEN_UPGRADE, true);
+			HikeSharedPreferenceUtil.getInstance()
+					.saveData(HikeMessengerApp.PRIVACY_SETTINGS_LAST_SEEN_UPGRADE, true);
+		}
+
+		if (prefs.getInt(HikeConstants.CHAT_BG_TABLE_MIGRATION, 0) == 0) {
+			migrateChatBgTableData();
+			migrateMuteData();
+			Editor editor = prefs.edit();
+			editor.putInt(HikeConstants.CHAT_BG_TABLE_MIGRATION, 1);
+			editor.commit();
 		}
 
 		// Set block notifications as false in shared preference i.e allow notifications to occur once Upgrade intent completes
@@ -189,11 +198,21 @@ public class UpgradeIntentService extends IntentService
 
 		Utils.connectToGcmPreSignup();
 
-		}
+	}
 
 	public UpgradeIntentService()
 	{
 		super(TAG);
+	}
+
+	private void migrateChatBgTableData()
+	{
+		HikeConversationsDatabase.getInstance().migrateChatBgTableData();
+	}
+
+	private void migrateMuteData()
+	{
+		HikeConversationsDatabase.getInstance().migrateMuteData();
 	}
 
 	private void initialiseSharedMediaAndFileThumbnailTable()
