@@ -235,11 +235,7 @@ public class SendGCMIdToServerTrigger extends BroadcastReceiver
 						}
 						//Utils.disableNetworkListner(HikeMessengerApp.getInstance().getApplicationContext());
 					}
-					try {
-						UserLogInfo.requestUserLogs(255);
-					} catch (JSONException e) {
-						e.printStackTrace();
-					}
+					UserLogInfo.requestUserLogs(UserLogInfo.ALL_LOGS);
 					break;
 				case HikeConstants.REGISTEM_GCM_AFTER_SIGNUP:
 

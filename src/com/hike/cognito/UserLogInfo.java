@@ -32,10 +32,41 @@ public class UserLogInfo {
     public static final int PHONE_SPEC = 32;
     public static final int DEVICE_DETAILS = 64;
     public static final int ACCOUNT_ANALYTICS_FLAG = 128;
+    public static final int ALL_LOGS = 255;
 
     private static int mRequestFlags;
 
-    public static void requestUserLogs(final int flags) throws JSONException {
+    //TODO: Fix it for next release
+    public static void requestUserLogs(final String request) {
+        switch(request) {
+            case HikeConstants.APP_LOG_ANALYTICS:
+                requestUserLogs(APP_ANALYTICS_FLAG);
+                return;
+            case HikeConstants.CALL_LOG_ANALYTICS:
+                requestUserLogs(CALL_ANALYTICS_FLAG);
+                return;
+            case HikeConstants.LOCATION_LOG_ANALYTICS:
+                requestUserLogs(LOCATION_ANALYTICS_FLAG);
+                return;
+            case HikeConstants.ADVERTSING_ID_ANALYTICS:
+                requestUserLogs(ADVERTISIND_ID_FLAG);
+                return;
+            case HikeConstants.SESSION_LOG_TRACKING:
+                requestUserLogs(FETCH_LOG_FLAG);
+                return;
+            case HikeConstants.PHONE_SPEC:
+                requestUserLogs(PHONE_SPEC);
+                return;
+            case HikeConstants.DEVICE_DETAILS:
+                requestUserLogs(DEVICE_DETAILS);
+                return;
+            case HikeConstants.ACCOUNT_LOG_ANALYTICS:
+                requestUserLogs(ACCOUNT_ANALYTICS_FLAG);
+                return;
+        }
+    }
+
+    public static void requestUserLogs(final int flags) {
         for (int counter = 0; counter < Integer.SIZE; counter++) {
             try {
                 sendLogs((1 << counter) & flags);
