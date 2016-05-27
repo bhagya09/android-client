@@ -48,7 +48,9 @@ import com.bsb.hike.modules.stickerdownloadmgr.MultiStickerImageDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.MultiStickerQuickSuggestionDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerQuickSuggestionDownloadTask;
+import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerTagDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerCategoryDataUpdateTask;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerCategoryDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
@@ -1700,20 +1702,31 @@ public class StickerManager
 
 	public void initiateSingleStickerDownloadTask(String stickerId, String categoryId, ConvMessage convMessage)
 	{
-		SingleStickerDownloadTask singleStickerDownloadTask = new SingleStickerDownloadTask(stickerId, categoryId, convMessage, HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SINGLE_STICKER_CDN, true));
+		initiateSingleStickerDownloadTask(stickerId, categoryId, convMessage, false);
+	}
+
+	public void initiateSingleStickerDownloadTask(String stickerId, String categoryId, ConvMessage convMessage, boolean isMini)
+	{
+		SingleStickerDownloadTask singleStickerDownloadTask = new SingleStickerDownloadTask(stickerId, categoryId, convMessage, isMini);
 		singleStickerDownloadTask.execute();
 	}
 
-	public void initiateMiniStickerDownloadTask(String stickerId,String categoryId)
+	public void initiateSingleStickerTagDownloadTask(String stickerId, String categoryId)
 	{
-		SingleStickerDownloadTask singleStickerDownloadTask = new SingleStickerDownloadTask(stickerId, categoryId, null,true,true);
-		singleStickerDownloadTask.execute();
+		SingleStickerTagDownloadTask singleStickerTagDownloadTask = new SingleStickerTagDownloadTask(stickerId, categoryId);
+		singleStickerTagDownloadTask.execute();
 	}
 
 	public void initialiseDownloadStickerPackTask(StickerCategory category, JSONObject bodyJson)
 	{
 		DownloadType downloadType = category.isUpdateAvailable() ? DownloadType.UPDATE : DownloadType.MORE_STICKERS;
 		initialiseDownloadStickerPackTask(category, downloadType, bodyJson);
+	}
+
+	public void initialiseCategoryDetailsTask(String categoryId)
+	{
+		StickerCategoryDownloadTask stickerCategoryDownloadTask = new StickerCategoryDownloadTask(categoryId);
+		stickerCategoryDownloadTask.execute();
 	}
 
 	public void initialiseDownloadStickerPackTask(StickerCategory category, DownloadType downloadType, JSONObject bodyJson)
