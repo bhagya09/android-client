@@ -1620,4 +1620,6 @@
     <string name="single_bday_notif_subtext"> Tap here to wish your friend a Happy Birthday!</string>
     <string name="multiple_bday_notif_subtext">Tap here to wish them a Happy Birthday!</string>
     <string name="unread_all">Unread all</string>
+    <string name="timeline_sub_new_updt">New updates available</string>
+    <string name="timeline_sub_likes">%1$d new likes</string>
 </resources>
