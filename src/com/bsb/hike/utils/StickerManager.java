@@ -573,7 +573,14 @@ public class StickerManager
 			}
 			else if (directory.isDirectory())
 			{
-				for (File file : directory.listFiles())
+				File[] files = directory.listFiles();
+
+				if(files == null)
+				{
+					return ;
+				}
+
+				for (File file : files)
 				{
 					addNoMedia(file);
 				}
@@ -1042,7 +1049,14 @@ public class StickerManager
 
 		Map<String, StickerCategory> stickerToCategoryMap = new HashMap<String, StickerCategory>();
 
-		for (File stickerCategoryDirectory : stickerRootDirectory.listFiles())
+		File[] stickerRootFiles = stickerRootDirectory.listFiles();
+
+		if (stickerRootFiles == null)
+		{
+			return null;
+		}
+
+		for (File stickerCategoryDirectory : stickerRootFiles)
 		{
 			/*
 			 * If this is not a directory we have no need for this file.
@@ -1066,7 +1080,14 @@ public class StickerManager
 			{
 				stickerCategory = new StickerCategory.Builder().setCategoryId(stickerCategoryDirectory.getName()).build();
 			}
-			for (File stickerFile : stickerCategorySmallDirectory.listFiles())
+			File[] smallDirFiles = stickerCategorySmallDirectory.listFiles();
+
+			if (smallDirFiles == null)
+			{
+				continue;
+			}
+
+			for (File stickerFile : smallDirFiles)
 			{
 				stickerToCategoryMap.put(stickerFile.getName(), stickerCategory);
 			}
