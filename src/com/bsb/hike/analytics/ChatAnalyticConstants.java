@@ -52,9 +52,9 @@ public class ChatAnalyticConstants {
 
     public static final String CUSTOM_THEME_ENABLE = "ctEnable";
 
-    public static final String VAL_STR = "val_str";
-
     public static final String CUSTOM_THEME_DONE = "ctDone";
+
+    public static final String REC_ID = "rec_id";
 
     public static final class GCEvents
     {

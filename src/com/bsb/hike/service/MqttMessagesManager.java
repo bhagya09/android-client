@@ -581,7 +581,7 @@ public class MqttMessagesManager
 					{
 						//throw new IllegalArgumentException();
 						//putting request to download the asset ids for the theme
-						ChatThemeManager.getInstance().downloadThemeAssetsMetadata(bgId, groupId, true);
+						ChatThemeManager.getInstance().downloadThemeAssetsMetadata(bgId, groupId, groupId, true);
 					}
 
 					String chatThemeId = bgId;
@@ -3994,7 +3994,7 @@ public class MqttMessagesManager
 			if (data.optBoolean(HikeConstants.CUSTOM)) {
 				//throw new IllegalArgumentException();
 				//putting a request to downlaod the asset ids for the theme
-				ChatThemeManager.getInstance().downloadThemeAssetsMetadata(bgId, id, true);
+				ChatThemeManager.getInstance().downloadThemeAssetsMetadata(bgId, id, null, true);
 			}else {
 				String chatThemeId = bgId;
 				this.pubSub.publish(HikePubSub.CHAT_BACKGROUND_CHANGED, new Pair<String, String>(id, bgId));

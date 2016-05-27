@@ -6,7 +6,6 @@ import android.graphics.drawable.Drawable;
 import android.media.ThumbnailUtils;
 import android.util.Log;
 
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -14,11 +13,11 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.chatthread.ChatThread;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.HikeChatTheme;
 import com.bsb.hike.models.HikeChatThemeAsset;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -352,11 +351,11 @@ public class ChatThemeManager {
         return mDrawableHelper.getDrawableForTheme(getTheme(themeId), assetIndex);
     }
 
-    public void downloadThemeAssetsMetadata(String themeId, String msisdn, boolean isCustom) {
+    public void downloadThemeAssetsMetadata(String themeId, String toUser, String groupId, boolean isCustom) {
         // Automatically enabling the Chatthemes for the receiver, though the packet is not enabled from server. This will help to organically grow chat themes
         // https://hikeapp.atlassian.net/browse/CE-764
         if(isCustom && !ChatThreadUtils.isCustomChatThemeEnabled()){
-            postAnalyticOrganicCTPacket(themeId, msisdn);
+            HikeAnalyticsEvent.recordAnalyticOrganicCTPacket(themeId, toUser, groupId);
             HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CUSTOM_CHATTHEME_ENABLED, true);
         }
 
@@ -414,22 +413,5 @@ public class ChatThemeManager {
         return R.drawable.bg_system_message_dark;
     }
 
-    private void postAnalyticOrganicCTPacket(String themeID, String msisdn) {
-        try
-        {
-            JSONObject metadata = new JSONObject();
-            metadata.put(AnalyticsConstants.V2.KINGDOM, ChatAnalyticConstants.ACT_CORE_LOGS);
-            metadata.put(AnalyticsConstants.V2.UNIQUE_KEY, ChatAnalyticConstants.CUSTOM_THEME_ENABLE);
-            metadata.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.NON_UI_EVENT);
-            metadata.put(AnalyticsConstants.V2.ORDER, ChatAnalyticConstants.CUSTOM_THEME_ENABLE);
-            metadata.put(AnalyticsConstants.V2.ORDER, ChatAnalyticConstants.CUSTOM_THEME_ENABLE);
-            metadata.put(AnalyticsConstants.V2.VAL_STR, themeID);
-            metadata.put(AnalyticsConstants.V2.SPECIES, ChatThreadUtils.getChatThreadType(msisdn));
-            metadata.put(AnalyticsConstants.TO_USER, msisdn);
-            HAManager.getInstance().recordV2(metadata);
-        } catch (JSONException e)
-        {
-            Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-        }
-    }
+
 }

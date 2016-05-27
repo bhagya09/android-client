@@ -1159,7 +1159,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 							FileTransferManager.getInstance(activity).uploadCustomThemeBackgroundImage(ChatThemeManager.getInstance().customThemeTempUploadImagePath);
 						}
 						uiHandler.sendEmptyMessageDelayed(SET_CUSTOM_THEME_BACKGROUND, 1000);
-						postTrialsCTDone();
 						if (themePicker != null && themePicker.isShowing()) {
 							themePicker.dismiss();
 						}
@@ -1746,7 +1745,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			CropCompression compression = new CropCompression().maxWidth(width).maxHeight(height).quality(100);
 			Intent imageChooserIntent = IntentFactory.getImageChooserIntent(activity, galleryFlags, ChatThemeManager.getInstance().customThemeTempUploadImagePath, compression, true, width, height);
 			activity.startActivityForResult(imageChooserIntent, HikeConstants.ResultCodes.CHATTHEME_GALLERY_REQUEST_CODE);
-			postTrialsCameraClick();
+			HikeAnalyticsEvent.recordTrialsCameraClick(msisdn, mConversation.isStealth());
 			if (themePicker != null && themePicker.isShowing()) {
 				themePicker.dismiss();
 			}
@@ -6630,6 +6629,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	public void updateCustomChatTheme(Object data) {
 		String themeId = (String) data;
+		HikeAnalyticsEvent.recordTrialsCTDone(msisdn, themeId, mConversation.isStealth());
 		sendUIMessage(CHAT_THEME, themeId);
 		sendUIMessage(SEND_CUSTOM_THEME_MESSAGE, null);
 	}
@@ -6637,48 +6637,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	public void customThemeErrorNotifier(String errorType) {
 		if(HikeConstants.CUSTOM_ERROR_DEVICE_NOT_SUPPORTED.equalsIgnoreCase(errorType)){
 			Toast.makeText(activity.getApplicationContext(), activity.getResources().getString(R.string.custom_chattheme_device_not_supported), Toast.LENGTH_LONG).show();
-		}
-	}
-
-	private void postTrialsCameraClick(){
-		try
-		{
-			JSONObject metadata = new JSONObject();
-			metadata.put(AnalyticsConstants.V2.KINGDOM, ChatAnalyticConstants.ACT_CORE_LOGS);
-			metadata.put(AnalyticsConstants.V2.UNIQUE_KEY, ChatAnalyticConstants.CUSTOM_THEME_CAMERA_UK);
-			metadata.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
-			metadata.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
-			metadata.put(AnalyticsConstants.V2.ORDER, ChatAnalyticConstants.CUSTOM_THEME_CAMERA_UK);
-			metadata.put(AnalyticsConstants.V2.SPECIES, ChatThreadUtils.getChatThreadType(msisdn));
-			metadata.put(AnalyticsConstants.TO_USER, msisdn);
-			if (mConversation.isStealth()) {
-				metadata.put(AnalyticsConstants.V2.VARIETY, ChatAnalyticConstants.STEALTH_CHAT_THREAD);
-			}
-			HAManager.getInstance().recordV2(metadata);
-		} catch (JSONException e)
-		{
-			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-		}
-	}
-
-	private void postTrialsCTDone(){
-		try
-		{
-			JSONObject metadata = new JSONObject();
-			metadata.put(AnalyticsConstants.V2.KINGDOM, ChatAnalyticConstants.ACT_CORE_LOGS);
-			metadata.put(AnalyticsConstants.V2.UNIQUE_KEY, ChatAnalyticConstants.CUSTOM_THEME_DONE);
-			metadata.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
-			metadata.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
-			metadata.put(AnalyticsConstants.V2.ORDER, ChatAnalyticConstants.CUSTOM_THEME_DONE);
-			metadata.put(AnalyticsConstants.V2.SPECIES, ChatThreadUtils.getChatThreadType(msisdn));
-			metadata.put(AnalyticsConstants.TO_USER, msisdn);
-			if (mConversation.isStealth()) {
-				metadata.put(AnalyticsConstants.V2.VARIETY, ChatAnalyticConstants.STEALTH_CHAT_THREAD);
-			}
-			HAManager.getInstance().recordV2(metadata);
-		} catch (JSONException e)
-		{
-			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 		}
 	}
 
