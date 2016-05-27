@@ -235,6 +235,7 @@ public class BotsStickerAdapter extends BaseAdapter implements View.OnClickListe
 		case StickerPageAdapterItem.STICKER:
 			Sticker sticker = item.getSticker();
 			String source = StickerManager.FROM_OTHER;
+            unregisterListeners();
 			mStickerPickerListener.stickerSelected(sticker, source);
 			break;
 		default:
@@ -272,7 +273,8 @@ public class BotsStickerAdapter extends BaseAdapter implements View.OnClickListe
 	 */
 	public void unregisterListeners()
 	{
-		HikeMessengerApp.getPubSub().removeListeners(this, pubSubListeners);
+		Logger.d(getClass().getSimpleName(),"unregisterListeners");
+        HikeMessengerApp.getPubSub().removeListeners(this, pubSubListeners);
 	}
 
 	@Override
