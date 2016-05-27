@@ -21,6 +21,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.media.ImageParser;
+import com.bsb.hike.modules.contactmgr.HikeUserDatabase;
 import com.bsb.hike.timeline.adapter.StoryListAdapter;
 import com.bsb.hike.timeline.model.StoryItem;
 import com.bsb.hike.ui.GalleryActivity;
@@ -35,7 +36,7 @@ import java.util.List;
  * <p/>
  * Created by AtulM on 24/05/16.
  */
-public class StoryFragment extends Fragment {
+public class StoryFragment extends Fragment implements View.OnClickListener {
     private View fragmentView;
 
     private ListView listViewStories;
@@ -45,6 +46,10 @@ public class StoryFragment extends Fragment {
     private StoryListAdapter storyAdapter;
 
     private String mGenus;
+
+    private View emptyStateView;
+
+    private View btnAddFriends;
 
     public static StoryFragment newInstance(@Nullable Bundle argBundle) {
         StoryFragment fragmentInstance = new StoryFragment();
@@ -64,6 +69,8 @@ public class StoryFragment extends Fragment {
 
         // Get view references
         listViewStories = (ListView) fragmentView.findViewById(R.id.list_view_story);
+        emptyStateView = fragmentView.findViewById(R.id.empty_view);
+        btnAddFriends = fragmentView.findViewById(R.id.btn_add_friends);
 
         return fragmentView;
     }
@@ -71,6 +78,20 @@ public class StoryFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+
+        // Check if user has any friends
+        if (HikeUserDatabase.getInstance().isTwoWayFriendsPresent()) {
+            bindStoryFragmentList();
+        } else {
+            //Show empty state
+            bindEmptyStateView();
+        }
+    }
+
+    private void bindStoryFragmentList() {
+        listViewStories.setVisibility(View.VISIBLE);
+        emptyStateView.setVisibility(View.GONE);
 
         // Manually add "Timeline" as first option in list
         StoryItem timelineItem = new StoryItem(StoryItem.TYPE_INTENT, getString(R.string.timeline));
@@ -108,6 +129,12 @@ public class StoryFragment extends Fragment {
                 }
             }
         });
+    }
+
+    private void bindEmptyStateView() {
+        listViewStories.setVisibility(View.GONE);
+        emptyStateView.setVisibility(View.VISIBLE);
+        btnAddFriends.setOnClickListener(this);
     }
 
     @Override
@@ -163,6 +190,15 @@ public class StoryFragment extends Fragment {
                 break;
 
             default:
+                break;
+        }
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.btn_add_friends:
+                // TODO Open add friends screen
                 break;
         }
     }

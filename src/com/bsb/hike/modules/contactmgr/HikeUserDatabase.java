@@ -1112,6 +1112,23 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 
 	}
 
+	public boolean isTwoWayFriendsPresent() {
+		Cursor c = null;
+		try {
+			String selection = DBConstants.FAVORITE_TYPE + " = ?";
+			c = mReadDb.query(DBConstants.USERS_TABLE, new String[]{DBConstants.MSISDN, DBConstants.FAVORITE_TYPE}, selection, new String[]{String.valueOf(FavoriteType.FRIEND.ordinal())}, null, null, null);
+			if (c != null && c.getCount() > 0) {
+				return true;
+			}
+		} finally {
+			if (c != null) {
+				c.close();
+			}
+		}
+
+		return false;
+	}
+
 	public Map<String, FavoriteType> getFavoriteMap(String msisdns)
 	{
 		Cursor c = null;
