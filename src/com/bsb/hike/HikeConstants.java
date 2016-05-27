@@ -4401,4 +4401,7 @@ public class HikeConstants
 	public static final String TEXT = "txt";
 
 	public static final String TEXT_COLOR = "txtc";
+
+    public static final String DOWNLOAD_TYPE = "t_dwnld";
+
 }
