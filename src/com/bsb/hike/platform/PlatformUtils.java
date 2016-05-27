@@ -555,7 +555,7 @@ public class PlatformUtils
 		String callbackId = null;
 		String assocCbot = "";
 
-		downloadAndUnzip(rqst, isTemplatingEnabled, doReplace, callbackId, resumeSupport, assocCbot,autoResume);
+		downloadAndUnzip(rqst, isTemplatingEnabled, doReplace, callbackId, resumeSupport, assocCbot,autoResume,assocMappJson.optInt(HikePlatformConstants.TAG_ID,-1),assocMappJson.optInt(HikePlatformConstants.TAG_TYPE,-1));
 	}
 
     /**
@@ -708,7 +708,7 @@ public class PlatformUtils
 		rqst.getContentData().setBotType(botInfo.getBotType());
 		rqst.getContentData().setMsisdn(botInfo.getMsisdn());
 
-		downloadAndUnzip(rqst, false, botMetadata.shouldReplace(), botMetadata.getCallbackId(), resumeSupport, "", autoResume);
+		downloadAndUnzip(rqst, false, botMetadata.shouldReplace(), botMetadata.getCallbackId(), resumeSupport, "", autoResume,botMetadata.getTagId(),botMetadata.getTagType());
 	}
     
 
@@ -936,6 +936,8 @@ public class PlatformUtils
 		boolean resumeSupported = downloadData.optBoolean(HikePlatformConstants.RESUME_SUPPORTED);
 		String assoc_cbot = downloadData.optString(HikePlatformConstants.ASSOCIATE_CBOT, "");
 		int prefNetwork = downloadData.optInt(HikePlatformConstants.PREF_NETWORK, Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK));
+		int tagId = downloadData.optInt(HikePlatformConstants.TAG_ID,-1);
+		int tagType = downloadData.optInt(HikePlatformConstants.TAG_TYPE,-1);
 		if (autoResume)
 		{
 			resumeSupported = true;
@@ -946,7 +948,7 @@ public class PlatformUtils
 		{
 			return;    // Do not download if current network is below preferred network.
 		}
-		downloadAndUnzip(rqst, false, doReplace, callbackId, resumeSupported, assoc_cbot, autoResume);
+		downloadAndUnzip(rqst, false, doReplace, callbackId, resumeSupported, assoc_cbot, autoResume,tagId,tagType);
 	}
 
 	private static void microappDownloadAnalytics(String key, PlatformContentModel content)
@@ -1001,7 +1003,7 @@ public class PlatformUtils
 		}
 	}
 
-	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId, boolean resumeSupported, String assocCbot,boolean autoResume)
+	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId, boolean resumeSupported, String assocCbot,boolean autoResume,int tagId,int tagType)
 	{
         // Parameters to call if micro app already exists method and stop the micro app downloading flow in this case
         String mAppName = request.getContentData().cardObj.getAppName();
@@ -1029,7 +1031,7 @@ public class PlatformUtils
         if (!isMicroAppExist)
 		{
             PlatformZipDownloader downloader = new PlatformZipDownloader.Builder().setArgRequest(request).setIsTemplatingEnabled(isTemplatingEnabled)
-                    .setCallbackId(callbackId).setResumeSupported(resumeSupported).setAssocCbotMsisdn(assocCbot).setAutoResume(autoResume).createPlatformZipDownloader();
+					.setCallbackId(callbackId).setResumeSupported(resumeSupported).setAssocCbotMsisdn(assocCbot).setAutoResume(autoResume).setTagId(tagId).setTagType(tagType).createPlatformZipDownloader();
             downloader.downloadAndUnzip();
 		}
 		else

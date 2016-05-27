@@ -118,7 +118,9 @@ public interface HikePlatformConstants
 	String CLUB_BY_MSISDN="clubbymsisdn";
 	public static final String CUSTOM_TABS="customTabs";
 	public static final String NEW_AUTH_ENABLE="newAuthEnable";
-	
+	String TAG_TYPE = "tag_type";
+	String TAG_ID = "tag_id";
+
 	public static final class AuthConstants
 	{
 		public static final String AUTH_TEST_CLIENT_PACKAGE_NAME = "test_package_name";
