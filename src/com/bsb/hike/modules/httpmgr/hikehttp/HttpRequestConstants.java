@@ -705,4 +705,13 @@ public class HttpRequestConstants
 	{
 		return editDOBBaseUrl() + PREF_PATH;
 	}
+
+	public static String getBotSubscribeUrl()
+	{
+		String suffix = "subscription/api" + BASE_V3 +"/microapps/subscribe.json";
+		if (isProduction)
+			return HTTP + "subscription.platform.hike.in/" + suffix;
+		else
+			return HTTP + "qa-content.hike.in/" + suffix;
+	}
 }

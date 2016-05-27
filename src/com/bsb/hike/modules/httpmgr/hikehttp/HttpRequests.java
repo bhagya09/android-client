@@ -1666,4 +1666,26 @@ public class HttpRequests
 				.build();
 		return requestToken;
 	}
+
+	public static RequestToken microAppSubscribeRequest(String url, JSONObject json, IRequestListener requestListener)
+	{
+		if(json==null)
+		{
+			return null;
+		}
+		else
+		{
+			JsonBody body = new JsonBody(json);
+			RequestToken requestToken = new StringRequest.Builder()
+					.setUrl(url)
+					.setRequestType(Request.REQUEST_TYPE_SHORT)
+					.addHeader(PlatformUtils.getHeaders())
+					.setRequestListener(requestListener)
+					.post(body)
+					.build();
+
+			return requestToken;
+		}
+
+	}
 }
