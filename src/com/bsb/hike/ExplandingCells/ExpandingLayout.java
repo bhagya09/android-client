@@ -18,7 +18,7 @@ package com.bsb.hike.ExplandingCells;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.widget.RelativeLayout;
+import android.widget.LinearLayout;
 
 /**
  * Referenced from : https://www.youtube.com/watch?v=mwE61B56pVQ
@@ -36,7 +36,7 @@ import android.widget.RelativeLayout;
  * setting the height back to its max height, it is still visible during the collapse
  * animation, and so, a fade out effect can be achieved.
  */
-public class ExpandingLayout extends RelativeLayout {
+public class ExpandingLayout extends LinearLayout {
 
 
     private OnSizeChangedListener mSizeChangedListener;
