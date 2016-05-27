@@ -33,21 +33,31 @@ public class NativeCardManager
 		{
 			return templateId;
 		}
+
+		public static NativeCardType getTypeByTemplateId(int templateId){
+			if(templateId == HIKE_DAILY.templateId){
+				return HIKE_DAILY;
+			}else if(templateId == JFL.templateId){
+				return JFL;
+			}else{
+				return IMAGE_CARD;
+			}
+		}
 	}
 
 	public static View getInflatedViewAsPerType(Context context, final int cardType, ViewGroup parent, boolean isSent)
 	{
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-		if (cardType == NativeCardType.HIKE_DAILY.getTemplateId())
+		if (cardType == NativeCardType.HIKE_DAILY.templateId)
 		{
 			return isSent ? inflater.inflate(NativeCardType.HIKE_DAILY.sentLayoutId, parent, false) : inflater.inflate(NativeCardType.HIKE_DAILY.layoutId, parent, false);
 		}
-		else if (cardType == NativeCardType.JFL.getTemplateId())
+		else if (cardType == NativeCardType.JFL.templateId)
 		{
 			return isSent ? inflater.inflate(NativeCardType.JFL.sentLayoutId, parent, false) : inflater.inflate(NativeCardType.JFL.layoutId, parent, false);
 		}
-		else if (cardType == NativeCardType.IMAGE_CARD.getTemplateId())
+		else if (cardType == NativeCardType.IMAGE_CARD.templateId)
 		{
 			return isSent ? inflater.inflate(NativeCardType.IMAGE_CARD.sentLayoutId, parent, false) : inflater.inflate(NativeCardType.IMAGE_CARD.layoutId, parent, false);
 		}

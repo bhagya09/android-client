@@ -5738,10 +5738,9 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 							if (message.platformMessageMetadata != null)
 							{
 								multiMsgFwdObject.put(HikeConstants.METADATA, message.platformMessageMetadata.JSONtoString());
-								if (message.contentLove != null)
-								{
-									multiMsgFwdObject.put(HikeConstants.ConvMessagePacketKeys.LOVE_ID, message.contentLove.loveId);
-								}
+								multiMsgFwdObject.put(HikeConstants.HIKE_MESSAGE, message.getMessage());
+								intent.putExtra(HikeConstants.Extras.BYPASS_GALLERY, true);
+								intent.putExtra(AnalyticsConstants.NATIVE_CARD_FORWARD, message.platformMessageMetadata.contentId);
 							}
 						}
 
