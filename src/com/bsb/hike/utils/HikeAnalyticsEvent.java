@@ -10,6 +10,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HomeAnalyticsConstants;
+import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.content.PlatformContent;
@@ -318,6 +319,28 @@ public class HikeAnalyticsEvent
 		{
 			e.toString();
 			return null;
+		}
+	}
+
+	public static void recordAnalyticsForMuteCancel(String msisdn)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, ChatAnalyticConstants.MUTE_CANCEL_UK);
+			json.put(AnalyticsConstants.V2.KINGDOM, ChatAnalyticConstants.ACT_CORE_LOGS);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, ChatAnalyticConstants.MUTE_CANCEL_UK);
+			json.put(AnalyticsConstants.V2.SPECIES, ChatThreadUtils.getChatThreadType(msisdn));
+			json.put(AnalyticsConstants.V2.VARIETY, StealthModeManager.getInstance().isStealthMsisdn(msisdn) ? ChatAnalyticConstants.STEALTH_CHAT_THREAD : "");
+			json.put(AnalyticsConstants.V2.TO_USER, msisdn);
+
+			HAManager.getInstance().recordV2(json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
 		}
 	}
 }

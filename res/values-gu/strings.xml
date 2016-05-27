@@ -689,7 +689,7 @@
     <string name="update_all">બધું અપડેટ કરો</string>
     <string name="RETRY">ફરી પ્રયત્ન કરો</string>
     <string name="see_them">થઈ ગયું છે</string>
-    <string name="CANCEL">કૅન્સલ કરો</string>
+    <string name="CANCEL">રદ કરો</string>
     <string name="n_more">%1$d વધુ</string>
     <string name="n_stickers">%1$d સ્ટીકરો</string>
     <string name="last_backup">છેલ્લું બૅકઅપ</string>
@@ -1427,6 +1427,14 @@
     <string name="recording_help_text">રેકોર્ડ કરવા માટે ટેપ અને હોલ્ડ કરો, મોકલવા માટે છોડો</string>
     <string name="max_duration_recorded">મહત્તમ સમયગાળા માટે રેકોર્ડિંગ પૂર્ણ</string>
     <string name="stream_volume_muted_or_low">કૃપા કરીને અવાજ વધારો</string>
+    <string name="group_mute_dialog_title">ગ્રૂપ મ્યૂટ કરો</string>
+    <string name="chat_mute_dialog_title">ચેટ મ્યૂટ કરો</string>
+    <string name="mute_chat_eight_hrs">8 કલાક</string>
+    <string name="mute_chat_one_week">1 અઠવાડિયું</string>
+    <string name="mute_chat_one_yr">1 વર્ષ</string>
+    <string name="show_notif">સૂચનાઓ બતાવો</string>
+    <string name="mute_chat">ચેટ મ્યૂટ કરો</string>
+    <string name="unmute_chat">અનમ્યૂટ ચેટ</string>
     <string name="shop_search_hint">પ્રેમ,હિન્દી,બોલિવૂડ આદિ</string>
     <string name="no_sticker_pack_match_found">તમારી શોધ \'%1$s\' કોઈપણ સ્ટીકર પેક સાથે મેળ ખાતી નથી</string>
     <string name="pack_search_again_hint">સંપૂર્ણ શબ્દો લખો જેમ પ્રેમ,હિન્દી,બોલિવૂડ આદિें</string>

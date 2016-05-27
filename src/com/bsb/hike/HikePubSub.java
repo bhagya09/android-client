@@ -413,8 +413,6 @@ public class HikePubSub extends Handler implements Runnable
 	
 	public static final String DELETE_THIS_CONVERSATION = "deleteThisConv";
 
-	public static final String MUTE_BOT = "muteBot";
-	
 	public static final String PARTICIPANT_JOINED_SYSTEM_MESSAGE = "participantJoinedSystemMsg";
 
 	public static final String REJECT_INCOMING_CALL = "rejectCall";

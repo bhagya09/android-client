@@ -48,7 +48,10 @@ public class ChatAnalyticConstants {
 
     public static final String OVERFLOW_MENU_CLICKED = "ctOvrFlw";
 
+    public static final String MUTE_CANCEL_UK = "muteCncl";
+
     public static final class GCEvents {
+
         public static final String GC_PIN_CANCEL = "pinCncl";
 
         public static final String GC_PIN_CROSS = "pinCross";
