@@ -170,7 +170,7 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 
 		if(StickerManager.getInstance().isQuickSuggestionCategory(category.getCategoryId()))
 		{
-			if(!shown && QuickStickerSuggestionController.getInstance().shouldShowFtuePage())
+			if(QuickStickerSuggestionController.getInstance().shouldShowFtuePage())
 			{
 				if(Utils.isEmpty(category.getStickerList()))
 				{
