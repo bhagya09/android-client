@@ -1320,27 +1320,13 @@ import java.util.Map;
 		}
 	}
 
-	/**
-	 * This overrides sendPoke from ChatThread
-	 */
+
 	@Override
-	protected void sendPoke()
-	{
-		/** Disabling super as we have to do logging specific to OneToOneChat
-			and we need convmessage object for logging
-		**/
-		//super.sendPoke();
-		
-		
-		//When MsgRelLogManager is removed / or when to for GC as well, we can go with super
+	protected void sendNudge() {
 		ConvMessage convMessage = Utils.makeConvMessage(msisdn, getString(R.string.poke_msg_english_only), mConversation.isOnHike());
 		ChatThreadUtils.setPokeMetadata(convMessage);
-
-		// 1) user double clicked on Chat Screen i.e Sending nudge
 		channelSelector.startMessageRelLogging(convMessage, MessageType.TEXT);
-				
 		sendMessage(convMessage);
-
 		Utils.vibrateNudgeReceived(activity.getApplicationContext());
 	}
 

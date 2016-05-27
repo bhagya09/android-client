@@ -2,6 +2,7 @@ package com.bsb.hike.tasks;
 
 import android.os.AsyncTask;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -32,7 +33,8 @@ public class FetchCategoryDetailsTask extends AsyncTask<Void, Void, StickerCateg
 	{
 		super.onPostExecute(stickerCategory);
 		
-		if(stickerCategory == null || Utils.isEmpty(stickerCategory.getAllStickers()))
+		if (stickerCategory == null || Utils.isEmpty(stickerCategory.getAllStickers())
+				|| (stickerCategory.getPreviewUpdationTime() < (System.currentTimeMillis() - HikeConstants.ONE_DAY_MILLS)))
 		{
 			StickerCategoryDownloadTask stickerCategoryDownloadTask = new StickerCategoryDownloadTask(catId);
 			stickerCategoryDownloadTask.execute();
