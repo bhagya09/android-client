@@ -131,6 +131,7 @@ import android.provider.ContactsContract.RawContacts;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.Settings.Secure;
+import android.support.v4.content.FileProvider;
 import android.support.v4.content.LocalBroadcastManager;
 import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
@@ -1343,14 +1344,19 @@ public class Utils
 		}
 		String fileUriString = uri.toString();
 		String fileUriStart = "file:";
-
+		//In case of file provider the uri is of format content://com.bsb.hike.fileprovider/share_images/Android/data/com.bsb.hike/cache/1464328620973.jpeg
+        String conterUriStart = "content://com.bsb.hike.fileprovider";
 		String returnFilePath = null;
+		File selectedFile;
 		if (fileUriString.startsWith(fileUriStart))
 		{
-			File selectedFile = new File(URI.create(Utils.replaceUrlSpaces(fileUriString)));
+			selectedFile = new File(URI.create(Utils.replaceUrlSpaces(fileUriString)));
 			/*
 			 * Done to fix the issue in a few Sony devices.
 			 */
+			returnFilePath = selectedFile.getAbsolutePath();
+		}else if(fileUriString.startsWith(conterUriStart)){
+			selectedFile = new File(parseFileProviderUri(fileUriString,mContext));
 			returnFilePath = selectedFile.getAbsolutePath();
 		}
 
@@ -2187,7 +2193,10 @@ public class Utils
 		}
 		return uri;
 	}
+    public static String parseFileProviderUri(String uri, Context context){
 
+		return uri.toString().replace("content://com.bsb.hike.fileprovider/share_images/Android/data/com.bsb.hike/cache", context.getExternalCacheDir().getAbsolutePath());
+	}
 	/**
 	 * This will return true when SSL toggle is on and connection type is WIFI
 	 *

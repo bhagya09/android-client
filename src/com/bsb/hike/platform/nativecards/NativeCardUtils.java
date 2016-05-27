@@ -62,7 +62,7 @@ public class NativeCardUtils
 		}
 		FileOutputStream fos = null;
 		File cardShareImageFile = null;
-		cardShareImageFile = new File(mContext.getExternalCacheDir(), System.currentTimeMillis() + ".jpeg");
+		cardShareImageFile = new File(mContext.getExternalCacheDir(), System.currentTimeMillis() + ".jpg");
 		try
 		{
 			fos = new FileOutputStream(cardShareImageFile);
@@ -195,7 +195,7 @@ public class NativeCardUtils
 	public static void shareCard(Context context, View view)
 	{
 		File file = NativeCardUtils.getFileForView(view, HikeMessengerApp.getInstance());
-		Intent intent = IntentFactory.shareIntentWithFileProviderPath(context, "image/jpeg", file);
+		Intent intent = IntentFactory.shareIntentWithFileProviderPath(context, "image/jpg", file);
 		context.startActivity(intent);
 	}
 
