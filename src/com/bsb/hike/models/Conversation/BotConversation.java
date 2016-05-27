@@ -1,13 +1,13 @@
 package com.bsb.hike.models.Conversation;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
-import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Conversation primitive for configurable bot chats.
@@ -31,7 +31,7 @@ public class BotConversation extends OneToOneConversation
 		/**
 		 * Setting the mute state in the constructor itself as it is needed for BotConversations
 		 */
-		setIsMute(HikeConversationsDatabase.getInstance().isBotMuted(getMsisdn()));
+		setIsMute(ContactManager.getInstance().isChatMuted(getMsisdn()));
 	}
 
 	/**

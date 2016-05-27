@@ -43,7 +43,7 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.ui.utils.RecyclingImageView;
-import com.bsb.hike.userlogs.UserLogInfo;
+import com.hike.cognito.UserLogInfo;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;

@@ -197,6 +197,14 @@
     <string name="accepted_friend_request">Confirmed as a friend</string>
     <string name="mute_group">Mute Group</string>
     <string name="unmute_group">Unmute Group</string>
+    <string name="mute_chat">Mute Chat</string>
+    <string name="unmute_chat">Unmute Chat</string>
+    <string name="group_mute_dialog_title">Mute group for</string>
+    <string name="chat_mute_dialog_title">Mute chat for</string>
+    <string name="mute_chat_eight_hrs">8 Hours</string>
+    <string name="mute_chat_one_week">1 Week</string>
+    <string name="mute_chat_one_yr">1 Year</string>
+    <string name="show_notif">Show Notifications</string>
     <string name="account">Account</string>
     <string name="enter_num">Please enter your phone number</string>
     <string name="enter_pin">Please enter the PIN</string>
@@ -1617,4 +1625,8 @@
     <string name="multiple_bday_notif_text">%1$s and %2$s others has his birthday today!</string>
     <string name="single_bday_notif_subtext"> Tap here to wish your friend a Happy Birthday!</string>
     <string name="multiple_bday_notif_subtext">Tap here to wish them a Happy Birthday!</string>
+    <string name="rich_uj_default_msg">%1$s is now on hike</string>
+    <string name="uj_default_pretype_text">Hi</string>
+    <string name="uj_default_cta_say_hi">Say Hi</string>
+    <string name="uj_default_cta_add_friend">Add Friend</string>
 </resources>

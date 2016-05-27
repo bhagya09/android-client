@@ -398,6 +398,8 @@ public class HikePubSub extends Handler implements Runnable
 	public static final String STICKER_FTUE_TIP = "stickerFtueTip";
 	
 	public static final String USER_JOINED_NOTIFICATION = "userJoinedNotification";
+
+	public static final String RICH_USER_JOINED_NOTIFICATION = "richUJNotif";
 	
 	public static final String CONV_UNREAD_COUNT_MODIFIED = "convUnreadCountModified";
 	
@@ -411,8 +413,6 @@ public class HikePubSub extends Handler implements Runnable
 	
 	public static final String DELETE_THIS_CONVERSATION = "deleteThisConv";
 
-	public static final String MUTE_BOT = "muteBot";
-	
 	public static final String PARTICIPANT_JOINED_SYSTEM_MESSAGE = "participantJoinedSystemMsg";
 
 	public static final String REJECT_INCOMING_CALL = "rejectCall";
@@ -432,6 +432,8 @@ public class HikePubSub extends Handler implements Runnable
 	public static final String STICKER_SHOP_DOWNLOAD_SUCCESS = "stickerShopDownloadSucess";
 	
 	public static final String STICKER_SHOP_DOWNLOAD_FAILURE = "stickerShopDownloadFailure";
+
+	public static final String STICKER_SHOP_EXTRA_CATEGORIES = "stickerShopExtraCategories";
 
 	public static final String OFFLINE_MESSAGE_SENT = "offlineMessageSent";
 	

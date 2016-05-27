@@ -1,19 +1,5 @@
 package com.bsb.hike.backup;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.IntDef;
@@ -28,12 +14,24 @@ import com.bsb.hike.backup.impl.PrefBackupRestore;
 import com.bsb.hike.backup.model.BackupMetadata;
 import com.bsb.hike.db.BackupState;
 import com.bsb.hike.db.DBConstants;
-import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 
 /**
  * AccountBackupRestore is a singleton class that performs are the backup/restore related
@@ -89,6 +87,11 @@ public class AccountBackupRestore
 	public static int STICKER_BACKUP_THRESHHOLD_VERSION = 1705;
 
 	public static int STICKER_CATEGORY_TABLE_UPDATE_VERSION = 1687;
+
+	/**
+	 * If backup is taken on a version greater than this, then mute data will not be migrated from groupInfo table to chatProp table
+	 */
+	public static int MUTE_BACKUP_THRESHOLD_VERSION = 1732;
 
 	private final Context mContext;
 
