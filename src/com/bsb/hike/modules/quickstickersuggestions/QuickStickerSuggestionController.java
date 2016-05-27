@@ -194,7 +194,7 @@ public class QuickStickerSuggestionController
 
     public boolean shouldShowFtuePage()
     {
-        return true;
+        return false;
     }
 
     public void sendFetchSuccessSignalToUi(List<StickerCategory> quickStickerCategoryList)
