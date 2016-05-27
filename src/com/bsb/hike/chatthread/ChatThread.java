@@ -1152,21 +1152,28 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				mAdapter.onActivityResult(requestCode, resultCode, data);
 				break;
 			case HikeConstants.ResultCodes.CHATTHEME_GALLERY_REQUEST_CODE:
-				if(resultCode == Activity.RESULT_OK)
-				{
-					if(Utils.isUserOnline(activity)) {
-						if(ChatThemeManager.getInstance().customThemeTempUploadImagePath != null) {
-							FileTransferManager.getInstance(activity).uploadCustomThemeBackgroundImage(ChatThemeManager.getInstance().customThemeTempUploadImagePath);
-						}
-						uiHandler.sendEmptyMessageDelayed(SET_CUSTOM_THEME_BACKGROUND, 1000);
-						if (themePicker != null && themePicker.isShowing()) {
-							themePicker.dismiss();
-						}
+				if(resultCode == Activity.RESULT_OK) {
+					if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_CT_CONFIRMATIN_DIALOG, false)) {
+						this.dialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.CT_CONFIRMATION_DIALOG, this);
 					} else {
-						Toast.makeText(activity, R.string.admin_task_error, Toast.LENGTH_LONG).show();
+						initializeCTBackground();
 					}
 				}
 				break;
+		}
+	}
+
+	private void initializeCTBackground() {
+		if(Utils.isUserOnline(activity)) {
+			if(ChatThemeManager.getInstance().customThemeTempUploadImagePath != null) {
+				FileTransferManager.getInstance(activity).uploadCustomThemeBackgroundImage(ChatThemeManager.getInstance().customThemeTempUploadImagePath);
+			}
+			uiHandler.sendEmptyMessageDelayed(SET_CUSTOM_THEME_BACKGROUND, 1000);
+			if (themePicker != null && themePicker.isShowing()) {
+				themePicker.dismiss();
+			}
+		} else {
+			Toast.makeText(activity, R.string.admin_task_error, Toast.LENGTH_LONG).show();
 		}
 	}
 
@@ -2409,6 +2416,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			case HikeDialogFactory.DELETE_MESSAGES_DIALOG:
 			case HikeDialogFactory.CONTACT_SEND_DIALOG:
 			case HikeDialogFactory.CLEAR_CONVERSATION_DIALOG:
+			case HikeDialogFactory.CT_CONFIRMATION_DIALOG:
 				dialog.dismiss();
 				this.dialog = null;
 				break;
@@ -2445,6 +2453,11 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				ChatThreadUtils.deleteMessagesFromDb(selectedMsgIdsToDelete, ((CustomAlertDialog) dialog).isChecked(), messages.get(messages.size() - 1).getMsgID(), msisdn);
 				dialog.dismiss();
 				mActionMode.finish();
+				break;
+			case HikeDialogFactory.CT_CONFIRMATION_DIALOG:
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_CT_CONFIRMATIN_DIALOG, true);
+				initializeCTBackground();
+				dialog.dismiss();
 				break;
 
 		}

@@ -153,6 +153,8 @@ public class HikeDialogFactory
 
 	public static final int STICKER_RESTORE_DIFF_DPI_DIALOG = 53;
 
+	public static final int CT_CONFIRMATION_DIALOG = 54;
+
 	public static HikeDialog showDialog(Context context, int whichDialog, Object... data)
 	{
 		return showDialog(context, whichDialog, null, data);
@@ -250,6 +252,9 @@ public class HikeDialogFactory
 			return showDBCorruptDialog(context, dialogId, listener, data);
 		case STICKER_RESTORE_DIFF_DPI_DIALOG:
 			return showStickerRestoreDiffDpiDialog(context, dialogId, listener, data);
+
+		case CT_CONFIRMATION_DIALOG:
+			return ctConfirmationDialog(context, dialogId, listener, data);
 		}
 		return null;
 	}
@@ -1265,6 +1270,20 @@ public class HikeDialogFactory
 		dialog.setTitle(context.getString(R.string.sticker_restore_diffdpi_title));
 		dialog.setCancelable(false);
 		dialog.setPositiveButton(R.string.OK, listener);
+		dialog.show();
+		return dialog;
+	}
+
+	private static HikeDialog ctConfirmationDialog(Context context, int dialogId, HikeDialogListener listener, Object... data)
+	{
+		final CustomAlertDialog dialog = new CustomAlertDialog(context, dialogId, R.layout.db_corrupt_dialog);
+
+		dialog.setTitle(context.getString(R.string.chat_theme));
+		dialog.setMessage(context.getString(R.string.ct_confirmation_dialog));
+		dialog.setCancelable(false);
+		dialog.setPositiveButton(R.string.OK, listener);
+		dialog.setNegativeButton(R.string.CANCEL, listener);
+
 		dialog.show();
 		return dialog;
 	}
