@@ -44,7 +44,7 @@ public class FriendRequestActivity extends HikeAppStateBaseFragmentActivity
 		{
 			addFriendsFragment = new AddFriendsFragment();
 		}
-		getSupportFragmentManager().beginTransaction().add(R.id.fragment_layout, addFriendsFragment, ADD_FRIENDS).commitAllowingStateLoss();
+		getSupportFragmentManager().beginTransaction().add(R.id.fragment_layout, addFriendsFragment, ADD_FRIENDS).commit();
 	}
 
 	private void addAddedMeFragment()
@@ -62,7 +62,7 @@ public class FriendRequestActivity extends HikeAppStateBaseFragmentActivity
 		{
 			addedMeFragment = new AddedMeFragment();
 		}
-		getSupportFragmentManager().beginTransaction().add(R.id.fragment_layout, addedMeFragment, ADDED_ME).commitAllowingStateLoss();
+		getSupportFragmentManager().beginTransaction().add(R.id.fragment_layout, addedMeFragment, ADDED_ME).commit();
 
 	}
 
