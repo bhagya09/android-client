@@ -10,15 +10,12 @@
     android:paddingLeft="@dimen/conv_item_padding"
     android:paddingRight="@dimen/conv_item_padding">
 
-    <FrameLayout
+
+    <com.bsb.hike.view.RoundedImageView
+        android:id="@+id/avatar"
+        style="@style/AvatarStyle.MorePadding"
         android:layout_width="@dimen/conv_item_avatar"
-        android:layout_height="@dimen/conv_item_avatar">
-
-        <com.bsb.hike.view.RoundedImageView
-            android:id="@+id/avatar"
-            style="@style/AvatarStyle.MorePadding" />
-
-    </FrameLayout>
+        android:layout_height="@dimen/conv_item_avatar" />
 
     <LinearLayout
         android:layout_width="0dp"
@@ -32,13 +29,13 @@
             android:id="@+id/name"
             style="@style/ListItemHeaderTextView"
             android:layout_alignParentLeft="true"
-            android:text="Kavin Mittal kja skldlkas daskd asdjlasj dlasdl asdj las das d" />
+            android:text="Put Name here" />
 
         <com.bsb.hike.view.CustomFontTextView
             android:id="@+id/number"
             style="@style/ListItemSubHeaderTextView"
             android:layout_marginTop="2dp"
-            android:text="+1234567890" />
+            android:text="Put Number here" />
 
     </LinearLayout>
 
