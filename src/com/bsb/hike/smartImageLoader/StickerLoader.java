@@ -165,7 +165,7 @@ public class StickerLoader extends ImageWorker
 	{
 		if (downloadMiniStickerIfNotFound && bitmap == null)
 		{
-			StickerManager.getInstance().initiateSingleStickerDownloadTask(sticker.getStickerId(), sticker.getCategoryId(), null, true);
+			StickerManager.getInstance().initiateMiniStickerDownloadTask(sticker.getStickerId(), sticker.getCategoryId());
 		}
 	}
 

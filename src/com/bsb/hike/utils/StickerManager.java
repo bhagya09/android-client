@@ -1711,6 +1711,11 @@ public class StickerManager
 		singleStickerDownloadTask.execute();
 	}
 
+	public void initiateMiniStickerDownloadTask(String stickerId, String categoryId)
+	{
+		initiateSingleStickerDownloadTask(stickerId, categoryId, null, true);
+	}
+
 	public void initiateSingleStickerTagDownloadTask(String stickerId, String categoryId)
 	{
 		SingleStickerTagDownloadTask singleStickerTagDownloadTask = new SingleStickerTagDownloadTask(stickerId, categoryId);

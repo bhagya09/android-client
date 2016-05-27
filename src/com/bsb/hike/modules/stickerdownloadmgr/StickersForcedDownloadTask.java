@@ -235,7 +235,7 @@ public class StickersForcedDownloadTask implements IHikeHTTPTask, IHikeHttpTaskR
 			switch (stickersMetaData.optInt(HikeConstants.MINI_STICKER_IMAGE))
 			{
                 case FORCE_DOWNLOAD:
-                    StickerManager.getInstance().initiateSingleStickerDownloadTask(sticker.getStickerId(), sticker.getCategoryId(), null, true);
+                    StickerManager.getInstance().initiateMiniStickerDownloadTask(sticker.getStickerId(), sticker.getCategoryId());
                     break;
 			}
 
