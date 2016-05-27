@@ -2,7 +2,7 @@ package com.bsb.hike.modules.gcmnetworkmanager;
 
 import com.bsb.hike.modules.gcmnetworkmanager.tasks.CognitoUploadGcmTask;
 import com.bsb.hike.modules.gcmnetworkmanager.tasks.GcmTaskConstants;
-import com.bsb.hike.modules.gcmnetworkmanager.tasks.SingleStickerDownloadGcmTask;
+import com.bsb.hike.modules.gcmnetworkmanager.tasks.StickerGcmTasks;
 import com.bsb.hike.utils.Logger;
 import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.gcm.GcmTaskService;
@@ -21,10 +21,10 @@ public class GcmNwMgrService extends GcmTaskService
 
 		Logger.d(TAG, "Got OnRunTask for tag : " + tag);
 
-        if(tag.startsWith(GcmTaskConstants.SINGLE_STICKER_GCM_TASK))
+        if(tag.startsWith(GcmTaskConstants.STICKER_GCM_TASKS_PREFIX_KEY))
         {
-            SingleStickerDownloadGcmTask singleStickerDownloadGcmTask = new SingleStickerDownloadGcmTask();
-            singleStickerDownloadGcmTask.execute(taskParams);
+            StickerGcmTasks stickerGcmTasks = new StickerGcmTasks();
+            stickerGcmTasks.execute(taskParams);
         }
 		else if (tag.startsWith(GcmTaskConstants.COGNITO_UPLOAD_GCM_TASK))
 		{
