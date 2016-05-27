@@ -76,7 +76,8 @@
                     android:layout_height="match_parent"
                     android:layout_below="@+id/image_container"
                     android:background="@color/white"
-                    android:id="@+id/text_container">
+                    android:id="@+id/text_container"
+                    android:layout_marginBottom="13.5dp">
                 <com.bsb.hike.view.CustomFontTextView
                     android:id="@+id/text1"
                     android:layout_width="match_parent"
@@ -84,6 +85,7 @@
                     android:layout_marginBottom="4dp"
                     android:layout_marginLeft="12dp"
                     android:layout_marginTop="8dp"
+                    android:layout_marginRight="12dp"
                     android:tag="T1"
                     android:textColor="#FFFFFF"
                     android:textSize="14sp"
@@ -95,7 +97,7 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@id/text1"
                     android:layout_marginLeft="12dp"
-                    android:paddingBottom="13.5dp"
+                    android:layout_marginRight="12dp"
                     android:tag="T2"
                     android:textColor="#FFFFFF"
                     android:textSize="11sp"

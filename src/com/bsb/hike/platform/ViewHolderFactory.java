@@ -330,7 +330,12 @@ public class ViewHolderFactory
 		@Override
 		public void processViewHolder(final View view)
 		{
-
+             if(viewHashMap.get("T1") == null && viewHashMap.get("T2")== null){
+				 view.findViewById(R.id.text_container).setVisibility(View.GONE);
+			 }
+			if(viewHashMap.get("i1") == null){
+				view.findViewById(R.id.image_container).setVisibility(View.GONE);
+			}
 		}
 	}
 
