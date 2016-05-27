@@ -190,11 +190,11 @@ public class FriendRequestAdapter extends BaseAdapter {
 
         }
 
-        public boolean filterContactForSearch(ContactInfo convInfo, String textToBeFiltered) {
-            if (!TextUtils.isEmpty(convInfo.getName())
-                    && (convInfo.getName().toLowerCase().contains(textToBeFiltered) || convInfo.getName().toLowerCase().contains(" " + textToBeFiltered))) {
+        public boolean filterContactForSearch(ContactInfo contactInfo, String textToBeFiltered) {
+            if (!TextUtils.isEmpty(contactInfo.getName())
+                    && (contactInfo.getName().toLowerCase().contains(textToBeFiltered) || contactInfo.getName().toLowerCase().contains(" " + textToBeFiltered))) {
                 return true;
-            } else if (convInfo.getMsisdn().contains(textToBeFiltered)) {
+            } else if (contactInfo.getMsisdn().contains(textToBeFiltered)) {
                 return true;
             }
             return false;
