@@ -1,5 +1,6 @@
 package com.bsb.hike.modules.gcmnetworkmanager;
 
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.modules.gcmnetworkmanager.tasks.CategoryDetailsDownloadGcmTask;
 import com.bsb.hike.modules.gcmnetworkmanager.tasks.CategoryPalleteImageDownloadGcmTask;
 import com.bsb.hike.modules.gcmnetworkmanager.tasks.CognitoUploadGcmTask;
@@ -11,6 +12,7 @@ import com.bsb.hike.modules.gcmnetworkmanager.tasks.SingleStickerDownloadGcmTask
 import com.bsb.hike.modules.gcmnetworkmanager.tasks.SingleStickerTagDownloadGcmTask;
 import com.bsb.hike.modules.gcmnetworkmanager.tasks.StickerPreviewImageDownloadGcmTask;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.gcm.GcmTaskService;
 import com.google.android.gms.gcm.TaskParams;
@@ -27,6 +29,12 @@ public class GcmNwMgrService extends GcmTaskService
         String tag = taskParams.getTag();
 
 		Logger.d(TAG, "Got OnRunTask for tag : " + tag);
+
+		if (!Utils.isUserAuthenticated(HikeMessengerApp.getInstance().getApplicationContext()))
+		{
+            //Todo discuss proper handling
+			return GcmNetworkManager.RESULT_FAILURE;
+		}
 
         if(tag.startsWith(GcmTaskConstants.SINGLE_STICKER_GCM_TASK))
         {
