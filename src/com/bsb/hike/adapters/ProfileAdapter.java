@@ -1,9 +1,5 @@
 package com.bsb.hike.adapters;
 
-import java.util.List;
-
-import org.json.JSONException;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -19,10 +15,13 @@ import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
+import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.Conversation.BroadcastConversation;
+import com.bsb.hike.models.Conversation.OneToNConversation;
+import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeSharedFile;
@@ -32,9 +31,6 @@ import com.bsb.hike.models.ProfileItem.ProfileGroupItem;
 import com.bsb.hike.models.ProfileItem.ProfileSharedContent;
 import com.bsb.hike.models.ProfileItem.ProfileSharedMedia;
 import com.bsb.hike.models.ProfileItem.ProfileStatusItem;
-import com.bsb.hike.models.Conversation.BroadcastConversation;
-import com.bsb.hike.models.Conversation.OneToNConversation;
-import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineUtils;
@@ -50,6 +46,10 @@ import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
 
+import org.json.JSONException;
+
+import java.util.List;
+
 public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 {		
 	public static final String OPEN_GALLERY = "OpenGallery";
@@ -58,7 +58,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 	
 	private static enum ViewType
 	{
-		HEADER, SHARED_MEDIA, SHARED_CONTENT, STATUS, PROFILE_PIC_UPDATE, GROUP_PARTICIPANT, EMPTY_STATUS, REQUEST, MEMBERS, ADD_MEMBERS, PHONE_NUMBER, GROUP_SETTINGS, GROUP_RIGHTS_INFO, IMAGE_POST, TEXT_IMAGE_POST
+		HEADER, SHARED_MEDIA, SHARED_CONTENT, STATUS, PROFILE_PIC_UPDATE, GROUP_PARTICIPANT, EMPTY_STATUS, REQUEST, MEMBERS, ADD_MEMBERS, PHONE_NUMBER, GROUP_SETTINGS, GROUP_RIGHTS_INFO, IMAGE_POST, TEXT_IMAGE_POST, PRIVACY_SECTION
 	}
 
 	private Context context;
@@ -177,6 +177,12 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 		{
 			viewType = ViewType.PHONE_NUMBER;
 		}
+
+		else if (ProfileItem.PRIVACY_SECTION == itemId)
+		{
+			viewType = ViewType.PRIVACY_SECTION;
+		}
+
 		else
 		{
 			StatusMessage statusMessage = ((ProfileStatusItem) profileItem).getStatusMessage();
@@ -371,6 +377,10 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 				viewHolder.subText = (TextView) v.findViewById(R.id.main_info);
 				viewHolder.phoneIcon = (ImageView) v.findViewById(R.id.call);
 				break;
+
+				case PRIVACY_SECTION:
+					//TODO
+					break;
 			}
 
 			v.setTag(viewHolder);
@@ -816,6 +826,9 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			viewHolder.infoContainer.setOnLongClickListener(profileActivity);
 			break;
 
+			case PRIVACY_SECTION:
+				// TODO
+				break;
 		}
 
 		if (viewHolder.parent != null)

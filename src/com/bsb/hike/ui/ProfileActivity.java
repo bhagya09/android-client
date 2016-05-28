@@ -1241,13 +1241,15 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		}
 	}
 
-	private void setupContactProfileList()
-	{
+	private void setupContactProfileList() {
 		profileItems.clear();
-		if(!HikeMessengerApp.hikeBotInfoMap.containsKey(contactInfo.getMsisdn()))  //The HikeBot's numbers wont be shown
-		profileItems.add(new ProfileItem.ProfilePhoneNumberItem(ProfileItem.PHONE_NUMBER, getResources().getString(R.string.phone_pa)));
-		if(contactInfo.isOnhike())
-		{	shouldAddSharedMedia();
+		if (!contactInfo.isBot()) {  //The HikeBot's numbers wont be shown
+			profileItems.add(new ProfileItem.ProfilePrivacyItem(ProfileItem.PRIVACY_SECTION));
+			profileItems.add(new ProfileItem.ProfilePhoneNumberItem(ProfileItem.PHONE_NUMBER, getResources().getString(R.string.phone_pa)));
+
+		}
+		if (contactInfo.isOnhike()) {
+			shouldAddSharedMedia();
 			profileItems.add(new ProfileItem.ProfileSharedContent(ProfileItem.SHARED_CONTENT, getResources().getString(R.string.shared_cont_pa), sharedFileCount, sharedPinCount, unreadPinCount, null));
 		}
 	}
