@@ -26,7 +26,6 @@ import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.bsb.hike.R;
@@ -51,39 +50,15 @@ public class ExpandingListView extends ListView {
 
     public ExpandingListView(Context context) {
         super(context);
-        init();
     }
 
     public ExpandingListView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init();
     }
 
     public ExpandingListView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        init();
     }
-
-    private void init() {
-        setOnItemClickListener(mItemClickListener);
-    }
-
-    /**
-     * Listens for item clicks and expands or collapses the selected view depending on
-     * its current state.
-     */
-    private OnItemClickListener mItemClickListener = new OnItemClickListener() {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            ExpandableListItem viewObject = (ExpandableListItem) getItemAtPosition(getPositionForView
-                    (view));
-            if (!viewObject.isExpanded()) {
-                expandView(view);
-            } else {
-                collapseView(view);
-            }
-        }
-    };
 
     /**
      * Calculates the top and bottom bound changes of the selected item. These values are
