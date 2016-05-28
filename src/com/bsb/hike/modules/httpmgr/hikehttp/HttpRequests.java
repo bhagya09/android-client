@@ -278,7 +278,7 @@ public class HttpRequests
                 .setExecutionWindow(0, 1)
                 .setPersisted(true)
                 .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
-                .setTag(GcmTaskConstants.MULTI_STICKER_IMAGE_GCM_TASK + HikeConstants.DELIMETER + requestId)
+                .setTag(GcmTaskConstants.CATEGORY_PALLETE_IMAGE_GCM_TASK + HikeConstants.DELIMETER + requestId)
                 .setService(GcmNwMgrService.class)
                 .setExtras(extras)
                 .build();
