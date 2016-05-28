@@ -150,7 +150,7 @@ public class ExpandingListView extends ListView {
      * within the listview are not constant during the scroll.
      */
 
-    private void expandView(final View view) {
+    public void expandView(final View view) {
         final ExpandableListItem viewObject = (ExpandableListItem) getItemAtPosition(getPositionForView
                 (view));
 
@@ -346,7 +346,7 @@ public class ExpandingListView extends ListView {
      * animation process.
      */
 
-    private void collapseView(final View view) {
+    public void collapseView(final View view) {
         final ExpandableListItem viewObject = (ExpandableListItem) getItemAtPosition
                 (getPositionForView(view));
 
@@ -455,16 +455,21 @@ public class ExpandingListView extends ListView {
                     View v = getChildAt(i);
                     if (v != view) {
                         float diff = i > index ? -yTranslateBottom : yTranslateTop;
-                        animations.add(getAnimation(v, diff, diff));
+                        Animator anim = getAnimation(v, diff, diff);
+                        anim.setDuration(300);
+                        animations.add(anim);
                     }
                 }
 
-
+                Animator anim = getAnimation(view, yTranslateTop, -yTranslateBottom);
+                anim.setDuration(300);
                 /* Adds animation for collapsing the cell that was clicked. */
-                animations.add(getAnimation(view, yTranslateTop, -yTranslateBottom));
+                animations.add(anim);
 
                 /* Adds an animation for fading out the extra content. */
-                animations.add(ObjectAnimator.ofFloat(expandingLayout, View.ALPHA, 1, 0));
+                ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(expandingLayout, View.ALPHA, 1, 0);
+                objectAnimator.setDuration(150);
+                animations.add(objectAnimator);
 
                 /* Disabled the ListView for the duration of the animation.*/
                 setEnabled(false);

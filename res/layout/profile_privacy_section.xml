@@ -6,11 +6,13 @@
 
 
     <LinearLayout
+        android:id="@+id/privacy_parent_layout"
         android:layout_width="match_parent"
-        android:layout_height="54dp"
+        android:layout_height="57dp"
         android:layout_gravity="center_vertical"
         android:layout_marginLeft="21dp"
         android:layout_marginRight="16dp"
+        android:background="@drawable/list_item"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
@@ -31,12 +33,13 @@
 
     </LinearLayout>
 
-    <com.example.android.expandingcells.ExpandingLayout
+    <com.bsb.hike.ExplandingCells.ExpandingLayout
         android:id="@+id/expanding_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="21dp"
         android:layout_marginRight="16dp"
+        android:orientation="vertical"
         android:visibility="gone">
 
         <LinearLayout
@@ -44,6 +47,7 @@
             android:layout_width="match_parent"
             android:layout_height="57dp"
             android:layout_gravity="center_vertical"
+            android:background="@drawable/list_item"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
@@ -58,8 +62,8 @@
 
             <android.support.v7.widget.SwitchCompat
                 android:id="@+id/last_seen_switch"
-                android:layout_width="40dp"
-                android:layout_height="20dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:background="@null"/>
 
         </LinearLayout>
@@ -77,6 +81,7 @@
             android:layout_width="match_parent"
             android:layout_height="57dp"
             android:layout_gravity="center_vertical"
+            android:background="@drawable/list_item"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
@@ -91,13 +96,13 @@
 
             <android.support.v7.widget.SwitchCompat
                 android:id="@+id/status_update_switch"
-                android:layout_width="40dp"
-                android:layout_height="20dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:background="@null"/>
 
         </LinearLayout>
 
-    </com.example.android.expandingcells.ExpandingLayout>
+    </com.bsb.hike.ExplandingCells.ExpandingLayout>
 
     <View
         android:layout_width="match_parent"

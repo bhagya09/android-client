@@ -32,6 +32,10 @@ public class ExpandableListItem implements OnSizeChangedListener {
         return mCollapsedHeight;
     }
 
+    public void setCollapsedHeight(int mCollapsedHeight) {
+        this.mCollapsedHeight = mCollapsedHeight;
+    }
+
     public void setExpandedHeight(int expandedHeight) {
         mExpandedHeight = expandedHeight;
     }

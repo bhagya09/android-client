@@ -3,6 +3,7 @@ package com.bsb.hike.adapters;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.support.v7.widget.SwitchCompat;
 import android.text.TextUtils;
 import android.text.util.Linkify;
 import android.view.LayoutInflater;
@@ -10,12 +11,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bsb.hike.BitmapModule.BitmapUtils;
+import com.bsb.hike.ExplandingCells.ExpandableListItem;
+import com.bsb.hike.ExplandingCells.ExpandingLayout;
+import com.bsb.hike.ExplandingCells.ExpandingListView;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.models.ContactInfo;
@@ -50,12 +56,12 @@ import org.json.JSONException;
 
 import java.util.List;
 
-public class ProfileAdapter extends ArrayAdapter<ProfileItem>
+public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.OnClickListener, CompoundButton.OnCheckedChangeListener
 {		
 	public static final String OPEN_GALLERY = "OpenGallery";
 	
 	public static final String IMAGE_TAG = "image";
-	
+
 	private static enum ViewType
 	{
 		HEADER, SHARED_MEDIA, SHARED_CONTENT, STATUS, PROFILE_PIC_UPDATE, GROUP_PARTICIPANT, EMPTY_STATUS, REQUEST, MEMBERS, ADD_MEMBERS, PHONE_NUMBER, GROUP_SETTINGS, GROUP_RIGHTS_INFO, IMAGE_POST, TEXT_IMAGE_POST, PRIVACY_SECTION
@@ -90,6 +96,8 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 	private boolean hasCustomPhoto;
 	
 	private int sizeOfThumbnail;
+
+	public ListView listView;
 
 	public ProfileAdapter(ProfileActivity profileActivity, List<ProfileItem> itemList, OneToNConversation groupConversation, ContactInfo contactInfo, boolean myProfile)
 	{
@@ -379,7 +387,13 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 				break;
 
 				case PRIVACY_SECTION:
-					//TODO
+					v = inflater.inflate(R.layout.profile_privacy_section, null);
+					viewHolder.parent = v.findViewById(R.id.privacy_parent_layout);
+					viewHolder.expandingLayout = (ExpandingLayout) v.findViewById(R.id.expanding_layout);
+					viewHolder.lastSeenSwitch = (SwitchCompat) viewHolder.expandingLayout.findViewById(R.id.last_seen_switch);
+					viewHolder.statusUpdateSwitch = (SwitchCompat) viewHolder.expandingLayout.findViewById(R.id.status_update_switch);
+					viewHolder.lastSeenSetting = viewHolder.expandingLayout.findViewById(R.id.last_seen_section);
+					viewHolder.statusUpdateSetting = viewHolder.expandingLayout.findViewById(R.id.status_update_section);
 					break;
 			}
 
@@ -827,7 +841,23 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			break;
 
 			case PRIVACY_SECTION:
-				// TODO
+
+				viewHolder.expandingLayout.setExpandedHeight(Utils.dpToPx(115));
+				viewHolder.expandingLayout.setSizeChangedListener(profileItem);
+
+				if (!profileItem.isExpanded()) {
+					viewHolder.expandingLayout.setVisibility(View.GONE);
+				} else {
+					viewHolder.expandingLayout.setVisibility(View.VISIBLE);
+				}
+
+				viewHolder.parent.setTag(position);
+				viewHolder.parent.setOnClickListener(this);
+				viewHolder.statusUpdateSetting.setOnClickListener(this);
+				viewHolder.lastSeenSetting.setOnClickListener(this);
+				viewHolder.lastSeenSwitch.setOnCheckedChangeListener(this);
+				viewHolder.statusUpdateSwitch.setOnCheckedChangeListener(this);
+
 				break;
 		}
 
@@ -845,6 +875,10 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			}
 
 			viewHolder.parent.setPadding(0, 0, 0, bottomPadding);
+		}
+
+		if (!profileItem.isExpanded()) {
+			profileItem.setCollapsedHeight(v.getHeight());
 		}
 
 		return v;
@@ -942,6 +976,12 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 		View mediaLayout;
 		
 		CheckBox checkbox;
+
+		ExpandingLayout expandingLayout;
+
+		SwitchCompat lastSeenSwitch, statusUpdateSwitch;
+
+		View lastSeenSetting, statusUpdateSetting;
 	}
 	
 	public void setProfilePreview(Bitmap preview)
@@ -1024,4 +1064,67 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 	{
 		this.hasCustomPhoto = getHasCustomPhoto();
 	}
+
+	/**
+	 * Called when a view has been clicked.
+	 *
+	 * @param v The view that was clicked.
+	 */
+	@Override
+	public void onClick(View v) {
+
+		switch (v.getId()) {
+			case R.id.privacy_parent_layout:
+				int position = (int) v.getTag();
+				ExpandableListItem item = getItem(position);
+
+				if (!item.isExpanded()) {
+					((ExpandingListView) listView).expandView((View) v.getParent());
+				} else {
+					((ExpandingListView) listView).collapseView((View) v.getParent());
+				}
+				break;
+
+			case R.id.last_seen_section:
+				toggleLastSeenPrivacyForUser(v);
+				break;
+
+			case R.id.status_update_section:
+				toggleStatusUpdatePrivacyForUser(v);
+		}
+	}
+
+	/**
+	 * Called when the checked state of a compound button has changed.
+	 *
+	 * @param buttonView The compound button view whose state has changed.
+	 * @param isChecked  The new checked state of buttonView.
+	 */
+	@Override
+	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+		switch (buttonView.getId()) {
+			case R.id.last_seen_switch:
+				// TODO
+				break;
+
+			case R.id.status_update_switch:
+				// TODO
+				break;
+		}
+
+	}
+
+	private void toggleLastSeenPrivacyForUser(View v) {
+		SwitchCompat switchCompat = (SwitchCompat) v.findViewById(R.id.last_seen_switch);
+		switchCompat.setChecked(!switchCompat.isChecked());
+		// This will invoke onCheckedChanged, where the business logic resides for sending MQTT Packet
+	}
+
+	private void toggleStatusUpdatePrivacyForUser(View v) {
+		SwitchCompat switchCompat = (SwitchCompat) v.findViewById(R.id.status_update_switch);
+		switchCompat.setChecked(!switchCompat.isChecked());
+		// This will invoke onCheckedChanged, where the business logic resides for sending MQTT Packet
+	}
+
 }

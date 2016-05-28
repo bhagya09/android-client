@@ -117,7 +117,6 @@ import com.bsb.hike.ui.fragments.PhotoViewerFragment;
 import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.EmoticonConstants;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
@@ -1364,6 +1363,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			profileItems = new ArrayList<ProfileItem>();
 			setupContactProfileList();
 			profileAdapter = new ProfileAdapter(this, profileItems, null, contactInfo, false, ContactManager.getInstance().isBlocked(mLocalMSISDN), sizeOfImage);
+			profileAdapter.listView = profileContent;
 			addProfileHeaderView();
 			break;
 		case BROADCAST_INFO:
