@@ -1335,9 +1335,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		boolean isSent = convMessage.isSent();
 		if(QuickStickerSuggestionController.getInstance().isStickerClickAllowed(isSent))
 		{
-			initStickerPicker();
-			mStickerPicker.showQuickSuggestionCategory(QuickStickerSuggestionController.getInstance().getQuickSuggestionCategory(convMessage));
-			stickerButtonClicked();
+			openOrRefreshStickerPalette(convMessage);
 		}
 	}
 
@@ -1527,6 +1525,21 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		//CE-171: Avoid showing the old WT, when the new WT UI is enabled.
 		if(!useWTRevamped) audioRecordView.show();
 		else showRecordingErrorTip(R.string.recording_help_text);
+	}
+
+	private void openOrRefreshStickerPalette(ConvMessage convMessage)
+	{
+		initStickerPicker();
+		mStickerPicker.showQuickSuggestionCategory(QuickStickerSuggestionController.getInstance().getQuickSuggestionCategory(convMessage));
+
+		if(mShareablePopupLayout.isPopupShowing(mStickerPicker, activity.getResources().getConfiguration().orientation)) {
+			mStickerPicker.setRefreshStickers(true);
+		}
+		else {
+			// the category is already consumed above so we need to add again
+			mStickerPicker.showQuickSuggestionCategory(QuickStickerSuggestionController.getInstance().getQuickSuggestionCategory(convMessage));
+			stickerButtonClicked();
+		}
 	}
 
 	protected void stickerButtonClicked()
