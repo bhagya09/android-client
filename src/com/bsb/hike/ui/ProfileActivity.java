@@ -2835,7 +2835,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		{
 			final Pair<ContactInfo, FavoriteType> favoriteToggle = (Pair<ContactInfo, FavoriteType>) object;
 
-			ContactInfo contactInfo = favoriteToggle.first;
+			final ContactInfo contactInfo = favoriteToggle.first;
 			FavoriteType favoriteType = favoriteToggle.second;
 
 			if (!mLocalMSISDN.equals(contactInfo.getMsisdn()))
@@ -2856,6 +2856,17 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 					if(profileType == ProfileType.CONTACT_INFO)
 					{
 						updateProfileHeaderView();
+						// Also setup the the privacy view again
+						if (Utils.isFavToFriendsMigrationAllowed() && contactInfo.isMyOneWayFriend()) {
+							setupContactProfileList();
+							profileAdapter.notifyDataSetChanged();
+						}
+
+						else if (profileItems.get(0) instanceof ProfileItem.ProfilePrivacyItem) {
+							setupContactProfileList(); // Need to remove privacy item
+							profileAdapter.notifyDataSetChanged();
+						}
+
 					}
 					else if (profileType == ProfileType.CONTACT_INFO_TIMELINE || profileType == ProfileType.USER_PROFILE)
 					{
