@@ -254,7 +254,7 @@ public class HikeDialogFactory
 			return showStickerRestoreDiffDpiDialog(context, dialogId, listener, data);
 
 		case CT_CONFIRMATION_DIALOG:
-			return ctConfirmationDialog(context, dialogId, listener, data);
+			return showCTConfirmationDialog(context, dialogId, listener, data);
 		}
 		return null;
 	}
@@ -1274,7 +1274,7 @@ public class HikeDialogFactory
 		return dialog;
 	}
 
-	private static HikeDialog ctConfirmationDialog(Context context, int dialogId, HikeDialogListener listener, Object... data)
+	private static HikeDialog showCTConfirmationDialog(Context context, int dialogId, HikeDialogListener listener, Object... data)
 	{
 		final CustomAlertDialog dialog = new CustomAlertDialog(context, dialogId, R.layout.db_corrupt_dialog);
 
