@@ -499,8 +499,8 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	
 	public void notifyDataSetChanged()
 	{
-		updateIconPageIndicator();
 		updateStickerAdapter();
+		updateIconPageIndicator();
 	}
 
 	@Override
@@ -754,7 +754,8 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		}
 		else
 		{
-			refreshStickers = refreshStickers ? refreshStickers : stickerAdapter.removeQuickSuggestionCategory();
+			boolean shouldRefresh = stickerAdapter.removeQuickSuggestionCategory();
+			refreshStickers = refreshStickers ? refreshStickers : shouldRefresh;
 		}
 	}
 

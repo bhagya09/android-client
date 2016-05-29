@@ -5,6 +5,7 @@ import android.os.Bundle;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.models.CustomStickerCategory;
 import com.bsb.hike.models.Sticker;
+import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.quickstickersuggestions.QuickStickerSuggestionController;
 import com.bsb.hike.utils.Logger;
 
@@ -317,5 +318,10 @@ public class QuickSuggestionStickerCategory extends CustomStickerCategory
 			return false;
 		}
 		return true;
+	}
+
+	@Override
+	public int compareTo(StickerCategory another) {
+		return -1;
 	}
 }

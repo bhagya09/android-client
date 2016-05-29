@@ -3946,4 +3946,14 @@ public class StickerManager
 			e.printStackTrace();
 		}
 	}
+
+	public void addQuickSuggestionCategoryToMap(StickerCategory stickerCategory)
+	{
+		stickerCategoriesMap.put(stickerCategory.getCategoryId(), stickerCategory);
+	}
+
+	public void removeQuickSuggestionCategoryFromMap(String catId)
+	{
+		stickerCategoriesMap.remove(catId);
+	}
 }

@@ -748,6 +748,7 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 	{
 		removeQuickSuggestionCategory();
 		stickerCategoryList.add(0, quickSuggestionCategory);
+		StickerManager.getInstance().addQuickSuggestionCategoryToMap(quickSuggestionCategory);
 	}
 
 	public boolean removeQuickSuggestionCategory()
@@ -755,6 +756,7 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 		if(getCount() > 0 && StickerManager.getInstance().isQuickSuggestionCategory(stickerCategoryList.get(0).getCategoryId()))
 		{
 			stickerCategoryList.remove(0);
+			StickerManager.getInstance().removeQuickSuggestionCategoryFromMap(StickerManager.QUICK_SUGGESTIONS);
 			return true;
 		}
 		else
