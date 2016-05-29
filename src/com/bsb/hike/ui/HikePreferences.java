@@ -1785,6 +1785,20 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		bdListPref.setNegativeButtonText(R.string.CANCEL);
 		bdListPref.setOnPreferenceChangeListener(this);
 
+		bdListPref.setOnPreferenceClickListener(new OnPreferenceClickListener()
+		{
+			@Override
+			public boolean onPreferenceClick(Preference preference)
+			{
+				BirthdayUtils.recordBirthdayAnalytics(
+						AnalyticsConstants.BirthdayEvents.BIRTHDAY_CHANGE_SETTING,
+						AnalyticsConstants.BirthdayEvents.BIRTHDAY_SETTING,
+						AnalyticsConstants.BirthdayEvents.BIRTHDAY_CHANGE,
+						BirthdayUtils.getCurrentBDPref(), null, null, null, null);
+				return false;
+			}
+		});
+
 		//adding preference title and summary text
 		updateBDPrefUI(false);
 	}

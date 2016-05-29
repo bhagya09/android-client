@@ -133,6 +133,11 @@ public class BirthdayUtils
     public static void saveBDPrivacyPref(String bdPrefValue)
     {
         Logger.d(TAG, "saving new birthday privacy setting: " + bdPrefValue);
+        recordBirthdayAnalytics(
+                AnalyticsConstants.BirthdayEvents.BIRTHDAY_CHANGE_SETTING,
+                AnalyticsConstants.BirthdayEvents.BIRTHDAY_SETTING,
+                AnalyticsConstants.BirthdayEvents.BIRTHDAY_SETTING_OPEN,
+                getCurrentBDPref(), bdPrefValue, null, null, null);
         Context hikeAppContext = HikeMessengerApp.getInstance().getApplicationContext();
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(hikeAppContext);
         settings.edit().putString(HikeConstants.BIRTHDAY_PRIVACY_PREF, bdPrefValue).commit();

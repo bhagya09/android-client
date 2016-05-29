@@ -953,5 +953,13 @@ public class AnalyticsConstants
 		public static final String BIRTHDAY_CANCEL = "bday_cancel";
 
 		public static final String BIRTHDAY_EXPIRY = "bday_expr";
+
+		public static final String BIRTHDAY_CHANGE_SETTING = "bday_chng_stg";
+
+		public static final String BIRTHDAY_SETTING = "bday_stg";
+
+		public static final String BIRTHDAY_SETTING_OPEN = "bday_stg_opn";
+
+		public static final String BIRTHDAY_CHANGE = "bday_chng";
 	}
 }
