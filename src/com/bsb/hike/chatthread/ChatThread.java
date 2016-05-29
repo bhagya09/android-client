@@ -1845,12 +1845,12 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			setChatBackground(REMOVE_CHAT_BACKGROUND);
 			Drawable drawable = Utils.getChatTheme(themeId, activity);
 
-			setThemeBackground(backgroundImage, drawable, ChatThemeManager.getInstance().getTheme(themeId).isTiled(), ChatThemeManager.getInstance().getTheme(themeId).isCustomTheme(), true);
+			setThemeBackground(backgroundImage, drawable, ChatThemeManager.getInstance().getTheme(themeId).isTiled(), ChatThemeManager.getInstance().getTheme(themeId).isCustomTheme());
 		}
 		mThemeIdBGRendered = themeId;
 	}
 
-	private void setThemeBackground(CustomBGRecyclingImageView backgroundImage, Drawable drawable, boolean isTiled, boolean isCustom, boolean showTransistionEffect) {
+	private void setThemeBackground(CustomBGRecyclingImageView backgroundImage, Drawable drawable, boolean isTiled, boolean isCustom) {
 		if((drawable == null) || (backgroundImage == null)){
 			return;
 		}
@@ -1870,9 +1870,17 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			backgroundImage.setOverLay(true);
 		}
 
-		showTransistionEffect = !HikeChatThemeConstants.THEME_PALETTE_CAMERA_ICON.equalsIgnoreCase(mThemeIdBGRendered);
+		boolean showTransistionEffect = true;
+		if(TextUtils.isEmpty(mThemeIdBGRendered) || HikeChatThemeConstants.THEME_PALETTE_CAMERA_ICON.equalsIgnoreCase(mThemeIdBGRendered)){
+			showTransistionEffect = false;
+		}
 		if(showTransistionEffect) {
-			TransitionDrawable td = new TransitionDrawable(new Drawable[]{new ColorDrawable(activity.getResources().getColor(android.R.color.transparent)), drawable});
+			Drawable srcDrawable = ChatThemeManager.getInstance().getDrawableForTheme(mThemeIdBGRendered, HikeChatThemeConstants.ASSET_INDEX_BG_PORTRAIT);
+			Drawable[] layers = new Drawable[2];
+			layers[0] = srcDrawable;
+			layers[1] = drawable;
+
+			TransitionDrawable td = new TransitionDrawable(layers);
 			backgroundImage.setImageDrawable(td);
 			td.startTransition(HikeChatThemeConstants.CHATTHEME_FADE_IN_TIME);
 		} else {
@@ -1891,7 +1899,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		Bitmap bmp = HikeBitmapFactory.decodeSampledBitmapFromFile(ChatThemeManager.getInstance().customThemeTempUploadImagePath, width, height);
 		Drawable drawable = new BitmapDrawable(getResources(), bmp);
 
-		setThemeBackground(backgroundImage, drawable, false, true, true);
+		setThemeBackground(backgroundImage, drawable, false, true);
 		mThemeIdBGRendered = HikeChatThemeConstants.THEME_PALETTE_CAMERA_ICON;
 	}
 
