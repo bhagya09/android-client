@@ -290,9 +290,10 @@ public class HikeNotificationUtils
 	 * @param context - this is needed while creating {@link PendingIntent} for the action buttons
 	 * @param actionsJSON
 	 * @param msisdn - required as we are opening chatthread on uj notif click
+     * @param analyticsTag
      * @return
      */
-	public static List<NotificationCompat.Action> getActionsForUJNotif(Context context, JSONArray actionsJSON, String msisdn)
+	public static List<NotificationCompat.Action> getActionsForUJNotif(Context context, JSONArray actionsJSON, String msisdn, String analyticsTag)
 	{
 		Logger.d(HikeConstants.UserJoinMsg.TAG, "creating list of actions for rich uj notif");
 		if(actionsJSON == null || actionsJSON.length() == 0)
@@ -307,7 +308,7 @@ public class HikeNotificationUtils
 			if(actionObj != null)
 			{
 
-				notifActions.add(getUJNotifAction(context, actionObj, msisdn));
+				notifActions.add(getUJNotifAction(context, actionObj, msisdn, analyticsTag));
 			}
 		}
 		return notifActions;
@@ -319,9 +320,10 @@ public class HikeNotificationUtils
 	 * @param context
 	 * @param actionObj
 	 * @param msisdn
+     * @param analyticsTag
      * @return
      */
-	public static NotificationCompat.Action getUJNotifAction(Context context, JSONObject actionObj, String msisdn)
+	public static NotificationCompat.Action getUJNotifAction(Context context, JSONObject actionObj, String msisdn, String analyticsTag)
 	{
 		Logger.d(HikeConstants.UserJoinMsg.TAG, "creating individual action items for rich uj notif");
 		String action = actionObj.optString(HikeConstants.ACTION);
@@ -341,6 +343,7 @@ public class HikeNotificationUtils
 
 		Intent actionIntent = new Intent(HikeConstants.UserJoinMsg.NOTIF_ACTION_INTENT);
 		actionIntent.putExtra(HikeConstants.ACTION, action);
+        actionIntent.putExtra(AnalyticsConstants.EXP_ANALYTICS_TAG, analyticsTag);
 
 		if(!TextUtils.isEmpty(msisdn))
 		{
