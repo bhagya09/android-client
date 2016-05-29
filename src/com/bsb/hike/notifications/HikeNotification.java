@@ -344,7 +344,7 @@ public class HikeNotification
 			deleteIntent.putExtra(HIKE_NOTIFICATION_ID_KEY, notifId);
 			deleteIntent.putExtra(HikeConstants.TIP_ID, tipContentModel.getTipId());
 			deleteIntent.putExtra(ProductPopupsConstants.IS_CANCELLABLE, tipContentModel.isCancellable());
-            deleteIntent.putExtra(AnalyticsConstants.EXP_ANALYTICS_TAG, tipContentModel.getAnalyticsTag());
+			deleteIntent.putExtra(AnalyticsConstants.EXP_ANALYTICS_TAG, tipContentModel.getAnalyticsTag());
 
 			PendingIntent pendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(), notifId, deleteIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 			mBuilder.setDeleteIntent(pendingIntent);
@@ -2311,7 +2311,7 @@ public class HikeNotification
 
 		NotificationCompat.Builder mBuilder = getNotificationBuilder(title, message, message, avatar, smallIcon, isSilent, isSilent, false);
 
-        String analyticsTag = data.optString(AnalyticsConstants.EXP_ANALYTICS_TAG);
+		String analyticsTag = data.optString(AnalyticsConstants.EXP_ANALYTICS_TAG);
 
 		List<Action> notifActions = HikeNotificationUtils.getActionsForUJNotif(context, data.optJSONArray(HikeConstants.CTAS), msisdn, analyticsTag);
 		for(int i = 0; i < notifActions.size(); i++)
@@ -2322,19 +2322,19 @@ public class HikeNotification
 		Intent notifIntent = new Intent(HikeConstants.UserJoinMsg.NOTIF_ACTION_INTENT);
 		notifIntent.putExtra(HikeConstants.ACTION, HikeConstants.UserJoinMsg.ACTION_DEFAULT);
 		notifIntent.putExtra(HikeConstants.MSISDN, msisdn);
-        notifIntent.putExtra(AnalyticsConstants.EXP_ANALYTICS_TAG, analyticsTag);
+		notifIntent.putExtra(AnalyticsConstants.EXP_ANALYTICS_TAG, analyticsTag);
 		mBuilder.setContentIntent(PendingIntent.getBroadcast(context, notifId, notifIntent, PendingIntent.FLAG_UPDATE_CURRENT));
 
 		Intent deleteIntent = new Intent(context, NotificationDismissedReceiver.class);
 		deleteIntent.putExtra(HIKE_NOTIFICATION_ID_KEY, notifId);
 		deleteIntent.putExtra(HikeConstants.MqttMessageTypes.USER_JOINED, true);
-        deleteIntent.putExtra(AnalyticsConstants.EXP_ANALYTICS_TAG, analyticsTag);
-        deleteIntent.putExtra(HikeConstants.MSISDN, msisdn);
+		deleteIntent.putExtra(AnalyticsConstants.EXP_ANALYTICS_TAG, analyticsTag);
+		deleteIntent.putExtra(HikeConstants.MSISDN, msisdn);
 		PendingIntent pendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(), notifId, deleteIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 		mBuilder.setDeleteIntent(pendingIntent);
 
 		Logger.d(HikeConstants.UserJoinMsg.TAG, "creating uj notif with id:" + notifId);
-        HikeNotificationUtils.recordUJNotifCreate(String.valueOf(notifId), analyticsTag, isSilent, title, message, String.valueOf(notifActions.size()), msisdn);
+		HikeNotificationUtils.recordUJNotifCreate(String.valueOf(notifId), analyticsTag, isSilent, title, message, String.valueOf(notifActions.size()), msisdn);
 		notifyNotification(notifId, mBuilder);
 
 	}
