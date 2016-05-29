@@ -8193,12 +8193,80 @@ public class Utils
 		return result;
 	}
 
+	/**
+	 * Sends the updated ls settings to the server :
+	 * Sample packet : {"t":"ac" ,"d": {"uls":2, “ls_ex”:[“+918788564326”]}}
+	 *
+	 * @param msisdns
+	 */
 	public static void sendULSPacket(List<String> msisdns) {
-		// TODO
+
+		if (!Utils.isFavToFriendsMigrationAllowed()) {
+			return;
+		}
+
+		Context context = HikeMessengerApp.getInstance().getApplicationContext();
+		// Change last seen pref to friends if its is not already set to friends or noone.
+		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+
+		try {
+			String currentValue = settings.getString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_favorites));
+			int selectedPrivacyId = Integer.parseInt(currentValue);
+
+			JSONArray lsExclusionArray = new JSONArray();
+			for (String msisdn : msisdns) {
+				lsExclusionArray.put(msisdn);
+			}
+
+
+			JSONObject object = new JSONObject();
+			object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.ACCOUNT_CONFIG);
+
+			JSONObject data = new JSONObject();
+			data.put(HikeConstants.UPDATED_LAST_SEEN_SETTING, selectedPrivacyId);
+			// Inclusion/exclusion based on setting of none or friends
+			data.put(selectedPrivacyId == 0 ? HikeConstants.LS_INCLUSION : HikeConstants.LS_EXCLUSION, lsExclusionArray);
+			data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis()));
+			object.put(HikeConstants.DATA, data);
+
+			HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
+
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
 
 	}
 
+	/**
+	 * Sends the updated su settings to the server :
+	 * Sample packet : {"t":"ac" ,"d": {"sus":2, “su_ex”:[“+918788564326”]}}
+	 *
+	 * @param msisdns
+	 */
 	public static void sendUSUPacket(List<String> msisdns) {
-		// TODO
+
+		if (!Utils.isFavToFriendsMigrationAllowed()) {
+			return;
+		}
+
+		try {
+			JSONObject object = new JSONObject();
+			object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.ACCOUNT_CONFIG);
+
+			JSONArray suExclusionArray = new JSONArray();
+			for (String msisdn : msisdns) {
+				suExclusionArray.put(msisdn);
+			}
+
+			JSONObject data = new JSONObject();
+			data.put(HikeConstants.UPDATED_STATUS_UPDATE_SETTING, 2);
+			data.put(HikeConstants.STATUS_UPDATE_EXCLUSION, suExclusionArray);
+			data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis()));
+			object.put(HikeConstants.DATA, data);
+
+			HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
 	}
 }
