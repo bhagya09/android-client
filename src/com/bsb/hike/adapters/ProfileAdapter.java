@@ -32,6 +32,7 @@ import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeSharedFile;
 import com.bsb.hike.models.ImageViewerInfo;
+import com.bsb.hike.models.PrivacyPreferences;
 import com.bsb.hike.models.ProfileItem;
 import com.bsb.hike.models.ProfileItem.ProfileGroupItem;
 import com.bsb.hike.models.ProfileItem.ProfileSharedContent;
@@ -856,6 +857,10 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.On
 				} else {
 					viewHolder.expandingLayout.setVisibility(View.VISIBLE);
 				}
+
+				PrivacyPreferences prefs = mContactInfo.getPrivacyPrefs();
+				viewHolder.statusUpdateSwitch.setChecked(prefs.shouldShowStatusUpdate());
+				viewHolder.lastSeenSwitch.setChecked(prefs.shouldShowLastSeen());
 
 				viewHolder.parent.setTag(position);
 				viewHolder.parent.setOnClickListener(this);

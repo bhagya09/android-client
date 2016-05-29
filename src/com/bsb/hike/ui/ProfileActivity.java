@@ -893,6 +893,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	{
 		setLocalMsisdn(getIntent().getStringExtra(HikeConstants.Extras.CONTACT_INFO));
 		contactInfo = ContactManager.getInstance().getContact(mLocalMSISDN, true, true);
+		contactInfo.setPrivacyPrefs(ContactManager.getInstance().getPrivacyPrefsForAGivenMsisdn(contactInfo.getMsisdn()));
 		sharedMediaCount = HikeConversationsDatabase.getInstance().getSharedMediaCount(mLocalMSISDN, true);
 		sharedPinCount = 0;  //Add a query here to get shared groups count. sharedPincount is to be treated as shared group count here.
 		unreadPinCount = 0;

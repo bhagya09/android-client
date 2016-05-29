@@ -3243,5 +3243,10 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 			}
 		});
 	}
+
+	public PrivacyPreferences getPrivacyPrefsForAGivenMsisdn(String msisdn)
+	{
+		return hDb.getPrivacyPreferencesForAGivenMsisdn(msisdn);
+	}
 }
 
