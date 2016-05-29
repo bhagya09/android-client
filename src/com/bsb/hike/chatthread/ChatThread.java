@@ -6626,7 +6626,14 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 		setComposeViewDefaultState();
 
-		((ImageButton) activity.findViewById(R.id.send_message)).setImageResource(R.drawable.walkie_talkie_btn_selector);
+		if (!useWTRevamped)
+			((ImageButton) activity.findViewById(R.id.send_message)).setImageResource(R.drawable.walkie_talkie_btn_selector);
+		else
+		{
+			((ImageButton) activity.findViewById(R.id.send_message)).setImageResource(R.drawable.send_btn_selector);
+			((ImageButton) activity.findViewById(R.id.send_message)).setVisibility(View.GONE);
+			((ImageButton) activity.findViewById(R.id.send_message_audio)).setVisibility(View.VISIBLE);
+		}
 	}
 
     private void setComposeViewDefaultState()
