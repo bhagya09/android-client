@@ -1,23 +1,5 @@
 package com.bsb.hike.chatthread;
 
-import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
-
-import java.io.File;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -204,6 +186,24 @@ import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.view.CustomFontEditText.BackKeyListener;
 import com.bsb.hike.view.CustomLinearLayout;
 import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
+
+import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 @SuppressLint("ResourceAsColor") public abstract class ChatThread extends SimpleOnGestureListener implements OverflowItemClickListener, View.OnClickListener, ThemePickerListener, ImageParserListener,
 		PickFileListener, StickerPickerListener, HikeAudioRecordListener, LoaderCallbacks<Object>, OnItemLongClickListener, OnTouchListener, OnScrollListener,
@@ -1421,12 +1421,16 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 
     protected void sendButtonClicked()
     {
+        // If bots custom keyboard is enabled for this chat, then on send button press toggle keyboard popup
+        if (TextUtils.isEmpty(mComposeView.getText()) && BotUtils.isBot(msisdn) && CustomKeyboardManager.getInstance().shouldShowInputBox(msisdn))
+        {
+            botsCustomKeyboardInputBoxClicked();
+            return;
+        }
+
         if (!useWTRevamped && TextUtils.isEmpty(mComposeView.getText()))
         {
-            if (BotUtils.isBot(msisdn) && CustomKeyboardManager.getInstance().shouldShowInputBox(msisdn))
-                inputBoxClicked();
-            else
-                audioRecordClicked();
+            audioRecordClicked();
         }
         else
         {
@@ -4149,10 +4153,6 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
                 CustomKeyboardManager.getInstance().initInputBox(activity.getApplicationContext(),this,this,senderMsisdn);
                 sendUIMessage(SHOW_INPUT_BOX, senderMsisdn);
             }
-            else
-            {
-                sendUIMessage(REMOVE_INPUT_BOX, null);
-            }
 		}
 	}
 
@@ -6686,7 +6686,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
         activity.findViewById(R.id.send_message).setSelected(selected);
     }
 
-	protected void inputBoxClicked()
+	protected void botsCustomKeyboardInputBoxClicked()
 	{
 		setInputBoxButtonSelected(true);
 
