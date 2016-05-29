@@ -6,16 +6,18 @@ import android.graphics.drawable.Drawable;
 import android.media.ThumbnailUtils;
 import android.util.Log;
 
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
-import com.bsb.hike.chatthread.ChatThread;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.ChatAnalyticConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.HikeChatTheme;
 import com.bsb.hike.models.HikeChatThemeAsset;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -349,10 +351,11 @@ public class ChatThemeManager {
         return mDrawableHelper.getDrawableForTheme(getTheme(themeId), assetIndex);
     }
 
-    public void downloadThemeAssetsMetadata(String themeId, boolean isCustom) {
+    public void downloadThemeAssetsMetadata(String themeId, String toUser, String groupId, boolean isCustom) {
         // Automatically enabling the Chatthemes for the receiver, though the packet is not enabled from server. This will help to organically grow chat themes
         // https://hikeapp.atlassian.net/browse/CE-764
         if(isCustom && !ChatThreadUtils.isCustomChatThemeEnabled()){
+            HikeAnalyticsEvent.recordAnalyticOrganicCTPacket(themeId, toUser, groupId);
             HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CUSTOM_CHATTHEME_ENABLED, true);
         }
 
@@ -409,5 +412,6 @@ public class ChatThemeManager {
         }
         return R.drawable.bg_system_message_dark;
     }
+
 
 }
