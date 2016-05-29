@@ -178,6 +178,14 @@ public class QuickSuggestionStickerCategory extends CustomStickerCategory
 		return showReplyStickers ? getReplyStickerList() : getSentStickerList();
 	}
 
+	@Override
+	public void addSticker(Sticker st) {
+	}
+
+	@Override
+	public void removeSticker(Sticker st) {
+	}
+
 	private ArrayList getReplyStickerList()
 	{
 		return replyStickers == null ? new ArrayList<Sticker>(0) : new ArrayList<>(replyStickers);

@@ -114,12 +114,12 @@ public class CustomStickerCategory extends StickerCategory
 		}
 	}
 
-	public Set<Sticker> loadRecentsFromDb()
+	private Set<Sticker> loadRecentsFromDb()
 	{
 		return HikeConversationsDatabase.getInstance().getRecentStickers();
 	}
 
-	public void addDefaultRecentSticker()
+	private void addDefaultRecentSticker()
 	{
 
 		String[] recentSticker = { "002_lol.png", "003_teasing.png", "061_lovelips.png", "092_yo.png", "069_hi.png", "033_hawww.png", "047_saale.png", "042_sahihai.png" };
