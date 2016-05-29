@@ -1243,7 +1243,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	private void setupContactProfileList() {
 		profileItems.clear();
 		if (!contactInfo.isBot()) {  //The HikeBot's numbers wont be shown
-			profileItems.add(new ProfileItem.ProfilePrivacyItem(ProfileItem.PRIVACY_SECTION));
+			checkAndAddPrivacySection();
 			profileItems.add(new ProfileItem.ProfilePhoneNumberItem(ProfileItem.PHONE_NUMBER, getResources().getString(R.string.phone_pa)));
 		}
 
@@ -1252,7 +1252,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			profileItems.add(new ProfileItem.ProfileSharedContent(ProfileItem.SHARED_CONTENT, getResources().getString(R.string.shared_cont_pa), sharedFileCount, sharedPinCount, unreadPinCount, null));
 		}
 	}
-	
+
 	private void setupContactTimelineList()
 	{
 		profileItems.clear();
@@ -3966,6 +3966,11 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	{
 		this.mLocalMSISDN = msisdn;
 		super.setLocalMsisdn(mLocalMSISDN);
+	}
+
+	private void checkAndAddPrivacySection() {
+		if (Utils.isFavToFriendsMigrationAllowed())
+			profileItems.add(new ProfileItem.ProfilePrivacyItem(ProfileItem.PRIVACY_SECTION));
 	}
 
 }
