@@ -40,12 +40,12 @@ public class UJNotifClickReceiver extends BroadcastReceiver
             {
                 case HikeConstants.UserJoinMsg.ACTION_ADD_FRIEND:
                     processActionAddFriend(context, intent, msisdn, analyticsTag);
-                    HikeNotificationUtils.recordUJNotifClick(msisdn.hashCode(), analyticsTag, AnalyticsConstants.UJNotifAnalyticsConstants.UJ_NOTIF_SAY_HI, msisdn);
+                    HikeNotificationUtils.recordUJNotifClick(msisdn.hashCode(), analyticsTag, AnalyticsConstants.UJNotifAnalyticsConstants.UJ_NOTIF_ADD_FRIEND, msisdn);
                     break;
 
                 case HikeConstants.UserJoinMsg.ACTION_SAY_HI:
                     processActionSayHi(context, intent, msisdn, analyticsTag);
-                    HikeNotificationUtils.recordUJNotifClick(msisdn.hashCode(), analyticsTag, AnalyticsConstants.UJNotifAnalyticsConstants.UJ_NOTIF_ADD_FRIEND, msisdn);
+                    HikeNotificationUtils.recordUJNotifClick(msisdn.hashCode(), analyticsTag, AnalyticsConstants.UJNotifAnalyticsConstants.UJ_NOTIF_SAY_HI, msisdn);
                     break;
 
                 case HikeConstants.UserJoinMsg.ACTION_DEFAULT:
@@ -104,7 +104,7 @@ public class UJNotifClickReceiver extends BroadcastReceiver
     {
         Logger.d(TAG, "processing add friend action for rich uj notif");
         ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, true, true);
-        Utils.toggleFavorite(context, contactInfo, false, HikeConstants.AddFriendSources.NOTIF);
+        Utils.toggleFavorite(context, contactInfo, false, HikeConstants.AddFriendSources.NOTIF, analyticsTag, true);
         Intent ujActionIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, true, false, ChatThreadActivity.ChatThreadOpenSources.NOTIF);
         ujActionIntent.putExtra(AnalyticsConstants.EXP_ANALYTICS_TAG, analyticsTag);
         ujActionIntent.putExtra(AnalyticsConstants.SOURCE_CONTEXT, AnalyticsConstants.UJNotifAnalyticsConstants.UJ_NOTIF_ADD_FRIEND);

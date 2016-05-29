@@ -1001,7 +1001,7 @@ public class AtomicTipManager
                     if(!TextUtils.isEmpty(msisdn))
                     {
                         ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, false, false);
-                        Utils.toggleFavorite(context, contactInfo, false, null, false);
+                        Utils.toggleFavorite(context, contactInfo, false, HikeConstants.AddFriendSources.ATOMIC_TIP, currentlyShowing.getAnalyticsTag(), false);
                         counter++;
                     }
                 }
