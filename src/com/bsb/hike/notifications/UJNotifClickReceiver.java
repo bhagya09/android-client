@@ -7,6 +7,7 @@ import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -34,18 +35,22 @@ public class UJNotifClickReceiver extends BroadcastReceiver
         {
             String ujAction = intent.getStringExtra(HikeConstants.ACTION);
             String msisdn = intent.getStringExtra(HikeConstants.MSISDN);
+            String analyticsTag = intent.getStringExtra(AnalyticsConstants.EXP_ANALYTICS_TAG);
             switch (ujAction)
             {
                 case HikeConstants.UserJoinMsg.ACTION_ADD_FRIEND:
-                    processActionAddFriend(context, intent, msisdn);
+                    processActionAddFriend(context, intent, msisdn, analyticsTag);
+                    HikeNotificationUtils.recordUJNotifClick(msisdn.hashCode(), analyticsTag, AnalyticsConstants.UJNotifAnalyticsConstants.UJ_NOTIF_SAY_HI, msisdn);
                     break;
 
                 case HikeConstants.UserJoinMsg.ACTION_SAY_HI:
-                    processActionSayHi(context, intent, msisdn);
+                    processActionSayHi(context, intent, msisdn, analyticsTag);
+                    HikeNotificationUtils.recordUJNotifClick(msisdn.hashCode(), analyticsTag, AnalyticsConstants.UJNotifAnalyticsConstants.UJ_NOTIF_ADD_FRIEND, msisdn);
                     break;
 
                 case HikeConstants.UserJoinMsg.ACTION_DEFAULT:
-                    processActionDefault(context, intent, msisdn);
+                    processActionDefault(context, intent, msisdn, analyticsTag);
+                    HikeNotificationUtils.recordUJNotifClick(msisdn.hashCode(), analyticsTag, AnalyticsConstants.UJNotifAnalyticsConstants.UJ_NOTIF_CLICKED, msisdn);
                     break;
             }
         }
@@ -57,11 +62,14 @@ public class UJNotifClickReceiver extends BroadcastReceiver
      * @param context
      * @param intent
      * @param msisdn
+     * @param analyticsTag
      */
-    private void processActionSayHi(Context context, Intent intent, String msisdn)
+    private void processActionSayHi(Context context, Intent intent, String msisdn, String analyticsTag)
     {
         Logger.d(TAG, "processing say hi action for rich uj notif");
         Intent ujActionIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, true, false, ChatThreadActivity.ChatThreadOpenSources.NOTIF);
+        ujActionIntent.putExtra(AnalyticsConstants.EXP_ANALYTICS_TAG, analyticsTag);
+        ujActionIntent.putExtra(AnalyticsConstants.SOURCE_CONTEXT, AnalyticsConstants.UJNotifAnalyticsConstants.UJ_NOTIF_SAY_HI);
         String metadata = intent.getStringExtra(HikeConstants.METADATA);
         String msg = null;
         if(!TextUtils.isEmpty(metadata))
@@ -90,13 +98,16 @@ public class UJNotifClickReceiver extends BroadcastReceiver
      * @param context
      * @param intent
      * @param msisdn
+     * @param analyticsTag
      */
-    private void processActionAddFriend(Context context, Intent intent, String msisdn)
+    private void processActionAddFriend(Context context, Intent intent, String msisdn, String analyticsTag)
     {
         Logger.d(TAG, "processing add friend action for rich uj notif");
         ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, true, true);
         Utils.toggleFavorite(context, contactInfo, false, HikeConstants.AddFriendSources.NOTIF);
         Intent ujActionIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, true, false, ChatThreadActivity.ChatThreadOpenSources.NOTIF);
+        ujActionIntent.putExtra(AnalyticsConstants.EXP_ANALYTICS_TAG, analyticsTag);
+        ujActionIntent.putExtra(AnalyticsConstants.SOURCE_CONTEXT, AnalyticsConstants.UJNotifAnalyticsConstants.UJ_NOTIF_ADD_FRIEND);
         openActivity(context, ujActionIntent);
     }
 
@@ -105,11 +116,14 @@ public class UJNotifClickReceiver extends BroadcastReceiver
      * @param context
      * @param intent
      * @param msisdn
+     * @param analyticsTag
      */
-    private void processActionDefault(Context context, Intent intent, String msisdn)
+    private void processActionDefault(Context context, Intent intent, String msisdn, String analyticsTag)
     {
         Logger.d(TAG, "processing default action for rich uj notif");
         Intent ujActionIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, false, false, ChatThreadActivity.ChatThreadOpenSources.NOTIF);
+        ujActionIntent.putExtra(AnalyticsConstants.EXP_ANALYTICS_TAG, analyticsTag);
+        ujActionIntent.putExtra(AnalyticsConstants.SOURCE_CONTEXT, AnalyticsConstants.UJNotifAnalyticsConstants.UJ_NOTIF_CLICKED);
         openActivity(context, ujActionIntent);
     }
 

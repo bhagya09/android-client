@@ -81,6 +81,9 @@ public class NotificationDismissedReceiver extends BroadcastReceiver
 				if(intent.getBooleanExtra(HikeConstants.MqttMessageTypes.USER_JOINED, false))
 				{
 					Logger.d(HikeConstants.UserJoinMsg.TAG, "uj notif dismissed");
+                    String msisdn = intent.getStringExtra(HikeConstants.MSISDN);
+                    String tag = intent.getStringExtra(AnalyticsConstants.EXP_ANALYTICS_TAG);
+                    HikeNotificationUtils.recordUJNotifSwipe(String.valueOf(notificationId), tag, msisdn);
 				}
 			}
 		}
