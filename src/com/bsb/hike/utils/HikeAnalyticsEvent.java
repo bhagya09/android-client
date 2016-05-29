@@ -377,7 +377,7 @@ public class HikeAnalyticsEvent
 			metadata.put(AnalyticsConstants.V2.SPECIES, ChatThreadUtils.getChatThreadType(msisdn));
 			metadata.put(AnalyticsConstants.TO_USER, msisdn);
 			if(!TextUtils.isEmpty(groupId)) {
-				metadata.put(ChatAnalyticConstants.REC_ID, groupId);
+				metadata.put(AnalyticsConstants.V2.REC_ID, groupId);
 			}
 			HAManager.getInstance().recordV2(metadata);
 		} catch (JSONException e)

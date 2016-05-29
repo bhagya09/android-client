@@ -54,8 +54,6 @@ public class ChatAnalyticConstants {
 
     public static final String CUSTOM_THEME_DONE = "ctDone";
 
-    public static final String REC_ID = "rec_id";
-
     public static final class GCEvents
     {
         public static final String GC_PIN_CANCEL = "pinCncl";
