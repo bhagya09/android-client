@@ -1481,6 +1481,11 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			dobTxt = dobEntered.toJsonString();
 			savedDOB.setText(Utils.formatDOB(dobTxt));
 			dobEdited = true;
+			BirthdayUtils.recordBirthdayAnalytics(
+					AnalyticsConstants.BirthdayEvents.BIRTHDAY_OK,
+					AnalyticsConstants.BirthdayEvents.BIRTHDAY_STORE,
+					AnalyticsConstants.BirthdayEvents.BIRTHDAY_OK,
+					null, null, null, null, null);
 		}
 	};
 
@@ -1513,6 +1518,11 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 					Logger.d(TAG, "cancelling date picker dialog");
 					dialog.dismiss();
 					dobEdited = false;
+					BirthdayUtils.recordBirthdayAnalytics(
+							AnalyticsConstants.BirthdayEvents.BIRTHDAY_CANCEL,
+							AnalyticsConstants.BirthdayEvents.BIRTHDAY_STORE,
+							AnalyticsConstants.BirthdayEvents.BIRTHDAY_CANCEL,
+							null, null, null, null, null);
 				}
 			}
 		});
