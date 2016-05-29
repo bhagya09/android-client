@@ -302,6 +302,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	protected static final int GENERAL_EVENT_STATE_CHANGE = 43;
 
+	protected static final int SHOW_QUICK_SUGGESTIONS_TIP = 44;
+
 	protected static final int REMOVE_CHAT_BACKGROUND = 0;
 
 	protected final int NUDGE_COOLOFF_TIME = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NUDGE_SEND_COOLOFF_TIME, 300);
@@ -434,6 +436,14 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 					if(mShareablePopupLayout != null && !mShareablePopupLayout.isShowing())
 					{
 						dismissStickerRecommendationPopup();
+					}
+					break;
+				case StickerManager.QUICK_STICKER_SUGGESTION_FTUE_STICKER_CLICKED:
+					if(QuickStickerSuggestionController.getInstance().isFtueSessionRunning())
+					{
+						int sessionType = QuickStickerSuggestionController.getInstance().getFtueSessionType();
+						int whichTip = sessionType == QuickStickerSuggestionController.FTUE_RECEIVE_SESSION ? ChatThreadTips.QUICK_SUGGESTION_RECEIVED_THIRD_TIP : ChatThreadTips.QUICK_SUGGESTION_SENT_THIRD_TIP;
+						mTips.showQuickStickerSuggestionsTip(whichTip);
 					}
 					break;
 			}
@@ -585,6 +595,9 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				break;
 			case GENERAL_EVENT_STATE_CHANGE:
 				onGeneralEventStateChange(msg.obj);
+				break;
+			case SHOW_QUICK_SUGGESTIONS_TIP:
+				showQuickSuggestionTip((ConvMessage) msg.obj);
 				break;
 			default:
 				Logger.d(TAG, "Did not find any matching event for msg.what : " + msg.what);
@@ -1337,6 +1350,12 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		{
 			openOrRefreshStickerPalette(convMessage);
 		}
+		if(QuickStickerSuggestionController.getInstance().isFtueSessionRunning(convMessage.isSent()))
+		{
+			mTips.setTipSeen(isSent ? ChatThreadTips.QUICK_SUGGESTION_SENT_SECOND_TIP : ChatThreadTips.QUICK_SUGGESTION_RECEIVED_SECOND_TIP);
+			QuickStickerSuggestionController.getInstance().setFtueTipSeen(QuickStickerSuggestionController.QUICK_SUGGESTION_STICKER_ANIMATION);
+			uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
+		}
 	}
 
 	@Override
@@ -1602,6 +1621,21 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	public void showStickerRecommendAutopopupOffTip()
 	{
 		mTips.showStickerRecommendAutopopupOffTip();
+	}
+
+	public void showQuickSuggestionTip(final ConvMessage convMessage)
+	{
+		if (convMessage.isStickerMessage())
+		{
+			boolean canStartFtue = QuickStickerSuggestionController.getInstance().canStartFtue(convMessage.isSent());
+			int whichTip = convMessage.isSent() ? ChatThreadTips.QUICK_SUGGESTION_SENT_FIRST_TIP : ChatThreadTips.QUICK_SUGGESTION_RECEIVED_FIRST_TIP;
+			if (canStartFtue)
+			{
+				QuickStickerSuggestionController.getInstance().startFtueSession(convMessage.isSent());
+				mTips.showQuickStickerSuggestionsTip(whichTip);
+				uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
+			}
+		}
 	}
 
 	public void dismissTip(int whichTip)
@@ -2785,6 +2819,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		intentFilter.addAction(StickerManager.MORE_STICKERS_DOWNLOADED);
 		intentFilter.addAction(StickerManager.STICKERS_DOWNLOADED);
 		intentFilter.addAction(ACTION_KEYBOARD_CLOSED);
+		intentFilter.addAction(StickerManager.QUICK_STICKER_SUGGESTION_FTUE_STICKER_CLICKED);
 
 		LocalBroadcastManager.getInstance(activity.getBaseContext()).registerReceiver(mBroadCastReceiver, intentFilter);
 
@@ -4151,6 +4186,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 					//Logs for Msg Reliability
 					MsgRelLogManager.logMsgRelEvent(message, MsgRelEventType.RECEIVER_OPENS_CONV_SCREEN);
 				}
+				sendUIMessage(SHOW_QUICK_SUGGESTIONS_TIP, message);
 			}
 
 			if (message.getParticipantInfoState() != ParticipantInfoState.NO_INFO)
@@ -4350,6 +4386,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			tipVisibilityAnimator.dismissInfoTipIfShowing();
 			tipVisibilityAnimator = null;
 		}
+
+		QuickStickerSuggestionController.getInstance().ftueSessionCompleted();
 	}
 
 	private void releaseShareablePopUpResources()
@@ -5180,7 +5218,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		ConvMessage convMessage = Utils.makeConvMessage(msisdn, StickerManager.STICKER_MESSAGE_TAG, mConversation.isOnHike());
 		ChatThreadUtils.setStickerMetadata(convMessage, sticker, source);
 		sendMessage(convMessage);
-
+		sendUIMessage(SHOW_QUICK_SUGGESTIONS_TIP, convMessage);
 	}
 
 	protected void sendChatThemeMessage(){

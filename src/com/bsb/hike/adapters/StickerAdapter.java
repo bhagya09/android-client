@@ -170,7 +170,7 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 
 		if(StickerManager.getInstance().isQuickSuggestionCategory(category.getCategoryId()))
 		{
-			if(QuickStickerSuggestionController.getInstance().shouldShowFtuePage())
+			if(QuickStickerSuggestionController.getInstance().isFtueSessionRunning() && !QuickStickerSuggestionController.getInstance().isTipSeen(QuickStickerSuggestionController.QUICK_SUGGESTION_FTUE_PAGE))
 			{
 				if(Utils.isEmpty(category.getStickerList()))
 				{
@@ -546,6 +546,7 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 				{
 					return;
 				}
+				QuickStickerSuggestionController.getInstance().setFtueTipSeen(QuickStickerSuggestionController.QUICK_SUGGESTION_FTUE_PAGE);
 				setupStickerPage(stickerPageObject.getParentView(), stickerPageObject.getStickerCategory());
 			}
 			/**

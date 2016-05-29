@@ -4350,4 +4350,20 @@ public class HikeConstants
 	public static final String CTAS = "ctas";
 
 	public static final String ACTION = "action";
+
+	public static final String QS_RECEIVE_FTUE_SESSION_COUNT = "qsrcvftuesncnt";
+
+	public static final String QS_SENT_FTUE_SESSION_COUNT = "qssntftuesncnt";
+
+	public static final String QUICK_SUGGESTION_RECEIVED_FIRST_TIP_TEXT = "qsrftt";
+
+	public static final String QUICK_SUGGESTION_RECEIVED_SECOND_TIP_TEXT = "qsrstt";
+
+	public static final String QUICK_SUGGESTION_RECEIVED_THIRD_TIP_TEXT = "qsrttt";
+
+	public static final String QUICK_SUGGESTION_SENT_FIRST_TIP_TEXT = "qssftt";
+
+	public static final String QUICK_SUGGESTION_SENT_SECOND_TIP_TEXT = "qssstt";
+
+	public static final String QUICK_SUGGESTION_SENT_THIRD_TIP_TEXT = "qssttt";
 }

@@ -1,15 +1,21 @@
 package com.bsb.hike.modules.quickstickersuggestions;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.SparseArray;
+import android.view.View;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.R;
+import com.bsb.hike.chatthread.ChatThreadTips;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeHandlerUtil;
-import com.bsb.hike.modules.quickstickersuggestions.model.QuickSuggestionStickerCategory;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
+import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
+import com.bsb.hike.modules.quickstickersuggestions.model.QuickSuggestionStickerCategory;
 import com.bsb.hike.modules.quickstickersuggestions.tasks.FetchQuickStickerSuggestionTask;
 import com.bsb.hike.modules.quickstickersuggestions.tasks.InsertQuickSuggestionTask;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -32,17 +38,38 @@ public class QuickStickerSuggestionController
 
     private boolean showQuickStickerSuggestionOnStickerSent;
 
+    private static volatile QuickStickerSuggestionController _instance;
+
+    private SparseArray<Boolean> ftueTipSeenArray;
+
     private long ttl;
+
+    private int receiveFtueSessionCount;
+
+    private int sentFtueSessionCount;
+
+    private boolean ftueSessionRunning;
+
+    private int sessionType;
+
+    public static final int FTUE_RECEIVE_SESSION = 0;
+
+    public static final int FTUE_SENT_SESSION = 1;
+
+    private static final int DEFAULT_FTUE_SESSION_COUNT = 2;
 
     public static final long DEFAULT_QUICK_SUGGESTED_STICKERS_TTL = 2 * HikeConstants.ONE_DAY_MILLS;
 
-    private static volatile QuickStickerSuggestionController _instance;
+    public static final int QUICK_SUGGESTION_FTUE_PAGE = 15;
+
+    public static final int QUICK_SUGGESTION_STICKER_ANIMATION = 16;
 
     private QuickStickerSuggestionController()
     {
         showQuickStickerSuggestionOnStickerReceive = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_QUICK_STICKER_SUGGESTION_ON_STICKER_RECEIVE, false);
         showQuickStickerSuggestionOnStickerSent = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_QUICK_STICKER_SUGGESTION_ON_STICKER_SENT, false);
         ttl = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.QUICK_SUGGESTED_STICKERS_TTL, DEFAULT_QUICK_SUGGESTED_STICKERS_TTL);
+        initFtueConditions();
     }
 
     public static QuickStickerSuggestionController getInstance()
@@ -61,8 +88,14 @@ public class QuickStickerSuggestionController
         return _instance;
     }
 
-    public void toggleQuickSuggestionOnReceive(boolean showQuickStickerSuggestionOnStickerReceive)
+    private void initFtueConditions()
     {
+        receiveFtueSessionCount = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.QS_RECEIVE_FTUE_SESSION_COUNT, DEFAULT_FTUE_SESSION_COUNT);
+        sentFtueSessionCount = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.QS_SENT_FTUE_SESSION_COUNT, DEFAULT_FTUE_SESSION_COUNT);
+        ftueTipSeenArray = new SparseArray<>();
+    }
+
+    public void toggleQuickSuggestionOnReceive(boolean showQuickStickerSuggestionOnStickerReceive) {
         this.showQuickStickerSuggestionOnStickerReceive = showQuickStickerSuggestionOnStickerReceive;
         HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_QUICK_STICKER_SUGGESTION_ON_STICKER_RECEIVE, showQuickStickerSuggestionOnStickerReceive);
 
@@ -191,16 +224,28 @@ public class QuickStickerSuggestionController
         return Math.abs(TextUtils.isEmpty(uid) ? 0 : uid.hashCode() % 100) + 1;
     }
 
-
-    public boolean shouldShowFtuePage()
-    {
-        return false;
+    public boolean shouldAnimateSticker(ConvMessage convMessage) {
+        Sticker sticker = convMessage.getMetadata().getSticker();
+        boolean isAllowed = isStickerClickAllowed(convMessage.isSent());
+        return isAllowed && isFtueSessionRunning(convMessage.isSent()) && !isTipSeen(QUICK_SUGGESTION_STICKER_ANIMATION) && sticker.isStickerFileAvailable();
     }
 
-    public void sendFetchSuccessSignalToUi(List<StickerCategory> quickStickerCategoryList)
-    {
-        for(StickerCategory category : quickStickerCategoryList)
+    public void animateForQsFtue(ConvMessage convMessage, View view) {
+        if(shouldAnimateSticker(convMessage))
         {
+            view.startAnimation(HikeAnimationFactory.getQuickSuggestionStickerAnimation(view.getContext()));
+        }
+        else
+        {
+            if(view.getAnimation() != null)
+            {
+                view.clearAnimation();
+            }
+        }
+    }
+
+    public void sendFetchSuccessSignalToUi(List<StickerCategory> quickStickerCategoryList) {
+        for (StickerCategory category : quickStickerCategoryList) {
             QuickSuggestionStickerCategory quickSuggestionCategory = (QuickSuggestionStickerCategory) category;
             LocalBroadcastManager.getInstance(HikeMessengerApp.getInstance()).sendBroadcast(new Intent(StickerManager.QUICK_STICKER_SUGGESTION_FETCH_SUCCESS).putExtra(HikeConstants.BUNDLE, quickSuggestionCategory.toBundle()));
         }
@@ -214,5 +259,92 @@ public class QuickStickerSuggestionController
                 .setQuickSuggestSticker(sticker)
                 .build();
         LocalBroadcastManager.getInstance(HikeMessengerApp.getInstance()).sendBroadcast(new Intent(StickerManager.QUICK_STICKER_SUGGESTION_FETCH_FAILED).putExtra(HikeConstants.BUNDLE, stickerCategory.toBundle()));
+    }
+
+    public boolean canStartFtue(boolean isSentSession)
+    {
+        if(!isStickerClickAllowed(isSentSession) || isFtueSessionRunning())
+        {
+            return false;
+        }
+
+        if(isSentSession)
+        {
+            return sentFtueSessionCount > 0 ? true : false;
+        }
+        else
+        {
+            return receiveFtueSessionCount > 0 ? true : false;
+        }
+    }
+
+    public void startFtueSession(boolean isSentSession)
+    {
+        ftueSessionRunning = true;
+        sessionType = isSentSession ? FTUE_SENT_SESSION : FTUE_RECEIVE_SESSION;
+        ftueTipSeenArray.clear();
+    }
+
+    public int getFtueSessionType()
+    {
+        return sessionType;
+    }
+
+    public boolean isFtueSessionRunning()
+    {
+        return ftueSessionRunning;
+    }
+
+    public boolean isFtueSessionRunning(boolean isSent)
+    {
+        return isFtueSessionRunning() && (isSent ? sessionType == FTUE_SENT_SESSION : sessionType == FTUE_RECEIVE_SESSION);
+    }
+
+    public void ftueSessionCompleted()
+    {
+        if(isFtueSessionRunning())
+        {
+            if(sessionType == FTUE_RECEIVE_SESSION)
+            {
+                receiveFtueSessionCount --;
+            }
+            else
+            {
+                sentFtueSessionCount --;
+            }
+        }
+        ftueSessionRunning = false;
+        ftueTipSeenArray.clear();
+    }
+
+    public String getTiptext(int whichTip)
+    {
+        Resources res = HikeMessengerApp.getInstance().getResources();
+        switch (whichTip)
+        {
+            case ChatThreadTips.QUICK_SUGGESTION_RECEIVED_FIRST_TIP:
+                return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.QUICK_SUGGESTION_RECEIVED_FIRST_TIP_TEXT, res.getString(R.string.qs_received_first_tip_text));
+            case ChatThreadTips.QUICK_SUGGESTION_RECEIVED_SECOND_TIP:
+                return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.QUICK_SUGGESTION_RECEIVED_FIRST_TIP_TEXT, res.getString(R.string.qs_received_second_tip_text));
+            case ChatThreadTips.QUICK_SUGGESTION_RECEIVED_THIRD_TIP:
+                return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.QUICK_SUGGESTION_RECEIVED_FIRST_TIP_TEXT, res.getString(R.string.qs_received_third_tip_text));
+            case ChatThreadTips.QUICK_SUGGESTION_SENT_FIRST_TIP:
+                return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.QUICK_SUGGESTION_RECEIVED_FIRST_TIP_TEXT, res.getString(R.string.qs_sent_first_tip_text));
+            case ChatThreadTips.QUICK_SUGGESTION_SENT_SECOND_TIP:
+                return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.QUICK_SUGGESTION_RECEIVED_FIRST_TIP_TEXT, res.getString(R.string.qs_sent_second_tip_text));
+            case ChatThreadTips.QUICK_SUGGESTION_SENT_THIRD_TIP:
+                return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.QUICK_SUGGESTION_RECEIVED_FIRST_TIP_TEXT, res.getString(R.string.qs_sent_third_tip_text));
+        }
+        return "";
+    }
+
+    public void setFtueTipSeen(int whichTip)
+    {
+        ftueTipSeenArray.put(whichTip, true);
+    }
+
+    public boolean isTipSeen(int whichTip)
+    {
+        return ftueTipSeenArray.get(whichTip) == null ? false : ftueTipSeenArray.get(whichTip);
     }
 }
