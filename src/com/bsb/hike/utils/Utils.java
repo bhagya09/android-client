@@ -248,7 +248,6 @@ public class Utils
 {
 	private static final String TAG = Utils.class.getSimpleName();
 
-
 	// Precision points definition for duration logging========================================[[
 	public static final class ExecutionDurationLogger
 	{
@@ -8192,5 +8191,14 @@ public class Utils
 		result = prime * result + msisdn.hashCode();
 
 		return result;
+	}
+
+	public static void sendULSPacket(List<String> msisdns) {
+		// TODO
+
+	}
+
+	public static void sendUSUPacket(List<String> msisdns) {
+		// TODO
 	}
 }

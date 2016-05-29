@@ -1091,6 +1091,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.On
 
 			case R.id.status_update_section:
 				toggleStatusUpdatePrivacyForUser(v);
+				break;
 		}
 	}
 
@@ -1105,11 +1106,11 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.On
 
 		switch (buttonView.getId()) {
 			case R.id.last_seen_switch:
-				// TODO
+				ContactManager.getInstance().toggleLastSeenSetting(mContactInfo, isChecked);
 				break;
 
 			case R.id.status_update_switch:
-				// TODO
+				ContactManager.getInstance().toggleStatusUpdateSetting(mContactInfo, isChecked);
 				break;
 		}
 

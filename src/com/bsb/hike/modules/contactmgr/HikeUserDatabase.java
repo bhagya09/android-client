@@ -2879,7 +2879,11 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		ContentValues cv = new ContentValues();
 		cv.put(DBConstants.LAST_SEEN_SETTINGS, newValue);
 
-		mDb.update(DBConstants.USERS_TABLE, cv, DBConstants.MSISDN + " IN " + msisdnsString, null);
+		int rows = mDb.update(DBConstants.USERS_TABLE, cv, DBConstants.MSISDN + " IN " + msisdnsString, null);
+		if (rows > 0) {
+			Utils.sendULSPacket(msisdns);
+		}
+
 	}
 
 	/**
@@ -2908,9 +2912,13 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		}
 
 		ContentValues cv = new ContentValues();
-		cv.put(DBConstants.LAST_SEEN_SETTINGS, newValue);
+		cv.put(DBConstants.STATUS_UPDATE_SETTINGS, newValue);
 
-		mDb.update(DBConstants.USERS_TABLE, cv, DBConstants.MSISDN + " IN " + msisdnsString, null);
+		int rows = mDb.update(DBConstants.USERS_TABLE, cv, DBConstants.MSISDN + " IN " + msisdnsString, null);
+
+		if (rows > 0){
+			Utils.sendUSUPacket(msisdns);
+		}
 	}
 
 	/**
@@ -2931,5 +2939,25 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 			values.put(DBConstants.STATUS_UPDATE_SETTINGS, 1);
 
 		mDb.update(DBConstants.USERS_TABLE, values, null, null);
+	}
+
+	void setLastSeenForMsisdns(String msisdns, int newValue) {
+		if (TextUtils.isEmpty(msisdns)) {
+			return;
+		}
+
+		List<String> msisdnList = new ArrayList<>(1);
+		msisdnList.add(msisdns);
+		setLastSeenForMsisdns(msisdnList, newValue);
+	}
+
+	void setSUSettingForMsisdns(String msisdns, int newValue) {
+		if (TextUtils.isEmpty(msisdns)) {
+			return;
+		}
+
+		List<String> msisdnList = new ArrayList<>(1);
+		msisdnList.add(msisdns);
+		setSUSettingForMsisdns(msisdnList, newValue);
 	}
 }

@@ -3969,7 +3969,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	}
 
 	private void checkAndAddPrivacySection() {
-		if (Utils.isFavToFriendsMigrationAllowed())
+		if (Utils.isFavToFriendsMigrationAllowed() && contactInfo.isMyOneWayFriend())
 			profileItems.add(new ProfileItem.ProfilePrivacyItem(ProfileItem.PRIVACY_SECTION));
 	}
 
