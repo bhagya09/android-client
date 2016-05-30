@@ -1622,4 +1622,5 @@
     <string name="multiple_bday_notif_text">%1$s and %2$s others has his birthday today!</string>
     <string name="single_bday_notif_subtext"> Tap here to wish your friend a Happy Birthday!</string>
     <string name="multiple_bday_notif_subtext">Tap here to wish them a Happy Birthday!</string>
+    <string name="change_photo">Change Photo</string>
 </resources>

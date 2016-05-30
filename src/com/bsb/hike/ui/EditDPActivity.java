@@ -14,16 +14,18 @@ import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.HomeAnalyticsConstants;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.ui.fragments.ImageViewerFragment;
 import com.bsb.hike.ui.utils.StatusBarColorChanger;
+import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Utils;
 
 /**
  * Created by gauravmittal on 29/05/16.
  */
-public class EditDPActivity extends HikeAppStateBaseFragmentActivity {
+public class EditDPActivity extends ChangeProfileImageBaseActivity {
 
     ContactInfo myInfo;
 
@@ -35,6 +37,7 @@ public class EditDPActivity extends HikeAppStateBaseFragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.edit_dp_activity);
         myInfo = Utils.getUserContactInfo(false);
+        setLocalMsisdn(myInfo.getMsisdn());
         setupActionBar();
         setupMyPhotoFragment();
     }
@@ -43,8 +46,9 @@ public class EditDPActivity extends HikeAppStateBaseFragmentActivity {
         Bundle arguments = new Bundle();
         arguments.putString(HikeConstants.Extras.MAPPED_ID, myInfo.getMsisdn() + ProfileActivity.PROFILE_PIC_SUFFIX);
         arguments.putBoolean(HikeConstants.Extras.IS_STATUS_IMAGE, false);
-        arguments.putBoolean(HikeConstants.CAN_EDIT_DP, false);
+        arguments.putBoolean(HikeConstants.CAN_EDIT_DP, true);
         ImageViewerFragment imageViewerFragment = new ImageViewerFragment();
+        imageViewerFragment.setDisplayPictureEditListener(this, ImageViewerFragment.FROM_EDIT_DP_ACTIVITY);
         imageViewerFragment.setArguments(arguments);
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.add(R.id.my_photo_fragment, imageViewerFragment);
@@ -66,5 +70,10 @@ public class EditDPActivity extends HikeAppStateBaseFragmentActivity {
         actionBar.setCustomView(actionBarView);
         Toolbar parent = (Toolbar) actionBarView.getParent();
         parent.setContentInsetsAbsolute(0, 0);
+    }
+
+    @Override
+    protected String getSourceSpecies() {
+        return HomeAnalyticsConstants.DP_SPECIES_EDIT_PROFILE;
     }
 }
