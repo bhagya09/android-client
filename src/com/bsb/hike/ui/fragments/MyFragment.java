@@ -58,7 +58,7 @@ public class MyFragment extends Fragment implements HikePubSub.Listener {
 
     private TextView addedMeCounter;
 
-    private String[] pubSubListeners = {HikePubSub.FAVORITE_TOGGLED, HikePubSub.FRIEND_REQUEST_ACCEPTED};
+    private String[] pubSubListeners = {HikePubSub.FAVORITE_TOGGLED, HikePubSub.FRIEND_REQUEST_ACCEPTED, HikePubSub.ICON_CHANGED};
 
     @Nullable
     @Override
@@ -81,22 +81,7 @@ public class MyFragment extends Fragment implements HikePubSub.Listener {
 
         nameView.setText(contactInfo.getName());
 
-        // set profile picture
-        File profileImage = (new File(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT, Utils.getProfileImageFileName(contactInfo.getMsisdn())));
-        if (profileImage.exists()) {
-            Bitmap bm = HikeBitmapFactory.scaleDownBitmap(profileImage.getAbsolutePath(), HikeConstants.PROFILE_IMAGE_DIMENSIONS * Utils.densityDpi,
-                    HikeConstants.PROFILE_IMAGE_DIMENSIONS * Utils.densityDpi, Bitmap.Config.RGB_565, true, false);
-            profileImgView.setImageBitmap(bm);
-        } else {
-            Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(contactInfo.getNameOrMsisdn());
-            profileImgView.setImageDrawable(drawable);
-        }
-        profileImgView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onViewImageClicked(v);
-            }
-        });
+        setupProfileImage();
 
         // get hike status
         StatusMessage.StatusMessageType[] statusMessagesTypesToFetch = {StatusMessage.StatusMessageType.TEXT};
@@ -127,6 +112,25 @@ public class MyFragment extends Fragment implements HikePubSub.Listener {
 
         updateTabBadgeCounter();
         HikeMessengerApp.getPubSub().addListeners(this, pubSubListeners);
+    }
+
+    private void setupProfileImage() {
+        // set profile picture
+        File profileImage = (new File(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT, Utils.getProfileImageFileName(contactInfo.getMsisdn())));
+        if (profileImage.exists()) {
+            Bitmap bm = HikeBitmapFactory.scaleDownBitmap(profileImage.getAbsolutePath(), HikeConstants.PROFILE_IMAGE_DIMENSIONS * Utils.densityDpi,
+                    HikeConstants.PROFILE_IMAGE_DIMENSIONS * Utils.densityDpi, Bitmap.Config.RGB_565, true, false);
+            profileImgView.setImageBitmap(bm);
+        } else {
+            Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(contactInfo.getNameOrMsisdn());
+            profileImgView.setImageDrawable(drawable);
+        }
+        profileImgView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onViewImageClicked(v);
+            }
+        });
     }
 
     private void setupAddFriendBadgeIcon(View parentView) {
@@ -245,6 +249,14 @@ public class MyFragment extends Fragment implements HikePubSub.Listener {
                     }
                     updateTabBadgeCounter();
                     updateAddedMeBadgeCounter();
+                }
+            });
+        }
+        else if (type.equals(HikePubSub.ICON_CHANGED)) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    setupProfileImage();
                 }
             });
         }
