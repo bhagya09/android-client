@@ -30,7 +30,9 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.models.GroupParticipant;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.Mute;
+import com.bsb.hike.models.PrivacyPreferences;
 import com.bsb.hike.modules.iface.ITransientCache;
 import com.bsb.hike.tasks.UpdateAddressBookTask;
 import com.bsb.hike.utils.AccountUtils;
@@ -3217,5 +3219,43 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	{
 		return getFriendshipStatus(msisdn) == FavoriteType.FRIEND;
 	}
+
+	public void flushOldPrivacyValues(boolean lastSeenFlush, boolean statusUpdateFlush)
+	{
+		hDb.flushOldPrivacyValues(lastSeenFlush, statusUpdateFlush);
+	}
+
+	public void toggleLastSeenSetting(final ContactInfo mContactInfo, final boolean isChecked) {
+		HikeHandlerUtil.getInstance().postAtFront(new Runnable() {
+			@Override
+			public void run() {
+				hDb.setLastSeenForMsisdns(mContactInfo.getMsisdn(), isChecked ? 1 : 0);
+			}
+		});
+	}
+
+	public void toggleStatusUpdateSetting(final ContactInfo mContactInfo, final boolean isChecked) {
+
+		HikeHandlerUtil.getInstance().postAtFront(new Runnable() {
+			@Override
+			public void run() {
+				hDb.setSUSettingForMsisdns(mContactInfo.getMsisdn(), isChecked ? 1 : 0);
+			}
+		});
+	}
+
+	public PrivacyPreferences getPrivacyPrefsForAGivenMsisdn(String msisdn)
+	{
+		return hDb.getPrivacyPreferencesForAGivenMsisdn(msisdn);
+	}
+
+	public boolean shouldShowStatusUpdateForGivenMsisdn(String msisdn) {
+		PrivacyPreferences privacyPreferences = hDb.getPrivacyPreferencesForAGivenMsisdn(msisdn);
+		if (privacyPreferences != null) {
+			return privacyPreferences.shouldShowStatusUpdate();
+		} else
+			return false;
+	}
+
 }
 

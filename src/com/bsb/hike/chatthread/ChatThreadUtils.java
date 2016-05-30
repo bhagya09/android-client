@@ -31,11 +31,11 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.bots.BotUtils;
-import com.bsb.hike.chatthemes.HikeChatThemeConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.filetransfer.FTMessageBuilder;
 import com.bsb.hike.filetransfer.FileTransferManager;
+import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.Conversation.Conversation;
@@ -330,15 +330,16 @@ public class ChatThreadUtils
 		}
 	}
 
-	protected static boolean shouldShowLastSeen(String msisdn, Context context, boolean convOnHike, boolean isBlocked)
-	{
-		if (Utils.isFavToFriendsMigrationAllowed() && !ContactManager.getInstance().isTwoWayFriend(msisdn))
-		{
-			return false; // We do not want to show the last seen in this case if the user is not 2way friend
+	protected static boolean shouldShowLastSeen(ContactInfo contactInfo, Context context, boolean convOnHike, boolean isBlocked) {
+		if (Utils.isFavToFriendsMigrationAllowed()) {
+			if (!ContactManager.getInstance().isTwoWayFriend(contactInfo.getMsisdn()))
+				return false; // We do not want to show the last seen in this case if the user is not 2way friend
+
+			else
+				return contactInfo.getPrivacyPrefs().shouldShowLastSeen(); // LS is set as Friends/NONE --> user is a 2 way friend --> user's last seen could be hidden/shown
 		}
 
-		if (convOnHike && !isBlocked && !BotUtils.isBot(msisdn) && !OfflineUtils.isConnectedToSameMsisdn(msisdn))
-		{
+		if (convOnHike && !isBlocked && !BotUtils.isBot(contactInfo.getMsisdn()) && !OfflineUtils.isConnectedToSameMsisdn(contactInfo.getMsisdn())) {
 			return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.LAST_SEEN_PREF, true);
 		}
 		return false;

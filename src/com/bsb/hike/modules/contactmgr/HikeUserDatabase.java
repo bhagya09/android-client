@@ -32,6 +32,7 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.FetchUIDTaskPojo;
 import com.bsb.hike.models.FtueContactsData;
+import com.bsb.hike.models.PrivacyPreferences;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
@@ -147,7 +148,9 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 				+ DBConstants.PLATFORM_USER_ID + " TEXT DEFAULT '' ,"    // Platform user id
 				+ DBConstants.HIKE_UID + " TEXT DEFAULT NULL , "
 				+ DBConstants.BLOCK_STATUS + " TEXT DEFAULT 0 ,"
-				+ DBConstants.FAVORITE_TYPE + " TEXT DEFAULT 0 "
+				+ DBConstants.FAVORITE_TYPE + " TEXT DEFAULT 0, "
+				+ DBConstants.LAST_SEEN_SETTINGS + " INTEGER DEFAULT 0, "
+				+ DBConstants.STATUS_UPDATE_SETTINGS + " INTEGER DEFAULT 1" // SUs are by default visible to friends
 				+ " )";
 
 		db.execSQL(create);
@@ -351,6 +354,21 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 			}
 			// Need to migrate the DBs in upgradeIntentService
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.MIGRATE_TABLE_TO_USER, 1);
+		}
+
+		if (oldVersion < 20)
+		{
+			if (!Utils.isColumnExistsInTable(mDb, DBConstants.USERS_TABLE, DBConstants.LAST_SEEN_SETTINGS))
+			{
+				String alter = "ALTER TABLE " + DBConstants.USERS_TABLE + " ADD COLUMN " + DBConstants.LAST_SEEN_SETTINGS + " INTEGER DEFAULT 0";
+				db.execSQL(alter);
+			}
+
+			if (!Utils.isColumnExistsInTable(mDb, DBConstants.USERS_TABLE, DBConstants.STATUS_UPDATE_SETTINGS))
+			{
+				String alter = "ALTER TABLE " + DBConstants.USERS_TABLE + " ADD COLUMN " + DBConstants.STATUS_UPDATE_SETTINGS + " INTEGER DEFAULT 1"; // By default SU will be shown to friends
+				db.execSQL(alter);
+			}
 		}
 
 	}
@@ -2778,5 +2796,168 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 			}
 		}
 		return isAddressBookContact;
+	}
+
+	/**
+	 * Queries Privacy Settings for a given msisdn from the user table Can return null if not found in the table or msisdn is empty
+	 * 
+	 * @param msisdn
+	 * @return
+	 */
+	PrivacyPreferences getPrivacyPreferencesForAGivenMsisdn(String msisdn)
+	{
+		if (TextUtils.isEmpty(msisdn))
+		{
+			return null;
+		}
+
+		Cursor c = null;
+
+		try
+		{
+
+			c = mDb.query(DBConstants.USERS_TABLE, new String[] { DBConstants.LAST_SEEN_SETTINGS, DBConstants.STATUS_UPDATE_SETTINGS }, DBConstants.MSISDN + "=?",
+					new String[] { msisdn }, null, null, null);
+
+			if (c.moveToFirst())
+			{
+				int lsSettingIdx = c.getColumnIndex(DBConstants.LAST_SEEN_SETTINGS);
+
+				int suSettingIdx = c.getColumnIndex(DBConstants.STATUS_UPDATE_SETTINGS);
+
+				PrivacyPreferences pref = new PrivacyPreferences(PrivacyPreferences.DEFAULT_VALUE);
+
+				int lsSetting = c.getInt(lsSettingIdx);
+
+				int suSetting = c.getInt(suSettingIdx);
+
+				pref.setLastSeen(lsSetting == 1);
+
+				pref.setStatusUpdate(suSetting == 1);
+
+				return pref;
+
+			}
+		}
+
+		finally
+		{
+			if (null != c)
+			{
+				c.close();
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Sets the Last Seen to the given value for a list of msisdns provided
+	 *
+	 * @param msisdns
+	 * @param newValue
+	 */
+	void setLastSeenForMsisdns(List<String> msisdns, int newValue)
+	{
+		if (Utils.isEmpty(msisdns))
+		{
+			return;
+		}
+
+		StringBuilder msisdnsString = new StringBuilder("(");
+		for (String msisdn : msisdns)
+		{
+			msisdnsString.append(DatabaseUtils.sqlEscapeString(msisdn) + ",");
+		}
+
+		int idx = msisdnsString.lastIndexOf(",");
+		if (idx >= 0)
+		{
+			msisdnsString.replace(idx, msisdnsString.length(), ")");
+		}
+
+		ContentValues cv = new ContentValues();
+		cv.put(DBConstants.LAST_SEEN_SETTINGS, newValue);
+
+		int rows = mDb.update(DBConstants.USERS_TABLE, cv, DBConstants.MSISDN + " IN " + msisdnsString, null);
+		if (rows > 0) {
+			Utils.sendULSPacket(msisdns);
+		}
+
+	}
+
+	/**
+	 * Sets the Status update setting to the given value for the list of msisdns
+	 * 
+	 * @param msisdns
+	 * @param newValue
+	 */
+	void setSUSettingForMsisdns(List<String> msisdns, int newValue)
+	{
+		if (Utils.isEmpty(msisdns))
+		{
+			return;
+		}
+
+		StringBuilder msisdnsString = new StringBuilder("(");
+		for (String msisdn : msisdns)
+		{
+			msisdnsString.append(DatabaseUtils.sqlEscapeString(msisdn) + ",");
+		}
+
+		int idx = msisdnsString.lastIndexOf(",");
+		if (idx >= 0)
+		{
+			msisdnsString.replace(idx, msisdnsString.length(), ")");
+		}
+
+		ContentValues cv = new ContentValues();
+		cv.put(DBConstants.STATUS_UPDATE_SETTINGS, newValue);
+
+		int rows = mDb.update(DBConstants.USERS_TABLE, cv, DBConstants.MSISDN + " IN " + msisdnsString, null);
+
+		if (rows > 0){
+			Utils.sendUSUPacket(msisdns);
+		}
+	}
+
+	/**
+	 * Reset all the privacy values to the default statue
+	 */
+	public void flushOldPrivacyValues(boolean lastSeenFlush, boolean statusUpdateFlush)
+	{
+		if ((!lastSeenFlush) && (!statusUpdateFlush))
+		{
+			return;
+		}
+
+		ContentValues values = new ContentValues();
+		if (lastSeenFlush)
+			values.put(DBConstants.LAST_SEEN_SETTINGS, 0);
+
+		if (statusUpdateFlush)
+			values.put(DBConstants.STATUS_UPDATE_SETTINGS, 1);
+
+		mDb.update(DBConstants.USERS_TABLE, values, null, null);
+	}
+
+	void setLastSeenForMsisdns(String msisdns, int newValue) {
+		if (TextUtils.isEmpty(msisdns)) {
+			return;
+		}
+
+		List<String> msisdnList = new ArrayList<>(1);
+		msisdnList.add(msisdns);
+		setLastSeenForMsisdns(msisdnList, newValue);
+	}
+
+	void setSUSettingForMsisdns(String msisdns, int newValue) {
+		if (TextUtils.isEmpty(msisdns)) {
+			return;
+		}
+
+		List<String> msisdnList = new ArrayList<>(1);
+		msisdnList.add(msisdns);
+		setSUSettingForMsisdns(msisdnList, newValue);
 	}
 }

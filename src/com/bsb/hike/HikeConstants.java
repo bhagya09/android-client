@@ -4370,8 +4370,17 @@ public class HikeConstants
 
 	public static final String MULTIPLE_BDAY_NOTIF_SUBTEXT = "m_b_n_st";
 
+	public static final String UPDATED_LAST_SEEN_SETTING = "uls";
+
 	public static final String CTAS = "ctas";
 
 	public static final String ACTION = "action";
 
+	public static final String UPDATED_STATUS_UPDATE_SETTING = "sus";
+
+	public static final String STATUS_UPDATE_EXCLUSION = "su_ex";
+
+	public static final String LS_EXCLUSION = "ls_ex";
+
+	public static final String LS_INCLUSION = "ls_in";
 }

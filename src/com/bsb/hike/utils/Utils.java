@@ -248,7 +248,6 @@ public class Utils
 {
 	private static final String TAG = Utils.class.getSimpleName();
 
-
 	// Precision points definition for duration logging========================================[[
 	public static final class ExecutionDurationLogger
 	{
@@ -1159,7 +1158,14 @@ public class Utils
 			data.put(HikeConstants.SENDBOT, sendbot);
 			data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis() / 1000));
 			data.put(HikeConstants.RESOLUTION_ID, Utils.getResolutionId());
-			data.put(HikeConstants.NEW_LAST_SEEN_SETTING, true);
+			if (Utils.isFavToFriendsMigrationAllowed())
+			{
+				data.put(HikeConstants.UPDATED_LAST_SEEN_SETTING, true);
+			}
+			else
+			{
+				data.put(HikeConstants.NEW_LAST_SEEN_SETTING, true);
+			}
 			data.put(HikeConstants.FAVS_RAI,false);
 			requestAccountInfo.put(HikeConstants.DATA, data);
 			HikeMqttManagerNew.getInstance().sendMessage(requestAccountInfo, MqttConstants.MQTT_QOS_ONE);
@@ -7416,22 +7422,20 @@ public class Utils
 			// Change last seen pref to friends if its is not already set to friends or noone.
 			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
 			String currentValue = settings.getString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_favorites));
-			if (!currentValue.equals(context.getString(R.string.privacy_favorites)) && !currentValue.equals(context.getString(R.string.privacy_nobody)))
+			Editor settingEditor = settings.edit();
+			settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_favorites));
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LAST_SEEN_TEMP_PREF, currentValue);
+			int slectedPrivacyId = Integer.parseInt(context.getString(R.string.privacy_favorites));
+			try
 			{
-				Editor settingEditor = settings.edit();
-				settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_favorites));
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LAST_SEEN_TEMP_PREF, currentValue);
-				int slectedPrivacyId = Integer.parseInt(context.getString(R.string.privacy_favorites));
-				try
-				{
-					HikePreferences.sendNLSToServer(slectedPrivacyId, true);
-					settingEditor.commit();
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 1);
-				}
-				catch (JSONException e)
-				{
-					e.printStackTrace();
-				}
+				HikePreferences.sendULSToServer(slectedPrivacyId, true);
+				settingEditor.apply();
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 1);
+			}
+			catch (JSONException e)
+			{
+				Logger.e("FavToFriends", "Got error while sending uls packet "+ e.toString());
+				e.printStackTrace();
 			}
 		}
 	}
@@ -7443,25 +7447,21 @@ public class Utils
 			Context context = HikeMessengerApp.getInstance().getApplicationContext();
 			// Change last seen pref to friends if its is not already set to friends or noone.
 			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
-			String currentValue = settings.getString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_favorites));
-			if (!currentValue.equals(context.getString(R.string.privacy_my_contacts)) && !currentValue.equals(context.getString(R.string.privacy_everyone)))
+			String oldLsValue = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.LAST_SEEN_TEMP_PREF, context.getString(R.string.privacy_my_contacts));
+			Editor settingEditor = settings.edit();
+			settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, oldLsValue);
+			int slectedPrivacyId = Integer.parseInt(oldLsValue);
+			try
 			{
-
-				String oldLsValue = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.LAST_SEEN_TEMP_PREF, context.getString(R.string.privacy_my_contacts));
-				Editor settingEditor = settings.edit();
-				settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, oldLsValue);
-				int slectedPrivacyId = Integer.parseInt(oldLsValue);
-				try
-				{
-					HikePreferences.sendNLSToServer(slectedPrivacyId, true);
-					settingEditor.commit();
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 0); // Resetting the flag, so that when the packet might
-					// be sent again, it is able to alter the prefs
-				}
-				catch (JSONException e)
-				{
-					e.printStackTrace();
-				}
+				HikePreferences.sendNLSToServer(slectedPrivacyId, true);
+				ContactManager.getInstance().flushOldPrivacyValues(true, true);
+				settingEditor.apply();
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 0); // Resetting the flag, so that when the packet might
+				// be sent again, it is able to alter the prefs
+			}
+			catch (JSONException e)
+			{
+				e.printStackTrace();
 			}
 		}
 	}
@@ -8191,5 +8191,82 @@ public class Utils
 		result = prime * result + msisdn.hashCode();
 
 		return result;
+	}
+
+	/**
+	 * Sends the updated ls settings to the server :
+	 * Sample packet : {"t":"ac" ,"d": {"uls":2, “ls_ex”:[“+918788564326”]}}
+	 *
+	 * @param msisdns
+	 */
+	public static void sendULSPacket(List<String> msisdns) {
+
+		if (!Utils.isFavToFriendsMigrationAllowed()) {
+			return;
+		}
+
+		Context context = HikeMessengerApp.getInstance().getApplicationContext();
+		// Change last seen pref to friends if its is not already set to friends or noone.
+		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+
+		try {
+			String currentValue = settings.getString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_favorites));
+			int selectedPrivacyId = Integer.parseInt(currentValue);
+
+			JSONArray lsExclusionArray = new JSONArray();
+			for (String msisdn : msisdns) {
+				lsExclusionArray.put(msisdn);
+			}
+
+
+			JSONObject object = new JSONObject();
+			object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.ACCOUNT_CONFIG);
+
+			JSONObject data = new JSONObject();
+			data.put(HikeConstants.UPDATED_LAST_SEEN_SETTING, selectedPrivacyId);
+			// Inclusion/exclusion based on setting of none or friends
+			data.put(selectedPrivacyId == 0 ? HikeConstants.LS_INCLUSION : HikeConstants.LS_EXCLUSION, lsExclusionArray);
+			data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis()));
+			object.put(HikeConstants.DATA, data);
+
+			HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
+
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	/**
+	 * Sends the updated su settings to the server :
+	 * Sample packet : {"t":"ac" ,"d": {"sus":2, “su_ex”:[“+918788564326”]}}
+	 *
+	 * @param msisdns
+	 */
+	public static void sendUSUPacket(List<String> msisdns) {
+
+		if (!Utils.isFavToFriendsMigrationAllowed()) {
+			return;
+		}
+
+		try {
+			JSONObject object = new JSONObject();
+			object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.ACCOUNT_CONFIG);
+
+			JSONArray suExclusionArray = new JSONArray();
+			for (String msisdn : msisdns) {
+				suExclusionArray.put(msisdn);
+			}
+
+			JSONObject data = new JSONObject();
+			data.put(HikeConstants.UPDATED_STATUS_UPDATE_SETTING, 2);
+			data.put(HikeConstants.STATUS_UPDATE_EXCLUSION, suExclusionArray);
+			data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis()));
+			object.put(HikeConstants.DATA, data);
+
+			HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
 	}
 }

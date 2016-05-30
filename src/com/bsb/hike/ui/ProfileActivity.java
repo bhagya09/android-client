@@ -117,7 +117,6 @@ import com.bsb.hike.ui.fragments.PhotoViewerFragment;
 import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.EmoticonConstants;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
@@ -894,6 +893,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	{
 		setLocalMsisdn(getIntent().getStringExtra(HikeConstants.Extras.CONTACT_INFO));
 		contactInfo = ContactManager.getInstance().getContact(mLocalMSISDN, true, true);
+		contactInfo.setPrivacyPrefs(ContactManager.getInstance().getPrivacyPrefsForAGivenMsisdn(contactInfo.getMsisdn()));
 		sharedMediaCount = HikeConversationsDatabase.getInstance().getSharedMediaCount(mLocalMSISDN, true);
 		sharedPinCount = 0;  //Add a query here to get shared groups count. sharedPincount is to be treated as shared group count here.
 		unreadPinCount = 0;
@@ -1241,17 +1241,19 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		}
 	}
 
-	private void setupContactProfileList()
-	{
+	private void setupContactProfileList() {
 		profileItems.clear();
-		if(!HikeMessengerApp.hikeBotInfoMap.containsKey(contactInfo.getMsisdn()))  //The HikeBot's numbers wont be shown
-		profileItems.add(new ProfileItem.ProfilePhoneNumberItem(ProfileItem.PHONE_NUMBER, getResources().getString(R.string.phone_pa)));
-		if(contactInfo.isOnhike())
-		{	shouldAddSharedMedia();
+		if (!contactInfo.isBot()) {  //The HikeBot's numbers wont be shown
+			checkAndAddPrivacySection();
+			profileItems.add(new ProfileItem.ProfilePhoneNumberItem(ProfileItem.PHONE_NUMBER, getResources().getString(R.string.phone_pa)));
+		}
+
+		if (contactInfo.isOnhike()) {
+			shouldAddSharedMedia();
 			profileItems.add(new ProfileItem.ProfileSharedContent(ProfileItem.SHARED_CONTENT, getResources().getString(R.string.shared_cont_pa), sharedFileCount, sharedPinCount, unreadPinCount, null));
 		}
 	}
-	
+
 	private void setupContactTimelineList()
 	{
 		profileItems.clear();
@@ -1362,6 +1364,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			profileItems = new ArrayList<ProfileItem>();
 			setupContactProfileList();
 			profileAdapter = new ProfileAdapter(this, profileItems, null, contactInfo, false, ContactManager.getInstance().isBlocked(mLocalMSISDN), sizeOfImage);
+			profileAdapter.listView = profileContent;
 			addProfileHeaderView();
 			break;
 		case BROADCAST_INFO:
@@ -2833,7 +2836,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		{
 			final Pair<ContactInfo, FavoriteType> favoriteToggle = (Pair<ContactInfo, FavoriteType>) object;
 
-			ContactInfo contactInfo = favoriteToggle.first;
+			final ContactInfo contactInfo = favoriteToggle.first;
 			FavoriteType favoriteType = favoriteToggle.second;
 
 			if (!mLocalMSISDN.equals(contactInfo.getMsisdn()))
@@ -2854,6 +2857,17 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 					if(profileType == ProfileType.CONTACT_INFO)
 					{
 						updateProfileHeaderView();
+						// Also setup the the privacy view again
+						if (Utils.isFavToFriendsMigrationAllowed() && contactInfo.isMyOneWayFriend()) {
+							setupContactProfileList();
+							profileAdapter.notifyDataSetChanged();
+						}
+
+						else if (profileItems.get(0) instanceof ProfileItem.ProfilePrivacyItem) {
+							setupContactProfileList(); // Need to remove privacy item
+							profileAdapter.notifyDataSetChanged();
+						}
+
 					}
 					else if (profileType == ProfileType.CONTACT_INFO_TIMELINE || profileType == ProfileType.USER_PROFILE)
 					{
@@ -3964,6 +3978,11 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	{
 		this.mLocalMSISDN = msisdn;
 		super.setLocalMsisdn(mLocalMSISDN);
+	}
+
+	private void checkAndAddPrivacySection() {
+		if (Utils.isFavToFriendsMigrationAllowed() && contactInfo.isMyOneWayFriend())
+			profileItems.add(new ProfileItem.ProfilePrivacyItem(ProfileItem.PRIVACY_SECTION));
 	}
 
 }

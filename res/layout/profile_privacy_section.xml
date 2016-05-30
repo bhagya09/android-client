@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="vertical">
+
+
+    <LinearLayout
+        android:id="@+id/privacy_parent_layout"
+        android:layout_width="match_parent"
+        android:layout_height="57dp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="21dp"
+        android:layout_marginRight="16dp"
+        android:background="@drawable/list_item"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/manage_privacy"
+            android:textColor="#B8000000"
+            android:textSize="16sp"/>
+
+        <ImageView
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_arrow"
+            />
+
+    </LinearLayout>
+
+    <com.bsb.hike.view.ExplandingCells.ExpandingLayout
+        android:id="@+id/expanding_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="21dp"
+        android:layout_marginRight="16dp"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:id="@+id/last_seen_section"
+            android:layout_width="match_parent"
+            android:layout_height="57dp"
+            android:layout_gravity="center_vertical"
+            android:background="@drawable/list_item"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/last_seen_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/last_seen"
+                android:textColor="#000000"
+                android:textSize="14sp"/>
+
+            <android.support.v7.widget.SwitchCompat
+                android:id="@+id/last_seen_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@null"/>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:layout_marginLeft="24.5dp"
+            android:layout_marginRight="11dp"
+            android:background="@color/home_screen_list_divider"/>
+
+
+        <LinearLayout
+            android:id="@+id/status_update_section"
+            android:layout_width="match_parent"
+            android:layout_height="57dp"
+            android:layout_gravity="center_vertical"
+            android:background="@drawable/list_item"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/status_update_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/status_update"
+                android:textColor="#000000"
+                android:textSize="14sp"/>
+
+            <android.support.v7.widget.SwitchCompat
+                android:id="@+id/status_update_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@null"/>
+
+        </LinearLayout>
+
+    </com.bsb.hike.view.ExplandingCells.ExpandingLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@color/home_screen_list_divider"/>
+
+</LinearLayout>
