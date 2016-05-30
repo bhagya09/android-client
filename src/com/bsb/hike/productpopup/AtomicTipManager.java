@@ -220,13 +220,13 @@ public class AtomicTipManager
         AtomicTipContentModel tipContentModel = AtomicTipContentModel.getAtomicTipContentModel(tipJSON);
         Logger.d(TAG, "new tip hash: " + tipContentModel.hashCode());
 
-        recordTipsAnalytics(getJSONForTipAnalytics(TIP_RECEIVED, FUNNEL, tipContentModel.getTipId(), tipContentModel.isCancellable(), null, null));
-        recordTipsAnalytics(getJSONForTipAnalytics(TIP_DECODED, FUNNEL, tipContentModel.getTipId(), tipContentModel.isCancellable(), null, null));
+        recordTipsAnalytics(getJSONForTipAnalytics(TIP_RECEIVED, FUNNEL, tipContentModel.getTipId(), tipContentModel.isCancellable(), null, null, tipContentModel.getAnalyticsTag(), null));
+        recordTipsAnalytics(getJSONForTipAnalytics(TIP_DECODED, FUNNEL, tipContentModel.getTipId(), tipContentModel.isCancellable(), null, null, tipContentModel.getAnalyticsTag(), null));
 
         if(tipContentModels.contains(tipContentModel))
         {
             Logger.d(TAG, "received duplicate atomic tip. not saving it!");
-            recordTipsAnalytics(getJSONForTipAnalytics(TIP_VALIDITY, FUNNEL, tipContentModel.getTipId(), tipContentModel.isCancellable(), TIP_INVALID, HikeConstants.DUPLICATE));
+            recordTipsAnalytics(getJSONForTipAnalytics(TIP_VALIDITY, FUNNEL, tipContentModel.getTipId(), tipContentModel.isCancellable(), TIP_INVALID, HikeConstants.DUPLICATE, tipContentModel.getAnalyticsTag(), null));
             return;
         }
 
@@ -234,7 +234,7 @@ public class AtomicTipManager
         if(!createAndCacheIcon(tipContentModel))
         {
             Logger.d(TAG, "unable to create icon for atomic tip. aborting");
-            recordTipsAnalytics(getJSONForTipAnalytics(TIP_VALIDITY, FUNNEL, tipContentModel.getTipId(), tipContentModel.isCancellable(), TIP_INVALID, HikeConstants.ICON));
+            recordTipsAnalytics(getJSONForTipAnalytics(TIP_VALIDITY, FUNNEL, tipContentModel.getTipId(), tipContentModel.isCancellable(), TIP_INVALID, HikeConstants.ICON, tipContentModel.getAnalyticsTag(), null));
             return;
         }
 
@@ -242,11 +242,11 @@ public class AtomicTipManager
         if(!processTipBg(tipContentModel))
         {
             Logger.d(TAG, "Failure in processing tip bg. aborting");
-            recordTipsAnalytics(getJSONForTipAnalytics(TIP_VALIDITY, FUNNEL, tipContentModel.getTipId(), tipContentModel.isCancellable(), TIP_INVALID, HikeConstants.BACKGROUND));
+            recordTipsAnalytics(getJSONForTipAnalytics(TIP_VALIDITY, FUNNEL, tipContentModel.getTipId(), tipContentModel.isCancellable(), TIP_INVALID, HikeConstants.BACKGROUND, tipContentModel.getAnalyticsTag(), null));
             return;
         }
 
-        recordTipsAnalytics(getJSONForTipAnalytics(TIP_VALIDITY, FUNNEL, tipContentModel.getTipId(), tipContentModel.isCancellable(), TIP_VALID, null));
+        recordTipsAnalytics(getJSONForTipAnalytics(TIP_VALIDITY, FUNNEL, tipContentModel.getTipId(), tipContentModel.isCancellable(), TIP_VALID, null, tipContentModel.getAnalyticsTag(), null));
 
         //saving model in DB
         saveNewTip(tipContentModel);
@@ -553,7 +553,7 @@ public class AtomicTipManager
             currentlyShowing = getTipFromId(atomicTipFromNotifId);
             if(currentlyShowing != null)
             {
-                tipFromNotifAnalytics(TIP_NOTIF_CLICKED, currentlyShowing.getTipId(), currentlyShowing.isCancellable());
+                tipFromNotifAnalytics(TIP_NOTIF_CLICKED, currentlyShowing.getTipId(), currentlyShowing.isCancellable(), currentlyShowing.getAnalyticsTag());
             }
             return;
         }
@@ -614,7 +614,7 @@ public class AtomicTipManager
             currentlyShowing.setTipStatus(AtomicTipContentModel.SEEN);
             mHandler.sendMessage(getMessage(REFRESH_TIPS_LIST, null));
             mHandler.sendMessage(getMessage(UPDATE_TIP_STATUS, currentlyShowing, AtomicTipContentModel.SEEN));
-            recordTipsAnalytics(getJSONForTipAnalytics(TIP_DISPLAYED, FUNNEL, currentlyShowing.getTipId(), currentlyShowing.isCancellable(), null, null));
+            recordTipsAnalytics(getJSONForTipAnalytics(TIP_DISPLAYED, FUNNEL, currentlyShowing.getTipId(), currentlyShowing.isCancellable(), null, null, currentlyShowing.getAnalyticsTag(), null));
         }
 
         View tipView = LayoutInflater.from(HikeMessengerApp.getInstance().getApplicationContext()).inflate(R.layout.atomic_tip_view, null);
@@ -757,6 +757,7 @@ public class AtomicTipManager
         {
             mmObject = new JSONObject(metadata);
             activityName = mmObject.optString(HikeConstants.SCREEN);
+            recordTipAction(OPEN_SCREEN, activityName, mmObject.optString(HikeConstants.MSISDN, null));
 
             if (activityName.equals(ProductPopupsConstants.HIKESCREEN.MULTI_FWD_STICKERS.toString()))
             {
@@ -834,6 +835,7 @@ public class AtomicTipManager
             requestType = jsonObject.optString(ProductPopupsConstants.REQUEST_TYPE, HikeConstants.GET);
             url = jsonObject.optString(ProductPopupsConstants.URL);
             url = Utils.appendTokenInURL(url);
+            recordTipAction(HTTP_CALL, url, null);
             RequestToken requestToken;
             if(requestType.equals(HikeConstants.GET))
             {
@@ -902,7 +904,7 @@ public class AtomicTipManager
         });
     }
 
-    public JSONObject getJSONForTipAnalytics(String unqKey, String cls, String family, boolean genus, String species, String variety)
+    public JSONObject getJSONForTipAnalytics(String unqKey, String cls, String family, boolean genus, String species, String variety, String race, String to_user)
     {
         JSONObject json = new JSONObject();
         try
@@ -915,6 +917,8 @@ public class AtomicTipManager
             json.put(AnalyticsConstants.V2.ORDER, unqKey);
             json.put(AnalyticsConstants.V2.FAMILY, family);
             json.put(AnalyticsConstants.V2.GENUS, genus);
+            json.put(AnalyticsConstants.V2.RACE, race);
+            json.put(AnalyticsConstants.V2.TO_USER, to_user);
             if(!TextUtils.isEmpty(species))
             {
                 json.put(AnalyticsConstants.V2.SPECIES, species);
@@ -943,22 +947,22 @@ public class AtomicTipManager
         }
     }
 
-    public void tipFromNotifAnalytics(String uniqueKey, String tipId, boolean isCancellable)
+    public void tipFromNotifAnalytics(String uniqueKey, String tipId, boolean isCancellable, String analyticsTag)
     {
-        recordTipsAnalytics(getJSONForTipAnalytics(uniqueKey, FUNNEL, tipId, isCancellable, null, null));
+        recordTipsAnalytics(getJSONForTipAnalytics(uniqueKey, FUNNEL, tipId, isCancellable, null, null, analyticsTag, null));
     }
 
     public void tipUiEventAnalytics(String uniqueKey)
     {
         if(currentlyShowing != null)
         {
-            recordTipsAnalytics(getJSONForTipAnalytics(uniqueKey, AnalyticsConstants.UI_EVENT, currentlyShowing.getTipId(), currentlyShowing.isCancellable(), null, null));
+            recordTipsAnalytics(getJSONForTipAnalytics(uniqueKey, AnalyticsConstants.UI_EVENT, currentlyShowing.getTipId(), currentlyShowing.isCancellable(), null, null, currentlyShowing.getAnalyticsTag(), null));
         }
     }
 
     public void recordExpiredTip(AtomicTipContentModel tipContentModel)
     {
-        recordTipsAnalytics(getJSONForTipAnalytics(TIP_EXPIRY, FUNNEL, tipContentModel.getTipId(), tipContentModel.isCancellable(), String.valueOf(tipContentModel.getStartTime()), String.valueOf(tipContentModel.getEndTime())));
+        recordTipsAnalytics(getJSONForTipAnalytics(TIP_EXPIRY, FUNNEL, tipContentModel.getTipId(), tipContentModel.isCancellable(), String.valueOf(tipContentModel.getStartTime()), String.valueOf(tipContentModel.getEndTime()), tipContentModel.getAnalyticsTag(), null));
     }
 
     public void recordFlushedTips()
@@ -967,8 +971,13 @@ public class AtomicTipManager
         while(tipIterator.hasNext())
         {
             AtomicTipContentModel currentModel = (AtomicTipContentModel) tipIterator.next();
-            recordTipsAnalytics(getJSONForTipAnalytics(TIP_FLUSH, EXIT, currentModel.getTipId(), currentModel.isCancellable(), null, null));
+            recordTipsAnalytics(getJSONForTipAnalytics(TIP_FLUSH, EXIT, currentModel.getTipId(), currentModel.isCancellable(), null, null, currentModel.getAnalyticsTag(), null));
         }
+    }
+
+    public void recordTipAction(String species, String variety, String to_user)
+    {
+        recordTipsAnalytics(getJSONForTipAnalytics(TIP_CLICKED, AnalyticsConstants.UI_EVENT, currentlyShowing.getTipId(), currentlyShowing.isCancellable(), species, variety, currentlyShowing.getAnalyticsTag(), to_user));
     }
 
     private void actionMakeFriend(Context context, String metadata)
@@ -993,7 +1002,7 @@ public class AtomicTipManager
                     if(!TextUtils.isEmpty(msisdn))
                     {
                         ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, false, false);
-                        Utils.toggleFavorite(context, contactInfo, false, null, false);
+                        Utils.toggleFavorite(context, contactInfo, false, HikeConstants.AddFriendSources.ATOMIC_TIP, currentlyShowing.getAnalyticsTag(), false);
                         counter++;
                     }
                 }
