@@ -1,22 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/parent"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
-    <com.bsb.hike.view.RoundedImageView
-        android:id="@+id/avatar"
-        style="@style/RoundedStyle"
-        android:layout_width="52dp"
-        android:layout_height="52dp"
+    <RelativeLayout
+        android:id="@+id/avatar_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
         android:layout_gravity="center_vertical"
         android:layout_marginBottom="8dp"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="12dp"
-        android:layout_marginTop="8dp"
-        android:background="@android:color/black"
-        android:contentDescription="avatar_image"
-        android:src="@drawable/ic_default_avatar_group" />
+        android:layout_marginTop="8dp">
+
+        <com.bsb.hike.view.RoundedImageView
+            android:id="@+id/avatar"
+            style="@style/RoundedStyle"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:layout_centerInParent="true"
+            android:contentDescription="avatar_image"
+            android:src="@drawable/bg_ct_beach_2" />
+
+        <ImageView
+            android:id="@+id/avatar_frame"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true" />
+    </RelativeLayout>
+
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -36,12 +51,12 @@
 
         <com.bsb.hike.view.CustomFontTextView
             android:id="@+id/subtext"
-            android:visibility="gone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Isaac Dean"
             android:textColor="@color/stories_sub_text_unread"
-            android:textSize="12sp" />
+            android:textSize="12sp"
+            android:visibility="gone" />
     </LinearLayout>
 
 
