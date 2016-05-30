@@ -50,9 +50,11 @@ public class OnetoOneDataModel extends MessageInfoDataModel
 		{
 			MessageInfo info = iterator.next();
 			MessageInfoParticipantData participant = participantTreeMap.get(info.getReceiverMsisdn());
+			if(participant!=null){
 			participant.setDeliveredTimeStamp(info.getDeliveredTimestamp());
 			participant.setReadTimeStamp(info.getReadTimestamp());
 			participant.setPlayedTimeStamp(info.getPlayedTimestamp());
+			}
 		}
 		MessageInfoLoaderData data=new MessageInfoLoaderData();
 		data.messageInfoHashSet=messageInfoMap;
