@@ -1069,24 +1069,7 @@ public class Utils
 
 	public static ContactInfo getUserContactInfo(boolean showNameAsYou)
 	{
-		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
-		String myMsisdn = prefs.getData(HikeMessengerApp.MSISDN_SETTING, null);
-		long userJoinTime = prefs.getData(HikeMessengerApp.USER_JOIN_TIME, 0L);
-
-		String myName;
-		if (showNameAsYou)
-		{
-			myName = "You";
-		}
-		else
-		{
-			myName = prefs.getData(HikeMessengerApp.NAME_SETTING, null);
-		}
-
-		ContactInfo contactInfo = new ContactInfo(myName, myMsisdn, myName, myMsisdn, true);
-		contactInfo.setHikeJoinTime(userJoinTime);
-
-		return contactInfo;
+		return getUserContactInfo(HikeSharedPreferenceUtil.getInstance().getPref(), showNameAsYou);
 	}
 
 	public static boolean isVersionNameHigher(String oldVersion, String newVersion, Context context) throws NumberFormatException
