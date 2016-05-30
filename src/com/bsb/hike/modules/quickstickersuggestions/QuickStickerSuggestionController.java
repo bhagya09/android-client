@@ -268,14 +268,7 @@ public class QuickStickerSuggestionController
             return false;
         }
 
-        if(isSentSession)
-        {
-            return sentFtueSessionCount > 0 ? true : false;
-        }
-        else
-        {
-            return receiveFtueSessionCount > 0 ? true : false;
-        }
+        return isSentSession ? sentFtueSessionCount > 0 : receiveFtueSessionCount > 0;
     }
 
     public void startFtueSession(boolean isSentSession)
