@@ -1168,8 +1168,8 @@ public class MqttMessagesManager
 			Logger.e(getClass().getSimpleName(), "Update Error : Message id Array is empty or null . Check problem");
 			return;
 		}
-		Logger.d("MessageInfo","saveMessageRead json FROM "+jsonObj.get(HikeConstants.FROM)+" TimeStamp "+Utils.getFormattedTime(false,context,jsonObj.getLong(HikeConstants.TIMESTAMP)));
-		long timestamp=jsonObj.getLong(HikeConstants.TIMESTAMP);
+
+		long timestamp=jsonObj.optLong(HikeConstants.TIMESTAMP);
 		String id = jsonObj.has(HikeConstants.TO) ? jsonObj.getString(HikeConstants.TO) : jsonObj.getString(HikeConstants.FROM);
 		String participantMsisdn = jsonObj.has(HikeConstants.TO) ? jsonObj.getString(HikeConstants.FROM) : id;
 

@@ -1100,6 +1100,9 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 				object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.MESSAGE_READ);
 				object.put(HikeConstants.DATA, ids);
 			}
+			if(OriginType.OFFLINE==messageOriginType){
+				object.put(HikeConstants.TIMESTAMP,getTimestamp());
+			}
 		}
 		catch (JSONException e)
 		{
