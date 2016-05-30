@@ -1348,13 +1348,19 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		boolean isSent = convMessage.isSent();
 		if(QuickStickerSuggestionController.getInstance().isStickerClickAllowed(isSent))
 		{
+			if(QuickStickerSuggestionController.getInstance().isFtueSessionRunning() && !QuickStickerSuggestionController.getInstance().isFtueSessionRunning(convMessage.isSent()))
+			{
+				return;
+			}
+
 			openOrRefreshStickerPalette(convMessage);
-		}
-		if(QuickStickerSuggestionController.getInstance().isFtueSessionRunning(convMessage.isSent()))
-		{
-			mTips.setTipSeen(isSent ? ChatThreadTips.QUICK_SUGGESTION_SENT_SECOND_TIP : ChatThreadTips.QUICK_SUGGESTION_RECEIVED_SECOND_TIP);
-			QuickStickerSuggestionController.getInstance().setFtueTipSeen(QuickStickerSuggestionController.QUICK_SUGGESTION_STICKER_ANIMATION);
-			uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
+
+			if (QuickStickerSuggestionController.getInstance().isFtueSessionRunning(convMessage.isSent()))
+			{
+				mTips.setTipSeen(isSent ? ChatThreadTips.QUICK_SUGGESTION_SENT_SECOND_TIP : ChatThreadTips.QUICK_SUGGESTION_RECEIVED_SECOND_TIP);
+				QuickStickerSuggestionController.getInstance().setFtueTipSeen(QuickStickerSuggestionController.QUICK_SUGGESTION_STICKER_ANIMATION);
+				uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
+			}
 		}
 	}
 
