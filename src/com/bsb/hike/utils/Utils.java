@@ -8201,4 +8201,14 @@ public class Utils
 
 		return result;
 	}
+
+	public static boolean isPowerSavingModeRunning(Context context) {
+		if (Utils.isLollipopOrHigher()) {
+			PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+			if (powerManager != null && powerManager.isPowerSaveMode()) {
+				return true;
+			}
+		}
+		return false;
+	}
 }

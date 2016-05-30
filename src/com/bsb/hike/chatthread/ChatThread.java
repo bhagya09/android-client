@@ -2527,14 +2527,20 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	private View mWalkieInfoTip;
 
 	private void showRecordingErrorTip(final int stringResId) {
-		if (mWalkieInfoTip == null) {
-			inflateInfoTipView((ViewStub) activity.findViewById(R.id.recording_info_view));
+
+		if (Utils.isPowerSavingModeRunning(activity)) {
+			Toast.makeText(activity.getApplicationContext(), R.string.recording_help_text, Toast.LENGTH_SHORT).show();
+		} else {
+			if (mWalkieInfoTip == null) {
+				inflateInfoTipView((ViewStub) activity.findViewById(R.id.recording_info_view));
+			}
+
+			if (tipVisibilityAnimator == null) {
+				View chatlayout = activity.findViewById(R.id.chatContentlayout);
+				tipVisibilityAnimator = new HikeTipVisibilityAnimator(stringResId, chatlayout, activity, R.id.recording_error_tip, HikeTipVisibilityAnimator.TIP_ANIMATION_LENGTH_SHORT);
+			}
+			tipVisibilityAnimator.startInfoTipAnim();
 		}
-		if (tipVisibilityAnimator == null) {
-			View chatlayout = activity.findViewById(R.id.chatContentlayout);
-			tipVisibilityAnimator = new HikeTipVisibilityAnimator(stringResId, chatlayout, activity, R.id.recording_error_tip, HikeTipVisibilityAnimator.TIP_ANIMATION_LENGTH_SHORT);
-		}
-		tipVisibilityAnimator.startInfoTipAnim();
 	}
 
 	private void inflateInfoTipView(ViewStub recordingTipView) {
