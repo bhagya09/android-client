@@ -300,8 +300,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
     protected static final int SHOW_INPUT_BOX = 45;
 
-    protected static final int REMOVE_INPUT_BOX = 46;
-
 	protected static final int SEND_CUSTOM_THEME_MESSAGE = 42;
 
 	protected static final int GENERAL_EVENT_STATE_CHANGE = 43;
@@ -575,9 +573,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				break;
 			case SHOW_INPUT_BOX:
 				showInputBox();
-				break;
-			case REMOVE_INPUT_BOX:
-				dismissInputBox();
 				break;
 			default:
 				Logger.d(TAG, "Did not find any matching event for msg.what : " + msg.what);
@@ -2452,7 +2447,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
                 HikePlatformConstants.KEYBOARD_DEFAULT_DATA);
         try
         {
-            if (!TextUtils.isEmpty(keyboardDataJson))
+            if (!keyboardDataJson.equals(HikePlatformConstants.KEYBOARD_DEFAULT_DATA))
             {
                 boolean isKeyBoardPersistent = new JSONObject(keyboardDataJson).optBoolean(HikePlatformConstants.IS_KEYBOARD_PERSISTENT, false);
                 if (!isKeyBoardPersistent)
@@ -6721,7 +6716,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				HikePlatformConstants.KEYBOARD_DEFAULT_DATA);
 		try
 		{
-			if (!TextUtils.isEmpty(keyboardDataJson))
+			if (!keyboardDataJson.equals(HikePlatformConstants.KEYBOARD_DEFAULT_DATA))
 			{
 				boolean isKeyBoardPersistent = new JSONObject(keyboardDataJson).optBoolean(HikePlatformConstants.IS_KEYBOARD_PERSISTENT, false);
 				if (!isKeyBoardPersistent)
