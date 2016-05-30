@@ -455,7 +455,7 @@ public class ChatThreadTips implements OnClickListener, OnTouchListener
 					public void run() {
 						showQuickStickerSuggestionsTip(whichTip == QUICK_SUGGESTION_RECEIVED_FIRST_TIP ? QUICK_SUGGESTION_RECEIVED_SECOND_TIP :QUICK_SUGGESTION_SENT_SECOND_TIP);
 					}
-				}, QuickStickerSuggestionController.QUICK_SUGGESTION_TIP_VISIBLE_TIME);
+				}, 2 * QuickStickerSuggestionController.QUICK_SUGGESTION_TIP_VISIBLE_TIME);
 			}
 		});
 
