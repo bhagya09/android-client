@@ -138,6 +138,7 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 		messageID = getIntent().getExtras().getLong(HikeConstants.MESSAGE_ID);
 		convMessage = HikeConversationsDatabase.getInstance().getMessageFromID(messageID, msisdn);
 		isSMSMessage=getIntent().getBooleanExtra(HikeConstants.SMS_MESSAGE,false);
+		convMessage.setSMS(isSMSMessage);
 		wasSMSMessage=isSMSMessage;
 		initializeListViewandAdapters();
 		setDataModelsandControllers();
@@ -204,8 +205,6 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 
 		MessageInfoList readList, deliveredList, playedList;
 
-		ConvMessage convMessage;
-
 		public abstract void refreshData();
 
 		Conversation mConversation;
@@ -246,7 +245,6 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 		public void onLoadFinished(Loader<MessageInfoLoaderData> loader, MessageInfoLoaderData data)
 		{
 			participantTreeMap = data.participantTreeMap;
-			convMessage = data.convMessage;
 			areAnyReceiptsReceived=data.areAnyReceiptsReceived;
 			messageInfoView = new MessageInfoView(convMessage, chatTheme, MessageInfoActivity.this, mConversation, messageInfoAdapter);
 			readListString = messageInfoView.getReadListHeaderString(controllerType);
@@ -335,6 +333,7 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 			participantTreeMap = dataModel.participantTreeMap;
 			if(wasSMSMessage)
 			isSMSMessage=!dataModel.areAnyReceiptsReceived();
+			convMessage.setSMS(isSMSMessage);
 			messageMap.add(new MessageInfoItem.MessageInfoViewItem(convMessage));
 			if(isNotApplicable()){
 				messageMap.add(new MessageInfoItem.MessageInfoNotApplicableItem());
