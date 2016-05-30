@@ -171,6 +171,13 @@
             android:launchMode="singleTop"
             android:windowSoftInputMode="adjustPan|stateAlwaysHidden"/>
         <activity
+            android:name=".ui.EditDPActivity"
+            android:label="@string/app_label"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/Transparent" >
+        </activity>
+        <activity
             android:name=".ui.ComposeChatActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_label"

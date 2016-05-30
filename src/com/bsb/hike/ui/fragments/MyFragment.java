@@ -5,6 +5,8 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -22,11 +24,10 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.models.ImageViewerInfo;
-import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.timeline.view.TimelineSummaryActivity;
 import com.bsb.hike.ui.CustomTabsBar;
-import com.bsb.hike.ui.ProfileActivity;
+import com.bsb.hike.ui.EditDPActivity;
 import com.bsb.hike.ui.SettingsActivity;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -90,11 +91,6 @@ public class MyFragment extends Fragment implements HikePubSub.Listener {
             Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(contactInfo.getNameOrMsisdn());
             profileImgView.setImageDrawable(drawable);
         }
-
-        ImageViewerInfo imageViewerInfo = new ImageViewerInfo(contactInfo.getMsisdn() + ProfileActivity.PROFILE_PIC_SUFFIX, null, false,
-                !ContactManager.getInstance().hasIcon(contactInfo.getMsisdn()));
-        profileImgView.setTag(imageViewerInfo);
-
         profileImgView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -173,10 +169,8 @@ public class MyFragment extends Fragment implements HikePubSub.Listener {
     }
 
     public void onViewImageClicked(View v) {
-        Intent intent = new Intent();
-        intent.setClass(getActivity(), ProfileActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
+        Intent intent = new Intent(getContext(), EditDPActivity.class);
+        getContext().startActivity(intent);
     }
 
     private View.OnClickListener badgeIconClickListener = new View.OnClickListener() {
