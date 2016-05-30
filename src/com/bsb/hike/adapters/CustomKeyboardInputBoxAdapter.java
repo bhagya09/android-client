@@ -11,7 +11,6 @@ import android.widget.TextView;
 
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.R;
-import com.bsb.hike.bots.CustomKeyboard;
 import com.bsb.hike.bots.CustomKeyboardStickerPickerListener;
 import com.bsb.hike.bots.CustomKeyboardTextPickerListener;
 import com.bsb.hike.bots.Sk;
@@ -33,7 +32,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class CustomKeyboardInputBoxAdapter implements OnClickListener
 {
-	private static Context mContext;
+	private Context mContext;
 
 	private LayoutInflater inflater;
 
@@ -177,37 +176,6 @@ public class CustomKeyboardInputBoxAdapter implements OnClickListener
 	{
 		customKeyboardTextPickerListener.onTextClicked((String) v.getTag());
 	}
-
-    
-	/**
-	 * Gets custom key board height.
-	 *
-	 * @param customKeyboard
-	 *            the custom keyboard object
-	 * @return the custom key board height
-	 */
-	public static int getCustomKeyBoardHeight(CustomKeyboard customKeyboard)
-	{
-		// Precautionary null check
-        if (customKeyboard == null)
-			return 0;
-
-		if (customKeyboard != null && customKeyboard.getT() != null && customKeyboard.getT().equals(HikePlatformConstants.BOT_CUSTOM_KEYBOARD_TYPE_TEXT))
-			return Utils.dpToPx(customKeyboard.getTk().size() * 48 + (customKeyboard.getTk().size() + 1) * 16);
-		else if (customKeyboard != null && customKeyboard.getT() != null && customKeyboard.getT().equals(HikePlatformConstants.BOT_CUSTOM_KEYBOARD_TYPE_STICKER))
-		{
-			int screenWidth = mContext.getResources().getDisplayMetrics().widthPixels;
-
-			int stickerPadding = 2 * mContext.getResources().getDimensionPixelSize(R.dimen.sticker_padding);
-			int horizontalSpacing = (HikePlatformConstants.stickerGridNoOfCols - 1) * mContext.getResources().getDimensionPixelSize(R.dimen.sticker_grid_horizontal_padding);
-
-			int actualSpace = (screenWidth - horizontalSpacing - stickerPadding);
-
-			return (int) Math.ceil( (double) customKeyboard.getSk().size() / HikePlatformConstants.stickerGridNoOfCols) * actualSpace/HikePlatformConstants.stickerGridNoOfCols + Utils.dpToPx(((int) Math.ceil( (double) customKeyboard.getSk().size() / HikePlatformConstants.stickerGridNoOfCols) + 0) * 10);
-		}
-		return 0;
-	}
-
 
 	/**
 	 * Release resources.

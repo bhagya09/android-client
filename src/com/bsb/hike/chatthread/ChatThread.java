@@ -81,7 +81,6 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
-import com.bsb.hike.adapters.CustomKeyboardInputBoxAdapter;
 import com.bsb.hike.adapters.MessagesAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
@@ -6575,7 +6574,10 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
         }
 
 		final CustomKeyboard customKeyboard = CustomKeyboardManager.getInstance().getCustomKeyboardObject(msisdn);
-		final int customKeyBoardHeight = CustomKeyboardInputBoxAdapter.getCustomKeyBoardHeight(customKeyboard);
+        int screenWidth = activity.getResources().getDisplayMetrics().widthPixels;
+        int stickerPadding = 2 * activity.getResources().getDimensionPixelSize(R.dimen.sticker_padding);
+        int stickerGridPadding = activity.getResources().getDimensionPixelSize(R.dimen.sticker_grid_horizontal_padding);
+		final int customKeyBoardHeight = BotUtils.getCustomKeyBoardHeight(customKeyboard,screenWidth,stickerPadding,stickerGridPadding);
 
         // Added show popup method on post delayed so that main view gets inflated till now and so that mainView window token not get null  in keyboard popup layout code.
         uiHandler.postDelayed(new Runnable() {
