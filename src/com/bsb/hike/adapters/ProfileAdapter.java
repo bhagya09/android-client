@@ -843,12 +843,6 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.On
 
 			case PRIVACY_SECTION:
 
-				if (!mContactInfo.isMyTwoWayFriend()) {
-					viewHolder.statusUpdateSetting.setVisibility(View.GONE);
-				} else {
-					viewHolder.statusUpdateSetting.setVisibility(View.VISIBLE);
-				}
-
 				viewHolder.expandingLayout.setExpandedHeight(Utils.dpToPx(115));
 				viewHolder.expandingLayout.setSizeChangedListener(profileItem);
 
