@@ -1,25 +1,6 @@
 package com.bsb.hike.db;
 
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.net.MalformedURLException;
-import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.Set;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences.Editor;
@@ -100,6 +81,7 @@ import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
+import com.bsb.hike.timeline.model.StoryItem;
 import com.bsb.hike.timeline.model.TimelineActions;
 import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -129,8 +111,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
-import static com.bsb.hike.db.DBConstants.*;
+import static com.bsb.hike.chatthemes.HikeChatThemeConstants.ASSET_INDEX_ACTION_BAR_BG;
+import static com.bsb.hike.chatthemes.HikeChatThemeConstants.ASSET_INDEX_BG_LANDSCAPE;
+import static com.bsb.hike.chatthemes.HikeChatThemeConstants.ASSET_INDEX_BG_PORTRAIT;
+import static com.bsb.hike.chatthemes.HikeChatThemeConstants.ASSET_INDEX_BUBBLE_COLOR;
+import static com.bsb.hike.chatthemes.HikeChatThemeConstants.ASSET_INDEX_CHAT_BUBBLE_BG;
+import static com.bsb.hike.chatthemes.HikeChatThemeConstants.ASSET_INDEX_INLINE_STATUS_MSG_BG;
+import static com.bsb.hike.chatthemes.HikeChatThemeConstants.ASSET_INDEX_MULTISELECT_CHAT_BUBBLE_BG;
+import static com.bsb.hike.chatthemes.HikeChatThemeConstants.ASSET_INDEX_OFFLINE_MESSAGE_BG;
+import static com.bsb.hike.chatthemes.HikeChatThemeConstants.ASSET_INDEX_RECEIVED_NUDGE_BG;
+import static com.bsb.hike.chatthemes.HikeChatThemeConstants.ASSET_INDEX_SENT_NUDGE_BG;
+import static com.bsb.hike.chatthemes.HikeChatThemeConstants.ASSET_INDEX_SMS_TOGGLE_BG;
+import static com.bsb.hike.chatthemes.HikeChatThemeConstants.ASSET_INDEX_STATUS_BAR_BG;
+import static com.bsb.hike.chatthemes.HikeChatThemeConstants.ASSET_INDEX_THUMBNAIL;
 import static com.bsb.hike.db.DBConstants.ACTIONS_TABLE;
 import static com.bsb.hike.db.DBConstants.ACTION_COUNT;
 import static com.bsb.hike.db.DBConstants.ACTION_ID;
@@ -139,10 +135,14 @@ import static com.bsb.hike.db.DBConstants.ACTION_OBJECT_TYPE;
 import static com.bsb.hike.db.DBConstants.ACTORS;
 import static com.bsb.hike.db.DBConstants.BOT_CONFIGURATION;
 import static com.bsb.hike.db.DBConstants.BOT_TABLE;
+import static com.bsb.hike.db.DBConstants.COLUMN_TYPE_INTEGER;
+import static com.bsb.hike.db.DBConstants.COLUMN_TYPE_TEXT;
+import static com.bsb.hike.db.DBConstants.COMMA_SEPARATOR;
 import static com.bsb.hike.db.DBConstants.CONFIG_DATA;
 import static com.bsb.hike.db.DBConstants.CONVERSATIONS_TABLE;
 import static com.bsb.hike.db.DBConstants.CONVERSATION_METADATA;
 import static com.bsb.hike.db.DBConstants.CREATE_TABLE;
+import static com.bsb.hike.db.DBConstants.ChatThemes;
 import static com.bsb.hike.db.DBConstants.EVENT_ID;
 import static com.bsb.hike.db.DBConstants.EVENT_METADATA;
 import static com.bsb.hike.db.DBConstants.EVENT_STATUS;
@@ -169,8 +169,6 @@ import static com.bsb.hike.db.DBConstants.QUICK_SUGGESTED_SENT_STICKERS;
 import static com.bsb.hike.db.DBConstants.STATUS_MAPPED_ID;
 import static com.bsb.hike.db.DBConstants.STATUS_TABLE;
 import static com.bsb.hike.db.DBConstants.UNREAD_COUNT;
-
-import static com.bsb.hike.chatthemes.HikeChatThemeConstants.*;
 
 public class HikeConversationsDatabase extends SQLiteOpenHelper
 {
