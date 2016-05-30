@@ -4280,6 +4280,8 @@ public class HikeConstants
 
 		public static final String NOTIF = "notif";
 
+		public static final String ATOMIC_TIP = "atomic_tip";
+
 		public static final String UNKNOWN = "unknown";
 	}
 
