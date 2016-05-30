@@ -16,6 +16,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
+import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Action;
 import android.support.v4.app.NotificationCompat.Builder;
@@ -1667,7 +1668,7 @@ public class HikeNotification
 					{
 						RequestToken bitmapDownloadRequestToken = HttpRequests.downloadBitmapTaskRequest(bitmap_url, new IRequestListener() {
 							@Override
-							public void onRequestFailure(HttpException httpException) {
+							public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException) {
 								httpException.printStackTrace();
 								showAnalyticsForRichNotifImageShow(false, AnalyticsConstants.REQUEST_FAILURE);
 							}

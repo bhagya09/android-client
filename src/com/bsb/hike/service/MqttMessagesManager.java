@@ -31,6 +31,8 @@ import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.ces.CesConstants;
+import com.bsb.hike.ces.CustomerExperienceScore;
 import com.bsb.hike.bots.CustomKeyboard;
 import com.bsb.hike.bots.CustomKeyboardManager;
 import com.bsb.hike.chatHead.ChatHeadUtils;
@@ -3247,6 +3249,38 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.DISABLE_QUICK_UPLOAD, disableQuickUpload);
 		}
 
+		if (data.has(CesConstants.ConfigureKey.FETCH_L2_DATA))
+		{
+			JSONObject fetchL2Data = data.getJSONObject(CesConstants.ConfigureKey.FETCH_L2_DATA);
+			if(fetchL2Data.has(CesConstants.ConfigureKey.CES_MODULE) && fetchL2Data.has(CesConstants.ConfigureKey.CES_DATE))
+			{
+				final String module = fetchL2Data.getString(CesConstants.ConfigureKey.CES_MODULE);
+				final String date = fetchL2Data.getString(CesConstants.ConfigureKey.CES_DATE);
+				CustomerExperienceScore.getInstance().processCesL2Data(module, date);
+			}
+		}
+
+		if (data.has(CesConstants.ConfigureKey.MAX_NET_SPEED))
+		{
+			JSONObject maxNwSpeeds = data.getJSONObject(CesConstants.ConfigureKey.MAX_NET_SPEED);
+			for (Iterator<String> iterator = maxNwSpeeds.keys(); iterator.hasNext();) {
+				String netType = iterator.next();
+				HikeSharedPreferenceUtil.getInstance().saveData(netType, maxNwSpeeds.getInt(netType));
+			}
+		}
+
+		if (data.has(CesConstants.ConfigureKey.COMPUTE_SCORE_ALGO))
+		{
+			int whichCSAlgo = data.getInt(CesConstants.ConfigureKey.COMPUTE_SCORE_ALGO);
+			HikeSharedPreferenceUtil.getInstance().saveData(CesConstants.ConfigureKey.COMPUTE_SCORE_ALGO, whichCSAlgo);
+		}
+
+		if (data.has(CesConstants.ConfigureKey.UTILIZE_DISK_PERCENT))
+		{
+			int percent = data.getInt(CesConstants.ConfigureKey.UTILIZE_DISK_PERCENT);
+			HikeSharedPreferenceUtil.getInstance().saveData(CesConstants.ConfigureKey.UTILIZE_DISK_PERCENT, percent);
+		}
+
 		if(data.has(HikeConstants.TRIGGER_BIRTHDAY_ID))
 		{
 			long id = data.getLong(HikeConstants.TRIGGER_BIRTHDAY_ID);
@@ -3285,6 +3319,12 @@ public class MqttMessagesManager
 		{
 			String multipleBdayNotifSubtext = data.getString(HikeConstants.MULTIPLE_BDAY_NOTIF_SUBTEXT);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MULTIPLE_BDAY_NOTIF_SUBTEXT, multipleBdayNotifSubtext);
+		}
+
+		if (data.has(HikeConstants.HIKE_CES_ENABLE))
+		{
+			boolean enableCes = data.getBoolean(HikeConstants.HIKE_CES_ENABLE);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.HIKE_CES_ENABLE, enableCes);
 		}
 
 		editor.commit();

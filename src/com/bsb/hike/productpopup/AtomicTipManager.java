@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -882,7 +883,7 @@ public class AtomicTipManager
         }
 
         @Override
-        public void onRequestFailure(HttpException httpException)
+        public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
         {
             Logger.d(TAG, "atomic tip http call  error code " + httpException.getErrorCode());
             String toastMsg = HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.atomic_tip_http_failure);

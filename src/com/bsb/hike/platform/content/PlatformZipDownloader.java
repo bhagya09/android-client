@@ -1,5 +1,7 @@
 package com.bsb.hike.platform.content;
 
+import android.support.annotation.Nullable;
+
 import android.text.TextUtils;
 import android.util.Pair;
 
@@ -375,7 +377,7 @@ public class PlatformZipDownloader
 									}
 									RequestToken token = HttpRequests.microAppSubscribeRequest(HttpRequestConstants.getBotSubscribeUrl(), json, new IRequestListener() {
 										@Override
-										public void onRequestFailure(HttpException httpException) {
+										public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException) {
 											Logger.e("PlatformZipDownloader","Subscription error");
 
 										}
@@ -574,14 +576,14 @@ public class PlatformZipDownloader
                         if(zipFileLength != result.getBody().getContentLength())
                         {
                             HttpException exception = new HttpException(HttpException.REASON_CODE_INCOMPLETE_REQUEST);
-                            onRequestFailure(exception);
+                            onRequestFailure(null, exception);
                             return;
                         }
                     }
                     else if(zipFileLength == 0)
                     {
                         HttpException exception = new HttpException(HttpException.REASON_CODE_ZERO_BYTE_ZIP_DOWNLOAD);
-                        onRequestFailure(exception);
+                        onRequestFailure(null, exception);
                         return;
                     }
 
@@ -623,12 +625,12 @@ public class PlatformZipDownloader
 					{
 						Logger.e(getClass().getCanonicalName(), e.toString());
 						HttpException exception = new HttpException(HttpException.REASON_CODE_INCOMPLETE_REQUEST);
-						onRequestFailure(exception);
+						onRequestFailure(null, exception);
 					}
 					if (zipFileLength != totalLength)
 					{
 						HttpException exception = new HttpException(HttpException.REASON_CODE_INCOMPLETE_REQUEST);
-						onRequestFailure(exception);
+						onRequestFailure(null, exception);
 						return;
 					}
 
@@ -657,7 +659,7 @@ public class PlatformZipDownloader
 			}
 
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
                 // Check to make event code as per http exception received
                 EventCode eventCode = EventCode.LOW_CONNECTIVITY;

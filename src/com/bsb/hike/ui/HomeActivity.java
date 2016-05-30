@@ -19,6 +19,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
@@ -1155,7 +1156,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		recordActivityEndTime();
 	}
 
-
     private void acceptGroupMembershipConfirmation(Intent intent)
     {
         String action = intent.getAction();
@@ -1201,7 +1201,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
                     }
 
                     @Override
-                    public void onRequestFailure(HttpException httpException)
+                    public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
                     {
                         String errorText = "";
 
@@ -2691,7 +2691,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
                 }
 
                 @Override
-                public void onRequestFailure(HttpException httpException)
+                public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
                 {
                     Toast.makeText(HomeActivity.this, getString(R.string.something_went_wrong), Toast.LENGTH_SHORT).show();
                 }
@@ -2797,5 +2797,4 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			e.toString();
 		}
 	}
-
 }

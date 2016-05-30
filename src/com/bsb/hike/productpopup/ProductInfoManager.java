@@ -10,7 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Handler;
-import android.text.TextUtils;
+import android.support.annotation.Nullable;
 import android.util.SparseArray;
 
 import com.bsb.hike.HikeConstants;
@@ -422,7 +422,7 @@ public class ProductInfoManager
 			}
 			
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 				Logger.d("ProductPopup", " error code " + httpException.getErrorCode());
 			}

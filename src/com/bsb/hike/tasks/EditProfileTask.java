@@ -1,6 +1,7 @@
 package com.bsb.hike.tasks;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -184,7 +185,7 @@ public class EditProfileTask implements IHikeHTTPTask
             }
 
             @Override
-            public void onRequestFailure(HttpException httpException)
+            public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
                 if (editProfileRequestsCount.decrementAndGet() == 0)
                 {
@@ -240,7 +241,7 @@ public class EditProfileTask implements IHikeHTTPTask
         return new IRequestListener()
         {
             @Override
-            public void onRequestFailure(HttpException httpException)
+            public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
             {
                 if (editProfileRequestsCount.decrementAndGet() == 0)
                 {
@@ -312,7 +313,7 @@ public class EditProfileTask implements IHikeHTTPTask
         return new IRequestListener()
         {
             @Override
-            public void onRequestFailure(HttpException httpException)
+            public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
             {
                 Logger.d(getClass().getSimpleName(), "DoB update request failed");
                 if (editProfileRequestsCount.decrementAndGet() == 0)
