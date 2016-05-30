@@ -448,6 +448,8 @@ import java.util.Map;
 
 		mContactInfo = ContactManager.getInstance().getContact(msisdn, true, true);
 
+		mContactInfo.setPrivacyPrefs(ContactManager.getInstance().getPrivacyPrefsForAGivenMsisdn(msisdn));
+
 		if (mConversation == null)
 		{
 			mConversation = new OneToOneConversation.ConversationBuilder(msisdn).setConvName((mContactInfo != null) ? mContactInfo.getName() : null).setIsOnHike(mContactInfo.isOnhike()).build();
@@ -492,7 +494,7 @@ import java.util.Map;
 			FetchHikeUser.fetchHikeUser(activity.getApplicationContext(), msisdn);
 		}
 
-		if (ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
+		if (ChatThreadUtils.shouldShowLastSeen(mContactInfo, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
 		{
 			checkAndStartLastSeenTask();
 		}
@@ -1052,7 +1054,7 @@ import java.util.Map;
 		/**
 		 * Proceeding only if the current chat thread is open and we should show the last seen
 		 */
-		if (msisdn.equals(contMsisdn) && ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
+		if (msisdn.equals(contMsisdn) && ChatThreadUtils.shouldShowLastSeen(mContactInfo, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
 		{
 			/**
 			 * Fix for case where server and client values are out of sync
@@ -2182,7 +2184,7 @@ import java.util.Map;
 			return;
 		}
 
-		if (!ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
+		if (!ChatThreadUtils.shouldShowLastSeen(mContactInfo, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
 		{
 			return;
 		}
@@ -3487,7 +3489,7 @@ import java.util.Map;
 
 		else
 		{
-			if (ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
+			if (ChatThreadUtils.shouldShowLastSeen(mContactInfo, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
 			{
 				checkAndStartLastSeenTask();
 			}
@@ -3503,7 +3505,7 @@ import java.util.Map;
 	 */
 	private void fetchLastSeen()
 	{
-		if (!ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
+		if (!ChatThreadUtils.shouldShowLastSeen(mContactInfo, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
 		{
 			return;
 		}
@@ -3801,7 +3803,7 @@ import java.util.Map;
 		addFavorite(viewResId == R.id.add_friend_ftue_button);
 
 		//If now we can show the last seen, we should
-		if (ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
+		if (ChatThreadUtils.shouldShowLastSeen(mContactInfo, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
 		{
 			checkAndStartLastSeenTask();
 		}
@@ -3875,7 +3877,7 @@ import java.util.Map;
 		else
 		{
 			//If now we can show the last seen, we should
-			if (ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
+			if (ChatThreadUtils.shouldShowLastSeen(mContactInfo, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
 			{
 				checkAndStartLastSeenTask();
 			}
