@@ -2225,7 +2225,7 @@ public class HikeNotification
 		String message = null;
 		String title = null;
 		int notificationId = BIRTHDAY_NOTIF;
-		List<String> msisdns = bdayNotifPair.first;
+		ArrayList<String> msisdns = bdayNotifPair.first;
 		String packetId = bdayNotifPair.second;
 		final int smallIconId = returnSmallIcon();
 		Intent mNotificationIntent = null;
@@ -2253,6 +2253,7 @@ public class HikeNotification
 		mNotificationIntent.putExtra(HikeConstants.Extras.BIRTHDAY_NOTIF, true);
 		mNotificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		mNotificationIntent.putExtra(HikeConstants.ID, packetId);
+		mNotificationIntent.putStringArrayListExtra(HikeConstants.Extras.LIST, msisdns);
 
 		Intent homeIntent = Utils.getHomeActivityIntent(context);
 		Intent[] intentSequence = new Intent[] { homeIntent, mNotificationIntent } ;
@@ -2273,7 +2274,7 @@ public class HikeNotification
 				AnalyticsConstants.BirthdayEvents.BIRTHDAY_NOTIF_CREATED,
 				AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
 				AnalyticsConstants.BirthdayEvents.BIRTHDAY_NOTIF_CREATED,
-				String.valueOf(packetId), null, title, message, null, null);
+				String.valueOf(packetId), null, title, message, null, msisdns.toString());
 	}
 
 	/**

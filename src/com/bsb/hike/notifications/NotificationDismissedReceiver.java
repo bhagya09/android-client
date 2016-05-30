@@ -16,6 +16,8 @@ import com.bsb.hike.utils.BirthdayUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 
+import java.util.ArrayList;
+
 /**
  * This receiver is responsible for capturing notification dismissed/deleted events and consequently clear notification message stack. This is done so that messages already shown
  * once in a notification are not repeated in subsequent notifications.
@@ -76,11 +78,12 @@ public class NotificationDismissedReceiver extends BroadcastReceiver
 			else if (notificationId == HikeNotification.BIRTHDAY_NOTIF)
 			{
 				String packetId = intent.getStringExtra(HikeConstants.ID);
+				ArrayList<String> list = intent.getStringArrayListExtra(HikeConstants.Extras.LIST);
 				BirthdayUtils.recordBirthdayAnalytics(
 						AnalyticsConstants.BirthdayEvents.BIRTHDAY_NOTIF_SWIPE_OFF,
 						AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
 						AnalyticsConstants.BirthdayEvents.BIRTHDAY_NOTIF_SWIPE_OFF,
-						String.valueOf(packetId), null, null, null, null, null);
+						String.valueOf(packetId), null, null, null, null, list.toString());
 			}
 			else
 			{

@@ -420,7 +420,7 @@ public class BirthdayUtils
                 AnalyticsConstants.BirthdayEvents.BIRTHDAY_REQ_RESPONSE,
                 AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
                 AnalyticsConstants.BirthdayEvents.BIRTHDAY_REQ_RESPONSE,
-                String.valueOf(packetId), String.valueOf(Utils.isBDayInNewChatEnabled()), null, null, String.valueOf(bdayMsisdnSet.size() - bdayMsisdns.size()), null);
+                String.valueOf(packetId), String.valueOf(Utils.isBDayInNewChatEnabled()), null, null, String.valueOf(bdayMsisdnSet.size() - bdayMsisdns.size()), bdayMsisdns.toString());
 
         if(bdayMsisdns != null && bdayMsisdns.size() > 0)
         {
