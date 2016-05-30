@@ -39,7 +39,7 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.userlogs.PhoneSpecUtils;
+import com.bsb.hike.utils.PhoneSpecUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
@@ -1088,7 +1088,7 @@ public class ChatHeadUtils
 		IRequestListener spamUserRequestListener = new IRequestListener() {
 
 			@Override
-			public void onRequestFailure(HttpException httpException) {
+			public void onRequestFailure(Response response, HttpException httpException) {
 				Toast.makeText(context, R.string.spam_call_fail, Toast.LENGTH_SHORT).show();
 			}
 

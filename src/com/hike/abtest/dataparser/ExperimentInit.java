@@ -17,7 +17,7 @@ public abstract class ExperimentInit {
     public abstract void parse() throws ParserException;
 
     public Map<String, String> getExperimentsMap() {
-        if(!isParsed) throw new IllegalStateException();
+        if (!isParsed) throw new IllegalStateException();
         return mExperimentMap;
     }
 }

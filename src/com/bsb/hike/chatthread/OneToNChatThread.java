@@ -91,24 +91,6 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 		// TODO implement me
 	}
 
-	/**
-	 * Returns whether the group is mute or not
-	 * 
-	 * @return
-	 */
-	protected boolean isMuted()
-	{
-		/**
-		 * Defensive check
-		 */
-
-		if (oneToNConversation == null)
-		{
-			return false;
-		}
-		return oneToNConversation.isMuted();
-	}
-
 	@Override
 	public void itemClicked(OverFlowMenuItem item)
 	{
@@ -320,15 +302,10 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 		// TODO : Hide popup OR dialog if visible
 	}
 
-	/**
-	 * This overrides sendPoke from ChatThread
-	 */
 	@Override
-	protected void sendPoke()
-	{
-		super.sendPoke();
-		if (!oneToNConversation.isMuted())
-		{
+	protected void sendNudge() {
+		super.sendNudge();
+		if (!oneToNConversation.isMuted()) {
 			Utils.vibrateNudgeReceived(activity.getApplicationContext());
 		}
 	}
@@ -351,8 +328,6 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 
 	/**
 	 * Setting the group participant count
-	 * 
-	 * @param morePeopleCount
 	 */
 	protected void showActiveConversationMemberCount()
 	{
@@ -661,14 +636,6 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 		return oneToNConversation.getConversationParticipantName(oneToNConversation.getConversationOwner());
 	}
 
-	@Override
-	protected void updateNetworkState()
-	{
-		super.updateNetworkState();
-		boolean networkError = ChatThreadUtils.checkNetworkError();
-		toggleConversationMuteViewVisibility(networkError ? false : oneToNConversation.isMuted());
-	}
-	
 	@Override
 	protected boolean shouldShowKeyboard()
 	{

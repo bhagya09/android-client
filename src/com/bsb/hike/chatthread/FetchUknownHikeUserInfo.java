@@ -75,7 +75,7 @@ public class FetchUknownHikeUserInfo
 			}
 
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(Response response, HttpException httpException)
 			{
 				Logger.e(TAG, " failure in fetchHike User with error code : " + httpException.getErrorCode());
 

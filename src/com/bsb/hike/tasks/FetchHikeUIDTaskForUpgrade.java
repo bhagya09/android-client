@@ -1,5 +1,7 @@
 package com.bsb.hike.tasks;
 
+import android.support.annotation.Nullable;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.bots.BotUtils;
@@ -150,7 +152,7 @@ public class FetchHikeUIDTaskForUpgrade implements IHikeHTTPTask, IHikeHttpTaskR
     }
 
     @Override
-    public void onRequestFailure(HttpException httpException) {
+    public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException) {
         doOnFailure(httpException);
 
     }

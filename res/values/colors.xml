@@ -341,8 +341,14 @@
     <color name="unknown_user_info_ct">#FFFFFF</color>
     <color name="unknown_user_info_ct_bg">#676460</color>
     <color name="white_90">#E6FFFFFF</color>
-
+    <color name="show_notif_color">#525252</color>
     <color name="atomic_tip_header_text">#f7f8f9</color>
     <color name="atomic_tip_body_text">#e6f7f8f9</color>
     <color name="rec_duration_color">#3D475B</color>
+
+
+    <!--native cards-->
+    <color name="share_text">#3d475b</color>
+    <color name="divider_bg">#1A000000</color>
+    <color name="cardview_default_bg">#f9f9f9</color>
 </resources>

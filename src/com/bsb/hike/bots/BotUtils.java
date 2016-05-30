@@ -2,6 +2,8 @@ package com.bsb.hike.bots;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.support.annotation.Nullable;
+import android.net.Uri;
 import android.graphics.drawable.BitmapDrawable;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -683,7 +685,7 @@ public class BotUtils
 
 	}
 
-	private static BotInfo getBotInfoFormessagingBots(JSONObject jsonObj, String msisdn)
+	public static BotInfo getBotInfoFormessagingBots(JSONObject jsonObj, String msisdn)
 	{
 		BotInfo existingBotInfo = getBotInfoForBotMsisdn(msisdn);
 		BotInfo botInfo = null;
@@ -878,7 +880,7 @@ public class BotUtils
 							}
 
 							@Override
-							public void onRequestFailure(HttpException httpException)
+							public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 							{
 								Logger.i(
 										TAG,
@@ -1128,6 +1130,23 @@ public class BotUtils
 		}
 		return true;
 	}
+
+    /**
+     * Is bot url boolean.
+     *
+     * @param uri
+     *            the uri
+     * @return the boolean
+     */
+    public static boolean isBotUrl(Uri uri)
+    {
+        if (HikeConstants.HIKE_SERVICE.equals(uri.getScheme()) && HikePlatformConstants.BOTS.equals(uri.getAuthority()) && !TextUtils.isEmpty(uri.getQueryParameter(HikeConstants.HANDLE)))
+        {
+            return true;
+        }
+        return false;
+    }
+
 
 	public static String getParentMsisdnFromBotMsisdn(String botMsisdn)
 	{

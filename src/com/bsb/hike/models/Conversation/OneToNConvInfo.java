@@ -2,8 +2,8 @@ package com.bsb.hike.models.Conversation;
 
 import android.text.TextUtils;
 
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.Mute;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 
 /**
@@ -111,6 +111,11 @@ public class OneToNConvInfo extends ConvInfo
 			return this;
 		}
 
+		@Override
+		protected Mute getMute(String msisdn)
+		{
+			return new Mute.InitBuilder(msisdn).build();
+		}
 	}
 
 	/**

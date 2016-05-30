@@ -1,15 +1,16 @@
 package com.bsb.hike.bots;
 
-import java.util.concurrent.atomic.AtomicBoolean;
+import android.text.TextUtils;
+
+import com.bsb.hike.models.Conversation.ConvInfo;
+import com.bsb.hike.models.Mute;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.utils.CustomAnnotation.DoNotObfuscate;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.text.TextUtils;
-
-import com.bsb.hike.models.Conversation.ConvInfo;
-import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.utils.CustomAnnotation.DoNotObfuscate;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by shobhit on 22/04/15.
@@ -319,6 +320,12 @@ public class BotInfo extends ConvInfo implements Cloneable
 		protected HikeBotBuilder getSelfObject()
 		{
 			return this;
+		}
+
+		@Override
+		protected Mute getMute(String msisdn)
+		{
+			return new Mute.InitBuilder(msisdn).build();
 		}
 
 	}
