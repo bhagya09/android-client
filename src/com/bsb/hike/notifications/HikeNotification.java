@@ -2253,7 +2253,6 @@ public class HikeNotification
 		mNotificationIntent.putExtra(HikeConstants.Extras.BIRTHDAY_NOTIF, true);
 		mNotificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		mNotificationIntent.putExtra(HikeConstants.ID, packetId);
-		mNotificationIntent.putStringArrayListExtra(HikeConstants.Extras.LIST, msisdns);
 
 		Intent homeIntent = Utils.getHomeActivityIntent(context);
 		Intent[] intentSequence = new Intent[] { homeIntent, mNotificationIntent } ;
@@ -2264,6 +2263,7 @@ public class HikeNotification
 		Intent deleteIntent = new Intent(context, NotificationDismissedReceiver.class);
 		deleteIntent.putExtra(HIKE_NOTIFICATION_ID_KEY, notificationId);
 		deleteIntent.putExtra(HikeConstants.ID, packetId);
+		deleteIntent.putStringArrayListExtra(HikeConstants.Extras.LIST, msisdns);
 
 		PendingIntent pendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(), notificationId, deleteIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 		mBuilder.setDeleteIntent(pendingIntent);
