@@ -1,12 +1,13 @@
 package com.bsb.hike.models.Conversation;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.Mute;
 
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
 import com.bsb.hike.chatthemes.ChatThemeManager;
-import com.bsb.hike.models.ConvMessage;
 
 /**
  * Conversation objects will be made from this abstract class
@@ -50,6 +51,16 @@ public abstract class Conversation implements Comparable<Conversation>
 	public ConvInfo getConvInfo()
 	{
 		return convInfo;
+	}
+
+	public void setMute(Mute mute)
+	{
+		convInfo.setMute(mute);
+	}
+
+	public Mute getMute()
+	{
+		return convInfo.getMute();
 	}
 
 	/**
@@ -139,12 +150,32 @@ public abstract class Conversation implements Comparable<Conversation>
 
 	public void setIsMute(boolean isMute)
 	{
-		convInfo.setMute(isMute);
+		convInfo.setIsMute(isMute);
 	}
 
 	public boolean isMuted()
 	{
 		return convInfo.isMute();
+	}
+
+	public void setShowNotifInMute(boolean muteNotification)
+	{
+		convInfo.setShowNotifInMute(muteNotification);
+	}
+
+	public boolean shouldShowNotifInMute()
+	{
+		return convInfo.shouldShowNotifInMute();
+	}
+
+	public void setMuteDuration(int muteDuration)
+	{
+		convInfo.setMuteDuration(muteDuration);
+	}
+
+	public int getMuteDuration()
+	{
+		return convInfo.getMuteDuration();
 	}
 
 	public boolean isBlocked()

@@ -24,4 +24,11 @@
 	<dimen name="slide_to_cancel_margin">30dp</dimen>
 
 	<dimen name="db_dialog_width">352dp</dimen>
+
+	<!--native cards-->
+	<dimen name = "share_container_height">36dp</dimen>
+	<dimen name="native_card_message_container_wide_width">280.5dp</dimen>
+	<dimen name="native_card_message_container_narror_width">224dp</dimen>
+	<dimen name="native_card_image_height">116dp</dimen>
+    <dimen name = "share_text_size">12sp</dimen>
 </resources>

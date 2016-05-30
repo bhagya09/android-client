@@ -16,6 +16,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
+import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Action;
 import android.support.v4.app.NotificationCompat.Builder;
@@ -344,12 +345,13 @@ public class HikeNotification
 			deleteIntent.putExtra(HIKE_NOTIFICATION_ID_KEY, notifId);
 			deleteIntent.putExtra(HikeConstants.TIP_ID, tipContentModel.getTipId());
 			deleteIntent.putExtra(ProductPopupsConstants.IS_CANCELLABLE, tipContentModel.isCancellable());
+			deleteIntent.putExtra(AnalyticsConstants.EXP_ANALYTICS_TAG, tipContentModel.getAnalyticsTag());
 
 			PendingIntent pendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(), notifId, deleteIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 			mBuilder.setDeleteIntent(pendingIntent);
 
 			Logger.d(getClass().getSimpleName(), "recording atomic tip notif creation");
-			AtomicTipManager.getInstance().tipFromNotifAnalytics(AnalyticsConstants.AtomicTipsAnalyticsConstants.TIP_NOTIF_CREATED, tipContentModel.getTipId(), tipContentModel.isCancellable());
+			AtomicTipManager.getInstance().tipFromNotifAnalytics(AnalyticsConstants.AtomicTipsAnalyticsConstants.TIP_NOTIF_CREATED, tipContentModel.getTipId(), tipContentModel.isCancellable(), tipContentModel.getAnalyticsTag());
 			notifyNotification(notifId, mBuilder);
 		}
 	}
@@ -901,7 +903,7 @@ public class HikeNotification
 			return;
 		}
 
-		boolean isSilentNotification =isSilentNotification(msisdn);
+		boolean isSilentNotification =isSilentNotification(msisdn) || (ContactManager.getInstance().isChatMuted(msisdn));
 
 		// if notification message stack is empty, add to it and proceed with single notification display
 		// else add to stack and notify clubbed messages
@@ -1666,7 +1668,7 @@ public class HikeNotification
 					{
 						RequestToken bitmapDownloadRequestToken = HttpRequests.downloadBitmapTaskRequest(bitmap_url, new IRequestListener() {
 							@Override
-							public void onRequestFailure(HttpException httpException) {
+							public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException) {
 								httpException.printStackTrace();
 								showAnalyticsForRichNotifImageShow(false, AnalyticsConstants.REQUEST_FAILURE);
 							}
@@ -2313,7 +2315,9 @@ public class HikeNotification
 
 		NotificationCompat.Builder mBuilder = getNotificationBuilder(title, message, message, avatar, smallIcon, isSilent, isSilent, false);
 
-		List<Action> notifActions = HikeNotificationUtils.getActionsForUJNotif(context, data.optJSONArray(HikeConstants.CTAS), msisdn);
+		String analyticsTag = data.optString(AnalyticsConstants.EXP_ANALYTICS_TAG);
+
+		List<Action> notifActions = HikeNotificationUtils.getActionsForUJNotif(context, data.optJSONArray(HikeConstants.CTAS), msisdn, analyticsTag);
 		for(int i = 0; i < notifActions.size(); i++)
 		{
 			mBuilder.addAction(notifActions.get(i));
@@ -2322,15 +2326,19 @@ public class HikeNotification
 		Intent notifIntent = new Intent(HikeConstants.UserJoinMsg.NOTIF_ACTION_INTENT);
 		notifIntent.putExtra(HikeConstants.ACTION, HikeConstants.UserJoinMsg.ACTION_DEFAULT);
 		notifIntent.putExtra(HikeConstants.MSISDN, msisdn);
+		notifIntent.putExtra(AnalyticsConstants.EXP_ANALYTICS_TAG, analyticsTag);
 		mBuilder.setContentIntent(PendingIntent.getBroadcast(context, notifId, notifIntent, PendingIntent.FLAG_UPDATE_CURRENT));
 
 		Intent deleteIntent = new Intent(context, NotificationDismissedReceiver.class);
 		deleteIntent.putExtra(HIKE_NOTIFICATION_ID_KEY, notifId);
 		deleteIntent.putExtra(HikeConstants.MqttMessageTypes.USER_JOINED, true);
+		deleteIntent.putExtra(AnalyticsConstants.EXP_ANALYTICS_TAG, analyticsTag);
+		deleteIntent.putExtra(HikeConstants.MSISDN, msisdn);
 		PendingIntent pendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(), notifId, deleteIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 		mBuilder.setDeleteIntent(pendingIntent);
 
 		Logger.d(HikeConstants.UserJoinMsg.TAG, "creating uj notif with id:" + notifId);
+		HikeNotificationUtils.recordRichUJNotifCreate(String.valueOf(notifId), analyticsTag, isSilent, title, message, String.valueOf(notifActions.size()), msisdn);
 		notifyNotification(notifId, mBuilder);
 
 	}

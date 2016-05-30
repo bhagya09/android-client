@@ -9,11 +9,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
+import android.support.annotation.Nullable;
 
 import com.bsb.hike.GCMIntentService;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -23,7 +23,7 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
 import com.bsb.hike.modules.httpmgr.request.requestbody.JsonBody;
 import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.userlogs.UserLogInfo;
+import com.hike.cognito.UserLogInfo;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -235,11 +235,7 @@ public class SendGCMIdToServerTrigger extends BroadcastReceiver
 						}
 						//Utils.disableNetworkListner(HikeMessengerApp.getInstance().getApplicationContext());
 					}
-					try {
-						UserLogInfo.requestUserLogs(255);
-					} catch (JSONException e) {
-						e.printStackTrace();
-					}
+					UserLogInfo.requestUserLogs(UserLogInfo.ALL_LOGS);
 					break;
 				case HikeConstants.REGISTEM_GCM_AFTER_SIGNUP:
 
@@ -254,7 +250,7 @@ public class SendGCMIdToServerTrigger extends BroadcastReceiver
 			}
 			
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 				Logger.d(SendGCMIdToServerTrigger.this.getClass().getSimpleName(), "Send unsuccessful");
 				// TODO Below code is for investigating an issue where invalid json is received at server end , should be removed once issue is solved

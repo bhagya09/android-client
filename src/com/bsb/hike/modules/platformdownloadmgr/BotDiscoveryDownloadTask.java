@@ -1,8 +1,9 @@
 package com.bsb.hike.modules.platformdownloadmgr;
 
+import android.support.annotation.Nullable;
+
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.BotDiscoveryTableDownloadRequest;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.bsb.hike.HikeMessengerApp;
@@ -13,7 +14,6 @@ import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHTTPTask;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHttpTaskResult;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -126,7 +126,7 @@ public class BotDiscoveryDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 			}
 
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 				doOnFailure(httpException);
 			}

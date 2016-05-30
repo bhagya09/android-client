@@ -1,5 +1,7 @@
 package com.bsb.hike.platform.auth;
 
+import android.support.annotation.Nullable;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -139,7 +141,7 @@ public class PlatformAuthenticationManager
 					if (responseData.has(HikePlatformConstants.ERROR))
 					{
 						Logger.d(tag, "access token request failed: "+responseData);
-						onRequestFailure(null);
+						onRequestFailure(null, null);
 						return;
 					}
 					if (responseData.has(HikePlatformConstants.PLATFORM_AUTH_TOKEN))
@@ -158,20 +160,20 @@ public class PlatformAuthenticationManager
 				}
 				else
 				{
-					onRequestFailure(null);
+					onRequestFailure(null, null);
 					return;
 				}
 			}
 			catch (JSONException e)
 			{
 				e.printStackTrace();
-				onRequestFailure(null);
+				onRequestFailure(null, null);
 				return;
 			}
 		}
 
 		@Override
-		public void onRequestFailure(HttpException httpException)
+		public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 		{
 			Logger.d(tag, "auth request failed: " + httpException.getErrorCode());
 			if(_callBack != null){

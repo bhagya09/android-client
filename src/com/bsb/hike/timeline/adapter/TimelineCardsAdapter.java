@@ -21,6 +21,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.SystemClock;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.LoaderManager;
@@ -1275,7 +1276,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 					}
 
 					@Override
-					public void onRequestFailure(HttpException httpException)
+					public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 					{
 						Toast.makeText(mContext, R.string.delete_status_error, Toast.LENGTH_LONG).show();
 						if (hikeDialog != null && hikeDialog.isShowing())

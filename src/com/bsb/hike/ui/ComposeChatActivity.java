@@ -534,7 +534,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					e.printStackTrace();
 				}
 
-				if(allImages)
+				if(allImages && !getIntent().getBooleanExtra(HikeConstants.Extras.BYPASS_GALLERY, false))
 				{
 					ArrayList<GalleryItem> selectedImages = GalleryItem.getGalleryItemsFromFilepaths(imageFilePathArray);
 					if((selectedImages!=null))
@@ -2028,6 +2028,24 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 					HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_REPLACED, json);
 				}
+				//"d":{"ep":"HIGH","st":"repl","et":"nonUiEvent","md":{"sid":1462455204298,"fld6":1,"ek":"micro_app","event":"nativeCardForward","fld4":"tracking"},"cts":1462455428594,"tag":"plf"},"t":"le_android"
+				if(!TextUtils.isEmpty(presentIntent.getStringExtra(AnalyticsConstants.NATIVE_CARD_FORWARD)))
+				{
+
+					JSONObject json = new JSONObject();
+					try
+					{
+						json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.MICRO_APP_EVENT);
+						json.putOpt(AnalyticsConstants.EVENT,AnalyticsConstants.NATIVE_CARD_FORWARD);
+						json.putOpt(AnalyticsConstants.LOG_FIELD_4,presentIntent.getStringExtra(AnalyticsConstants.NATIVE_CARD_FORWARD));
+						json.putOpt(AnalyticsConstants.LOG_FIELD_6,arrayList.size());
+					} catch (JSONException e)
+					{
+						e.printStackTrace();
+					}
+
+					HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_REPLACED, json);
+				}
 				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 			}
 			catch (JSONException e)
@@ -2434,6 +2452,26 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 							offlineMessageList.add(offlineConvMessage);
 						}
 					}
+					else if(msgExtrasJson.optInt(MESSAGE_TYPE.MESSAGE_TYPE) == MESSAGE_TYPE.CONTENT){
+						// CONTENT Message
+						String metadata = msgExtrasJson.optString(HikeConstants.METADATA);
+						int loveId = msgExtrasJson.optInt(HikeConstants.ConvMessagePacketKeys.LOVE_ID);
+						loveId = loveId==0 ? -1 : loveId;
+						ConvMessage convMessage = new ConvMessage();
+						convMessage.contentLove = new ContentLove();
+						convMessage.contentLove.loveId = loveId;
+						convMessage.setMessageType(MESSAGE_TYPE.CONTENT);
+						convMessage.platformMessageMetadata = new PlatformMessageMetadata(metadata, getApplicationContext());
+						convMessage.setIsSent(true);
+						convMessage.setMessage(msgExtrasJson.optString(HikeConstants.HIKE_MESSAGE));
+						if(offlineContact!=null)
+						{
+							ConvMessage offlineConvMessage =  new ConvMessage(convMessage);
+							offlineConvMessage.setMessageOriginType(OriginType.OFFLINE);
+							offlineMessageList.add(offlineConvMessage);
+						}
+						multipleMessageList.add(convMessage);
+					}
 					else if (msgExtrasJson.has(HikeConstants.Extras.FILE_PATH))
 					{
 						String fileKey = null;
@@ -2528,25 +2566,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 							offlineConvMessage.setMessageOriginType(OriginType.OFFLINE);
 							offlineMessageList.add(offlineConvMessage);
 						}
-					}else if(msgExtrasJson.optInt(MESSAGE_TYPE.MESSAGE_TYPE) == MESSAGE_TYPE.CONTENT){
-						// CONTENT Message
-						String metadata = msgExtrasJson.optString(HikeConstants.METADATA);
-						int loveId = msgExtrasJson.optInt(HikeConstants.ConvMessagePacketKeys.LOVE_ID);
-						loveId = loveId==0 ? -1 : loveId;
-						ConvMessage convMessage = new ConvMessage();
-						convMessage.contentLove = new ContentLove();
-						convMessage.contentLove.loveId = loveId;
-                        convMessage.setMessageType(MESSAGE_TYPE.CONTENT);
-						convMessage.platformMessageMetadata = new PlatformMessageMetadata(metadata, getApplicationContext());
-                        convMessage.setIsSent(true);
-                        convMessage.setMessage(convMessage.platformMessageMetadata.notifText);
-                        if(offlineContact!=null)
-						{
-                        	ConvMessage offlineConvMessage =  new ConvMessage(convMessage);
-                        	offlineConvMessage.setMessageOriginType(OriginType.OFFLINE);
-                        	offlineMessageList.add(offlineConvMessage);
-						}
-						multipleMessageList.add(convMessage);
 					} else if(msgExtrasJson.optInt(MESSAGE_TYPE.MESSAGE_TYPE) == MESSAGE_TYPE.WEB_CONTENT || msgExtrasJson.optInt(MESSAGE_TYPE.MESSAGE_TYPE) == MESSAGE_TYPE.FORWARD_WEB_CONTENT){
 
 						ConvMessage convMessage = getConvMessageForForwardedWebContent(msgExtrasJson);
@@ -2895,7 +2914,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 		return convMessage;
 	}
-
 	private ArrayList<ContactInfo> updateContactInfoOrdering(ArrayList<ContactInfo> arrayList){
 		Set<ContactInfo> set = new HashSet<ContactInfo>(arrayList);
 		ArrayList<ContactInfo> toReturn = new ArrayList<ContactInfo>();

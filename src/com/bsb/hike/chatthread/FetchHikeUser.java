@@ -1,6 +1,7 @@
 package com.bsb.hike.chatthread;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Pair;
 
@@ -94,7 +95,7 @@ public class FetchHikeUser
 			}
 
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 				Logger.e(TAG, " failure in fetchHike User with error code : " + httpException.getErrorCode());
 			}

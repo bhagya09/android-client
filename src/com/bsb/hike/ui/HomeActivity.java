@@ -19,6 +19,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
@@ -58,10 +59,11 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
-import com.bsb.hike.analytics.HomeAnalyticsConstants;
 import com.bsb.hike.backup.AccountBackupRestore;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatthread.ChatThreadActivity;
+import com.bsb.hike.analytics.HomeAnalyticsConstants;
 import com.bsb.hike.db.AccountRestoreAsyncTask;
 import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
@@ -71,6 +73,7 @@ import com.bsb.hike.filetransfer.FTApkManager;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
+import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.models.HikeAlarmManager;
@@ -85,7 +88,9 @@ import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
+import com.bsb.hike.service.MqttMessagesManager;
 import com.bsb.hike.snowfall.SnowFallView;
 import com.bsb.hike.tasks.DownloadAndInstallUpdateAsyncTask;
 import com.bsb.hike.tasks.SendLogsTask;
@@ -106,6 +111,8 @@ import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+import com.hike.cognito.UserLogInfo;
+
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -184,7 +191,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			HikePubSub.USER_JOINED, HikePubSub.USER_LEFT, HikePubSub.FRIEND_REQUEST_ACCEPTED, HikePubSub.REJECT_FRIEND_REQUEST, HikePubSub.UPDATE_OF_MENU_NOTIFICATION,
 			HikePubSub.SERVICE_STARTED, HikePubSub.UPDATE_PUSH, HikePubSub.REFRESH_FAVORITES, HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.CONTACT_SYNCED, HikePubSub.FAVORITE_COUNT_CHANGED,
 			HikePubSub.STEALTH_UNREAD_TIP_CLICKED,HikePubSub.FTUE_LIST_FETCHED_OR_UPDATED, HikePubSub.STEALTH_INDICATOR, HikePubSub.USER_JOINED_NOTIFICATION, HikePubSub.UPDATE_OF_PHOTOS_ICON,
-			HikePubSub.SHOW_NEW_CHAT_RED_DOT, HikePubSub.PRODUCT_POPUP_RECEIVE_COMPLETE, HikePubSub.OPEN_COMPOSE_CHAT_SCREEN, HikePubSub.STEALTH_MODE_TOGGLED, HikePubSub.BOT_CREATED};
+			HikePubSub.SHOW_NEW_CHAT_RED_DOT, HikePubSub.PRODUCT_POPUP_RECEIVE_COMPLETE, HikePubSub.OPEN_COMPOSE_CHAT_SCREEN, HikePubSub.STEALTH_MODE_TOGGLED, HikePubSub.BOT_CREATED,
+			HikePubSub.RICH_USER_JOINED_NOTIFICATION};
 
 	private String[] progressPubSubListeners = { HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE };
 
@@ -874,6 +882,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		try
 		{
+			UserLogInfo.requestUserLogs(255);
+
 			JSONObject metadata = new JSONObject();
 			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.HOME_SEARCH);
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
@@ -1146,107 +1156,118 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		recordActivityEndTime();
 	}
 
-	
-	private void acceptGroupMembershipConfirmation(Intent intent)
-	{
-		String action = intent.getAction();
-		String linkUrl = intent.getDataString();
-		int flags = intent.getFlags();
-		
-		if ((flags & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0) 
-		{
-		    // The activity was launched from history
-			return;
-		}
-		
-		if (TextUtils.isEmpty(action) || TextUtils.isEmpty(linkUrl))
-		{
-			//finish();
-			return;
-		}
-		
-		if (linkUrl.contains(HttpRequestConstants.BASE_LINK_SHARING_URL))
-		{
-			//linkurl is http://hike.in/refid:gc:code
-			String codeArray[] = linkUrl.split("/");
-			if(codeArray.length < 4 || !linkUrl.contains(":gc:"))
-			{
-				Logger.d("link_share_error", "The linkurl is wrong, either no :gc: present or split in '/' is < 4 " + linkUrl);
-				return;
-			}
-			
-			String code = codeArray[3];
-			RequestToken requestToken = HttpRequests.acceptGroupMembershipConfirmationRequest(code, new IRequestListener()
-			{
-				
-				@Override
-				public void onRequestSuccess(Response result)
-				{
-				}
-				
-				@Override
-				public void onRequestProgressUpdate(float progress)
-				{
-				}
-				
-				@Override
-				public void onRequestFailure(HttpException httpException)
-				{
-					String errorText = "";
+    private void acceptGroupMembershipConfirmation(Intent intent)
+    {
+        String action = intent.getAction();
+        String linkUrl = intent.getDataString();
+        Uri intentUri = intent.getData();
+        int flags = intent.getFlags();
 
-					Logger.d("link_share_error", "The error code received is " + httpException.getErrorCode());
-					
-					switch (httpException.getErrorCode())
-					{
+        if ((flags & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0)
+        {
+            // The activity was launched from history
+            return;
+        }
 
-					// 406: “The person who invited you has deleted their account”
-					case HttpURLConnection.HTTP_NOT_ACCEPTABLE:
-						errorText = getString(R.string.link_share_error_invitee_account_deleted);
-						break;
+        if (TextUtils.isEmpty(action) || TextUtils.isEmpty(linkUrl))
+        {
+            // finish();
+            return;
+        }
 
-					// 400: “You’re already in the group” 
-					case HttpURLConnection.HTTP_BAD_REQUEST:
-						errorText = getString(R.string.link_share_error_already_group_member);
-						break;
+        if (linkUrl.contains(HttpRequestConstants.BASE_LINK_SHARING_URL))
+        {
+            // linkurl is http://hike.in/refid:gc:code
+            String codeArray[] = linkUrl.split("/");
+            if (codeArray.length < 4)
+            {
+                Logger.d("link_share_error", "The linkurl is wrong:: split in '/' is < 4 " + linkUrl);
+                return;
+            }
+            else if (linkUrl.contains(":gc:"))
+            {
+                String code = codeArray[3];
+                RequestToken requestToken = HttpRequests.acceptGroupMembershipConfirmationRequest(code, new IRequestListener()
+                {
 
-					// 16: “This link is invalid”
-					// 401: “This link is invalid”
-					case HttpURLConnection.HTTP_UNAUTHORIZED:
-					case HttpException.REASON_CODE_UNKNOWN_HOST_EXCEPTION:
-						errorText = getString(R.string.link_share_error_invalid_link);
-						break;
-						
-					// 410: “This group has been deleted”
-					case HttpURLConnection.HTTP_GONE:
-						errorText = getString(R.string.link_share_error_group_deleted);
-						break;
+                    @Override
+                    public void onRequestSuccess(Response result)
+                    {
+                    }
 
-					// 412: “The person who invited you is not in the group anymore”
-					case HttpURLConnection.HTTP_PRECON_FAILED:
-						errorText = getString(R.string.link_share_error_person_not_in_group);
-						break;
+                    @Override
+                    public void onRequestProgressUpdate(float progress)
+                    {
+                    }
 
-					// 1:- NO Internet connectivity
-					case HttpException.REASON_CODE_NO_NETWORK:
-						errorText = getString(R.string.link_share_network_error);
-						break;
+                    @Override
+                    public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
+                    {
+                        String errorText = "";
 
-					default:
-						errorText = getString(R.string.link_share_error_default);
-						break;
-					}
+                        Logger.d("link_share_error", "The error code received is " + httpException.getErrorCode());
 
-					// Show Toast
-					Toast.makeText(HomeActivity.this, errorText, Toast.LENGTH_SHORT).show();
-				}
-			});
-			requestToken.execute();
-		}
+                        switch (httpException.getErrorCode())
+                        {
 
-	
-	}
+                            // 406: “The person who invited you has deleted their account”
+                            case HttpURLConnection.HTTP_NOT_ACCEPTABLE:
+                                errorText = getString(R.string.link_share_error_invitee_account_deleted);
+                                break;
 
-	@Override
+                            // 400: “You’re already in the group”
+                            case HttpURLConnection.HTTP_BAD_REQUEST:
+                                errorText = getString(R.string.link_share_error_already_group_member);
+                                break;
+
+                            // 16: “This link is invalid”
+                            // 401: “This link is invalid”
+                            case HttpURLConnection.HTTP_UNAUTHORIZED:
+                            case HttpException.REASON_CODE_UNKNOWN_HOST_EXCEPTION:
+                                errorText = getString(R.string.link_share_error_invalid_link);
+                                break;
+
+                            // 410: “This group has been deleted”
+                            case HttpURLConnection.HTTP_GONE:
+                                errorText = getString(R.string.link_share_error_group_deleted);
+                                break;
+
+                            // 412: “The person who invited you is not in the group anymore”
+                            case HttpURLConnection.HTTP_PRECON_FAILED:
+                                errorText = getString(R.string.link_share_error_person_not_in_group);
+                                break;
+
+                            // 1:- NO Internet connectivity
+                            case HttpException.REASON_CODE_NO_NETWORK:
+                                errorText = getString(R.string.link_share_network_error);
+                                break;
+
+                            default:
+                                errorText = getString(R.string.link_share_error_default);
+                                break;
+                        }
+
+                        // Show Toast
+                        Toast.makeText(HomeActivity.this, errorText, Toast.LENGTH_SHORT).show();
+                    }
+                });
+                requestToken.execute();
+            }
+            // For Bots:- linkurl is http://hike.in/bots/handle
+            else if (codeArray.length == 5 && linkUrl.contains("/bots/"))
+            {
+                makeBotsJoinRequestCall(codeArray[codeArray.length - 1]);
+            }
+        }
+        else if (BotUtils.isBotUrl(intentUri))
+        {
+            makeBotsJoinRequestCall(intentUri.getQueryParameter(HikeConstants.HANDLE));
+        }
+
+    }
+
+
+    @Override
 	public void onBackPressed()
 	{
 		// The following change checks if search mode is still there, and takes action accordingly
@@ -1566,7 +1587,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				}
 			}
 		}
-		else if (HikePubSub.USER_JOINED_NOTIFICATION.equals(type))
+		else if (HikePubSub.USER_JOINED_NOTIFICATION.equals(type) || HikePubSub.RICH_USER_JOINED_NOTIFICATION.equals(type))
 		{
 			showRecentlyJoinedDot(1000);
 		}
@@ -2608,6 +2629,100 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 	}
 
+    /*
+     * Make this call to initiate bot and bot's user interaction
+     * @param handle    : This would be the bots handle you want to initiate
+     *
+     */
+    private void makeBotsJoinRequestCall(String handle)
+    {
+        try
+        {
+            JSONObject json = new JSONObject();
+            json.put(HikeConstants.HANDLE, handle);
+
+            RequestToken requestToken = HttpRequests.makeBotJoinPostRequest(json, new IRequestListener()
+            {
+                @Override
+                public void onRequestSuccess(Response result)
+                {
+                    if (result.getBody().getContent() instanceof String)
+                    {
+                        String responseJsonString = (String) result.getBody().getContent();
+                        try
+                        {
+                            JSONObject response = new JSONObject(responseJsonString);
+                            JSONObject messagingBotJson = response.getJSONObject(HikeConstants.MqttMessageTypes.CREATE_MULTIPLE_BOTS);
+                            String msisdn = response.optString(HikeConstants.MSISDN);
+                            BotInfo botInfo = BotUtils.getBotInfoFormessagingBots(messagingBotJson, msisdn);
+
+                            // If bot exists already on device, open that only
+                            if(BotUtils.isBot(msisdn))
+                            {
+                                initiateBotChatThread(msisdn,botInfo);
+                                return;
+                            }
+
+                            boolean isSuccess = response.optBoolean(HikePlatformConstants.SUCCESS);
+                            JSONObject botIntroJson = response.optJSONObject(HikePlatformConstants.INTRO);
+                            if (isSuccess)
+                            {
+                                BotUtils.createBot(messagingBotJson,Utils.getNetworkShortinOrder(Utils.getNetworkTypeAsString(HikeMessengerApp.getInstance().getApplicationContext())));
+                                MqttMessagesManager.getInstance(HomeActivity.this).saveMessage(botIntroJson);
+                                initiateBotChatThread(msisdn,botInfo);
+                            }
+                            else
+                            {
+                                String errorMsg = response.optString(HikeConstants.ERROR_MESSAGE);
+                                if (!TextUtils.isEmpty(errorMsg))
+                                    Toast.makeText(HomeActivity.this, errorMsg, Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                        catch (JSONException e)
+                        {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
+                @Override
+                public void onRequestProgressUpdate(float progress)
+                {
+                }
+
+                @Override
+                public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
+                {
+                    Toast.makeText(HomeActivity.this, getString(R.string.something_went_wrong), Toast.LENGTH_SHORT).show();
+                }
+            });
+            requestToken.execute();
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
+    }
+    
+	/**
+	 * Start chat thread by providing that intent.
+	 *
+	 * @param msisdn
+	 *            the msisdn
+	 * @param botInfo
+	 *            the bot info
+	 */
+	private void initiateBotChatThread(String msisdn, BotInfo botInfo)
+    {
+        ConvInfo convInfo = new ConvInfo.ConvInfoBuilder(msisdn)
+                .setConvName(botInfo.getConversationName())
+                .setSortingTimeStamp(System.currentTimeMillis()).build();
+        Intent chatThreadIntent = IntentFactory.createChatThreadIntentFromConversation(HomeActivity.this, convInfo,
+                ChatThreadActivity.ChatThreadOpenSources.INITIATE_BOT);
+
+        startActivity(chatThreadIntent);
+    }
+    
 	private void recordOverFlowMenuClick()
 	{
 		try
@@ -2682,5 +2797,4 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			e.toString();
 		}
 	}
-
 }
