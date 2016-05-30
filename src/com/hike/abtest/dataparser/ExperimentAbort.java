@@ -18,7 +18,7 @@ public abstract class ExperimentAbort {
     public abstract void parse() throws ParserException;
 
     public List<String> getExperimentIds() {
-        if(!isParsed) throw new IllegalStateException();
+        if (!isParsed) throw new IllegalStateException();
         return mExperimentIdList;
     }
 }

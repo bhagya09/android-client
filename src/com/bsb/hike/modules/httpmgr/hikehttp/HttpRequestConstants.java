@@ -691,6 +691,15 @@ public class HttpRequestConstants
 		return  BASE_URL + BASE_V5 + HIKE_SETTINGS;
 	}
 
+    public static String getBotInitiateUrl()
+    {
+        String suffix = "bots.hike.in/api" + BASE_V1 + "/manage/initiate";
+        if (isProduction)
+            return HTTPS + suffix;
+        else
+            return HTTPS + "dev-" + suffix;
+    }
+
 	public static String getFetchBdayUrl()
 	{
 		return BASE_URL + BASE_V1 + FETCH_TODAYS_BIRTHDAY_URL;
@@ -724,5 +733,14 @@ public class HttpRequestConstants
 	public static String getCesLevelOneInfoUploadUrl()
 	{
 		return BASE_URL + "/v1/logs/ces/score" + "/l1data";
+	}
+
+	public static String getBotSubscribeUrl()
+	{
+		String suffix = "subscription/api" + BASE_V3 +"/microapps/subscribe.json";
+		if (isProduction)
+			return HTTP + "subscription.platform.hike.in/" + suffix;
+		else
+			return HTTP + "qa-content.hike.in/" + suffix;
 	}
 }
