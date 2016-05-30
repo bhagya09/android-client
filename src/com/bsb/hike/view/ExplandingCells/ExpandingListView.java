@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.bsb.hike.ExplandingCells;
+package com.bsb.hike.view.ExplandingCells;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;

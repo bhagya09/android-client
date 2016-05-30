@@ -1,4 +1,4 @@
-package com.bsb.hike.ExplandingCells;
+package com.bsb.hike.view.ExplandingCells;
 
 /**
  * Created by piyush on 27/05/16.

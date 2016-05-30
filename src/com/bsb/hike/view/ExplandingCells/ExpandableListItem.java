@@ -1,4 +1,4 @@
-package com.bsb.hike.ExplandingCells;
+package com.bsb.hike.view.ExplandingCells;
 
 /**
  * Referenced from : https://www.youtube.com/watch?v=mwE61B56pVQ

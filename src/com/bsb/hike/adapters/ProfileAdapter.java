@@ -19,9 +19,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bsb.hike.BitmapModule.BitmapUtils;
-import com.bsb.hike.ExplandingCells.ExpandableListItem;
-import com.bsb.hike.ExplandingCells.ExpandingLayout;
-import com.bsb.hike.ExplandingCells.ExpandingListView;
+import com.bsb.hike.view.ExplandingCells.ExpandableListItem;
+import com.bsb.hike.view.ExplandingCells.ExpandingLayout;
+import com.bsb.hike.view.ExplandingCells.ExpandingListView;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.models.ContactInfo;

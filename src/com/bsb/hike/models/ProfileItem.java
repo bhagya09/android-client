@@ -1,6 +1,6 @@
 package com.bsb.hike.models;
 
-import com.bsb.hike.ExplandingCells.ExpandableListItem;
+import com.bsb.hike.view.ExplandingCells.ExpandableListItem;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.utils.PairModified;
 
