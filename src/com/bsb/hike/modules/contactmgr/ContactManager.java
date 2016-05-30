@@ -3248,5 +3248,14 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	{
 		return hDb.getPrivacyPreferencesForAGivenMsisdn(msisdn);
 	}
+
+	public boolean shouldShowStatusUpdateForGivenMsisdn(String msisdn) {
+		PrivacyPreferences privacyPreferences = hDb.getPrivacyPreferencesForAGivenMsisdn(msisdn);
+		if (privacyPreferences != null) {
+			return privacyPreferences.shouldShowStatusUpdate();
+		} else
+			return false;
+	}
+
 }
 
