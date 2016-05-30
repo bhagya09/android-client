@@ -83,7 +83,7 @@ public class NotificationDismissedReceiver extends BroadcastReceiver
 					Logger.d(HikeConstants.UserJoinMsg.TAG, "uj notif dismissed");
 					String msisdn = intent.getStringExtra(HikeConstants.MSISDN);
 					String tag = intent.getStringExtra(AnalyticsConstants.EXP_ANALYTICS_TAG);
-					HikeNotificationUtils.recordUJNotifSwipe(String.valueOf(notificationId), tag, msisdn);
+					HikeNotificationUtils.recordRichUJNotifSwipe(String.valueOf(notificationId), tag, msisdn);
 				}
 			}
 		}

@@ -399,18 +399,18 @@ public class HikeNotificationUtils
         recordUJNotifAnalytics(UJ_RECEIVED, FUNNEL, UJ_RECEIVED, family, genus, variety, race, null, null, null, msisdn);
     }
 
-    public static void recordUJNotifCreate(String id, String tag, boolean silent, String title, String message, String numCTAs, String msisdn)
+    public static void recordRichUJNotifCreate(String id, String tag, boolean silent, String title, String message, String numCTAs, String msisdn)
     {
         String variety = silent ? SILENT : LOUD;
         recordUJNotifAnalytics(UJ_NOTIF_CREATED, FUNNEL, UJ_NOTIF_CREATED, id, tag, variety, RICH, title, message, numCTAs, msisdn);
     }
 
-    public static void recordUJNotifSwipe(String id, String tag, String msisdn)
+    public static void recordRichUJNotifSwipe(String id, String tag, String msisdn)
     {
         recordUJNotifAnalytics(UJ_NOTIF_SWIPED, AnalyticsConstants.UI_EVENT, UJ_NOTIF_SWIPED, id, tag, null, null, null, null, null, msisdn);
     }
 
-    public static void recordUJNotifClick(int id, String tag, String cta, String msisdn)
+    public static void recordRichUJNotifClick(int id, String tag, String cta, String msisdn)
     {
         recordUJNotifAnalytics(cta, AnalyticsConstants.UI_EVENT, cta, String.valueOf(id), tag, null, null, null, null, null, msisdn);
     }

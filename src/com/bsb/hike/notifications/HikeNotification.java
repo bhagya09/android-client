@@ -2334,7 +2334,7 @@ public class HikeNotification
 		mBuilder.setDeleteIntent(pendingIntent);
 
 		Logger.d(HikeConstants.UserJoinMsg.TAG, "creating uj notif with id:" + notifId);
-		HikeNotificationUtils.recordUJNotifCreate(String.valueOf(notifId), analyticsTag, isSilent, title, message, String.valueOf(notifActions.size()), msisdn);
+		HikeNotificationUtils.recordRichUJNotifCreate(String.valueOf(notifId), analyticsTag, isSilent, title, message, String.valueOf(notifActions.size()), msisdn);
 		notifyNotification(notifId, mBuilder);
 
 	}

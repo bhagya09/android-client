@@ -40,17 +40,17 @@ public class UJNotifClickReceiver extends BroadcastReceiver
             {
                 case HikeConstants.UserJoinMsg.ACTION_ADD_FRIEND:
                     processActionAddFriend(context, intent, msisdn, analyticsTag);
-                    HikeNotificationUtils.recordUJNotifClick(msisdn.hashCode(), analyticsTag, AnalyticsConstants.UJNotifAnalyticsConstants.UJ_NOTIF_ADD_FRIEND, msisdn);
+                    HikeNotificationUtils.recordRichUJNotifClick(msisdn.hashCode(), analyticsTag, AnalyticsConstants.UJNotifAnalyticsConstants.UJ_NOTIF_ADD_FRIEND, msisdn);
                     break;
 
                 case HikeConstants.UserJoinMsg.ACTION_SAY_HI:
                     processActionSayHi(context, intent, msisdn, analyticsTag);
-                    HikeNotificationUtils.recordUJNotifClick(msisdn.hashCode(), analyticsTag, AnalyticsConstants.UJNotifAnalyticsConstants.UJ_NOTIF_SAY_HI, msisdn);
+                    HikeNotificationUtils.recordRichUJNotifClick(msisdn.hashCode(), analyticsTag, AnalyticsConstants.UJNotifAnalyticsConstants.UJ_NOTIF_SAY_HI, msisdn);
                     break;
 
                 case HikeConstants.UserJoinMsg.ACTION_DEFAULT:
                     processActionDefault(context, intent, msisdn, analyticsTag);
-                    HikeNotificationUtils.recordUJNotifClick(msisdn.hashCode(), analyticsTag, AnalyticsConstants.UJNotifAnalyticsConstants.UJ_NOTIF_CLICKED, msisdn);
+                    HikeNotificationUtils.recordRichUJNotifClick(msisdn.hashCode(), analyticsTag, AnalyticsConstants.UJNotifAnalyticsConstants.UJ_NOTIF_CLICKED, msisdn);
                     break;
             }
         }
