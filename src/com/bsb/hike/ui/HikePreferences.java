@@ -59,6 +59,7 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -1780,21 +1781,18 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	{
 		Logger.d(getClass().getSimpleName(), "setting up birthday privacy pref");
 
-		IconListPreference bdListPref = (IconListPreference) getPreferenceScreen().findPreference(HikeConstants.BIRTHDAY_PRIVACY_PREF);
+		final IconListPreference bdListPref = (IconListPreference) getPreferenceScreen().findPreference(HikeConstants.BIRTHDAY_PRIVACY_PREF);
 		setBDPrefKeys(bdListPref);
 		bdListPref.setNegativeButtonText(R.string.CANCEL);
-		bdListPref.setOnPreferenceChangeListener(this);
 
-		bdListPref.setOnPreferenceClickListener(new OnPreferenceClickListener()
-		{
+		bdListPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 			@Override
-			public boolean onPreferenceClick(Preference preference)
-			{
+			public boolean onPreferenceClick(Preference preference) {
 				BirthdayUtils.recordBirthdayAnalytics(
 						AnalyticsConstants.BirthdayEvents.BIRTHDAY_CHANGE_SETTING,
 						AnalyticsConstants.BirthdayEvents.BIRTHDAY_SETTING,
 						AnalyticsConstants.BirthdayEvents.BIRTHDAY_CHANGE,
-						BirthdayUtils.getCurrentBDPref(), null, null, null, null);
+						BirthdayUtils.getCurrentBDPref(), null, null, null, null, null);
 				return false;
 			}
 		});

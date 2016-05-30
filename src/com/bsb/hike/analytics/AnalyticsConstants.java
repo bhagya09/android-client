@@ -957,5 +957,10 @@ public class AnalyticsConstants
 		public static final String BIRTHDAY_SETTING_OPEN = "bday_stg_opn";
 
 		public static final String BIRTHDAY_CHANGE = "bday_chng";
+
+		public static final String BIRTHDAY_SELCT_FRIEND = "bday_slct_frnd";
+
+		public static final String BIRTHDAY_WISH = "bday_wish";
+
 	}
 }

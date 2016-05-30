@@ -120,7 +120,6 @@ import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
@@ -1485,7 +1484,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 					AnalyticsConstants.BirthdayEvents.BIRTHDAY_OK,
 					AnalyticsConstants.BirthdayEvents.BIRTHDAY_STORE,
 					AnalyticsConstants.BirthdayEvents.BIRTHDAY_OK,
-					null, null, null, null, null);
+					null, null, null, null, null, null);
 		}
 	};
 
@@ -1522,7 +1521,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 							AnalyticsConstants.BirthdayEvents.BIRTHDAY_CANCEL,
 							AnalyticsConstants.BirthdayEvents.BIRTHDAY_STORE,
 							AnalyticsConstants.BirthdayEvents.BIRTHDAY_CANCEL,
-							null, null, null, null, null);
+							null, null, null, null, null, null);
 				}
 			}
 		});
@@ -1533,7 +1532,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				AnalyticsConstants.BirthdayEvents.BIRTHDAY_DIALOG_OPEN,
 				AnalyticsConstants.BirthdayEvents.BIRTHDAY_STORE,
 				AnalyticsConstants.BirthdayEvents.BIRTHDAY_DIALOG_OPEN,
-				null, null, null, null, null);
+				null, null, null, null, null, null);
 	}
 
 	private void setupEditScreen()

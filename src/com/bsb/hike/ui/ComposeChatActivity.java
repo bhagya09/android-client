@@ -1144,6 +1144,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					Intent in = IntentFactory.createChatThreadIntentFromContactInfo(this, contactInfo, false, false, ChatThreadActivity.ChatThreadOpenSources.NEW_COMPOSE);
 					in.putExtra(HikeConstants.Extras.MSG, getString(R.string.composeview_bday));
 					startActivity(in);
+					BirthdayUtils.recordBirthdayAnalytics(
+							AnalyticsConstants.BirthdayEvents.BIRTHDAY_SELCT_FRIEND,
+							AnalyticsConstants.BirthdayEvents.BIRTHDAY_WISH,
+							AnalyticsConstants.BirthdayEvents.BIRTHDAY_SELCT_FRIEND,
+							null, getString(R.string.composeview_bday), null, null, null, contactInfo.getMsisdn());
 				}
 				else
 				{

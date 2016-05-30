@@ -72,7 +72,6 @@ import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.contactmgr.ContactUtils;
 import com.bsb.hike.modules.httpmgr.HttpManager;
 import com.bsb.hike.modules.quickstickersuggestions.QuickStickerSuggestionController;
-import com.bsb.hike.modules.signupmgr.PostAddressBookTask;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
@@ -3217,7 +3216,7 @@ public class MqttMessagesManager
 						AnalyticsConstants.BirthdayEvents.BIRTHDAY_NOTIF_PACKET_RECV,
 						AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
 						AnalyticsConstants.BirthdayEvents.BIRTHDAY_NOTIF_PACKET_RECV,
-						String.valueOf(id), null, null, null, null);
+						String.valueOf(id), null, null, null, null, null);
 
 				BirthdayUtils.fetchAndUpdateBdayList(true, id);
 			}

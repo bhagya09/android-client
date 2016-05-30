@@ -137,7 +137,7 @@ public class BirthdayUtils
                 AnalyticsConstants.BirthdayEvents.BIRTHDAY_CHANGE_SETTING,
                 AnalyticsConstants.BirthdayEvents.BIRTHDAY_SETTING,
                 AnalyticsConstants.BirthdayEvents.BIRTHDAY_SETTING_OPEN,
-                getCurrentBDPref(), bdPrefValue, null, null, null);
+                getCurrentBDPref(), bdPrefValue, null, null, null, null);
         Context hikeAppContext = HikeMessengerApp.getInstance().getApplicationContext();
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(hikeAppContext);
         settings.edit().putString(HikeConstants.BIRTHDAY_PRIVACY_PREF, bdPrefValue).commit();
@@ -296,7 +296,7 @@ public class BirthdayUtils
                                 AnalyticsConstants.BirthdayEvents.BIRTHDAY_REQ_RESPONSE,
                                 AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
                                 AnalyticsConstants.BirthdayEvents.BIRTHDAY_REQ_RESPONSE,
-                                String.valueOf(packetId), String.valueOf(Utils.isBDayInNewChatEnabled()), null, null, "0");
+                                String.valueOf(packetId), String.valueOf(Utils.isBDayInNewChatEnabled()), null, null, "0", null);
                             }
 						}
 					}
@@ -330,7 +330,7 @@ public class BirthdayUtils
                 AnalyticsConstants.BirthdayEvents.BIRTHDAY_HTTP_REQ,
                 AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
                 AnalyticsConstants.BirthdayEvents.BIRTHDAY_HTTP_REQ,
-                String.valueOf(packetId), null, null, null, null);
+                String.valueOf(packetId), null, null, null, null, null);
 			}
 		}
     }
@@ -419,7 +419,7 @@ public class BirthdayUtils
                 AnalyticsConstants.BirthdayEvents.BIRTHDAY_REQ_RESPONSE,
                 AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
                 AnalyticsConstants.BirthdayEvents.BIRTHDAY_REQ_RESPONSE,
-                String.valueOf(packetId), String.valueOf(Utils.isBDayInNewChatEnabled()), null, null, String.valueOf(bdayMsisdnSet.size() - bdayMsisdns.size()));
+                String.valueOf(packetId), String.valueOf(Utils.isBDayInNewChatEnabled()), null, null, String.valueOf(bdayMsisdnSet.size() - bdayMsisdns.size()), null);
 
         if(bdayMsisdns != null && bdayMsisdns.size() > 0)
         {
@@ -433,7 +433,7 @@ public class BirthdayUtils
         }
     }
 
-	public static void recordBirthdayAnalytics(String uk, String eventClass, String order, String family, String species, String form, String race, String valInt)
+	public static void recordBirthdayAnalytics(String uk, String eventClass, String order, String family, String species, String form, String race, String valInt, String toUser)
 	{
 		try
 		{
@@ -448,7 +448,7 @@ public class BirthdayUtils
             json.put(AnalyticsConstants.V2.FORM, form);
             json.put(AnalyticsConstants.V2.RACE, race);
             json.put(AnalyticsConstants.V2.VAL_INT, valInt);
-
+            json.put(AnalyticsConstants.V2.TO_USER, toUser);
 			HAManager.getInstance().recordV2(json);
 		}
 
@@ -466,6 +466,6 @@ public class BirthdayUtils
 		recordBirthdayAnalytics(AnalyticsConstants.BirthdayEvents.BIRTHDAY_EXPIRY,
                 AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
 				AnalyticsConstants.BirthdayEvents.BIRTHDAY_EXPIRY,
-                String.valueOf(packetId), String.valueOf(System.currentTimeMillis()), null, null, null);
+                String.valueOf(packetId), null, null, null, null, null);
 	}
 }

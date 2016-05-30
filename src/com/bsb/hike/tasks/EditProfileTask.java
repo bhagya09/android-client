@@ -338,7 +338,7 @@ public class EditProfileTask implements IHikeHTTPTask
                         AnalyticsConstants.BirthdayEvents.BIRTHDAY_SAVED,
                         AnalyticsConstants.BirthdayEvents.BIRTHDAY_STORE,
                         AnalyticsConstants.BirthdayEvents.BIRTHDAY_SAVED,
-                        null, null, null, null, null);
+                        null, null, null, null, null, null);
 
                 if (editProfileRequestsCount.decrementAndGet() == 0)
                 {

@@ -2236,6 +2236,7 @@ public class HikeNotification
 			title = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SINGLE_BDAY_NOTIF_TITLE, context.getString(R.string.single_bday_notif_text));
 			title = String.format(title, contactInfo.getFirstNameAndSurname());
 			message = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SINGLE_BDAY_NOTIF_SUBTEXT, context.getString(R.string.single_bday_notif_subtext));
+			mNotificationIntent.putExtra(AnalyticsConstants.EXP_ANALYTICS_TAG, packetId);
 		}
 		else
 		{
@@ -2270,7 +2271,7 @@ public class HikeNotification
 				AnalyticsConstants.BirthdayEvents.BIRTHDAY_NOTIF_CREATED,
 				AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
 				AnalyticsConstants.BirthdayEvents.BIRTHDAY_NOTIF_CREATED,
-				String.valueOf(packetId), null, title, message, null);
+				String.valueOf(packetId), null, title, message, null, null);
 	}
 
 	/**
