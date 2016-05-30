@@ -1015,6 +1015,11 @@ import com.bsb.hike.voip.VoIPUtils;
 
 		setLabel(pair.second);
 
+		if(unknownContactInfoView != null)
+		{
+			mConversationsView.removeHeaderView(unknownContactInfoView);
+		}
+
 		if (messages != null && messages.size() > 0)
 		{
 			ConvMessage convMessage = messages.get(0);
