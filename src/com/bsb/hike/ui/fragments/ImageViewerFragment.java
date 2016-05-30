@@ -27,10 +27,10 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.ui.ProfileActivity;
-import com.bsb.hike.ui.SettingsActivity;
 import com.bsb.hike.utils.HikeUiHandler;
 import com.bsb.hike.utils.HikeUiHandler.IHandlerCallback;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.ProfileImageLoader;
 import com.bsb.hike.utils.Utils;
 
@@ -148,8 +148,20 @@ public class ImageViewerFragment extends Fragment implements OnClickListener, Li
 
 		isStatusImage = getArguments().getBoolean(HikeConstants.Extras.IS_STATUS_IMAGE);
 
+		isViewEditable = getArguments().getBoolean(HikeConstants.CAN_EDIT_DP);
+
 		imageSize = this.getActivity().getResources().getDimensionPixelSize(R.dimen.timeine_big_picture_size);
-		
+
+		key = mappedId;
+
+		if (!isStatusImage) {
+			int idx = key.lastIndexOf(ProfileActivity.PROFILE_PIC_SUFFIX);
+
+			if (idx > 0) {
+				key = new String(key.substring(0, idx));
+			}
+		}
+
 		hikeUiHandler = new HikeUiHandler(this);
 						
 		showImage();
@@ -213,14 +225,14 @@ public class ImageViewerFragment extends Fragment implements OnClickListener, Li
 	}
 
 	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
-	{
-		menu.clear();			
-
-		if(isViewEditable)
-		{
-			inflater.inflate(R.menu.edit_dp, menu);			
-		}	
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		ContactInfo contactInfo = Utils.getUserContactInfo(true);
+		if(isViewEditable
+				// check if msisdn is not a group id and if it already has an icon (force check to avoid stale state)
+				&& (!OneToNConversationUtils.isOneToNConversation(key) && ContactManager.getInstance().hasIcon(contactInfo.getMsisdn()))) {
+			menu.clear();
+			inflater.inflate(R.menu.edit_dp, menu);
+		}
 	}
 
 	@Override
@@ -228,44 +240,20 @@ public class ImageViewerFragment extends Fragment implements OnClickListener, Li
 	{
 		switch(item.getItemId())
 		{
-			case R.id.edit_dp:
+			case R.id.remove_photo:
 				if(mProfilePhotoEditListener != null)
 				{
-					mProfilePhotoEditListener.onDisplayPictureEditClicked(whichActivity);
+					mProfilePhotoEditListener.onDisplayPictureChangeClicked(whichActivity);
 				}
 			break;
 		}
 		return true;
 	}
 
-	@Override
-	public void onAttach(Activity activity) 
+	public void setDisplayPictureEditListener (DisplayPictureEditListener listener, int sourceActivity)
 	{
-		super.onAttach(activity);
-		
-		if(activity instanceof SettingsActivity)
-		{
-			whichActivity = FROM_SETTINGS_ACTIVITY;
-		}
-		else if(activity instanceof ProfileActivity)
-		{
-			whichActivity = FROM_PROFILE_ACTIVITY;
-		}					
-
-		isViewEditable = getArguments().getBoolean(HikeConstants.CAN_EDIT_DP);
-
-		if(isViewEditable)
-		{
-			// activity should implement DisplayPictureEditListener interface
-			try 
-			{
-	            mProfilePhotoEditListener = (DisplayPictureEditListener) activity;            
-	        }
-			catch (ClassCastException e) 
-			{
-	            throw new ClassCastException(activity.toString() + " must implement DisplayPictureEditListener");
-	        }
-		}
+		this.mProfilePhotoEditListener = listener;
+		this.whichActivity = sourceActivity;
 	}
 
 	private void dismissProgressDialog()
@@ -295,10 +283,12 @@ public class ImageViewerFragment extends Fragment implements OnClickListener, Li
 		}
 		getActivity().onBackPressed();
 	}
-	
+
 	public interface DisplayPictureEditListener
 	{
-		public void onDisplayPictureEditClicked(int fromWhichActivity);
+		public void onDisplayPictureChangeClicked(int fromWhichActivity);
+
+		public void onDisplayPictureRemoveClicked(int fromWhichActivity);
 	}
 
 	@Override
