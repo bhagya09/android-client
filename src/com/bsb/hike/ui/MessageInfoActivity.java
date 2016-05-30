@@ -550,9 +550,10 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 		if (item.getItemId() == android.R.id.home)
 		{
 			onBackPressed();
+			return true;
 
 		}
-		return true;
+		return false;
 	}
 
 	@Override
