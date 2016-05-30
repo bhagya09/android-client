@@ -91,7 +91,8 @@ import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.CustomKeyboard;
 import com.bsb.hike.bots.CustomKeyboardManager;
-import com.bsb.hike.bots.TextPickerListener;
+import com.bsb.hike.bots.CustomKeyboardStickerPickerListener;
+import com.bsb.hike.bots.CustomKeyboardTextPickerListener;
 import com.bsb.hike.chatthemes.ChatThemeManager;
 import com.bsb.hike.chatthemes.CustomBGRecyclingImageView;
 import com.bsb.hike.chatthemes.HikeChatThemeConstants;
@@ -208,7 +209,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 @SuppressLint("ResourceAsColor") public abstract class ChatThread extends SimpleOnGestureListener implements OverflowItemClickListener, View.OnClickListener, ThemePickerListener, ImageParserListener,
 		PickFileListener, StickerPickerListener, HikeAudioRecordListener, LoaderCallbacks<Object>, OnItemLongClickListener, OnTouchListener, OnScrollListener,
 		Listener, ActionModeListener, HikeDialogListener, TextWatcher, OnDismissListener, OnEditorActionListener, OnKeyListener, PopupListener, BackKeyListener,
-		OverflowViewListener, OnSoftKeyboardListener, IStickerPickerRecommendationListener, IOfflineCallbacks, IShopIconClickedCallback,TextPickerListener
+		OverflowViewListener, OnSoftKeyboardListener, IStickerPickerRecommendationListener, IOfflineCallbacks, IShopIconClickedCallback,CustomKeyboardTextPickerListener,CustomKeyboardStickerPickerListener
 {
 
 	private static boolean useWTRevamped;
@@ -2441,26 +2442,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		Logger.i(TAG, "sticker clicked " + sticker.getStickerId() + sticker.getCategoryId() + sourceOfSticker);
 		StickerSearchManager.getInstance().sentMessage(null, sticker, null, mComposeView.getText().toString());
 		sendSticker(sticker, sourceOfSticker);
-
-        // Added this code for custom bots keyboard , delete keyboard data only if we get keyboard data from shared pref for this msisdn and if the keyboard type is not persistent
-        String keyboardDataJson = HikeSharedPreferenceUtil.getInstance(CustomKeyboardManager.CUSTOM_INPUT_BOX_KEY).getData(CustomKeyboardManager.getKeyboardKey(msisdn),
-                HikePlatformConstants.KEYBOARD_DEFAULT_DATA);
-        try
-        {
-            if (!keyboardDataJson.equals(HikePlatformConstants.KEYBOARD_DEFAULT_DATA))
-            {
-                boolean isKeyBoardPersistent = new JSONObject(keyboardDataJson).optBoolean(HikePlatformConstants.IS_KEYBOARD_PERSISTENT, false);
-                if (!isKeyBoardPersistent)
-                {
-                    CustomKeyboardManager.getInstance().removeFromSharedPreferences(msisdn);
-                    dismissInputBox();
-                }
-            }
-        }
-        catch (JSONException e)
-        {
-            e.printStackTrace();
-        }
 	}
 
 	@Override
@@ -6731,6 +6712,36 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			e.printStackTrace();
 		}
 	}
+
+    @Override
+    public void onCustomKeyboardStickerClicked(Sticker sticker)
+    {
+        String source = StickerManager.FROM_OTHER;
+        Logger.i(TAG, "sticker clicked " + sticker.getStickerId() + sticker.getCategoryId() + source);
+        StickerSearchManager.getInstance().sentMessage(null, sticker, null, mComposeView.getText().toString());
+        sendSticker(sticker, source);
+
+        String keyboardDataJson = HikeSharedPreferenceUtil.getInstance(CustomKeyboardManager.CUSTOM_INPUT_BOX_KEY).getData(CustomKeyboardManager.getKeyboardKey(msisdn),
+                HikePlatformConstants.KEYBOARD_DEFAULT_DATA);
+        try
+        {
+            if (!keyboardDataJson.equals(HikePlatformConstants.KEYBOARD_DEFAULT_DATA))
+            {
+                boolean isKeyBoardPersistent = new JSONObject(keyboardDataJson).optBoolean(HikePlatformConstants.IS_KEYBOARD_PERSISTENT, false);
+                if (!isKeyBoardPersistent)
+                {
+                    CustomKeyboardManager.getInstance().removeFromSharedPreferences(msisdn);
+                    dismissInputBox();
+                }
+            }
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+
 	/*
 	 * Returns whether the chat is mute or not
 	 *
