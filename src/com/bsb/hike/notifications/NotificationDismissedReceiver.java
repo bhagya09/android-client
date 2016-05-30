@@ -59,7 +59,8 @@ public class NotificationDismissedReceiver extends BroadcastReceiver
 				{
 					String tipId = intent.getStringExtra(HikeConstants.TIP_ID);
 					boolean isCancellable = intent.getBooleanExtra(ProductPopupsConstants.IS_CANCELLABLE, true);
-					AtomicTipManager.getInstance().tipFromNotifAnalytics(AnalyticsConstants.AtomicTipsAnalyticsConstants.TIP_NOTIF_SWIPED, tipId, isCancellable);
+					String analyticsTag = intent.getStringExtra(AnalyticsConstants.EXP_ANALYTICS_TAG);
+					AtomicTipManager.getInstance().tipFromNotifAnalytics(AnalyticsConstants.AtomicTipsAnalyticsConstants.TIP_NOTIF_SWIPED, tipId, isCancellable, analyticsTag);
 				}
 			}
 
@@ -86,6 +87,9 @@ public class NotificationDismissedReceiver extends BroadcastReceiver
 				if(intent.getBooleanExtra(HikeConstants.MqttMessageTypes.USER_JOINED, false))
 				{
 					Logger.d(HikeConstants.UserJoinMsg.TAG, "uj notif dismissed");
+					String msisdn = intent.getStringExtra(HikeConstants.MSISDN);
+					String tag = intent.getStringExtra(AnalyticsConstants.EXP_ANALYTICS_TAG);
+					HikeNotificationUtils.recordRichUJNotifSwipe(String.valueOf(notificationId), tag, msisdn);
 				}
 			}
 		}

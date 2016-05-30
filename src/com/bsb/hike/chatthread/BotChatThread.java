@@ -122,7 +122,8 @@ public class BotChatThread extends OneToOneChatThread
     public void onDestroy()
     {
         super.onDestroy();
-        HAManager.getInstance().recordIndividualChatSession(msisdn);
+		if(activity.getIntent() != null && activity.getIntent().hasExtra(AnalyticsConstants.BOT_NOTIF_TRACKER))
+        HAManager.getInstance().recordIndividualChatSession(msisdn,activity.getIntent().getStringExtra(AnalyticsConstants.BOT_NOTIF_TRACKER));
     }
 
     @Override

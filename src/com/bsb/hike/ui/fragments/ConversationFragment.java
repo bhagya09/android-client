@@ -1037,6 +1037,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			{
 				Intent intent = IntentFactory.createChatThreadIntentFromConversation(getActivity(), convInfo,
 						ChatThreadActivity.ChatThreadOpenSources.CONV_FRAGMENT);
+				intent.putExtra(AnalyticsConstants.BOT_NOTIF_TRACKER, "Conversation");
 				startActivity(intent);
 			}
 			else
@@ -1063,6 +1064,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 					Intent web = IntentFactory.getNonMessagingBotIntent(convInfo.getMsisdn(), getActivity());
 					if (web != null)
 					{
+						web.putExtra(AnalyticsConstants.BOT_NOTIF_TRACKER, "Conversation");
 						startActivity(web);
 					}
 				}

@@ -1,5 +1,59 @@
 package com.bsb.hike.utils;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Field;
+import java.net.URI;
+import java.net.URL;
+import java.nio.CharBuffer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Random;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.jar.JarFile;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
+
+import org.apache.http.NameValuePair;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AuthenticatorDescription;
@@ -77,6 +131,7 @@ import android.provider.ContactsContract.RawContacts;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.Settings.Secure;
+import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
@@ -189,60 +244,6 @@ import com.bsb.hike.voip.VoIPUtils;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.maps.model.LatLng;
-
-import org.apache.http.NameValuePair;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Field;
-import java.net.URI;
-import java.net.URL;
-import java.nio.CharBuffer;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Random;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.concurrent.RejectedExecutionHandler;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.jar.JarFile;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.zip.GZIPInputStream;
 
 public class Utils
 {
@@ -1337,14 +1338,19 @@ public class Utils
 		}
 		String fileUriString = uri.toString();
 		String fileUriStart = "file:";
-
+		//In case of file provider the uri is of format content://com.bsb.hike.fileprovider/share_images/Android/data/com.bsb.hike/cache/1464328620973.jpeg
+        String conterUriStart = "content://com.bsb.hike.fileprovider";
 		String returnFilePath = null;
+		File selectedFile;
 		if (fileUriString.startsWith(fileUriStart))
 		{
-			File selectedFile = new File(URI.create(Utils.replaceUrlSpaces(fileUriString)));
+			selectedFile = new File(URI.create(Utils.replaceUrlSpaces(fileUriString)));
 			/*
 			 * Done to fix the issue in a few Sony devices.
 			 */
+			returnFilePath = selectedFile.getAbsolutePath();
+		}else if(fileUriString.startsWith(conterUriStart)){
+			selectedFile = new File(parseFileProviderUri(fileUriString,mContext));
 			returnFilePath = selectedFile.getAbsolutePath();
 		}
 
@@ -2181,7 +2187,10 @@ public class Utils
 		}
 		return uri;
 	}
+    public static String parseFileProviderUri(String uri, Context context){
 
+		return uri.toString().replace("content://com.bsb.hike.fileprovider/share_images/Android/data/com.bsb.hike/cache", context.getExternalCacheDir().getAbsolutePath());
+	}
 	/**
 	 * This will return true when SSL toggle is on and connection type is WIFI
 	 *
@@ -3188,7 +3197,7 @@ public class Utils
 			}
 
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 				jObject = null;
 			}
@@ -3935,10 +3944,10 @@ public class Utils
 
 	public static FavoriteType toggleFavorite(Context context, ContactInfo contactInfo, boolean isFtueContact, String addFavSource)
 	{
-		return toggleFavorite(context, contactInfo, isFtueContact, addFavSource, true);
+		return toggleFavorite(context, contactInfo, isFtueContact, addFavSource, null, true);
 	}
 
-	public static FavoriteType toggleFavorite(Context context, ContactInfo contactInfo, boolean isFtueContact, String addFavSource, boolean showToast)
+	public static FavoriteType toggleFavorite(Context context, ContactInfo contactInfo, boolean isFtueContact, String addFavSource, String favSourceMetadata, boolean showToast)
 	{
 		FavoriteType favoriteType;
 		boolean isRequestSent = false;
@@ -3962,7 +3971,7 @@ public class Utils
 			fetchHistoricalUpdates(contactInfo.getMsisdn());
 		}
 
-		HikeAnalyticsEvent.recordAnalyticsForAddFriend(contactInfo.getMsisdn(), addFavSource, isRequestSent);
+		HikeAnalyticsEvent.recordAnalyticsForAddFriend(contactInfo.getMsisdn(), addFavSource, favSourceMetadata, isRequestSent);
 
 		Pair<ContactInfo, FavoriteType> favoriteAdded;
 
@@ -7889,7 +7898,7 @@ public class Utils
 		RequestToken token = HttpRequests.getHistoricSUToken(msisdn, new IRequestListener()
 		{
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 
 			}

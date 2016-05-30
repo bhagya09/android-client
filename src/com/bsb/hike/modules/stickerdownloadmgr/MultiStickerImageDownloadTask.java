@@ -1,6 +1,7 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.models.Sticker;
@@ -128,7 +129,7 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 			if (directoryPath == null)
 			{
 				Logger.e(TAG, "intercept(), Sticker download failed directory does not exist");
-				requestListener.onRequestFailure(null);
+				requestListener.onRequestFailure(null, null);
 				return;
 			}
 
@@ -159,7 +160,7 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 			catch (JSONException e)
 			{
 				Logger.e(TAG, "intercept(), Json exception during creation of request body", e);
-				requestListener.onRequestFailure(new HttpException("json exception", e));
+				requestListener.onRequestFailure(null, new HttpException("json exception", e));
 				return;
 			}
 		}
@@ -186,7 +187,7 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 				if (!Utils.isResponseValid(response))
 				{
 					Logger.e(TAG, "Sticker download failed null or invalid response");
-					onRequestFailure(null);
+					onRequestFailure(null, null);
 					return;
 				}
 				Logger.d(TAG, "Got response for download task " + response.toString());
@@ -195,14 +196,14 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 				if (null == data)
 				{
 					Logger.e(TAG, "Sticker download failed null data");
-					onRequestFailure(null);
+					onRequestFailure(null, null);
 					return;
 				}
 
 				if (!data.has(HikeConstants.PACKS))
 				{
 					Logger.e(TAG, "Sticker download failed null pack data");
-					onRequestFailure(null);
+					onRequestFailure(null, null);
 					return;
 				}
 
@@ -212,7 +213,7 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 				if (!packs.has(categoryId))
 				{
 					Logger.e(TAG, "Sticker download failed null category data");
-					onRequestFailure(null);
+					onRequestFailure(null, null);
 					return;
 				}
 
@@ -258,7 +259,7 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 			}
 			catch (Exception e)
 			{
-				onRequestFailure(new HttpException(HttpException.REASON_CODE_UNEXPECTED_ERROR, e));
+				onRequestFailure(null, new HttpException(HttpException.REASON_CODE_UNEXPECTED_ERROR, e));
 				return;
 			}
 
@@ -271,7 +272,7 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 		}
 
 		@Override
-		public void onRequestFailure(HttpException httpException)
+		public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 		{
 			Logger.e(TAG, "on failure, exception ", httpException);
 			requestCompleted(requestToken, true);

@@ -237,6 +237,7 @@ public class AnalyticsConstants
 	public static String PLATFORM_NOTIFICATION = "platform_notification";
 	public static String PLATFORM_RICH_NOTIF = "platform_rich_notif";
 	public static String TTL_EXPIRED = "ttlExpired";
+	public static String NATIVE_CARD_FORWARD = "nativeCardForward";
 
 	//Constants for v2 (Normalized Taxonomy)
 	public static final class V2
@@ -300,6 +301,8 @@ public class AnalyticsConstants
 		public static final String RACE = "ra";
 
 		public static final String POPULATION = "pop";
+
+		public static final String DIVISION = "d";
 	}
 
 	// Edit picture flags and events
@@ -890,6 +893,8 @@ public class AnalyticsConstants
 		public static final String TIP_FLUSH = "tip_flush";
 		public static final String HOME_SCREEN = "home_scrn";
 		public static final String FUNNEL = "funnel";
+		public static final String OPEN_SCREEN = "opnScrn";
+		public static final String HTTP_CALL = "http";
 		public static final String EXIT = "exit";
 
 	}
@@ -963,4 +968,34 @@ public class AnalyticsConstants
 		public static final String BIRTHDAY_WISH = "bday_wish";
 
 	}
+
+	public static final String EXP_ANALYTICS_TAG = "a_t";
+
+	public static final class UJNotifAnalyticsConstants
+	{
+		public static final String UJ_NOTIF = "uj_notif";
+
+		public static final String UJ_RECEIVED = "uj_rcvd";
+
+		public static final String FUNNEL = "funnel";
+
+		public static final String UJ_NOTIF_CREATED = "uj_ntf_crt";
+
+		public static final String UJ_NOTIF_CLICKED = "uj_ntf_clk";
+
+		public static final String UJ_NOTIF_SWIPED = "uj_ntf_swp";
+
+		public static final String UJ_NOTIF_SAY_HI = "uj_ntf_say_hi";
+
+		public static final String UJ_NOTIF_ADD_FRIEND = "uj_ntf_add_frnd";
+
+		public static final String NORMAL = "normal";
+
+		public static final String RICH = "rich";
+
+		public static final String LOUD = "loud";
+
+		public static final String SILENT = "silent";
+	}
+
 }

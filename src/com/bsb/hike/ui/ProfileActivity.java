@@ -16,6 +16,7 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.WindowCompat;
 import android.support.v7.app.ActionBar;
@@ -3371,7 +3372,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			}
 			
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 				mActivityState.deleteStatusToken = null;
 				mActivityState.deleteStatusId = null;
@@ -3448,7 +3449,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			}
 			
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 		//		onRequestSuccess(null);
 				dismissLoadingDialog();
@@ -3499,7 +3500,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			}
 			
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 				checkBox.setChecked(!checkBox.isChecked());
 				dismissLoadingDialog();

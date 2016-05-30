@@ -3,6 +3,7 @@ package com.bsb.hike.productpopup;
 import android.support.annotation.IntDef;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.analytics.AnalyticsConstants;
 
 import org.json.JSONObject;
 
@@ -55,6 +56,8 @@ public class AtomicTipContentModel
 
     private String jsonString;
 
+    private String analyticsTag;
+
     @Status private int tipStatus;
 
     private int hashCode = -1;
@@ -79,6 +82,7 @@ public class AtomicTipContentModel
         this.startTime = tipContentJSON.optLong(ProductPopupsConstants.START_TIME, 0L);
         this.endTime = tipContentJSON.optLong(ProductPopupsConstants.END_TIME, 0L);
         this.isCancellable = tipContentJSON.optBoolean(ProductPopupsConstants.IS_CANCELLABLE, true);
+        this.analyticsTag = tipContentJSON.optString(AnalyticsConstants.EXP_ANALYTICS_TAG, AnalyticsConstants.AtomicTipsAnalyticsConstants.TIPS);
         prcessBackground(tipContentJSON.optJSONObject(HikeConstants.BACKGROUND));
         processNotifItems(tipContentJSON.optJSONObject(HikeConstants.PLAY_NOTIFICATION));
         processTipCTA(tipContentJSON.optJSONObject(HikeConstants.TIP_CTA));
@@ -295,4 +299,9 @@ public class AtomicTipContentModel
             }
         }
     };
+
+    public String getAnalyticsTag()
+    {
+        return analyticsTag;
+    }
 }

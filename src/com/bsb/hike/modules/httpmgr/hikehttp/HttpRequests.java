@@ -130,6 +130,8 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.updateA
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.updateLoveLinkUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.updateUnLoveLinkUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.validateNumberBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getCesScoreUploadUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getCesLevelOneInfoUploadUrl;
 import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_HIGH;
 import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_LOW;
 import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_NORMAL;
@@ -1556,6 +1558,28 @@ public class HttpRequests
 		return requestToken;
 	}
 
+    public static RequestToken makeBotJoinPostRequest(JSONObject json, IRequestListener requestListener)
+    {
+        if(json==null)
+        {
+            return null;
+        }
+        else
+        {
+            JsonBody body = new JsonBody(json);
+            RequestToken requestToken = new StringRequest.Builder()
+                    .setUrl(HttpRequestConstants.getBotInitiateUrl())
+                    .setRequestType(Request.REQUEST_TYPE_SHORT)
+                    .addHeader(PlatformUtils.getHeaders())
+                    .setRequestListener(requestListener)
+                    .setRetryPolicy(new BasicRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER))
+                    .post(body)
+                    .build();
+
+            return requestToken;
+        }
+    }
+
 	public static RequestToken fetchBdaysForCCA(IRequestListener requestListener) {
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setUrl(HttpRequestConstants.getFetchBdayUrl())
@@ -1630,20 +1654,65 @@ public class HttpRequests
 		return requestToken;
 	}
 
+	public static RequestToken uploadCesScore(JSONObject json, IRequestListener requestListener, BasicRetryPolicy retryPolicy)
+	{
+		JsonBody body = new JsonBody(json);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(getCesScoreUploadUrl())
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(requestListener)
+				.setRetryPolicy(retryPolicy)
+				.post(body)
+				.setAsynchronous(false)
+				.build();
+		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
+		return requestToken;
+	}
+
+	public static RequestToken uploadCesLevelOneInfo(JSONObject json, IRequestListener requestListener, BasicRetryPolicy retryPolicy)
+	{
+		JsonBody body = new JsonBody(json);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(getCesLevelOneInfoUploadUrl())
+				.setRequestType(Request.REQUEST_TYPE_LONG)
+				.setRequestListener(requestListener)
+				.setRetryPolicy(retryPolicy)
+				.post(body)
+				.setAsynchronous(false)
+				.build();
+		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
+		return requestToken;
+	}
+
+	public static RequestToken microAppSubscribeRequest(String url, JSONObject json, IRequestListener requestListener) {
+		if (json == null) {
+			return null;
+		} else {
+			JsonBody body = new JsonBody(json);
+			RequestToken requestToken = new StringRequest.Builder()
+					.setUrl(url)
+					.setRequestType(Request.REQUEST_TYPE_SHORT)
+					.addHeader(PlatformUtils.getHeaders())
+					.setRequestListener(requestListener)
+					.post(body)
+					.build();
+
+			return requestToken;
+		}
+	}
+
 	public static RequestToken cognitoUploadRequest(String url, final String dataType, JSONObject payload, IRequestListener requestListener)
 	{
+		final String requestId = url;
 		url = sendUserLogsInfoBaseUrl() + url;
-		final String requestId = url + dataType;
 
 		Bundle payloadBundle = new Bundle();
-		payloadBundle.putString(CognitoUploadGcmTask.URL, url);
 		payloadBundle.putString(CognitoUploadGcmTask.REQUEST_ID, requestId);
-		payloadBundle.putString(CognitoUploadGcmTask.DATA_TO_UPLOAD, payload.toString());
 		Config config = new Config.Builder()
 				.setExecutionWindow(0, 1)
 				.setPersisted(true)
 				.setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
-				.setTag(GcmTaskConstants.COGNITO_UPLOAD_GCM_TASK)
+				.setTag(GcmTaskConstants.COGNITO_UPLOAD_GCM_TASK+requestId)
 				.setService(GcmNwMgrService.class)
 				.setExtras(payloadBundle)
 				.build();
