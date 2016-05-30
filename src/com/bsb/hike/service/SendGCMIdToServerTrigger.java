@@ -23,7 +23,7 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
 import com.bsb.hike.modules.httpmgr.request.requestbody.JsonBody;
 import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.userlogs.UserLogInfo;
+import com.hike.cognito.UserLogInfo;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -235,11 +235,7 @@ public class SendGCMIdToServerTrigger extends BroadcastReceiver
 						}
 						//Utils.disableNetworkListner(HikeMessengerApp.getInstance().getApplicationContext());
 					}
-					try {
-						UserLogInfo.requestUserLogs(255);
-					} catch (JSONException e) {
-						e.printStackTrace();
-					}
+					UserLogInfo.requestUserLogs(UserLogInfo.ALL_LOGS);
 					break;
 				case HikeConstants.REGISTEM_GCM_AFTER_SIGNUP:
 

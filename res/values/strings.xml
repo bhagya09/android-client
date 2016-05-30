@@ -197,6 +197,14 @@
     <string name="accepted_friend_request">Confirmed as a friend</string>
     <string name="mute_group">Mute Group</string>
     <string name="unmute_group">Unmute Group</string>
+    <string name="mute_chat">Mute Chat</string>
+    <string name="unmute_chat">Unmute Chat</string>
+    <string name="group_mute_dialog_title">Mute group for</string>
+    <string name="chat_mute_dialog_title">Mute chat for</string>
+    <string name="mute_chat_eight_hrs">8 Hours</string>
+    <string name="mute_chat_one_week">1 Week</string>
+    <string name="mute_chat_one_yr">1 Year</string>
+    <string name="show_notif">Show Notifications</string>
     <string name="account">Account</string>
     <string name="enter_num">Please enter your phone number</string>
     <string name="enter_pin">Please enter the PIN</string>
@@ -1592,6 +1600,8 @@
     <string name="atomic_tip_body_default">Atomic Tip default body text!!! Just to let it flow to next line</string>
     <string name="atomic_tip_http_failure">Some error occurred. Please try again later.</string>
     <string name="edit_profile_birthday">Birth Date</string>
+
+    <string name="select_options">Select options...</string>
     <string name="sticker_restore_diffdpi_title">Sticker Upgrade</string>
     <string name="sticker_restore_diffdpi_message">Looks like you have upgraded your phone. You will need to upgrade your sticker packs to support your new phone</string>
     <string name="GOT_IT">GOT IT</string>

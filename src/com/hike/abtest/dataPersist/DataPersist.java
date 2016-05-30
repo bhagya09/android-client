@@ -22,7 +22,7 @@ public abstract class DataPersist {
         return new DataPersistPrefImpl(context);
     }
 
-    public abstract void  persistNewExperiment(Map<String, String> experimentMap);
+    public abstract void persistNewExperiment(Map<String, String> experimentMap);
 
     public abstract void persistRollOuts(Map<String, String> experimentMap);
 

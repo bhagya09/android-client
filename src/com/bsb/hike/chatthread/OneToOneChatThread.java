@@ -70,6 +70,7 @@ import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.OneToOneConversation;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.MovingList;
+import com.bsb.hike.models.Mute;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -420,6 +421,7 @@ import java.util.Map;
 		list.add(new OverFlowMenuItem(getString(R.string.chat_theme), 0, 0, R.string.chat_theme));
 		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CHAT_SEARCH_ENABLED, true))
 			list.add(new OverFlowMenuItem(getString(R.string.search), 0, 0, R.string.search));
+		list.add(new OverFlowMenuItem(isMuted() ? getString(R.string.unmute_chat) : getString(R.string.mute_chat), 0, 0, R.string.mute_chat));
 
 		for (OverFlowMenuItem item : super.getOverFlowMenuItems())
 		{
@@ -452,10 +454,15 @@ import java.util.Map;
 			mConversation.setMessages(HikeConversationsDatabase.getInstance().getConversationThread(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, mConversation, -1, -1));
 		}
 
-		String chatThemeId = mConversationDb.getChatThemeIdForMsisdn(msisdn);
-		Logger.d(TAG, "Calling setchattheme from createConversation");
-		mConversation.setChatThemeId(chatThemeId);
+		Object[] chatProperties = mConversationDb.getChatProperties(msisdn);
 
+		Logger.d(TAG, "Calling setchattheme from createConversation");
+		mConversation.setChatThemeId((String) chatProperties[0]);
+
+		Mute mute = (Mute) chatProperties[1];
+		if ((mute.getMuteDuration() != HikeConstants.MuteDuration.DURATION_FOREVER && mute.getMuteEndTime() > System.currentTimeMillis()) || mute.getMuteDuration() == HikeConstants.MuteDuration.DURATION_FOREVER) {
+			mConversation.setIsMute(mute.isMute());
+		}
 		mConversation.setBlocked(ContactManager.getInstance().isBlocked(msisdn));
 		mCredits = activity.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getInt(HikeMessengerApp.SMS_SETTING, 0);
 
@@ -1313,27 +1320,13 @@ import java.util.Map;
 		}
 	}
 
-	/**
-	 * This overrides sendPoke from ChatThread
-	 */
+
 	@Override
-	protected void sendPoke()
-	{
-		/** Disabling super as we have to do logging specific to OneToOneChat
-			and we need convmessage object for logging
-		**/
-		//super.sendPoke();
-		
-		
-		//When MsgRelLogManager is removed / or when to for GC as well, we can go with super
+	protected void sendNudge() {
 		ConvMessage convMessage = Utils.makeConvMessage(msisdn, getString(R.string.poke_msg_english_only), mConversation.isOnHike());
 		ChatThreadUtils.setPokeMetadata(convMessage);
-
-		// 1) user double clicked on Chat Screen i.e Sending nudge
 		channelSelector.startMessageRelLogging(convMessage, MessageType.TEXT);
-				
 		sendMessage(convMessage);
-
 		Utils.vibrateNudgeReceived(activity.getApplicationContext());
 	}
 
@@ -1615,6 +1608,26 @@ import java.util.Map;
 			break;
 		case R.string.add_as_favorite_menu:
 			addFavorite(false);
+			break;
+		case R.string.mute_chat:
+			if ((item.text).equals(getString(R.string.mute_chat)))
+			{
+				boolean muteApproach = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MUTE_ONE_TO_ONE_SERVER_SWITCH, true);
+				if (muteApproach)
+				{
+					this.dialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.MUTE_CHAT_DIALOG, this, mConversation.getMute());
+				}
+				else
+				{
+					Mute mute = new Mute.InitBuilder(mConversation.getMsisdn()).setIsMute(false).setMuteDuration(HikeConstants.MuteDuration.DURATION_FOREVER).setShowNotifInMute(false).build();
+					mConversation.setMute(mute);
+					Utils.toggleMuteChat(activity.getApplicationContext(), mConversation.getMute());
+				}
+			}
+			else
+			{
+				Utils.toggleMuteChat(activity.getApplicationContext(), mConversation.getMute());
+			}
 			break;
 		case R.string.scan_free_hike:
 			if (item.text.equals(getString(R.string.scan_free_hike)))
@@ -3404,7 +3417,10 @@ import java.util.Map;
 			case R.string.chat_theme:
 				overFlowMenuItem.enabled = shouldEnableChatTheme();
 				break;
-
+			case R.string.mute_chat:
+				overFlowMenuItem.enabled = !mConversation.isBlocked();
+				overFlowMenuItem.text = mConversation.isMuted() ? activity.getString(R.string.unmute_chat) : activity.getString(R.string.mute_chat);
+				break;
 			case R.string.block_title:
 				overFlowMenuItem.text = mConversation.isBlocked() ? getString(R.string.unblock_title) : getString(R.string.block_title);
 				break;

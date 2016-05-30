@@ -24,12 +24,12 @@ public class ExperimentAbortJson extends ExperimentAbort {
         try {
             jsonRequest = new JSONObject(mRequestPayload);
 
-            if(jsonRequest.has(ProtoMapper.EXPERIMENT_LIST)) {
+            if (jsonRequest.has(ProtoMapper.EXPERIMENT_LIST)) {
                 parseAbortExperiments(jsonRequest.getJSONArray(ProtoMapper.EXPERIMENT_LIST),
                         mExperimentIdList);
             }
 
-            if(mExperimentIdList.size() == 0) {
+            if (mExperimentIdList.size() == 0) {
                 throw new ParserException("Invalid Experiment Abort request",
                         ParserException.ERROR_FIELDS_MISSING);
             }
@@ -45,11 +45,12 @@ public class ExperimentAbortJson extends ExperimentAbort {
     void parseAbortExperiments(JSONArray abortExperimentList,
                                List<String> mExperimentIdList) throws ParserException {
         Gson gson = new Gson();
-        Type type = new TypeToken<List<ProtoMapper.ExperimentAbortMapper>>() {}.getType();
+        Type type = new TypeToken<List<ProtoMapper.ExperimentAbortMapper>>() {
+        }.getType();
         List<ProtoMapper.ExperimentAbortMapper> fromJson = gson.fromJson(abortExperimentList.toString(), type);
 
-        for(ProtoMapper.ExperimentAbortMapper expAbort : fromJson) {
-            if(expAbort.experimentId == null) {
+        for (ProtoMapper.ExperimentAbortMapper expAbort : fromJson) {
+            if (expAbort.experimentId == null) {
                 throw new ParserException("Invalid Experiment Abort request",
                         ParserException.ERROR_FIELDS_MISSING);
             }
