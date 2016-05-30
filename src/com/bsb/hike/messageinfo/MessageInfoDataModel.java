@@ -22,12 +22,6 @@ import java.util.TreeMap;
 public abstract class MessageInfoDataModel
 {
 
-	public abstract HashMap<String, MessageInfoParticipantData> getAllDeliveredMembers();
-
-	public abstract HashMap<String, MessageInfoParticipantData> getAllReadMembers();
-
-	public abstract HashMap<String, MessageInfoParticipantData> getAllParticipants(String msisdn);
-
 	public TreeMap<String, MessageInfoParticipantData> participantTreeMap=new TreeMap<String,MessageInfoParticipantData>();;
 
 	public long messageID;

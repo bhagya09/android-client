@@ -23,12 +23,7 @@ public abstract class MessageInfoItem
 
 	public static final int HEADER_ID = -1;
 
-	// TODO: Need to find a better way
-	public static final int READLIST = 1;
-
 	public static final int DELIVEREDLIST = 2;
-
-	public static final int PLAYEDLIST = 3;
 
 	public static final int READ_CONTACT = 4;
 
@@ -37,8 +32,6 @@ public abstract class MessageInfoItem
 	public static final int PLAYED_CONTACT = 6;
 
 	public static final int REMAINING_ITEM = 7;
-
-	public static final int MESSAGE_VIEW =8;
 
 	private int type = DELIVEREDLIST;
 
@@ -167,8 +160,6 @@ public abstract class MessageInfoItem
 
 		private long readTimeStamp, deliveryTimeStamp, playedTimeStamp;
 
-		private String formattedReadTimeStamp, formattedDeliveryTimeStamp, formattedPlayedTimeStamp;
-
 		MessageInfoDataModel.MessageInfoParticipantData participantData;
 
 		public MesageInfoParticipantItem(MessageInfoDataModel.MessageInfoParticipantData participantData, int type, int viewType)
@@ -257,13 +248,11 @@ public abstract class MessageInfoItem
 
 		public String getReadTimeStamp()
 		{
-		//	return Utils.getFormattedTime(false, mContext, participantData.getReadTimeStamp());
 			return Utils.getFormattedTimeinMessageInfo(participantData.getReadTimeStamp());
 		}
 
 		public String getDeliveredTimeStamp()
 		{
-			//return Utils.getFormattedTime(false, mContext, participantData.getDeliveredTimeStamp());
 			return Utils.getFormattedTimeinMessageInfo(participantData.getDeliveredTimeStamp());
 		}
 
@@ -351,28 +340,6 @@ public abstract class MessageInfoItem
 			super(0,"MessageInfoSMS",MessageInfoAdapter.MESSAGE_INFO_NOTAPPLICABLE);
 
 		}
-	}
-	public static class MessageInfoEmptyItem extends MessageInfoItem{
-		public MessageInfoEmptyItem(){
-			super(0,"MessageInfoSMS",MessageInfoAdapter.MESSAGE_INFO_EMPTY);
-
-		}
-	}
-	public static class MesageInfoReadItem extends MessageInfoItem
-	{
-
-		private String name;
-
-		private String number;
-
-		public MesageInfoReadItem(int itemId, String name, String number, int viewType)
-		{
-			super(itemId, name, viewType);
-			this.name = name;
-			this.number = number;
-			// TODO Auto-generated constructor stub
-		}
-
 	}
 
 	public static class MesageInfoRemainingItem extends MessageInfoItem
