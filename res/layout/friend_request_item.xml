@@ -53,6 +53,8 @@
         android:id="@+id/added"
         android:layout_width="70dp"
         android:layout_height="30dp"
+        android:src="@drawable/ic_tick_added_friends"
+        android:scaleType="center"
         android:background="@drawable/bg_added_friend" />
 
 </LinearLayout>
