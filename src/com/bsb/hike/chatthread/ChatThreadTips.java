@@ -411,8 +411,7 @@ public class ChatThreadTips implements OnClickListener, OnTouchListener
 				break;
 			case QUICK_SUGGESTION_RECEIVED_SECOND_TIP:
 			case QUICK_SUGGESTION_SENT_SECOND_TIP:
-				close.setVisibility(View.VISIBLE);
-				showQSSecondTip(tvTip);
+				showQSSecondTip(tvTip, close);
 				break;
 			case QUICK_SUGGESTION_RECEIVED_THIRD_TIP:
 			case QUICK_SUGGESTION_SENT_THIRD_TIP:
@@ -463,10 +462,13 @@ public class ChatThreadTips implements OnClickListener, OnTouchListener
 		container.startAnimation(am);
 	}
 
-	private void showQSSecondTip(TextView textView)
+	private void showQSSecondTip(TextView textView, View closeButton)
 	{
 		Animation fadeIn = AnimationUtils.loadAnimation(mainView.getContext(), R.anim.fade_in_animation);
 		textView.startAnimation(fadeIn);
+
+		closeButton.setVisibility(View.VISIBLE);
+		closeButton.startAnimation(fadeIn);
 	}
 
 	private void showQSThirdTip(final View container)
