@@ -1513,7 +1513,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			@Override
 			public void onClick(DialogInterface dialog, int which)
 			{
-				if (which == DialogInterface.BUTTON_NEGATIVE)
+				if(which == DialogInterface.BUTTON_NEGATIVE)
 				{
 					Logger.d(TAG, "cancelling date picker dialog");
 					dialog.dismiss();

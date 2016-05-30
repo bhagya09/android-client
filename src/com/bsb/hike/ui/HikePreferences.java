@@ -1781,7 +1781,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	{
 		Logger.d(getClass().getSimpleName(), "setting up birthday privacy pref");
 
-		final IconListPreference bdListPref = (IconListPreference) getPreferenceScreen().findPreference(HikeConstants.BIRTHDAY_PRIVACY_PREF);
+		IconListPreference bdListPref = (IconListPreference) getPreferenceScreen().findPreference(HikeConstants.BIRTHDAY_PRIVACY_PREF);
 		setBDPrefKeys(bdListPref);
 		bdListPref.setNegativeButtonText(R.string.CANCEL);
 

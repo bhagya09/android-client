@@ -285,22 +285,22 @@ public class BirthdayUtils
                         sharedPreferenceUtil.saveData(HikeConstants.BDAY_HTTP_CALL_TS, System.currentTimeMillis());
                         HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeConstants.BDAYS_LIST, bdayMsisdnSet);
 
-						if (fromServerPacket)
-						{
-							if (!bdayMsisdnSet.isEmpty())
-							{
-								showBdayNotifcations(bdayMsisdnSet, packetId);
-							}
+                        if (fromServerPacket)
+                        {
+                            if (!bdayMsisdnSet.isEmpty())
+                            {
+                                showBdayNotifcations(bdayMsisdnSet, packetId);
+                            }
                             else
                             {
                                 recordBirthdayAnalytics(
-                                AnalyticsConstants.BirthdayEvents.BIRTHDAY_REQ_RESPONSE,
-                                AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
-                                AnalyticsConstants.BirthdayEvents.BIRTHDAY_REQ_RESPONSE,
-                                String.valueOf(packetId), String.valueOf(Utils.isBDayInNewChatEnabled()), null, null, "0", null);
+                                        AnalyticsConstants.BirthdayEvents.BIRTHDAY_REQ_RESPONSE,
+                                        AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
+                                        AnalyticsConstants.BirthdayEvents.BIRTHDAY_REQ_RESPONSE,
+                                        String.valueOf(packetId), String.valueOf(Utils.isBDayInNewChatEnabled()), null, null, "0", null);
                             }
-						}
-					}
+                        }
+                    }
                     catch (JSONException e)
                     {
                         e.printStackTrace();
@@ -325,14 +325,14 @@ public class BirthdayUtils
                 }
             });
             requestToken.execute();
-			if (fromServerPacket)
-			{
-				recordBirthdayAnalytics(
-                AnalyticsConstants.BirthdayEvents.BIRTHDAY_HTTP_REQ,
-                AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
-                AnalyticsConstants.BirthdayEvents.BIRTHDAY_HTTP_REQ,
-                String.valueOf(packetId), null, null, null, null, null);
-			}
+            if (fromServerPacket)
+            {
+                recordBirthdayAnalytics(
+                        AnalyticsConstants.BirthdayEvents.BIRTHDAY_HTTP_REQ,
+                        AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
+                        AnalyticsConstants.BirthdayEvents.BIRTHDAY_HTTP_REQ,
+                        String.valueOf(packetId), null, null, null, null, null);
+            }
 		}
     }
 
