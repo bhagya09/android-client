@@ -3240,6 +3240,44 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MULTIPLE_BDAY_NOTIF_SUBTEXT, multipleBdayNotifSubtext);
 		}
 
+		if(data.has(HikeConstants.QS_RECEIVE_FTUE_SESSION_COUNT))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.QS_RECEIVE_FTUE_SESSION_COUNT, data.getInt(HikeConstants.QS_RECEIVE_FTUE_SESSION_COUNT));
+			QuickStickerSuggestionController.getInstance().initFtueConditions();
+		}
+
+		if(data.has(HikeConstants.QS_SENT_FTUE_SESSION_COUNT))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.QS_SENT_FTUE_SESSION_COUNT, data.getInt(HikeConstants.QS_SENT_FTUE_SESSION_COUNT));
+			QuickStickerSuggestionController.getInstance().initFtueConditions();
+		}
+
+		if(data.has(HikeConstants.QUICK_SUGGESTION_RECEIVED_FIRST_TIP_TEXT))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.QUICK_SUGGESTION_RECEIVED_FIRST_TIP_TEXT, data.getString(HikeConstants.QUICK_SUGGESTION_RECEIVED_FIRST_TIP_TEXT));
+		}
+
+		if(data.has(HikeConstants.QUICK_SUGGESTION_RECEIVED_SECOND_TIP_TEXT))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.QUICK_SUGGESTION_RECEIVED_SECOND_TIP_TEXT, data.getString(HikeConstants.QUICK_SUGGESTION_RECEIVED_SECOND_TIP_TEXT));
+		}
+		if(data.has(HikeConstants.QUICK_SUGGESTION_RECEIVED_THIRD_TIP_TEXT))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.QUICK_SUGGESTION_RECEIVED_THIRD_TIP_TEXT, data.getString(HikeConstants.QUICK_SUGGESTION_RECEIVED_THIRD_TIP_TEXT));
+		}
+		if(data.has(HikeConstants.QUICK_SUGGESTION_SENT_FIRST_TIP_TEXT))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.QUICK_SUGGESTION_SENT_FIRST_TIP_TEXT, data.getString(HikeConstants.QUICK_SUGGESTION_SENT_FIRST_TIP_TEXT));
+		}
+		if(data.has(HikeConstants.QUICK_SUGGESTION_SENT_SECOND_TIP_TEXT))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.QUICK_SUGGESTION_SENT_SECOND_TIP_TEXT, data.getString(HikeConstants.QUICK_SUGGESTION_SENT_SECOND_TIP_TEXT));
+		}
+		if(data.has(HikeConstants.QUICK_SUGGESTION_SENT_THIRD_TIP_TEXT))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.QUICK_SUGGESTION_SENT_THIRD_TIP_TEXT, data.getString(HikeConstants.QUICK_SUGGESTION_SENT_THIRD_TIP_TEXT));
+		}
+
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 

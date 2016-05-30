@@ -90,11 +90,13 @@ public class QuickStickerSuggestionController
         return _instance;
     }
 
-    private void initFtueConditions()
+    public void initFtueConditions()
     {
         receiveFtueSessionCount = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.QS_RECEIVE_FTUE_SESSION_COUNT, DEFAULT_FTUE_SESSION_COUNT);
         sentFtueSessionCount = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.QS_SENT_FTUE_SESSION_COUNT, DEFAULT_FTUE_SESSION_COUNT);
         ftueTipSeenArray = new SparseArray<>();
+        ftueSessionRunning = false;
+        sessionType = 0;
     }
 
     public void toggleQuickSuggestionOnReceive(boolean showQuickStickerSuggestionOnStickerReceive) {
@@ -320,15 +322,15 @@ public class QuickStickerSuggestionController
             case ChatThreadTips.QUICK_SUGGESTION_RECEIVED_FIRST_TIP:
                 return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.QUICK_SUGGESTION_RECEIVED_FIRST_TIP_TEXT, res.getString(R.string.qs_received_first_tip_text));
             case ChatThreadTips.QUICK_SUGGESTION_RECEIVED_SECOND_TIP:
-                return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.QUICK_SUGGESTION_RECEIVED_FIRST_TIP_TEXT, res.getString(R.string.qs_received_second_tip_text));
+                return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.QUICK_SUGGESTION_RECEIVED_SECOND_TIP_TEXT, res.getString(R.string.qs_received_second_tip_text));
             case ChatThreadTips.QUICK_SUGGESTION_RECEIVED_THIRD_TIP:
-                return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.QUICK_SUGGESTION_RECEIVED_FIRST_TIP_TEXT, res.getString(R.string.qs_received_third_tip_text));
+                return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.QUICK_SUGGESTION_RECEIVED_THIRD_TIP_TEXT, res.getString(R.string.qs_received_third_tip_text));
             case ChatThreadTips.QUICK_SUGGESTION_SENT_FIRST_TIP:
-                return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.QUICK_SUGGESTION_RECEIVED_FIRST_TIP_TEXT, res.getString(R.string.qs_sent_first_tip_text));
+                return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.QUICK_SUGGESTION_SENT_FIRST_TIP_TEXT, res.getString(R.string.qs_sent_first_tip_text));
             case ChatThreadTips.QUICK_SUGGESTION_SENT_SECOND_TIP:
-                return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.QUICK_SUGGESTION_RECEIVED_FIRST_TIP_TEXT, res.getString(R.string.qs_sent_second_tip_text));
+                return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.QUICK_SUGGESTION_SENT_SECOND_TIP_TEXT, res.getString(R.string.qs_sent_second_tip_text));
             case ChatThreadTips.QUICK_SUGGESTION_SENT_THIRD_TIP:
-                return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.QUICK_SUGGESTION_RECEIVED_FIRST_TIP_TEXT, res.getString(R.string.qs_sent_third_tip_text));
+                return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.QUICK_SUGGESTION_SENT_THIRD_TIP_TEXT, res.getString(R.string.qs_sent_third_tip_text));
         }
         return "";
     }
