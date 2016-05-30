@@ -37,6 +37,10 @@ public class ChatThemeAssetHelper implements HikePubSub.Listener {
         }
     }
 
+    public void clearAssets() {
+        mAssets.clear();
+    }
+
     /**
      * Checks if all the assets for this is theme are available or not.
      *
