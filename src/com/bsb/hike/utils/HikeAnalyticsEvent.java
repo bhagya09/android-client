@@ -220,7 +220,7 @@ public class HikeAnalyticsEvent
 		}
 	}
 
-	public static void recordAnalyticsForAddFriend(String userMsisdn, String source, boolean requestSent)
+	public static void recordAnalyticsForAddFriend(String userMsisdn, String source, String sourceMetadata, boolean requestSent)
 	{
 		try
 		{
@@ -233,6 +233,7 @@ public class HikeAnalyticsEvent
 			json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
 			json.put(AnalyticsConstants.V2.GENUS, requestSent ? "req_sent" : "req_acc");
 			json.put(AnalyticsConstants.V2.SPECIES, source);
+			json.put(AnalyticsConstants.V2.RACE, sourceMetadata);
 			json.put(AnalyticsConstants.V2.TO_USER, userMsisdn);
 
 			HAManager.getInstance().recordV2(json);

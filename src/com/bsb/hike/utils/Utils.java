@@ -3944,10 +3944,10 @@ public class Utils
 
 	public static FavoriteType toggleFavorite(Context context, ContactInfo contactInfo, boolean isFtueContact, String addFavSource)
 	{
-		return toggleFavorite(context, contactInfo, isFtueContact, addFavSource, true);
+		return toggleFavorite(context, contactInfo, isFtueContact, addFavSource, null, true);
 	}
 
-	public static FavoriteType toggleFavorite(Context context, ContactInfo contactInfo, boolean isFtueContact, String addFavSource, boolean showToast)
+	public static FavoriteType toggleFavorite(Context context, ContactInfo contactInfo, boolean isFtueContact, String addFavSource, String favSourceMetadata, boolean showToast)
 	{
 		FavoriteType favoriteType;
 		boolean isRequestSent = false;
@@ -3971,7 +3971,7 @@ public class Utils
 			fetchHistoricalUpdates(contactInfo.getMsisdn());
 		}
 
-		HikeAnalyticsEvent.recordAnalyticsForAddFriend(contactInfo.getMsisdn(), addFavSource, isRequestSent);
+		HikeAnalyticsEvent.recordAnalyticsForAddFriend(contactInfo.getMsisdn(), addFavSource, favSourceMetadata, isRequestSent);
 
 		Pair<ContactInfo, FavoriteType> favoriteAdded;
 
