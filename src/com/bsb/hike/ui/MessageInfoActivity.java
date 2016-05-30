@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.TreeMap;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -53,6 +54,7 @@ import com.bsb.hike.messageinfo.OnetoOneDataModel;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.HikeChatTheme;
+import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.ui.utils.RecyclingImageView;
 import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.ChatTheme;
@@ -137,18 +139,20 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 		msisdn = getIntent().getExtras().getString(HikeConstants.MSISDN);
 		messageID = getIntent().getExtras().getLong(HikeConstants.MESSAGE_ID);
 		convMessage = HikeConversationsDatabase.getInstance().getMessageFromID(messageID, msisdn);
-		isSMSMessage=getIntent().getBooleanExtra(HikeConstants.SMS_MESSAGE,false);
+		isSMSMessage=getIntent().getBooleanExtra(HikeConstants.SMS_MESSAGE, false);
 		convMessage.setSMS(isSMSMessage);
 		wasSMSMessage=isSMSMessage;
+
 		initializeListViewandAdapters();
 		setDataModelsandControllers();
 
 		String chatThemeID = HikeConversationsDatabase.getInstance().getChatThemeIdForMsisdn(msisdn);
 		chatTheme=ChatThemeManager.getInstance().getTheme(chatThemeID);
+		ColorDrawable statusBarColor = (ColorDrawable) ChatThemeManager.getInstance().
+		getDrawableForTheme(chatTheme.getThemeId(), HikeChatThemeConstants.ASSET_INDEX_STATUS_BAR_BG);
+		statusBarColorValue=statusBarColor.getColor();
 		setupActionBar();
 		setChatTheme();
-		// parentListView.smoothScrollToPosition(2);
-		parentListView.setSelection(2);
 		Utils.blockOrientationChange(MessageInfoActivity.this);
 
 
@@ -555,6 +559,7 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 	protected void onResume()
 	{
 		super.onResume();
+		HikeMessengerApp.getPubSub().publish(HikePubSub.NEW_ACTIVITY, this);
 	}
 
 	@Override
@@ -600,6 +605,7 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 		return text;
 	}
 
+
 	private void addMessageHeaderView(ConvMessage convMessage)
 	{
 
@@ -625,6 +631,10 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 	public void onBackPressed() {
 		super.onBackPressed();
 		controller.onBackPress();
+		if(removeFragment(HikeConstants.IMAGE_FRAGMENT_TAG)){
+			setupActionBar();
+			return;
+		}
 	}
 
 	@Override
@@ -675,4 +685,5 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 			setThemeBackground(backgroundImage, drawable, ChatThemeManager.getInstance().getTheme(themeId).isTiled(), ChatThemeManager.getInstance().getTheme(themeId).isCustomTheme());
 		}
 	}
+
 }
