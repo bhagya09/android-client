@@ -1,23 +1,5 @@
 package com.bsb.hike.chatthread;
 
-import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
-
-import java.io.File;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -205,6 +187,24 @@ import com.bsb.hike.view.CustomFontEditText.BackKeyListener;
 import com.bsb.hike.view.CustomLinearLayout;
 import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
+
+import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
+
 @SuppressLint("ResourceAsColor") public abstract class ChatThread extends SimpleOnGestureListener implements OverflowItemClickListener, View.OnClickListener, ThemePickerListener, ImageParserListener,
 		PickFileListener, StickerPickerListener, HikeAudioRecordListener, LoaderCallbacks<Object>, OnItemLongClickListener, OnTouchListener, OnScrollListener,
 		Listener, ActionModeListener, HikeDialogListener, TextWatcher, OnDismissListener, OnEditorActionListener, OnKeyListener, PopupListener, BackKeyListener,
@@ -299,8 +299,6 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	protected static final int FILE_OPENED = 41;
 
     protected static final int SHOW_INPUT_BOX = 45;
-
-    protected static final int REMOVE_INPUT_BOX = 46;
 
 	protected static final int SEND_CUSTOM_THEME_MESSAGE = 42;
 
@@ -575,9 +573,6 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 				break;
 			case SHOW_INPUT_BOX:
 				showInputBox();
-				break;
-			case REMOVE_INPUT_BOX:
-				dismissInputBox();
 				break;
 			default:
 				Logger.d(TAG, "Did not find any matching event for msg.what : " + msg.what);
@@ -1421,12 +1416,16 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 
     protected void sendButtonClicked()
     {
+        // If bots custom keyboard is enabled for this chat, then on send button press toggle keyboard popup
+        if (TextUtils.isEmpty(mComposeView.getText()) && BotUtils.isBot(msisdn) && CustomKeyboardManager.getInstance().shouldShowInputBox(msisdn))
+        {
+            botsCustomKeyboardInputBoxClicked();
+            return;
+        }
+
         if (!useWTRevamped && TextUtils.isEmpty(mComposeView.getText()))
         {
-            if (BotUtils.isBot(msisdn) && CustomKeyboardManager.getInstance().shouldShowInputBox(msisdn))
-                inputBoxClicked();
-            else
-                audioRecordClicked();
+            audioRecordClicked();
         }
         else
         {
@@ -2448,7 +2447,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
                 HikePlatformConstants.KEYBOARD_DEFAULT_DATA);
         try
         {
-            if (!TextUtils.isEmpty(keyboardDataJson))
+            if (!keyboardDataJson.equals(HikePlatformConstants.KEYBOARD_DEFAULT_DATA))
             {
                 boolean isKeyBoardPersistent = new JSONObject(keyboardDataJson).optBoolean(HikePlatformConstants.IS_KEYBOARD_PERSISTENT, false);
                 if (!isKeyBoardPersistent)
@@ -4148,10 +4147,6 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
             {
                 CustomKeyboardManager.getInstance().initInputBox(activity.getApplicationContext(),this,this,senderMsisdn);
                 sendUIMessage(SHOW_INPUT_BOX, senderMsisdn);
-            }
-            else
-            {
-                sendUIMessage(REMOVE_INPUT_BOX, null);
             }
 		}
 	}
@@ -6626,7 +6621,14 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 
 		setComposeViewDefaultState();
 
-		((ImageButton) activity.findViewById(R.id.send_message)).setImageResource(R.drawable.walkie_talkie_btn_selector);
+		if (!useWTRevamped)
+			((ImageButton) activity.findViewById(R.id.send_message)).setImageResource(R.drawable.walkie_talkie_btn_selector);
+		else
+		{
+			((ImageButton) activity.findViewById(R.id.send_message)).setImageResource(R.drawable.send_btn_selector);
+			((ImageButton) activity.findViewById(R.id.send_message)).setVisibility(View.GONE);
+			((ImageButton) activity.findViewById(R.id.send_message_audio)).setVisibility(View.VISIBLE);
+		}
 	}
 
     private void setComposeViewDefaultState()
@@ -6686,7 +6688,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
         activity.findViewById(R.id.send_message).setSelected(selected);
     }
 
-	protected void inputBoxClicked()
+	protected void botsCustomKeyboardInputBoxClicked()
 	{
 		setInputBoxButtonSelected(true);
 
@@ -6714,7 +6716,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 				HikePlatformConstants.KEYBOARD_DEFAULT_DATA);
 		try
 		{
-			if (!TextUtils.isEmpty(keyboardDataJson))
+			if (!keyboardDataJson.equals(HikePlatformConstants.KEYBOARD_DEFAULT_DATA))
 			{
 				boolean isKeyBoardPersistent = new JSONObject(keyboardDataJson).optBoolean(HikePlatformConstants.IS_KEYBOARD_PERSISTENT, false);
 				if (!isKeyBoardPersistent)
