@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1737"
+    android:versionCode="1745"
     android:versionName="4.2.6.82.115.7.hike_platform_internal" >
 
    <uses-sdk
@@ -430,6 +430,10 @@
                     android:scheme="https" />
                  <data
                      android:host="bots"
+                     android:pathPrefix="/"
+                     android:scheme="hike" />
+                 <data
+                     android:host="channel"
                      android:pathPrefix="/"
                      android:scheme="hike" />
             </intent-filter>
