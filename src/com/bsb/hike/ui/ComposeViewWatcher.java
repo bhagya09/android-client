@@ -123,7 +123,7 @@ public class ComposeViewWatcher extends EmoticonTextWatcher implements Runnable,
             return;
         }
 
-        if(!useWTRevamped) {
+        if (!useWTRevamped) {
             if (!canSend) {
                 mButton.setImageResource(R.drawable.walkie_talkie_btn_selector);
                 mButton.setContentDescription(context.getResources().getString(R.string.content_des_send_recorded_audio_text_chatting));
@@ -132,24 +132,20 @@ public class ComposeViewWatcher extends EmoticonTextWatcher implements Runnable,
                 mButton.setContentDescription(context.getResources().getString(R.string.content_des_send_message_button));
             }
         } else {
-            if (!canSend)
-            {
+            if (!canSend) {
                 audButton.setVisibility(View.VISIBLE);
                 mButton.setVisibility(View.GONE);
-                if(mSendBtnListener != null) mSendBtnListener.onSendBtnChanged(false);
-            }
-            else
-            {
+                if (mSendBtnListener != null) mSendBtnListener.onSendBtnChanged(false);
+            } else {
                 audButton.setVisibility(View.GONE);
                 mButton.setVisibility(View.VISIBLE);
-                if(mSendBtnListener != null) mSendBtnListener.onSendBtnChanged(true);
+                if (mSendBtnListener != null) mSendBtnListener.onSendBtnChanged(true);
             }
         }
     }
-    public void onTextLastChanged()
-    {
-        if (!mInitialized)
-        {
+
+    public void onTextLastChanged() {
+        if (!mInitialized) {
             Logger.d("ComposeViewWatcher", "not initialized");
             return;
         }
@@ -254,7 +250,7 @@ public class ComposeViewWatcher extends EmoticonTextWatcher implements Runnable,
         mSendBtnListener = listener;
         boolean mBotChatWithInputBox = BotUtils.isBot(mConversation.getMsisdn()) && CustomKeyboardManager.getInstance().shouldShowInputBox(mConversation.getMsisdn());
         //To remove WT Tip for BOTS when input box is enabled.
-        if(mBotChatWithInputBox && useWTRevamped && mSendBtnListener != null) {
+        if (mBotChatWithInputBox && useWTRevamped && mSendBtnListener != null) {
             mSendBtnListener.onSendBtnChanged(true);
         }
     }
