@@ -25,42 +25,23 @@ public class GroupChatDataModel extends MessageInfoDataModel
 
 	OneToNConversation oneToNConversation;
 
-
 	private Map<String, PairModified<GroupParticipant, String>> participantMap;
-
-	@Override
-	public HashMap<String, MessageInfoParticipantData> getAllDeliveredMembers()
-	{
-		return null;
-	}
-
-	@Override
-	public HashMap<String, MessageInfoParticipantData> getAllReadMembers()
-	{
-		return null;
-	}
-
-	@Override
-	public HashMap<String, MessageInfoParticipantData> getAllParticipants(String msisdn)
-	{
-		return null;
-	}
 
 	@Override
 	public MessageInfoLoaderData fetchAllParticipantsInfo()
 	{
 
-		convMessage=mDb.getMessageFromID(messageID,msisdn);
+		convMessage = mDb.getMessageFromID(messageID, msisdn);
 		messageInfoMap = mDb.getMessageInfo(messageID);
-		areAnyReceiptsReceived=!messageInfoMap.isEmpty();
+		areAnyReceiptsReceived = !messageInfoMap.isEmpty();
 		oneToNConversation = (OneToNConversation) mDb.getConversation(msisdn, 0, false);
 		participantMap = oneToNConversation.getConversationParticipantList();
 
 		Iterator it = participantMap.values().iterator();
 		while (it.hasNext())
 		{
-			PairModified<GroupParticipant,String> pair = (PairModified<GroupParticipant,String>) it.next();
-			GroupParticipant p=pair.getFirst();
+			PairModified<GroupParticipant, String> pair = (PairModified<GroupParticipant, String>) it.next();
+			GroupParticipant p = pair.getFirst();
 			participantTreeMap.put(p.getContactInfo().getMsisdn(), new MessageInfoParticipantData(p.getContactInfo(), 0, 0));
 		}
 		if (messageInfoMap != null)
@@ -69,38 +50,23 @@ public class GroupChatDataModel extends MessageInfoDataModel
 			while (iterator.hasNext())
 			{
 				MessageInfo info = iterator.next();
-                MessageInfoParticipantData participant = participantTreeMap.get(info.getReceiverMsisdn());
-				//If the participant is no longer in group ,we are not showing his information right now
-				if(participant!=null){
-				participant.setDeliveredTimeStamp(info.getDeliveredTimestamp());
-				participant.setReadTimeStamp(info.getReadTimestamp());
-				participant.setPlayedTimeStamp(info.getPlayedTimestamp());
+				MessageInfoParticipantData participant = participantTreeMap.get(info.getReceiverMsisdn());
+				// If the participant is no longer in group ,we are not showing his information right now
+				if (participant != null)
+				{
+					participant.setDeliveredTimeStamp(info.getDeliveredTimestamp());
+					participant.setReadTimeStamp(info.getReadTimestamp());
+					participant.setPlayedTimeStamp(info.getPlayedTimestamp());
 				}
 			}
 		}
-		MessageInfoLoaderData data=new MessageInfoLoaderData();
-		data.conversation=oneToNConversation;
-		data.convMessage=convMessage;
-		data.messageInfoHashSet=messageInfoMap;
-		data.participantTreeMap=participantTreeMap;
-		data.areAnyReceiptsReceived=areAnyReceiptsReceived;
+		MessageInfoLoaderData data = new MessageInfoLoaderData();
+		data.conversation = oneToNConversation;
+		data.convMessage = convMessage;
+		data.messageInfoHashSet = messageInfoMap;
+		data.participantTreeMap = participantTreeMap;
+		data.areAnyReceiptsReceived = areAnyReceiptsReceived;
 		return data;
-	}
-	public void refreshData(){
-
-		messageInfoMap = mDb.getMessageInfo(messageID);
-		if (messageInfoMap != null)
-		{
-			Iterator<MessageInfo> iterator = messageInfoMap.iterator();
-			while (iterator.hasNext())
-			{
-				MessageInfo info = iterator.next();
-				MessageInfoParticipantData participant = participantTreeMap.get(info.getReceiverMsisdn());
-				participant.setDeliveredTimeStamp(info.getDeliveredTimestamp());
-				participant.setReadTimeStamp(info.getReadTimestamp());
-				participant.setPlayedTimeStamp(info.getPlayedTimestamp());
-			}
-		}
 	}
 
 }

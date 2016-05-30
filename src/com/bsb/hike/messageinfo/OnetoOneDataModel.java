@@ -19,24 +19,6 @@ public class OnetoOneDataModel extends MessageInfoDataModel
 	}
 
 	@Override
-	public HashMap<String, MessageInfoParticipantData> getAllDeliveredMembers()
-	{
-		return null;
-	}
-
-	@Override
-	public HashMap<String, MessageInfoParticipantData> getAllReadMembers()
-	{
-		return null;
-	}
-
-	@Override
-	public HashMap<String, MessageInfoParticipantData> getAllParticipants(String msisdn)
-	{
-		return null;
-	}
-
-	@Override
 	public MessageInfoLoaderData fetchAllParticipantsInfo()
 	{
 
