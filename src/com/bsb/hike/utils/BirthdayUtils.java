@@ -463,10 +463,5 @@ public class BirthdayUtils
 	{
 		resetBdayHttpCallInfo();
 		HikeNotification.getInstance().cancelNotification(HikeNotification.BIRTHDAY_NOTIF);
-		String packetId = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TRIGGER_BIRTHDAY_ID, "0");
-		recordBirthdayAnalytics(AnalyticsConstants.BirthdayEvents.BIRTHDAY_EXPIRY,
-                AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
-				AnalyticsConstants.BirthdayEvents.BIRTHDAY_EXPIRY,
-                String.valueOf(packetId), null, null, null, null, null);
 	}
 }
