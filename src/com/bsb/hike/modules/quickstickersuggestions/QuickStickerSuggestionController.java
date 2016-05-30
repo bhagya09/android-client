@@ -62,6 +62,10 @@ public class QuickStickerSuggestionController
 
     public static final long QUICK_SUGGESTION_TIP_VISIBLE_TIME = 2 * 1000; // 2 secs
 
+    private static final int DEFAULT_MAX_FETCH_COUNT = 100;
+
+    private static final int DEFAULT_MIN_SEEN_COUNT = 5;
+
     public static final int QUICK_SUGGESTION_FTUE_PAGE = 15;
 
     public static final int QUICK_SUGGESTION_STICKER_ANIMATION = 16;
@@ -343,5 +347,28 @@ public class QuickStickerSuggestionController
     public boolean isTipSeen(int whichTip)
     {
         return ftueTipSeenArray.get(whichTip) == null ? false : ftueTipSeenArray.get(whichTip);
+    }
+
+    public boolean shouldFetchQuickSuggestions()
+    {
+        int maxFetchCount = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MAX_FETCH_COUNT, DEFAULT_MAX_FETCH_COUNT);
+        maxFetchCount = maxFetchCount - 1;
+        HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MAX_FETCH_COUNT, maxFetchCount);
+        return maxFetchCount >= 0;
+    }
+
+    public void seenQuickSuggestions()
+    {
+        int seenCount = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MIN_SEEN_COUNT, 0);
+        seenCount = seenCount + 1;
+        if(seenCount >= DEFAULT_MIN_SEEN_COUNT)
+        {
+            HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MIN_SEEN_COUNT, 0);
+            HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MAX_FETCH_COUNT, DEFAULT_MAX_FETCH_COUNT);
+        }
+        else
+        {
+            HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MIN_SEEN_COUNT, seenCount);
+        }
     }
 }

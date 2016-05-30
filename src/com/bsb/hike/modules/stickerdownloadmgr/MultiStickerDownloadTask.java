@@ -15,6 +15,7 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
 import com.bsb.hike.modules.httpmgr.request.requestbody.JsonBody;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.quickstickersuggestions.QuickStickerSuggestionController;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerRequestType;
 import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
@@ -246,7 +247,9 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 
                         StickerManager.getInstance().sendResponseTimeAnalytics(result, HikeConstants.STICKER_PACK, categoryId, null);
 
-						StickerManager.getInstance().initiateMultiStickerQuickSuggestionDownloadTask(stickerSet);
+						if(QuickStickerSuggestionController.getInstance().shouldFetchQuickSuggestions()) {
+							StickerManager.getInstance().initiateMultiStickerQuickSuggestionDownloadTask(stickerSet);
+						}
 					}
 
 					StickerLanguagesManager.getInstance().checkAndUpdateForbiddenList(data);

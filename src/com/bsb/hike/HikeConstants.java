@@ -4366,4 +4366,8 @@ public class HikeConstants
 	public static final String QUICK_SUGGESTION_SENT_SECOND_TIP_TEXT = "qssstt";
 
 	public static final String QUICK_SUGGESTION_SENT_THIRD_TIP_TEXT = "qssttt";
+
+	public static final String MAX_FETCH_COUNT = "maxFetchCount";
+
+	public static final String MIN_SEEN_COUNT = "minSeenCount";
 }

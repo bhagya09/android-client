@@ -1353,6 +1353,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				return;
 			}
 
+			QuickStickerSuggestionController.getInstance().seenQuickSuggestions();
 			openOrRefreshStickerPalette(convMessage);
 
 			if (QuickStickerSuggestionController.getInstance().isFtueSessionRunning(convMessage.isSent()))
