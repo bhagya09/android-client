@@ -2,7 +2,6 @@ package com.bsb.hike.timeline.view;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -18,12 +17,12 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.media.ImageParser;
 import com.bsb.hike.modules.contactmgr.HikeUserDatabase;
 import com.bsb.hike.timeline.adapter.StoryListAdapter;
 import com.bsb.hike.timeline.model.StoryItem;
+import com.bsb.hike.timeline.tasks.FetchStoriesTask;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Utils;
@@ -79,7 +78,6 @@ public class StoryFragment extends Fragment implements View.OnClickListener {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-
         // Check if user has any friends
         if (HikeUserDatabase.getInstance().isTwoWayFriendsPresent()) {
             bindStoryFragmentList();
@@ -92,22 +90,6 @@ public class StoryFragment extends Fragment implements View.OnClickListener {
     private void bindStoryFragmentList() {
         listViewStories.setVisibility(View.VISIBLE);
         emptyStateView.setVisibility(View.GONE);
-
-        // Manually add "Timeline" as first option in list
-        StoryItem timelineItem = new StoryItem(StoryItem.TYPE_INTENT, getString(R.string.timeline));
-        timelineItem.setIntent(IntentFactory.getTimelineIntent(getActivity()));
-
-        SharedPreferences sharedPref = getActivity().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0); // To support old code
-        int newUpdates = Utils.getNotificationCount(sharedPref, true, false, true, false); // no. of updates
-        int newLikes = Utils.getNotificationCount(sharedPref, false, true, false, false); // no. of loves
-        if (newUpdates > 0) {
-            timelineItem.setSubText(getString(R.string.timeline_sub_new_updt));
-        } else if (newLikes > 0) {
-            timelineItem.setSubText(String.format(getString(R.string.timeline_sub_likes), newLikes));
-        }
-
-
-        storyItemList.add(timelineItem);
 
         // Setup adapters
         storyAdapter = new StoryListAdapter(storyItemList);
@@ -129,6 +111,24 @@ public class StoryFragment extends Fragment implements View.OnClickListener {
                 }
             }
         });
+
+        //TODO WIP
+        new FetchStoriesTask(){
+            @Override
+            protected void onProgressUpdate(List... itemList) {
+                if (itemList != null && !Utils.isEmpty(itemList[0])) {
+                    storyItemList = itemList[0];
+                    storyAdapter.setStoryItemList(storyItemList);
+                    storyAdapter.notifyDataSetChanged();
+                }
+            }
+        }.execute();
+    }
+
+    // TODO 
+    private void updateTimelineSubText()
+    {
+
     }
 
     private void bindEmptyStateView() {
