@@ -162,6 +162,7 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 
 				if(getItem(position).equalsIgnoreCase(HikeChatThemeConstants.THEME_PALETTE_CAMERA_ICON)) {
 					theme.setBackgroundResource(R.drawable.ic_ct_camera);
+					theme.setEnabled(false);
 
 					if (HikeSharedPreferenceUtil.getInstance().getData(HikeChatThemeConstants.SHARED_PREF_CT_SHOW_FTUE_ANIMATION, true)){
 						animatedBackground.setVisibility(View.VISIBLE);
