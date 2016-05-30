@@ -7429,7 +7429,7 @@ public class Utils
 			try
 			{
 				HikePreferences.sendULSToServer(slectedPrivacyId, true);
-				settingEditor.commit();
+				settingEditor.apply();
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 1);
 			}
 			catch (JSONException e)
@@ -7455,7 +7455,7 @@ public class Utils
 			{
 				HikePreferences.sendNLSToServer(slectedPrivacyId, true);
 				ContactManager.getInstance().flushOldPrivacyValues(true, true);
-				settingEditor.commit();
+				settingEditor.apply();
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 0); // Resetting the flag, so that when the packet might
 				// be sent again, it is able to alter the prefs
 			}
