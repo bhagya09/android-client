@@ -935,6 +935,7 @@ public class StickyCaller {
 					Utils.killCall();
 					removeCallerView();
 					Utils.openChatThreadViaFreeSmsButton(quickReplyContentModel, null);
+					recordQuickReplyCardItemSelected(-1, -1, null);
 				}
 				break;
 			}
