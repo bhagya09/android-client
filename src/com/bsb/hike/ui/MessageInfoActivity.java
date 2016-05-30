@@ -433,6 +433,7 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 			{
 				MessageInfoList messageInfoList = iterator.next();
 				messageInfoList.sortList();
+				messageInfoList.setDivider();
 				messageMap.add(messageInfoList.messageStatusHeader);
 				List<MessageInfoItem.MesageInfoParticipantItem> allDisplayedContactItems = messageInfoList.allDisplayedContactItems;
 				for (MessageInfoItem.MesageInfoParticipantItem item : allDisplayedContactItems)
@@ -468,8 +469,7 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 			listsToBedisplayed.add(readList);
 			if (deliveredList.shouldAddList())
 				listsToBedisplayed.add(deliveredList);
-			readList.setDivider();
-			deliveredList.setDivider();
+
 			updateItemsinList();
 
 		}
