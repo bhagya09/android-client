@@ -22,6 +22,8 @@ public class AppConfig
 
 	public static String BRANCH_NAME = "branchname";
 
+	public static boolean TIMELINE_READ_DEBUG = true;
+
 	public static void refresh()
 	{
 		DEBUG_LOGS_ENABLED = Utils.isSendLogsEnabled() || BuildConfig.DEBUG;

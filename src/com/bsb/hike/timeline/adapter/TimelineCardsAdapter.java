@@ -1,14 +1,5 @@
 package com.bsb.hike.timeline.adapter;
 
-import java.lang.ref.SoftReference;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
@@ -44,6 +35,7 @@ import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bsb.hike.AppConfig;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -91,6 +83,15 @@ import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.RoundedImageView;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.lang.ref.SoftReference;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdapter.ViewHolder> implements IHandlerCallback, TaskCallbacks, Listener
 {
@@ -877,7 +878,14 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		{
 			viewHolder.parent.setPadding(0, 0, 0, 0);
 		}
-		
+
+		if(AppConfig.TIMELINE_READ_DEBUG) {
+			//Debug code
+			try {
+				viewHolder.name.setText(viewHolder.name.getText() + (statusMessage.isRead() ? "(Read)" : "(Unread)"));
+			} catch (Exception e) {
+			}
+		}
 	}
 
 	private DecelerateInterpolator cardInterp = new DecelerateInterpolator();

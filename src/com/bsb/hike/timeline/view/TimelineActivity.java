@@ -30,12 +30,12 @@ import android.view.WindowManager.BadTokenException;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
+import com.bsb.hike.AppConfig;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -51,7 +51,7 @@ import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
-import com.bsb.hike.timeline.TimelineResourceCleaner;
+import com.bsb.hike.timeline.tasks.TimelineResourceCleaner;
 import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.utils.StatusBarColorChanger;
@@ -303,6 +303,11 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 
 		optionsList.add(new OverFlowMenuItem(getString(R.string.my_profile), 0, 0, R.string.my_profile));
 
+		if (AppConfig.TIMELINE_READ_DEBUG) {
+			optionsList.add(new OverFlowMenuItem(
+					getString(R.string.unread_all), 0, 0, R.string.unread_all));
+		}
+
 		overFlowWindow = new PopupWindow(this);
 
 		View parentView = getLayoutInflater().inflate(R.layout.overflow_menu, null, false);
@@ -391,22 +396,23 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 					}
 					break;
-				case R.string.my_profile:
-					Intent intent2 = new Intent(TimelineActivity.this, ProfileActivity.class);
-					intent2.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
-					startActivity(intent2);
-					JSONObject metadataSU2 = new JSONObject();
-					try
-					{
-						metadataSU2.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.TIMELINE_OVERFLOW_OPTIONS);
-						metadataSU2.put(AnalyticsConstants.TIMELINE_OPTION_TYPE, HikeConstants.LogEvent.TIMELINE_OVERFLOW_OPTION_MY_PROFILE);
-						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metadataSU2);
-					}
-					catch (JSONException e)
-					{
-						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-					}
-					break;
+					case R.string.my_profile:
+						Intent intent2 = new Intent(TimelineActivity.this, ProfileActivity.class);
+						intent2.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
+						startActivity(intent2);
+						JSONObject metadataSU2 = new JSONObject();
+						try {
+							metadataSU2.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.TIMELINE_OVERFLOW_OPTIONS);
+							metadataSU2.put(AnalyticsConstants.TIMELINE_OPTION_TYPE, HikeConstants.LogEvent.TIMELINE_OVERFLOW_OPTION_MY_PROFILE);
+							HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metadataSU2);
+						} catch (JSONException e) {
+							Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+						}
+						break;
+					case R.string.unread_all:
+						HikeConversationsDatabase.getInstance().markAllStatusUnread();
+						TimelineActivity.this.finish();
+						break;
 				}
 			}
 		});
