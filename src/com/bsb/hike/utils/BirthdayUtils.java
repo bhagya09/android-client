@@ -138,7 +138,7 @@ public class BirthdayUtils
                 AnalyticsConstants.BirthdayEvents.BIRTHDAY_CHANGE_SETTING,
                 AnalyticsConstants.BirthdayEvents.BIRTHDAY_SETTING,
                 AnalyticsConstants.BirthdayEvents.BIRTHDAY_SETTING_OPEN,
-                getCurrentBDPref(), bdPrefValue, null, null, null, null);
+                null, getCurrentBDPref(), null, bdPrefValue, null, null, null, null);
         Context hikeAppContext = HikeMessengerApp.getInstance().getApplicationContext();
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(hikeAppContext);
         settings.edit().putString(HikeConstants.BIRTHDAY_PRIVACY_PREF, bdPrefValue).commit();
@@ -297,7 +297,7 @@ public class BirthdayUtils
                                         AnalyticsConstants.BirthdayEvents.BIRTHDAY_REQ_RESPONSE,
                                         AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
                                         AnalyticsConstants.BirthdayEvents.BIRTHDAY_REQ_RESPONSE,
-                                        String.valueOf(packetId), String.valueOf(Utils.isBDayInNewChatEnabled()), null, null, "0", null);
+                                        String.valueOf(packetId), null, String.valueOf(Utils.isBDayInNewChatEnabled()), null, null, null, "0", null);
                             }
                         }
                     }
@@ -331,7 +331,7 @@ public class BirthdayUtils
                         AnalyticsConstants.BirthdayEvents.BIRTHDAY_HTTP_REQ,
                         AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
                         AnalyticsConstants.BirthdayEvents.BIRTHDAY_HTTP_REQ,
-                        String.valueOf(packetId), null, null, null, null, null);
+                        String.valueOf(packetId), null, null, null, null, null, null, null);
             }
 		}
     }
@@ -420,7 +420,7 @@ public class BirthdayUtils
                 AnalyticsConstants.BirthdayEvents.BIRTHDAY_REQ_RESPONSE,
                 AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
                 AnalyticsConstants.BirthdayEvents.BIRTHDAY_REQ_RESPONSE,
-                String.valueOf(packetId), String.valueOf(Utils.isBDayInNewChatEnabled()), null, null, String.valueOf(bdayMsisdnSet.size() - bdayMsisdns.size()), bdayMsisdns.toString());
+                String.valueOf(packetId), null, String.valueOf(Utils.isBDayInNewChatEnabled()), null, null, null, String.valueOf(bdayMsisdnSet.size() - bdayMsisdns.size()), bdayMsisdns.toString());
 
         if(bdayMsisdns != null && bdayMsisdns.size() > 0)
         {
@@ -434,7 +434,7 @@ public class BirthdayUtils
         }
     }
 
-	public static void recordBirthdayAnalytics(String uk, String eventClass, String order, String family, String species, String form, String race, String valInt, String toUser)
+	public static void recordBirthdayAnalytics(String uk, String eventClass, String order, String family, String genus, String species, String variety, String form, String race, String valInt, String toUser)
 	{
 		try
 		{
@@ -445,7 +445,9 @@ public class BirthdayUtils
 			json.put(AnalyticsConstants.V2.CLASS, eventClass);
 			json.put(AnalyticsConstants.V2.ORDER, order);
 			json.put(AnalyticsConstants.V2.FAMILY, family);
+            json.put(AnalyticsConstants.V2.GENUS, genus);
             json.put(AnalyticsConstants.V2.SPECIES, species);
+            json.put(AnalyticsConstants.V2.VARIETY, variety);
             json.put(AnalyticsConstants.V2.FORM, form);
             json.put(AnalyticsConstants.V2.RACE, race);
             json.put(AnalyticsConstants.V2.VAL_INT, valInt);

@@ -3292,7 +3292,7 @@ public class MqttMessagesManager
 						AnalyticsConstants.BirthdayEvents.BIRTHDAY_NOTIF_PACKET_RECV,
 						AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
 						AnalyticsConstants.BirthdayEvents.BIRTHDAY_NOTIF_PACKET_RECV,
-						String.valueOf(id), null, null, null, null, null);
+						String.valueOf(id), null, null, null, null, null, null, null);
 
 				BirthdayUtils.fetchAndUpdateBdayList(true, id);
 			}

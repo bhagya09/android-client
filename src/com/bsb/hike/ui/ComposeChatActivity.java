@@ -1148,7 +1148,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 							AnalyticsConstants.BirthdayEvents.BIRTHDAY_SELCT_FRIEND,
 							AnalyticsConstants.BirthdayEvents.BIRTHDAY_WISH,
 							AnalyticsConstants.BirthdayEvents.BIRTHDAY_SELCT_FRIEND,
-							null, getString(R.string.composeview_bday), null, null, null, contactInfo.getMsisdn());
+							null, null, getString(R.string.composeview_bday), null, null, null, null, contactInfo.getMsisdn());
 				}
 				else
 				{

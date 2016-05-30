@@ -59,7 +59,6 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -1792,7 +1791,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 						AnalyticsConstants.BirthdayEvents.BIRTHDAY_CHANGE_SETTING,
 						AnalyticsConstants.BirthdayEvents.BIRTHDAY_SETTING,
 						AnalyticsConstants.BirthdayEvents.BIRTHDAY_CHANGE,
-						BirthdayUtils.getCurrentBDPref(), null, null, null, null, null);
+						null, BirthdayUtils.getCurrentBDPref(), null, null, null, null, null, null);
 				return false;
 			}
 		});
