@@ -936,13 +936,9 @@ public class AnalyticsConstants
 
 		public static final String BIRTHDAY_NOTIF_CREATED = "bday_ntf_crt";
 
-		public static final String BIRTHDAY_NOTIF_CHAT_OPEN = "bday_chat_open";
-
-		public static final String BIRTHDAY_NOTIF_COMPOSE_CHAT = "bday_nw_compose";
-
 		public static final String BIRTHDAY_NOTIF_SWIPE_OFF = "bday_ntf_swp";
 
-		public static final String BIRTHDAY_DIALOG_OPEN = "bday_dialog_open";
+		public static final String BIRTHDAY_DIALOG_OPEN = "bday_dl_opn";
 
 		public static final String BIRTHDAY_STORE = "bday_store";
 
