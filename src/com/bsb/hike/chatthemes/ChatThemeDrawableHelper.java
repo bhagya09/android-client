@@ -36,11 +36,8 @@ public class ChatThemeDrawableHelper {
 
     private String assetRootPath;
 
-    private String cctTempUploadPath;
-
     public ChatThemeDrawableHelper() {
         assetRootPath = getThemeAssetStoragePath();
-        cctTempUploadPath = customChatTempUploadPath();
     }
 
     public String getAssetRootPath() {
@@ -48,7 +45,7 @@ public class ChatThemeDrawableHelper {
     }
 
     public String getCCTTempUploadRootPath() {
-        return cctTempUploadPath;
+        return customChatTempUploadPath();
     }
 
     /**
