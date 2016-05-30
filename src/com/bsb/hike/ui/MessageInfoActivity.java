@@ -8,7 +8,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.TreeMap;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -33,7 +35,9 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.MessageInfoAdapter;
 import com.bsb.hike.chatthemes.ChatThemeManager;
+import com.bsb.hike.chatthemes.CustomBGRecyclingImageView;
 import com.bsb.hike.chatthemes.HikeChatThemeConstants;
+import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.messageinfo.GroupChatDataModel;
 import com.bsb.hike.messageinfo.MessageInfo;
@@ -49,6 +53,7 @@ import com.bsb.hike.messageinfo.OnetoOneDataModel;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.HikeChatTheme;
+import com.bsb.hike.ui.utils.RecyclingImageView;
 import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
@@ -77,6 +82,7 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 	private ConvMessage convMessage;
 
 	public List<MessageInfoList> listsToBedisplayed = new ArrayList<MessageInfoList>();
+	public int messageviewheight,screenheightM;
 
 	protected Handler uiHandler = new Handler()
 	{
@@ -142,15 +148,7 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 		setChatTheme();
 		// parentListView.smoothScrollToPosition(2);
 		parentListView.setSelection(2);
-		parentListView.postDelayed(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				// parentListView.setSelection(1);
-			}
-		}, 500);
-		// addMessageHeaderView(controller.getConvMessage());'
+		Utils.blockOrientationChange(MessageInfoActivity.this);
 
 
 	}
@@ -369,7 +367,6 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 				messageMap.add(deliveredList);
 
 			}
-			messageMap.add(new MessageInfoItem.MessageInfoEmptyItem());
 		}
 
 
@@ -383,8 +380,12 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 			WindowManager wm = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
 			Display display = wm.getDefaultDisplay();
 			int screenHeight = display.getHeight();
-			if(height>screenHeight){
-				parentListView.setSelectionFromTop(1,screenHeight/2);
+
+			if(height>screenHeight-200){
+				int offset=height%screenHeight;
+				if(offset<screenHeight/3)
+					offset=screenHeight/3;
+				parentListView.setSelection(1);
 			}
 		}
 	}
@@ -431,6 +432,7 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 			while (iterator.hasNext())
 			{
 				MessageInfoList messageInfoList = iterator.next();
+				messageInfoList.sortList();
 				messageMap.add(messageInfoList.messageStatusHeader);
 				List<MessageInfoItem.MesageInfoParticipantItem> allDisplayedContactItems = messageInfoList.allDisplayedContactItems;
 				for (MessageInfoItem.MesageInfoParticipantItem item : allDisplayedContactItems)
@@ -441,7 +443,6 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 					messageMap.add(messageInfoList.remainingItem);
 
 			}}
-			messageMap.add(new MessageInfoItem.MessageInfoEmptyItem());
 		}
 
 		@Override
@@ -478,10 +479,15 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 			WindowManager wm = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
 			Display display = wm.getDefaultDisplay();
 			int screenHeight = display.getHeight();
+			messageviewheight=height;
+			screenheightM=screenHeight;
 			if(height>screenHeight){
-				//parentListView.setSelection(1);
-				//parentListView.smoothScrollByOffset(-screenHeight/2);
-				parentListView.setSelectionFromTop(1,screenHeight/2);
+				int offset=height%screenHeight;
+				if(offset<screenHeight/3)
+					offset=screenHeight/3;
+
+
+				parentListView.setSelectionFromTop(1, 100);
 			}
 		}
 	}
@@ -491,18 +497,9 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 
 		ColorDrawable statusBarColor = (ColorDrawable) ChatThemeManager.getInstance().
 			getDrawableForTheme(chatTheme.getThemeId(), HikeChatThemeConstants.ASSET_INDEX_STATUS_BAR_BG);
-		StatusBarColorChanger.setStatusBarColorValue(this, statusBarColor.getColor());
-		ImageView backgroundImage = (ImageView) findViewById(R.id.background);
-		if (!chatTheme.getThemeId().equals(ChatThemeManager.getInstance().defaultChatThemeId))
-		{
-			backgroundImage.setScaleType(chatTheme.isTiled() ? ImageView.ScaleType.FIT_XY : ImageView.ScaleType.CENTER_CROP);
-			backgroundImage.setImageDrawable(Utils.getChatTheme(chatTheme.getThemeId(), this));
-		}
-		else
-		{
-			backgroundImage.setBackgroundResource(R.color.chat_thread_default_bg);
+		StatusBarColorChanger.setStatusBarColorValue(MessageInfoActivity.this, statusBarColor.getColor());
+		setBackground(chatTheme.getThemeId());
 
-		}
 	}
 
 	private void setupActionBar()
@@ -629,5 +626,54 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 	public void onBackPressed() {
 		super.onBackPressed();
 		controller.onBackPress();
+	}
+
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+
+		super.onConfigurationChanged(newConfig);
+		setBackground(chatTheme.getThemeId());
+		messageInfoAdapter.isScrollPositionSet=false;
+		messageInfoAdapter.notifyDataSetChanged();
+
+		Logger.d("orienmsg", "newConfig " + newConfig);
+
+	}
+	private void setThemeBackground(RecyclingImageView backgroundImage, Drawable drawable, boolean isTiled, boolean isCustom) {
+		if((drawable == null) || (backgroundImage == null)){
+			return;
+		}
+		if(isTiled){
+			backgroundImage.setScaleType(ImageView.ScaleType.FIT_XY);
+		} else {
+			int orientation = mContext.getResources().getConfiguration().orientation;
+			if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+				backgroundImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+			} else {
+				backgroundImage.setScaleType(ImageView.ScaleType.MATRIX);
+			}
+			ChatThreadUtils.applyMatrixTransformationToImageView(drawable, backgroundImage);
+		}
+
+
+		backgroundImage.setImageDrawable(drawable);
+	}
+	protected void setBackground(String themeId)
+	{
+		RecyclingImageView backgroundImage = (RecyclingImageView) findViewById(R.id.background);
+
+		//backgroundImage.setOverLay(false);
+		if (themeId.equals(ChatThemeManager.getInstance().defaultChatThemeId))
+		{
+			backgroundImage.setImageDrawable(ChatThemeManager.getInstance().getDrawableForTheme(themeId, HikeChatThemeConstants.ASSET_INDEX_BG_PORTRAIT));
+			backgroundImage.setBackgroundResource(R.color.white);
+
+		}
+		else
+		{
+
+			Drawable drawable = Utils.getChatTheme(themeId, mContext);
+			setThemeBackground(backgroundImage, drawable, ChatThemeManager.getInstance().getTheme(themeId).isTiled(), ChatThemeManager.getInstance().getTheme(themeId).isCustomTheme());
+		}
 	}
 }

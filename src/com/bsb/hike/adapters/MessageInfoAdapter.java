@@ -91,7 +91,7 @@ public class MessageInfoAdapter extends BaseAdapter
 
     private MessageInfoViewListener messageInfoViewListener;
 
-    private boolean isScrollPositionSet;
+    public boolean isScrollPositionSet;
 
 
 	public View view;
@@ -245,7 +245,7 @@ public class MessageInfoAdapter extends BaseAdapter
 				break;
 			case MESSAGE_INFO_EMPTY:
 				LinearLayout ll = new LinearLayout(context);
-                AbsListView.LayoutParams params=new AbsListView.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,getLastItemHeight());
+                AbsListView.LayoutParams params=new AbsListView.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
 
                 ll.setLayoutParams(params);
                 ll.setMinimumHeight(getLastItemHeight());
