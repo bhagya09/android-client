@@ -4,6 +4,8 @@ import com.bsb.hike.R;
 import com.bsb.hike.adapters.MessageInfoAdapter;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -37,5 +39,19 @@ public abstract class MessageInfoList {
         return remainingItem.remainingItemList.size();
     }
 
+    public static Comparator<MessageInfoItem.MesageInfoParticipantItem> COMPARE_BY_NAME = new Comparator<MessageInfoItem.MesageInfoParticipantItem>() {
+        public int compare(MessageInfoItem.MesageInfoParticipantItem one, MessageInfoItem.MesageInfoParticipantItem other) {
+            return one.getContactInfo().compareTo(other.getContactInfo());
+        }
+    };
 
+    public static Comparator<MessageInfoItem.MesageInfoParticipantItem> COMPARE_BY_TIMESTAMP = new Comparator<MessageInfoItem.MesageInfoParticipantItem>() {
+        public int compare(MessageInfoItem.MesageInfoParticipantItem one, MessageInfoItem.MesageInfoParticipantItem other) {
+            return Long.compare(other.getDisplayedTimeStampLong(),one.getDisplayedTimeStampLong());
+        }
+    };
+
+    public void sortList(){
+        Collections.sort(allDisplayedContactItems,COMPARE_BY_NAME);
+    }
 }

@@ -226,6 +226,17 @@ public abstract class MessageInfoItem
 				return getReadTimeStamp();
 			default:
 				return getDeliveredTimeStamp();
+		}
+	}
+		public long getDisplayedTimeStampLong()
+		{
+			// Type t=Type.values()[type];
+			switch (type)
+			{
+				case READ_CONTACT:
+					return participantData.getReadTimeStamp();
+				default:
+					return participantData.getDeliveredTimeStamp();
 			}
 		}
 

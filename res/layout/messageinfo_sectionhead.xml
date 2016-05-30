@@ -1,32 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="36.5dp"
-    android:background="@color/white" >
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:orientation="horizontal"
+    android:paddingTop="18dp"
+    android:paddingBottom="6dp"
+    android:paddingLeft="16dp">
 
-    <RelativeLayout
-        android:id="@+id/section_view"
-        style="@style/ListSectionHeaderMargins"
-        android:layout_marginTop="18dp"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" >
 
         <com.bsb.hike.view.CustomFontTextView
             android:id="@+id/headerTextView"
             style="@style/ListSectionTextView"
             android:text="@string/friends"
             android:textSize="14sp"/>
-
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
         <ImageView
             android:id="@+id/headerImageView"
             android:contentDescription="@string/content_des_message_send_rec_read_status"
-            android:layout_width="24.5dp"
-            android:layout_height="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:src="@drawable/ic_tick"
-            android:layout_marginBottom="3dp"
-            android:layout_marginLeft="3dp"
             android:layout_alignParentRight="true"
+            android:layout_marginRight="16dp"
             />
-    </RelativeLayout>
+
 
 </LinearLayout>

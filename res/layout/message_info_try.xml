@@ -1,20 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:id="@+id/parent_layout"
+              android:weightSum="1"
+              android:orientation="vertical"
+
                 >
 
-<RelativeLayout
+<LinearLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:id="@+id/relativeLayout1">
-    <com.bsb.hike.ui.utils.RecyclingImageView
-        android:id="@+id/background"
+    android:id="@+id/relativeLayout1"
+    android:layout_marginTop="0dp">
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:src="@color/chat_thread_default_bg" />
+        android:layout_height="wrap_content">
 
+        <com.bsb.hike.ui.utils.RecyclingImageView
+            android:id="@+id/background"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@color/white"
+
+            android:layout_alignBottom="@+id/profile_content"/>
         <ListView
             android:id="@+id/profile_content"
             android:layout_height="wrap_content"
@@ -30,6 +39,21 @@
             android:divider="@null"
             />
 
-</RelativeLayout>
+    </RelativeLayout>
+</LinearLayout>
 
-</RelativeLayout>
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:background="@color/white"
+    android:layout_weight="1"
+    android:id="@+id/llback"
+
+    >
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white"/>
+
+</LinearLayout>
+</LinearLayout>

@@ -267,7 +267,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		db.execSQL(sql);
 		sql=getReceiptsTableCreateStatement();
 		db.execSQL(sql);
-		sql = DBConstants.CREATE_INDEX + DBConstants.MESSAGE_TABLE_CONTENT_INDEX + " ON " + DBConstants.MESSAGES_TABLE + " ( " + DBConstants.HIKE_CONTENT.CONTENT_ID + " ) ";
+		sql = DBConstants.CREATE_INDEX + DBConstants.RECEIPTS_TABLE_CONTENT_INDEX + " ON " + DBConstants.MESSAGES_TABLE + " ( " + DBConstants.HIKE_CONTENT.CONTENT_ID + " ) ";
 		db.execSQL(sql);
 
 		sql = DBConstants.CREATE_INDEX + DBConstants.MESSAGE_TABLE_NAMESPACE_INDEX + " ON " + DBConstants.MESSAGES_TABLE + " ( " + DBConstants.HIKE_CONTENT.NAMESPACE + " ) ";
@@ -1878,8 +1878,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 	 public long executeMessageDeliveryReceipt(ContentValues contentValues){
 		 //Only for testing will be disabled later on
 		 Logger.d("messageinfodata","logging in database messagedeliveryreceipt execute " );
-		return mDb.insertWithOnConflict(DBConstants.RECEIPTS_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
-
+		 long rowID=-1;
+		 try {
+			 rowID = mDb.insertWithOnConflict(DBConstants.RECEIPTS_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
+		 }catch (SQLiteException e)
+		 {
+			 e.printStackTrace();
+		 }
+		return rowID;
 	 }
 	public void saveDeliveryReceipt(long msgId,String fromMsisdn,long timestamp,String toGroupOrSingleMsisdn){
 		ContentValues contentValues=new ContentValues();

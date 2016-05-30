@@ -645,6 +645,9 @@ public class DBConstants
 	public static final String STICKER_SHOP_TABLE = "stickerShopTable";
 	
 	public static final String MESSAGE_TABLE_CONTENT_INDEX = "messageContentIndex";
+
+	public static final String RECEIPTS_TABLE_CONTENT_INDEX = "receiptsContentIndex";
+
 	public static final String SERVER_ID = "serverId";
 	
 	public static final String MESSAGE_ORIGIN_TYPE = "messageOriginType";
