@@ -716,7 +716,9 @@ public class ChatThreadUtils
 				object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.MESSAGE_READ);
 				object.put(HikeConstants.TO, msisdn);
 				object.put(HikeConstants.DATA, ids);
-
+				if(channelSelector instanceof OfflineChannel){
+					object.put(HikeConstants.TIMESTAMP,System.currentTimeMillis()/1000);
+				}
 				channelSelector.postMR(object);
 			}
 

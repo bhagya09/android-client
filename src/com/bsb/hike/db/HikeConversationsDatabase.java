@@ -1543,7 +1543,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		ContentValues contentValues = new ContentValues();
 		contentValues.put(DBConstants.READ_TIMESTAMP, timestamp);
 		int numRows = mDb.update(DBConstants.RECEIPTS_TABLE, contentValues, initialWhereClause, null);
-		Logger.d("delivery","Got read receipt numRows updated is "+numRows);
+		Logger.d("delivery", "Got read receipt numRows updated is " + numRows);
 
 
 	}
@@ -1557,7 +1557,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		initialWhereClause = initialWhereClause
 			+ (!TextUtils.isEmpty(msisdn) ? (" AND " + DBConstants.RECEIVER_MSISDN + " =" + DatabaseUtils.sqlEscapeString(msisdn)) : "");
 		ContentValues contentValues = new ContentValues();
-		contentValues.put(DBConstants.READ_TIMESTAMP,timestamp);
+		contentValues.put(DBConstants.READ_TIMESTAMP, timestamp);
 		int numRows = mDb.update(DBConstants.RECEIPTS_TABLE, contentValues, initialWhereClause, null);
 
 	}
@@ -1881,6 +1881,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		return mDb.insertWithOnConflict(DBConstants.RECEIPTS_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
 
 	 }
+	public void saveDeliveryReceipt(long msgId,String fromMsisdn,long timestamp,String toGroupOrSingleMsisdn){
+		ContentValues contentValues=new ContentValues();
+		contentValues.put(DBConstants.MESSAGE_ID,msgId);
+		contentValues.put(DBConstants.RECEIVER_MSISDN,fromMsisdn);
+		contentValues.put(DBConstants.DELIVERY_TIMESTAMP,timestamp);
+		contentValues.put(DBConstants.MSISDN,toGroupOrSingleMsisdn);
+		executeMessageDeliveryReceipt(contentValues);
+	}
 	public int executeUpdateMessageStatusStatement(String updateStatement, int status, String msisdn)
 	{
 		int minStatusOrdinal;
