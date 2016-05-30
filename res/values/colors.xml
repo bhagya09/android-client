@@ -147,6 +147,7 @@
     <color name="unsaved_contact_name">#66000000</color>
     <color name="white_alpha_10">#1Affffff</color>
     <color name="block_add_unknown">#FFFFFF</color>
+    <color name="add_block_bg_bot_color">#66000000</color>
     <color name="tip_green_bg">#26bd86</color>
     <color name="tip_green_divider_color">#49c899</color>
     <color name="dark_grey_drop_shadow">#bdbdbd</color>
