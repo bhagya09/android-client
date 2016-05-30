@@ -125,7 +125,7 @@ public class StoryFragment extends Fragment implements View.OnClickListener {
         }.execute();
     }
 
-    // TODO 
+    // TODO
     private void updateTimelineSubText()
     {
 

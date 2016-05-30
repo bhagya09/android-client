@@ -181,12 +181,6 @@ public class StoryListAdapter extends BaseAdapter implements PinnedSectionListVi
             // TODO
         }
 
-//        if (index == 0) {
-//            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) viewHolder.parentView.getLayoutParams();
-//            viewHolder.parentView.setPadding(0, HikePhotosUtils.dpToPx(22), 0, 0);
-//            //TODO take care of view recycling
-//        }
-
         return view;
     }
 
