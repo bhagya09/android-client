@@ -369,6 +369,7 @@ public class ConversationsAdapter extends BaseAdapter
 			botAnimationStartTime = 0;
 		}
 		final ConvInfo convInfo = getItem(position);
+		convInfo.setIsMute(ContactManager.getInstance().isChatMuted(convInfo.getMsisdn()));
 
 		ViewType viewType = ViewType.values()[getItemViewType(position)];
 

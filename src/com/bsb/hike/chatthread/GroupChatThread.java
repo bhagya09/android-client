@@ -16,7 +16,6 @@ import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ForegroundColorSpan;
 import android.text.util.Linkify;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -31,13 +30,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeConstants.MuteDuration;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.Conversation.Conversation;
@@ -45,10 +45,10 @@ import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.GroupTypingNotification;
+import com.bsb.hike.models.Mute;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.ui.utils.HashSpanWatcher;
 import com.bsb.hike.utils.EmoticonTextWatcher;
-import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
@@ -64,6 +64,9 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import com.bsb.hike.analytics.ChatAnalyticConstants;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
 
 /**
  * @author piyush
@@ -237,7 +240,6 @@ public class GroupChatThread extends OneToNChatThread
 							.getConversationOwner());
 			showBlockOverlay(label);
 		}
-		toggleConversationMuteViewVisibility(oneToNConversation.isMuted());
 		toggleGroupLife(oneToNConversation.isConversationAlive());
 		addUnreadCountMessage();
 		if (oneToNConversation.getPinnedConvMessage() != null)
@@ -308,7 +310,24 @@ public class GroupChatThread extends OneToNChatThread
 		switch (item.id)
 		{
 		case R.string.mute_group:
-			toggleMuteGroup();
+			if ((item.text).equals(getString(R.string.mute_group)))
+			{
+				boolean muteGCApproach = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MUTE_GC_SERVER_SWITCH, true);
+				if (muteGCApproach)
+				{
+					this.dialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.MUTE_CHAT_DIALOG, this, mConversation.getMute());
+				}
+				else
+				{
+					Mute mute = new Mute.InitBuilder(mConversation.getMsisdn()).setIsMute(false).setMuteDuration(MuteDuration.DURATION_FOREVER).setShowNotifInMute(false).build();
+					mConversation.setMute(mute);
+					Utils.toggleMuteChat(activity.getApplicationContext(), mConversation.getMute());
+				}
+			}
+			else
+			{
+				Utils.toggleMuteChat(activity.getApplicationContext(), mConversation.getMute());
+			}
 			break;
 		case R.string.group_profile:
 			openProfileScreen();
@@ -450,25 +469,6 @@ public class GroupChatThread extends OneToNChatThread
 				long sortingId = messages.get(index).getSortingId();
 				messages.add(index, new ConvMessage(mConversation.getUnreadCount(), timeStamp, msgId, sortingId));
 			}
-		}
-	}
-	
-	/**
-	 * This overrides {@link ChatThread#updateNetworkState()} inorder to toggleGroupMute visibility appropriately
-	 */
-	@Override
-	protected void updateNetworkState()
-	{
-		super.updateNetworkState();
-
-		if (ChatThreadUtils.checkNetworkError())
-		{
-			toggleConversationMuteViewVisibility(false);
-		}
-
-		else
-		{
-			toggleConversationMuteViewVisibility(oneToNConversation.isMuted());
 		}
 	}
 	
@@ -1003,16 +1003,6 @@ public class GroupChatThread extends OneToNChatThread
 	}
 
 	/**
-	 * Used to toggle mute and unmute for group
-	 */
-	private void toggleMuteGroup()
-	{
-		oneToNConversation.setIsMute(!(oneToNConversation.isMuted()));
-
-		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, new Pair<String, Boolean>(oneToNConversation.getMsisdn(), oneToNConversation.isMuted()));
-	}
-	
-	/**
 	 * Used to set unread pin count
 	 */
 	protected void updateUnreadPinCount()
@@ -1072,7 +1062,7 @@ public class GroupChatThread extends OneToNChatThread
 				overFlowMenuItem.enabled = !checkForDeadOrBlocked();
 				break;
 			case R.string.mute_group:
-				overFlowMenuItem.enabled = oneToNConversation.isConversationAlive();
+				overFlowMenuItem.enabled = !checkForDeadOrBlocked();
 				overFlowMenuItem.text = oneToNConversation.isMuted() ? activity.getString(R.string.unmute_group) : activity.getString(R.string.mute_group);
 				break;
 			}

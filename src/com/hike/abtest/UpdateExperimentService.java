@@ -26,8 +26,8 @@ public class UpdateExperimentService extends IntentService {
         super(TAG);
     }
 
-    public static void onRequestReceived(Context context,  String requestType, String payLoad, DataPersist dataPersist) {
-        if(dataPersist == null) {
+    public static void onRequestReceived(Context context, String requestType, String payLoad, DataPersist dataPersist) {
+        if (dataPersist == null) {
             return;
         }
         mDataPersist = dataPersist;
@@ -41,7 +41,7 @@ public class UpdateExperimentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        if (intent != null && intent.getAction()!=null) {
+        if (intent != null && intent.getAction() != null) {
             final String payload = intent.getStringExtra(EXTRA_PAYLOAD);
             final String requestType = intent.getStringExtra(EXTRA_REQUEST_TYPE);
             try {
@@ -59,7 +59,7 @@ public class UpdateExperimentService extends IntentService {
     }
 
     private void handleRequest(String requestType, String payload) throws ParserException {
-        switch(requestType) {
+        switch (requestType) {
             case DataParser.REQUEST_TYPE_EXPERIMENT_INIT:
                 handleExperimentInit(payload);
                 break;
@@ -107,7 +107,7 @@ public class UpdateExperimentService extends IntentService {
     private void respondStatus(String requestType, String status, Collection<String> experiments) {
         Logger.d(TAG, "Experiment Request Status: " + status);
 
-        for(String expId : experiments) {
+        for (String expId : experiments) {
             AnalyticsUtil.sendRequestStatusAnalyticsJson(requestType, status, expId);
         }
     }

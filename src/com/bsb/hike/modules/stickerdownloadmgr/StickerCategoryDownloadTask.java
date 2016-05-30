@@ -1,5 +1,7 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
+import android.support.annotation.Nullable;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -12,6 +14,7 @@ import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHttpTaskResult;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerRequestType;
+import com.bsb.hike.utils.HikeSystemSettingsDBUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
@@ -101,7 +104,7 @@ public class StickerCategoryDownloadTask implements IHikeHTTPTask, IHikeHttpTask
 			}
 			
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 				doOnFailure(httpException);
 			}
@@ -119,6 +122,7 @@ public class StickerCategoryDownloadTask implements IHikeHTTPTask, IHikeHttpTask
 		}
 		boolean isDownloaded = StickerManager.getInstance().getStickerCategoryMap().containsKey(stickerCategory.getCategoryId());
 		stickerCategory.setIsDownloaded(isDownloaded);
+		stickerCategory.setPreviewUpdationTime(System.currentTimeMillis());
 		HikeConversationsDatabase.getInstance().insertInToStickerCategoriesTable(stickerCategory);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_CATEGORY_DETAILS_DOWNLOAD_SUCCESS, stickerCategory);
 	}

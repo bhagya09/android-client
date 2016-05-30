@@ -522,7 +522,7 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 			// TODO : We should parse metadata based on message type, so doing now for content, we should clean the else part sometime
 			if(HikeConstants.ConvMessagePacketKeys.CONTENT_TYPE.equals(obj.optString(HikeConstants.SUB_TYPE))){
 				this.messageType  = MESSAGE_TYPE.CONTENT;
-				platformMessageMetadata  = new PlatformMessageMetadata(data.optJSONObject(HikeConstants.METADATA), context);
+				platformMessageMetadata  = new PlatformMessageMetadata(data.optJSONObject(HikeConstants.METADATA), context, mIsSent);
                 platformMessageMetadata.addToThumbnailTable();
                 platformMessageMetadata.thumbnailMap.clear();
 			}
@@ -1235,6 +1235,12 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 		{
 			return isNormalMessageSilent();
 		}
+
+		if (ContactManager.getInstance().isChatMuted(mMsisdn))
+		{
+			return true;
+		}
+
 		if (getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT && webMetadata != null)
 		{
 			return webMetadata.getPushType().equals(HikePlatformConstants.SILENT_PUSH);

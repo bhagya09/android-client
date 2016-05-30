@@ -1,5 +1,7 @@
 package com.bsb.hike.chatHead;
 
+import android.support.annotation.Nullable;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.HikeAlarmManager;
@@ -32,7 +34,7 @@ public class IBlockRequestListener implements IRequestListener
 	}
 
 	@Override
-	public void onRequestFailure(HttpException httpException)
+	public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 	{
 		ChatHeadUtils.syncedCallerBlockedFromClientToServer = false;
 		Logger.d(TAG, "block list update failure");
