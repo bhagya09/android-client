@@ -60,6 +60,8 @@ public class QuickStickerSuggestionController
 
     public static final long DEFAULT_QUICK_SUGGESTED_STICKERS_TTL = 2 * HikeConstants.ONE_DAY_MILLS;
 
+    public static final long QUICK_SUGGESTION_TIP_VISIBLE_TIME = 2 * 1000; // 2 secs
+
     public static final int QUICK_SUGGESTION_FTUE_PAGE = 15;
 
     public static final int QUICK_SUGGESTION_STICKER_ANIMATION = 16;

@@ -456,7 +456,7 @@ public class ChatThreadTips implements OnClickListener, OnTouchListener
 					public void run() {
 						showQuickStickerSuggestionsTip(whichTip == QUICK_SUGGESTION_RECEIVED_FIRST_TIP ? QUICK_SUGGESTION_RECEIVED_SECOND_TIP :QUICK_SUGGESTION_SENT_SECOND_TIP);
 					}
-				}, 2000);
+				}, QuickStickerSuggestionController.QUICK_SUGGESTION_TIP_VISIBLE_TIME);
 			}
 		});
 
@@ -495,7 +495,7 @@ public class ChatThreadTips implements OnClickListener, OnTouchListener
 						Animation am = HikeAnimationFactory.getUpUpPartAnimation(mainView.getContext(), container);
 						container.startAnimation(am);
 					}
-				}, 2000);
+				}, QuickStickerSuggestionController.QUICK_SUGGESTION_TIP_VISIBLE_TIME);
 			}
 		});
 
