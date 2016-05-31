@@ -1,11 +1,16 @@
 package com.bsb.hike.modules.httpmgr.request;
 
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.ces.CesConstants;
+import com.bsb.hike.ces.CustomerExperienceScore;
+import com.bsb.hike.ces.ft.FTDataInfoFormatBuilder;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
+import com.bsb.hike.filetransfer.FTUtils;
 import com.bsb.hike.filetransfer.FileSavedState;
 import com.bsb.hike.filetransfer.FileTransferBase.FTState;
 import com.bsb.hike.modules.httpmgr.Header;
@@ -18,6 +23,7 @@ import com.bsb.hike.modules.httpmgr.log.LogFull;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.request.requestbody.FileTransferChunkSizePolicy;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -58,6 +64,8 @@ public class FileUploadRequest extends Request<JSONObject>
 	private int bytesUploaded;
 
 	private long time;
+
+	private long cesNetworkStartTime;
 
 	private FileUploadRequest(Init<?> init)
 	{
@@ -211,6 +219,7 @@ public class FileUploadRequest extends Request<JSONObject>
 			publishProgress((float) bytesTransferred / length);
 			while (end < length)
 			{
+				cesNetworkStartTime = System.currentTimeMillis();
 				FileSavedState st = getState();
 				LogFull.d("ft state in while loop file upload : " + st.getFTState().name());
 				if (st.getFTState() != FTState.IN_PROGRESS)
@@ -251,7 +260,8 @@ public class FileUploadRequest extends Request<JSONObject>
 						String fileExtension = Utils.getFileExtension(filePath);
 						String fileType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
 						FTAnalyticEvents.logFTProcessingTime(FTAnalyticEvents.UPLOAD_FILE_TASK, X_SESSION_ID, isCompleted, fileBytes.length, (System.currentTimeMillis() - time), contentRange, netType, fileType);
-						LogFull.d("content range  : " + contentRange + " time taken : " + time);
+						logCesData(CesConstants.FT_STATUS_IN_PROGRESS, false, null, chunkSize, start, end, (System.currentTimeMillis() - cesNetworkStartTime));
+						LogFull.d("content range  : " + contentRange + " time taken : " + (System.currentTimeMillis() - time));
 					}
 				}
 
@@ -358,11 +368,36 @@ public class FileUploadRequest extends Request<JSONObject>
 		}
 	}
 
+	private void logCesData(int state, boolean isQuickUpload, String stackTrace, int chunkSize, int chunkStart, int chunkEnd, long networkTime)
+	{
+		FTDataInfoFormatBuilder<?> builder = new FTDataInfoFormatBuilder<>()
+				.setNetType(String.valueOf(Utils.getNetworkType(HikeMessengerApp.getInstance())))
+				.setFileSize(new File(filePath).length())
+				.setFileAvailability(isQuickUpload)
+				.setFileType(fileType)
+				.setFTStatus(state)
+				.setFTTaskType(CesConstants.FT_UPLOAD)
+				.setNetProcTime(networkTime)
+				.setProcTime(0)
+				.setChunkSize(chunkSize)
+				.setChunkStart(chunkStart)
+				.setSessionId(X_SESSION_ID)
+				.setUniqueId(getCustomId() + "_" + AccountUtils.mUid);
+
+		if (!TextUtils.isEmpty(stackTrace))
+		{
+			builder.setStackTrace(stackTrace);
+		}
+
+		builder.setModule(CesConstants.FT_MODULE);
+		CustomerExperienceScore.getInstance().recordCesData(CesConstants.CESModule.FT, builder);
+	}
+
 	private IRequestListener getUploadChunkRequestListener()
 	{
 		return new IRequestListener() {
 			@Override
-			public void onRequestFailure(HttpException httpException) {
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException) {
 				exception = httpException;
 				time = System.currentTimeMillis();
 			}
@@ -384,7 +419,7 @@ public class FileUploadRequest extends Request<JSONObject>
 		RequestToken requestToken = HttpRequests.getBytesFromServer(this.getUrl(), X_SESSION_ID, new IRequestListener()
 		{
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 				if (httpException.getErrorCode() / 100 > 0)
 				{

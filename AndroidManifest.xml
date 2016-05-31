@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1743"
-    android:versionName="4.2.7.81.100" >
+    android:versionCode="1745"
+    android:versionName="4.2.7.81.102" >
 
    <uses-sdk
         android:minSdkVersion="14"
@@ -377,6 +377,11 @@
         </activity>
         <activity
             android:name=".ui.PinHistoryActivity"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
+            android:theme="@style/AppTheme.ChatThread" >
+        </activity>
+        <activity
+            android:name=".ui.MessageInfoActivity"
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
             android:theme="@style/AppTheme.ChatThread" >
         </activity>

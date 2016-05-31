@@ -2,6 +2,7 @@ package com.bsb.hike.bots;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.support.annotation.Nullable;
 import android.net.Uri;
 import android.graphics.drawable.BitmapDrawable;
 import android.text.TextUtils;
@@ -879,7 +880,7 @@ public class BotUtils
 							}
 
 							@Override
-							public void onRequestFailure(HttpException httpException)
+							public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 							{
 								Logger.i(
 										TAG,

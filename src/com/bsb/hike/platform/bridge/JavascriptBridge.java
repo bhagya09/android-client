@@ -22,6 +22,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.Nullable;
 import android.text.Html;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -1074,7 +1075,7 @@ public abstract class JavascriptBridge
 
 		@Override
 		
-		public void onRequestFailure(HttpException httpException)
+		public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 		{
 			Logger.e("JavascriptBridge", "microApp request failed with exception " + httpException.getMessage());
 			JSONObject failure = new JSONObject();

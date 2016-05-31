@@ -725,6 +725,16 @@ public class HttpRequestConstants
 		return editDOBBaseUrl() + PREF_PATH;
 	}
 
+	public static String getCesScoreUploadUrl()
+	{
+		return BASE_URL + "/v1/logs/ces/score";
+	}
+
+	public static String getCesLevelOneInfoUploadUrl()
+	{
+		return BASE_URL + "/v1/logs/ces/score" + "/l1data";
+	}
+
 	public static String getBotSubscribeUrl()
 	{
 		String suffix = "subscription/api" + BASE_V3 +"/microapps/subscribe.json";

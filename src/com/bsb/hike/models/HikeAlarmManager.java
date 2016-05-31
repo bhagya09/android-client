@@ -7,6 +7,7 @@ import android.content.Intent;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.analytics.AnalyticsSender;
+import com.bsb.hike.ces.CustomerExperienceScore;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.backup.AccountBackupRestore;
 import com.bsb.hike.chatthread.ChatThreadUtils;
@@ -95,6 +96,8 @@ public class HikeAlarmManager
 	public static final int REQUESTCODE_FETCH_PACK_ORDER = 4582;
 
 	public static final int REQUESTCODE_END_CONVERSATION_MUTE = 4583;
+
+	public static final int REQUESTCODE_PERIODIC_CES_DATA_SYNC = 4584;
 	// ******************************************************//
 	
 	public static final String INTENT_EXTRA = "intent_extra";
@@ -376,6 +379,9 @@ public class HikeAlarmManager
 		case HikeAlarmManager.REQUESTCODE_SHOW_CORRUPT_DB_NOTIF:
 			HikeNotification.getInstance().showCorruptDbNotification();
 			break;
+		case HikeAlarmManager.REQUESTCODE_PERIODIC_CES_DATA_SYNC:
+			CustomerExperienceScore.getInstance().processCesScoreAndL1Data();
+			break;
 		case HikeAlarmManager.REQUESTCODE_END_CONVERSATION_MUTE:
 			ChatThreadUtils.processTasks(intent);
 			break;
@@ -483,6 +489,9 @@ public class HikeAlarmManager
             break;
 		case HikeAlarmManager.REQUESTCODE_SHOW_CORRUPT_DB_NOTIF:
 			HikeNotification.getInstance().showCorruptDbNotification();
+			break;
+		case HikeAlarmManager.REQUESTCODE_PERIODIC_CES_DATA_SYNC:
+			processTasks(intent, context);
 			break;
 		case HikeAlarmManager.REQUESTCODE_END_CONVERSATION_MUTE:
 			ChatThreadUtils.processTasks(intent);

@@ -69,6 +69,7 @@ import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HikePreferences;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.HomeFtueActivity;
+import com.bsb.hike.ui.MessageInfoActivity;
 import com.bsb.hike.ui.NUXInviteActivity;
 import com.bsb.hike.ui.NuxSendCustomMessageActivity;
 import com.bsb.hike.ui.PeopleActivity;
@@ -111,6 +112,13 @@ public class IntentFactory
 		intent.putExtra(HikeConstants.Extras.PREF, R.xml.notification_preferences);
 		intent.putExtra(HikeConstants.Extras.TITLE, R.string.notifications);
 		context.startActivity(intent);
+	}
+	public static Intent messageInfoIntent(Context context,long messageID){
+		Intent intent=new Intent(context, MessageInfoActivity.class);
+		intent.putExtra(HikeConstants.MESSAGE_ID,messageID);
+		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		return intent;
+
 	}
 	public static Intent shareFunctionality(Intent intent, ConvMessage message, MessagesAdapter mAdapter, int shareableMessagesCount,Context context)
 	{   

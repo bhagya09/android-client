@@ -1783,7 +1783,18 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		IconListPreference bdListPref = (IconListPreference) getPreferenceScreen().findPreference(HikeConstants.BIRTHDAY_PRIVACY_PREF);
 		setBDPrefKeys(bdListPref);
 		bdListPref.setNegativeButtonText(R.string.CANCEL);
-		bdListPref.setOnPreferenceChangeListener(this);
+
+		bdListPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				BirthdayUtils.recordBirthdayAnalytics(
+						AnalyticsConstants.BirthdayEvents.BIRTHDAY_CHANGE_SETTING,
+						AnalyticsConstants.BirthdayEvents.BIRTHDAY_SETTING,
+						AnalyticsConstants.BirthdayEvents.BIRTHDAY_CHANGE,
+						null, BirthdayUtils.getCurrentBDPref(), null, null, null, null, null, null);
+				return false;
+			}
+		});
 
 		//adding preference title and summary text
 		updateBDPrefUI(false);

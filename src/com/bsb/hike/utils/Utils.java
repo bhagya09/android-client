@@ -131,6 +131,7 @@ import android.provider.ContactsContract.RawContacts;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.Settings.Secure;
+import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
@@ -140,6 +141,7 @@ import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.format.DateUtils;
+import android.text.format.Time;
 import android.text.style.StyleSpan;
 import android.util.Base64;
 import android.util.DisplayMetrics;
@@ -149,6 +151,7 @@ import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.View;
 import android.view.View.OnTouchListener;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AccelerateInterpolator;
@@ -239,6 +242,56 @@ import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.SignupActivity;
 import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.ui.WelcomeActivity;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Field;
+import java.net.URI;
+import java.net.URL;
+import java.nio.CharBuffer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Random;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.jar.JarFile;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
+
 import com.bsb.hike.voip.VoIPUtils;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -3196,7 +3249,7 @@ public class Utils
 			}
 
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 				jObject = null;
 			}
@@ -3943,10 +3996,10 @@ public class Utils
 
 	public static FavoriteType toggleFavorite(Context context, ContactInfo contactInfo, boolean isFtueContact, String addFavSource)
 	{
-		return toggleFavorite(context, contactInfo, isFtueContact, addFavSource, true);
+		return toggleFavorite(context, contactInfo, isFtueContact, addFavSource, null, true);
 	}
 
-	public static FavoriteType toggleFavorite(Context context, ContactInfo contactInfo, boolean isFtueContact, String addFavSource, boolean showToast)
+	public static FavoriteType toggleFavorite(Context context, ContactInfo contactInfo, boolean isFtueContact, String addFavSource, String favSourceMetadata, boolean showToast)
 	{
 		FavoriteType favoriteType;
 		boolean isRequestSent = false;
@@ -3970,7 +4023,7 @@ public class Utils
 			fetchHistoricalUpdates(contactInfo.getMsisdn());
 		}
 
-		HikeAnalyticsEvent.recordAnalyticsForAddFriend(contactInfo.getMsisdn(), addFavSource, isRequestSent);
+		HikeAnalyticsEvent.recordAnalyticsForAddFriend(contactInfo.getMsisdn(), addFavSource, favSourceMetadata, isRequestSent);
 
 		Pair<ContactInfo, FavoriteType> favoriteAdded;
 
@@ -4848,6 +4901,68 @@ public class Utils
 		{
 			return getFallBackPrettyTime(context, timestampInSeconds);
 		}
+
+	}
+
+	public static String getFormattedTimeinMessageInfo(long timestampInSeconds){
+
+		Context context=HikeMessengerApp.getInstance().getApplicationContext();
+		try{
+		long givenTimeStampInMillis = timestampInSeconds * 1000;
+		Calendar givenCalendar = Calendar.getInstance();
+		givenCalendar.setTimeInMillis(givenTimeStampInMillis);
+		long currentTime = System.currentTimeMillis();
+		Calendar currentCalendar = Calendar.getInstance();
+
+		//Checking if today
+			Time startTime = new Time();
+			startTime.set(givenTimeStampInMillis);
+			int startDay = Time.getJulianDay(givenTimeStampInMillis, startTime.gmtoff);
+
+			Time currentTime1 = new Time();
+			currentTime1.set(currentTime);
+			int currentDay = Time.getJulianDay(currentTime, currentTime1.gmtoff);
+
+			int days = Math.abs(currentDay - startDay);
+			String daySuffix;
+			String time=getFormattedTime(context, givenTimeStampInMillis);
+			// TODO: some locales name other days too, such as de_DE's "Vorgestern" (today - 2).
+			if (days == 1) {
+				daySuffix=context.getString(R.string.yesterday);
+				return time+", "+daySuffix;
+			} else if (days == 0) {
+				daySuffix= context.getString(R.string.today);
+				return time+", "+daySuffix;
+			}
+
+		else
+		{
+			if (givenCalendar.get(Calendar.YEAR) == currentCalendar.get(Calendar.YEAR))
+			{
+				if (givenCalendar.get(Calendar.DAY_OF_YEAR) == currentCalendar.get(Calendar.DAY_OF_YEAR))
+				{
+					// Show time in non relate default time format
+					return getFormattedTime(context, givenTimeStampInMillis);
+				}
+				else
+				{
+					// Show date in MMM dd format eg. Apr 21, May 13 etc.
+					return time+", "+HikeDateUtils.getRelativeTimeSpanString(context, givenTimeStampInMillis, currentTime, DateUtils.YEAR_IN_MILLIS,
+						DateUtils.FORMAT_ABBREV_MONTH | DateUtils.FORMAT_SHOW_DATE).toString();
+				}
+			}
+			else
+			{
+				// Show date in abbreviated  format with year
+				return time+", "+HikeDateUtils.getRelativeTimeSpanString(context, givenTimeStampInMillis, currentTime, DateUtils.YEAR_IN_MILLIS, DateUtils.FORMAT_ABBREV_ALL)
+					.toString();
+			}
+		}
+	}
+	catch (Exception e)
+	{
+		return getFallBackPrettyTime(context, timestampInSeconds);
+	}
 
 	}
 
@@ -7842,8 +7957,12 @@ public class Utils
 
 		return result;
 	}
+	public static void recordCoreAnalyticsForShare(String uniqueKey_order, String species, String toUser_msisdn, boolean isStealth, String genus, String family) {
+		recordCoreAnalyticsForShare(uniqueKey_order, species, toUser_msisdn, isStealth, genus, family, null);
+	}
 
-	public static void recordCoreAnalyticsForShare(String uniqueKey_order, String species, String toUser_msisdn, boolean isStealth, String genus, String family)
+
+	public static void recordCoreAnalyticsForShare(String uniqueKey_order, String species, String toUser_msisdn, boolean isStealth, String genus, String family, String form)
 	{
 		try
 		{
@@ -7862,7 +7981,8 @@ public class Utils
 				json.put(AnalyticsConstants.V2.GENUS, genus);
 			if (!TextUtils.isEmpty(family))
 				json.put(AnalyticsConstants.V2.FAMILY, family);
-
+			if (!TextUtils.isEmpty(form))
+				json.put(AnalyticsConstants.V2.FORM, form);
 			HAManager.getInstance().recordV2(json);
 		}
 		catch (JSONException e)
@@ -7870,6 +7990,7 @@ public class Utils
 			e.printStackTrace();
 		}
 	}
+
 
 	public static void recordEventMaxSizeToastShown(String uniqueKey_order, String species, String toUser_msisdn, long fileSize)
 	{
@@ -7897,7 +8018,7 @@ public class Utils
 		RequestToken token = HttpRequests.getHistoricSUToken(msisdn, new IRequestListener()
 		{
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 
 			}
