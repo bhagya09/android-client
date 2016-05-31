@@ -113,13 +113,20 @@ public class StoryFragment extends Fragment implements View.OnClickListener {
         });
 
         //TODO WIP
-        new FetchStoriesTask(){
+        new FetchStoriesTask() {
             @Override
-            protected void onProgressUpdate(List... itemList) {
-                if (itemList != null && !Utils.isEmpty(itemList[0])) {
-                    storyItemList = itemList[0];
-                    storyAdapter.setStoryItemList(storyItemList);
-                    storyAdapter.notifyDataSetChanged();
+            protected void onProgressUpdate(final List... itemList) {
+                if (isAdded() && getActivity() != null) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (itemList != null && !Utils.isEmpty(itemList[0])) {
+                                storyItemList = itemList[0];
+                                storyAdapter.setStoryItemList(storyItemList);
+                                storyAdapter.notifyDataSetChanged();
+                            }
+                        }
+                    });
                 }
             }
         }.execute();
