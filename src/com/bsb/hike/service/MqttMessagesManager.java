@@ -3284,6 +3284,11 @@ public class MqttMessagesManager
 			String multipleBdayNotifSubtext = data.getString(HikeConstants.MULTIPLE_BDAY_NOTIF_SUBTEXT);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MULTIPLE_BDAY_NOTIF_SUBTEXT, multipleBdayNotifSubtext);
 		}
+		if (data.has(HikePlatformConstants.ENABLE_HELP))
+		{
+			boolean enable = data.getBoolean(HikePlatformConstants.ENABLE_HELP);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikePlatformConstants.ENABLE_HELP, enable);
+		}
 
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
