@@ -349,4 +349,10 @@
     <color name="share_text">#3d475b</color>
     <color name="divider_bg">#1A000000</color>
     <color name="cardview_default_bg">#f9f9f9</color>
+
+
+    <color name="black_36">#5C000000</color>
+    <color name="black_8">#14000000</color>
+    <color name="black_72">#B8000000</color>
+
 </resources>

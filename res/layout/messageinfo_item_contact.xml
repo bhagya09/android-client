@@ -43,6 +43,7 @@
                     style="@style/ListItemHeaderTextView"
                     android:layout_alignParentLeft="true"
                     android:layout_marginRight="5dp"
+                    android:textColor="@color/black_72"
                     android:text="Alice Stone"/>
 
             </RelativeLayout>
@@ -56,8 +57,7 @@
 
                 <com.bsb.hike.view.CustomFontTextView
                     android:id="@+id/timestamp"
-                    style="@style/ListItemSubHeaderTextView"
-                    android:layout_width="wrap_content"
+                    style="@style/ListItemSubText"
                     android:text="Defualt Ts"
                     android:visibility="visible"/>
 
@@ -75,8 +75,7 @@
 
                         <com.bsb.hike.view.CustomFontTextView
                             android:id="@+id/expand_read_text"
-                            style="@style/ListItemSubHeaderTextView"
-                            android:layout_width="wrap_content"
+                            style="@style/ListItemSubText"
                             android:layout_height="18dp"
                             android:gravity="left"
                             android:text="Read"/>
@@ -89,8 +88,7 @@
 
                         <com.bsb.hike.view.CustomFontTextView
                             android:id="@+id/read_message_timestamp"
-                            style="@style/ListItemSubHeaderTextView"
-                            android:layout_width="wrap_content"
+                            style="@style/ListItemSubText"
                             android:layout_height="18dp"
                             android:layout_gravity="right"
                             android:layout_marginRight="16dp"
@@ -107,8 +105,7 @@
 
                         <com.bsb.hike.view.CustomFontTextView
                             android:id="@+id/expand_delivered_text"
-                            style="@style/ListItemSubHeaderTextView"
-                            android:layout_width="wrap_content"
+                            style="@style/ListItemSubText"
                             android:layout_height="18dp"
                             android:text="Delivered"/>
 
@@ -120,8 +117,7 @@
 
                         <com.bsb.hike.view.CustomFontTextView
                             android:id="@+id/delivered_message_timestamp"
-                            style="@style/ListItemSubHeaderTextView"
-                            android:layout_width="wrap_content"
+                            style="@style/ListItemSubText"
                             android:layout_height="18dp"
                             android:layout_marginRight="16dp"
                             android:layout_alignParentRight="true"
@@ -140,7 +136,7 @@
         android:layout_marginLeft="72dp"
         android:layout_marginRight="16dp"
         android:layout_marginTop="10dp"
-        android:background="@color/black_alpha_10"
+        android:background="@color/black_8"
         android:visibility="gone"></View>
 
     <View
@@ -151,7 +147,7 @@
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         android:layout_marginTop="10dp"
-        android:background="@color/black_alpha_10"
+        android:background="@color/black_8"
         android:visibility="gone"></View>
 
 </RelativeLayout>
