@@ -368,20 +368,6 @@ public class HttpRequests
 		return requestToken;
 	}
 
-	public static RequestToken StickerSignupUpgradeRequest(String requestId, JSONObject json, IRequestListener requestListener)
-	{
-		IRequestBody body = new JsonBody(json);
-		RequestToken requestToken = new JSONObjectRequest.Builder()
-				.setUrl(stickerSignupUpgradeUrl())
-				.setId(requestId)
-				.post(body)
-				.setRequestListener(requestListener)
-				.setRequestType(REQUEST_TYPE_SHORT)
-				.build();
-		requestToken.getRequestInterceptors().addFirst("gzip", new GzipRequestInterceptor());
-		return requestToken;
-	}
-
     public static RequestToken stickerCategoryDetailsDownloadRequest(String requestId, String categoryId, IRequestListener requestListener, Bundle extras)
     {
         Config config = new Config.Builder()
@@ -409,7 +395,35 @@ public class HttpRequests
         return requestToken;
     }
 
-	public static RequestToken LastSeenRequest(String msisdn, IRequestListener requestListener, BasicRetryPolicy retryPolicy)
+    public static RequestToken stickerCategoriesDetailsDownloadRequest(String requestId, JSONObject json, IRequestListener requestListener, Bundle extras)
+    {
+        Config config = new Config.Builder()
+                .setExecutionWindow(0, 1)
+                .setPersisted(true)
+                .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
+                .setTag(GcmTaskConstants.CATEGORY_DETAILS_GCM_TASK + HikeConstants.DELIMETER + requestId)
+                .setService(GcmNwMgrService.class)
+                .setExtras(extras)
+                .build();
+
+
+        JsonBody body = new JsonBody(json);
+        RequestToken requestToken = new JSONObjectRequest.Builder()
+                .setUrl(stickerCategoryDetailsUrl())
+                .setId(requestId)
+                .post(body)
+                .setRequestListener(requestListener)
+                .setRequestType(REQUEST_TYPE_SHORT)
+                .setPriority(PRIORITY_HIGH)
+                .setGcmTaskConfig(config)
+                .build();
+
+        requestToken.getRequestInterceptors().addFirst("gzip", new GzipRequestInterceptor());
+        return requestToken;
+    }
+
+
+    public static RequestToken LastSeenRequest(String msisdn, IRequestListener requestListener, BasicRetryPolicy retryPolicy)
 	{
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setUrl(lastSeenUrl() + "/" + msisdn)
