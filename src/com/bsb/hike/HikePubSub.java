@@ -541,6 +541,8 @@ public class HikePubSub extends Handler implements Runnable
 
 	public static final String ADD_INLINE_FRIEND_MSG = "inline_friend_msg";
 
+    public static final String SHOW_INPUT_BOX = "showInputBox";
+
 	public static final String CHATTHEME_DOWNLOAD_SUCCESS = "chatThemeDownloadSuccess";
 
 	public static final String CHATTHEME_CUSTOM_IMAGE_UPLOAD_SUCCESS = "chatThemeCustomImageUploadSuccess";

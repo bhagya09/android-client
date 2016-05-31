@@ -1,5 +1,7 @@
 package com.bsb.hike.platform.content;
 
+import android.support.annotation.Nullable;
+
 import android.text.TextUtils;
 import android.util.Pair;
 
@@ -14,6 +16,7 @@ import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
@@ -70,6 +73,10 @@ public class PlatformZipDownloader
 
 	private boolean autoResume = false;
 
+	private int tagType =-1;
+
+	private int tagId = -1;
+
     // static builder class used here for generating and returning object of Zip Downloading process
     public static class Builder {
         private PlatformContentRequest argRequest;
@@ -78,6 +85,8 @@ public class PlatformZipDownloader
         private boolean resumeSupported = false;
         private String assocCbotMsisdn = "";
 		private boolean autoResume = false;
+		private int tagType =-1;
+		private int tagId = -1;
 
         public Builder setArgRequest(PlatformContentRequest argRequest) {
             this.argRequest = argRequest;
@@ -112,6 +121,18 @@ public class PlatformZipDownloader
 			this.autoResume = autoResume;
 			return this;
 		}
+
+		public Builder setTagType(int tagType)
+		{
+			this.tagType = tagType;
+			return this;
+		}
+
+		public Builder setTagId(int tagId)
+		{
+			this.tagId = tagId;
+			return this;
+		}
     }
 
     /**
@@ -127,6 +148,8 @@ public class PlatformZipDownloader
         this.resumeSupported = builder.resumeSupported;
         this.asocCbotMsisdn = builder.assocCbotMsisdn;
 		this.autoResume = builder.autoResume;
+		this.tagId = builder.tagId;
+		this.tagType = builder.tagType;
 
         if (resumeSupported)
         {
@@ -341,6 +364,39 @@ public class PlatformZipDownloader
 									}
 								}
 
+								if(tagId >0 && tagType >0)
+								{
+									JSONObject json = new JSONObject();
+									try {
+										json.put(HikePlatformConstants.TAG_TYPE, tagType);
+										json.put(HikePlatformConstants.TAG_ID, tagId);
+									}
+									catch(JSONException e)
+									{
+										Logger.e("PlatformZipDownloader","Subscription error");
+									}
+									RequestToken token = HttpRequests.microAppSubscribeRequest(HttpRequestConstants.getBotSubscribeUrl(), json, new IRequestListener() {
+										@Override
+										public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException) {
+											Logger.e("PlatformZipDownloader","Subscription error");
+
+										}
+
+										@Override
+										public void onRequestSuccess(Response result) {
+
+										}
+
+										@Override
+										public void onRequestProgressUpdate(float progress) {
+
+										}
+									});
+									if(token !=null && !token.isRequestRunning()) {
+										token.execute();
+									}
+								}
+
 								String filePath = PlatformUtils.generateMappUnZipPathForBotType(mRequest.getBotType(), PlatformUtils.getMicroAppContentRootFolder(),
 										mRequest.getContentData().cardObj.getAppName());
 								String tempPath = filePath.substring(0, filePath.length() - 1) + "_temp";
@@ -520,14 +576,14 @@ public class PlatformZipDownloader
                         if(zipFileLength != result.getBody().getContentLength())
                         {
                             HttpException exception = new HttpException(HttpException.REASON_CODE_INCOMPLETE_REQUEST);
-                            onRequestFailure(exception);
+                            onRequestFailure(null, exception);
                             return;
                         }
                     }
                     else if(zipFileLength == 0)
                     {
                         HttpException exception = new HttpException(HttpException.REASON_CODE_ZERO_BYTE_ZIP_DOWNLOAD);
-                        onRequestFailure(exception);
+                        onRequestFailure(null, exception);
                         return;
                     }
 
@@ -569,12 +625,12 @@ public class PlatformZipDownloader
 					{
 						Logger.e(getClass().getCanonicalName(), e.toString());
 						HttpException exception = new HttpException(HttpException.REASON_CODE_INCOMPLETE_REQUEST);
-						onRequestFailure(exception);
+						onRequestFailure(null, exception);
 					}
 					if (zipFileLength != totalLength)
 					{
 						HttpException exception = new HttpException(HttpException.REASON_CODE_INCOMPLETE_REQUEST);
-						onRequestFailure(exception);
+						onRequestFailure(null, exception);
 						return;
 					}
 
@@ -603,7 +659,7 @@ public class PlatformZipDownloader
 			}
 
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
                 // Check to make event code as per http exception received
                 EventCode eventCode = EventCode.LOW_CONNECTIVITY;

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="56dp" >
+
+    <com.bsb.hike.ui.utils.RecyclingImageView
+        android:id="@+id/profile"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_centerInParent="true"
+        android:onClick="onViewImageClicked"
+        android:scaleType="centerCrop" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="72dp"
+        android:layout_alignParentBottom="true"
+        android:background="#8F323638"
+        android:clickable="true"
+        android:onClick="onAddToContactClicked" >
+
+         <LinearLayout
+            android:id="@+id/button_container"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true" >
+
+            <ImageView
+                android:id="@+id/change_profile"
+                android:layout_width="62dp"
+                android:layout_height="match_parent"
+                android:onClick="onHeaderButtonClicked"
+                android:padding="10dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_change_profile_pic"
+                android:contentDescription="@string/content_des_user_profile_detail_edit_profile_pic"
+                android:background="@drawable/bg_overflow_menu_selector" />
+        </LinearLayout>
+
+        <View
+            android:id="@+id/button_divider"
+            android:layout_width="1.5dp"
+            android:layout_height="40dp"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@id/button_container"
+            android:background="#52faf8f2" />
+        
+        <LinearLayout
+            android:id="@+id/info_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="8dp"
+            android:layout_toLeftOf="@id/button_divider"
+            android:layout_alignParentLeft="true"
+            android:gravity="center_vertical"
+            android:orientation="vertical" >
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/group_name"
+                android:singleLine="true"
+                android:textColor="@color/almost_white"
+                android:textSize="20sp"
+                android:textStyle="bold|italic" />
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/info"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textColor="@color/almost_white"
+                android:textSize="12sp"
+                android:contentDescription="@string/content_des_user_profile_detail_user_phone_number"
+                android:textStyle="bold|italic" />
+        </LinearLayout>
+
+       
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="30dp"
+            android:src="@drawable/ic_arrow_up" />
+    </RelativeLayout>
+
+</RelativeLayout>
