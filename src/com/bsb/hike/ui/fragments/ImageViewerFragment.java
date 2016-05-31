@@ -1,7 +1,7 @@
 package com.bsb.hike.ui.fragments;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.v4.app.Fragment;
@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
@@ -27,10 +28,10 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.ui.ProfileActivity;
-import com.bsb.hike.ui.SettingsActivity;
 import com.bsb.hike.utils.HikeUiHandler;
 import com.bsb.hike.utils.HikeUiHandler.IHandlerCallback;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.ProfileImageLoader;
 import com.bsb.hike.utils.Utils;
 
@@ -51,6 +52,8 @@ public class ImageViewerFragment extends Fragment implements OnClickListener, Li
 	public static final int FROM_PROFILE_ACTIVITY = 1;
 
 	public static final int FROM_SETTINGS_ACTIVITY = 2;
+
+	public static final int FROM_EDIT_DP_ACTIVITY = 3;
 	
 	private int whichActivity;
 
@@ -135,6 +138,11 @@ public class ImageViewerFragment extends Fragment implements OnClickListener, Li
 	{
 		View parent = inflater.inflate(R.layout.image_viewer, null);
 		imageView = (ImageView) parent.findViewById(R.id.image);
+		ViewGroup.LayoutParams lp = imageView.getLayoutParams();
+		int size = Utils.displayHeightPixels > Utils.displayWidthPixels ? Utils.displayWidthPixels : Utils.displayHeightPixels;
+		lp.height = size;
+		lp.width = size;
+		imageView.setLayoutParams(lp);
 		imageView.setOnClickListener(this);
 		return parent;
 	}
@@ -148,27 +156,55 @@ public class ImageViewerFragment extends Fragment implements OnClickListener, Li
 
 		isStatusImage = getArguments().getBoolean(HikeConstants.Extras.IS_STATUS_IMAGE);
 
-		imageSize = this.getActivity().getResources().getDimensionPixelSize(R.dimen.timeine_big_picture_size);
-		
-		hikeUiHandler = new HikeUiHandler(this);
-						
-		showImage();
-	}
+		isViewEditable = getArguments().getBoolean(HikeConstants.CAN_EDIT_DP);
 
-	private void showImage() 
-	{
+		imageSize = this.getActivity().getResources().getDimensionPixelSize(R.dimen.timeine_big_picture_size);
+
 		key = mappedId;
-		
-		if (!isStatusImage)
-		{
+
+		if (!isStatusImage) {
 			int idx = key.lastIndexOf(ProfileActivity.PROFILE_PIC_SUFFIX);
-			
-			if (idx > 0)
-			{
+
+			if (idx > 0) {
 				key = new String(key.substring(0, idx));
 			}
 		}
-		
+
+		hikeUiHandler = new HikeUiHandler(this);
+						
+		showImage();
+
+		setupChangePhotoIcon();
+	}
+
+	private void setupChangePhotoIcon() {
+		View changePhoto = getView().findViewById(R.id.change_photo);
+		if (isViewEditable) {
+			ImageView image = (ImageView) changePhoto.findViewById(R.id.img_icon);
+			image.setImageResource(R.drawable.ic_camera_change_pic);
+			TextView title = (TextView) changePhoto.findViewById(R.id.txt_title);
+			title.setText(R.string.change_photo);
+			title.setTextColor(Color.WHITE);
+			changePhoto.setOnClickListener(changePhotoIconClicked);
+		}
+		else
+		{
+			changePhoto.setVisibility(View.GONE);
+		}
+	}
+
+	View.OnClickListener changePhotoIconClicked = new View.OnClickListener() {
+		@Override
+		public void onClick(View v) {
+			if (mProfilePhotoEditListener != null)
+			{
+				mProfilePhotoEditListener.onDisplayPictureChangeClicked(whichActivity);
+			}
+		}
+	};
+
+	private void showImage() 
+	{
 		hasCustomImage = isStatusImage || ContactManager.getInstance().hasIcon(key);
 		
 		profileImageLoader = new ProfileImageLoader(getActivity(), key, imageView, imageSize, isStatusImage, true);
@@ -213,14 +249,14 @@ public class ImageViewerFragment extends Fragment implements OnClickListener, Li
 	}
 
 	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
-	{
-		menu.clear();			
-
-		if(isViewEditable)
-		{
-			inflater.inflate(R.menu.edit_dp, menu);			
-		}	
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		ContactInfo contactInfo = Utils.getUserContactInfo(true);
+		if(isViewEditable
+				// check if msisdn is not a group id and if it already has an icon (force check to avoid stale state)
+				&& (!OneToNConversationUtils.isOneToNConversation(key) && ContactManager.getInstance().hasIcon(contactInfo.getMsisdn()))) {
+			menu.clear();
+			inflater.inflate(R.menu.edit_dp, menu);
+		}
 	}
 
 	@Override
@@ -228,44 +264,20 @@ public class ImageViewerFragment extends Fragment implements OnClickListener, Li
 	{
 		switch(item.getItemId())
 		{
-			case R.id.edit_dp:
+			case R.id.remove_photo:
 				if(mProfilePhotoEditListener != null)
 				{
-					mProfilePhotoEditListener.onDisplayPictureEditClicked(whichActivity);
+					mProfilePhotoEditListener.onDisplayPictureRemoveClicked(whichActivity);
 				}
 			break;
 		}
 		return true;
 	}
 
-	@Override
-	public void onAttach(Activity activity) 
+	public void setDisplayPictureEditListener (DisplayPictureEditListener listener, int sourceActivity)
 	{
-		super.onAttach(activity);
-		
-		if(activity instanceof SettingsActivity)
-		{
-			whichActivity = FROM_SETTINGS_ACTIVITY;
-		}
-		else if(activity instanceof ProfileActivity)
-		{
-			whichActivity = FROM_PROFILE_ACTIVITY;
-		}					
-
-		isViewEditable = getArguments().getBoolean(HikeConstants.CAN_EDIT_DP);
-
-		if(isViewEditable)
-		{
-			// activity should implement DisplayPictureEditListener interface
-			try 
-			{
-	            mProfilePhotoEditListener = (DisplayPictureEditListener) activity;            
-	        }
-			catch (ClassCastException e) 
-			{
-	            throw new ClassCastException(activity.toString() + " must implement DisplayPictureEditListener");
-	        }
-		}
+		this.mProfilePhotoEditListener = listener;
+		this.whichActivity = sourceActivity;
 	}
 
 	private void dismissProgressDialog()
@@ -295,10 +307,12 @@ public class ImageViewerFragment extends Fragment implements OnClickListener, Li
 		}
 		getActivity().onBackPressed();
 	}
-	
+
 	public interface DisplayPictureEditListener
 	{
-		public void onDisplayPictureEditClicked(int fromWhichActivity);
+		public void onDisplayPictureChangeClicked(int fromWhichActivity);
+
+		public void onDisplayPictureRemoveClicked(int fromWhichActivity);
 	}
 
 	@Override

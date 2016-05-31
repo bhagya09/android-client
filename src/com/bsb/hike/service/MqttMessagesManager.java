@@ -5061,6 +5061,7 @@ public class MqttMessagesManager
 		updatedContact.setFavoriteType(favoriteType);
 		ContactManager.getInstance().updateContacts(updatedContact);
 
+		contact.setUnreadRequestReceivedTime(0);
 		Pair<ContactInfo, FavoriteType> favoriteToggle = new Pair<ContactInfo, ContactInfo.FavoriteType>(contact, favoriteType);
 		this.pubSub.publish(HikePubSub.FAVORITE_TOGGLED, favoriteToggle);
 	}

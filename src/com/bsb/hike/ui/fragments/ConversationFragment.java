@@ -1037,7 +1037,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 
 	public boolean isSearchInActionMode()
 	{
-		return searchMenuItem.isActionViewExpanded();
+		return searchMenuItem == null ? false : searchMenuItem.isActionViewExpanded();
 	}
 
 	public void endSearchActionMode()
