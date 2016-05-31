@@ -3388,7 +3388,7 @@ public class Utils
 		{
 			String name = conv.getConversationName();
 			if (TextUtils.isEmpty(name))
-				Toast.makeText(activity, activity.getString(R.string.shortcut_created);
+				Toast.makeText(activity, activity.getString(R.string.shortcut_created), Toast.LENGTH_SHORT).show();
 			else
 				Toast.makeText(activity, activity.getString(R.string.shortcut_created) + " for " + name, Toast.LENGTH_SHORT).show();
 		}
