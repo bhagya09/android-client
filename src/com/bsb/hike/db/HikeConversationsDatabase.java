@@ -449,9 +449,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		sql = getRecentStickersTableCreateQuery();
 		db.execSQL(sql);
 
-		sql = "DROP TABLE IF EXISTS " + DBConstants.STICKER_SHOP_TABLE;
-		db.execSQL(sql);
-
 		//creating tables for OTA ChatThemes
 		String assetTableQuery = getAssetTableCreateQuery();
 		db.execSQL(assetTableQuery);
