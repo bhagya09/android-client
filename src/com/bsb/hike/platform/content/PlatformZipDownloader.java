@@ -364,35 +364,7 @@ public class PlatformZipDownloader
 
 								if(tagId >0 && tagType >0)
 								{
-									JSONObject json = new JSONObject();
-									try {
-										json.put(HikePlatformConstants.TAG_TYPE, tagType);
-										json.put(HikePlatformConstants.TAG_ID, tagId);
-									}
-									catch(JSONException e)
-									{
-										Logger.e("PlatformZipDownloader","Subscription error");
-									}
-									RequestToken token = HttpRequests.microAppSubscribeRequest(HttpRequestConstants.getBotSubscribeUrl(), json, new IRequestListener() {
-										@Override
-										public void onRequestFailure(HttpException httpException) {
-											Logger.e("PlatformZipDownloader","Subscription error");
-
-										}
-
-										@Override
-										public void onRequestSuccess(Response result) {
-
-										}
-
-										@Override
-										public void onRequestProgressUpdate(float progress) {
-
-										}
-									});
-									if(token !=null && !token.isRequestRunning()) {
-										token.execute();
-									}
+									makeSubscribeCall();
 								}
 
 								String filePath = PlatformUtils.generateMappUnZipPathForBotType(mRequest.getBotType(), PlatformUtils.getMicroAppContentRootFolder(),
@@ -452,9 +424,41 @@ public class PlatformZipDownloader
 		});
 	}
 
-	/*
-	 * Method to determine and create intermediate directories for the unzip path according to the hierarchical structure determined after the new versioning structure
-	 */
+    private void makeSubscribeCall() {
+        JSONObject json = new JSONObject();
+        try {
+            json.put(HikePlatformConstants.TAG_TYPE, tagType);
+            json.put(HikePlatformConstants.TAG_ID, tagId);
+        }
+        catch(JSONException e)
+        {
+            Logger.e("PlatformZipDownloader","Subscription error");
+        }
+        RequestToken token = HttpRequests.microAppSubscribeRequest(HttpRequestConstants.getBotSubscribeUrl(), json, new IRequestListener() {
+            @Override
+            public void onRequestFailure(HttpException httpException) {
+                Logger.e("PlatformZipDownloader","Subscription error");
+
+            }
+
+            @Override
+            public void onRequestSuccess(Response result) {
+
+            }
+
+            @Override
+            public void onRequestProgressUpdate(float progress) {
+
+            }
+        });
+        if(token !=null && !token.isRequestRunning()) {
+            token.execute();
+        }
+    }
+
+    /*
+     * Method to determine and create intermediate directories for the unzip path according to the hierarchical structure determined after the new versioning structure
+     */
 	private String getUnZipPath()
 	{
 		String unzipPath = PlatformUtils.getMicroAppContentRootFolder();
