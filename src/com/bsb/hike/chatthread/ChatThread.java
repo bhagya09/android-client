@@ -3702,6 +3702,13 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 					return mShareablePopupLayout.onEditTextTouch(v, event);
 				}
 			case R.id.send_message_audio:
+				
+				/*
+ 				 * Checking for keyboard open here as we're not getting callbacks in onBackPressed() and onMeasure() for few devices in landscape mode, CE-497
+ 				 */
+				if (inProcessOfShowingPopup && !isKeyboardOpen()) {
+					inProcessOfShowingPopup = false;
+				}
 				if(inProcessOfShowingPopup) return true;
 				if (tipVisibilityAnimator != null && !tipVisibilityAnimator.isTipShownForMinDuration()) {
 					return true;
