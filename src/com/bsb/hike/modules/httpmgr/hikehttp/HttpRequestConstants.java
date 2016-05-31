@@ -305,11 +305,6 @@ public class HttpRequestConstants
 		return BASE_STICKERS_URL + BASE_CATEGORY_TAG;
 	}
 
-    public static String stickerSignupUpgradeUrl()
-	{
-		return BASE_STICKERS_URL + BASE_CATEGORY_DETAIL;
-	}
-	
 	public static String latestApkInfoUrl()
 	{
 		return BASE_URL + BASE_V1 + "/latest-apk-info";
