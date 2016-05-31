@@ -6648,6 +6648,25 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
                 if(mShareablePopupLayout != null)
                     mShareablePopupLayout.showPopup(CustomKeyboardManager.getInstance(), activity.getResources().getConfiguration().orientation, customKeyBoardHeight);
 
+                if(!TextUtils.isEmpty(mComposeView.getText()))
+                {
+                    setComposeViewDefaultState();
+                    Utils.showSoftKeyboard(activity,mComposeView);
+                    mShareablePopupLayout.togglePopup(CustomKeyboardManager.getInstance(), activity.getResources().getConfiguration().orientation, true);
+
+                    if(useWTRevamped)
+                    {
+                        ((ImageButton) activity.findViewById(R.id.send_message)).setImageResource(R.drawable.send_btn_selector);
+                        activity.findViewById(R.id.send_message).setVisibility(View.VISIBLE);
+                        activity.findViewById(R.id.send_message_audio).setVisibility(View.GONE);
+                    }
+                    else
+                        ((ImageButton) activity.findViewById(R.id.send_message)).setImageResource(R.drawable.send_btn_selector);
+
+                }
+                else
+                    setComposeViewCustomKeyboardState();
+
                 if(customKeyboard != null && customKeyboard.isHidden())
                 {
                     mShareablePopupLayout.dismiss();
@@ -6656,7 +6675,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
                 }
             }
         },100);
-
     }
 
 	private void dismissInputBox()
@@ -6671,8 +6689,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		else
 		{
 			((ImageButton) activity.findViewById(R.id.send_message)).setImageResource(R.drawable.send_btn_selector);
-			((ImageButton) activity.findViewById(R.id.send_message)).setVisibility(View.GONE);
-			((ImageButton) activity.findViewById(R.id.send_message_audio)).setVisibility(View.VISIBLE);
+			activity.findViewById(R.id.send_message).setVisibility(View.GONE);
+			activity.findViewById(R.id.send_message_audio).setVisibility(View.VISIBLE);
 		}
 	}
 
