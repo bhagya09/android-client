@@ -6,13 +6,15 @@ import android.support.annotation.NonNull;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Building blocks of "stories" listview
  * <p/>
  * Created by AtulM on 24/05/16.
  */
-public class StoryItem {
+public class StoryItem<T, K> {
     private int mCategory = CATEGORY_NONE;
 
     private int mType;
@@ -42,6 +44,12 @@ public class StoryItem {
 
     // Generalization of TYPE_INTENT, TYPE_FRIEND and TYPE_BRAND. Used to distinguish between header/non-header in adapters.
     public static final int TYPE_DEFAULT = 4;
+
+    //Type Info (ContactInfo in case mType == TYPE_FRIEND)
+    private K mTypeInfo;
+
+    // Data objects list (StatusMessage in case of mType == TYPE_FRIEND)
+    private List<T> mObjectList;
 
     @IntDef({CATEGORY_NONE, CATEGORY_RECENT, CATEGORY_ALL, CATEGORY_DEFAULT})
     @Retention(RetentionPolicy.SOURCE)
@@ -101,4 +109,21 @@ public class StoryItem {
         }
     }
 
+    public K getTypeInfo() {
+        return mTypeInfo;
+    }
+
+    public void setTypeInfo(K mTypeInfo) {
+        this.mTypeInfo = mTypeInfo;
+    }
+
+    public void setDataObjectList(List<T> dataList) {
+        if (dataList != null) {
+            mObjectList = dataList;
+        }
+    }
+
+    public List<T> getDataObjects() {
+        return mObjectList;
+    }
 }

@@ -13,6 +13,8 @@ public class StatusReadDBManager {
 
     private List<StatusReadDBRunnable> runnableList = new ArrayList<StatusReadDBRunnable>();
 
+    private Object lock = new Object();
+
     public static StatusReadDBManager getInstance() {
         if (mInstance == null) {
             synchronized (StatusReadDBManager.class) {
@@ -26,12 +28,26 @@ public class StatusReadDBManager {
 
     public void execute(StatusReadDBRunnable suReadDBRunnable) {
         if (!runnableList.contains(suReadDBRunnable)) {
-            runnableList.add(suReadDBRunnable);
+            synchronized (lock) {
+                runnableList.add(suReadDBRunnable);
+            }
             HikeHandlerUtil.getInstance().postRunnableWithDelay(suReadDBRunnable, 2000);
         }
     }
 
     public void setFinished(StatusReadDBRunnable finished) {
-        runnableList.remove(finished);
+        synchronized (lock) {
+            runnableList.remove(finished);
+        }
+    }
+
+    public void stopAll() {
+        for (StatusReadDBRunnable runnable : runnableList) {
+            HikeHandlerUtil.getInstance().removeRunnable(runnable);
+        }
+
+        synchronized (lock) {
+            runnableList.clear();
+        }
     }
 }
