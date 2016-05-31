@@ -34,11 +34,9 @@
 
         <com.bsb.hike.view.CustomFontTextView
             android:id="@+id/timestamp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:layout_marginLeft="16dp"
             android:text="@string/friends"
-            android:textSize="14sp"/>
+            style="@style/ListItemSubText"/>
 
 
 </LinearLayout>
