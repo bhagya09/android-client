@@ -684,9 +684,9 @@ public class ToastListener implements Listener
 		}
 		else if(HikePubSub.SHOW_BIRTHDAY_NOTIF.equals(type))
 		{
-			if (object != null && object instanceof List)
+			if (object != null && object instanceof Pair)
 			{
-				toaster.notifyBdayNotif((List<String>)object);
+				toaster.notifyBdayNotif((Pair<ArrayList<String>, String>)object);
 			}
 		}
 	}

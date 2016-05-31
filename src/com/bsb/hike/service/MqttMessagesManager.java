@@ -79,7 +79,6 @@ import com.bsb.hike.modules.contactmgr.ContactUtils;
 import com.bsb.hike.modules.httpmgr.HttpManager;
 import com.bsb.hike.modules.signupmgr.PostAddressBookTask;
 import com.bsb.hike.modules.quickstickersuggestions.QuickStickerSuggestionController;
-import com.bsb.hike.modules.signupmgr.PostAddressBookTask;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
@@ -413,8 +412,8 @@ public class MqttMessagesManager
 			ContactInfo contact = ContactManager.getInstance().getContact(msisdn, true, false);
 			boolean showRecentlyJoined = contact.getHikeJoinTime() > 0 && !contact.isUnknownContact();
 
-			HikeNotificationUtils.recordUJReceived(jsonObj);
 			JSONObject data = jsonObj.getJSONObject(HikeConstants.DATA);
+			HikeNotificationUtils.recordUJReceived(data);
 
 			if (appPrefs.getBoolean(HikeConstants.NUJ_NOTIF_BOOLEAN_PREF, true) && !ContactManager.getInstance().isBlocked(msisdn)
 					&& data.optBoolean(HikeConstants.SHOW_NOTIFICATION, true))
@@ -3333,13 +3332,19 @@ public class MqttMessagesManager
 
 		if(data.has(HikeConstants.TRIGGER_BIRTHDAY_ID))
 		{
-			long id = data.getLong(HikeConstants.TRIGGER_BIRTHDAY_ID);
-			long previousId = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TRIGGER_BIRTHDAY_ID, 0l);
-			if(previousId == 0l || previousId != id)
+			String id = data.getString(HikeConstants.TRIGGER_BIRTHDAY_ID);
+			String previousId = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TRIGGER_BIRTHDAY_ID, "");
+			if(TextUtils.isEmpty(previousId) || !previousId.equals(id))
 			{
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TRIGGER_BIRTHDAY_ID, id);
 
-				BirthdayUtils.fetchAndUpdateBdayList(true);
+				BirthdayUtils.recordBirthdayAnalytics(
+						AnalyticsConstants.BirthdayEvents.BIRTHDAY_NOTIF_PACKET_RECV,
+						AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
+						AnalyticsConstants.BirthdayEvents.BIRTHDAY_NOTIF_PACKET_RECV,
+						String.valueOf(id), null, null, null, null, null, null, null);
+
+				BirthdayUtils.fetchAndUpdateBdayList(true, id);
 			}
 			else
 			{

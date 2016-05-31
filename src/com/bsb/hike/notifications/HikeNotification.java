@@ -23,6 +23,7 @@ import android.support.v4.app.NotificationCompat.Builder;
 import android.support.v4.app.TaskStackBuilder;
 import android.text.SpannableString;
 import android.text.TextUtils;
+import android.util.Pair;
 
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
@@ -2211,9 +2212,9 @@ public class HikeNotification
 
 	/**
 	 * This API generated notification for Birthdays from set of msisdns
-	 * @param msisdns
+	 * @param bdayNotifPair
 	 */
-	public void notifyBdayNotif(List<String> msisdns)
+	public void notifyBdayNotif(Pair<ArrayList<String>, String> bdayNotifPair)
 	{
 
 		if (defaultSharedPrefs.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
@@ -2224,10 +2225,12 @@ public class HikeNotification
 		String message = null;
 		String title = null;
 		int notificationId = BIRTHDAY_NOTIF;
+		ArrayList<String> msisdns = bdayNotifPair.first;
+		String packetId = bdayNotifPair.second;
 		final int smallIconId = returnSmallIcon();
 		Intent mNotificationIntent = null;
 		String msisdn = (String)msisdns.toArray()[0];
-		ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, true, false);
+		ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, true, true);
 		if(msisdns.size() == 1)
 		{
 			mNotificationIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, true, false, ChatThreadActivity.ChatThreadOpenSources.NOTIF);
@@ -2235,6 +2238,7 @@ public class HikeNotification
 			title = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SINGLE_BDAY_NOTIF_TITLE, context.getString(R.string.single_bday_notif_text));
 			title = String.format(title, contactInfo.getFirstNameAndSurname());
 			message = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SINGLE_BDAY_NOTIF_SUBTEXT, context.getString(R.string.single_bday_notif_subtext));
+			mNotificationIntent.putExtra(AnalyticsConstants.EXP_ANALYTICS_TAG, packetId);
 		}
 		else
 		{
@@ -2248,6 +2252,7 @@ public class HikeNotification
 
 		mNotificationIntent.putExtra(HikeConstants.Extras.BIRTHDAY_NOTIF, true);
 		mNotificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		mNotificationIntent.putExtra(HikeConstants.ID, packetId);
 
 		Intent homeIntent = Utils.getHomeActivityIntent(context);
 		Intent[] intentSequence = new Intent[] { homeIntent, mNotificationIntent } ;
@@ -2257,11 +2262,19 @@ public class HikeNotification
 
 		Intent deleteIntent = new Intent(context, NotificationDismissedReceiver.class);
 		deleteIntent.putExtra(HIKE_NOTIFICATION_ID_KEY, notificationId);
+		deleteIntent.putExtra(HikeConstants.ID, packetId);
+		deleteIntent.putStringArrayListExtra(HikeConstants.Extras.LIST, msisdns);
 
 		PendingIntent pendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(), notificationId, deleteIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 		mBuilder.setDeleteIntent(pendingIntent);
 
 		notifyNotification(notificationId, mBuilder);
+
+		BirthdayUtils.recordBirthdayAnalytics(
+				AnalyticsConstants.BirthdayEvents.BIRTHDAY_NOTIF_CREATED,
+				AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
+				AnalyticsConstants.BirthdayEvents.BIRTHDAY_NOTIF_CREATED,
+				String.valueOf(packetId), null, null, null, title, message, null, msisdns.toString());
 	}
 
 	/**
