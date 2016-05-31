@@ -1628,4 +1628,5 @@
     <string name="qs_sent_first_tip_text">Now you can send similar stickers</string>
     <string name="qs_sent_second_tip_text">By tapping on stickers that you sent</string>
     <string name="qs_sent_third_tip_text">Awesome, you got it!</string>
+    <string name="qs_empty_page_text">No Suggestions for this sticker</string>
 </resources>
