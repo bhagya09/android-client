@@ -1561,8 +1561,6 @@
     <string name="db_corrupt_notif_msg">You have a new notification</string>
     <string name="recording_help_text">Tap and hold to record, release to send</string>
     <string name="restore_version_error">Your backup was taken on a newer version of hike. Update your app to the latest version and try again.</string>
-    <string name="bummer">Bummer</string>
-    <string name="caller_spam">SPAM</string>
     <string name="custom_quick_reply">WRITE YOUR OWN</string>
     <string name="save_unknown_contact">SAVE</string>
     <string name="spam_call_fail">Could not mark user as spam</string>
