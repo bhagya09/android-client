@@ -59,7 +59,8 @@ public class MyFragment extends Fragment implements HikePubSub.Listener {
 
     private ProfileImageLoader profileImageLoader;
 
-    private String[] pubSubListeners = {HikePubSub.FAVORITE_TOGGLED, HikePubSub.FRIEND_REQUEST_ACCEPTED, HikePubSub.ICON_CHANGED};
+    private String[] pubSubListeners = {HikePubSub.FAVORITE_TOGGLED, HikePubSub.FRIEND_REQUEST_ACCEPTED, HikePubSub.ICON_CHANGED,
+    HikePubSub.MY_STATUS_CHANGED};
 
     @Nullable
     @Override
@@ -84,28 +85,7 @@ public class MyFragment extends Fragment implements HikePubSub.Listener {
 
         setupProfileImage();
 
-        // get hike status
-        StatusMessage.StatusMessageType[] statusMessagesTypesToFetch = {StatusMessage.StatusMessageType.TEXT};
-        StatusMessage status = HikeConversationsDatabase.getInstance().getLastStatusMessage(statusMessagesTypesToFetch, contactInfo);
-
-        if (status != null) {
-            if (status.hasMood()) {
-                statusMood.setVisibility(View.VISIBLE);
-                statusMood.setImageResource(EmoticonConstants.moodMapping.get(status.getMoodId()));
-            } else {
-                statusMood.setVisibility(View.GONE);
-            }
-            statusView.setText(SmileyParser.getInstance().addSmileySpans(status.getText(), true));
-        } else {
-            status = new StatusMessage(HikeConstants.JOINED_HIKE_STATUS_ID, null, contactInfo.getMsisdn(), contactInfo.getName(), getString(R.string.joined_hike_update),
-                    StatusMessage.StatusMessageType.JOINED_HIKE, contactInfo.getHikeJoinTime());
-
-            if (status.getTimeStamp() == 0) {
-                statusView.setText(status.getText());
-            } else {
-                statusView.setText(status.getText() + " " + status.getTimestampFormatted(true, getActivity()));
-            }
-        }
+        setupStatus();
 
         setupAddFriendBadgeIcon(view.findViewById(R.id.ic_add_friends));
         setupAddedMeBadgeIcon(view.findViewById(R.id.ic_added_me));
@@ -200,6 +180,30 @@ public class MyFragment extends Fragment implements HikePubSub.Listener {
         public void onTaskAlreadyRunning() {
         }
     };
+
+    private void setupStatus() {
+        StatusMessage.StatusMessageType[] statusMessagesTypesToFetch = {StatusMessage.StatusMessageType.TEXT};
+        StatusMessage status = HikeConversationsDatabase.getInstance().getLastStatusMessage(statusMessagesTypesToFetch, contactInfo);
+
+        if (status != null) {
+            if (status.hasMood()) {
+                statusMood.setVisibility(View.VISIBLE);
+                statusMood.setImageResource(EmoticonConstants.moodMapping.get(status.getMoodId()));
+            } else {
+                statusMood.setVisibility(View.GONE);
+            }
+            statusView.setText(SmileyParser.getInstance().addSmileySpans(status.getText(), true));
+        } else {
+            status = new StatusMessage(HikeConstants.JOINED_HIKE_STATUS_ID, null, contactInfo.getMsisdn(), contactInfo.getName(), getString(R.string.joined_hike_update),
+                    StatusMessage.StatusMessageType.JOINED_HIKE, contactInfo.getHikeJoinTime());
+
+            if (status.getTimeStamp() == 0) {
+                statusView.setText(status.getText());
+            } else {
+                statusView.setText(status.getText() + " " + status.getTimestampFormatted(true, getActivity()));
+            }
+        }
+    }
 
     private void setupAddFriendBadgeIcon(View parentView) {
         ((ImageView) parentView.findViewById(R.id.img_icon)).setImageResource(R.drawable.ic_add_friends);
@@ -328,6 +332,14 @@ public class MyFragment extends Fragment implements HikePubSub.Listener {
                 @Override
                 public void run() {
                     setupProfileImage();
+                }
+            });
+        }
+        else if (type.equals(HikePubSub.MY_STATUS_CHANGED)) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    setupStatus();
                 }
             });
         }
