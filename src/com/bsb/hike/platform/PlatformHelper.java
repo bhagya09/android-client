@@ -129,11 +129,6 @@ public class PlatformHelper
 		}
 	}
 
-	// Function to forward to chat
-	public static void forwardToChat(String json, String hikeMessage, BotInfo mBotInfo, Activity activity)
-	{
-		forwardToChat(json, hikeMessage, mBotInfo, activity, null);
-	}
 
 	public static void sendNormalEvent(String messageHash, String eventData, String namespace, BotInfo botInfo)
 	{
@@ -601,12 +596,12 @@ public class PlatformHelper
 			 */
 			cardObj.put(HikePlatformConstants.APP_NAME, metadata.getAppName());
 			cardObj.put(HikePlatformConstants.APP_PACKAGE, metadata.getAppPackage());
-            /*
-             *  Adding these fields for determining compatibility and making sync call to server on recipient (Code added in versioning release)
+			/*
+			 *  Adding these fields for determining compatibility and making sync call to server on recipient (Code added in versioning release)
              */
 
 			// Add mAppVersionCode from forward Card if its present in the bot
-			if(metadata.getFwdCardObj() != null)
+			if (metadata.getFwdCardObj() != null)
 			{
 				JSONObject forwardCardObj = metadata.getFwdCardObj();
 				int forwardCardMAppVersionCode = forwardCardObj.optInt(HikePlatformConstants.MAPP_VERSION_CODE,-1);
