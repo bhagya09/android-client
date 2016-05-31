@@ -1,7 +1,6 @@
 package com.bsb.hike.ui.fragments;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -37,8 +36,6 @@ import com.bsb.hike.utils.ProfileImageLoader;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
 
-import java.io.File;
-
 /**
  * Created by gauravmittal on 14/04/16.
  */
@@ -46,7 +43,7 @@ public class MyFragment extends Fragment implements HikePubSub.Listener {
 
     private static final String MY_FRAGMENT_BADGE_COUNT = "my_frag_badge_count";
 
-    private ImageView profileImgView;
+    private ImageView profileImageView;
 
     private ImageView statusMood;
 
@@ -76,7 +73,7 @@ public class MyFragment extends Fragment implements HikePubSub.Listener {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        profileImgView = (ImageView) view.findViewById(R.id.profile_image);
+        profileImageView = (ImageView) view.findViewById(R.id.profile_image);
         statusMood = (ImageView) view.findViewById(R.id.status_mood);
         nameView = (TextView) view.findViewById(R.id.name);
         statusView = (TextView) view.findViewById(R.id.subtext);
@@ -123,16 +120,11 @@ public class MyFragment extends Fragment implements HikePubSub.Listener {
         setTempProfileImage();
         // fetch full scale image to set. This will do the job asynchronously.
         fetchProfilePic(contactInfo.getMsisdn());
-        profileImgView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onViewImageClicked(v);
-            }
-        });
+        profileImageView.setOnClickListener(onProfileImageClickListener);
     }
 
     private void fetchProfilePic(String msisdn) {
-        profileImageLoader = new ProfileImageLoader(getContext(), msisdn, profileImgView, HikeConstants.PROFILE_IMAGE_DIMENSIONS * Utils.densityDpi, true, true);
+        profileImageLoader = new ProfileImageLoader(getContext(), msisdn, profileImageView, HikeConstants.PROFILE_IMAGE_DIMENSIONS * Utils.densityDpi, true, true);
         profileImageLoader.setLoaderListener(new ProfileImageLoader.LoaderListener() {
             @Override
             public Loader<Boolean> onCreateLoader(int arg0, Bundle arg1) {
@@ -171,7 +163,7 @@ public class MyFragment extends Fragment implements HikePubSub.Listener {
         if (bd == null) {
             bd = HikeBitmapFactory.getDefaultTextAvatar(contactInfo.getName());
         }
-        profileImgView.setImageDrawable(bd);
+        profileImageView.setImageDrawable(bd);
     }
 
     private Drawable getCachedProfilePic() {
@@ -248,10 +240,13 @@ public class MyFragment extends Fragment implements HikePubSub.Listener {
         return super.onOptionsItemSelected(item);
     }
 
-    public void onViewImageClicked(View v) {
-        Intent intent = new Intent(getContext(), EditDPActivity.class);
-        getContext().startActivity(intent);
-    }
+    View.OnClickListener onProfileImageClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Intent intent = new Intent(getContext(), EditDPActivity.class);
+            getContext().startActivity(intent);
+        }
+    };
 
     private View.OnClickListener badgeIconClickListener = new View.OnClickListener() {
         @Override
