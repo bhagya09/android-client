@@ -10600,75 +10600,84 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		insertStickersToDB(stickerSet, StickerConstants.StickerType.LARGE);
 	}
 
+	public List<Sticker> parseStickerTableCursor(Cursor c)
+	{
+		if (c == null || c.getCount() == 0)
+		{
+			return null;
+		}
+
+		List<Sticker> resultSet = null;
+
+		try
+		{
+
+			resultSet = new ArrayList<Sticker>(c.getCount());
+
+			int largestickerpathIdx = c.getColumnIndex(DBConstants.LARGE_STICKER_PATH);
+			int smallstickerpathIdx = c.getColumnIndex(DBConstants.SMALL_STICKER_PATH);
+			int stickerWidthIdx = c.getColumnIndex(DBConstants.WIDTH);
+			int stickerHeightIdx = c.getColumnIndex(DBConstants.HEIGHT);
+			int stickerIdIdx = c.getColumnIndex(DBConstants.STICKER_ID);
+			int categoryIdIdx = c.getColumnIndex(DBConstants.CATEGORY_ID);
+
+			while (c.moveToNext())
+			{
+				String categoryId = c.getString(categoryIdIdx);
+				String stickerId = c.getString(stickerIdIdx);
+
+				Sticker sticker = new Sticker(categoryId, stickerId);
+
+				sticker.setSmallStickerPath(c.getString(smallstickerpathIdx));
+				sticker.setLargeStickerPath(c.getString(largestickerpathIdx));
+				sticker.setWidth(c.getInt(stickerWidthIdx));
+				sticker.setHeight(c.getInt(stickerHeightIdx));
+
+				resultSet.add(sticker);
+			}
+
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+
+		return resultSet;
+	}
+
 	public Sticker getStickerFromStickerTable(Sticker sticker)
 	{
-		if(sticker == null || TextUtils.isEmpty(sticker.getStickerId()) || TextUtils.isEmpty(sticker.getCategoryId()))
+		if (sticker == null || TextUtils.isEmpty(sticker.getStickerId()) || TextUtils.isEmpty(sticker.getCategoryId()))
 		{
 			return null;
 		}
 
 		Cursor c = null;
 
-		try
-		{
-			c = mDb.query(DBConstants.STICKER_TABLE, null, DBConstants.STICKER_ID + " =?" + " AND " + DBConstants.CATEGORY_ID + "=?", new String[] {sticker.getStickerId(), sticker.getCategoryId()}, null,
-					null, null, null);
+		c = mDb.query(DBConstants.STICKER_TABLE, null, DBConstants.STICKER_ID + " =?" + " AND " + DBConstants.CATEGORY_ID + "=?",
+				new String[] { sticker.getStickerId(), sticker.getCategoryId() }, null, null, null, null);
 
-			int largestickerpathIdx = c.getColumnIndex(DBConstants.LARGE_STICKER_PATH);
-			int smallstickerpathIdx = c.getColumnIndex(DBConstants.SMALL_STICKER_PATH);
-			int stickerWidthIdx = c.getColumnIndex(DBConstants.WIDTH);
-			int stickerHeightIdx = c.getColumnIndex(DBConstants.HEIGHT);
+		List<Sticker> results = parseStickerTableCursor(c);
 
-			if (c.moveToFirst())
-			{
-				sticker.setSmallStickerPath(c.getString(smallstickerpathIdx));
-				sticker.setLargeStickerPath(c.getString(largestickerpathIdx));
-				sticker.setWidth(c.getInt(stickerWidthIdx));
-				sticker.setHeight(c.getInt(stickerHeightIdx));
-			}
-		}
-		finally
+		if (!Utils.isEmpty(results))
 		{
-			if(c != null)
-			{
-				c.close();
-			}
+			sticker = results.get(0);
 		}
 
 		return sticker;
 	}
 
-	public List<String> getStickerIdsForCatgeoryId(String catId,StickerConstants.StickerType stickerType)
+	public List<Sticker> getStickersForCatgeoryId(String categoryId, StickerConstants.StickerType stickerType)
 	{
 		Cursor c = null;
-		List<String> stickerIdsList;
-		try
-		{
-			c = mDb.query(
-					DBConstants.STICKER_TABLE,
-					new String[] { DBConstants.STICKER_ID },
-					DBConstants.CATEGORY_ID + "=?" + " AND " + DBConstants.IS_ACTIVE + "=?" + " AND " + DBConstants.TYPE + "=?",
-					new String[] { catId, Integer.toString(DBConstants.DEFAULT_ACTIVE_STATE),Integer.toString(stickerType.ordinal())},
-					null, null, null, null);
+		List<Sticker> stickerList;
+		c = mDb.query(DBConstants.STICKER_TABLE, null, DBConstants.CATEGORY_ID + "=?" + " AND " + DBConstants.IS_ACTIVE + "=?" + " AND " + DBConstants.TYPE + "=?", new String[] {
+				categoryId, Integer.toString(DBConstants.DEFAULT_ACTIVE_STATE), Integer.toString(stickerType.ordinal()) }, null, null, null, null);
 
-			int stidIdx = c.getColumnIndex(DBConstants.STICKER_ID);
-
-			stickerIdsList = new ArrayList<>(c.getCount());
-
-			while(c.moveToNext())
-			{
-				String stickerId = c.getString(stidIdx);
-				stickerIdsList.add(stickerId);
-			}
-		}
-		finally
-		{
-			if(c != null)
-			{
-				c.close();
-			}
-		}
-		return stickerIdsList;
+		return parseStickerTableCursor(c);
 	}
 
 	public void insertStickersToDB(List<Sticker> stickers, StickerConstants.StickerType stickerType)
@@ -10718,6 +10727,28 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				contentValues.put(DBConstants.IS_ACTIVE, DBConstants.DEFAULT_INACTIVE_STATE);
 				mDb.update(DBConstants.STICKER_TABLE, contentValues, DBConstants.CATEGORY_ID + "=?" + " AND " + DBConstants.STICKER_ID + "=?",
 					new String[]{sticker.getCategoryId(), sticker.getStickerId()});
+			}
+			mDb.setTransactionSuccessful();
+		}
+		finally
+		{
+			mDb.endTransaction();
+		}
+	}
+
+	public void activateStickerFromDB(List<Sticker> stickers)
+	{
+		try
+		{
+			mDb.beginTransaction();
+
+			ContentValues contentValues = new ContentValues();
+			for (Sticker sticker : stickers)
+			{
+				contentValues.clear();
+				contentValues.put(DBConstants.IS_ACTIVE, DBConstants.DEFAULT_ACTIVE_STATE);
+				mDb.update(DBConstants.STICKER_TABLE, contentValues, DBConstants.CATEGORY_ID + "=?" + " AND " + DBConstants.STICKER_ID + "=?",
+						new String[] { sticker.getCategoryId(), sticker.getStickerId() });
 			}
 			mDb.setTransactionSuccessful();
 		}
