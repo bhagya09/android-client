@@ -222,20 +222,30 @@ public class SendGCMIdToServerTrigger extends BroadcastReceiver
 							String paEncryptKey = response.getString(HikeConstants.Preactivation.ENCRYPT_KEY);
 							String paUid = response.getString(HikeConstants.Preactivation.UID);
 							String paToken = response.getString(HikeConstants.Preactivation.TOKEN);
+							Logger.d("pa","paUid : " + paUid);
+
+							Logger.d("pa","paToken : " + paToken);
 
 							Logger.d("pa","paEncryptKey : " + paEncryptKey);
-							mprefs.saveData(HikeConstants.Preactivation.ENCRYPT_KEY, paEncryptKey);
-							Logger.d("pa","paUid : " + paUid);
-							mprefs.saveData(HikeConstants.Preactivation.UID, paUid);
-							Logger.d("pa","paToken : " + paToken);
-							mprefs.saveData(HikeConstants.Preactivation.TOKEN, paToken);
+							if(!TextUtils.isEmpty(paUid) && !TextUtils.isEmpty(paEncryptKey) &&  !TextUtils.isEmpty(paToken))
+							{
+								mprefs.saveData(HikeConstants.Preactivation.ENCRYPT_KEY, paEncryptKey);
+								mprefs.saveData(HikeConstants.Preactivation.UID, paUid);
+
+								mprefs.saveData(HikeConstants.Preactivation.TOKEN, paToken);
+
+								if(!Utils.isUserAuthenticated(HikeMessengerApp.getInstance().getApplicationContext())) {
+									UserLogInfo.requestUserLogs(UserLogInfo.ALL_LOGS);
+								}
+							}
+
 
 						} catch (JSONException e) {
 							e.printStackTrace();
 						}
 						//Utils.disableNetworkListner(HikeMessengerApp.getInstance().getApplicationContext());
 					}
-					UserLogInfo.requestUserLogs(UserLogInfo.ALL_LOGS);
+
 					break;
 				case HikeConstants.REGISTEM_GCM_AFTER_SIGNUP:
 
