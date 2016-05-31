@@ -60,7 +60,7 @@ public class MyFragment extends Fragment implements HikePubSub.Listener {
     private ProfileImageLoader profileImageLoader;
 
     private String[] pubSubListeners = {HikePubSub.FAVORITE_TOGGLED, HikePubSub.FRIEND_REQUEST_ACCEPTED, HikePubSub.ICON_CHANGED,
-    HikePubSub.MY_STATUS_CHANGED};
+    HikePubSub.MY_STATUS_CHANGED, HikePubSub.PROFILE_NAME_CHANGED};
 
     @Nullable
     @Override
@@ -79,9 +79,9 @@ public class MyFragment extends Fragment implements HikePubSub.Listener {
         nameView = (TextView) view.findViewById(R.id.name);
         statusView = (TextView) view.findViewById(R.id.subtext);
 
-        contactInfo = Utils.getUserContactInfo(getActivity().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, getActivity().MODE_PRIVATE));
+        updateContactInfo();
 
-        nameView.setText(contactInfo.getName());
+        setupName();
 
         setupProfileImage();
 
@@ -93,6 +93,14 @@ public class MyFragment extends Fragment implements HikePubSub.Listener {
 
         updateTabBadgeCounter();
         HikeMessengerApp.getPubSub().addListeners(this, pubSubListeners);
+    }
+
+    private void updateContactInfo() {
+        contactInfo = Utils.getUserContactInfo();
+    }
+
+    private void setupName() {
+        nameView.setText(contactInfo.getName());
     }
 
     private void setupProfileImage() {
@@ -340,6 +348,15 @@ public class MyFragment extends Fragment implements HikePubSub.Listener {
                 @Override
                 public void run() {
                     setupStatus();
+                }
+            });
+        }
+        else if (type.equals(HikePubSub.PROFILE_NAME_CHANGED)) {
+            updateContactInfo();
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    setupName();
                 }
             });
         }
