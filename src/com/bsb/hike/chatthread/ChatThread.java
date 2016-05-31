@@ -1864,7 +1864,11 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		if(isTiled){
 			backgroundImage.setScaleType(ScaleType.FIT_XY);
 		} else {
-			backgroundImage.setScaleType(ScaleType.FIT_CENTER);
+			if(getResources().getConfiguration().orientation == getResources().getConfiguration().ORIENTATION_LANDSCAPE) {
+				backgroundImage.setScaleType(ScaleType.CENTER_CROP);
+			} else {
+				backgroundImage.setScaleType(ScaleType.FIT_CENTER);
+			}
 		}
 
 		if(isCustom && !ChatThreadUtils.disableOverlayEffectForCCT()) {
