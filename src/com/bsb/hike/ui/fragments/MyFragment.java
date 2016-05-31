@@ -1,13 +1,11 @@
 package com.bsb.hike.ui.fragments;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,19 +21,20 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.imageHttp.HikeImageDownloader;
+import com.bsb.hike.imageHttp.HikeImageWorker;
 import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.timeline.model.StatusMessage;
-import com.bsb.hike.timeline.view.TimelineSummaryActivity;
-import com.bsb.hike.ui.CustomTabsBar;
+import com.bsb.hike.ui.CustomTabsBar.CustomTabBadgeCounterListener;
 import com.bsb.hike.ui.EditDPActivity;
 import com.bsb.hike.ui.SettingsActivity;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.ProfileImageLoader;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
-
-import java.io.File;
 
 /**
  * Created by gauravmittal on 14/04/16.
@@ -44,7 +43,7 @@ public class MyFragment extends Fragment implements HikePubSub.Listener {
 
     private static final String MY_FRAGMENT_BADGE_COUNT = "my_frag_badge_count";
 
-    private ImageView profileImgView;
+    private ImageView profileImageView;
 
     private ImageView statusMood;
 
@@ -54,11 +53,14 @@ public class MyFragment extends Fragment implements HikePubSub.Listener {
 
     private ContactInfo contactInfo;
 
-    private CustomTabsBar.CustomTabBadgeCounterListener tabBadgeCounterListener;
+    private CustomTabBadgeCounterListener tabBadgeCounterListener;
 
     private TextView addedMeCounter;
 
-    private String[] pubSubListeners = {HikePubSub.FAVORITE_TOGGLED, HikePubSub.FRIEND_REQUEST_ACCEPTED, HikePubSub.ICON_CHANGED};
+    private ProfileImageLoader profileImageLoader;
+
+    private String[] pubSubListeners = {HikePubSub.FAVORITE_TOGGLED, HikePubSub.FRIEND_REQUEST_ACCEPTED, HikePubSub.ICON_CHANGED,
+    HikePubSub.MY_STATUS_CHANGED, HikePubSub.PROFILE_NAME_CHANGED};
 
     @Nullable
     @Override
@@ -72,18 +74,122 @@ public class MyFragment extends Fragment implements HikePubSub.Listener {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        profileImgView = (ImageView) view.findViewById(R.id.profile_image);
+        profileImageView = (ImageView) view.findViewById(R.id.profile_image);
         statusMood = (ImageView) view.findViewById(R.id.status_mood);
         nameView = (TextView) view.findViewById(R.id.name);
         statusView = (TextView) view.findViewById(R.id.subtext);
 
-        contactInfo = Utils.getUserContactInfo(getActivity().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, getActivity().MODE_PRIVATE));
+        updateContactInfo();
 
-        nameView.setText(contactInfo.getName());
+        setupName();
 
         setupProfileImage();
 
-        // get hike status
+        setupStatus();
+
+        setupAddFriendBadgeIcon(view.findViewById(R.id.ic_add_friends));
+        setupAddedMeBadgeIcon(view.findViewById(R.id.ic_added_me));
+        setupServicesBadgeIcon(view.findViewById(R.id.ic_services));
+
+        updateTabBadgeCounter();
+        HikeMessengerApp.getPubSub().addListeners(this, pubSubListeners);
+    }
+
+    private void updateContactInfo() {
+        contactInfo = Utils.getUserContactInfo();
+    }
+
+    private void setupName() {
+        nameView.setText(contactInfo.getName());
+    }
+
+    private void setupProfileImage() {
+        // setting temp image on main thread till full scale image is ready.
+        setTempProfileImage();
+        // fetch full scale image to set. This will do the job asynchronously.
+        fetchProfilePic(contactInfo.getMsisdn());
+        profileImageView.setOnClickListener(onProfileImageClickListener);
+    }
+
+    private void fetchProfilePic(String msisdn) {
+        profileImageLoader = new ProfileImageLoader(getContext(), msisdn, profileImageView, HikeConstants.PROFILE_IMAGE_DIMENSIONS * Utils.densityDpi, true, true);
+        profileImageLoader.setLoaderListener(new ProfileImageLoader.LoaderListener() {
+            @Override
+            public Loader<Boolean> onCreateLoader(int arg0, Bundle arg1) {
+                return null;
+            }
+
+            @Override
+            public void onLoadFinished(Loader<Boolean> arg0, Boolean arg1) {
+            }
+
+            @Override
+            public void onLoaderReset(Loader<Boolean> arg0) {
+            }
+
+            @Override
+            public void startDownloading() {
+                beginImageDownload();
+            }
+        });
+        profileImageLoader.loadProfileImage(getActivity().getSupportLoaderManager());
+    }
+
+    /*
+    Download image from the server.
+     */
+    private void beginImageDownload() {
+        String msisdn = contactInfo.getMsisdn();
+        String fileName = Utils.getProfileImageFileName(msisdn);
+        HikeImageDownloader mImageDownloader = HikeImageDownloader.newInstance(msisdn, fileName, true, false, null, null, null, true, true);
+        mImageDownloader.setTaskCallbacks(imageWorkerTaskCallback);
+        mImageDownloader.startLoadingTask();
+    }
+
+    private void setTempProfileImage() {
+        Drawable bd = getCachedProfilePic();
+        if (bd == null) {
+            bd = HikeBitmapFactory.getDefaultTextAvatar(contactInfo.getName());
+        }
+        profileImageView.setImageDrawable(bd);
+    }
+
+    private Drawable getCachedProfilePic() {
+        return HikeMessengerApp.getLruCache().getIconFromCache(contactInfo.getMsisdn());
+    }
+
+    private HikeImageWorker.TaskCallbacks imageWorkerTaskCallback = new HikeImageWorker.TaskCallbacks() {
+        @Override
+        public void onProgressUpdate(float percent) {
+        }
+
+        @Override
+        public void onCancelled() {
+        }
+
+        @Override
+        public void onFailed() {
+        }
+
+        @Override
+        public void onSuccess(Response result) {
+            // This is NOT the main thread!
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (profileImageLoader != null) {
+                        profileImageLoader.loadProfileImage(getActivity().getSupportLoaderManager());
+                    }
+                }
+            });
+        }
+
+        @Override
+        public void onTaskAlreadyRunning() {
+        }
+    };
+
+    private void setupStatus() {
         StatusMessage.StatusMessageType[] statusMessagesTypesToFetch = {StatusMessage.StatusMessageType.TEXT};
         StatusMessage status = HikeConversationsDatabase.getInstance().getLastStatusMessage(statusMessagesTypesToFetch, contactInfo);
 
@@ -105,32 +211,6 @@ public class MyFragment extends Fragment implements HikePubSub.Listener {
                 statusView.setText(status.getText() + " " + status.getTimestampFormatted(true, getActivity()));
             }
         }
-
-        setupAddFriendBadgeIcon(view.findViewById(R.id.ic_add_friends));
-        setupAddedMeBadgeIcon(view.findViewById(R.id.ic_added_me));
-        setupServicesBadgeIcon(view.findViewById(R.id.ic_services));
-
-        updateTabBadgeCounter();
-        HikeMessengerApp.getPubSub().addListeners(this, pubSubListeners);
-    }
-
-    private void setupProfileImage() {
-        // set profile picture
-        File profileImage = (new File(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT, Utils.getProfileImageFileName(contactInfo.getMsisdn())));
-        if (profileImage.exists()) {
-            Bitmap bm = HikeBitmapFactory.scaleDownBitmap(profileImage.getAbsolutePath(), HikeConstants.PROFILE_IMAGE_DIMENSIONS * Utils.densityDpi,
-                    HikeConstants.PROFILE_IMAGE_DIMENSIONS * Utils.densityDpi, Bitmap.Config.RGB_565, true, false);
-            profileImgView.setImageBitmap(bm);
-        } else {
-            Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(contactInfo.getNameOrMsisdn());
-            profileImgView.setImageDrawable(drawable);
-        }
-        profileImgView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onViewImageClicked(v);
-            }
-        });
     }
 
     private void setupAddFriendBadgeIcon(View parentView) {
@@ -172,10 +252,13 @@ public class MyFragment extends Fragment implements HikePubSub.Listener {
         return super.onOptionsItemSelected(item);
     }
 
-    public void onViewImageClicked(View v) {
-        Intent intent = new Intent(getContext(), EditDPActivity.class);
-        getContext().startActivity(intent);
-    }
+    View.OnClickListener onProfileImageClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Intent intent = new Intent(getContext(), EditDPActivity.class);
+            getContext().startActivity(intent);
+        }
+    };
 
     private View.OnClickListener badgeIconClickListener = new View.OnClickListener() {
         @Override
@@ -194,7 +277,7 @@ public class MyFragment extends Fragment implements HikePubSub.Listener {
         }
     };
 
-    public void setCustomTabBadgeCounterListener(CustomTabsBar.CustomTabBadgeCounterListener listener) {
+    public void setCustomTabBadgeCounterListener(CustomTabBadgeCounterListener listener) {
         this.tabBadgeCounterListener = listener;
     }
 
@@ -257,6 +340,23 @@ public class MyFragment extends Fragment implements HikePubSub.Listener {
                 @Override
                 public void run() {
                     setupProfileImage();
+                }
+            });
+        }
+        else if (type.equals(HikePubSub.MY_STATUS_CHANGED)) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    setupStatus();
+                }
+            });
+        }
+        else if (type.equals(HikePubSub.PROFILE_NAME_CHANGED)) {
+            updateContactInfo();
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    setupName();
                 }
             });
         }

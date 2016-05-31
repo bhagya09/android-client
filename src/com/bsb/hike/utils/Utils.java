@@ -1072,6 +1072,11 @@ public class Utils
 		return getUserContactInfo(HikeSharedPreferenceUtil.getInstance().getPref(), showNameAsYou);
 	}
 
+	public static ContactInfo getUserContactInfo()
+	{
+		return getUserContactInfo(false);
+	}
+
 	public static boolean isVersionNameHigher(String oldVersion, String newVersion, Context context) throws NumberFormatException
 	{
 		StringTokenizer updateVersion = new StringTokenizer(newVersion, ".");
