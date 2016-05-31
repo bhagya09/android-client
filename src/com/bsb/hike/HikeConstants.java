@@ -853,6 +853,9 @@ public class HikeConstants
 	/* how often to ping after a failure */
 	public static final int RECONNECT_TIME = 10; /* 10 seconds */
 
+	/* reconnect after PAUID call */
+	public static final int PA_RECONNECT_TIME = 1; /* 1 second */
+
 	/* how often to ping after a server unavailable failure */
 	public static final int SERVER_UNAVAILABLE_MAX_CONNECT_TIME = 9; /* 9 minutes */
 

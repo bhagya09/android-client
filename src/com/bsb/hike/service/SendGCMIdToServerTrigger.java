@@ -76,7 +76,7 @@ public class SendGCMIdToServerTrigger extends BroadcastReceiver
 
 		int lastBackOffTime = mprefs.getData(lastBackOffTimePref, 0);
 
-		lastBackOffTime = lastBackOffTime == 0 ? HikeConstants.RECONNECT_TIME : (lastBackOffTime * 2);
+		lastBackOffTime = lastBackOffTime == 0 ? HikeConstants.PA_RECONNECT_TIME : (lastBackOffTime * 2);
 		lastBackOffTime = Math.min(HikeConstants.MAX_RECONNECT_TIME, lastBackOffTime);
 
 		Logger.d(getClass().getSimpleName(), "Scheduling the next disconnect");
