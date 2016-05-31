@@ -28,6 +28,7 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -40,7 +41,10 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.customtabs.CustomTabsIntent;
+import android.support.v4.content.ContextCompat;
 import android.text.Html;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -50,6 +54,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -97,6 +102,7 @@ import com.bsb.hike.productpopup.ProductPopupsConstants.HIKESCREEN;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.ui.CreateNewGroupOrBroadcastActivity;
+import com.bsb.hike.ui.CustomTabActivityHelper;
 import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.TellAFriend;
@@ -520,6 +526,13 @@ public class PlatformUtils
 
                     // In case of assoc mapp failure, remove entry from hashmap
                     assocMappRequestStatusMap.remove(botInfo.getMsisdn());
+					if (botMetadata.getAutoResume() && !(PlatformContent.EventCode.UNZIP_FAILED.toString().equals(event.toString())) && !(PlatformContent.EventCode.INCOMPLETE_ZIP_DOWNLOAD.toString().equals(event.toString()))) {
+						// In case of failure updating status
+						updatePlatformDownloadState(botMetadata.getAppName(), botMetadata.getmAppVersionCode(), HikePlatformConstants.PlatformDwnldState.FAILED);
+						sendDownloadPausedAnalytics(botMetadata.getAppName());
+					} else {
+						removeFromPlatformDownloadStateTable(botMetadata.getAppName(), botInfo.getMAppVersionCode());
+					}
 					microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOAD_FAILED, platformContentModel, jsonObject);
 					Logger.wtf(TAG, "microapp download packet failed.Because it is" + event.toString());
 				}
@@ -543,7 +556,7 @@ public class PlatformUtils
 		String callbackId = null;
 		String assocCbot = "";
 
-		downloadAndUnzip(rqst, isTemplatingEnabled, doReplace, callbackId, resumeSupport, assocCbot,autoResume);
+		downloadAndUnzip(rqst, isTemplatingEnabled, doReplace, callbackId, resumeSupport, assocCbot,autoResume,assocMappJson.optInt(HikePlatformConstants.TAG_ID,-1),assocMappJson.optInt(HikePlatformConstants.TAG_TYPE,-1));
 	}
 
     /**
@@ -685,6 +698,7 @@ public class PlatformUtils
 		if (rqst.getContentData() == null)
 		{
             invalidDataBotAnalytics(botInfo);
+			removeFromPlatformDownloadStateTable(botMetadata.getAppName(),botMetadata.getmAppVersionCode());
             Logger.e(TAG, "Stop the micro app download flow for incorrect request");
 			return;
 		}
@@ -695,7 +709,7 @@ public class PlatformUtils
 		rqst.getContentData().setBotType(botInfo.getBotType());
 		rqst.getContentData().setMsisdn(botInfo.getMsisdn());
 
-		downloadAndUnzip(rqst, false, botMetadata.shouldReplace(), botMetadata.getCallbackId(), resumeSupport, "", autoResume);
+		downloadAndUnzip(rqst, false, botMetadata.shouldReplace(), botMetadata.getCallbackId(), resumeSupport, "", autoResume,botMetadata.getTagId(),botMetadata.getTagType());
 	}
     
 
@@ -923,6 +937,8 @@ public class PlatformUtils
 		boolean resumeSupported = downloadData.optBoolean(HikePlatformConstants.RESUME_SUPPORTED);
 		String assoc_cbot = downloadData.optString(HikePlatformConstants.ASSOCIATE_CBOT, "");
 		int prefNetwork = downloadData.optInt(HikePlatformConstants.PREF_NETWORK, Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK));
+		int tagId = downloadData.optInt(HikePlatformConstants.TAG_ID,-1);
+		int tagType = downloadData.optInt(HikePlatformConstants.TAG_TYPE,-1);
 		if (autoResume)
 		{
 			resumeSupported = true;
@@ -933,7 +949,7 @@ public class PlatformUtils
 		{
 			return;    // Do not download if current network is below preferred network.
 		}
-		downloadAndUnzip(rqst, false, doReplace, callbackId, resumeSupported, assoc_cbot, autoResume);
+		downloadAndUnzip(rqst, false, doReplace, callbackId, resumeSupported, assoc_cbot, autoResume,tagId,tagType);
 	}
 
 	private static void microappDownloadAnalytics(String key, PlatformContentModel content)
@@ -988,7 +1004,7 @@ public class PlatformUtils
 		}
 	}
 
-	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId, boolean resumeSupported, String assocCbot,boolean autoResume)
+	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId, boolean resumeSupported, String assocCbot,boolean autoResume,int tagId,int tagType)
 	{
         // Parameters to call if micro app already exists method and stop the micro app downloading flow in this case
         String mAppName = request.getContentData().cardObj.getAppName();
@@ -1016,7 +1032,7 @@ public class PlatformUtils
         if (!isMicroAppExist)
 		{
             PlatformZipDownloader downloader = new PlatformZipDownloader.Builder().setArgRequest(request).setIsTemplatingEnabled(isTemplatingEnabled)
-                    .setCallbackId(callbackId).setResumeSupported(resumeSupported).setAssocCbotMsisdn(assocCbot).setAutoResume(autoResume).createPlatformZipDownloader();
+					.setCallbackId(callbackId).setResumeSupported(resumeSupported).setAssocCbotMsisdn(assocCbot).setAutoResume(autoResume).setTagId(tagId).setTagType(tagType).createPlatformZipDownloader();
             downloader.downloadAndUnzip();
 		}
 		else
@@ -1109,77 +1125,57 @@ public class PlatformUtils
 
 		mThread.postRunnable(new Runnable()
 		{
-
 			@Override
 			public void run()
 			{
 				byte[] fileBytes = prepareFileBody(filePath);
 				if (fileBytes != null)
 				{
-					String response = send(fileBytes, filePath, url, fileListener);
-					Logger.d("FileUpload", response);
+                    File srcFile = new File(filePath);
+                    List<Header> headers = getHeaders();
+                    headers.add(new Header("Connection", "Keep-Alive"));
+                    headers.add(new Header("Content-Name", srcFile.getName()));
+                    headers.add(new Header("X-Thumbnail-Required", "0"));
+
+                    RequestToken requestToken = HttpRequests.uploadFileRequest(fileBytes,BOUNDARY,new IRequestListener()
+					{
+
+						@Override
+						public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
+						{
+							fileListener.onRequestFailure(httpException.toString());
+						}
+
+						@Override
+						public void onRequestSuccess(Response result)
+						{
+							if (result.getBody().getContent() instanceof byte[])
+							{
+								String responseJsonString = new String((byte[]) result.getBody().getContent());
+								fileListener.onRequestSuccess(responseJsonString);
+							}
+						}
+
+						@Override
+						public void onRequestProgressUpdate(float progress)
+						{
+
+						}
+
+					},headers,url);
+
+                    if (requestToken != null && !requestToken.isRequestRunning())
+                    {
+                        requestToken.execute();
+                    }
 				}
 				else
 				{
-
 					Logger.e("fileUpload", "Empty File Body");
 					return;
 				}
 			}
 		});
-
-	}
-
-	private static String send(byte[] fileBytes, final String filePath, final String url, IFileUploadListener filelistener)
-	{
-		HttpClient client = AccountUtils.getClient(null);
-		client.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, HikeConstants.CONNECT_TIMEOUT);
-		long so_timeout = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.FT_UPLOAD_SO_TIMEOUT, 180 * 1000l);
-		Logger.d("UploadFileTask", "Socket timeout = " + so_timeout);
-		client.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT, (int) so_timeout);
-		client.getParams().setParameter(CoreConnectionPNames.TCP_NODELAY, true);
-		client.getParams().setParameter(CoreProtocolPNames.USER_AGENT, "android-" + AccountUtils.getAppVersion());
-
-		HttpPost post = new HttpPost(url);
-		String res = null;
-		int resCode = 0;
-		try
-		{
-			post.setHeader("Content-Type", "multipart/form-data; boundary=" + BOUNDARY);
-
-			HikeSharedPreferenceUtil mpref = HikeSharedPreferenceUtil.getInstance();
-			String platformUID = mpref.getData(HikeMessengerApp.PLATFORM_UID_SETTING, null);
-			String platformToken = mpref.getData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, null);
-			if (!TextUtils.isEmpty(platformToken) && !TextUtils.isEmpty(platformUID))
-			{
-				post.addHeader(HttpHeaderConstants.COOKIE_HEADER_NAME, HikePlatformConstants.PLATFORM_TOKEN + "=" + platformToken + "; " + HikePlatformConstants.PLATFORM_USER_ID
-						+ "=" + platformUID);
-			}
-
-			post.setEntity(new ByteArrayEntity(fileBytes));
-			HttpResponse response = client.execute(post);
-			Logger.d("FileUpload", response.toString());
-			resCode = response.getStatusLine().getStatusCode();
-
-			res = EntityUtils.toString(response.getEntity());
-			Logger.d("FileUpload", "" + resCode);
-		}
-		catch (IOException | NullPointerException ex)
-		{
-			Logger.e("FileUpload", ex.toString());
-			filelistener.onRequestFailure(ex.toString());
-			return ex.toString();
-		}
-		Logger.d("FileUpload", res);
-		if (resCode == 200)
-		{
-			filelistener.onRequestSuccess(res);
-		}
-		else
-		{
-			filelistener.onRequestFailure(res);
-		}
-		return res;
 	}
 
 	/*
@@ -1925,7 +1921,7 @@ public class PlatformUtils
 			RequestToken token = HttpRequests.microAppPostRequest(HttpRequestConstants.getMicroAppLoggingUrl(success), json, new IRequestListener()
 			{
 				@Override
-				public void onRequestFailure(HttpException httpException)
+                public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 				{
 
 				}
@@ -2528,11 +2524,9 @@ public class PlatformUtils
 		}
 		HikeHandlerUtil handler = HikeHandlerUtil.getInstance();
 		handler.startHandlerThread();
-		handler.postRunnable(new Runnable()
-		{
+		handler.postRunnable(new Runnable() {
 			@Override
-			public void run()
-			{
+			public void run() {
 				HikeContentDatabase.getInstance().updatePlatformDownloadState(name, mAppVersionCode, newState);
 			}
 		});
@@ -2798,5 +2792,64 @@ public class PlatformUtils
             e.printStackTrace();
         }
     }
-    
+	public static boolean getBoolean(JSONObject json, String key)
+	{
+		if (json.has(key))
+		{
+			try
+			{
+				return json.getBoolean(key);
+			}
+			catch (JSONException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return false;
+	}
+	public static int getInt(JSONObject json, String key) {
+		if (json.has(key)) {
+			try {
+				return json.getInt(key);
+			} catch (JSONException e) {
+// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return 0;
+	}
+
+	public static String getString(JSONObject json, String key) {
+		if (json.has(key)) {
+			try {
+				return json.getString(key);
+			} catch (JSONException e) {
+// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+
+	public static void openCustomTab(String url, String title,Context activity,CustomTabActivityHelper.CustomTabFallback fallback)
+	{
+		CustomTabsIntent.Builder intentBuilder = new CustomTabsIntent.Builder();
+		intentBuilder.enableUrlBarHiding();
+		int titleColor = activity.getResources().getColor(R.color.credits_blue);
+		intentBuilder.setToolbarColor(titleColor);
+		intentBuilder.setShowTitle(true);
+		Bitmap bm = HikeBitmapFactory.drawableToBitmap(ContextCompat.getDrawable(activity, R.drawable.ic_arrow_back));
+		intentBuilder.setCloseButtonIcon(bm);
+
+		//set overflow menu
+		PendingIntent sharePendingIntent = PendingIntent.getActivity(activity, HikePlatformConstants.CHROME_TABS_PENDING_INTENT_SHARE, IntentFactory.getShareIntentForPlainText(url), PendingIntent.FLAG_UPDATE_CURRENT);
+		intentBuilder.addMenuItem(activity.getResources().getString(R.string.share), sharePendingIntent);
+
+		PendingIntent forwardPendingIntent = PendingIntent.getActivity(activity, HikePlatformConstants.CHROME_TABS_PENDING_INTENT_FORWARD, IntentFactory.getForwardIntentForPlainText(activity, url,AnalyticsConstants.CHROME_CUSTOM_TABS), PendingIntent.FLAG_UPDATE_CURRENT);
+		intentBuilder.addMenuItem(activity.getResources().getString(R.string.forward), forwardPendingIntent);
+
+		CustomTabsIntent intent = intentBuilder.build();
+		CustomTabActivityHelper.openCustomTab((Activity)activity, intent, url, fallback, title);
+	}
 }

@@ -1,11 +1,9 @@
 package com.bsb.hike.BitmapModule;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Random;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -21,7 +19,6 @@ import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.ExifInterface;
-import android.os.Build;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Pair;
@@ -39,7 +36,6 @@ import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.contactmgr.GroupDetails;
 import com.bsb.hike.photos.HikePhotosListener;
-import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
@@ -1696,5 +1692,4 @@ public class HikeBitmapFactory
 
 		return new Pair<>(imgWidth, imgHeight);
 	}
-
 }

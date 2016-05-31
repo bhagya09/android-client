@@ -1,8 +1,8 @@
 package com.bsb.hike.platform;
 
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
-import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -30,7 +30,7 @@ public class PlatformUIDRequestListener implements IRequestListener
 	}
 
 	@Override
-	public void onRequestFailure(HttpException httpException)
+	public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 	{
 		Logger.e(HikePlatformConstants.FETCH_TAG, httpException.toString());
 		if (fetchType == HikePlatformConstants.PlatformFetchType.SELF_ANONYMOUS_NAME)

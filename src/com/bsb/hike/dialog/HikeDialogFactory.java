@@ -29,6 +29,7 @@ import android.widget.TextView;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.ImageQuality;
+import com.bsb.hike.HikeConstants.MuteDuration;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
@@ -37,11 +38,13 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.chatthread.ChatThreadActivity;
+import com.bsb.hike.dialog.CustomAlertRadioButtonCheckboxDialog.CheckBoxPojo;
 import com.bsb.hike.dialog.CustomAlertRadioButtonDialog.RadioButtonItemCheckedListener;
 import com.bsb.hike.dialog.CustomAlertRadioButtonDialog.RadioButtonPojo;
 import com.bsb.hike.models.AccountData;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfoData;
+import com.bsb.hike.models.Mute;
 import com.bsb.hike.models.PhonebookContact;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.tasks.SyncOldSMSTask;
@@ -50,6 +53,7 @@ import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
 
 import java.util.ArrayList;
@@ -151,9 +155,11 @@ public class HikeDialogFactory
 
 	public static final int DB_CORRUPT_RESTORE_DIALOG = 52;
 
-	public static final int STICKER_RESTORE_DIFF_DPI_DIALOG = 53;
+	public static final int MUTE_CHAT_DIALOG = 53;
 
-	public static final int CT_CONFIRMATION_DIALOG = 54;
+	public static final int STICKER_RESTORE_DIFF_DPI_DIALOG = 54;
+
+	public static final int CT_CONFIRMATION_DIALOG = 55;
 
 	public static HikeDialog showDialog(Context context, int whichDialog, Object... data)
 	{
@@ -250,6 +256,8 @@ public class HikeDialogFactory
 
 		case DB_CORRUPT_RESTORE_DIALOG:
 			return showDBCorruptDialog(context, dialogId, listener, data);
+		case MUTE_CHAT_DIALOG:
+			return showChatMuteDialog(context, dialogId, listener, data);
 		case STICKER_RESTORE_DIFF_DPI_DIALOG:
 			return showStickerRestoreDiffDpiDialog(context, dialogId, listener, data);
 
@@ -454,6 +462,43 @@ public class HikeDialogFactory
 		return hikeDialog;
 	}
 
+	private static HikeDialog showChatMuteDialog(final Context context, int dialogId, final HikeDialogListener listener, Object... data)
+	{
+		List<RadioButtonPojo> radioButtons = DialogUtils.getMuteDurationOptions(context);
+
+		CheckBoxPojo checkBox = DialogUtils.showNotificationCheckBox(context);
+
+		final Mute mute = (Mute) data[0];
+		mute.setShowNotifInMute(checkBox.isChecked);
+		mute.setMuteDuration(MuteDuration.DURATION_DEFAULT);
+
+		final CustomAlertRadioButtonCheckboxDialog hikeDialog = new CustomAlertRadioButtonCheckboxDialog(context, dialogId, radioButtons, new RadioButtonItemCheckedListener() {
+
+			@Override
+			public void onRadioButtonItemClicked(RadioButtonPojo whichItem, CustomAlertRadioButtonDialog dialog) {
+				dialog.selectedRadioGroup = whichItem;
+				saveMuteDuration(mute, whichItem);
+			}
+
+		}, checkBox, new CustomAlertRadioButtonCheckboxDialog.CheckBoxListener() {
+
+			@Override
+			public void onCheckboxClicked(CheckBoxPojo whichItem, CustomAlertRadioButtonDialog dialog) {
+				mute.setShowNotifInMute(whichItem.isChecked);
+			}
+		});
+
+		hikeDialog.setCancelable(true);
+		hikeDialog.setCanceledOnTouchOutside(true);
+		hikeDialog.setTitle(OneToNConversationUtils.isOneToNConversation(mute.getMsisdn()) ? R.string.group_mute_dialog_title : R.string.chat_mute_dialog_title);
+		hikeDialog.setPositiveButton(R.string.OK, listener);
+		hikeDialog.setNegativeButton(R.string.CANCEL, listener);
+
+		hikeDialog.show();
+		return hikeDialog;
+
+	}
+
 	private static HikeDialog showImageQualityDialog(int dialogId, final Context context, final HikeDialogListener listener, Object... data)
 	{
 		
@@ -471,7 +516,7 @@ public class HikeDialogFactory
 			}
 			
 		});
-		
+
 		hikeDialog.setCancelable(true);
 		hikeDialog.setCanceledOnTouchOutside(true);
 		hikeDialog.setTitle(R.string.image_quality_prefs);
@@ -528,6 +573,27 @@ public class HikeDialogFactory
 				editor.putInt(HikeConstants.IMAGE_QUALITY, ImageQuality.QUALITY_ORIGINAL);
 				editor.commit();				
 				break;
+			}
+		}
+	}
+
+	private static void saveMuteDuration(Mute mute, RadioButtonPojo pojo)
+	{
+		if (pojo != null)
+		{
+			switch (pojo.id)
+			{
+				case R.string.mute_chat_eight_hrs:
+					mute.setMuteDuration(MuteDuration.DURATION_EIGHT_HOURS);
+					break;
+
+				case R.string.mute_chat_one_week:
+					mute.setMuteDuration(MuteDuration.DURATION_ONE_WEEK);
+					break;
+
+				case R.string.mute_chat_one_yr:
+					mute.setMuteDuration(MuteDuration.DURATION_ONE_YEAR);
+					break;
 			}
 		}
 	}

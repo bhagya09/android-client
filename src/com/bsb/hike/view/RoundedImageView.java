@@ -22,7 +22,8 @@ import com.bsb.hike.R;
 import com.bsb.hike.ui.utils.RecyclingImageView;
 
 @SuppressWarnings("UnusedDeclaration")
-public class RoundedImageView extends RecyclingImageView {
+public class
+        RoundedImageView extends RecyclingImageView {
 
     // Constants for tile mode attributes
     private static final int TILE_MODE_UNDEFINED = -2;

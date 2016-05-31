@@ -16,23 +16,23 @@ import com.hike.abtest.Logger;
 /**
  * Created by abhijithkrishnappa on 03/04/16.
  */
-public class ExperimentInitJson extends ExperimentInit{
+public class ExperimentInitJson extends ExperimentInit {
     private static final String TAG = ExperimentInitJson.class.getSimpleName();
 
     public ExperimentInitJson(String requestPayload) {
         super(requestPayload);
     }
 
-    public void parse() throws ParserException{
+    public void parse() throws ParserException {
         JSONObject jsonRequest = null;
         try {
             jsonRequest = new JSONObject(mRequestPayload);
             Logger.d(TAG, "mRequestPayload: " + mRequestPayload);
-            if(jsonRequest.has(ProtoMapper.EXPERIMENT_LIST)) {
+            if (jsonRequest.has(ProtoMapper.EXPERIMENT_LIST)) {
                 mExperimentMap = parseValidateExperiments(jsonRequest.getJSONArray(ProtoMapper.EXPERIMENT_LIST));
             }
             //If empty, throw exception.
-            if(mExperimentMap==null || mExperimentMap.size() == 0) {
+            if (mExperimentMap == null || mExperimentMap.size() == 0) {
                 throw new ParserException("No experiments to be initalized",
                         ParserException.ERROR_FIELDS_MISSING);
             }
@@ -44,26 +44,27 @@ public class ExperimentInitJson extends ExperimentInit{
         isParsed = true;
     }
 
-    Map<String, String> parseValidateExperiments(JSONArray experiments) throws ParserException{
+    Map<String, String> parseValidateExperiments(JSONArray experiments) throws ParserException {
         Logger.d(TAG, "parseValidateExperiments: ");
 
         Map<String, String> experimentMap = new HashMap<String, String>();
         Gson gson = new Gson();
-        Type type = new TypeToken<List<ProtoMapper.ExperimentInitMapper>>() {}.getType();
+        Type type = new TypeToken<List<ProtoMapper.ExperimentInitMapper>>() {
+        }.getType();
         List<ProtoMapper.ExperimentInitMapper> fromJson = gson.fromJson(experiments.toString(), type);
 
         int index = 0;
-        for(ProtoMapper.ExperimentInitMapper expMap : fromJson) {
+        for (ProtoMapper.ExperimentInitMapper expMap : fromJson) {
             //Validate Experiments
-            if(expMap.experimentId == null || expMap.variantId == null
+            if (expMap.experimentId == null || expMap.variantId == null
                     || expMap.startTime <= 0 || expMap.endTime <= 0) {
                 throw new ParserException("Invalid Experiment", ParserException.ERROR_INVALID_EXPERIMENT);
             }
 
             //Validate Variables in the Experiment
-            for(ProtoMapper.VariableMapper variableMap : expMap.variableList) {
-                if(variableMap.variableName ==null || variableMap.type==0 || variableMap.type>4 ||
-                        variableMap.defaultValue ==null || variableMap.experimentValue ==null) {
+            for (ProtoMapper.VariableMapper variableMap : expMap.variableList) {
+                if (variableMap.variableName == null || variableMap.type == 0 || variableMap.type > 4 ||
+                        variableMap.defaultValue == null || variableMap.experimentValue == null) {
                     throw new ParserException("Invalid Variable", ParserException.ERROR_INVALID_VARIABLE);
                 }
             }
