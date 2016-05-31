@@ -8,6 +8,7 @@ import java.io.File;
 import org.json.JSONObject;
 
 import android.content.Intent;
+import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 
 import com.bsb.hike.HikeConstants;
@@ -155,7 +156,7 @@ public class StickerPreviewImageDownloadTask implements IHikeHTTPTask, IHikeHttp
 			}
 
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 				doOnFailure(httpException);
 			}

@@ -117,8 +117,10 @@ public class UpgradeIntentService extends IntentService
 			editor.apply();
 		}
 
-		if (prefs.getInt(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 1) == 1) {
-			if (upgradeForStickerTable()) {
+        if (prefs.getInt(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 1) == 1)
+		{
+			if (upgradeForStickerTable())
+			{
 				Logger.v(TAG, "Upgrade for sticker table was successful");
 				Editor editor = prefs.edit();
 				editor.putInt(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 2);
@@ -166,21 +168,39 @@ public class UpgradeIntentService extends IntentService
 				ChatThemeManager.getInstance().migrateChatThemesToDB();
 			}
 
-			// Set block notifications as false in shared preference i.e allow notifications to occur once Upgrade intent completes
+		if (prefs.getInt(HikeConstants.CHAT_BG_TABLE_MIGRATION, 0) == 0) {
+			migrateChatBgTableData();
+			migrateMuteData();
 			Editor editor = prefs.edit();
-			editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
-			editor.apply();
-
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPGRADING, false);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE, null);
-
-			Utils.connectToGcmPreSignup();
-
+			editor.putInt(HikeConstants.CHAT_BG_TABLE_MIGRATION, 1);
+			editor.commit();
 		}
+
+		// Set block notifications as false in shared preference i.e allow notifications to occur once Upgrade intent completes
+		Editor editor = prefs.edit();
+		editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
+		editor.apply();
+
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPGRADING, false);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE, null);
+
+		Utils.connectToGcmPreSignup();
+
+	}
 
 	public UpgradeIntentService()
 	{
 		super(TAG);
+	}
+
+	private void migrateChatBgTableData()
+	{
+		HikeConversationsDatabase.getInstance().migrateChatBgTableData();
+	}
+
+	private void migrateMuteData()
+	{
+		HikeConversationsDatabase.getInstance().migrateMuteData();
 	}
 
 	private void initialiseSharedMediaAndFileThumbnailTable()

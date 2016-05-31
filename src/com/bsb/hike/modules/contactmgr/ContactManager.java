@@ -30,6 +30,7 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.models.GroupParticipant;
+import com.bsb.hike.models.Mute;
 import com.bsb.hike.modules.iface.ITransientCache;
 import com.bsb.hike.tasks.UpdateAddressBookTask;
 import com.bsb.hike.utils.AccountUtils;
@@ -607,6 +608,17 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	{
 		persistenceCache.setGroupMute(groupId, mute);
 	}
+
+	/**
+	 * Sets the chat mute status in {@link #persistenceCache}
+	 *
+	 * @param msisdn
+	 * @param mute
+     */
+	public void setChatMute(String msisdn, Mute mute)
+	{
+		persistenceCache.setChatMute(msisdn, mute);
+	}
 	
 	/**
 	 * Gets the Name, alive and Mute status of Group
@@ -617,6 +629,47 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	public GroupDetails getGroupDetails(String msisdn)
 	{
 		return persistenceCache.getGroupDetails(msisdn);
+	}
+
+	/**
+	 * Fetches the Mute data for a conversation
+	 *
+	 * @param msisdn
+	 * @return
+     */
+	public Mute getMute(String msisdn)
+	{
+		return persistenceCache.getMute(msisdn);
+	}
+
+	/**
+	 *
+	 * @param msisdn
+	 * @return boolean stating whether to show notifications for a given chat
+     */
+	public boolean shouldShowNotifForMutedConversation(String msisdn)
+	{
+		Mute mute = persistenceCache.getMute(msisdn);
+		if (mute != null && mute.isMute())
+		{
+			return mute.shouldShowNotifInMute();
+		}
+		return true;
+	}
+
+	/**
+	 *
+	 * @param msisdn
+	 * @return boolean stating whether the given chat is muted or not
+     */
+	public boolean isChatMuted(String msisdn)
+	{
+		Mute mute = persistenceCache.getMute(msisdn);
+		if (mute != null)
+		{
+			return mute.isMute();
+		}
+		return false;
 	}
 	
 	/**

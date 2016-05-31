@@ -133,9 +133,9 @@ public class CardRenderer implements View.OnLongClickListener
 
 		LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-		List<CardComponent.TextComponent> textComponents = convMessage.platformMessageMetadata.textComponents;
-		List<CardComponent.MediaComponent> mediaComponents = convMessage.platformMessageMetadata.mediaComponents;
-		ArrayList<CardComponent.ActionComponent> actionComponents = convMessage.platformMessageMetadata.actionComponents;
+		List<CardComponent.TextComponent> textComponents = convMessage.platformMessageMetadata.cards.get(0).textComponents;
+		List<CardComponent.MediaComponent> mediaComponents = convMessage.platformMessageMetadata.cards.get(0).mediaComponents;
+		ArrayList<CardComponent.ActionComponent> actionComponents = convMessage.platformMessageMetadata.cards.get(0).actionComponents;
 		ViewHolder viewHolder;
 		boolean isGamesAppInstalled = convMessage.platformMessageMetadata.isInstalled;
 		if (view == null)
@@ -203,7 +203,7 @@ public class CardRenderer implements View.OnLongClickListener
 							}
 							else
 							{
-								CardController.callToAction(actionComponent.getAndroidIntent(), mContext);
+//								CardController.callToAction(actionComponent.getAndroidIntent(), mContext);
 							}
 						}
 						catch (URISyntaxException e)
@@ -263,10 +263,10 @@ public class CardRenderer implements View.OnLongClickListener
 				{
 
 					mediaView.setVisibility(View.VISIBLE);
-					String data = mediaComponent.getKey();
-					BitmapDrawable value = HikeMessengerApp.getLruCache().getBitmapDrawable(data);
-
-					((ImageView) mediaView).setImageDrawable(value);
+//					String data = mediaComponent.getKey();
+//					BitmapDrawable value = HikeMessengerApp.getLruCache().getBitmapDrawable(data);
+//
+//					((ImageView) mediaView).setImageDrawable(value);
 
 				}
 

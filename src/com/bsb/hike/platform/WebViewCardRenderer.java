@@ -13,6 +13,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.util.SparseArray;
@@ -1056,7 +1057,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
             }
 
             @Override
-            public void onRequestFailure(HttpException httpException)
+            public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
             {
                 Logger.v(TAG, "Bot download request failure for " + appName);
                 showConnErrState(webViewHolder,convMessage,position);

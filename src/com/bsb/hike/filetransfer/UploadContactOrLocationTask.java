@@ -2,6 +2,7 @@ package com.bsb.hike.filetransfer;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.widget.Toast;
@@ -135,7 +136,7 @@ public class UploadContactOrLocationTask extends FileTransferBase
 
 				if (!"ok".equals(response.optString("stat")))
 				{
-					onRequestFailure(null);
+					onRequestFailure(null, null);
 					return;
 				}
 
@@ -154,7 +155,7 @@ public class UploadContactOrLocationTask extends FileTransferBase
 			}
 
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 				if (httpException.getErrorCode() == HttpException.REASON_CODE_CANCELLATION || httpException.getErrorCode() == HttpException.REASON_CODE_REQUEST_PAUSED)
 				{

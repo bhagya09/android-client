@@ -1,7 +1,7 @@
 package com.bsb.hike.service;
 
 import com.bsb.hike.chatHead.ChatHeadUtils;
-import com.bsb.hike.userlogs.UserLogInfo;
+import com.hike.cognito.UserLogInfo;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 

@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.provider.Settings;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -23,7 +24,7 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.service.MqttMessagesManager;
-import com.bsb.hike.userlogs.PhoneSpecUtils;
+import com.bsb.hike.utils.PhoneSpecUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -152,7 +153,7 @@ public class FTApkManager
             }
 
             @Override
-            public void onRequestFailure(HttpException httpException) {
+            public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException) {
                 Logger.d("AUTOAPK", "The error code received is " + httpException.getErrorCode());
 
             }
