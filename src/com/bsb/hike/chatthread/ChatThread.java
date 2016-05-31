@@ -3074,6 +3074,28 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 						convMessage.setMessage(msgExtrasJson.optString(HikeConstants.HIKE_MESSAGE));
 						sendMessage(convMessage);
 					}
+					else if(msgExtrasJson.optInt(HikeConstants.MESSAGE_TYPE.MESSAGE_TYPE) == HikeConstants.MESSAGE_TYPE.WEB_CONTENT || msgExtrasJson.optInt(
+							HikeConstants.MESSAGE_TYPE.MESSAGE_TYPE) == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT){
+						// as we will be changing msisdn and hike status while inserting in DB
+						ConvMessage convMessage = Utils.makeConvMessage(msisdn,msgExtrasJson.getString(HikeConstants.HIKE_MESSAGE), mConversation.isOnHike());
+						convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT);
+						convMessage.setPlatformData(msgExtrasJson.optJSONObject(HikeConstants.PLATFORM_PACKET));
+						convMessage.webMetadata = new WebMetadata(msgExtrasJson.optString(HikeConstants.METADATA));
+						JSONObject json = new JSONObject();
+						try
+						{
+							json.put(HikePlatformConstants.CARD_TYPE, convMessage.webMetadata.getAppName());
+							json.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.CARD_FORWARD);
+							json.put(AnalyticsConstants.TO, msisdn);
+							HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
+						}
+						catch (JSONException | NullPointerException e)
+						{
+							e.printStackTrace();
+						}
+						sendMessage(convMessage);
+
+					}
 					else if (msgExtrasJson.has(HikeConstants.Extras.FILE_PATH))
 					{
 						String fileKey = null;
@@ -3155,28 +3177,6 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 
 					}
 
-					else if(msgExtrasJson.optInt(HikeConstants.MESSAGE_TYPE.MESSAGE_TYPE) == HikeConstants.MESSAGE_TYPE.WEB_CONTENT || msgExtrasJson.optInt(
-							HikeConstants.MESSAGE_TYPE.MESSAGE_TYPE) == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT){
-						// as we will be changing msisdn and hike status while inserting in DB
-						ConvMessage convMessage = Utils.makeConvMessage(msisdn,msgExtrasJson.getString(HikeConstants.HIKE_MESSAGE), mConversation.isOnHike());
-						convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT);
-						convMessage.setPlatformData(msgExtrasJson.optJSONObject(HikeConstants.PLATFORM_PACKET));
-						convMessage.webMetadata = new WebMetadata(msgExtrasJson.optString(HikeConstants.METADATA));
-						JSONObject json = new JSONObject();
-						try
-						{
-							json.put(HikePlatformConstants.CARD_TYPE, convMessage.webMetadata.getAppName());
-							json.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.CARD_FORWARD);
-							json.put(AnalyticsConstants.TO, msisdn);
-							HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
-						}
-						catch (JSONException | NullPointerException e)
-						{
-							e.printStackTrace();
-						}
-						sendMessage(convMessage);
-
-					}
 
 
 				}

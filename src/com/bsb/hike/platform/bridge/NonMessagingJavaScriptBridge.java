@@ -168,7 +168,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void forwardToChat(String json, String hikeMessage)
 	{
-		PlatformHelper.forwardToChat(json, hikeMessage, mBotInfo, weakActivity.get());
+		PlatformHelper.forwardToChat(json, hikeMessage, mBotInfo, weakActivity.get(),mWebView);
 	}
 
 	/**
