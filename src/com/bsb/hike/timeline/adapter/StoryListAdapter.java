@@ -164,10 +164,10 @@ public class StoryListAdapter extends BaseAdapter implements PinnedSectionListVi
             }
             List<StatusMessage> statusMessagesList = storyItem.getDataObjects();
             ContactInfo contactInfo = (ContactInfo) storyItem.getTypeInfo();
-            if (!Utils.isEmpty(statusMessagesList)) {
+            if (!Utils.isEmpty(statusMessagesList) || storyItem.getCategory() == StoryItem.CATEGORY_DEFAULT) {
                 if (storyItem.getCategory() == StoryItem.CATEGORY_DEFAULT) {
                     //Load profile pic
-                    mDPImageLoader.loadImage(contactInfo.getMsisdn(), viewHolder.avatarView, false, false, true);
+                    mDPImageLoader.loadImage(contactInfo.getMsisdn(), viewHolder.avatarView, false, false, true,contactInfo);
                 } else {
                     //Load last photo post
                     RoundedImageView roundImageView = (RoundedImageView) viewHolder.avatarView;

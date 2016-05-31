@@ -98,6 +98,7 @@ import org.json.JSONObject;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -11172,6 +11173,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 						continue;
 					}
 
+					//Do not add to stories list for self-posts
+					if(msisdn.equals(ContactManager.getInstance().getSelfMsisdn()))
+					{
+						continue;
+					}
+
 					StatusMessage statusMessage = new StatusMessage(c.getLong(idIdx), c.getString(mappedIdIdx), msisdn, null, c.getString(textIdx),
 							StatusMessageType.values()[c.getInt(typeIdx)], c.getLong(tsIdx), c.getInt(moodIdIdx), c.getInt(timeOfDayIdx), c.getString(fileKeyIdx), c.getInt(isReadIdx) == 1 ? true : false);
 					statusMessages.add(statusMessage);
@@ -11186,11 +11193,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 					msisdnMessages.add(statusMessage);
 				}
 
+				String[] friendsMsisdns = getTimelineFriendsMsisdn(ContactManager.getInstance().getSelfMsisdn());
+				List<String> friendsList = new ArrayList<String>(Arrays.asList(friendsMsisdns));
+
 				if (msisdns.size() > 0) {
 					List<ContactInfo> contactList = ContactManager.getInstance().getContact(msisdns, true, true);
-
-					String[] friendsMsisdns = getTimelineFriendsMsisdn(ContactManager.getInstance().getSelfMsisdn());
-					List<String> friendsList = new ArrayList<String>();
 
 					for (ContactInfo contactInfo : contactList) {
 						List<StatusMessage> msisdnMessages = statusMessagesMap.get(contactInfo.getMsisdn());
@@ -11211,8 +11218,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 									break;
 								}
 							}
-							if (!hasRecentlyPosted) {
-								friendsList.add(contactInfo.getMsisdn());
+							if (hasRecentlyPosted) {
+								friendsList.remove(contactInfo.getMsisdn());
 							}
 						} else {
 							// Make a story item
@@ -11224,10 +11231,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 							storyList.add(storyItem);
 						}
 					}
+				}
 
-					if (storyCategory == StoryItem.CATEGORY_DEFAULT) {
-						for (String twoWayFriendsMsisdn : friendsList) {
-							ContactInfo contactInfo = ContactManager.getInstance().getContact(twoWayFriendsMsisdn, true, true);
+				if (storyCategory == StoryItem.CATEGORY_DEFAULT) {
+					for (String friendsMsisdn : friendsList) {
+						if (!friendsMsisdn.equals(ContactManager.getInstance().getSelfMsisdn())) {
+							ContactInfo contactInfo = ContactManager.getInstance().getContact(friendsMsisdn, true, true);
 							StoryItem<StatusMessage, ContactInfo> storyItem = new StoryItem<>(StoryItem.TYPE_FRIEND, contactInfo.getNameOrMsisdn());
 //							storyItem.setSubText(msisdnMessages.get(0).getTimestampFormatted(true, HikeMessengerApp.getInstance().getApplicationContext()));// TODO
 							storyItem.setTypeInfo(contactInfo);
@@ -11235,7 +11244,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 							storyList.add(storyItem);
 						}
 					}
-
 				}
 			} finally {
 				if (c != null) {
