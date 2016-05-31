@@ -1864,13 +1864,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		if(isTiled){
 			backgroundImage.setScaleType(ScaleType.FIT_XY);
 		} else {
-			int orientation = getResources().getConfiguration().orientation;
-			if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-				backgroundImage.setScaleType(ScaleType.CENTER_CROP);
-			} else {
-				backgroundImage.setScaleType(ScaleType.MATRIX);
-			}
-			ChatThreadUtils.applyMatrixTransformationToImageView(drawable, backgroundImage);
+			backgroundImage.setScaleType(ScaleType.FIT_CENTER);
 		}
 
 		if(isCustom && !ChatThreadUtils.disableOverlayEffectForCCT()) {
