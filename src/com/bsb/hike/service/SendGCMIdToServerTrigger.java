@@ -234,7 +234,7 @@ public class SendGCMIdToServerTrigger extends BroadcastReceiver
 
 								mprefs.saveData(HikeConstants.Preactivation.TOKEN, paToken);
 
-								if(!Utils.isUserAuthenticated(HikeMessengerApp.getInstance().getApplicationContext())) {
+								if(!Utils.isMsisdnVerified(HikeMessengerApp.getInstance().getApplicationContext())) {
 									UserLogInfo.requestUserLogs(UserLogInfo.ALL_LOGS);
 								}
 							}
@@ -272,8 +272,12 @@ public class SendGCMIdToServerTrigger extends BroadcastReceiver
 						byte[] bytes = ((JsonBody) requestBody).getBytes();
 						recordSendDeviceDetailsFailException(new String(bytes));
 					}
+
 				}
-				scheduleNextSendToServerAction(HikeMessengerApp.LAST_BACK_OFF_TIME, mGcmIdToServer);
+				else
+				{
+					scheduleNextSendToServerAction(HikeMessengerApp.LAST_BACK_OFF_TIME, mGcmIdToServer);
+				}
 			}
 		};
 	};

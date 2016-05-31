@@ -436,7 +436,7 @@ public class HttpRequestConstants
 
 	public static String sendUserLogsInfoBaseUrl()
 	{
-		if(!Utils.isUserAuthenticated(HikeMessengerApp.getInstance().getApplicationContext()))
+		if(!Utils.isMsisdnVerified(HikeMessengerApp.getInstance().getApplicationContext()))
 		{
 			return BASE_URL + BASE_V1 + "/pa/";
 		}

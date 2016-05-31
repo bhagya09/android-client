@@ -984,7 +984,7 @@ public class HttpRequests
 
 	private static  JSONObjectRequest.Builder addPreActivationHeaders(JSONObjectRequest.Builder jsonRequestBuilder )
 	{
-		if (!Utils.isUserAuthenticated(HikeMessengerApp.getInstance().getApplicationContext()))
+		if (!Utils.isMsisdnVerified(HikeMessengerApp.getInstance().getApplicationContext()))
 		{
 			Header customHeader;
 			String paUid = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Preactivation.UID, "");
