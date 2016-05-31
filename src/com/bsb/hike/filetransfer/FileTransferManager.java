@@ -337,7 +337,7 @@ public class FileTransferManager
 	 * @param convMessage
 	 * @param fileKey
 	 */
-	public void uploadFile(ConvMessage convMessage, String fileKey)
+	public void uploadFile(ConvMessage convMessage, String fileKey, boolean isManualRetry)
 	{
 		if (isFileTaskExist(convMessage.getMsgID()))
 		{
@@ -352,7 +352,7 @@ public class FileTransferManager
 				return;
 			}
 
-			UploadFileTask task = new UploadFileTask(context, convMessage, fileKey);
+			UploadFileTask task = new UploadFileTask(context, convMessage, fileKey, isManualRetry);
 			fileTaskMap.put(convMessage.getMsgID(), task);
 			task.startFileUploadProcess();
 		}
@@ -364,7 +364,7 @@ public class FileTransferManager
      * @param messageList
      * @param fileKey
      */
-	public void uploadFile(List<ContactInfo> contactList, List<ConvMessage> messageList, String fileKey)
+	public void uploadFile(List<ContactInfo> contactList, List<ConvMessage> messageList, String fileKey, boolean isManualRetry)
 	{
 		ConvMessage convMessage = messageList.get(0);
 		if (isFileTaskExist(convMessage.getMsgID()))
@@ -380,7 +380,7 @@ public class FileTransferManager
 				return;
 			}
 
-			UploadFileTask task = new UploadFileTask(context, contactList, messageList, fileKey);
+			UploadFileTask task = new UploadFileTask(context, contactList, messageList, fileKey, isManualRetry);
 			for (ConvMessage msg : messageList)
 			{
 				fileTaskMap.put(msg.getMsgID(), task);

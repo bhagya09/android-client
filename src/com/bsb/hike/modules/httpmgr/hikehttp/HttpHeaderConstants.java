@@ -21,4 +21,6 @@ public class HttpHeaderConstants
 
 	public static final String NETWORK_TIME = "network-time";
 
+	public static final String NETWORK_TIME_INCLUDING_RETRIES = "network-time-inc-retries";
+
 }

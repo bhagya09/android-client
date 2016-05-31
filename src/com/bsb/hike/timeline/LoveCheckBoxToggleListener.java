@@ -23,6 +23,7 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Utils;
 
 import android.animation.ObjectAnimator;
+import android.support.annotation.Nullable;
 import android.widget.CompoundButton;
 import android.widget.Toast;
 import android.widget.CompoundButton.OnCheckedChangeListener;
@@ -94,7 +95,7 @@ public abstract class LoveCheckBoxToggleListener implements OnCheckedChangeListe
 				}
 
 				@Override
-				public void onRequestFailure(HttpException httpException)
+				public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 				{
 					Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.love_failed, Toast.LENGTH_SHORT).show();
 					// Reverse action in actions heap
@@ -155,7 +156,7 @@ public abstract class LoveCheckBoxToggleListener implements OnCheckedChangeListe
 				}
 
 				@Override
-				public void onRequestFailure(HttpException httpException)
+				public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 				{
 					Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.love_failed, Toast.LENGTH_SHORT).show();
 					// Reverse action in actions heap

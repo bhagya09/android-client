@@ -98,6 +98,7 @@ import com.bsb.hike.tasks.InitiateMultiFileTransferTask;
 import com.bsb.hike.tasks.MultipleStatusUpdateTask;
 import com.bsb.hike.tasks.StatusUpdateTask;
 import com.bsb.hike.timeline.view.TimelineActivity;
+import com.bsb.hike.utils.BirthdayUtils;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -1143,6 +1144,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					Intent in = IntentFactory.createChatThreadIntentFromContactInfo(this, contactInfo, false, false, ChatThreadActivity.ChatThreadOpenSources.NEW_COMPOSE);
 					in.putExtra(HikeConstants.Extras.MSG, getString(R.string.composeview_bday));
 					startActivity(in);
+					BirthdayUtils.recordBirthdayAnalytics(
+							AnalyticsConstants.BirthdayEvents.BIRTHDAY_SELCT_FRIEND,
+							AnalyticsConstants.BirthdayEvents.BIRTHDAY_WISH,
+							AnalyticsConstants.BirthdayEvents.BIRTHDAY_SELCT_FRIEND,
+							null, null, getString(R.string.composeview_bday), null, null, null, null, contactInfo.getMsisdn());
 				}
 				else
 				{

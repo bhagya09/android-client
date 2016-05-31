@@ -38,10 +38,7 @@ public class DBsBackupRestore implements BackupableRestorable
 
 	private void init()
 	{
-		chatsDB = new DB(DBConstants.CONVERSATIONS_DATABASE_NAME,
-				// STICKER_SHOP_TABLE and STICKER_CATEGORIES_TABLE will be skipped
-				new String[] { DBConstants.STICKER_SHOP_TABLE},
-				backupToken)
+		chatsDB = new DB(DBConstants.CONVERSATIONS_DATABASE_NAME, new String[] {}, backupToken)
 		{
 			@Override
 			public void postRestoreSetup() throws Exception
