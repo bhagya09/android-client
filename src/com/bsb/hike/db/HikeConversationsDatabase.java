@@ -269,7 +269,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		db.execSQL(sql);
 		sql=getReceiptsTableCreateStatement();
 		db.execSQL(sql);
-		sql = DBConstants.CREATE_INDEX + DBConstants.RECEIPTS_TABLE_CONTENT_INDEX + " ON " + DBConstants.MESSAGES_TABLE + " ( " + DBConstants.HIKE_CONTENT.CONTENT_ID + " ) ";
+		sql = DBConstants.CREATE_INDEX + DBConstants.RECEIPTS_TABLE_CONTENT_INDEX + " ON " + DBConstants.MESSAGES_TABLE + " ( " + DBConstants.MESSAGE_ID + " ) ";
 		db.execSQL(sql);
 
 		sql = DBConstants.CREATE_INDEX + DBConstants.MESSAGE_TABLE_NAMESPACE_INDEX + " ON " + DBConstants.MESSAGES_TABLE + " ( " + DBConstants.HIKE_CONTENT.NAMESPACE + " ) ";
