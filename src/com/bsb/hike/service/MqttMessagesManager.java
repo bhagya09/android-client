@@ -409,8 +409,8 @@ public class MqttMessagesManager
 			ContactInfo contact = ContactManager.getInstance().getContact(msisdn, true, false);
 			boolean showRecentlyJoined = contact.getHikeJoinTime() > 0 && !contact.isUnknownContact();
 
-			HikeNotificationUtils.recordUJReceived(jsonObj);
 			JSONObject data = jsonObj.getJSONObject(HikeConstants.DATA);
+			HikeNotificationUtils.recordUJReceived(data);
 
 			if (appPrefs.getBoolean(HikeConstants.NUJ_NOTIF_BOOLEAN_PREF, true) && !ContactManager.getInstance().isBlocked(msisdn)
 					&& data.optBoolean(HikeConstants.SHOW_NOTIFICATION, true))
