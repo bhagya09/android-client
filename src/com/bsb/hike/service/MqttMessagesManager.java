@@ -3987,7 +3987,11 @@ public class MqttMessagesManager
             int limit = data.optInt(HikeConstants.LIMIT_KEY, HikeStickerSearchBaseConstants.DEFAULT_STICKER_SEARCH_FAIL_COUNT_LIMIT);
             HikeSharedPreferenceUtil.getInstance().saveData(HikeStickerSearchBaseConstants.STICKER_SEARCH_FAIL_COUNT_LIMIT, limit);
         }
-
+        else if(StickerManager.PACK_METADATA_REFRESH_FREQUENCY.equals(subType))
+        {
+            int limit = data.optInt(HikeConstants.LIMIT_KEY, StickerManager.DEFAULT_PACK_METADATA_REFRESH_FREQUENCY);
+            HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.PACK_METADATA_REFRESH_FREQUENCY, limit);
+        }
 	}
 
 	private void saveBulkLastSeen(JSONObject jsonObj) throws JSONException
