@@ -4771,6 +4771,16 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		}
 	}
 
+	public int getVoiceMessagePlayerState(){
+		if(voiceMessagePlayer.getPlayerState()!=null)
+		return voiceMessagePlayer.getPlayerState().ordinal();
+		else
+			return VoiceMessagePlayerState.STOPPED.ordinal();
+	}
+	public String getVoiceMessagePlayerFileKey() {
+		return voiceMessagePlayer.getFileKey();
+	}
+
 	public boolean onGeneralEventStateChange(ConvMessage convMessage)
 	{
 		for (int i = convMessages.size() - 1; i >= 0; i--)

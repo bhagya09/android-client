@@ -1599,6 +1599,25 @@
     <string name="no_sticker_pack_match_found">Your search for \'%1$s\' did not match any sticker packs</string>
     <string name="pack_search_again_hint">Type complete words like love, hindi, bollywood, etc.</string>
     <string name="recharge_menu">Recharge</string>
+
+    <string name="message_info">Message Info</string>
+    <string name="emptyreadlist"> - </string>
+    <string name="emptyseenlist"> - </string>
+    <string name="emptydeliveredlist"> - </string>
+    <string name="emptyplayedlist"> - </string>
+    <string name="remaining_items">%1s remaining</string>
+    <string name="read_list">READ BY</string>
+    <string name="read_list_one">READ</string>
+    <string name="delivered_list_one">DELIVERED</string>
+    <string name="seen_list_one">SEEN</string>
+    <string name="readExpanded">Read</string>
+    <string name="seenExpanded">Seen</string>
+    <string name="seen_list">SEEN BY</string>
+    <string name="delivered_list">DELIVERED TO</string>
+    <string name="played_list">PLAYED</string>
+    <string name="messageinfo_sms">Sent as SMS</string>
+    <string name="messageinfo_not_applicable">No information is available for this message</string>
+
     <string name="restore_msisdn_error">You seem to have a backup file of some different number!</string>
     <string name="ACCEPT">ACCEPT</string>
     <string name="mute_status_notification_subtext_frn">Show notifications for status &amp; profile picture updates from friends</string>

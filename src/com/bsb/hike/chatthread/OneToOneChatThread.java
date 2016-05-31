@@ -374,7 +374,7 @@ import com.bsb.hike.voip.VoIPUtils;
 
 		if(arr.length>0)
 		{
-			Logger.d("IntentHashData",offlineIntentHashData+"");
+			Logger.d("IntentHashData", offlineIntentHashData + "");
 			outState.putIntArray(OfflineConstants.DIRECT_REQUEST_DATA, arr);
 		}
 		super.onSaveInstanceState(outState);
@@ -493,6 +493,7 @@ import com.bsb.hike.voip.VoIPUtils;
 		boolean fetchMetadata = isMetadataRequired();
 
 		mConversation = HikeConversationsDatabase.getInstance().getConversation(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, fetchMetadata);
+		Logger.d("MessageInfo","msisdn is "+msisdn);
 
 		if (mConversation == null)
 		{
@@ -2035,7 +2036,14 @@ import com.bsb.hike.voip.VoIPUtils;
 			Toast.makeText(activity.getApplicationContext(), activity.getString(R.string.block_overlay_message, mConversation.getLabel()), Toast.LENGTH_SHORT).show();
 		}
 	}
-
+	@Override
+	protected void openMessageInfoScreen(ConvMessage convMessage){
+		Intent intent=IntentFactory.messageInfoIntent(activity,convMessage.getMsgID());
+		intent.putExtra(HikeConstants.MESSAGE_INFO.MESSAGE_INFO_TYPE,HikeConstants.MESSAGE_INFO.ONE_TO_ONE);
+		intent.putExtra(HikeConstants.MSISDN,msisdn);
+		intent.putExtra(HikeConstants.SMS_MESSAGE,convMessage.isSMS());
+		activity.startActivity(intent);
+	}
 	/**
 	 * On Call button clicked
 	 */

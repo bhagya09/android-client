@@ -528,8 +528,11 @@ public class BotChatThread extends OneToOneChatThread
 	}
 
 	@Override
-	protected void updateUnknownUserInfoViews(Object object)
-	{
+	protected void updateUnknownUserInfoViews(Object object) {
 		return;
+	}
+
+	public boolean shouldShowMessageInfo(){
+		return false;
 	}
 }
