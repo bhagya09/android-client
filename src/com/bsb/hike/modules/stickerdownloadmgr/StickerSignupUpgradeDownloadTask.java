@@ -60,7 +60,7 @@ public class StickerSignupUpgradeDownloadTask implements IHikeHTTPTask, IHikeHtt
 		}
 
 		String requestId = getRequestId();
-		token = StickerSignupUpgradeRequest(requestId, postObject, getRequestListener());
+		token = stickerCategoriesDetailsDownloadRequest(requestId, postObject, getRequestListener(), getRequestBundle());
 		
 		if(token.isRequestRunning())
 		{
@@ -169,7 +169,7 @@ public class StickerSignupUpgradeDownloadTask implements IHikeHTTPTask, IHikeHtt
 	public void doOnSuccess(Object result)
 	{
 		JSONArray resultData = (JSONArray) result;
-		StickerManager.getInstance().updateStickerCategoriesMetadata(resultData);
+		StickerManager.getInstance().updateInitialStickerCategoriesMetadata(resultData);
 		HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.STICKERS_SIZE_DOWNLOADED, true);
 	}
 
@@ -182,6 +182,8 @@ public class StickerSignupUpgradeDownloadTask implements IHikeHTTPTask, IHikeHtt
 	@Override
 	public Bundle getRequestBundle()
 	{
-		return null;
+		Bundle bundle = new Bundle();
+		bundle.putString(StickerManager.CATEGORY_IDS, categoryList.toString());
+		return bundle;
 	}
 }
