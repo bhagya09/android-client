@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_height="match_parent"
+                android:layout_width="match_parent"
+                android:id="@+id/parent_layout"
+                >
+
+<LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+              android:weightSum="1"
+              android:orientation="vertical"
+
+                >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.bsb.hike.ui.utils.RecyclingImageView
+            android:id="@+id/background"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@color/white"
+
+            android:layout_alignBottom="@+id/profile_content"/>
+        <ListView
+            android:id="@+id/profile_content"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:dividerHeight="0dp"
+            android:cacheColorHint="@color/transparent"
+            android:layout_marginTop="@dimen/st__action_bar_default_height"
+            android:headerDividersEnabled="false"
+            android:footerDividersEnabled="false"
+            android:drawSelectorOnTop="false"
+            android:listSelector="@android:color/transparent"
+            android:overScrollFooter="@android:color/transparent"
+            android:divider="@null"
+            />
+
+    </RelativeLayout>
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:background="@color/white"
+    android:layout_weight="1"
+    android:id="@+id/llback"
+
+    >
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white"/>
+
+</LinearLayout>
+</LinearLayout>
+</RelativeLayout>

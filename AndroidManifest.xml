@@ -381,6 +381,11 @@
             android:theme="@style/AppTheme.ChatThread" >
         </activity>
         <activity
+            android:name=".ui.MessageInfoActivity"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
+            android:theme="@style/AppTheme.ChatThread" >
+        </activity>
+        <activity
             android:name=".voip.view.CallRateActivity"
             android:launchMode="singleTop"
             android:theme="@style/TranslucentBlack" >
