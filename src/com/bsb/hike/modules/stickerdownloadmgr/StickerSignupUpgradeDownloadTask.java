@@ -1,6 +1,15 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
 import android.support.annotation.Nullable;
+import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_OUT_OF_SPACE;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.stickerCategoriesDetailsDownloadRequest;
+
+import java.util.List;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.os.Bundle;
 
 import com.bsb.hike.HikeConstants;
@@ -18,15 +27,6 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.List;
-
-import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_OUT_OF_SPACE;
-import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.StickerSignupUpgradeRequest;
 
 public class StickerSignupUpgradeDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResult
 {
