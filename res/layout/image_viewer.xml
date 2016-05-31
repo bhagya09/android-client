@@ -1,15 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/background"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/background"
-    android:background="@color/black"
-    android:orientation="vertical" >
+    android:background="@color/black">
 
     <com.bsb.hike.ui.utils.RecyclingImageView
         android:id="@+id/image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
         android:scaleType="fitCenter" />
 
-</LinearLayout>
+    <include
+        android:id="@+id/change_photo"
+        layout="@layout/icon_with_badge_counter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="44dp" />
+
+</RelativeLayout>

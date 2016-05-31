@@ -624,7 +624,8 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		}
 
 		Bundle arguments = (Bundle) object;
-		ImageViewerFragment imageViewerFragment = new ImageViewerFragment();			
+		ImageViewerFragment imageViewerFragment = new ImageViewerFragment();
+		imageViewerFragment.setDisplayPictureEditListener(this, ImageViewerFragment.FROM_SETTINGS_ACTIVITY);
 		imageViewerFragment.setArguments(arguments);
 		FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
 		fragmentTransaction.add(R.id.parent_layout, imageViewerFragment, HikeConstants.IMAGE_FRAGMENT_TAG);

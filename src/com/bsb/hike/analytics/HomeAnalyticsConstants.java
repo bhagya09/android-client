@@ -79,5 +79,7 @@ public class HomeAnalyticsConstants
 
 	public static final String DP_SPECIES_SIGN_UP = "sign_up";
 
+	public static final String DP_SPECIES_EDIT_DP = "edit_dp";
+
 	public static final String DP_SPECIES_OTHER = "other";
 }
