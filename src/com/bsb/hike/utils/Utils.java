@@ -3386,7 +3386,11 @@ public class Utils
 		activity.sendBroadcast(intent);
 		if (showToast)
 		{
-			Toast.makeText(activity, activity.getString(R.string.shortcut_created) + " for " + conv.getConversationName(), Toast.LENGTH_SHORT).show();
+			String name = conv.getConversationName();
+			if (TextUtils.isEmpty(name))
+				Toast.makeText(activity, activity.getString(R.string.shortcut_created);
+			else
+				Toast.makeText(activity, activity.getString(R.string.shortcut_created) + " for " + name, Toast.LENGTH_SHORT).show();
 		}
 	}
 
