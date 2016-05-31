@@ -176,6 +176,8 @@ public class StickerCategoriesDetailsDownloadTask implements IHikeHTTPTask, IHik
 	@Override
 	public Bundle getRequestBundle()
 	{
-		return null;
+		Bundle bundle = new Bundle();
+		bundle.putBoolean(HikeConstants.IS_NEW_USER, false);
+		return bundle;
 	}
 }

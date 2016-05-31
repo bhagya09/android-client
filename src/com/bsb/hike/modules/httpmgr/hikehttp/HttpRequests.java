@@ -398,7 +398,7 @@ public class HttpRequests
                 .setExecutionWindow(0, 1)
                 .setPersisted(true)
                 .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
-                .setTag(GcmTaskConstants.CATEGORY_DETAILS_GCM_TASK + HikeConstants.DELIMETER + requestId)
+                .setTag(GcmTaskConstants.CATEGORIES_DETAILS_GCM_TASK + HikeConstants.DELIMETER + requestId)
                 .setService(GcmNwMgrService.class)
                 .setExtras(extras)
                 .build();

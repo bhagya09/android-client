@@ -2621,7 +2621,7 @@ public class StickerManager
 		sendStickerPackAndOrderListForAnalytics();
 		CategorySearchManager.sendSearchedCategoryDailyReport();
 		StickerSearchManager.getInstance().sendStickerSearchDailyAnalytics();
-		refreshDownloadPacksMetadata();
+		refreshDownloadPacksMetadata(false);
 	}
 
 	/**
@@ -4179,13 +4179,13 @@ public class StickerManager
 		HikeConversationsDatabase.getInstance().deactivateStickerFromDB(previousActiveStickerList);
 	}
 
-	private void refreshDownloadPacksMetadata()
+	public void refreshDownloadPacksMetadata(boolean forceRun)
 	{
 		long lastRefreshTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PACK_METADATA_REFRESH_TIME, 0l);
 		int packRefreshDayFrequency = HikeSharedPreferenceUtil.getInstance().getData(PACK_METADATA_REFRESH_FREQUENCY, DEFAULT_PACK_METADATA_REFRESH_FREQUENCY);
 		long currentTime = System.currentTimeMillis();
 
-		if ((currentTime - lastRefreshTime) >= (HikeConstants.ONE_DAY_MILLS * packRefreshDayFrequency)) // greater than n days
+		if ((currentTime - lastRefreshTime) >= (HikeConstants.ONE_DAY_MILLS * packRefreshDayFrequency) || forceRun) // greater than n days
 		{
 			StickerCategoriesDetailsDownloadTask stickerCategoriesDetailsDownloadTask = new StickerCategoriesDetailsDownloadTask(getMyStickerCategoryList());
 			stickerCategoriesDetailsDownloadTask.execute();

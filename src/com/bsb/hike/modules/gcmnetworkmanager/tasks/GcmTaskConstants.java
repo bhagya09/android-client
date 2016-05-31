@@ -24,4 +24,6 @@ public class GcmTaskConstants
 	public static final String CATEGORY_PALLETE_IMAGE_GCM_TASK = "pal_img";
 
 	public static final String COGNITO_UPLOAD_GCM_TASK = "cognito_upload_task";
+
+	public static final String CATEGORIES_DETAILS_GCM_TASK = "cat_s_det";
 }

@@ -183,7 +183,7 @@ public class StickerSignupUpgradeDownloadTask implements IHikeHTTPTask, IHikeHtt
 	public Bundle getRequestBundle()
 	{
 		Bundle bundle = new Bundle();
-		bundle.putString(StickerManager.CATEGORY_IDS, categoryList.toString());
+        bundle.putBoolean(HikeConstants.IS_NEW_USER, true);
 		return bundle;
 	}
 }

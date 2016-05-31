@@ -1,6 +1,7 @@
 package com.bsb.hike.modules.gcmnetworkmanager;
 
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.modules.gcmnetworkmanager.tasks.CategoriesDetailsDownloadGcmTask;
 import com.bsb.hike.modules.gcmnetworkmanager.tasks.CategoryDetailsDownloadGcmTask;
 import com.bsb.hike.modules.gcmnetworkmanager.tasks.CategoryPalleteImageDownloadGcmTask;
 import com.bsb.hike.modules.gcmnetworkmanager.tasks.CognitoUploadGcmTask;
@@ -81,6 +82,11 @@ public class GcmNwMgrService extends GcmTaskService
             CategoryPalleteImageDownloadGcmTask categoryPalleteImageDownloadGcmTask = new CategoryPalleteImageDownloadGcmTask();
             categoryPalleteImageDownloadGcmTask.execute(taskParams);
         }
+		else if (tag.startsWith(GcmTaskConstants.CATEGORIES_DETAILS_GCM_TASK))
+		{
+			CategoriesDetailsDownloadGcmTask categoriesDetailsDownloadGcmTask = new CategoriesDetailsDownloadGcmTask();
+			categoriesDetailsDownloadGcmTask.execute(taskParams);
+		}
 
 		return GcmNetworkManager.RESULT_SUCCESS;
 	}
