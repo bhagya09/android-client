@@ -1862,6 +1862,14 @@ public class VoIPService extends Service implements Listener
 		
 		if (newHold) {
 			if (recorder != null) {
+				try {
+					if (processRecordedSamplesThread != null) {
+						processRecordedSamplesThread.interrupt();
+						processRecordedSamplesThread.join();
+					}
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 				recorder.stop();
 				recorder = null;
 			}
