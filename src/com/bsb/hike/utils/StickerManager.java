@@ -433,6 +433,8 @@ public class StickerManager
 		doUpgradeTasks();
 
 		initiateFetchCategoryRanksAndDataTask();
+
+		QuickStickerSuggestionController.getInstance().retryFailedQuickSuggestions();
 }
 
 	public void fetchCategoryMetadataTask(List<StickerCategory> list)

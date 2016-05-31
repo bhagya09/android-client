@@ -217,6 +217,12 @@ public class QuickStickerSuggestionController
         HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeMessengerApp.QUICK_SUGGESTION_RETRY_SET, retrySet);
     }
 
+    public void retryFailedQuickSuggestions()
+    {
+        Set<String> retrySet = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.QUICK_SUGGESTION_RETRY_SET, new HashSet<String>());
+        StickerManager.getInstance().initiateMultiStickerQuickSuggestionDownloadTask(StickerManager.getInstance().getStickerSetFromStickerStringSet(retrySet));
+    }
+
     public boolean needsRefresh(QuickSuggestionStickerCategory quickSuggestionStickerCategory)
     {
         if((System.currentTimeMillis() - quickSuggestionStickerCategory.getLastRefreshTime()) > ttl)
