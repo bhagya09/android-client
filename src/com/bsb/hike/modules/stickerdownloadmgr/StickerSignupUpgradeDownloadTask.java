@@ -100,7 +100,7 @@ public class StickerSignupUpgradeDownloadTask implements IHikeHTTPTask, IHikeHtt
 
 				if(!Utils.isEmpty(unSupportedLanguages))
 				{
-					postObject.put("unknown_langs", new JSONArray(unSupportedLanguages));
+					postObject.put(HikeConstants.UNKNOWN_LANGUAGES, new JSONArray(unSupportedLanguages));
 				}
 				postObject = Utils.getParameterPostBodyForHttpApi(HttpRequestConstants.BASE_CATEGORY_DETAIL, postObject);
 				return postObject;

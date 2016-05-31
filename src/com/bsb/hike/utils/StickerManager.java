@@ -304,6 +304,10 @@ public class StickerManager
 
 	public static final String STICKER_TYPE = "s_t";
 
+	public static final String PACK_METADATA_REFRESH_FREQUENCY = "pk_md_rF";
+
+	public static final int DEFAULT_PACK_METADATA_REFRESH_FREQUENCY = 7;
+
 	private final Map<String, StickerCategory> stickerCategoriesMap;
 
 	public static String stickerExternalDir;
