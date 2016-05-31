@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.widget.Toast;
@@ -154,7 +155,7 @@ public class StatusUpdateTask implements IHikeHTTPTask
 
 							if (sourceBitmap == null)
 							{
-								getRequestListener().onRequestFailure(null);
+								getRequestListener().onRequestFailure(null, null);
 								return;
 							}
 
@@ -163,7 +164,7 @@ public class StatusUpdateTask implements IHikeHTTPTask
 						}
 						else
 						{
-							getRequestListener().onRequestFailure(null);
+							getRequestListener().onRequestFailure(null, null);
 							return;
 						}
 					}
@@ -171,7 +172,7 @@ public class StatusUpdateTask implements IHikeHTTPTask
 
 					if (token == null)
 					{
-						getRequestListener().onRequestFailure(null);
+						getRequestListener().onRequestFailure(null, null);
 						return;
 					}
 					token.execute();
@@ -180,7 +181,7 @@ public class StatusUpdateTask implements IHikeHTTPTask
 				{
 					Toast.makeText(HikeMessengerApp.getInstance().getApplicationContext(), R.string.could_not_post_pic, Toast.LENGTH_SHORT).show();
 					ioe.printStackTrace();
-					getRequestListener().onRequestFailure(null);
+					getRequestListener().onRequestFailure(null, null);
 				}
 			}
 		}, 0);
@@ -315,7 +316,7 @@ public class StatusUpdateTask implements IHikeHTTPTask
 				}
 
 				@Override
-				public void onRequestFailure(HttpException httpException)
+                public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 				{
 					if (httpException != null)
 					{

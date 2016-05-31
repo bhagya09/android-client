@@ -7,6 +7,7 @@ import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Message;
 import android.text.Editable;
@@ -29,6 +30,9 @@ import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.ui.utils.HashSpanWatcher;
+import com.bsb.hike.utils.ChatTheme;
+import com.bsb.hike.utils.IntentFactory;
+
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.SoundUtils;
 import com.bsb.hike.utils.Utils;
@@ -97,7 +101,15 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 		Logger.d(TAG, "Calling super Class' itemClicked");
 		super.itemClicked(item);
 	}
+	@Override
+	protected void openMessageInfoScreen(ConvMessage convMessage){
+		Intent intent= IntentFactory.messageInfoIntent(activity, convMessage.getMsgID());
+		intent.putExtra(HikeConstants.MESSAGE_INFO.MESSAGE_INFO_TYPE,HikeConstants.MESSAGE_INFO.GROUP);
+		Logger.d("MessageInfo","Msisdn is "+msisdn);
+		intent.putExtra(HikeConstants.MSISDN, msisdn);
+		activity.startActivity(intent);
 
+	}
 	/**
 	 * NON UI
 	 */

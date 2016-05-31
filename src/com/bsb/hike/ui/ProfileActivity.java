@@ -16,6 +16,7 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.WindowCompat;
 import android.support.v7.app.ActionBar;
@@ -115,10 +116,10 @@ import com.bsb.hike.timeline.view.UpdatesFragment;
 import com.bsb.hike.ui.fragments.ImageViewerFragment;
 import com.bsb.hike.ui.fragments.PhotoViewerFragment;
 import com.bsb.hike.ui.utils.StatusBarColorChanger;
+import com.bsb.hike.utils.BirthdayUtils;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
@@ -1483,6 +1484,11 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			dobTxt = dobEntered.toJsonString();
 			savedDOB.setText(Utils.formatDOB(dobTxt));
 			dobEdited = true;
+			BirthdayUtils.recordBirthdayAnalytics(
+					AnalyticsConstants.BirthdayEvents.BIRTHDAY_OK,
+					AnalyticsConstants.BirthdayEvents.BIRTHDAY_STORE,
+					AnalyticsConstants.BirthdayEvents.BIRTHDAY_OK,
+					null, null, null, null, null, null, null, null);
 		}
 	};
 
@@ -1515,11 +1521,22 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 					Logger.d(TAG, "cancelling date picker dialog");
 					dialog.dismiss();
 					dobEdited = false;
+					BirthdayUtils.recordBirthdayAnalytics(
+							AnalyticsConstants.BirthdayEvents.BIRTHDAY_CANCEL,
+							AnalyticsConstants.BirthdayEvents.BIRTHDAY_STORE,
+							AnalyticsConstants.BirthdayEvents.BIRTHDAY_CANCEL,
+							null, null, null, null, null, null, null, null);
 				}
 			}
 		});
 		Logger.d(getClass().getSimpleName(), "calling show on date picker dialog");
 		dialog.show();
+
+		BirthdayUtils.recordBirthdayAnalytics(
+				AnalyticsConstants.BirthdayEvents.BIRTHDAY_DIALOG_OPEN,
+				AnalyticsConstants.BirthdayEvents.BIRTHDAY_STORE,
+				AnalyticsConstants.BirthdayEvents.BIRTHDAY_DIALOG_OPEN,
+				null, null, null, null, null, null, null, null);
 	}
 
 	private void setupEditScreen()
@@ -3369,7 +3386,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			}
 			
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 				mActivityState.deleteStatusToken = null;
 				mActivityState.deleteStatusId = null;
@@ -3446,7 +3463,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			}
 			
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 		//		onRequestSuccess(null);
 				dismissLoadingDialog();
@@ -3497,7 +3514,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			}
 			
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 				checkBox.setChecked(!checkBox.isChecked());
 				dismissLoadingDialog();

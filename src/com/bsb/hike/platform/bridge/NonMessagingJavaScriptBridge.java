@@ -18,12 +18,14 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Message;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.webkit.JavascriptInterface;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.adapters.ConversationsAdapter;
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.NonMessagingBotConfiguration;
@@ -104,7 +106,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void logAnalytics(String isUI, String subType, String json)
 	{
-		PlatformHelper.logAnalytics(isUI, subType, json,mBotInfo);
+		PlatformHelper.logAnalytics(isUI, subType, json, mBotInfo);
 	}
 
 	@Override
@@ -1459,7 +1461,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			return;
 		}
 
-		PlatformHelper.chooseFile(id,displayCameraItem,weakActivity.get());
+		PlatformHelper.chooseFile(id, displayCameraItem, weakActivity.get());
 	}
 
 	/**
@@ -1678,7 +1680,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			this.tokenLife = tokenLife;
 		}
 		@Override
-		public void onRequestFailure(HttpException httpException) {
+		public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException) {
 			Logger.e("NonMessagingJavascriptBridge", "Error while parsing success request: "+httpException.getErrorCode()+" : "+httpException.getMessage());
 			if (httpException.getErrorCode() == HttpURLConnection.HTTP_UNAUTHORIZED)
 			{
@@ -1853,7 +1855,22 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			mBotInfo.setLastConversationMsg(Utils.makeConvMessage(mBotInfo.getMsisdn(), message, true, ConvMessage.State.RECEIVED_READ));
 		}
 	}
-
+	/**
+	 * Platform Version 12
+	 * Method to log analytics according to new taxonomy
+	 * unique key and kingdom are compulsory
+	 * @param json in the new taxonomy
+	 */
+	@JavascriptInterface
+	public void logAnalyticsV2(String json) {
+		JSONObject jsonObject = null;
+		try {
+			jsonObject = new JSONObject(json);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		PlatformHelper.logAnaLyticsV2(json, mBotInfo.getConversationName(), mBotInfo.getMsisdn(), jsonObject.optString(AnalyticsConstants.V2.UNIQUE_KEY), jsonObject.optString(AnalyticsConstants.V2.KINGDOM), mBotInfo.getMAppVersionCode());
+	}
 	/**
 	 * Platform Version 12
 	 * Method to get list of children bots

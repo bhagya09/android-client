@@ -1,6 +1,7 @@
 package com.bsb.hike.tasks;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -8,6 +9,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.models.Birthday;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -16,6 +18,7 @@ import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHTTPTask;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.ui.ProfileActivity;
+import com.bsb.hike.utils.BirthdayUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -184,7 +187,7 @@ public class EditProfileTask implements IHikeHTTPTask
             }
 
             @Override
-            public void onRequestFailure(HttpException httpException)
+            public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
                 if (editProfileRequestsCount.decrementAndGet() == 0)
                 {
@@ -240,7 +243,7 @@ public class EditProfileTask implements IHikeHTTPTask
         return new IRequestListener()
         {
             @Override
-            public void onRequestFailure(HttpException httpException)
+            public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
             {
                 if (editProfileRequestsCount.decrementAndGet() == 0)
                 {
@@ -312,7 +315,7 @@ public class EditProfileTask implements IHikeHTTPTask
         return new IRequestListener()
         {
             @Override
-            public void onRequestFailure(HttpException httpException)
+            public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
             {
                 Logger.d(getClass().getSimpleName(), "DoB update request failed");
                 if (editProfileRequestsCount.decrementAndGet() == 0)
@@ -331,6 +334,13 @@ public class EditProfileTask implements IHikeHTTPTask
             {
                 Logger.d(getClass().getSimpleName(), "DoB updated request successful");
                 HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.DOB, newDob);
+
+                BirthdayUtils.recordBirthdayAnalytics(
+                        AnalyticsConstants.BirthdayEvents.BIRTHDAY_SAVED,
+                        AnalyticsConstants.BirthdayEvents.BIRTHDAY_STORE,
+                        AnalyticsConstants.BirthdayEvents.BIRTHDAY_SAVED,
+                        null, null, null, null, null, null, null, null);
+
                 if (editProfileRequestsCount.decrementAndGet() == 0)
                 {
                     HikeMessengerApp.getPubSub().publish(HikePubSub.DISMISS_EDIT_PROFILE_DIALOG, null);

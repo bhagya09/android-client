@@ -1,5 +1,6 @@
 package com.bsb.hike.chatHead;
 
+import android.support.annotation.Nullable;
 import android.transition.ChangeTransform;
 
 import com.bsb.hike.HikeMessengerApp;
@@ -62,7 +63,7 @@ public class UpdateCallListener implements IRequestListener
 	}
 
 	@Override
-	public void onRequestFailure(HttpException httpException)
+	public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 	{
 		Logger.d(TAG, "request failure update call failure");
 	}

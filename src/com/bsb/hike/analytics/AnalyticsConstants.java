@@ -237,6 +237,7 @@ public class AnalyticsConstants
 	public static String PLATFORM_NOTIFICATION = "platform_notification";
 	public static String PLATFORM_RICH_NOTIF = "platform_rich_notif";
 	public static String TTL_EXPIRED = "ttlExpired";
+	public static String NATIVE_CARD_FORWARD = "nativeCardForward";
 
 	//Constants for v2 (Normalized Taxonomy)
 	public static final class V2
@@ -300,6 +301,8 @@ public class AnalyticsConstants
 		public static final String RACE = "ra";
 
 		public static final String POPULATION = "pop";
+
+		public static final String DIVISION = "d";
 	}
 
 	// Edit picture flags and events
@@ -890,6 +893,8 @@ public class AnalyticsConstants
 		public static final String TIP_FLUSH = "tip_flush";
 		public static final String HOME_SCREEN = "home_scrn";
 		public static final String FUNNEL = "funnel";
+		public static final String OPEN_SCREEN = "opnScrn";
+		public static final String HTTP_CALL = "http";
 		public static final String EXIT = "exit";
 
 	}
@@ -920,6 +925,75 @@ public class AnalyticsConstants
 		public static final String ACT_GROUP = "act_grp";
 
 		public static final String GROUP_CREATE = "create";
+	}
+
+	public static final class BirthdayEvents
+	{
+		public static final String BIRTHDAY = "bday";
+
+		public static final String BIRTHDAY_PUSH_NOTIF = "bday_push_notif";
+
+		public static final String BIRTHDAY_NOTIF_PACKET_RECV = "bday_rcvd";
+
+		public static final String BIRTHDAY_HTTP_REQ = "bday_clnt_req";
+
+		public static final String BIRTHDAY_REQ_RESPONSE = "bday_dcod";
+
+		public static final String BIRTHDAY_NOTIF_CREATED = "bday_ntf_crt";
+
+		public static final String BIRTHDAY_NOTIF_SWIPE_OFF = "bday_ntf_swp";
+
+		public static final String BIRTHDAY_DIALOG_OPEN = "bday_dl_opn";
+
+		public static final String BIRTHDAY_STORE = "bday_store";
+
+		public static final String BIRTHDAY_SAVED = "bday_saved";
+
+		public static final String BIRTHDAY_OK = "bday_ok";
+
+		public static final String BIRTHDAY_CANCEL = "bday_cancel";
+
+		public static final String BIRTHDAY_CHANGE_SETTING = "bday_chng_stg";
+
+		public static final String BIRTHDAY_SETTING = "bday_stg";
+
+		public static final String BIRTHDAY_SETTING_OPEN = "bday_stg_opn";
+
+		public static final String BIRTHDAY_CHANGE = "bday_chng";
+
+		public static final String BIRTHDAY_SELCT_FRIEND = "bday_slct_frnd";
+
+		public static final String BIRTHDAY_WISH = "bday_wish";
+
+	}
+
+	public static final String EXP_ANALYTICS_TAG = "a_t";
+
+	public static final class UJNotifAnalyticsConstants
+	{
+		public static final String UJ_NOTIF = "uj_notif";
+
+		public static final String UJ_RECEIVED = "uj_rcvd";
+
+		public static final String FUNNEL = "funnel";
+
+		public static final String UJ_NOTIF_CREATED = "uj_ntf_crt";
+
+		public static final String UJ_NOTIF_CLICKED = "uj_ntf_clk";
+
+		public static final String UJ_NOTIF_SWIPED = "uj_ntf_swp";
+
+		public static final String UJ_NOTIF_SAY_HI = "uj_ntf_say_hi";
+
+		public static final String UJ_NOTIF_ADD_FRIEND = "uj_ntf_add_frnd";
+
+		public static final String NORMAL = "normal";
+
+		public static final String RICH = "rich";
+
+		public static final String LOUD = "loud";
+
+		public static final String SILENT = "silent";
 	}
 
 }

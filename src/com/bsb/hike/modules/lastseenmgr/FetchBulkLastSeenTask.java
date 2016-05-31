@@ -1,5 +1,7 @@
 package com.bsb.hike.modules.lastseenmgr;
 
+import android.support.annotation.Nullable;
+
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.BulkLastSeenRequest;
 
 import org.json.JSONException;
@@ -59,7 +61,7 @@ public class FetchBulkLastSeenTask
 			}
 
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 				Logger.e(TAG, "exception : ", httpException);
 			}

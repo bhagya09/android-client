@@ -32,7 +32,7 @@ public class HikeConstants
 	public static final String MESSAGE = "msg";
 
 	public static final String CUSTOM_MESSAGE = "cmsg";
-
+	public static final String FAV_TO_FRIENDS_MIGRATION = "f2f_mig";
 	public static final String TOAST = "tst";
 
 	public static final String UI_TOPIC = "/u";
@@ -769,7 +769,12 @@ public class HikeConstants
 	public static final String TOGGLE = "toggle";
 
     public static final String HTTP_NETWORK_CHECK_CALL = "httpNetworkCheckCall";
+
+	public static final java.lang.String CARD_MAPPING = "card_mapping";
+	public static final String TITLE = "title";
+
 	public static final String FETCH_UID_UPGRADE_SUCCESSFULL = "uid_up_suc";
+
 	public static String ADD_URL = "addUrl";
 	public static String DELETE_URL = "deleteUrl";
 
@@ -1390,6 +1395,8 @@ public class HikeConstants
 
 	public static final String WT_1_REVAMP_ENABLED = "wt_1";
 
+	public static final String MESSAGE_INFO_ENABLED = "mi";
+
 	public static final String CUSTOM_CHATTHEME_ENABLED = "ct_1";
 
 	public static final String CUSTOM_CHATTHEME_DISABLE_OVERLAY = "cct_disable_overlay";
@@ -1866,6 +1873,7 @@ public class HikeConstants
 
 		public static final String HIKE_DIRECT_MODE="hikedirectmode";
 		public static final String SHOW_TIMELINE = "showTimeline";
+		public static final String BYPASS_GALLERY = "bypassGallery";
 
 		// constants related to sharing Functioanlity
 		public static final class ShareTypes
@@ -2966,6 +2974,8 @@ public class HikeConstants
 		public static final String OFFLINE = "offline";
 
 		public static final String GENERAL_EVENT_DR = "dr";
+
+        public static final String CUSTOM_KEYBOARD = "kb";
 	}
 
 
@@ -3166,7 +3176,7 @@ public class HikeConstants
 	public static interface ConvMessagePacketKeys
 	{
 
-		public static final String CONTENT_TYPE = "c";
+		public static final String CONTENT_TYPE = "nc";
 
 		public static final String PIN_TYPE = "pin";
 
@@ -4214,7 +4224,6 @@ public class HikeConstants
 
 	}
 
-	public static final String FAV_TO_FRIENDS_MIGRATION = "f2f_mig";
 
 	public static final String IS_NEW_USER = "is_new_user";
 
@@ -4240,7 +4249,14 @@ public class HikeConstants
 
 		public static final String DIRECTORY_TYPE = "dir_t";
 	}
+	public static final class MESSAGE_INFO{
+		public static final String MESSAGE_INFO_TYPE="mi_t";
+		public static final  int ONE_TO_ONE=1;
+		public static final int GROUP=2;
+		public static final int BROADCAST=3;
 
+
+	}
 	public static final String NUM_ROWS_INITIALLY_VISIBLE = "num_rows_iv";
 
 	public static final String DISK_CACHE_SIZE = "disk_cache_size";
@@ -4273,6 +4289,8 @@ public class HikeConstants
 
 		public static final String NOTIF = "notif";
 
+		public static final String ATOMIC_TIP = "atomic_tip";
+
 		public static final String UNKNOWN = "unknown";
 	}
 
@@ -4285,6 +4303,10 @@ public class HikeConstants
 	public static final String POSITION = "pos";
 
 	public static final String VIEW_ALL_CLICKED = "viewAllClicked";
+
+    public static final String HANDLE = "handle";
+
+    public static final String KEYBOARD_DATA = "kb";
 
     public static final String FAVS_RAI="favs";
 
@@ -4383,4 +4405,6 @@ public class HikeConstants
 	public static final String LS_EXCLUSION = "ls_ex";
 
 	public static final String LS_INCLUSION = "ls_in";
+
+	public static final String HIKE_CES_ENABLE = "ces_enable";
 }

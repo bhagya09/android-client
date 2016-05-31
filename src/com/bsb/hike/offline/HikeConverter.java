@@ -355,6 +355,9 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 		long msgId = OfflineUtils.getMsgId(message);
 		
 		int rowsUpdated = OfflineUtils.updateDB(msgId, ConvMessage.State.SENT_DELIVERED, msisdn);
+		if(message!=null)
+		OfflineUtils.saveDeliveryReceipt(msgId,tempConvMessage);
+
 		Logger.d(AnalyticsConstants.MSG_REL_TAG,"Rows updated in Db for convMessage Sttae");
 				
 		if(!tempConvMessage.isOfflineMessage())

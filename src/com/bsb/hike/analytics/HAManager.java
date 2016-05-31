@@ -904,12 +904,15 @@ public class HAManager {
     /**
      * It records Events For Bot for this individual session
      */
-    public void recordIndividualChatSession(String msisdn) {
+    public void recordIndividualChatSession(String msisdn ,String source)
+    {
         JSONObject metadata;
         ChatSession chatSession = fgSessionInstance.getIndividualChatSesions(msisdn);
         fgSessionInstance.removeChatSessionFromMap(msisdn);
-        try {
-            if (chatSession != null) {
+        try
+        {
+            if (chatSession != null)
+            {
                 metadata = new JSONObject();
                 // 1)to_user:- "+hikecricket+" for cricket bot
                 metadata.put(AnalyticsConstants.TO_USER, chatSession.getMsisdn());
@@ -922,6 +925,7 @@ public class HAManager {
 
                 metadata.put(AnalyticsConstants.NETWORK_TYPE, Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
                 metadata.put(AnalyticsConstants.APP_VERSION, AccountUtils.getAppVersion());
+                metadata.put(AnalyticsConstants.SOURCE_APP_OPEN,source);
 
                 record(AnalyticsConstants.CHAT_ANALYTICS, AnalyticsConstants.NON_UI_EVENT, EventPriority.HIGH, metadata, AnalyticsConstants.EVENT_TAG_BOTS);
                 botOpenMqttAnalytics(metadata);
@@ -929,7 +933,9 @@ public class HAManager {
                 Logger.d(AnalyticsConstants.ANALYTICS_TAG, "--session-id :" + fgSessionInstance.getSessionId() + "--to_user :" + chatSession.getMsisdn() + "--session-time :"
                         + chatSession.getChatSessionTime());
             }
-        } catch (JSONException e) {
+        }
+        catch (JSONException e)
+        {
             Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
         }
 
