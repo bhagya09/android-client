@@ -1674,7 +1674,7 @@ public class StickerManager
 		}
 	}
 
-	public void updateStickerCategoriesMetadata(JSONArray jsonArray)
+	public void updateInitialStickerCategoriesMetadata(JSONArray jsonArray)
 	{
 		int length = jsonArray.length();
 		List<StickerCategory> visibleStickerCategories = new ArrayList<StickerCategory>();
