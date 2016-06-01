@@ -210,6 +210,24 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
                     }
                 }, 2000); // This is to avoid changing of subtext right when timeline is tapped since it takes time for timeline activity to show up
             }
+        } else if (type.equals(HikePubSub.TIMELINE_UPDATE_RECIEVED) || type.equals(HikePubSub.STATUS_MARKED_READ)) {
+            if (isAdded() && getActivity() != null) {
+                HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable() {
+                    @Override
+                    public void run() {
+                        StoriesDataManager.getInstance().getAllStoryData(StoryFragment.this);
+                    }
+                }, 1000); // This is to avoid changing of subtext right when timeline is tapped since it takes time for timeline activity to show up
+            }
+        } else if (type.equals(HikePubSub.ICON_CHANGED)) {
+            if (isAdded() && getActivity() != null) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        storyAdapter.notifyDataSetChanged();
+                    }
+                });
+            }
         }
     }
 
