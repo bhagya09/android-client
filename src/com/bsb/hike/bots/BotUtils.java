@@ -1262,7 +1262,7 @@ public class BotUtils
 				}
 
 				@Override
-				public void onRequestFailure(HttpException httpException)
+				public void onRequestFailure(Response response, HttpException httpException)
 				{
 					com.hike.transporter.utils.Logger.v(TAG, "Bot download request failure for " + msisdn);
 					Toast.makeText(mContext, "" + mContext.getResources().getString(R.string.error_sharing), Toast.LENGTH_SHORT).show();

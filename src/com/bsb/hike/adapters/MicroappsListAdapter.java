@@ -3,12 +3,6 @@ package com.bsb.hike.adapters;
 import java.util.List;
 
 import android.content.Context;
-<<<<<<< HEAD
-=======
-import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.support.annotation.Nullable;
->>>>>>> 2b4c3b4b84484d2825e0ee94202b8df2d1507612
 import android.support.v4.widget.DrawerLayout.LayoutParams;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;

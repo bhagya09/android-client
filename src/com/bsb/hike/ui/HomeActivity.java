@@ -1321,7 +1321,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					}
 
 					@Override
-					public void onRequestFailure(HttpException httpException)
+					public void onRequestFailure(Response response, HttpException httpException)
 					{
 						botRequested = false;
 					}
