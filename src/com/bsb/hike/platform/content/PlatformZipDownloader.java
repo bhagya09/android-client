@@ -614,7 +614,11 @@ public class PlatformZipDownloader
                     eventCode = EventCode.ZERO_BYTE_ZIP_DOWNLOAD;
 
 				callbackProgress.remove(callbackId);
-				if (!autoResume)
+				if(resumeSupported)
+				{
+					PlatformUtils.updatePlatformDownloadState(mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.getmAppVersionCode(),HikePlatformConstants.PlatformDwnldState.FAILED);
+				}
+				else if (!autoResume)
 				{
 					PlatformUtils.removeFromPlatformDownloadStateTable(mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.getmAppVersionCode());
 				}
