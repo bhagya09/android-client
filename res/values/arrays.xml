@@ -315,4 +315,14 @@
         <item>@color/v2_dp_bg_11</item>
     </array>
 
+    <string-array name="story_camera_shy_subtext">
+        <item>Solitude is what I breathe</item>
+        <item>Introvert in-house!</item>
+        <item>Nerd alert!</item>
+        <item>Fabulous loner</item>
+        <item>I think a lot, but I don’t say much</item>
+        <item>Please kindly go away, I’m introverting</item>
+        <item>Born as forest, overwhelmed by trees!</item>
+    </string-array>
+
 </resources>

@@ -75,6 +75,7 @@ import com.bsb.hike.platform.PlatformMessageMetadata;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.WebMetadata;
 import com.bsb.hike.service.UpgradeIntentService;
+import com.bsb.hike.timeline.StoryShyTextGenerator;
 import com.bsb.hike.timeline.model.ActionsDataModel;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
@@ -98,6 +99,7 @@ import org.json.JSONObject;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -11172,6 +11174,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 						continue;
 					}
 
+					//Do not add to stories list for self-posts
+					if(msisdn.equals(ContactManager.getInstance().getSelfMsisdn()))
+					{
+						continue;
+					}
+
 					StatusMessage statusMessage = new StatusMessage(c.getLong(idIdx), c.getString(mappedIdIdx), msisdn, null, c.getString(textIdx),
 							StatusMessageType.values()[c.getInt(typeIdx)], c.getLong(tsIdx), c.getInt(moodIdIdx), c.getInt(timeOfDayIdx), c.getString(fileKeyIdx), c.getInt(isReadIdx) == 1 ? true : false);
 					statusMessages.add(statusMessage);
@@ -11186,11 +11194,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 					msisdnMessages.add(statusMessage);
 				}
 
+				ContactInfo.FavoriteType[] favoriteTypes = new ContactInfo.FavoriteType[]{ContactInfo.FavoriteType.FRIEND, ContactInfo.FavoriteType.REQUEST_SENT, ContactInfo.FavoriteType.REQUEST_SENT_REJECTED};
+                List<ContactInfo> friendsList = ContactManager.getInstance().getContactsOfFavoriteType(favoriteTypes, HikeConstants.ON_HIKE_VALUE, ContactManager.getInstance().getSelfMsisdn(), false, false);
+
 				if (msisdns.size() > 0) {
 					List<ContactInfo> contactList = ContactManager.getInstance().getContact(msisdns, true, true);
-
-					String[] friendsMsisdns = getTimelineFriendsMsisdn(ContactManager.getInstance().getSelfMsisdn());
-					List<String> friendsList = new ArrayList<String>();
 
 					for (ContactInfo contactInfo : contactList) {
 						List<StatusMessage> msisdnMessages = statusMessagesMap.get(contactInfo.getMsisdn());
@@ -11205,14 +11213,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 						//For StoryItem.CATEGORY_DEFAULT, get friends list and select only those who have not posted in last 24 hours i.e. storyTimeRange
 						if (storyCategory == StoryItem.CATEGORY_DEFAULT) {
 							boolean hasRecentlyPosted = false;
-							for (String twoWayFriendsMsisdn : friendsMsisdns) {
-								if (twoWayFriendsMsisdn.equals(contactInfo.getMsisdn())) {
+							for (ContactInfo friendInfo : friendsList) {
+								if (friendInfo.getMsisdn().equals(contactInfo.getMsisdn())) {
 									hasRecentlyPosted = true;
 									break;
 								}
 							}
-							if (!hasRecentlyPosted) {
-								friendsList.add(contactInfo.getMsisdn());
+							if (hasRecentlyPosted) {
+								friendsList.remove(contactInfo.getMsisdn());
 							}
 						} else {
 							// Make a story item
@@ -11224,18 +11232,18 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 							storyList.add(storyItem);
 						}
 					}
+				}
 
-					if (storyCategory == StoryItem.CATEGORY_DEFAULT) {
-						for (String twoWayFriendsMsisdn : friendsList) {
-							ContactInfo contactInfo = ContactManager.getInstance().getContact(twoWayFriendsMsisdn, true, true);
-							StoryItem<StatusMessage, ContactInfo> storyItem = new StoryItem<>(StoryItem.TYPE_FRIEND, contactInfo.getNameOrMsisdn());
-//							storyItem.setSubText(msisdnMessages.get(0).getTimestampFormatted(true, HikeMessengerApp.getInstance().getApplicationContext()));// TODO
-							storyItem.setTypeInfo(contactInfo);
+				if (storyCategory == StoryItem.CATEGORY_DEFAULT) {
+					for (ContactInfo friendInfo : friendsList) {
+						if (!friendInfo.getMsisdn().equals(ContactManager.getInstance().getSelfMsisdn())) {
+							StoryItem<StatusMessage, ContactInfo> storyItem = new StoryItem<>(StoryItem.TYPE_FRIEND, friendInfo.getNameOrMsisdn());
+							storyItem.setSubText(StoryShyTextGenerator.getInstance().getCameraShySubText());
+							storyItem.setTypeInfo(friendInfo);
 							storyItem.setCategory(storyCategory);
 							storyList.add(storyItem);
 						}
 					}
-
 				}
 			} finally {
 				if (c != null) {

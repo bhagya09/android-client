@@ -17,12 +17,16 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.media.ImageParser;
+import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.contactmgr.HikeUserDatabase;
 import com.bsb.hike.timeline.adapter.StoryListAdapter;
 import com.bsb.hike.timeline.model.StoryItem;
-import com.bsb.hike.timeline.tasks.FetchStoriesTask;
+import com.bsb.hike.timeline.tasks.StoriesDataManager;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Utils;
@@ -35,7 +39,7 @@ import java.util.List;
  * <p/>
  * Created by AtulM on 24/05/16.
  */
-public class StoryFragment extends Fragment implements View.OnClickListener {
+public class StoryFragment extends Fragment implements View.OnClickListener, HikePubSub.Listener, StoriesDataManager.StoriesDataListener, AdapterView.OnItemClickListener {
     private View fragmentView;
 
     private ListView listViewStories;
@@ -50,12 +54,21 @@ public class StoryFragment extends Fragment implements View.OnClickListener {
 
     private View btnAddFriends;
 
+    private final String[] pubsubEvents = new String[]{HikePubSub.UNSEEN_STATUS_COUNT_CHANGED, HikePubSub.TIMELINE_UPDATE_RECIEVED, HikePubSub.ICON_CHANGED, HikePubSub.ACTIVITY_UPDATE, HikePubSub.STATUS_MARKED_READ};
+
     public static StoryFragment newInstance(@Nullable Bundle argBundle) {
         StoryFragment fragmentInstance = new StoryFragment();
         if (argBundle != null) {
             fragmentInstance.setArguments(argBundle);
         }
         return fragmentInstance;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+        HikeMessengerApp.getInstance().getPubSub().addListeners(this, pubsubEvents);
     }
 
     @Override
@@ -96,39 +109,9 @@ public class StoryFragment extends Fragment implements View.OnClickListener {
 
         listViewStories.setAdapter(storyAdapter);
 
-        listViewStories.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                StoryItem storyItem = storyItemList.get(position);
-                if (storyItem.getType() == StoryItem.TYPE_HEADER) {
-                    return;
-                } else if (storyItem.getType() == StoryItem.TYPE_INTENT) {
-                    getActivity().startActivity(storyItem.getIntent());
-                } else if (storyItem.getType() == StoryItem.TYPE_FRIEND) {
+        listViewStories.setOnItemClickListener(this);
 
-                } else if (storyItem.getType() == StoryItem.TYPE_BRAND) {
-                    // TODO
-                }
-            }
-        });
-
-        //TODO WIP
-        new FetchStoriesTask(){
-            @Override
-            protected void onProgressUpdate(List... itemList) {
-                if (itemList != null && !Utils.isEmpty(itemList[0])) {
-                    storyItemList = itemList[0];
-                    storyAdapter.setStoryItemList(storyItemList);
-                    storyAdapter.notifyDataSetChanged();
-                }
-            }
-        }.execute();
-    }
-
-    // TODO
-    private void updateTimelineSubText()
-    {
-
+        StoriesDataManager.getInstance().getAllStoryData(this);
     }
 
     private void bindEmptyStateView() {
@@ -200,6 +183,72 @@ public class StoryFragment extends Fragment implements View.OnClickListener {
             case R.id.btn_add_friends:
                 // TODO Open add friends screen
                 break;
+        }
+    }
+
+    @Override
+    public void onEventReceived(String type, Object object) {
+        if (type.equals(HikePubSub.UNSEEN_STATUS_COUNT_CHANGED) || type.equals(HikePubSub.ACTIVITY_UPDATE)) {
+            if (isAdded() && getActivity() != null) {
+                HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable() {
+                    @Override
+                    public void run() {
+                        StoriesDataManager.getInstance().updateDefaultData();
+                    }
+                }, 2000); // This is to avoid changing of subtext right when timeline is tapped since it takes time for timeline activity to show up
+            }
+        } else if (type.equals(HikePubSub.TIMELINE_UPDATE_RECIEVED) || type.equals(HikePubSub.STATUS_MARKED_READ)) {
+            if (isAdded() && getActivity() != null) {
+                HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable() {
+                    @Override
+                    public void run() {
+                        StoriesDataManager.getInstance().getAllStoryData(StoryFragment.this);
+                    }
+                }, 1000); // This is to avoid changing of subtext right when timeline is tapped since it takes time for timeline activity to show up
+            }
+        } else if (type.equals(HikePubSub.ICON_CHANGED)) {
+            if (isAdded() && getActivity() != null) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        storyAdapter.notifyDataSetChanged();
+                    }
+                });
+            }
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        HikeMessengerApp.getInstance().getPubSub().removeListeners(this, pubsubEvents);
+    }
+
+    @Override
+    public void onDataUpdated(final List<StoryItem> argList) {
+        if (isAdded() && getActivity() != null) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (!Utils.isEmpty(argList)) {
+                        storyItemList = argList;
+                        storyAdapter.setStoryItemList(storyItemList);
+                        storyAdapter.notifyDataSetChanged();
+                    }
+                }
+            });
+        }
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        StoryItem storyItem = storyItemList.get(position);
+        if (storyItem.getType() == StoryItem.TYPE_INTENT) {
+            getActivity().startActivity(storyItem.getIntent());
+        } else if (storyItem.getType() == StoryItem.TYPE_FRIEND && storyItem.getTypeInfo() != null) {
+            getActivity().startActivity(IntentFactory.getContactTimelineIntent(getActivity(), (ContactInfo) storyItem.getTypeInfo()));
+        } else if (storyItem.getType() == StoryItem.TYPE_BRAND) {
+            // TODO
         }
     }
 }

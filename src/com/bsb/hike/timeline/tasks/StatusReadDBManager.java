@@ -15,6 +15,8 @@ public class StatusReadDBManager {
 
     private Object lock = new Object();
 
+    private StatusReadDBManager(){}
+
     public static StatusReadDBManager getInstance() {
         if (mInstance == null) {
             synchronized (StatusReadDBManager.class) {

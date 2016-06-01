@@ -348,6 +348,14 @@ public class IntentFactory
 	{
 		return new Intent(context, TimelineActivity.class);
 	}
+
+	public static Intent getContactTimelineIntent(Context context, ContactInfo cInfo)
+	{
+		Intent intent = new Intent(context, ProfileActivity.class);
+		intent.putExtra(HikeConstants.Extras.CONTACT_INFO_TIMELINE, cInfo.getMsisdn());
+		intent.putExtra(HikeConstants.Extras.ON_HIKE, cInfo.isOnhike());
+		return intent;
+	}
 	
 	public static void openHikeExtras(Context context)
 	{

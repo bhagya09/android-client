@@ -69,6 +69,8 @@ public class StoryListAdapter extends BaseAdapter implements PinnedSectionListVi
 
         mDPImageLoader = new IconLoader(mContext, mContext.getResources().getDimensionPixelSize(R.dimen.icon_picture_size));
         mDPImageLoader.setDefaultAvatarIfNoCustomIcon(true);
+        mDPImageLoader.setImageFadeIn(false);
+
     }
 
     public void setStoryItemList(List<StoryItem> argList) {
@@ -149,11 +151,21 @@ public class StoryListAdapter extends BaseAdapter implements PinnedSectionListVi
             viewHolder.avatarView.setImageDrawable(timelineLogoDrawable);
             viewHolder.avatarView.setBackground(otherFeaturesDrawable);
             viewHolder.titleView.setText(storyItem.getTitle());
-
+            viewHolder.titleView.setAlpha(1f);
+            viewHolder.avatarView.setAlpha(1f);
+            
             String subText = storyItem.getSubText();
             if (!TextUtils.isEmpty(subText)) {
                 viewHolder.subTextView.setText(subText);
                 viewHolder.subTextView.setVisibility(View.VISIBLE);
+
+                if (mContext.getString(R.string.timeline_sub_no_updt).equals(subText)) {
+                    // Color gray
+                    viewHolder.subTextView.setTextColor(mContext.getResources().getColor(R.color.stories_sub_text_unread));
+                } else {
+                    // Color blue
+                    viewHolder.subTextView.setTextColor(mContext.getResources().getColor(R.color.blue_hike));
+                }
             }
         } else if (storyItem.getType() == StoryItem.TYPE_FRIEND) {
             viewHolder.titleView.setText(storyItem.getTitle());
@@ -164,19 +176,34 @@ public class StoryListAdapter extends BaseAdapter implements PinnedSectionListVi
             }
             List<StatusMessage> statusMessagesList = storyItem.getDataObjects();
             ContactInfo contactInfo = (ContactInfo) storyItem.getTypeInfo();
-            if (!Utils.isEmpty(statusMessagesList)) {
+            if (!Utils.isEmpty(statusMessagesList) || storyItem.getCategory() == StoryItem.CATEGORY_DEFAULT) {
                 if (storyItem.getCategory() == StoryItem.CATEGORY_DEFAULT) {
                     //Load profile pic
-                    mDPImageLoader.loadImage(contactInfo.getMsisdn(), viewHolder.avatarView, false, false, true);
+                    mDPImageLoader.loadImage(contactInfo.getMsisdn(), viewHolder.avatarView, false, false, true, contactInfo);
                 } else {
                     //Load last photo post
                     RoundedImageView roundImageView = (RoundedImageView) viewHolder.avatarView;
                     roundImageView.setOval(true);
-                    mTimelineImageLoader.loadImage(statusMessagesList.get(0).getMappedId(), viewHolder.avatarView, false, false, false, statusMessagesList.get(0));
+                    mTimelineImageLoader.loadImage(statusMessagesList.get(0).getMappedId() + "_icon", viewHolder.avatarView, false, false, false, statusMessagesList.get(0));
                 }
             } else {
                 Logger.wtf(TAG, "Friends story item but no stories attached!!");
             }
+
+
+            //Setup alpha
+            if(storyItem.getCategory() != StoryItem.CATEGORY_RECENT)
+            {
+                viewHolder.titleView.setAlpha(0.6f);
+                viewHolder.avatarView.setAlpha(0.6f);
+            }
+            else
+            {
+                viewHolder.titleView.setAlpha(1f);
+                viewHolder.avatarView.setAlpha(1f);
+            }
+            viewHolder.subTextView.setTextColor(mContext.getResources().getColor(R.color.stories_sub_text_unread));
+
         } else if (storyItem.getType() == StoryItem.TYPE_BRAND) {
             // TODO
         }
