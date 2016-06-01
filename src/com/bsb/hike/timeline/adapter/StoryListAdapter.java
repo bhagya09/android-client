@@ -174,7 +174,7 @@ public class StoryListAdapter extends BaseAdapter implements PinnedSectionListVi
                     //Load last photo post
                     RoundedImageView roundImageView = (RoundedImageView) viewHolder.avatarView;
                     roundImageView.setOval(true);
-                    mTimelineImageLoader.loadImage(statusMessagesList.get(0).getMappedId(), viewHolder.avatarView, false, false, false, statusMessagesList.get(0));
+                    mTimelineImageLoader.loadImage(statusMessagesList.get(0).getMappedId()+"_icon", viewHolder.avatarView, false, false, false, statusMessagesList.get(0));
                 }
             } else {
                 Logger.wtf(TAG, "Friends story item but no stories attached!!");
