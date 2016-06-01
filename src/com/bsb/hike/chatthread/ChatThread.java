@@ -590,7 +590,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				customThemeErrorNotifier((String) msg.obj);
 				break;
 			case SET_CUSTOM_THEME_BACKGROUND:
-				setCustomThemeBackground();
+				//setCustomThemeBackground();
+				updateUIAsPerTheme(HikeChatThemeConstants.THEME_ID_CUSTOM_THEME);
 				break;
 			case SHOW_INPUT_BOX:
 				showInputBox();
@@ -1153,7 +1154,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			if(ChatThemeManager.getInstance().customThemeTempUploadImagePath != null) {
 				FileTransferManager.getInstance(activity).uploadCustomThemeBackgroundImage(ChatThemeManager.getInstance().customThemeTempUploadImagePath);
 			}
-			uiHandler.sendEmptyMessageDelayed(SET_CUSTOM_THEME_BACKGROUND, 1000);
+			uiHandler.sendEmptyMessageDelayed(SET_CUSTOM_THEME_BACKGROUND, 100);
 			if (themePicker != null && themePicker.isShowing()) {
 				themePicker.dismiss();
 			}
@@ -1737,7 +1738,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	@Override
 	public void themeClicked(String themeId)
 	{
-		if (themeId.equalsIgnoreCase(HikeChatThemeConstants.THEME_PALETTE_CAMERA_ICON)) {
+		if (HikeChatThemeConstants.THEME_ID_CUSTOM_THEME.equalsIgnoreCase(themeId)) {
 			ChatThemeManager.getInstance().customThemeTempUploadImagePath = ChatThemeManager.getInstance().getCCTTempUploadPath();
 			int galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS | GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
 			int height = DrawUtils.displayMetrics.heightPixels;
@@ -1749,7 +1750,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			if (themePicker != null && themePicker.isShowing()) {
 				themePicker.dismiss();
 			}
-		}else {
+		} else {
 			postTrialsAnalytic(themeId);
 			updateUIAsPerTheme(themeId);
 		}
@@ -1768,7 +1769,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		/**
 		 * Save current theme and send chat theme message
 		 */
-		if (chatThemeId.equalsIgnoreCase(HikeChatThemeConstants.THEME_PALETTE_CAMERA_ICON)) {
+		if (HikeChatThemeConstants.THEME_ID_CUSTOM_THEME.equalsIgnoreCase(chatThemeId)) {
 			return;
 		}
 		if (!currentThemeId.equals(chatThemeId))
@@ -1869,7 +1870,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		}
 
 		boolean showTransistionEffect = true;
-		if(TextUtils.isEmpty(mThemeIdBGRendered) || HikeChatThemeConstants.THEME_PALETTE_CAMERA_ICON.equalsIgnoreCase(mThemeIdBGRendered)){
+		if(TextUtils.isEmpty(mThemeIdBGRendered) || HikeChatThemeConstants.THEME_ID_CUSTOM_THEME.equalsIgnoreCase(mThemeIdBGRendered)){
 			showTransistionEffect = false;
 		}
 		if(showTransistionEffect) {
@@ -1898,7 +1899,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		Drawable drawable = new BitmapDrawable(getResources(), bmp);
 
 		setThemeBackground(backgroundImage, drawable, false, true);
-		mThemeIdBGRendered = HikeChatThemeConstants.THEME_PALETTE_CAMERA_ICON;
+		mThemeIdBGRendered = HikeChatThemeConstants.THEME_ID_CUSTOM_THEME;
 	}
 
 	@Override
@@ -2495,11 +2496,16 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 			ColorDrawable statusBarColor = (ColorDrawable) ChatThemeManager.getInstance().getDrawableForTheme(themeId, HikeChatThemeConstants.ASSET_INDEX_STATUS_BAR_BG);
 			setStatusBarColorValue(statusBarColor.getColor());
+
 		}
 
 
 		// background image
-		setBackground(themeId);
+		if(HikeChatThemeConstants.THEME_ID_CUSTOM_THEME.equalsIgnoreCase(themeId)) {
+			setCustomThemeBackground();
+		} else {
+			setBackground(themeId);
+		}
 	}
 
 	@Override
@@ -5935,7 +5941,11 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		 */
 		if (getCurrentlThemeId() != null && !getCurrentlThemeId().equals(ChatThemeManager.getInstance().defaultChatThemeId))
 		{
-			setBackground(getCurrentlThemeId());
+			if(HikeChatThemeConstants.THEME_ID_CUSTOM_THEME.equalsIgnoreCase(getCurrentlThemeId())){
+				setCustomThemeBackground();
+			} else {
+				setBackground(getCurrentlThemeId());
+			}
 			ColorDrawable statusBarColor = (ColorDrawable) ChatThemeManager.getInstance().
 					getDrawableForTheme(getCurrentlThemeId(), HikeChatThemeConstants.ASSET_INDEX_STATUS_BAR_BG);
 			setStatusBarColorValue(statusBarColor.getColor());

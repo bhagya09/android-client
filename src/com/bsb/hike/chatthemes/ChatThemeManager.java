@@ -80,6 +80,7 @@ public class ChatThemeManager {
         mChatThemesMap = HikeConversationsDatabase.getInstance().getAllChatThemes();
         mDrawableHelper = new ChatThemeDrawableHelper();
         mAssetHelper = new ChatThemeAssetHelper();
+        addTempCustomThemeToMap();
     }
 
     private void getAllHikeThemesForDisplay() {
@@ -426,5 +427,31 @@ public class ChatThemeManager {
         mAssetHelper.clearAssets();
     }
 
+    public void addTempCustomThemeToMap() {
+        HikeChatTheme theme = new HikeChatTheme();
+        theme.setThemeId(HikeChatThemeConstants.THEME_ID_CUSTOM_THEME);
+        theme.setThemeType(HikeChatThemeConstants.THEME_TYPE_CUSTOM);
+        theme.setVisibilityStatus(false);
+        theme.setThemeOrderIndex(0);
+        theme.setSystemMessageType(HikeChatThemeConstants.SYSTEM_MESSAGE_TYPE_LIGHT);
+        theme.setAssetDownloadStatus(HikeChatThemeConstants.ASSET_STATUS_DOWNLOAD_COMPLETE);
+
+        for (byte j = 0; j < HikeChatThemeConstants.ASSET_INDEX_COUNT; j++) {
+            String assetKey = HikeChatThemeConstants.JSON_SIGNAL_THEME[j];
+            if (assetKey.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_THEME_BG_PORTRAIT)) {
+            } else if (assetKey.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_THEME_BG_LANDSCAPE)) {
+            } else if (assetKey.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_THEME_THUMBNAIL)) {
+                String assetId = HikeMessengerApp.getInstance().getApplicationContext().getResources().getResourceEntryName(R.drawable.ic_ct_default_preview) + HikeChatThemeConstants.FILEEXTN_PNG;
+                HikeChatThemeAsset thumb = new HikeChatThemeAsset(assetId, HikeChatThemeConstants.ASSET_TYPE_PNG, "", 0);
+                theme.setAsset(j, thumb.getAssetId());
+            } else {
+                HikeChatThemeAsset asset = getDrawableHelper().getDefaultCustomDrawable(assetKey);
+                if (asset != null) {
+                    theme.setAsset(j, asset.getAssetId());
+                }
+            }
+        }
+        mChatThemesMap.put(theme.getThemeId(), theme);
+    }
 
 }
