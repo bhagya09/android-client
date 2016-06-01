@@ -224,7 +224,7 @@ public class HikeNotification
 		/*
 		 * invoke the chat thread here. The free SMS invite switch popup should already be showing here ideally by now.
 		 */
-		final Intent notificationIntent = Utils.getHomeActivityIntent(context);
+		final Intent notificationIntent = IntentFactory.getHomeActivityDefaultTabIntent(context);
 		notificationIntent.putExtra(HikeConstants.Extras.NAME, context.getString(R.string.team_hike));
 
 		notificationIntent.setData((Uri.parse("custom://" + FREE_SMS_POPUP_NOTIFICATION_ID)));
@@ -265,7 +265,7 @@ public class HikeNotification
 		/*
 		 * invoke the chat thread here. The Stealth tip popup should already be showing here ideally by now.
 		 */
-		final Intent notificationIntent = Utils.getHomeActivityIntent(context);
+		final Intent notificationIntent = IntentFactory.getHomeActivityDefaultTabIntent(context);
 		notificationIntent.putExtra(HikeConstants.Extras.HAS_TIP, true);
 		notificationIntent.putExtra(HikeConstants.Extras.NAME, context.getString(R.string.team_hike));
 
@@ -332,7 +332,7 @@ public class HikeNotification
 		{
 			NotificationCompat.Builder mBuilder = getNotificationBuilder(notifTitle, notifText, notifTitle, null, returnSmallIcon(), isSilent, isSilent, false);
 
-			Intent notificationIntent = Utils.getHomeActivityIntent(context);
+			Intent notificationIntent = IntentFactory.getHomeActivityDefaultTabIntent(context);
 			notificationIntent.putExtra(HikeConstants.Extras.HAS_TIP, true);
 			notificationIntent.putExtra(HikeConstants.TIP_ID, tipId);
 			notificationIntent.putExtra(HikeConstants.IS_ATOMIC_TIP, true);
@@ -403,7 +403,7 @@ public class HikeNotification
 
 			NotificationCompat.Builder mBuilder = getNotificationBuilder(tipHeaderText, tipMsgTxt, message, null, smallIconId, false);
 
-			Intent intent = Utils.getHomeActivityIntent(context);
+			Intent intent = IntentFactory.getHomeActivityDefaultTabIntent(context);
 			intent.putExtra(HikeConstants.Extras.HAS_TIP, true);
 			intent.putExtra(HikeConstants.TIP_ID, ConversationTip.UPDATE_CRITICAL_TIP);
 			mBuilder.setContentIntent(PendingIntent.getActivity(context,1,intent,PendingIntent.FLAG_UPDATE_CURRENT));
@@ -916,7 +916,7 @@ public class HikeNotification
 		}
 
 		// we've got to invoke the timeline here
-		final Intent notificationIntent = Utils.getHomeActivityIntent(context);
+		final Intent notificationIntent = IntentFactory.getHomeActivityDefaultTabIntent(context);
 		notificationIntent.setData((Uri.parse("custom://" + notificationId)));
 
 		final int smallIconId = returnSmallIcon();
@@ -1914,7 +1914,7 @@ public class HikeNotification
 		
 		TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
         
-        stackBuilder.addNextIntent(Utils.getHomeActivityIntent(context));
+        stackBuilder.addNextIntent(IntentFactory.getHomeActivityDefaultTabIntent(context));
         stackBuilder.addNextIntent(notificationIntent);
         
         PendingIntent contentIntent = stackBuilder.getPendingIntent(requestCode, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -2041,7 +2041,7 @@ public class HikeNotification
 	}
 	public  void notifyUserAndOpenHomeActivity(String text, String title, boolean shouldNotPlaySound)
 	{
-		Intent intent=Utils.getHomeActivityIntent(context);
+		Intent intent=IntentFactory.getHomeActivityDefaultTabIntent(context);
 		showBigTextStyleNotification(intent, 0, System.currentTimeMillis(), HikeNotification.NOTIFICATION_PRODUCT_POPUP, title, text,
 				title, "", null, null, shouldNotPlaySound, 0);
 	}

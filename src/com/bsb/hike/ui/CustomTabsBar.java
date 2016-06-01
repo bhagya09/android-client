@@ -10,6 +10,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bsb.hike.R;
+import com.bsb.hike.utils.Logger;
 
 import java.util.HashMap;
 
@@ -17,6 +18,9 @@ import java.util.HashMap;
  * Created by gauravmittal on 13/05/16.
  */
 public class CustomTabsBar {
+
+    private static final String TAG = "CustomTabsBar";
+
     private Context mContext;
 
     private ViewGroup parentLayout;
@@ -28,6 +32,8 @@ public class CustomTabsBar {
     private Tab currentSelectedTab;
 
     private LayoutInflater inflater;
+
+    private boolean tabSelectionInProgress = false;
 
     CustomTabsBar(Context ctx, ViewGroup layout) {
         this.mContext = ctx;
@@ -68,6 +74,15 @@ public class CustomTabsBar {
     }
 
     public void selectTab(Tab tab) {
+        if (tabSelectionInProgress)
+        {
+            Logger.e(TAG,"Tab selection already in progress. Returning...");
+            return;
+        }
+
+        // set Tab Selection in progress
+        tabSelectionInProgress = true;
+
         if (currentSelectedTab != null && currentSelectedTab.getId() == tab.getId()) {
             tab.reselect();
         } else {
@@ -78,6 +93,9 @@ public class CustomTabsBar {
                 oldTab.unselect();
             }
         }
+
+        // reset Tab Selection in Progress
+        tabSelectionInProgress = false;
     }
 
     public Tab getTab(int id) {

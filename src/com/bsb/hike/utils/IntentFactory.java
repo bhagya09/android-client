@@ -672,6 +672,11 @@ public class IntentFactory
 		return intent;
 	}
 
+	public static Intent getHomeActivityDefaultTabIntent(Context context)
+	{
+		return getHomeActivityIntent(context).putExtra(HomeActivity.OPEN_DEFAULT_TAB, true);
+	}
+
 	public static Intent getComposeChatActivityIntent(Context context)
 	{
 		return new Intent(context, ComposeChatActivity.class);
