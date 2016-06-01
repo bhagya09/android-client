@@ -979,6 +979,7 @@ public class StickyCaller {
 			json.put(AnalyticsConstants.V2.SPECIES, position + 1); //as list starts with 0
 			json.put(AnalyticsConstants.V2.RACE, text);
 			json.put(AnalyticsConstants.V2.BREED, totalItem);
+			json.put(AnalyticsConstants.V2.GENUS, quickCallerCardOpenSource);
 			Logger.d("c_spam_logs", " QuickReplyCrossButtonClicked logs are \n " + json);
 			HAManager.getInstance().recordV2(json);
 
