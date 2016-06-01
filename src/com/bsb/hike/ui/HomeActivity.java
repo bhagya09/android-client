@@ -755,6 +755,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 			
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
+		// When home activity is launched from with in, the intent so far has been to get to conv screen. This is to be continued.
+		mPager.setCurrentItem(DEAFULT_FRAGMENT_POSITION);
 	}
 
 	private void showSmsOrFreeInvitePopup()
