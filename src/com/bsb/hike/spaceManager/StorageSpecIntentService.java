@@ -87,6 +87,6 @@ public class StorageSpecIntentService extends HikeIntentService
 
     private void fetchSpaceManagerItems()
     {
-        
+        SpaceManagerItemsFetcher.fetchItems();
     }
 }
