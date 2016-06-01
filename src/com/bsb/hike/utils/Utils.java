@@ -295,7 +295,6 @@ public class Utils
 {
 	private static final String TAG = Utils.class.getSimpleName();
 
-
 	// Precision points definition for duration logging========================================[[
 	public static final class ExecutionDurationLogger
 	{
@@ -8155,5 +8154,23 @@ public class Utils
 			return 0;
 		}
 
+	}
+
+	public static void recordUpgradeTaskCompletion(String taskKey, long duration)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, "db_update");
+			json.put(AnalyticsConstants.V2.KINGDOM, "act_hs");
+			json.put(AnalyticsConstants.V2.ORDER, "db_update");
+			json.put(AnalyticsConstants.V2.FAMILY, taskKey);
+			json.put(AnalyticsConstants.V2.GENUS, duration);
+			HAManager.getInstance().recordV2(json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
 	}
 }
