@@ -1629,4 +1629,5 @@
     <string name="story_category_recent">RECENT</string>
     <string name="story_category_allphotos">ALL PHOTOS</string>
     <string name="story_category_default">CAMERA SHY</string>
+    <string name="timeline_sub_no_updt">No new updates</string>
 </resources>

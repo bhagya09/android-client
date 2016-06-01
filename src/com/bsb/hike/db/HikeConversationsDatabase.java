@@ -75,6 +75,7 @@ import com.bsb.hike.platform.PlatformMessageMetadata;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.WebMetadata;
 import com.bsb.hike.service.UpgradeIntentService;
+import com.bsb.hike.timeline.StoryShyTextGenerator;
 import com.bsb.hike.timeline.model.ActionsDataModel;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
@@ -11237,7 +11238,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 					for (ContactInfo friendInfo : friendsList) {
 						if (!friendInfo.getMsisdn().equals(ContactManager.getInstance().getSelfMsisdn())) {
 							StoryItem<StatusMessage, ContactInfo> storyItem = new StoryItem<>(StoryItem.TYPE_FRIEND, friendInfo.getNameOrMsisdn());
-//							storyItem.setSubText(msisdnMessages.get(0).getTimestampFormatted(true, HikeMessengerApp.getInstance().getApplicationContext()));// TODO
+							storyItem.setSubText(StoryShyTextGenerator.getInstance().getCameraShySubText());
 							storyItem.setTypeInfo(friendInfo);
 							storyItem.setCategory(storyCategory);
 							storyList.add(storyItem);
