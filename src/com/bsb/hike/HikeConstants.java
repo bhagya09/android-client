@@ -862,6 +862,12 @@ public class HikeConstants
 	/* the max amount (in seconds) the reconnect time can be */
 	public static final int MAX_RECONNECT_TIME = 120;
 
+	/* the max amount (in seconds) the reconnect time can be */
+	public static final int PA_MAX_RECONNECT_TIME = 21600;
+
+	/* the max amount (in seconds) the reconnect time can be */
+	public static final int PA_BACKOFF_MULTIPLIER = 4;
+
 	/* the max amount of time we allow the service to run in case of no activity */
 	public static final int DISCONNECT_TIME = 10 * 60;
 
