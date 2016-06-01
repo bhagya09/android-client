@@ -784,6 +784,9 @@ public class HikeConstants
 	public static final String CALL_TYPE = "call_type";
 	public static String CONTENT_RANGE = "Content-Range";
 	public static String TIMELINE = "timeline";
+	public static String SEND ="send";
+
+	public static String TEXT ="text";
 
 	public class Shortcut
 	{

@@ -1273,17 +1273,18 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				}
 
 			}
-        }
-        else if (BotUtils.isBotUrl(intentUri))
-        {
-            makeBotsJoinRequestCall(intentUri.getQueryParameter(HikeConstants.HANDLE));
-        }else if(BotUtils.isJFLUrl(intentUri)){
+        } else if (BotUtils.isBotUrl(intentUri)) {
+			makeBotsJoinRequestCall(intentUri.getQueryParameter(HikeConstants.HANDLE));
+		} else if (BotUtils.isJFLUrl(intentUri)) {
 			handleJFLLink();
+		} else if (BotUtils.isSendUrl(intentUri)) {
+			handleSendLink(intentUri);
 		}
 
     }
 
-    private void handleJFLLink(){
+
+	private void handleJFLLink(){
 
 		BotInfo mBotInfo = new BotInfo.HikeBotBuilder(HikePlatformConstants.HIKE_VIRAL_MSISDN).build();
 		String msisdn = mBotInfo.getMsisdn();
@@ -2874,5 +2875,20 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			e.toString();
 		}
+	}
+	private void handleSendLink(Uri intentUri) {
+		String sendText ="";
+		try {
+			sendText = intentUri.getQueryParameter(HikeConstants.TEXT);
+		}
+		catch(UnsupportedOperationException e)
+		{
+			Logger.e(TAG,"Error in external url share");
+			return;
+		}
+		Intent intent =IntentFactory.getComposeChatActivityIntent(this);
+		intent.putExtra(HikeConstants.SEND,sendText);
+		startActivity(intent);
+
 	}
 }

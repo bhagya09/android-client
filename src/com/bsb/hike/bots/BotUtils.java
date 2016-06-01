@@ -1401,4 +1401,19 @@ public class BotUtils
 			dialog = null;
 		}
 	}
+	/**
+	 * Is send url boolean.
+	 *
+	 * @param uri
+	 *            the uri
+	 * @return the boolean
+	 */
+	public static boolean isSendUrl(Uri uri)
+	{
+		if (HikeConstants.HIKE_SERVICE.equals(uri.getScheme()) && HikeConstants.SEND.equals(uri.getAuthority()))
+		{
+			return true;
+		}
+		return false;
+	}
 }
