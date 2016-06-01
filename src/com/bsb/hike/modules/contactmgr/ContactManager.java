@@ -3258,5 +3258,14 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 			return false;
 	}
 
+	public void setAllLastSeenValues(final boolean newValue) {
+		HikeHandlerUtil.getInstance().postAtFront(new Runnable() {
+			@Override
+			public void run() {
+				hDb.setAllLastSeenPrivacyValues(newValue);
+			}
+		});
+	}
+
 }
 

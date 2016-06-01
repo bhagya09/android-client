@@ -2960,4 +2960,11 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		msisdnList.add(msisdns);
 		setSUSettingForMsisdns(msisdnList, newValue);
 	}
+
+	void setAllLastSeenPrivacyValues(boolean newValue) {
+		ContentValues values = new ContentValues();
+		values.put(DBConstants.LAST_SEEN_SETTINGS, newValue ? 1 : 0);
+		mDb.update(DBConstants.USERS_TABLE, values, null, null);
+	}
+
 }
