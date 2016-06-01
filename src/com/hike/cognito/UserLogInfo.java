@@ -37,7 +37,6 @@ public class UserLogInfo {
     public static final int PHONE_SPEC = 32;
     public static final int DEVICE_DETAILS = 64;
     public static final int ACCOUNT_ANALYTICS_FLAG = 128;
-    public static final int ALL_LOGS = 255;
 
     private static int mRequestFlags;
 
@@ -71,7 +70,7 @@ public class UserLogInfo {
         }
     }
 
-    public static void requestUserLogs(final int flags) {
+    private static void requestUserLogs(final int flags) {
         if (!isDeviceSafeToLog(true)) {
             Logger.d(TAG, "Unsafe to log... Abort collection!!!");
             return;
