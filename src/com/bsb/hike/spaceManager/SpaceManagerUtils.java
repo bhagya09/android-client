@@ -35,6 +35,12 @@ public class SpaceManagerUtils
 
     private static final String DIRECTORY = "dir";
 
+    public static final String CATEGORY_TAG = "SpaceManagerCategory";
+
+    public static final String SUB_CATEGORY_TAG = "SpaceManagerSubCategory";
+
+    public static final String SPACE_MANAGER_ITEMS = "spcMgrItems";
+
     /**
      * Computes and returns a Map with key as directory path and value as directory size. The boolean
      * parameter is set true if map of all files within directory with respective sizes is also required.

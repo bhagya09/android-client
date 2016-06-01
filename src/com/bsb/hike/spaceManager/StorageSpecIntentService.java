@@ -21,6 +21,8 @@ public class StorageSpecIntentService extends HikeIntentService
 
     public static final String ACTION_GET_SHARED_STORAGE_ANALYTICS = "com.bsb.hike.SHARED_STORAGE_ANALYTICS";
 
+    public static final String ACTION_FETCH_SPACE_MANAGER_ITEMS = "com.bsb.hike.FETCH_SPC_MGR_ITEMS";
+
     public StorageSpecIntentService()
     {
         super(TAG);
@@ -56,6 +58,10 @@ public class StorageSpecIntentService extends HikeIntentService
             case ACTION_GET_SHARED_STORAGE_ANALYTICS:
                 sharedStorageAnalytics(shouldMapContainedFiles);
                 break;
+
+            case ACTION_FETCH_SPACE_MANAGER_ITEMS:
+                fetchSpaceManagerItems();
+                break;
         }
     }
 
@@ -77,5 +83,10 @@ public class StorageSpecIntentService extends HikeIntentService
     private void sharedStorageAnalytics(boolean shouldMapContainedFiles)
     {
         SpaceManagerUtils.recordSharedHikeDirAnalytics(shouldMapContainedFiles);
+    }
+
+    private void fetchSpaceManagerItems()
+    {
+        
     }
 }

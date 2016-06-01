@@ -438,7 +438,6 @@
 
         <activity
             android:name=".spaceManager.ManageSpaceActivity"
-            android:launchMode="singleTop"
             android:configChanges="orientation|keyboardHidden|screenSize" >
         </activity>
          
