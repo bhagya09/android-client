@@ -1148,7 +1148,7 @@ public class IntentFactory
 		intent.putExtra(AnalyticsConstants.NATIVE_CARD_FORWARD, convMessage.platformMessageMetadata.contentId);
 		return intent;
 	}
-	public static Intent getForwardIntentForConvMessage(Context context, ConvMessage convMessage, String metadata, boolean includeAllUsers )
+	public static Intent getForwardIntentForConvMessage(Context context, ConvMessage convMessage, String metadata, boolean includeAllUsers,File fileUri)
 	{
 		Intent intent = new Intent(context, ComposeChatActivity.class);
 		intent.putExtra(HikeConstants.Extras.FORWARD_MESSAGE, includeAllUsers);
@@ -1160,6 +1160,13 @@ public class IntentFactory
 			if (metadata != null)
 			{
 				multiMsgFwdObject.put(HikeConstants.METADATA, metadata);
+			}
+			if(fileUri !=null)
+			{
+				multiMsgFwdObject.put(HikeConstants.Extras.FILE_PATH, fileUri.getPath());
+				multiMsgFwdObject.put(HikeConstants.Extras.FILE_TYPE, "img/jpg");
+				intent.putExtra(HikeConstants.Extras.SHOW_TIMELINE, true);
+				intent.putExtra(HikeConstants.Extras.BYPASS_GALLERY, true);
 			}
 			multiMsgFwdObject.put(HikeConstants.PLATFORM_PACKET, convMessage.getPlatformData());
 			multiMsgFwdObject.put(HikeConstants.HIKE_MESSAGE, convMessage.getMessage());

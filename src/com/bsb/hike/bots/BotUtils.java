@@ -490,7 +490,7 @@ public class BotUtils
 				// Ignore the packet and send invalid bot analytics if packet does not contain mAppVersionCode field
                 if(mAppVersionCode == -1)
                 {
-                    PlatformUtils.invalidDataBotAnalytics(botInfo);
+                    PlatformUtils.invalidPacketAnalytics(botInfo);
                     return;
                 }
                 else if (currentBotInfo != null && (mAppVersionCode < currentBotInfoMAppVersionCode || botVersionCode < currentBotVersionCode
@@ -508,7 +508,7 @@ public class BotUtils
                         ToastListener.getInstance().showBotDownloadNotification(msisdn, currentBotInfo.getLastMessageText(),notifType.equals(HikeConstants.SILENT));
                     }
 
-                    PlatformUtils.invalidDataBotAnalytics(botInfo);
+                    PlatformUtils.invalidPacketAnalytics(botInfo);
                     Pair<BotInfo,Boolean> botInfoCreatedSuccessfullyPair = new Pair(botInfo,true);
                     HikeMessengerApp.getPubSub().publish(HikePubSub.BOT_CREATED, botInfoCreatedSuccessfullyPair);
                     return;

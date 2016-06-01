@@ -2478,6 +2478,28 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						}
 						multipleMessageList.add(convMessage);
 					}
+					else if(msgExtrasJson.optInt(MESSAGE_TYPE.MESSAGE_TYPE) == MESSAGE_TYPE.WEB_CONTENT || msgExtrasJson.optInt(MESSAGE_TYPE.MESSAGE_TYPE) == MESSAGE_TYPE.FORWARD_WEB_CONTENT){
+						ConvMessage convMessage = getConvMessageForForwardedWebContent(msgExtrasJson);
+						try
+						{
+
+							platformCards.append( TextUtils.isEmpty(platformCards) ? convMessage.webMetadata.getAppName() : "," + convMessage.webMetadata.getAppName());
+						}
+						catch (NullPointerException e)
+						{
+							e.printStackTrace();
+						}
+
+						convMessage.setMessage(msgExtrasJson.getString(HikeConstants.HIKE_MESSAGE));
+						if(offlineContact!=null)
+						{
+							ConvMessage offlineConvMessage =  new ConvMessage(convMessage);
+							offlineConvMessage.setMessageOriginType(OriginType.OFFLINE);
+							offlineMessageList.add(offlineConvMessage);
+						}
+
+						multipleMessageList.add(convMessage);
+					}
 					else if (msgExtrasJson.has(HikeConstants.Extras.FILE_PATH))
 					{
 						String fileKey = null;
@@ -2572,28 +2594,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 							offlineConvMessage.setMessageOriginType(OriginType.OFFLINE);
 							offlineMessageList.add(offlineConvMessage);
 						}
-					} else if(msgExtrasJson.optInt(MESSAGE_TYPE.MESSAGE_TYPE) == MESSAGE_TYPE.WEB_CONTENT || msgExtrasJson.optInt(MESSAGE_TYPE.MESSAGE_TYPE) == MESSAGE_TYPE.FORWARD_WEB_CONTENT){
-
-						ConvMessage convMessage = getConvMessageForForwardedWebContent(msgExtrasJson);
-						try
-						{
-
-							platformCards.append( TextUtils.isEmpty(platformCards) ? convMessage.webMetadata.getAppName() : "," + convMessage.webMetadata.getAppName());
-						}
-						catch (NullPointerException e)
-						{
-							e.printStackTrace();
-						}
-
-						convMessage.setMessage(msgExtrasJson.getString(HikeConstants.HIKE_MESSAGE));
-						if(offlineContact!=null)
-						{
-							ConvMessage offlineConvMessage =  new ConvMessage(convMessage);
-							offlineConvMessage.setMessageOriginType(OriginType.OFFLINE);
-                        	offlineMessageList.add(offlineConvMessage);
-						}
-						
-						multipleMessageList.add(convMessage);
 					}
 					/*
 					 * Since the message was not forwarded, we check if we have any drafts saved for this conversation, if we do we enter it in the compose box.

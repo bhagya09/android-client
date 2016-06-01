@@ -37,6 +37,7 @@ import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.contactmgr.GroupDetails;
 import com.bsb.hike.platform.bridge.JavascriptBridge;
 import com.bsb.hike.platform.content.PlatformContent;
+import com.bsb.hike.platform.nativecards.NativeCardUtils;
 import com.bsb.hike.productpopup.IActivityPopup;
 import com.bsb.hike.productpopup.ProductContentModel;
 import com.bsb.hike.productpopup.ProductInfoManager;
@@ -128,61 +129,6 @@ public class PlatformHelper
 		}
 	}
 
-	// Function to forward to chat
-	public static void forwardToChat(String json, String hikeMessage, BotInfo mBotInfo, Activity activity)
-	{
-		Logger.i(TAG, "Received this json in forward to chat : " + json + "\n Received this hm : " + hikeMessage);
-
-		if (TextUtils.isEmpty(json) || TextUtils.isEmpty(hikeMessage))
-		{
-			Logger.e(TAG, "Received a null or empty json/hikeMessage in forward to chat");
-			return;
-		}
-
-		try
-		{
-			NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
-			JSONObject cardObj = new JSONObject(json);
-
-			/**
-			 * Blindly inserting the appName in the cardObj JSON.
-			 */
-			cardObj.put(HikePlatformConstants.APP_NAME, metadata.getAppName());
-			cardObj.put(HikePlatformConstants.APP_PACKAGE, metadata.getAppPackage());
-            /*
-             *  Adding these fields for determining compatibility and making sync call to server on recipient (Code added in versioning release)
-             */
-
-            // Add mAppVersionCode from forward Card if its present in the bot
-            if(metadata.getFwdCardObj() != null)
-            {
-                JSONObject forwardCardObj = metadata.getFwdCardObj();
-                int forwardCardMAppVersionCode = forwardCardObj.optInt(HikePlatformConstants.MAPP_VERSION_CODE,-1);
-                cardObj.put(HikePlatformConstants.MAPP_VERSION_CODE,forwardCardMAppVersionCode);
-            }
-            else
-            {
-                cardObj.put(HikePlatformConstants.MAPP_VERSION_CODE, metadata.getmAppVersionCode());
-            }
-
-			JSONObject webMetadata = new JSONObject();
-			webMetadata.put(HikePlatformConstants.TARGET_PLATFORM, metadata.getTargetPlatform());
-			webMetadata.put(HikePlatformConstants.CARD_OBJECT, cardObj);
-			webMetadata.put(HikePlatformConstants.FORWARD_CARD_OBJECT, metadata.getFwdCardObj());
-
-            ConvMessage message = PlatformUtils.getConvMessageFromJSON(webMetadata, hikeMessage, mBotInfo.getMsisdn());
-			message.setNameSpace(mBotInfo.getNamespace());
-			if (message != null)
-			{
-				startComPoseChatActivity(message, activity);
-			}
-		}
-		catch (JSONException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
 
 	public static void sendNormalEvent(String messageHash, String eventData, String namespace, BotInfo botInfo)
 	{
@@ -393,7 +339,7 @@ public class PlatformHelper
 	{
 		if (activity != null)
 		{
-			final Intent intent = IntentFactory.getForwardIntentForConvMessage(activity, message, PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()), false);
+			final Intent intent = IntentFactory.getForwardIntentForConvMessage(activity, message, PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()), false,null);
 			intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, ComposeChatActivity.PICK_CONTACT_AND_SEND_MODE);
 			if (hashcode < 0)
 				intent.putExtra(JavascriptBridge.tag, hashcode);
@@ -408,7 +354,7 @@ public class PlatformHelper
 	{
 		if (activity != null)
 		{
-			final Intent intent = IntentFactory.getForwardIntentForConvMessage(activity, message, PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()), false);
+			final Intent intent = IntentFactory.getForwardIntentForConvMessage(activity, message, PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()), false,null);
 			intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, ComposeChatActivity.PICK_CONTACT_AND_SEND_MODE);
 			if (hashcode < 0)
 				intent.putExtra(JavascriptBridge.tag, hashcode);
@@ -422,7 +368,7 @@ public class PlatformHelper
 		}
 	}
 
-	public static void startComPoseChatActivity(final ConvMessage message, final Activity mContext)
+	public static void startComPoseChatActivity(final ConvMessage message, final Activity mContext, final File fileUri)
 	{
 		PlatformHelper.mHandler = new Handler(HikeMessengerApp.getInstance().getMainLooper());
 		if (null == mHandler)
@@ -439,7 +385,7 @@ public class PlatformHelper
 				if (mContext != null)
 				{
 					final Intent intent = IntentFactory.getForwardIntentForConvMessage(mContext, message, PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()),
-							true);
+							true,fileUri);
 					mContext.startActivity(intent);
 				}
 				else
@@ -624,6 +570,69 @@ public class PlatformHelper
 		catch (JSONException e)
 		{
 			Logger.e(TAG,"Error in logging analytics");
+		}
+	}
+	public static void forwardToChat(String json, String hikeMessage, BotInfo mBotInfo, Activity activity,CustomWebView customWebView)
+	{
+		Logger.i(TAG, "Received this json in forward to chat : " + json + "\n Received this hm : " + hikeMessage);
+		boolean showTimeline= false;
+		if (TextUtils.isEmpty(json) || TextUtils.isEmpty(hikeMessage))
+		{
+			Logger.e(TAG, "Received a null or empty json/hikeMessage in forward to chat");
+			return;
+		}
+
+		try
+		{
+			NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
+			JSONObject cardObj = new JSONObject(json);
+			if(cardObj.optBoolean(HikeConstants.TIMELINE,false))
+			{
+				showTimeline =true;
+				cardObj.remove(HikeConstants.TIMELINE);
+			}
+			/**
+			 * Blindly inserting the appName in the cardObj JSON.
+			 */
+			cardObj.put(HikePlatformConstants.APP_NAME, metadata.getAppName());
+			cardObj.put(HikePlatformConstants.APP_PACKAGE, metadata.getAppPackage());
+			/*
+			 *  Adding these fields for determining compatibility and making sync call to server on recipient (Code added in versioning release)
+             */
+
+			// Add mAppVersionCode from forward Card if its present in the bot
+			if (metadata.getFwdCardObj() != null)
+			{
+				JSONObject forwardCardObj = metadata.getFwdCardObj();
+				int forwardCardMAppVersionCode = forwardCardObj.optInt(HikePlatformConstants.MAPP_VERSION_CODE,-1);
+				cardObj.put(HikePlatformConstants.MAPP_VERSION_CODE,forwardCardMAppVersionCode);
+			}
+			else
+			{
+				cardObj.put(HikePlatformConstants.MAPP_VERSION_CODE, metadata.getmAppVersionCode());
+			}
+
+			JSONObject webMetadata = new JSONObject();
+			webMetadata.put(HikePlatformConstants.TARGET_PLATFORM, metadata.getTargetPlatform());
+			webMetadata.put(HikePlatformConstants.CARD_OBJECT, cardObj);
+			webMetadata.put(HikePlatformConstants.FORWARD_CARD_OBJECT, metadata.getFwdCardObj());
+
+			ConvMessage message = PlatformUtils.getConvMessageFromJSON(webMetadata, hikeMessage, mBotInfo.getMsisdn());
+			message.setNameSpace(mBotInfo.getNamespace());
+			if (message != null)
+			{
+				File fileUri =null;
+				if(customWebView !=null && showTimeline)
+				{
+					fileUri = NativeCardUtils.getFileForView(customWebView, HikeMessengerApp.getInstance());
+				}
+				startComPoseChatActivity(message, activity,fileUri);
+			}
+		}
+		catch (JSONException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 

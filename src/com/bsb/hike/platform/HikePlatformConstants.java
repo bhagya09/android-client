@@ -120,6 +120,7 @@ public interface HikePlatformConstants
 	public static final String NEW_AUTH_ENABLE="newAuthEnable";
 	String TAG_TYPE = "tag_type";
 	String TAG_ID = "tag_id";
+	String ENABLE_HELP= "enable_help";
 
 	public static final class AuthConstants
 	{
