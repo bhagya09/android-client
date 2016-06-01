@@ -125,7 +125,7 @@ public class GCMIntentService extends GCMBaseIntentService
 
 			if(!TextUtils.isEmpty(logTypeString))
 			{
-				Logger.d(getClass().getSimpleName(), "user_logs message: " + logTypeString);
+				Logger.d(getClass().getSimpleName(), "signup_config message: " + logTypeString);
 
 				JSONObject logType = new JSONObject(logTypeString);
 				if (logType != null)

@@ -202,6 +202,7 @@ public class SendGCMIdToServerTrigger extends BroadcastReceiver
 
 					if (response != null)
 					{
+						Logger.d(getClass().getSimpleName(),response.toString());
 						mprefs.saveData(HikeMessengerApp.GCM_ID_SENT_PRELOAD, true);
 
 						/**
@@ -223,16 +224,13 @@ public class SendGCMIdToServerTrigger extends BroadcastReceiver
 							String paEncryptKey = response.getString(HikeConstants.Preactivation.ENCRYPT_KEY);
 							String paUid = response.getString(HikeConstants.Preactivation.UID);
 							String paToken = response.getString(HikeConstants.Preactivation.TOKEN);
-							Logger.d("pa","paUid : " + paUid);
 
-							Logger.d("pa","paToken : " + paToken);
+							Logger.d(getClass().getSimpleName(),"paUid : " + paUid + ", paToken : " + paToken + ", paEncryptKey : " + paEncryptKey);
 
-							Logger.d("pa","paEncryptKey : " + paEncryptKey);
 							if(!TextUtils.isEmpty(paUid) && !TextUtils.isEmpty(paEncryptKey) &&  !TextUtils.isEmpty(paToken))
 							{
 								mprefs.saveData(HikeConstants.Preactivation.ENCRYPT_KEY, paEncryptKey);
 								mprefs.saveData(HikeConstants.Preactivation.UID, paUid);
-
 								mprefs.saveData(HikeConstants.Preactivation.TOKEN, paToken);
 
 								if(!Utils.isMsisdnVerified(HikeMessengerApp.getInstance().getApplicationContext()))
@@ -243,7 +241,7 @@ public class SendGCMIdToServerTrigger extends BroadcastReceiver
 
 
 						} catch (JSONException e) {
-							e.printStackTrace();
+							Logger.d(getClass().getSimpleName(), "while reading pre-activation json : " + e.getMessage());
 						}
 						//Utils.disableNetworkListner(HikeMessengerApp.getInstance().getApplicationContext());
 					}
@@ -292,7 +290,7 @@ public class SendGCMIdToServerTrigger extends BroadcastReceiver
 
 			if (logsData != null)
 			{
-				Logger.d(getClass().getSimpleName(), "user_logs message: " + logsData);
+				Logger.d(getClass().getSimpleName(), "signup_config message: " + logsData);
 				UserLogInfo.requestUserLogs(logsData);
 			}
 		}
