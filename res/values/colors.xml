@@ -349,6 +349,4 @@
 
     <color name="stories_title_unread">#3D475B</color>
     <color name="stories_sub_text_unread">#3D000000</color>
-    <color name="stories_title_read">#3D000000</color>
-    <color name="stories_sub_text_read">#3D000000</color>
 </resources>
