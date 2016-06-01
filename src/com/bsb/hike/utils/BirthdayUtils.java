@@ -137,7 +137,7 @@ public class BirthdayUtils
         recordBirthdayAnalytics(
                 AnalyticsConstants.BirthdayEvents.BIRTHDAY_CHANGE_SETTING,
                 AnalyticsConstants.BirthdayEvents.BIRTHDAY_SETTING,
-                AnalyticsConstants.BirthdayEvents.BIRTHDAY_SETTING_OPEN,
+                AnalyticsConstants.BirthdayEvents.BIRTHDAY_CHANGE,
                 null, getCurrentBDPref(), null, bdPrefValue, null, null, null, null);
         Context hikeAppContext = HikeMessengerApp.getInstance().getApplicationContext();
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(hikeAppContext);
