@@ -942,7 +942,7 @@ public class HikeNotification
 
 		final long timeStamp = System.currentTimeMillis() / 1000;
 
-		final Intent notificationIntent = Utils.getPeopleActivityIntent(context);
+		final Intent notificationIntent = IntentFactory.getFriendReqActivityAddedMeIntent(context);
 		notificationIntent.setData((Uri.parse("custom://" + notificationId)));
 
 		final int icon = returnSmallIcon();
