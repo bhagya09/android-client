@@ -12,7 +12,6 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StoryItem;
 import com.bsb.hike.utils.IntentFactory;
-import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 import java.util.ArrayList;
@@ -64,7 +63,10 @@ public abstract class FetchStoriesTask extends AsyncTask<Void, List, Void> {
             timelineItem.setSubText(mContext.getString(R.string.timeline_sub_new_updt));
         } else if (newLikes > 0) {
             timelineItem.setSubText(String.format(mContext.getString(R.string.timeline_sub_likes), newLikes));
+        } else {
+            timelineItem.setSubText(mContext.getString(R.string.timeline_sub_no_updt));
         }
+
         storyItemList.add(timelineItem);
 
         // Notify
