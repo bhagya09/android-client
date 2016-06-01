@@ -392,7 +392,7 @@ public class HikeNotificationUtils
         int pushType = ujJSON.optInt(HikeConstants.UserJoinMsg.PUSH_SETTING, HikeConstants.PushType.silent);
         boolean isRich = ujJSON.optBoolean(HikeConstants.UserJoinMsg.RICH_NOTIF, false);
         String msisdn = ujJSON.optString(HikeConstants.MSISDN);
-        String race = isRich ? RICH : (pushType == 0 ? SILENT : NORMAL);
+        String race = pushType == 0 ? SILENT : (isRich ? RICH : NORMAL);
         String variety = pushType == HikeConstants.PushType.loud ? LOUD : SILENT;
         String family = String.valueOf(msisdn.hashCode());
         String genus = ujJSON.optString(AnalyticsConstants.EXP_ANALYTICS_TAG);
