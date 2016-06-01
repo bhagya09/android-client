@@ -441,6 +441,10 @@
                      android:host="channel"
                      android:pathPrefix="/"
                      android:scheme="hike" />
+                 <data
+                     android:host="send"
+                     android:pathPrefix="/"
+                     android:scheme="hike" />
             </intent-filter>
         </activity>
 
