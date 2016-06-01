@@ -3,6 +3,7 @@ package com.bsb.hike.timeline.tasks;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.text.TextUtils;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
@@ -11,15 +12,20 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StoryItem;
 import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
  * Created by atul on 28/05/16.
  */
 public abstract class FetchStoriesTask extends AsyncTask<Void, List, Void> {
+
+    private static final String TAG = FetchStoriesTask.class.getSimpleName();
 
     private List<StoryItem> storyItemList;
 
@@ -66,6 +72,7 @@ public abstract class FetchStoriesTask extends AsyncTask<Void, List, Void> {
 
         // Get recents
         recentsList = HikeConversationsDatabase.getInstance().getStories(StoryItem.CATEGORY_RECENT);
+        Collections.reverse(recentsList);
         if (!Utils.isEmpty(recentsList)) {
             // Make a header
             StoryItem recentsHeader = new StoryItem(StoryItem.TYPE_HEADER, mContext.getString(R.string.story_category_recent));
@@ -78,6 +85,7 @@ public abstract class FetchStoriesTask extends AsyncTask<Void, List, Void> {
 
         // Get all photos
         allPhotosList = HikeConversationsDatabase.getInstance().getStories(StoryItem.CATEGORY_ALL);
+        Collections.reverse(allPhotosList);
         if (!Utils.isEmpty(allPhotosList)) {
             // Make a header
             StoryItem allPhotosHeader = new StoryItem(StoryItem.TYPE_HEADER, mContext.getString(R.string.story_category_allphotos));
@@ -90,6 +98,8 @@ public abstract class FetchStoriesTask extends AsyncTask<Void, List, Void> {
 
         // Get camera shy
         cameraShyList = HikeConversationsDatabase.getInstance().getStories(StoryItem.CATEGORY_DEFAULT);
+        Collections.sort(cameraShyList, cameraShyFriendsComparator);
+
         if (!Utils.isEmpty(cameraShyList)) {
             // Make a header
             StoryItem defaultHeader = new StoryItem(StoryItem.TYPE_HEADER, mContext.getString(R.string.story_category_default));
@@ -102,6 +112,31 @@ public abstract class FetchStoriesTask extends AsyncTask<Void, List, Void> {
 
         return null;
     }
+
+    Comparator cameraShyFriendsComparator = new Comparator<StoryItem<StatusMessage, ContactInfo>>() {
+        @Override
+        public int compare(StoryItem<StatusMessage, ContactInfo> i1, StoryItem<StatusMessage, ContactInfo> i2) {
+            ContactInfo cInfo1 = i1.getTypeInfo();
+            ContactInfo cInfo2 = i2.getTypeInfo();
+
+            if(TextUtils.isEmpty(cInfo1.getName()) && TextUtils.isEmpty(cInfo2.getName()))
+            {
+                return 0;
+            }
+
+            if(TextUtils.isEmpty(cInfo1.getName()) && !TextUtils.isEmpty(cInfo2.getName()))
+            {
+                return 1;
+            }
+
+            if(TextUtils.isEmpty(cInfo2.getName()) && !TextUtils.isEmpty(cInfo1.getName()))
+            {
+                return -1;
+            }
+
+            return cInfo1.getName().compareTo(cInfo2.getName());
+        }
+    };
 
     @Override
     protected abstract void onProgressUpdate(List... itemList);
