@@ -73,6 +73,9 @@ public class GCMIntentService extends GCMBaseIntentService
 				prefs.saveData(PreloadNotificationSchedular.NOTIFICATION_TIMELINE, notification);
 				PreloadNotificationSchedular.scheduleNextAlarm(context);
 			}
+
+			parseUserLogs(intent);
+
 			sendAnalyticsEvent(intent, intent.getStringExtra("msg"), reconnectVal, false);
 			return;
 		}
@@ -111,8 +114,6 @@ public class GCMIntentService extends GCMBaseIntentService
 		}
 		
 		sendAnalyticsEvent(intent, message, reconnectVal, true);
-
-		parseUserLogs(intent);
 
 	}
 	
