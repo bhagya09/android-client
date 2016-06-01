@@ -242,6 +242,7 @@ import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.SignupActivity;
 import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.ui.WelcomeActivity;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -301,30 +302,6 @@ public class Utils
 {
 	private static final String TAG = Utils.class.getSimpleName();
 
-
-	// Precision points definition for duration logging========================================[[
-	public static final class ExecutionDurationLogger
-	{
-		public static final String TAG = ExecutionDurationLogger.class.getSimpleName();
-
-		public static final int PRECISION_UNIT_SECOND = 0;
-
-		public static final int PRECISION_UNIT_MILLI_SECOND = 3;
-
-		public static final int PRECISION_UNIT_MICRO_SECOND = 6;
-
-		public static final int PRECISION_UNIT_NANO_SECOND = 9;
-
-		public static final String sec = " s";
-
-		public static final String ms = " ms";
-
-		public static final String μs = " μs";
-
-		public static final String ns = " ns";
-
-		public static final String DELIMITER = ", ";
-	}
 
 	// ========================================Precision points definition for duration logging]]
 
