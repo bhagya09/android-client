@@ -1,6 +1,7 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -31,7 +32,9 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_OUT_OF_SPACE;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.multiStickerDownloadRequest;
@@ -211,6 +214,7 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 					if (categoryData.has(HikeConstants.STICKERS))
 					{
 						JSONObject stickers = categoryData.getJSONObject(HikeConstants.STICKERS);
+						Set<Sticker> stickerSet = new HashSet<>();
 
 						for (Iterator<String> keys = stickers.keys(); keys.hasNext();)
 						{
@@ -227,6 +231,7 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 								StickerManager.getInstance().saveSmallStickers(smallStickerDir.getAbsolutePath(), stickerId, byteArray);
 								StickerManager.getInstance().saveInStickerTagSet(sticker);
                                 StickerManager.getInstance().saveInTableStickerSet(sticker);
+								stickerSet.add(sticker);
 							}
 							catch (FileNotFoundException e)
 							{
@@ -241,6 +246,8 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
                         StickerManager.getInstance().saveStickerSetFromJSON(stickers, categoryId);
 
                         StickerManager.getInstance().sendResponseTimeAnalytics(result, HikeConstants.STICKER_PACK, categoryId, null);
+
+						StickerManager.getInstance().initiateMultiStickerQuickSuggestionDownloadTask(stickerSet);
 					}
 
 					StickerLanguagesManager.getInstance().checkAndUpdateForbiddenList(data);
@@ -289,7 +296,7 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 			}
 
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 				doOnFailure(httpException);
 			}

@@ -2,8 +2,6 @@ package com.bsb.hike.ui.fragments;
 
 import java.util.Map;
 
-import org.json.JSONArray;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -18,23 +16,24 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
 import com.bsb.hike.smartImageLoader.StickerOtherIconLoader;
-import com.bsb.hike.ui.StickerShopActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.StickerManager;
 
+/**
+ * Abstract Fragment which provides the basic functionalities of SHOP including download and pack preview and DB reads
+ */
+
 public abstract class StickerShopBaseFragment extends Fragment implements Listener
 {
-	protected String[] pubSubListeners = { HikePubSub.STICKER_CATEGORY_MAP_UPDATED, HikePubSub.STICKER_SHOP_DOWNLOAD_SUCCESS, HikePubSub.STICKER_SHOP_DOWNLOAD_FAILURE };
+	protected String[] pubSubListeners = { HikePubSub.STICKER_CATEGORY_MAP_UPDATED, HikePubSub.STICKER_SHOP_DOWNLOAD_SUCCESS, HikePubSub.STICKER_SHOP_DOWNLOAD_FAILURE, HikePubSub.STICKER_SHOP_EXTRA_CATEGORIES };
 
 	protected StickerOtherIconLoader stickerOtherIconLoader;
 
@@ -62,6 +61,8 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 
 	protected int currentCategoriesCount;
 
+	protected int maxIndexShown;
+
 	private static final String TAG = StickerShopBaseFragment.class.getSimpleName();
 
 	protected View headerView;
@@ -84,12 +85,26 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 		doInitialSetup();
 	}
 
+    /**
+     * Method called onActivityCreated.
+     * Implement adapter initialisation and Data read here
+     */
 	protected abstract void doInitialSetup();
 
+    /**
+     * Wrapper for notifyDatasetChanged of the Fragment adapter
+     */
 	protected abstract void notifyAdapter();
 
+    /**
+     * Method called when data needs to be reloaded due to shop data update/download
+     */
 	protected abstract void reloadAdapter();
 
+    /**
+     *
+     * @return StickerOtherIconLoader : Thumbnail Loader object of the fragment which extends ImageWorker
+     */
 	protected abstract StickerOtherIconLoader getStickerPreviewLoader();
 
 	@Override
@@ -142,47 +157,7 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 		}
 		else if (HikePubSub.STICKER_SHOP_DOWNLOAD_SUCCESS.equals(type))
 		{
-			if (!isAdded())
-			{
-				return;
-			}
-			HikeHandlerUtil.getInstance().postRunnable(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					final int count = HikeConversationsDatabase.getInstance().getRankCountFromCategoryTable();
-					if ((currentCategoriesCount) > (count - (2 * StickerManager.SHOP_FETCH_PACK_COUNT)))
-					{
-						StickerManager.getInstance().initiateFetchCategoryRanksAndDataTask(count, true, false);
-					}
-					if (HikeSharedPreferenceUtil.getInstance().getData(StickerManager.STICKER_SHOP_RANK_FULLY_FETCHED, false) && ((currentCategoriesCount + StickerManager.SHOP_FETCH_PACK_COUNT) >= count))
-					{
-						HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.STICKER_SHOP_DATA_FULLY_FETCHED, true);
-					}
-					getActivity().runOnUiThread(new Runnable()
-					{
-						@Override
-						public void run()
-						{
-							if (!isAdded())
-							{
-								return;
-							}
-							listview.setVisibility(View.VISIBLE);
-							listview.removeFooterView(loadingFooterView);
-							loadingEmptyState.setVisibility(View.GONE);
-							loadingFailedEmptyState.setVisibility(View.GONE);
-							searchFailedState.setVisibility(View.GONE);
-							if (count > currentCategoriesCount)
-							{
-								reloadAdapter();
-							}
-							downloadState = NOT_DOWNLOADING;
-						}
-					});
-				}
-			});
+			StickerManager.getInstance().executeFetchShopPackTask(currentCategoriesCount + StickerManager.SHOP_PAGE_SIZE);
 		}
 		else if (HikePubSub.STICKER_SHOP_DOWNLOAD_FAILURE.equals(type))
 		{
@@ -247,7 +222,53 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 				}
 			});
 		}
+		else if (HikePubSub.STICKER_SHOP_EXTRA_CATEGORIES.equals(type))
+		{
+			final int count = HikeConversationsDatabase.getInstance().getRankCountFromCategoryTable();
+			if (!isAdded())
+			{
+				return;
+			}
+			getActivity().runOnUiThread(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					listview.setVisibility(View.VISIBLE);
+					listview.removeFooterView(loadingFooterView);
+					loadingEmptyState.setVisibility(View.GONE);
+					loadingFailedEmptyState.setVisibility(View.GONE);
+					searchFailedState.setVisibility(View.GONE);
+					if ((count > currentCategoriesCount) && ((currentCategoriesCount - maxIndexShown) < StickerManager.SHOP_PAGE_SIZE))
+					{
+						reloadAdapter();
+					}
+					downloadState = NOT_DOWNLOADING;
+				}
+			});
 
+			initiateFetchCategoryRankTask(count);
+			saveShopDataFetchedState(count);
+		}
+
+	}
+
+	private void initiateFetchCategoryRankTask(int count)
+	{
+		if (((currentCategoriesCount) > (count - (3 * StickerManager.SHOP_PAGE_SIZE)))
+				&& !HikeSharedPreferenceUtil.getInstance().getData(StickerManager.STICKER_SHOP_RANK_FULLY_FETCHED, false))
+		{
+			StickerManager.getInstance().initiateFetchCategoryRanksAndDataTask(count, true);
+		}
+	}
+
+	private void saveShopDataFetchedState(int count)
+	{
+		if (HikeSharedPreferenceUtil.getInstance().getData(StickerManager.STICKER_SHOP_RANK_FULLY_FETCHED, false)
+				&& (currentCategoriesCount >= count))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.STICKER_SHOP_DATA_FULLY_FETCHED, true);
+		}
 	}
 
 	private BroadcastReceiver mMessageReceiver = new BroadcastReceiver()

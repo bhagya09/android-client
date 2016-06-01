@@ -398,6 +398,8 @@ public class HikePubSub extends Handler implements Runnable
 	public static final String STICKER_FTUE_TIP = "stickerFtueTip";
 	
 	public static final String USER_JOINED_NOTIFICATION = "userJoinedNotification";
+
+	public static final String RICH_USER_JOINED_NOTIFICATION = "richUJNotif";
 	
 	public static final String CONV_UNREAD_COUNT_MODIFIED = "convUnreadCountModified";
 	
@@ -411,8 +413,6 @@ public class HikePubSub extends Handler implements Runnable
 	
 	public static final String DELETE_THIS_CONVERSATION = "deleteThisConv";
 
-	public static final String MUTE_BOT = "muteBot";
-	
 	public static final String PARTICIPANT_JOINED_SYSTEM_MESSAGE = "participantJoinedSystemMsg";
 
 	public static final String REJECT_INCOMING_CALL = "rejectCall";
@@ -432,6 +432,8 @@ public class HikePubSub extends Handler implements Runnable
 	public static final String STICKER_SHOP_DOWNLOAD_SUCCESS = "stickerShopDownloadSucess";
 	
 	public static final String STICKER_SHOP_DOWNLOAD_FAILURE = "stickerShopDownloadFailure";
+
+	public static final String STICKER_SHOP_EXTRA_CATEGORIES = "stickerShopExtraCategories";
 
 	public static final String OFFLINE_MESSAGE_SENT = "offlineMessageSent";
 	
@@ -464,6 +466,8 @@ public class HikePubSub extends Handler implements Runnable
 	public static final String LOCATION_AVAILABLE = "locationAvailable";
 
 	public static final String DOWNLOAD_PROGRESS = "progress";
+
+	public static final String DOWNLOAD_PROGRESS_CARD = "download_progress_card";
 	
 	public static final String BOT_DISCOVERY_DOWNLOAD_SUCCESS = "botDiscoveryDownloadOk";
 	
@@ -519,6 +523,10 @@ public class HikePubSub extends Handler implements Runnable
 
 	public static final String OPEN_COMPOSE_CHAT_SCREEN = "openComposeChatScreen";
 
+	public static final String CHATTHEME_CONTENT_DOWNLOAD_SUCCESS = "chatThemeContentDownloadSuccess";
+
+	public static final String CHATTHEME_CONTENT_DOWNLOAD_FAILURE = "chatThemeContentDownloadFailure";
+
 	public static final String FILE_OPENED = "fileOpened";
 
 	public static final String DB_CORRUPT = "db_corrupt";
@@ -533,7 +541,21 @@ public class HikePubSub extends Handler implements Runnable
 
 	public static final String ADD_INLINE_FRIEND_MSG = "inline_friend_msg";
 
+    public static final String SHOW_INPUT_BOX = "showInputBox";
+
+	public static final String CHATTHEME_DOWNLOAD_SUCCESS = "chatThemeDownloadSuccess";
+
+	public static final String CHATTHEME_CUSTOM_IMAGE_UPLOAD_SUCCESS = "chatThemeCustomImageUploadSuccess";
+
+	public static final String CHATTHEME_CUSTOM_IMAGE_UPLOAD_FAILED = "chatThemeCustomImageUploadFailed";
+
+	public static final String DISMISS_EDIT_PROFILE_DIALOG = "dismiss_edit_profile_dialog";
+
 	public static final String ATOMIC_TIP_WITH_NOTIF = "atomic_tip_notif";
+
+	public static final String BD_PRIVACY_PREF_UPDATED = "bdPrefPpdated";
+
+	public static final String SHOW_BIRTHDAY_NOTIF = "show_bday_notif";
 
 	private final Thread mThread;
 

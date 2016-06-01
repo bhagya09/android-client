@@ -35,6 +35,7 @@ import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_I
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_IO_EXCEPTION;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_MALFORMED_URL;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_NO_NETWORK;
+import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_REQUEST_PAUSED;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_RESPONSE_PARSING_ERROR;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_SOCKET_EXCEPTION;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_SOCKET_TIMEOUT;
@@ -64,7 +65,9 @@ public class RequestExecuter
 	private boolean allInterceptorsExecuted;
 
 	private String trackId;
-	
+
+	private long networkTimeIncludingRetries;
+
 	public RequestExecuter(IClient client, HttpEngine engine, Request<?> request, IResponseListener listener)
 	{
 		this.client = client;
@@ -182,6 +185,7 @@ public class RequestExecuter
 				{
 					if (firstTry)
 					{
+						networkTimeIncludingRetries = 0;
 						preProcess();
 					}
 					else
@@ -244,15 +248,16 @@ public class RequestExecuter
 			response = request.executeRequest(client);
 			long timeTakenNs = System.nanoTime() - startTimeNs;
 
+			networkTimeIncludingRetries += timeTakenNs;
+			addResponseTimeIncludingAllRetriesHeader(response, networkTimeIncludingRetries);
+
 			if (response.getStatusCode() < 200 || response.getStatusCode() > 299)
 			{
 				throw new IOException();
 			}
 
 			LogFull.d(request.toString() + " completed");
-
 			addResponseTimeHeader(response, timeTakenNs);
-
 			notifyResponseToRequestRunner();
 		}
 		catch (SocketTimeoutException ex)
@@ -303,7 +308,7 @@ public class RequestExecuter
 			}
 			else
 			{
-				handleException(ex, statusCode);
+				handleErrorResponse(response, ex, statusCode);
 			}
 		}
 		catch (HttpException ex)
@@ -320,11 +325,13 @@ public class RequestExecuter
 
 	private void notifyResponseToRequestRunner()
 	{
-		if (request.getState() != null && request.getState().getFTState() == FTState.PAUSED)
+		LogFull.d(" request total size : "+request.getState().getTotalSize() + "   transffereed size : " + request.getState().getTransferredSize());
+		if (request.getState() != null && (request.getState().getFTState() == FTState.PAUSED || request.getState().getTotalSize() != request.getState().getTransferredSize()))
 		{
 			LogFull.d("removing request");
 			RequestProcessor.removeRequest(request);
 			LogFull.d("removed request");
+			listener.onResponse(null, new HttpException(REASON_CODE_REQUEST_PAUSED, "request is paused"));
 		}
 		else
 		{
@@ -362,12 +369,23 @@ public class RequestExecuter
 		listener.onResponse(null, ex);
 	}
 
+	private void handleErrorResponse(Response errorResponse, Throwable ex, int reasonCode)
+	{
+		listener.onResponse(errorResponse, new HttpException(reasonCode, ex));
+	}
+
+
 	/**
 	 * Handles the retries of the request based on {@link BasicRetryPolicy}
 	 * 
 	 * @param ex
 	 */
 	private void handleRetry(Exception ex, int responseCode)
+	{
+		handleRetry(null, ex, responseCode);
+	}
+
+	private void handleRetry(Response errorResponse, Exception ex, int responseCode)
 	{
 		LogFull.e("Exception occurred for request " + request.toString() + " \n" + ex);
 		HttpException httpException = new HttpException(responseCode, ex);
@@ -383,13 +401,13 @@ public class RequestExecuter
 			else
 			{
 				LogFull.i("max retry count reached for " + request.toString());
-				listener.onResponse(null, httpException);
+				listener.onResponse(errorResponse, httpException);
 			}
 		}
 		else
 		{
 			LogFull.i("no retry policy retuning for " + request.toString());
-			listener.onResponse(null, httpException);
+			listener.onResponse(errorResponse, httpException);
 		}
 	}
 
@@ -436,5 +454,10 @@ public class RequestExecuter
 	private void addResponseTimeHeader(Response response, long timeTakenNs)
 	{
 		response.replaceOrAddHeader(HttpHeaderConstants.NETWORK_TIME, Long.toString(timeTakenNs));
+	}
+
+	private void addResponseTimeIncludingAllRetriesHeader(Response response, long timeTakenNs)
+	{
+		response.replaceOrAddHeader(HttpHeaderConstants.NETWORK_TIME_INCLUDING_RETRIES, Long.toString(timeTakenNs));
 	}
 }

@@ -15,6 +15,7 @@ import android.text.TextUtils;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.GroupParticipant;
@@ -596,8 +597,10 @@ public abstract class OneToNConversation extends Conversation
 			boolean onHike = nameMsisdn.optBoolean(HikeConstants.ON_HIKE);
 			boolean onDnd = nameMsisdn.optBoolean(HikeConstants.DND);
 			int type = nameMsisdn.optInt(HikeConstants.ROLE);
-			
-			GroupParticipant groupParticipant = new GroupParticipant(new ContactInfo(contactNum, contactNum, contactName, contactNum, onHike), false, onDnd, type, msisdn);
+			String uid = nameMsisdn.optString("muid",null);
+			ContactInfo ci =new ContactInfo(contactNum, contactNum, contactName, contactNum, onHike);
+			ci.setUid(uid);
+			GroupParticipant groupParticipant = new GroupParticipant(ci, false, onDnd, type, msisdn);
 			Logger.d("OneToNConversation", "Parsing JSON and adding contact to conversation: " + contactNum);
 			participants.put(contactNum, new PairModified<GroupParticipant, String>(groupParticipant, contactName));
 		}
@@ -610,6 +613,7 @@ public abstract class OneToNConversation extends Conversation
 			{
 				GroupParticipant grpParticipant = grpPair.getFirst();
 				contact.setOnhike(grpParticipant.getContactInfo().isOnhike());
+				contact.setUid(grpParticipant.getContactInfo().getUid());
 				grpParticipant.setContactInfo(contact);
 				if (null != contact.getName())
 				{

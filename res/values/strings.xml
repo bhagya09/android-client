@@ -197,6 +197,14 @@
     <string name="accepted_friend_request">Confirmed as a friend</string>
     <string name="mute_group">Mute Group</string>
     <string name="unmute_group">Unmute Group</string>
+    <string name="mute_chat">Mute Chat</string>
+    <string name="unmute_chat">Unmute Chat</string>
+    <string name="group_mute_dialog_title">Mute group for</string>
+    <string name="chat_mute_dialog_title">Mute chat for</string>
+    <string name="mute_chat_eight_hrs">8 Hours</string>
+    <string name="mute_chat_one_week">1 Week</string>
+    <string name="mute_chat_one_yr">1 Year</string>
+    <string name="show_notif">Show Notifications</string>
     <string name="account">Account</string>
     <string name="enter_num">Please enter your phone number</string>
     <string name="enter_pin">Please enter the PIN</string>
@@ -467,11 +475,11 @@
     <string name="resetting_complete_stealth_header">Resetting Hidden Mode</string>
     <string name="resetting_complete_stealth_info">Tap to cancel.</string>
     <string name="reset_stealth_tip">
-<![CDATA[ <b> All hidden chats will be deleted in %1$s minutes </b> 
+<![CDATA[ <b> All hidden chats will be deleted in %1$s minutes </b>
 	    ]]>
     </string>
     <string name="tap_to_reset_stealth_tip">
-<![CDATA[ <b> Tap here to reset Hidden Mode now! </b> 
+<![CDATA[ <b> Tap here to reset Hidden Mode now! </b>
 	    ]]>
     </string>
     <string name="tap_to_reveal_stealth_contacts">Tap \'hi\' to reveal chats</string>
@@ -672,7 +680,6 @@
     <string name="medium_faster">fast</string>
     <string name="original_slow">slow</string>
     <string name="forward_to_plural">Send message to %1$s contacts?</string>
-    <string name="forward_to_singular">Send message to 1 contact?</string>
     <string name="selected_contacts_count_plural">%1$s contacts</string>
     <string name="selected_contacts_count_singular">%1$s contact</string>
     <string name="wish_now">Wish Now</string>
@@ -1487,7 +1494,6 @@
     <string name="filters">Filters</string>
     <string name="rotate">Rotate</string>
     <string name="forward_to_plural_timeline">Send message to %1$s contacts and on Timeline?</string>
-    <string name="forward_to_single_timeline">Send message to 1 contact and on Timeline?</string>
     <string name="share_with_timeline">Share with %1$d contacts and on Timeline?</string>
     <string name="share_with_contact_timeline">Share with %1$s and on Timeline?</string>
     <string name="image_w_caption_sms">sent you an image with caption %1$s</string>
@@ -1586,16 +1592,60 @@
     <string name="no_sticker_pack_match_found">Your search for \'%1$s\' did not match any sticker packs</string>
     <string name="pack_search_again_hint">Type complete words like love, hindi, bollywood, etc.</string>
     <string name="recharge_menu">Recharge</string>
+
+    <string name="message_info">Message Info</string>
+    <string name="emptyreadlist"> - </string>
+    <string name="emptyseenlist"> - </string>
+    <string name="emptydeliveredlist"> - </string>
+    <string name="emptyplayedlist"> - </string>
+    <string name="remaining_items">%1s remaining</string>
+    <string name="read_list">READ BY</string>
+    <string name="read_list_one">READ</string>
+    <string name="delivered_list_one">DELIVERED</string>
+    <string name="seen_list_one">SEEN</string>
+    <string name="readExpanded">Read</string>
+    <string name="seenExpanded">Seen</string>
+    <string name="seen_list">SEEN BY</string>
+    <string name="delivered_list">DELIVERED TO</string>
+    <string name="played_list">PLAYED</string>
+    <string name="messageinfo_sms">Sent as SMS</string>
+    <string name="messageinfo_not_applicable">No information is available for this message</string>
+
     <string name="restore_msisdn_error">You seem to have a backup file of some different number!</string>
     <string name="ACCEPT">ACCEPT</string>
     <string name="mute_status_notification_subtext_frn">Show notifications for status &amp; profile picture updates from friends</string>
     <string name="stream_volume_muted_or_low">Please turn up the volume</string>
-    <string name="sticker_restore_diffdpi_title">Sticker Upgrade</string>
-    <string name="sticker_restore_diffdpi_message">Stickers could not be restored since you have upgraded your phone. You will need to download them.</string>
     <string name="atomic_tip_header_default">Default Atomic Tip Header</string>
     <string name="atomic_tip_body_default">Atomic Tip default body text!!! Just to let it flow to next line</string>
-    <string name="atomic_tip_http_failure">Some error occured. Please try again</string>
+    <string name="atomic_tip_http_failure">Some error occurred. Please try again later.</string>
     <string name="edit_profile_birthday">Birth Date</string>
 
+    <string name="select_options">Select options...</string>
+    <string name="sticker_restore_diffdpi_title">Sticker Upgrade</string>
+    <string name="sticker_restore_diffdpi_message">Looks like you have upgraded your phone. You will need to upgrade your sticker packs to support your new phone</string>
+    <string name="GOT_IT">GOT IT</string>
     <string name="file_size_invalid_error">The file size which you are trying to share is invalid</string>
+    <string name="my_location">My Location</string>
+    <string name="custom_location">Custom Location</string>
+    <string name="birthday_privacy_header">Birthday visible to </string>
+    <string name="bd_my_contacts_summary">Birthday is visible to your address book contacts and favorites</string>
+    <string name="bd_my_contacts_summary_frn">Birthday is visible to your address book contacts and friends</string>
+    <string name="bd_favorites_summary">Birthday is visible only to your favorites</string>
+    <string name="bd_friends_summary">Birthday is visible only to your friends</string>
+    <string name="bd_everyone_summary">Birthday is visible to everyone on hike</string>
+    <string name="bd_nobody_summary">Birthday is not shared with anyone on hike</string>
+    <string name="bd_change_failed">Birthday privacy update failed!</string>
+    <string name="hike_bday_contacts">BIRTHDAYS TODAY</string>
+    <string name="bday_list_view_subheading">Wish Happy Birthday!</string>
+    <string name="composeview_bday">Happy Birthday!</string>
+    <string name="forward_to_single_timeline">Send message to %1$s and on Timeline?</string>
+    <string name="forward_to_singular">Send message to %1$s?</string>
+    <string name="single_bday_notif_text">%1$s has his birthday today!</string>
+    <string name="multiple_bday_notif_text">%1$s and %2$s others has his birthday today!</string>
+    <string name="single_bday_notif_subtext"> Tap here to wish your friend a Happy Birthday!</string>
+    <string name="multiple_bday_notif_subtext">Tap here to wish them a Happy Birthday!</string>
+    <string name="rich_uj_default_msg">%1$s is now on hike</string>
+    <string name="uj_default_pretype_text">Hi</string>
+    <string name="uj_default_cta_say_hi">Say Hi</string>
+    <string name="uj_default_cta_add_friend">Add Friend</string>
 </resources>

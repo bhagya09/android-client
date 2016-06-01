@@ -4,6 +4,8 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_OUT_OF_SPACE;
+
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -43,24 +45,17 @@ public class FetchShopPackDownloadTask extends AsyncTask<Void, Void, Void>
 		{
 			cursor = HikeConversationsDatabase.getInstance().getCursorForShopMetaDataUpdate(limit);
 			List<StickerCategory> list = HikeConversationsDatabase.getInstance().getCategoriesForShopMetadataUpdate(cursor);
-			if (list == null)
+			if (list == null)  //this means the rank are not present
 			{
-				StickerManager.getInstance().initiateFetchCategoryRanksAndDataTask(0, true, true);
+				StickerManager.getInstance().initiateFetchCategoryRanksAndDataTask(0, true);
+			}    
+			else if (list.size() != 0) //this means the metadata are missing for the required amount of entries
+			{
+				StickerManager.getInstance().fetchCategoryMetadataTask(list);
 			}
-			else if (list.size() != 0)
+			else  // this means that ranks present and metadata present too 
 			{
-				StickerManager.getInstance().fetchCategoryMetadataTask(list, Request.REQUEST_TYPE_SHORT, PriorityConstants.PRIORITY_HIGH, true);
-			}
-			else
-			{
-				if (HikeSharedPreferenceUtil.getInstance().getData(StickerManager.STICKER_SHOP_RANK_FULLY_FETCHED, false) && limit - cursor.getCount() > 0)
-				{
-					HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_SHOP_DOWNLOAD_SUCCESS, null);
-				}
-				else
-				{
-					StickerManager.getInstance().initiateFetchCategoryRanksAndDataTask(0, true, true);
-				}
+				decisionWhenRankAndDataPresent(cursor);
 			}
 		}
 		finally
@@ -71,5 +66,20 @@ public class FetchShopPackDownloadTask extends AsyncTask<Void, Void, Void>
 			}
 		}
 		return null;
+	}
+
+	private void decisionWhenRankAndDataPresent(Cursor cursor) {
+
+		if ((cursor.getCount() + StickerManager.SHOP_PAGE_SIZE - limit) > 0
+				|| HikeSharedPreferenceUtil.getInstance().getData(StickerManager.STICKER_SHOP_RANK_FULLY_FETCHED, false)) // this means we have some new categories or the
+		// categories fetched are already done
+		{
+			HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_SHOP_EXTRA_CATEGORIES, null);
+		}
+		if (!HikeSharedPreferenceUtil.getInstance().getData(StickerManager.STICKER_SHOP_RANK_FULLY_FETCHED, false) && ((limit - cursor.getCount()) > 0)) // simply fetching
+		// ranks for further use avoiding  delays
+		{
+			StickerManager.getInstance().initiateFetchCategoryRanksAndDataTask(cursor.getCount(), true);
+		}
 	}
 }

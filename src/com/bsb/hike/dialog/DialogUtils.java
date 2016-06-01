@@ -1,11 +1,5 @@
 package com.bsb.hike.dialog;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Context;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
@@ -17,11 +11,18 @@ import com.bsb.hike.HikeConstants.SMSSyncState;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.ComposeChatAdapter;
+import com.bsb.hike.dialog.CustomAlertRadioButtonCheckboxDialog.CheckBoxPojo;
 import com.bsb.hike.dialog.CustomAlertRadioButtonDialog.RadioButtonPojo;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DialogUtils
 {
@@ -54,10 +55,10 @@ public class DialogUtils
 					return context.getString(R.string.share_on_timeline);
 				}
 				
-				return arrayList.size() == 2 ? context.getString(R.string.forward_to_single_timeline) : context.getString(R.string.forward_to_plural_timeline,
+				return arrayList.size() == 2 ? context.getString(R.string.forward_to_single_timeline, otherContactName) : context.getString(R.string.forward_to_plural_timeline,
 						arrayList.size() - 1);
 			}
-			return arrayList.size() == 1 ? context.getResources().getString(R.string.forward_to_singular) : context.getResources().getString(R.string.forward_to_plural, arrayList.size());
+			return arrayList.size() == 1 ? context.getResources().getString(R.string.forward_to_singular, otherContactName) : context.getResources().getString(R.string.forward_to_plural, arrayList.size());
 		}
 
 		if (hasTimeline)
@@ -155,7 +156,29 @@ public class DialogUtils
 		dialog.mProgressIndeterminate.setVisibility(syncConfirmation ? View.GONE : View.VISIBLE);
 		dialog.setMessage(syncConfirmation ? R.string.import_sms_info : R.string.importing_sms_info);
 	}
-	
+
+	protected static List<RadioButtonPojo> getMuteDurationOptions(Context context)
+	{
+		RadioButtonPojo eight_hours, one_week, one_year;
+
+		eight_hours = new RadioButtonPojo(R.string.mute_chat_eight_hrs, true, "", context.getString(R.string.mute_chat_eight_hrs), "");
+		one_week = new RadioButtonPojo(R.string.mute_chat_one_week, false, "", context.getString(R.string.mute_chat_one_week), "");
+		one_year = new RadioButtonPojo(R.string.mute_chat_one_yr, false, "", context.getString(R.string.mute_chat_one_yr), "");
+
+		List<RadioButtonPojo> list = new ArrayList<>(3);
+		list.add(eight_hours);
+		list.add(one_week);
+		list.add(one_year);
+
+		return list;
+	}
+
+	protected static CheckBoxPojo showNotificationCheckBox(Context context)
+	{
+		CheckBoxPojo showNotifications = new CheckBoxPojo(R.string.show_notif, true, context.getString(R.string.show_notif));
+		return showNotifications;
+	}
+
 	protected static List<RadioButtonPojo> getImageQualityOptions(Context ctx, Object... data)
 	{
 		int quality = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DEFAULT_IMG_QUALITY_FOR_SMO, ImageQuality.QUALITY_DEFAULT);

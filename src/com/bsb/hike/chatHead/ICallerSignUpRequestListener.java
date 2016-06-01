@@ -1,5 +1,7 @@
 package com.bsb.hike.chatHead;
 
+import android.support.annotation.Nullable;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.HikeAlarmManager;
@@ -26,7 +28,7 @@ public class ICallerSignUpRequestListener implements IRequestListener {
 	private final String TAG = "ICallerSignUpListener";
 
 	@Override
-	public void onRequestFailure(HttpException httpException)
+	public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 	{
 		ChatHeadUtils.blockedCallerFromServerToClientFetched = false;
 		setAlarmSyncingBlockedListFromServerToClient();

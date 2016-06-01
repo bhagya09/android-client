@@ -1,12 +1,13 @@
 package com.bsb.hike.models.Conversation;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.Mute;
 
 import org.json.JSONObject;
 
-import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.utils.ChatTheme;
+import java.util.ArrayList;
+import java.util.List;
+import com.bsb.hike.chatthemes.ChatThemeManager;
 
 /**
  * Conversation objects will be made from this abstract class
@@ -25,14 +26,14 @@ public abstract class Conversation implements Comparable<Conversation>
 	/**
 	 * Default value of chat theme
 	 */
-	protected ChatTheme chatTheme = ChatTheme.DEFAULT;
+	protected String chatThemeId = ChatThemeManager.getInstance().defaultChatThemeId;
 
 	protected Conversation(InitBuilder<?> builder)
 	{
 		this.convInfo = builder.convInfo;
 		this.messagesList = builder.messagesList;
 		this.metadata = builder.metadata;
-		this.chatTheme = builder.chatTheme;
+		this.chatThemeId = builder.chatThemeId;
 	}
 
 	/**
@@ -50,6 +51,16 @@ public abstract class Conversation implements Comparable<Conversation>
 	public ConvInfo getConvInfo()
 	{
 		return convInfo;
+	}
+
+	public void setMute(Mute mute)
+	{
+		convInfo.setMute(mute);
+	}
+
+	public Mute getMute()
+	{
+		return convInfo.getMute();
 	}
 
 	/**
@@ -89,9 +100,9 @@ public abstract class Conversation implements Comparable<Conversation>
 	/**
 	 * @return the chatTheme
 	 */
-	public ChatTheme getChatTheme()
+	public String getChatThemeId()
 	{
-		return chatTheme;
+		return chatThemeId;
 	}
 
 	/**
@@ -114,12 +125,12 @@ public abstract class Conversation implements Comparable<Conversation>
 	}
 	
 	/**
-	 * @param chatTheme
+	 * @param chatThemeId
 	 *            the chatTheme to set
 	 */
-	public void setChatTheme(ChatTheme chatTheme)
+	public void setChatThemeId(String chatThemeId)
 	{
-		this.chatTheme = chatTheme;
+		this.chatThemeId = chatThemeId;
 	}
 
 	public String getMsisdn()
@@ -139,12 +150,32 @@ public abstract class Conversation implements Comparable<Conversation>
 
 	public void setIsMute(boolean isMute)
 	{
-		convInfo.setMute(isMute);
+		convInfo.setIsMute(isMute);
 	}
 
 	public boolean isMuted()
 	{
 		return convInfo.isMute();
+	}
+
+	public void setShowNotifInMute(boolean muteNotification)
+	{
+		convInfo.setShowNotifInMute(muteNotification);
+	}
+
+	public boolean shouldShowNotifInMute()
+	{
+		return convInfo.shouldShowNotifInMute();
+	}
+
+	public void setMuteDuration(int muteDuration)
+	{
+		convInfo.setMuteDuration(muteDuration);
+	}
+
+	public int getMuteDuration()
+	{
+		return convInfo.getMuteDuration();
 	}
 
 	public boolean isBlocked()
@@ -289,7 +320,7 @@ public abstract class Conversation implements Comparable<Conversation>
 	{
 		protected ConvInfo convInfo;
 
-		private ChatTheme chatTheme;
+		private String chatThemeId;
 
 		private ArrayList<ConvMessage> messagesList;
 
@@ -318,9 +349,9 @@ public abstract class Conversation implements Comparable<Conversation>
 			return getSelfObject();
 		}
 
-		public P setChatTheme(ChatTheme chatTheme)
+		public P setChatThemeId(String chatThemeId)
 		{
-			this.chatTheme = chatTheme;
+			this.chatThemeId = chatThemeId;
 			return getSelfObject();
 		}
 

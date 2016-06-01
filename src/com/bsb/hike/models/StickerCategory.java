@@ -50,7 +50,7 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 
     private String copyRightString;
 
-    private int state = -1;
+    private int state;
 
     private int totalStickers;
 
@@ -60,11 +60,11 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 
     private  boolean isDisabled;
 
-    private int packUpdationTime;
+    private long packUpdationTime;
 
-    private int ucid = -1;
+    private int ucid;
 
-    private int previewUpdationTime;
+    private long previewUpdationTime;
 
     public static final int NONE = 0;
 
@@ -113,7 +113,7 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 
     private void ensureSaneDefaults()
     {
-        if(categoryId == null && ucid < 0 )
+        if(categoryId == null && (!isCustom() && ucid < 0))
         {
             throw new IllegalStateException("Category cannot be null");
         }
@@ -165,13 +165,13 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 
         private boolean isDisabled;
 
-        private int	packUpdationTime;
+        private long packUpdationTime;
 
-        private int ucid;
+        private int ucid = -1;
 
-        private int	previewUpdationTime;
+        private long previewUpdationTime;
 
-        private int state;
+        private int state = -1;
 
         protected abstract S self();
 
@@ -234,13 +234,13 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
             return self();
         }
 
-        public S setPackUpdationTime(int packUpdationTime)
+        public S setPackUpdationTime(long packUpdationTime)
         {
             this.packUpdationTime = packUpdationTime;
             return self();
         }
 
-        public S setPreviewUpdationTime(int previewUpdationTime)
+        public S setPreviewUpdationTime(long previewUpdationTime)
         {
             this.previewUpdationTime = previewUpdationTime;
             return self();
@@ -400,7 +400,7 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
         return isDisabled;
     }
 
-    public int getPackUpdationTime()
+    public long getPackUpdationTime()
     {
         return packUpdationTime;
     }
@@ -410,7 +410,7 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
         return ucid;
     }
 
-    public int getPreviewUpdationTime()
+    public long getPreviewUpdationTime()
     {
         return previewUpdationTime;
     }
@@ -594,7 +594,7 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
         this.ucid = ucid;
     }
 
-    public void setPreviewUpdationTime(int previewUpdationTime)
+    public void setPreviewUpdationTime(long previewUpdationTime)
     {
         this.previewUpdationTime = previewUpdationTime;
     }

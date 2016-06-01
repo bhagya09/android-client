@@ -64,6 +64,7 @@ import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthread.ChatThreadActivity;
+import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -97,6 +98,7 @@ import com.bsb.hike.tasks.InitiateMultiFileTransferTask;
 import com.bsb.hike.tasks.MultipleStatusUpdateTask;
 import com.bsb.hike.tasks.StatusUpdateTask;
 import com.bsb.hike.timeline.view.TimelineActivity;
+import com.bsb.hike.utils.BirthdayUtils;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -533,7 +535,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					e.printStackTrace();
 				}
 
-				if(allImages)
+				if(allImages && !getIntent().getBooleanExtra(HikeConstants.Extras.BYPASS_GALLERY, false))
 				{
 					ArrayList<GalleryItem> selectedImages = GalleryItem.getGalleryItemsFromFilepaths(imageFilePathArray);
 					if((selectedImages!=null))
@@ -805,6 +807,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		boolean fetchRecentlyJoined = pref.getData(HikeConstants.SHOW_RECENTLY_JOINED_DOT, false) || pref.getData(HikeConstants.SHOW_RECENTLY_JOINED, false);
 		fetchRecentlyJoined = fetchRecentlyJoined && !isForwardingMessage && showNujNotif;
 		boolean showMicroappShowcase = BotUtils.isBotDiscoveryEnabled();
+		boolean showBdaySection = Utils.isBDayInNewChatEnabled() && (pref.getStringSet(HikeConstants.BDAYS_LIST, new HashSet<String>()).size() > 0);
 		
 		switch (composeMode)
 		{
@@ -813,11 +816,28 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		case PICK_CONTACT_AND_SEND_MODE:
 		case PICK_CONTACT_MODE:
 			//We do not show sms contacts in broadcast mode
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false, false,isContactChooserFilter,isShowTimeline());
+			// read intent to find if group chat is enabled or not. also read to find out if any chats are excluded
+			boolean isGroupFirst = getIntent().getBooleanExtra(HikeConstants.Extras.IS_GROUP_FIRST, false);
+			boolean isRecentJoined = getIntent().getBooleanExtra(HikeConstants.Extras.IS_RECENT_JOINED, fetchRecentlyJoined);
+			List<String> excludeGroupList = getIntent().getStringArrayListExtra(HikeConstants.Extras.COMPOSE_EXCLUDE_LIST);
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage || isGroupFirst, (isForwardingMessage && !isSharingFile), isRecentJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false, false,isContactChooserFilter,isShowTimeline(), false);
+
+			adapter.setGroupFirst(isGroupFirst);
+			adapter.setComposeExcludeList(excludeGroupList);
 			break;
 		case CREATE_GROUP_MODE:
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId,
+					sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent), isContactChooserFilter, isShowTimeline(), false);
+			break;
+		case START_CHAT_MODE:
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId,
+					sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent), isContactChooserFilter, isShowTimeline(),
+					showBdaySection);
+			break;
+
 		default:
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent),isContactChooserFilter,isShowTimeline());
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId,
+					sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent), isContactChooserFilter, isShowTimeline(), false);
 			break;
 		}
 
@@ -1118,6 +1138,17 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					Intent in=IntentFactory.createChatThreadIntentFromContactInfo(this, contactInfo, false, false, ChatThreadActivity.ChatThreadOpenSources.NEW_COMPOSE);
 					in.putExtra(HikeConstants.Extras.HIKE_DIRECT_MODE, true);
 					startActivity(in);
+				}
+				else if (adapter.isBirthdayContact(contactInfo))
+				{
+					Intent in = IntentFactory.createChatThreadIntentFromContactInfo(this, contactInfo, false, false, ChatThreadActivity.ChatThreadOpenSources.NEW_COMPOSE);
+					in.putExtra(HikeConstants.Extras.MSG, getString(R.string.composeview_bday));
+					startActivity(in);
+					BirthdayUtils.recordBirthdayAnalytics(
+							AnalyticsConstants.BirthdayEvents.BIRTHDAY_SELCT_FRIEND,
+							AnalyticsConstants.BirthdayEvents.BIRTHDAY_WISH,
+							AnalyticsConstants.BirthdayEvents.BIRTHDAY_SELCT_FRIEND,
+							null, null, getString(R.string.composeview_bday), null, null, null, null, contactInfo.getMsisdn());
 				}
 				else
 				{
@@ -1712,9 +1743,16 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				}
 				else if (composeMode == CREATE_GROUP_MODE)
 				{
-					ArrayList<String> selectedContacts = (ArrayList<String>) adapter.getAllSelectedContactsMsisdns();
-					HikeAnalyticsEvent.recordAnalyticsForGCFlow(ChatAnalyticConstants.GCEvents.GC_CLICK_CREATE_GROUP, oneToNConvName, ContactManager.getInstance().hasIcon(oneToNConvId)?1:0, gcSettings, selectedContacts.size(), selectedContacts);
 					OneToNConversationUtils.createGroupOrBroadcast(ComposeChatActivity.this, adapter.getAllSelectedContacts(), oneToNConvName, oneToNConvId, gcSettings);
+
+					/*
+					 *	oneToNConvId is null when we're adding members to an existing group chat. We need to send this data only for group "creation" flow.
+					 */
+					if (!TextUtils.isEmpty(oneToNConvId))
+					{
+						ArrayList<String> selectedContacts = (ArrayList<String>) adapter.getAllSelectedContactsMsisdns();
+						HikeAnalyticsEvent.recordAnalyticsForGCFlow(ChatAnalyticConstants.GCEvents.GC_CLICK_CREATE_GROUP, oneToNConvName, ContactManager.getInstance().hasIcon(oneToNConvId) ? 1: 0, gcSettings, selectedContacts.size(), selectedContacts);
+					}
 				}
 				else if(composeMode == PICK_CONTACT_MODE)
 				{
@@ -1988,6 +2026,24 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.MICRO_APP_EVENT);
 						json.putOpt(AnalyticsConstants.EVENT,presentIntent.getStringExtra(AnalyticsConstants.ANALYTICS_EXTRA));
 						json.putOpt(AnalyticsConstants.LOG_FIELD_4,AnalyticsConstants.FORWARD);
+						json.putOpt(AnalyticsConstants.LOG_FIELD_6,arrayList.size());
+					} catch (JSONException e)
+					{
+						e.printStackTrace();
+					}
+
+					HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_REPLACED, json);
+				}
+				//"d":{"ep":"HIGH","st":"repl","et":"nonUiEvent","md":{"sid":1462455204298,"fld6":1,"ek":"micro_app","event":"nativeCardForward","fld4":"tracking"},"cts":1462455428594,"tag":"plf"},"t":"le_android"
+				if(!TextUtils.isEmpty(presentIntent.getStringExtra(AnalyticsConstants.NATIVE_CARD_FORWARD)))
+				{
+
+					JSONObject json = new JSONObject();
+					try
+					{
+						json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.MICRO_APP_EVENT);
+						json.putOpt(AnalyticsConstants.EVENT,AnalyticsConstants.NATIVE_CARD_FORWARD);
+						json.putOpt(AnalyticsConstants.LOG_FIELD_4,presentIntent.getStringExtra(AnalyticsConstants.NATIVE_CARD_FORWARD));
 						json.putOpt(AnalyticsConstants.LOG_FIELD_6,arrayList.size());
 					} catch (JSONException e)
 					{
@@ -2279,14 +2335,19 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						
 						if (file.length() > HikeConstants.MAX_FILE_SIZE)
 						{
-							showMaxFileToast = true;
+
 							if (offlineContact != null)
 							{
 								FileTransferData fileData = initialiseFileTransfer(filePath, null, hikeFileType, fileType, false, -1, true, arrayList,imageCaptions.get(i));
 								offlineFileTransferList.add(fileData);
+								continue;
+							} else {
+								if(!ChatThreadUtils.isMaxSizeUploadableFile(hikeFileType, ComposeChatActivity.this)) {
+									showMaxFileToast = true;
+									continue;
+								}
 							}
-							continue;
-								
+
 						}
 						FileTransferData fileData = initialiseFileTransfer(filePath, null, hikeFileType, fileType, false, -1, true, arrayList,imageCaptions.get(i));
 						if(fileData!=null){
@@ -2397,6 +2458,26 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 							offlineMessageList.add(offlineConvMessage);
 						}
 					}
+					else if(msgExtrasJson.optInt(MESSAGE_TYPE.MESSAGE_TYPE) == MESSAGE_TYPE.CONTENT){
+						// CONTENT Message
+						String metadata = msgExtrasJson.optString(HikeConstants.METADATA);
+						int loveId = msgExtrasJson.optInt(HikeConstants.ConvMessagePacketKeys.LOVE_ID);
+						loveId = loveId==0 ? -1 : loveId;
+						ConvMessage convMessage = new ConvMessage();
+						convMessage.contentLove = new ContentLove();
+						convMessage.contentLove.loveId = loveId;
+						convMessage.setMessageType(MESSAGE_TYPE.CONTENT);
+						convMessage.platformMessageMetadata = new PlatformMessageMetadata(metadata, getApplicationContext());
+						convMessage.setIsSent(true);
+						convMessage.setMessage(msgExtrasJson.optString(HikeConstants.HIKE_MESSAGE));
+						if(offlineContact!=null)
+						{
+							ConvMessage offlineConvMessage =  new ConvMessage(convMessage);
+							offlineConvMessage.setMessageOriginType(OriginType.OFFLINE);
+							offlineMessageList.add(offlineConvMessage);
+						}
+						multipleMessageList.add(convMessage);
+					}
 					else if (msgExtrasJson.has(HikeConstants.Extras.FILE_PATH))
 					{
 						String fileKey = null;
@@ -2491,25 +2572,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 							offlineConvMessage.setMessageOriginType(OriginType.OFFLINE);
 							offlineMessageList.add(offlineConvMessage);
 						}
-					}else if(msgExtrasJson.optInt(MESSAGE_TYPE.MESSAGE_TYPE) == MESSAGE_TYPE.CONTENT){
-						// CONTENT Message
-						String metadata = msgExtrasJson.optString(HikeConstants.METADATA);
-						int loveId = msgExtrasJson.optInt(HikeConstants.ConvMessagePacketKeys.LOVE_ID);
-						loveId = loveId==0 ? -1 : loveId;
-						ConvMessage convMessage = new ConvMessage();
-						convMessage.contentLove = new ContentLove();
-						convMessage.contentLove.loveId = loveId;
-                        convMessage.setMessageType(MESSAGE_TYPE.CONTENT);
-						convMessage.platformMessageMetadata = new PlatformMessageMetadata(metadata, getApplicationContext());
-                        convMessage.setIsSent(true);
-                        convMessage.setMessage(convMessage.platformMessageMetadata.notifText);
-                        if(offlineContact!=null)
-						{
-                        	ConvMessage offlineConvMessage =  new ConvMessage(convMessage);
-                        	offlineConvMessage.setMessageOriginType(OriginType.OFFLINE);
-                        	offlineMessageList.add(offlineConvMessage);
-						}
-						multipleMessageList.add(convMessage);
 					} else if(msgExtrasJson.optInt(MESSAGE_TYPE.MESSAGE_TYPE) == MESSAGE_TYPE.WEB_CONTENT || msgExtrasJson.optInt(MESSAGE_TYPE.MESSAGE_TYPE) == MESSAGE_TYPE.FORWARD_WEB_CONTENT){
 
 						ConvMessage convMessage = getConvMessageForForwardedWebContent(msgExtrasJson);
@@ -2703,9 +2765,12 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					}
 					else
 					{
-						FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_1_2, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init",
-								"Compose - forwardMessageAsPerType - Max size reached.");
-						Toast.makeText(ComposeChatActivity.this, R.string.max_file_size, Toast.LENGTH_SHORT).show();
+						//CE-815: max size toast appears even before compressing a 100MB+ video
+						if(!ChatThreadUtils.isMaxSizeUploadableFile(hikeFileType, ComposeChatActivity.this)) {
+							FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_1_2, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init",
+									"Compose - forwardMessageAsPerType - Max size reached.");
+							Toast.makeText(ComposeChatActivity.this, R.string.max_file_size, Toast.LENGTH_SHORT).show();
+						}
 					}
 							
 				}
@@ -2855,7 +2920,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 		return convMessage;
 	}
-
 	private ArrayList<ContactInfo> updateContactInfoOrdering(ArrayList<ContactInfo> arrayList){
 		Set<ContactInfo> set = new HashSet<ContactInfo>(arrayList);
 		ArrayList<ContactInfo> toReturn = new ArrayList<ContactInfo>();

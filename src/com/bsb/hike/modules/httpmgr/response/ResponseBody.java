@@ -12,11 +12,20 @@ public class ResponseBody<T>
 
 	private T content;
 
+	private String errorString;
+
 	private ResponseBody(String mimeType, int contentLength, T content)
 	{
 		this.mimeType = mimeType;
 		this.contentLength = contentLength;
 		this.content = content;
+	}
+
+	private ResponseBody(String mimeType, int contentLength, String errorString)
+	{
+		this.mimeType = mimeType;
+		this.contentLength = contentLength;
+		this.errorString = errorString;
 	}
 
 	public String getMimeType()
@@ -49,6 +58,11 @@ public class ResponseBody<T>
 		this.content = content;
 	}
 
+	public String getErrorString()
+	{
+		return errorString;
+	}
+
 	/**
 	 * Returns the {@link ResponseBody} object using mime type and content byte array
 	 * 
@@ -59,5 +73,10 @@ public class ResponseBody<T>
 	public static <T> ResponseBody<T> create(String mimeType, int contentLength, T content)
 	{
 		return new ResponseBody<T>(mimeType, contentLength, content);
+	}
+
+	public static <T> ResponseBody<T> createErrorResponse(String mimeType, int contentLength, String errorString)
+	{
+		return new ResponseBody<T>(mimeType, contentLength, errorString);
 	}
 }

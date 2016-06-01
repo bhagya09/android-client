@@ -7,6 +7,7 @@ import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Message;
 import android.text.Editable;
@@ -30,6 +31,8 @@ import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.ui.utils.HashSpanWatcher;
 import com.bsb.hike.utils.ChatTheme;
+import com.bsb.hike.utils.IntentFactory;
+
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.SoundUtils;
 import com.bsb.hike.utils.Utils;
@@ -92,31 +95,21 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 		// TODO implement me
 	}
 
-	/**
-	 * Returns whether the group is mute or not
-	 * 
-	 * @return
-	 */
-	protected boolean isMuted()
-	{
-		/**
-		 * Defensive check
-		 */
-
-		if (oneToNConversation == null)
-		{
-			return false;
-		}
-		return oneToNConversation.isMuted();
-	}
-
 	@Override
 	public void itemClicked(OverFlowMenuItem item)
 	{
 		Logger.d(TAG, "Calling super Class' itemClicked");
 		super.itemClicked(item);
 	}
+	@Override
+	protected void openMessageInfoScreen(ConvMessage convMessage){
+		Intent intent= IntentFactory.messageInfoIntent(activity, convMessage.getMsgID());
+		intent.putExtra(HikeConstants.MESSAGE_INFO.MESSAGE_INFO_TYPE,HikeConstants.MESSAGE_INFO.GROUP);
+		Logger.d("MessageInfo","Msisdn is "+msisdn);
+		intent.putExtra(HikeConstants.MSISDN, msisdn);
+		activity.startActivity(intent);
 
+	}
 	/**
 	 * NON UI
 	 */
@@ -135,9 +128,9 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 		}
 
 		// fetch theme
-		ChatTheme currentTheme = mConversationDb.getChatThemeForMsisdn(msisdn);
+		String currentThemeId = mConversationDb.getChatThemeIdForMsisdn(msisdn);
 		Logger.d("ChatThread", "Calling setchattheme from createConversation");
-		oneToNConversation.setChatTheme(currentTheme);
+		oneToNConversation.setChatThemeId(currentThemeId);
 		oneToNConversation.setBlocked(ContactManager.getInstance().isBlocked(oneToNConversation.getConversationOwner()));
 		return oneToNConversation;
 	}
@@ -321,15 +314,10 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 		// TODO : Hide popup OR dialog if visible
 	}
 
-	/**
-	 * This overrides sendPoke from ChatThread
-	 */
 	@Override
-	protected void sendPoke()
-	{
-		super.sendPoke();
-		if (!oneToNConversation.isMuted())
-		{
+	protected void sendNudge() {
+		super.sendNudge();
+		if (!oneToNConversation.isMuted()) {
 			Utils.vibrateNudgeReceived(activity.getApplicationContext());
 		}
 	}
@@ -352,8 +340,6 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 
 	/**
 	 * Setting the group participant count
-	 * 
-	 * @param morePeopleCount
 	 */
 	protected void showActiveConversationMemberCount()
 	{
@@ -662,14 +648,6 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 		return oneToNConversation.getConversationParticipantName(oneToNConversation.getConversationOwner());
 	}
 
-	@Override
-	protected void updateNetworkState()
-	{
-		super.updateNetworkState();
-		boolean networkError = ChatThreadUtils.checkNetworkError();
-		toggleConversationMuteViewVisibility(networkError ? false : oneToNConversation.isMuted());
-	}
-	
 	@Override
 	protected boolean shouldShowKeyboard()
 	{

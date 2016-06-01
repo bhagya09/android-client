@@ -72,7 +72,7 @@ public class ToastListener implements Listener
 			HikePubSub.CANCEL_ALL_STATUS_NOTIFICATIONS, HikePubSub.CANCEL_ALL_NOTIFICATIONS, HikePubSub.PROTIP_ADDED, HikePubSub.UPDATE_PUSH, HikePubSub.APPLICATIONS_PUSH,
 			HikePubSub.SHOW_FREE_INVITE_SMS, HikePubSub.STEALTH_POPUP_WITH_PUSH, HikePubSub.HIKE_TO_OFFLINE_PUSH, HikePubSub.ATOMIC_POPUP_WITH_PUSH,
 			HikePubSub.BULK_MESSAGE_NOTIFICATION, HikePubSub.USER_JOINED_NOTIFICATION,HikePubSub.ACTIVITY_UPDATE_NOTIF, HikePubSub.FLUSH_PERSISTENT_NOTIF,
-			HikePubSub.SHOW_PERSISTENT_NOTIF, HikePubSub.ATOMIC_TIP_WITH_NOTIF};
+			HikePubSub.SHOW_PERSISTENT_NOTIF, HikePubSub.ATOMIC_TIP_WITH_NOTIF, HikePubSub.SHOW_BIRTHDAY_NOTIF, HikePubSub.RICH_USER_JOINED_NOTIFICATION};
 
 	/**
 	 * Used to check whether NUJ/RUJ message notifications are disabled
@@ -159,6 +159,11 @@ public class ToastListener implements Listener
 			}
 			StatusMessage statusMessage = (StatusMessage) object;
 			String msisdn = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, "");
+			if (!ContactManager.getInstance().shouldShowNotifForMutedConversation(statusMessage.getMsisdn()))
+			{
+				Logger.d(getClass().getSimpleName(), "Conversation has been muted");
+				return;
+			}
 			if (msisdn.equals(statusMessage.getMsisdn()) || statusMessage.isHistoricalUpdate())
 			{
 				return;
@@ -248,7 +253,13 @@ public class ToastListener implements Listener
 				{
 					return;
 				}
-				
+
+				if (!ContactManager.getInstance().shouldShowNotifForMutedConversation(statusMessage.getMsisdn()))
+				{
+					Logger.d(getClass().getSimpleName(), "Conversation has been muted");
+					return;
+				}
+
 				if (statusMessage.getStatusMessageType() == StatusMessageType.IMAGE || statusMessage.getStatusMessageType() == StatusMessageType.TEXT_IMAGE)
 				{
 					toaster.notifyBigPictureStatusNotification(notifyBundle.getString(HikeConstants.Extras.PATH), notifyBundle.getString(HikeConstants.Extras.MSISDN),
@@ -278,10 +289,12 @@ public class ToastListener implements Listener
 				return;
 			}
 
-			if (Utils.isConversationMuted(message.getMsisdn()))
+			if (!ContactManager.getInstance().shouldShowNotifForMutedConversation(message.getMsisdn()))
 			{
+				Logger.d(getClass().getSimpleName(), "Conversation has been muted");
 				return;
 			}
+
 			if(StealthModeManager.getInstance().isStealthMsisdn(message.getMsisdn()))
 			{
 				Logger.d(getClass().getSimpleName(), "this conversation is stealth");
@@ -418,6 +431,15 @@ public class ToastListener implements Listener
 			{
 				AtomicTipContentModel tipContentModel = (AtomicTipContentModel) object;
 				toaster.notifyAtomicTip(tipContentModel);
+			}
+		}
+		else if(HikePubSub.RICH_USER_JOINED_NOTIFICATION.equals(type))
+		{
+			Logger.d(getClass().getSimpleName(), "Recived pubsub to show rich uj notif");
+			if (object != null && object instanceof JSONObject)
+			{
+				JSONObject jsonObject = (JSONObject) object;
+				toaster.notifyRichUJ(jsonObject);
 			}
 		}
 		else if (HikePubSub.HIKE_TO_OFFLINE_PUSH.equals(type))
@@ -581,9 +603,10 @@ public class ToastListener implements Listener
 						Logger.w(getClass().getSimpleName(), "The client did not get a GCJ message for us to handle this message.");
 						continue;
 					}
-					if (Utils.isConversationMuted(message.getMsisdn()))
+
+					if (!ContactManager.getInstance().shouldShowNotifForMutedConversation(msisdn))
 					{
-						Logger.d(getClass().getSimpleName(), "Group has been muted");
+						Logger.d(getClass().getSimpleName(), "Conversation has been muted");
 						continue;
 					}
 
@@ -658,6 +681,13 @@ public class ToastListener implements Listener
 			filteredMessageList = null;
 			HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_MESSAGE_CHANGED, null);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_TIMELINE_UPDATE_CHANGED, null);
+		}
+		else if(HikePubSub.SHOW_BIRTHDAY_NOTIF.equals(type))
+		{
+			if (object != null && object instanceof Pair)
+			{
+				toaster.notifyBdayNotif((Pair<ArrayList<String>, String>)object);
+			}
 		}
 	}
 

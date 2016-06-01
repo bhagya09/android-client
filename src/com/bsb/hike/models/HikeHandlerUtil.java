@@ -114,4 +114,9 @@ public class HikeHandlerUtil
 	{
 		mHandler.post(runnable);
 	}
+
+	public void postAtFront(Runnable runnable)
+	{
+		mHandler.postAtFrontOfQueue(runnable);
+	}
 }

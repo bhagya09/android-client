@@ -9,6 +9,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.Pair;
 import android.view.View;
 import android.view.animation.Animation;
@@ -30,6 +31,7 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatthemes.HikeChatThemeConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.filetransfer.FTMessageBuilder;
@@ -38,8 +40,10 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
+import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.MovingList;
+import com.bsb.hike.models.Mute;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.OfflineController;
@@ -68,6 +72,22 @@ public class ChatThreadUtils
 	{
 		boolean wtRevamp = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.WT_1_REVAMP_ENABLED, false);
 		return wtRevamp;
+	}
+
+	public static boolean isMessageInfoEnabled() {
+		boolean enabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MESSAGE_INFO_ENABLED, false);
+
+		return enabled;
+	}
+	public static boolean isCustomChatThemeEnabled()
+	{
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CUSTOM_CHATTHEME_ENABLED, false);
+	}
+
+	public static boolean disableOverlayEffectForCCT()
+	{
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CUSTOM_CHATTHEME_DISABLE_OVERLAY, false);
+
 	}
 
 	protected static void playUpDownAnimation(Context context, final View view)
@@ -201,13 +221,13 @@ public class ChatThreadUtils
 	
 	protected static void uploadFile(Context context, String msisdn, String filePath, HikeFileType fileType, boolean isConvOnHike, int attachmentType)
 	{
-		uploadFile(context, msisdn, filePath, fileType, isConvOnHike, attachmentType,null);
+		uploadFile(context, msisdn, filePath, fileType, isConvOnHike, attachmentType, null);
 	}
 
 	protected static void uploadFile(Context context, String msisdn, String filePath, HikeFileType fileType, boolean isConvOnHike, int attachmentType, String caption)
 	{
 		Logger.i(TAG, "upload file , filepath " + filePath + " filetype " + fileType);
-		initialiseFileTransfer(context, msisdn, filePath, null, fileType, null, false, -1, false, isConvOnHike, attachmentType,caption);
+		initialiseFileTransfer(context, msisdn, filePath, null, fileType, null, false, -1, false, isConvOnHike, attachmentType, caption);
 	}
 	
 	protected static void initiateFileTransferFromIntentData(Context context, String msisdn, String fileType, String filePath, boolean convOnHike, int attachmentType)
@@ -255,7 +275,8 @@ public class ChatThreadUtils
 		File file = new File(filePath);
 		Logger.d(TAG, "File size: " + file.length() + " File name: " + file.getName());
 
-		boolean skipMaxSizeCheck = (isBigVideoSharingEnabled() && hikeFileType == HikeFileType.VIDEO);
+		boolean skipMaxSizeCheck = isMaxSizeUploadableFile(hikeFileType,context);
+
 		if (!skipMaxSizeCheck && HikeConstants.MAX_FILE_SIZE < file.length())
 		{
 			Toast.makeText(context, R.string.max_file_size, Toast.LENGTH_SHORT).show();
@@ -400,7 +421,7 @@ public class ChatThreadUtils
 		}
 	}
 
-	protected static ConvMessage getChatThemeConvMessage(Context context, long timestamp, String bgId, Conversation conv)
+	protected static ConvMessage getChatThemeConvMessage(Context context, long timestamp, String bgId, Conversation conv, boolean isCustom)
 	{
 
 		JSONObject jsonObject = new JSONObject();
@@ -410,6 +431,7 @@ public class ChatThreadUtils
 		{
 			data.put(HikeConstants.MESSAGE_ID, Long.toString(timestamp));
 			data.put(HikeConstants.BG_ID, bgId);
+			data.put(HikeConstants.CUSTOM, isCustom);
 
 			jsonObject.put(HikeConstants.DATA, data);
 			jsonObject.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.CHAT_BACKGROUD);
@@ -696,7 +718,9 @@ public class ChatThreadUtils
 				object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.MESSAGE_READ);
 				object.put(HikeConstants.TO, msisdn);
 				object.put(HikeConstants.DATA, ids);
-
+				if(channelSelector instanceof OfflineChannel){
+					object.put(HikeConstants.TIMESTAMP,System.currentTimeMillis()/1000);
+				}
 				channelSelector.postMR(object);
 			}
 
@@ -748,9 +772,100 @@ public class ChatThreadUtils
 		return null;
 	}
 
+	public static void processTasks(final Intent intent)
+	{
+		String msisdn = intent.getStringExtra(HikeConstants.MSISDN);
+		boolean showNotification = intent.getBooleanExtra(HikeConstants.MUTE_NOTIF, true);
+		if (TextUtils.isEmpty(msisdn))
+		{
+			return;
+		}
+		//CE-765: If notification were choosen not be shown, then we reset it
+		if (!showNotification) showNotification = true;
+		Mute mute = new Mute.InitBuilder(msisdn).setIsMute(false).setShowNotifInMute(showNotification).setMuteDuration(0).build();
+		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, mute);
+	}
+
 	public static boolean isBigVideoSharingEnabled()
 	{
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.LARGE_VIDEO_SHARING_ENABLED, false);
 	}
+	/**
+	 * @param convMessage
+	 */
+	public static  String getMessageType(ConvMessage convMessage)
+	{
+		if (convMessage == null)
+		{
+			return null;
+		}
 
+		if (convMessage.isStickerMessage())
+		{
+			return AnalyticsConstants.MessageType.STICKER;
+		}
+		/**
+		 * If NO Metadata ===> It was a "Text" Msg in 1-1 Conv
+		 */
+		else if (convMessage.getMetadata() != null)
+		{
+			if (convMessage.getMetadata().isPokeMessage())
+			{
+				return AnalyticsConstants.MessageType.NUDGE;
+			}
+
+			List<HikeFile> list = convMessage.getMetadata().getHikeFiles();
+			/**
+			 * If No HikeFile List ====> It was a "Text" Msg in gc
+			 */
+			if (list != null)
+			{
+				final HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
+				HikeFileType fileType = hikeFile.getHikeFileType();
+				switch (fileType)
+				{
+					case CONTACT:
+						return AnalyticsConstants.MessageType.CONTACT;
+
+					case LOCATION:
+						return AnalyticsConstants.MessageType.LOCATION;
+
+					case AUDIO:
+					case AUDIO_RECORDING:
+						return hikeFile.getAttachmentSharedAs();
+
+					case VIDEO:
+						return AnalyticsConstants.MessageType.VEDIO;
+
+					case IMAGE:
+						return AnalyticsConstants.MessageType.IMAGE;
+
+					case APK:
+						return ChatAnalyticConstants.MessageInfoEvents.APK;
+
+					default:
+						return ChatAnalyticConstants.MessageInfoEvents.MESSAGE_INFO_FILE_TYPE_OTHER;
+
+				}
+			}
+			else
+			{
+				return AnalyticsConstants.MessageType.TEXT;
+			}
+		}
+
+		return AnalyticsConstants.MessageType.TEXT;
+
+	}
+
+
+	public static boolean isMaxSizeUploadableFile(HikeFileType hikeFileType, Context context){
+		boolean skipMaxSizeCheck = (isBigVideoSharingEnabled() && hikeFileType == HikeFileType.VIDEO);
+		//Do pre-compression size check as before if compression have been turned off by the user.
+		if(skipMaxSizeCheck && (android.os.Build.VERSION.SDK_INT < 18
+				|| !PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.COMPRESS_VIDEO, true))) {
+			skipMaxSizeCheck = false;
+		}
+		return skipMaxSizeCheck;
+	}
 }

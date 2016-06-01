@@ -1,10 +1,15 @@
 package com.bsb.hike.backup.impl;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.backup.AccountBackupRestore;
+import com.bsb.hike.backup.BackupUtils;
 import com.bsb.hike.backup.iface.BackupableRestorable;
+import com.bsb.hike.backup.model.BackupMetadata;
 import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.StickerManager;
 
@@ -33,10 +38,7 @@ public class DBsBackupRestore implements BackupableRestorable
 
 	private void init()
 	{
-		chatsDB = new DB(DBConstants.CONVERSATIONS_DATABASE_NAME,
-				// STICKER_SHOP_TABLE and STICKER_CATEGORIES_TABLE will be skipped
-				new String[] { DBConstants.STICKER_SHOP_TABLE},
-				backupToken)
+		chatsDB = new DB(DBConstants.CONVERSATIONS_DATABASE_NAME, new String[] {}, backupToken)
 		{
 			@Override
 			public void postRestoreSetup() throws Exception
@@ -49,6 +51,7 @@ public class DBsBackupRestore implements BackupableRestorable
 				}
 
                 StickerManager.getInstance().postRestoreSetup();
+				postRestoreMuteSetup();
 			}
 		};
 
@@ -148,5 +151,17 @@ public class DBsBackupRestore implements BackupableRestorable
 	public void selfDestruct() {
 		for (DB db : DBs)
 			db.selfDestruct();
+	}
+
+	public void postRestoreMuteSetup() {
+
+		BackupMetadata metadata = BackupUtils.getBackupMetadata();
+		if (metadata != null) {
+			int oldBackupVersion = metadata.getAppVersion();
+
+			if (oldBackupVersion <= AccountBackupRestore.MUTE_BACKUP_THRESHOLD_VERSION) {
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CHAT_BG_TABLE_MIGRATION, 0);
+			}
+		}
 	}
 }

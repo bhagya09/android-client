@@ -2,17 +2,20 @@ package com.bsb.hike.db;
 
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 
-public interface DBConstants
+public class DBConstants
 {
-	public static final int CONVERSATIONS_DATABASE_VERSION = 50;
 
-	public static final int USERS_DATABASE_VERSION = 18;
+	public static final int CONVERSATIONS_DATABASE_VERSION = 57;
+
+	public static final int USERS_DATABASE_VERSION = 19;
 
 	public static final String HAS_CUSTOM_PHOTO = "hascustomphoto";
 
 	public static final String CONVERSATIONS_DATABASE_NAME = "chats";
 
 	public static final String CONVERSATIONS_TABLE = "conversations";
+
+	public static final String RECEIPTS_TABLE = "receipts";
 
 	public static final String MESSAGES_TABLE = "messages";
 
@@ -111,8 +114,16 @@ public interface DBConstants
 	public static final String EMOTICON_INDEX = "emoticonIdx";
 
 	public static final String MUTE_GROUP = "muteGroup";
-	
+
 	public static final String IS_MUTE = "isMute";
+
+	public static final String MUTE_DURATION = "muteDuration";
+
+	public static final String MUTE_TIMESTAMP = "muteTs";
+
+	public static final String MUTE_NOTIFICATION = "muteNotif";
+
+	public static final String MUTE_END_TIME = "muteEndTime";
 
 	public static final String FAVORITES_TABLE = "favoritesTable";
 
@@ -197,9 +208,15 @@ public interface DBConstants
 
 	public static final String PLATFORM_USER_ID = "platformUserId";
 
+	public static final String CHAT_PROPERTIES_TABLE = "chatPropTable";
+
+	public static final String CHAT_PROPERTIES_INDEX = "chatPropIndex";
+
 	public static final String CHAT_BG_TABLE = "chatBgTable";
 
 	public static final String BG_ID = "bgId";
+
+	public static final String BG_TIMESTAMP = "bgTs";
 
 	public static final String CHAT_BG_INDEX = "chatBgIndex";
 
@@ -241,6 +258,10 @@ public interface DBConstants
 
 	public static final String EVENT_TYPE = "eventType";
 
+	public static final String EVENT_FROM_USER_MSISDN = "eventFromUserMsisdn";
+
+	public static final String EVENT_PARENT_MSISDN = "eventParentMsisdn";
+
 	// ActionsTable
 	public static final String ACTIONS_TABLE = "actions";
 
@@ -273,8 +294,8 @@ public interface DBConstants
 
 	public static final String FEED_TS = "ts";
 	public static final String FEED_INDEX = "feed_idx";
-	String URL_KEY = "urlKey";
-	String URL_KEY_INDEX = "urlKeyIndex";
+	public static final String URL_KEY = "urlKey";
+	public static final String URL_KEY_INDEX = "urlKeyIndex";
 
 	//StickerTable
 
@@ -296,7 +317,24 @@ public interface DBConstants
 
 	public static final int DEFAULT_INACTIVE_STATE = 0;
 
-	public static interface HIKE_CONV_DB
+	//Receipts Table
+	public static final String READ_TIMESTAMP="read_timestamp";
+
+	public static final String DELIVERY_TIMESTAMP="delivery_timestamp";
+
+	public static final String PLAYED_TIMESTAMP="played_timestamp";
+
+	public static final String RECEIVER_MSISDN="rcv_msdn";
+
+	public static final String BLOCK_STATUS_INDEX = "blkindex";
+
+	public static final String QUICK_SUGGESTED_REPLY_STICKERS = "qck_sgstd_rply_stckrs";
+
+	public static final String QUICK_SUGGESTED_SENT_STICKERS = "qck_sgstd_snt_stckrs";
+
+	public static final String LAST_QUICK_SUGGESTION_REFRESH_TIME = "lst_qck_sug_rfsh_time";
+
+	public static class HIKE_CONV_DB
 	{
 		// CHANNEL TABLE -> _id,channel_id,name,visibility,index
 		public static final String CHANNEL_TABLE = "channel";
@@ -323,8 +361,8 @@ public interface DBConstants
 	 * @author gauravKhanna
 	 *
 	 */
-	public static interface HIKE_CONTENT{
-		public static final int DB_VERSION = 8;
+	public static class HIKE_CONTENT{
+		public static final int DB_VERSION = 9;
 		public static final String DB_NAME = "hike_content_db";
 		// CONTENT TABLE -> _id,content_id,love_id,channel_id,timestamp,metadata
 		public static final String CONTENT_TABLE = "content";
@@ -365,6 +403,8 @@ public interface DBConstants
 		public static final String TRIGGER_POINT = "trigger_point";
 
 		public static final String STATUS = "status";
+
+		public static final String PID = "pid";
 		
 		// URL WHITELIST TABLE --> domain, in_hike
 		public static final String URL_WHITELIST = "url_whitelist";
@@ -376,7 +416,7 @@ public interface DBConstants
 		
 		public static final String CONTENT_ID_INDEX = "contentTableContentIdIndex";
 		public static final String CONTENT_TABLE_NAMESPACE_INDEX = "contentTableNamespaceIndex";
-		String NAMESPACE = "nameSpace";
+		public static final String NAMESPACE = "nameSpace";
 		public static final String NOTIF_DATA = "notif_data";
 		public static final String VALUE = "value";
 		public static final String CONTENT_CACHE_TABLE = "contentCache";
@@ -407,11 +447,11 @@ public interface DBConstants
         public static final String APP_PACKAGE = "app_package";
 
 		//Bot Download state table starts here
-		String PLATFORM_DOWNLOAD_STATE_TABLE = "plf_dwnld_state_table";
+		public static final String PLATFORM_DOWNLOAD_STATE_TABLE = "plf_dwnld_state_table";
 
-		String DOWNLOAD_STATE = "downloadState";
-		String AUTO_RESUME = "autoResume";
-		
+		public static final String DOWNLOAD_STATE = "downloadState";
+		public static final String AUTO_RESUME = "autoResume";
+
 		// AUTH TABLE ->auth_table--> microApp_id,token
 		public static final String AUTH_TABLE = "auth_table";
 		public static final String MICROAPP_ID = "microapp_id";
@@ -423,6 +463,8 @@ public interface DBConstants
 		public static final String TIP_END_TIME = "tp_et";
 		public static final String TIP_DATA = "tp_data";
 		public static final String TIP_PRIORITY = "tp_prrt";
+
+		public static final String POPUPDATA_INDEX = "popupdata_index";
 
 	}
 	
@@ -474,6 +516,85 @@ public interface DBConstants
 		public static final String OFFLINE_TIME_STAMP_INDEX = "offlineTimeStampIndex";
 	}
 
+	public static class ChatThemes
+	{
+		public static final String CHAT_BG_TABLE = "chatBgTable";
+
+		//analogous to a unique id for every theme (themeId)
+		public static final String THEME_COL_BG_ID = "bgId";
+
+		public static final String CHAT_BG_INDEX = "chatBgIndex";
+
+		//stores the assetIds associated with a particular theme
+		public static final String CHAT_THEME_TABLE = "chatThemeTable";
+
+		//stores the asset value/location corresponding to a unique asset
+		public static final String CHAT_THEME_ASSET_TABLE = "chatThemeAssetTable";
+
+		public static final String CHAT_THEME_TIMESTAMP_COL = "timestamp";
+
+		public static final int CHAT_THEME_ASSET_TABLE_COL_COUNT = 5;
+
+		public static final int CHAT_THEME_TABLE_COL_COUNT = 20;
+
+		//Columns for CHAT_THEME_ASSET_TABLE
+
+		public static final String ASSET_COL_ID = "assetId";
+
+		public static final String ASSET_COL_TYPE = "assetType";
+
+		public static final String ASSET_COL_VAL = "assetVal";
+
+		public static final String ASSET_COL_IS_DOWNLOADED = "isDownloaded";
+
+		public static final String ASSET_COL_SIZE = "assetSize";
+
+
+
+		//Columns for CHAT_THEME_TABLE
+
+		// to tell whether a theme is animated/tiled/audio or none
+		public static final String THEME_COL_TYPE = "themeType";
+
+		public static final String THEME_COL_BG_PORTRAIT = "bgPortrait"; //BG = background
+
+		public static final String THEME_COL_BG_LANDSCAPE = "bgLandscape";
+
+		public static final String THEME_COL_BUBBLE = "bubble";
+
+		public static final String THEME_COL_BUBBLE_BG = "bubbleBG";
+
+		public static final String THEME_COL_HEADER = "header";
+
+		public static final String THEME_COL_SEND_NUDGE = "sendNudge";
+
+		public static final String THEME_COL_RECEIVE_NUDGE = "receiveNudge";
+
+		public static final String THEME_COL_INLINE_UPDATE_BG = "inlineUpdateBG";
+
+		public static final String THEME_COL_SMS_BG = "smsBg";
+
+		public static final String THEME_COL_MULTI_SELECT_BUBBLE_COLOR = "multiSelectBubbleColor";
+
+		public static final String THEME_COL_OFFLINE_MESSAGE_TEXT_COLOR = "offlineMessageTextColor";
+
+		public static final String THEME_COL_THUMBNAIL = "thumbnail";
+
+		public static final String THEME_COL_METADATA = "metadata";
+
+		public static final String THEME_COL_STATUS_BAR_COL = "statusBarColor";
+
+		public static final String THEME_COL_VISIBLE = "visible";
+
+		public static final String THEME_COL_ORDER = "themeOrder";
+
+		public static final String THEME_COL_SYSTEM_MESSAGE = "systemMessage";
+
+		// Extra Columns for CHAT_BG_TABLE
+
+		public static final String PREV_THEME_ID_COL = "prevThemeId";
+	}
+
 	public static interface HIKE_USER
 	{
 		// hike caller detail table starts here
@@ -498,6 +619,7 @@ public interface DBConstants
 		// hike caller detail table ends here
 
 	}
+
 	public static final String CATEGORY_NAME = "categoryName";
 
 	public static final String IS_VISIBLE = "isVisible";
@@ -543,6 +665,9 @@ public interface DBConstants
 	public static final String STICKER_SHOP_TABLE = "stickerShopTable";
 	
 	public static final String MESSAGE_TABLE_CONTENT_INDEX = "messageContentIndex";
+
+	public static final String RECEIPTS_TABLE_CONTENT_INDEX = "receiptsContentIndex";
+
 	public static final String SERVER_ID = "serverId";
 	
 	public static final String MESSAGE_ORIGIN_TYPE = "messageOriginType";
@@ -580,14 +705,31 @@ public interface DBConstants
 
 	public static final String SORT_ID_SINGLE_IDX = "srt_Index";
 
+	public static final String COLUMN_TYPE_TEXT = " TEXT";
+
+	public static final String COLUMN_TYPE_INTEGER = " INTEGER";
+
+	public static final String COMMA_SEPARATOR = ",";
+
 	public static final String URL_TABLE = "urlTable";
 
 	public static final String URL = "url";
-	String LIFE = "life";
-	int SHORT_LIVED = 0;
-	int LONG_LIVED = 1;
+
+	public static final String LIFE = "life";
+	public static final int SHORT_LIVED = 0;
+	public static final int LONG_LIVED = 1;
 	
 	public static final String[] JOURNAL_MODE_ARRAY = { "DELETE", "TRUNCATE", "PERSIST", "MEMORY", "WAL", "OFF" };
+
+	public static final String HIKE_UID="uid";
+
+	public static final String BLOCK_STATUS = "bs";
+
+	public static final String STATUS_BLOCKED = "1";
+
+	public static final String STATUS_UNBLOCKED = "0";
+
+	public static final String DROP_TABLE="DROP TABLE IF EXISTS  ";
 
 	public static final String RECENT_STICKERS_TABLE = "recent_stickers_table";
 }

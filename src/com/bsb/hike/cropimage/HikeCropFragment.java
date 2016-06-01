@@ -34,6 +34,10 @@ public class HikeCropFragment extends Fragment implements View.OnClickListener
 {
 	private boolean fixedAspectRatio;
 
+	private int aspectRatioX;
+
+	private int aspectRatioY;
+
 	private boolean editEnabled;
 
 	private boolean isSrcEdited;
@@ -53,6 +57,8 @@ public class HikeCropFragment extends Fragment implements View.OnClickListener
 	private View containerCrop, containerEdit, containerRotate;
 
 	private View cropDivider;
+
+	private Bitmap sourceCropBitmap;
 
 	public interface HikeCropListener
 	{
@@ -137,6 +143,12 @@ public class HikeCropFragment extends Fragment implements View.OnClickListener
 		fixedAspectRatio = fixed;
 	}
 
+	public void setAspectWidthAndHeight(int aspectRatioX, int aspectRatioY)
+	{
+		this.aspectRatioX = aspectRatioX;
+		this.aspectRatioY = aspectRatioY;
+	}
+
 	public void setEditEnabled(boolean editEnabled)
 	{
 		this.editEnabled = editEnabled;
@@ -148,6 +160,9 @@ public class HikeCropFragment extends Fragment implements View.OnClickListener
 		super.onViewCreated(view, savedInstanceState);
 
 		mCropImageView.setFixedAspectRatio(fixedAspectRatio);
+		if((aspectRatioX > 0) && (aspectRatioY > 0)) {
+			mCropImageView.setAspectRatio(aspectRatioX, aspectRatioY);
+		}
 
 		if (!fixedAspectRatio)
 		{
@@ -167,7 +182,7 @@ public class HikeCropFragment extends Fragment implements View.OnClickListener
 		loadBitmap();
 	}
 
-	public void loadBitmap()
+	private Bitmap getSourceBitmap()
 	{
 		BitmapFactory.Options options = new BitmapFactory.Options();
 
@@ -177,7 +192,6 @@ public class HikeCropFragment extends Fragment implements View.OnClickListener
 
 		options.inPreferQualityOverSpeed = true;
 
-		// Load bitmap
 		Bitmap sourceBitmap = null;
 
 		if(fixedAspectRatio)
@@ -196,7 +210,15 @@ public class HikeCropFragment extends Fragment implements View.OnClickListener
 			}
 		}
 
-		if (sourceBitmap == null)
+		return sourceBitmap;
+	}
+
+	public void loadBitmap()
+	{
+		// Load bitmap
+		sourceCropBitmap = getSourceBitmap();
+
+		if (sourceCropBitmap == null)
 		{
 			Logger.e("HikeImageCropFragment", "Source file bitmap == null");
 			return;
@@ -206,14 +228,14 @@ public class HikeCropFragment extends Fragment implements View.OnClickListener
 		{
 			int minSize = HikePhotosUtils.dpToPx(120);
 
-			if (sourceBitmap.getWidth() < minSize || sourceBitmap.getHeight() < minSize)
+			if (sourceCropBitmap.getWidth() < minSize || sourceCropBitmap.getHeight() < minSize)
 			{
-				minSize = sourceBitmap.getWidth() > sourceBitmap.getHeight() ? sourceBitmap.getHeight() : sourceBitmap.getWidth();
+				minSize = sourceCropBitmap.getWidth() > sourceCropBitmap.getHeight() ? sourceCropBitmap.getHeight() : sourceCropBitmap.getWidth();
 			}
 
 			Edge.MIN_CROP_LENGTH_PX = minSize;
 
-			mCropImageView.setImageBitmap(sourceBitmap, new ExifInterface(mSourceImagePath));
+			mCropImageView.setImageBitmap(sourceCropBitmap, new ExifInterface(mSourceImagePath));
 		}
 		catch (IOException e)
 		{
@@ -244,7 +266,30 @@ public class HikeCropFragment extends Fragment implements View.OnClickListener
 
 	public void crop()
 	{
-		Bitmap croppedImage = mCropImageView.getCroppedImage();
+		Bitmap croppedImage = null;
+		if(isInCropMode())
+		{
+			croppedImage = mCropImageView.getCroppedImage();
+		}
+		else
+		{
+			if (sourceCropBitmap != null && !sourceCropBitmap.isRecycled())
+			{
+				croppedImage = sourceCropBitmap;
+			}
+			else
+			{
+				croppedImage = getSourceBitmap();
+				try
+				{
+					croppedImage = mCropImageView.rotateBitmapExif(croppedImage, new ExifInterface(mSourceImagePath));
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		}
 
 		if (croppedImage == null)
 		{

@@ -1,25 +1,23 @@
 package com.bsb.hike.tasks;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.NUXConstants;
-import com.bsb.hike.R;
-import com.bsb.hike.adapters.ComposeChatAdapter;
 import com.bsb.hike.adapters.FriendsAdapter;
 import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.GroupParticipant;
-import com.bsb.hike.models.HikeFeatureInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.utils.BirthdayUtils;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.PairModified;
@@ -105,6 +103,10 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 
 	private List<BotInfo> filteredMicroAppShowcaseList;
 
+	private List<ContactInfo> hikeBdayContactList;
+
+	private List<ContactInfo> filteredHikeBdayContactList;
+
 	private String existingGroupId;
 
 	private String sendingMsisdn;
@@ -145,12 +147,16 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 
 	private List<ContactInfo> contactsInfo;
 
+	private List<String> composeExcludeList;
+
+	private boolean showBdaySection;
+
 	public FetchFriendsTask(FriendsAdapter friendsAdapter, Context context, List<ContactInfo> friendsList, List<ContactInfo> hikeContactsList, List<ContactInfo> smsContactsList,
-			List<ContactInfo> recentContactsList, List<ContactInfo> recentlyJoinedHikeContactsList, List<ContactInfo> friendsStealthList,
-			List<ContactInfo> hikeStealthContactsList, List<ContactInfo> smsStealthContactsList, List<ContactInfo> recentsStealthList, List<ContactInfo> filteredFriendsList,
-			List<ContactInfo> filteredHikeContactsList, List<ContactInfo> filteredSmsContactsList, List<ContactInfo> suggestedContactsList,
-			List<ContactInfo> filteredSuggestedContactsList, boolean fetchSmsContacts, boolean checkFavTypeInComparision, boolean fetchRecents, boolean fetchRecentlyJoined,
-			boolean showDefaultEmptyList, boolean fetchHikeContacts, boolean fetchFavContacts, boolean showFilteredContacts, String msisdnList)
+							List<ContactInfo> recentContactsList, List<ContactInfo> recentlyJoinedHikeContactsList, List<ContactInfo> friendsStealthList,
+							List<ContactInfo> hikeStealthContactsList, List<ContactInfo> smsStealthContactsList, List<ContactInfo> recentsStealthList, List<ContactInfo> filteredFriendsList,
+							List<ContactInfo> filteredHikeContactsList, List<ContactInfo> filteredSmsContactsList, List<ContactInfo> suggestedContactsList,
+							List<ContactInfo> filteredSuggestedContactsList, boolean fetchSmsContacts, boolean checkFavTypeInComparision, boolean fetchRecents, boolean fetchRecentlyJoined,
+							boolean showDefaultEmptyList, boolean fetchHikeContacts, boolean fetchFavContacts, boolean showFilteredContacts, String msisdnList)
 	{
 		this(friendsAdapter, context, friendsList, hikeContactsList, smsContactsList, recentContactsList, recentlyJoinedHikeContactsList, friendsStealthList,
 				hikeStealthContactsList, smsStealthContactsList, recentsStealthList, filteredFriendsList, filteredHikeContactsList, filteredSmsContactsList, null, null, null,
@@ -224,6 +230,7 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 
 		this.showFilteredContacts = showFilteredContacts;
 		this.msisdnList = msisdnList;
+
 	}
 
 	public FetchFriendsTask(FriendsAdapter friendsAdapter, Context context, List<ContactInfo> friendsList, List<ContactInfo> hikeContactsList, List<ContactInfo> smsContactsList,
@@ -234,7 +241,8 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 			List<ContactInfo> filteredRecentsList, List<ContactInfo> filteredRecentlyJoinedContactsList, Map<String, ContactInfo> selectedPeople, String sendingMsisdn,
 			boolean fetchGroups, String existingGroupId, boolean creatingOrEditingGrou, boolean fetchSmsContacts, boolean checkFavTypeInComparision, boolean fetchRecents,
 			boolean fetchRecentlyJoined, boolean showDefaultEmptyList, boolean fetchHikeContacts, boolean fetchFavContacts, boolean fetchRecommendedContacts,
-			boolean filterHideList, List<BotInfo> microappShowcaseList, List<BotInfo> filteredMicroAppShowcaseList, boolean showMicroappShowcase)
+			boolean filterHideList, List<BotInfo> microappShowcaseList, List<BotInfo> filteredMicroAppShowcaseList, boolean showMicroappShowcase, List<String> composeExcludeList,
+            boolean showBdaySection, List<ContactInfo> hikeBdayContactList, List<ContactInfo> filteredHikeBdayContactList)
 	{
 		this.friendsAdapter = friendsAdapter;
 
@@ -286,7 +294,12 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 
 		this.microappShowcaseList = microappShowcaseList;
 		this.filteredMicroAppShowcaseList = filteredMicroAppShowcaseList;
+		this.composeExcludeList = composeExcludeList;
 
+		this.showBdaySection = showBdaySection;
+
+        this.hikeBdayContactList = hikeBdayContactList;
+        this.filteredHikeBdayContactList = filteredHikeBdayContactList;
 	}
 
 	public void addOtherFeaturesList(List<ContactInfo> otherFeaturesList, List<ContactInfo> filteredOtherFeaturesList)
@@ -301,9 +314,28 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		long startTime = System.currentTimeMillis();
 		String myMsisdn = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, "");
 
+		if(showBdaySection)
+		{
+			hikeBdayContactList.clear();
+			filteredHikeBdayContactList.clear();
+            hikeBdayContactList.addAll(BirthdayUtils.getSortedBdayContactListFromSharedPref());
+			BirthdayUtils.removeHiddenMsisdnFromContactInfoList(hikeBdayContactList);
+			filteredHikeBdayContactList.addAll(hikeBdayContactList);
+		}
+		else
+		{
+			hikeBdayContactList = new ArrayList<ContactInfo>();
+			filteredHikeBdayContactList = new ArrayList<ContactInfo>();
+		}
+
 		if (showFilteredContacts && !TextUtils.isEmpty(msisdnList))
 		{
 			contactsInfo = ContactManager.getInstance().getContactInfoListForMsisdnFilter(msisdnList);
+			removeExcludedParticipants(contactsInfo, composeExcludeList);
+			/**
+			 * Removing Birthday users from contacts list
+			 */
+			contactsInfo.removeAll(filteredHikeBdayContactList);
 			suggestedContactsList.addAll(contactsInfo);
 			filteredSuggestedContactsList.addAll(contactsInfo);
 		}
@@ -313,10 +345,12 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		{
 			groupTaskList = ContactManager.getInstance().getConversationGroupsAsContacts(true);
 			removeSendingMsisdnAndStealthContacts(groupTaskList, groupsStealthList, true);
+			removeExcludedParticipants(groupTaskList, composeExcludeList);
 		}
 
 		long queryTime = System.currentTimeMillis();
 		List<ContactInfo> allContacts = ContactManager.getInstance().getAllContacts();
+		removeExcludedParticipants(allContacts, composeExcludeList);
 		Set<String> blockSet = ContactManager.getInstance().getBlockedMsisdnSet();
 
 		NUXManager nm = NUXManager.getInstance();
@@ -325,7 +359,7 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		{
 			List<ContactInfo> convContacts = ContactManager.getInstance().getAllConversationContactsSorted(true, false);
 			recentTaskList = new ArrayList<ContactInfo>();
-
+			removeExcludedParticipants(convContacts, composeExcludeList);
 			for (ContactInfo recentContact : convContacts)
 			{
 				if (recentTaskList.size() >= HikeConstants.MAX_RECENTS_TO_SHOW)
@@ -339,7 +373,10 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 				}
 				recentTaskList.add(recentContact);
 			}
-
+			/**
+			 * Removing Birthday users from resent contacts list
+			 */
+			recentTaskList.removeAll(filteredHikeBdayContactList);
 		}
 
 		Logger.d("TestQuery", "query time: " + (System.currentTimeMillis() - queryTime));
@@ -394,6 +431,10 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		}
 
 		long iterationTime = System.currentTimeMillis();
+		/**
+		 * Removing Birthday users from all contacts list
+		 */
+		allContacts.removeAll(filteredHikeBdayContactList);
 		for (ContactInfo contactInfo : allContacts)
 		{
 			String msisdn = contactInfo.getMsisdn();
@@ -598,6 +639,22 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 			if (groupParticipants.containsKey(contactInfo.getMsisdn()))
 			{
 				iter.remove();
+			}
+		}
+	}
+
+	private void removeExcludedParticipants(List<ContactInfo> contactList, List<String> composeExcludeList)
+	{
+		if(contactList != null && contactList.size() > 0 && composeExcludeList != null && composeExcludeList.size() > 0)
+		{
+			Iterator<ContactInfo> i = contactList.iterator();
+			while(i.hasNext())
+			{
+				ContactInfo contactInfo = i.next();
+				if(composeExcludeList.contains(contactInfo.getId()))
+				{
+					i.remove();
+				}
 			}
 		}
 	}

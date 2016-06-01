@@ -10,6 +10,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
@@ -24,6 +25,8 @@ import android.widget.Toast;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -212,15 +215,17 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 		{
 		case R.id.share_via_WA:
 			buttonClickedType = WA;
+			recordShareLinkDialogOptionClicked(AnalyticsConstants.JoinGroupViaLinkSharingAnalyticsConstants.CLICKED_WA);
 			break;
 
 		case R.id.share_via_Others:
 			buttonClickedType = OTHERS;
+			recordShareLinkDialogOptionClicked(AnalyticsConstants.JoinGroupViaLinkSharingAnalyticsConstants.CLICKED_OTHER);
 			break;
 
 		case R.id.add_via_Hike:
 			shareLinkFragmentListener.addMembersViaHike();
-
+			recordShareLinkDialogOptionClicked(AnalyticsConstants.JoinGroupViaLinkSharingAnalyticsConstants.CLICKED_HIKE);
 			// dismiss the dialog
 			dismiss();
 
@@ -289,6 +294,8 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 							{
 								OneToNConversationUtils.uploadGroupProfileImage(grpId);
 							}
+
+							recordGroupCreation();
 						}
 						else
 						{
@@ -317,7 +324,7 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 		}
 
 		@Override
-		public void onRequestFailure(HttpException httpException)
+		public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 		{
 			Logger.d(ShareLinkFragment.class.getSimpleName(), "responce from http call failed " + httpException.toString());
 
@@ -481,4 +488,45 @@ public class ShareLinkFragment extends DialogFragment implements OnClickListener
 			break;
 		}
 	}
+
+	private void recordShareLinkDialogOptionClicked(String uk)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, uk);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_EXPERIMENT);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.JoinGroupViaLinkSharingAnalyticsConstants.WA);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.JoinGroupViaLinkSharingAnalyticsConstants.FUNNEL);
+			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.JoinGroupViaLinkSharingAnalyticsConstants.CLICKED_ADD);
+
+			HAManager.getInstance().recordV2(json);
+		}
+
+		catch (JSONException e)
+		{
+			e.toString();
+		}
+	}
+
+	private void recordGroupCreation()
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.JoinGroupViaLinkSharingAnalyticsConstants.GROUP_CREATE);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.JoinGroupViaLinkSharingAnalyticsConstants.ACT_GROUP);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.JoinGroupViaLinkSharingAnalyticsConstants.WA);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.JoinGroupViaLinkSharingAnalyticsConstants.FUNNEL);
+			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.JoinGroupViaLinkSharingAnalyticsConstants.GROUP_CREATE);
+
+			HAManager.getInstance().recordV2(json);
+		}
+
+		catch (JSONException e)
+		{
+			e.toString();
+		}
+	}
+
 }

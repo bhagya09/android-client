@@ -37,7 +37,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -63,6 +62,7 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.PendingIntent;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -110,8 +110,10 @@ import android.net.TrafficStats;
 import android.net.Uri;
 import android.os.BatteryManager;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.Message;
+import android.os.Parcel;
 import android.os.PowerManager;
 import android.os.RemoteException;
 import android.os.StatFs;
@@ -129,6 +131,8 @@ import android.provider.ContactsContract.RawContacts;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.Settings.Secure;
+import android.support.annotation.Nullable;
+import android.support.v4.content.LocalBroadcastManager;
 import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
 import android.text.Editable;
@@ -137,6 +141,7 @@ import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.format.DateUtils;
+import android.text.format.Time;
 import android.text.style.StyleSpan;
 import android.util.Base64;
 import android.util.DisplayMetrics;
@@ -146,6 +151,7 @@ import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.View;
 import android.view.View.OnTouchListener;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AccelerateInterpolator;
@@ -174,10 +180,13 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HomeAnalyticsConstants;
 import com.bsb.hike.analytics.TrafficsStatsFile;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.ChatHeadUtils;
+import com.bsb.hike.chatthemes.ChatThemeManager;
+import com.bsb.hike.chatthemes.HikeChatThemeConstants;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -204,9 +213,11 @@ import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.GroupParticipant;
+import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.models.Mute;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -219,6 +230,7 @@ import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.service.ConnectionChangeReceiver;
 import com.bsb.hike.service.HikeMqttManagerNew;
+import com.bsb.hike.service.HikeService;
 import com.bsb.hike.tasks.CheckForUpdateTask;
 import com.bsb.hike.tasks.StatusUpdateTask;
 import com.bsb.hike.timeline.model.StatusMessage;
@@ -230,15 +242,6 @@ import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.SignupActivity;
 import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.ui.WelcomeActivity;
-import com.bsb.hike.userlogs.AESEncryption;
-import com.bsb.hike.voip.VoIPUtils;
-import com.google.android.gms.maps.model.LatLng;
-
-import org.apache.http.NameValuePair;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -288,6 +291,11 @@ import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
+
+import com.bsb.hike.voip.VoIPUtils;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.maps.model.LatLng;
 
 public class Utils
 {
@@ -397,8 +405,6 @@ public class Utils
 		return false;
 	}
 
-	static final private int ANIMATION_DURATION = 400;
-
 	public static long gettingMidnightTimeinMilliseconds()
 	{
 		Calendar c = Calendar.getInstance();
@@ -475,16 +481,16 @@ public class Utils
 
 		switch (type)
 		{
-		case PROFILE:
-		case IMAGE:
-			orgFileName = "IMG_" + timeStamp + ".jpg";
-			break;
-		case VIDEO:
-			orgFileName = "MOV_" + timeStamp + ".mp4";
-			break;
-		case AUDIO:
-		case AUDIO_RECORDING:
-			orgFileName = "AUD_" + timeStamp + ".m4a";
+			case PROFILE:
+			case IMAGE:
+				orgFileName = "IMG_" + timeStamp + ".jpg";
+				break;
+			case VIDEO:
+				orgFileName = "MOV_" + timeStamp + ".mp4";
+				break;
+			case AUDIO:
+			case AUDIO_RECORDING:
+				orgFileName = "AUD_" + timeStamp + ".m4a";
 		}
 
 		return orgFileName;
@@ -525,23 +531,23 @@ public class Utils
 		{
 			switch (type)
 			{
-			case PROFILE:
-			case IMAGE:
-				orgFileName.append("IMG_" + timeStamp + ".jpg");
-				break;
-			case VIDEO:
-				orgFileName.append("MOV_" + timeStamp + ".mp4");
-				break;
-			case AUDIO:
-			case AUDIO_RECORDING:
-				orgFileName.append("AUD_" + timeStamp + ".m4a");
-				break;
-			case OTHER:
-				orgFileName.append("FILE_" + timeStamp);
-				break;
-			case APK:
-				orgFileName.append("APK_" + timeStamp + ".apk");
-				break;
+				case PROFILE:
+				case IMAGE:
+					orgFileName.append("IMG_" + timeStamp + ".jpg");
+					break;
+				case VIDEO:
+					orgFileName.append("MOV_" + timeStamp + ".mp4");
+					break;
+				case AUDIO:
+				case AUDIO_RECORDING:
+					orgFileName.append("AUD_" + timeStamp + ".m4a");
+					break;
+				case OTHER:
+					orgFileName.append("FILE_" + timeStamp);
+					break;
+				case APK:
+					orgFileName.append("APK_" + timeStamp + ".apk");
+					break;
 			}
 		}
 		else
@@ -593,24 +599,24 @@ public class Utils
 		StringBuilder path = new StringBuilder(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT);
 		switch (type)
 		{
-		case PROFILE:
-			path.append(HikeConstants.PROFILE_ROOT);
-			break;
-		case IMAGE:
-			path.append(HikeConstants.IMAGE_ROOT);
-			break;
-		case VIDEO:
-			path.append(HikeConstants.VIDEO_ROOT);
-			break;
-		case AUDIO:
-			path.append(HikeConstants.AUDIO_ROOT);
-			break;
-		case AUDIO_RECORDING:
-			path.append(HikeConstants.AUDIO_RECORDING_ROOT);
-			break;
-		default:
-			path.append(HikeConstants.OTHER_ROOT);
-			break;
+			case PROFILE:
+				path.append(HikeConstants.PROFILE_ROOT);
+				break;
+			case IMAGE:
+				path.append(HikeConstants.IMAGE_ROOT);
+				break;
+			case VIDEO:
+				path.append(HikeConstants.VIDEO_ROOT);
+				break;
+			case AUDIO:
+				path.append(HikeConstants.AUDIO_ROOT);
+				break;
+			case AUDIO_RECORDING:
+				path.append(HikeConstants.AUDIO_RECORDING_ROOT);
+				break;
+			default:
+				path.append(HikeConstants.OTHER_ROOT);
+				break;
 		}
 		if (isSent)
 		{
@@ -652,7 +658,7 @@ public class Utils
 
 	/*
 	 * Extract a pin code from a specially formatted message to the application.
-	 * 
+	 *
 	 * @return null iff the message isn't an SMS pincode, otherwise return the pincode
 	 */
 	public static String getSMSPinCode(String body)
@@ -775,7 +781,17 @@ public class Utils
 		return false;
 	}
 
+	public static boolean isUpgradeIntentServiceRunning()
+	{
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPGRADING, false);
+	}
+
 	public static boolean isValidEmail(Editable text)
+	{
+		return isValidEmail(text.toString());
+	}
+
+	public static boolean isValidEmail(String text)
 	{
 		return (!TextUtils.isEmpty(text) && android.util.Patterns.EMAIL_ADDRESS.matcher(text).matches());
 	}
@@ -1201,6 +1217,7 @@ public class Utils
 			data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis() / 1000));
 			data.put(HikeConstants.RESOLUTION_ID, Utils.getResolutionId());
 			data.put(HikeConstants.NEW_LAST_SEEN_SETTING, true);
+			data.put(HikeConstants.FAVS_RAI,false);
 			requestAccountInfo.put(HikeConstants.DATA, data);
 			HikeMqttManagerNew.getInstance().sendMessage(requestAccountInfo, MqttConstants.MQTT_QOS_ONE);
 		}
@@ -1208,11 +1225,6 @@ public class Utils
 		{
 			Logger.e("Utils", "Invalid JSON", e);
 		}
-	}
-
-	public static String ellipsizeName(String name)
-	{
-		return name.length() <= HikeConstants.MAX_CHAR_IN_NAME ? name : (name.substring(0, HikeConstants.MAX_CHAR_IN_NAME - 3) + "...");
 	}
 
 	public static String getInviteMessage(Context context, int messageResId)
@@ -1270,18 +1282,18 @@ public class Utils
 				orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 0);
 				switch (orientation)
 				{
-				case ExifInterface.ORIENTATION_ROTATE_270:
-					m.preRotate(270);
-					break;
+					case ExifInterface.ORIENTATION_ROTATE_270:
+						m.preRotate(270);
+						break;
 
-				case ExifInterface.ORIENTATION_ROTATE_90:
-					m.preRotate(90);
-					break;
-				case ExifInterface.ORIENTATION_ROTATE_180:
-					m.preRotate(180);
-					break;
-				default:
-					return bitmap;
+					case ExifInterface.ORIENTATION_ROTATE_90:
+						m.preRotate(90);
+						break;
+					case ExifInterface.ORIENTATION_ROTATE_180:
+						m.preRotate(180);
+						break;
+					default:
+						return bitmap;
 				}
 				// Rotates the image according to the orientation
 				rotatedBitmap = HikeBitmapFactory.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), m, true);
@@ -1382,14 +1394,19 @@ public class Utils
 		}
 		String fileUriString = uri.toString();
 		String fileUriStart = "file:";
-
+		//In case of file provider the uri is of format content://com.bsb.hike.fileprovider/share_images/Android/data/com.bsb.hike/cache/1464328620973.jpeg
+        String conterUriStart = "content://com.bsb.hike.fileprovider";
 		String returnFilePath = null;
+		File selectedFile;
 		if (fileUriString.startsWith(fileUriStart))
 		{
-			File selectedFile = new File(URI.create(Utils.replaceUrlSpaces(fileUriString)));
+			selectedFile = new File(URI.create(Utils.replaceUrlSpaces(fileUriString)));
 			/*
 			 * Done to fix the issue in a few Sony devices.
 			 */
+			returnFilePath = selectedFile.getAbsolutePath();
+		}else if(fileUriString.startsWith(conterUriStart)){
+			selectedFile = new File(parseFileProviderUri(fileUriString,mContext));
 			returnFilePath = selectedFile.getAbsolutePath();
 		}
 
@@ -1431,7 +1448,7 @@ public class Utils
 
 	}
 
-	public static enum ExternalStorageState
+	public enum ExternalStorageState
 	{
 		WRITEABLE, READ_ONLY, NONE
 	}
@@ -1508,7 +1525,7 @@ public class Utils
 	}
 
 	public static boolean compressAndCopyImage(String srcFilePath, String destFilePath, Context context, Bitmap.Config config, int quality, int imageQuality,
-			boolean toUserServerConfig)
+											   boolean toUserServerConfig)
 	{
 		InputStream src = null;
 		FileOutputStream dest = null;
@@ -1614,12 +1631,12 @@ public class Utils
 		{
 			switch (Integer.parseInt(imageOrientation))
 			{
-			case ExifInterface.ORIENTATION_ROTATE_180:
-				return 180;
-			case ExifInterface.ORIENTATION_ROTATE_270:
-				return 270;
-			case ExifInterface.ORIENTATION_ROTATE_90:
-				return 90;
+				case ExifInterface.ORIENTATION_ROTATE_180:
+					return 180;
+				case ExifInterface.ORIENTATION_ROTATE_270:
+					return 270;
+				case ExifInterface.ORIENTATION_ROTATE_90:
+					return 90;
 			}
 		}
 
@@ -1655,6 +1672,7 @@ public class Utils
 		{
 			AccountUtils.base = httpString + AccountUtils.host + "/v1";
 			AccountUtils.baseV2 = httpString + AccountUtils.host + "/v2";
+			AccountUtils.baseV3 = httpString + AccountUtils.host + "/v3";
 			AccountUtils.SDK_AUTH_BASE = AccountUtils.SDK_AUTH_BASE_URL_PROD;
 		}
 		else
@@ -1662,6 +1680,7 @@ public class Utils
 			setHostAndPort(whichServer, AccountUtils.ssl);
 			AccountUtils.base = httpString + AccountUtils.host + ":" + Integer.toString(AccountUtils.port) + "/v1";
 			AccountUtils.baseV2 = httpString + AccountUtils.host + ":" + Integer.toString(AccountUtils.port) + "/v2";
+			AccountUtils.baseV3 = httpString + AccountUtils.host + ":" + Integer.toString(AccountUtils.port) + "/v3";
 			AccountUtils.SDK_AUTH_BASE = AccountUtils.SDK_AUTH_BASE_URL_STAGING;
 		}
 
@@ -1693,27 +1712,27 @@ public class Utils
 		switch (whichServer)
 		{
 
-		case AccountUtils._PRODUCTION_HOST:
-			AccountUtils.host = AccountUtils.PRODUCTION_HOST;
-			AccountUtils.port = ssl ? AccountUtils.PRODUCTION_PORT_SSL : AccountUtils.PRODUCTION_PORT;
-			break;
+			case AccountUtils._PRODUCTION_HOST:
+				AccountUtils.host = AccountUtils.PRODUCTION_HOST;
+				AccountUtils.port = ssl ? AccountUtils.PRODUCTION_PORT_SSL : AccountUtils.PRODUCTION_PORT;
+				break;
 
-		case AccountUtils._STAGING_HOST:
-			AccountUtils.host = AccountUtils.STAGING_HOST;
-			AccountUtils.port = ssl ? AccountUtils.STAGING_PORT_SSL : AccountUtils.STAGING_PORT;
-			break;
+			case AccountUtils._STAGING_HOST:
+				AccountUtils.host = AccountUtils.STAGING_HOST;
+				AccountUtils.port = ssl ? AccountUtils.STAGING_PORT_SSL : AccountUtils.STAGING_PORT;
+				break;
 
-		case AccountUtils._DEV_STAGING_HOST:
-			AccountUtils.host = AccountUtils.DEV_STAGING_HOST;
-			AccountUtils.port = ssl ? AccountUtils.STAGING_PORT_SSL : AccountUtils.STAGING_PORT;
-			break;
-		case AccountUtils._CUSTOM_HOST:
-			SharedPreferences sharedPreferences = HikeMessengerApp.getInstance().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE);
+			case AccountUtils._DEV_STAGING_HOST:
+				AccountUtils.host = AccountUtils.DEV_STAGING_HOST;
+				AccountUtils.port = ssl ? AccountUtils.STAGING_PORT_SSL : AccountUtils.STAGING_PORT;
+				break;
+			case AccountUtils._CUSTOM_HOST:
+				SharedPreferences sharedPreferences = HikeMessengerApp.getInstance().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE);
 
-			AccountUtils.host = sharedPreferences.getString(HikeMessengerApp.CUSTOM_HTTP_HOST, AccountUtils.PRODUCTION_HOST);
-			AccountUtils.port = sharedPreferences.getInt(HikeMessengerApp.CUSTOM_HTTP_PORT, AccountUtils.PRODUCTION_PORT);
+				AccountUtils.host = sharedPreferences.getString(HikeMessengerApp.CUSTOM_HTTP_HOST, AccountUtils.PRODUCTION_HOST);
+				AccountUtils.port = sharedPreferences.getInt(HikeMessengerApp.CUSTOM_HTTP_PORT, AccountUtils.PRODUCTION_PORT);
 
-			break;
+				break;
 
 		}
 
@@ -1903,15 +1922,15 @@ public class Utils
 
 			switch (whichScreen)
 			{
-			case FRIENDS_TAB:
-				md.put(HikeConstants.EVENT_KEY, !isReminding ? HikeConstants.LogEvent.INVITE_FTUE_FRIENDS_CLICK : HikeConstants.LogEvent.REMIND_FTUE_FRIENDS_CLICK);
-				break;
-			case UPDATES_TAB:
-				md.put(HikeConstants.EVENT_KEY, !isReminding ? HikeConstants.LogEvent.INVITE_FTUE_UPDATES_CLICK : HikeConstants.LogEvent.REMIND_FTUE_UPDATES_CLICK);
-				break;
-			case SMS_SECTION:
-				md.put(HikeConstants.EVENT_KEY, !isReminding ? HikeConstants.LogEvent.INVITE_SMS_CLICK : HikeConstants.LogEvent.REMIND_SMS_CLICK);
-				break;
+				case FRIENDS_TAB:
+					md.put(HikeConstants.EVENT_KEY, !isReminding ? HikeConstants.LogEvent.INVITE_FTUE_FRIENDS_CLICK : HikeConstants.LogEvent.REMIND_FTUE_FRIENDS_CLICK);
+					break;
+				case UPDATES_TAB:
+					md.put(HikeConstants.EVENT_KEY, !isReminding ? HikeConstants.LogEvent.INVITE_FTUE_UPDATES_CLICK : HikeConstants.LogEvent.REMIND_FTUE_UPDATES_CLICK);
+					break;
+				case SMS_SECTION:
+					md.put(HikeConstants.EVENT_KEY, !isReminding ? HikeConstants.LogEvent.INVITE_SMS_CLICK : HikeConstants.LogEvent.REMIND_SMS_CLICK);
+					break;
 			}
 
 			if (!TextUtils.isEmpty(msisdn))
@@ -2132,30 +2151,30 @@ public class Utils
 			String fileName = contentType.substring(0, contentType.indexOf("/")) + "_" + timeStamp;
 			switch (hikeFileType)
 			{
-			case IMAGE:
-				destFile = File.createTempFile(fileName, "." + extension);
-				break;
-			case VIDEO:
-			case AUDIO:
-			case OTHER:
-				String dirPath = getFileParent(hikeFileType, true);
-				if (dirPath == null)
-				{
-					return null;
-				}
-				File dir = new File(dirPath);
-				if (!dir.exists())
-				{
-					if (!dir.mkdirs())
+				case IMAGE:
+					destFile = File.createTempFile(fileName, "." + extension);
+					break;
+				case VIDEO:
+				case AUDIO:
+				case OTHER:
+					String dirPath = getFileParent(hikeFileType, true);
+					if (dirPath == null)
 					{
-						Logger.d("Hike", "failed to create directory");
 						return null;
 					}
-				}
-				destFile = new File(dir, fileName + "." + extension);
-				break;
-			default:
-				break;
+					File dir = new File(dirPath);
+					if (!dir.exists())
+					{
+						if (!dir.mkdirs())
+						{
+							Logger.d("Hike", "failed to create directory");
+							return null;
+						}
+					}
+					destFile = new File(dir, fileName + "." + extension);
+					break;
+				default:
+					break;
 			}
 		}
 		catch (IOException e)
@@ -2224,7 +2243,10 @@ public class Utils
 		}
 		return uri;
 	}
+    public static String parseFileProviderUri(String uri, Context context){
 
+		return uri.toString().replace("content://com.bsb.hike.fileprovider/share_images/Android/data/com.bsb.hike/cache", context.getExternalCacheDir().getAbsolutePath());
+	}
 	/**
 	 * This will return true when SSL toggle is on and connection type is WIFI
 	 *
@@ -2519,7 +2541,7 @@ public class Utils
 	 * @return
 	 */
 	public static int getNotificationCount(SharedPreferences accountPrefs, boolean countUsersStatus, boolean countUserActivity, boolean countUnseenStatus,
-			boolean friendRequestCount)
+										   boolean friendRequestCount)
 	{
 		int notificationCount = 0;
 		if (countUnseenStatus)
@@ -2999,14 +3021,14 @@ public class Utils
 		}
 		switch (dayOfMonth % 10)
 		{
-		case 1:
-			return "st";
-		case 2:
-			return "nd";
-		case 3:
-			return "rd";
-		default:
-			return "th";
+			case 1:
+				return "st";
+			case 2:
+				return "nd";
+			case 3:
+				return "rd";
+			default:
+				return "th";
 		}
 	}
 
@@ -3088,29 +3110,29 @@ public class Utils
 
 			switch (hikeFile.getHikeFileType())
 			{
-			case IMAGE:
-				String caption = convMessage.getMetadata().getCaption();
-				if (TextUtils.isEmpty(caption))
-				{
-					return context.getString(R.string.send_sms_img_msg);
-				}
-				else
-				{
-					return String.format(context.getString(R.string.image_w_caption_sms), "\"" + caption + "\"");
-				}
-			case VIDEO:
-				return context.getString(R.string.send_sms_video_msg);
-			case AUDIO:
-				return context.getString(R.string.send_sms_audio_msg);
-			case LOCATION:
-				return context.getString(R.string.send_sms_location_msg);
-			case CONTACT:
-				return context.getString(R.string.send_sms_contact_msg);
-			case AUDIO_RECORDING:
-				return context.getString(R.string.send_sms_audio_msg);
+				case IMAGE:
+					String caption = convMessage.getMetadata().getCaption();
+					if (TextUtils.isEmpty(caption))
+					{
+						return context.getString(R.string.send_sms_img_msg);
+					}
+					else
+					{
+						return String.format(context.getString(R.string.image_w_caption_sms), "\"" + caption + "\"");
+					}
+				case VIDEO:
+					return context.getString(R.string.send_sms_video_msg);
+				case AUDIO:
+					return context.getString(R.string.send_sms_audio_msg);
+				case LOCATION:
+					return context.getString(R.string.send_sms_location_msg);
+				case CONTACT:
+					return context.getString(R.string.send_sms_contact_msg);
+				case AUDIO_RECORDING:
+					return context.getString(R.string.send_sms_audio_msg);
 
-			default:
-				return context.getString(R.string.send_sms_file_msg);
+				default:
+					return context.getString(R.string.send_sms_file_msg);
 			}
 
 		}
@@ -3121,16 +3143,30 @@ public class Utils
 		return convMessage.getMessage();
 	}
 
-	public static void deleteFile(File file)
+	public static boolean deleteFile(File file)
 	{
+		boolean result = true;
+
+		if (!file.exists())
+		{
+			return false;
+		}
+
 		if (file.isDirectory())
 		{
-			for (File f : file.listFiles())
+			File listFiles[] = file.listFiles();
+			if(listFiles == null)
 			{
-				deleteFile(f);
+				return false;
+			}
+			for (File f : listFiles)
+			{
+				result = result && deleteFile(f);
 			}
 		}
-		file.delete();
+		result = result && file.delete();
+
+		return result;
 	}
 
 	public static void deleteFile(Context context, String filename, HikeFileType type)
@@ -3217,7 +3253,7 @@ public class Utils
 			}
 
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 				jObject = null;
 			}
@@ -3354,7 +3390,11 @@ public class Utils
 		activity.sendBroadcast(intent);
 		if (showToast)
 		{
-			Toast.makeText(activity, activity.getString(R.string.shortcut_created) + " for " + conv.getConversationName(), Toast.LENGTH_SHORT).show();
+			String name = conv.getConversationName();
+			if (TextUtils.isEmpty(name))
+				Toast.makeText(activity, activity.getString(R.string.shortcut_created), Toast.LENGTH_SHORT).show();
+			else
+				Toast.makeText(activity, activity.getString(R.string.shortcut_created) + " for " + name, Toast.LENGTH_SHORT).show();
 		}
 	}
 
@@ -3630,17 +3670,17 @@ public class Utils
 			{
 				switch (phoneCount)
 				{
-				case 0:
-					i.putExtra(Insert.PHONE, contactData.getData());
-					break;
-				case 1:
-					i.putExtra(Insert.SECONDARY_PHONE, contactData.getData());
-					break;
-				case 2:
-					i.putExtra(Insert.TERTIARY_PHONE, contactData.getData());
-					break;
-				default:
-					break;
+					case 0:
+						i.putExtra(Insert.PHONE, contactData.getData());
+						break;
+					case 1:
+						i.putExtra(Insert.SECONDARY_PHONE, contactData.getData());
+						break;
+					case 2:
+						i.putExtra(Insert.TERTIARY_PHONE, contactData.getData());
+						break;
+					default:
+						break;
 				}
 				phoneCount++;
 			}
@@ -3648,17 +3688,17 @@ public class Utils
 			{
 				switch (emailCount)
 				{
-				case 0:
-					i.putExtra(Insert.EMAIL, contactData.getData());
-					break;
-				case 1:
-					i.putExtra(Insert.SECONDARY_EMAIL, contactData.getData());
-					break;
-				case 2:
-					i.putExtra(Insert.TERTIARY_EMAIL, contactData.getData());
-					break;
-				default:
-					break;
+					case 0:
+						i.putExtra(Insert.EMAIL, contactData.getData());
+						break;
+					case 1:
+						i.putExtra(Insert.SECONDARY_EMAIL, contactData.getData());
+						break;
+					case 2:
+						i.putExtra(Insert.TERTIARY_EMAIL, contactData.getData());
+						break;
+					default:
+						break;
 				}
 				emailCount++;
 			}
@@ -3684,26 +3724,26 @@ public class Utils
 		{
 			switch (contactInfoData.getDataType())
 			{
-			case ADDRESS:
-				ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI).withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, rawContactInsertIndex)
-						.withValue(Data.MIMETYPE, StructuredPostal.CONTENT_ITEM_TYPE).withValue(StructuredPostal.DATA, contactInfoData.getData())
-						.withValue(StructuredPostal.TYPE, StructuredPostal.TYPE_CUSTOM).withValue(StructuredPostal.LABEL, contactInfoData.getDataSubType()).build());
-				break;
-			case EMAIL:
-				ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI).withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, rawContactInsertIndex)
-						.withValue(Data.MIMETYPE, Email.CONTENT_ITEM_TYPE).withValue(Email.DATA, contactInfoData.getData()).withValue(Email.TYPE, Email.TYPE_CUSTOM)
-						.withValue(Email.LABEL, contactInfoData.getDataSubType()).build());
-				break;
-			case EVENT:
-				ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI).withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, rawContactInsertIndex)
-						.withValue(Data.MIMETYPE, Event.CONTENT_ITEM_TYPE).withValue(Event.DATA, contactInfoData.getData()).withValue(Event.TYPE, Event.TYPE_CUSTOM)
-						.withValue(Event.LABEL, contactInfoData.getDataSubType()).build());
-				break;
-			case PHONE_NUMBER:
-				ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI).withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, rawContactInsertIndex)
-						.withValue(Data.MIMETYPE, Phone.CONTENT_ITEM_TYPE).withValue(Phone.NUMBER, contactInfoData.getData()).withValue(Phone.TYPE, Phone.TYPE_CUSTOM)
-						.withValue(Phone.LABEL, contactInfoData.getDataSubType()).build());
-				break;
+				case ADDRESS:
+					ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI).withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, rawContactInsertIndex)
+							.withValue(Data.MIMETYPE, StructuredPostal.CONTENT_ITEM_TYPE).withValue(StructuredPostal.DATA, contactInfoData.getData())
+							.withValue(StructuredPostal.TYPE, StructuredPostal.TYPE_CUSTOM).withValue(StructuredPostal.LABEL, contactInfoData.getDataSubType()).build());
+					break;
+				case EMAIL:
+					ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI).withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, rawContactInsertIndex)
+							.withValue(Data.MIMETYPE, Email.CONTENT_ITEM_TYPE).withValue(Email.DATA, contactInfoData.getData()).withValue(Email.TYPE, Email.TYPE_CUSTOM)
+							.withValue(Email.LABEL, contactInfoData.getDataSubType()).build());
+					break;
+				case EVENT:
+					ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI).withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, rawContactInsertIndex)
+							.withValue(Data.MIMETYPE, Event.CONTENT_ITEM_TYPE).withValue(Event.DATA, contactInfoData.getData()).withValue(Event.TYPE, Event.TYPE_CUSTOM)
+							.withValue(Event.LABEL, contactInfoData.getDataSubType()).build());
+					break;
+				case PHONE_NUMBER:
+					ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI).withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, rawContactInsertIndex)
+							.withValue(Data.MIMETYPE, Phone.CONTENT_ITEM_TYPE).withValue(Phone.NUMBER, contactInfoData.getData()).withValue(Phone.TYPE, Phone.TYPE_CUSTOM)
+							.withValue(Phone.LABEL, contactInfoData.getDataSubType()).build());
+					break;
 			}
 		}
 		ops.add(ContentProviderOperation.newInsert(Data.CONTENT_URI).withValueBackReference(Data.RAW_CONTACT_ID, rawContactInsertIndex)
@@ -3964,6 +4004,11 @@ public class Utils
 
 	public static FavoriteType toggleFavorite(Context context, ContactInfo contactInfo, boolean isFtueContact, String addFavSource)
 	{
+		return toggleFavorite(context, contactInfo, isFtueContact, addFavSource, null, true);
+	}
+
+	public static FavoriteType toggleFavorite(Context context, ContactInfo contactInfo, boolean isFtueContact, String addFavSource, String favSourceMetadata, boolean showToast)
+	{
 		FavoriteType favoriteType;
 		boolean isRequestSent = false;
 		if (contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED)
@@ -3974,7 +4019,10 @@ public class Utils
 		{
 			favoriteType = FavoriteType.REQUEST_SENT;
 			isRequestSent = true;
-			Toast.makeText(context, Utils.isFavToFriendsMigrationAllowed() ? R.string.friend_request_sent : R.string.favorite_request_sent, Toast.LENGTH_SHORT).show();
+			if(showToast)
+			{
+				Toast.makeText(context, Utils.isFavToFriendsMigrationAllowed() ? R.string.friend_request_sent : R.string.favorite_request_sent, Toast.LENGTH_SHORT).show();
+			}
 		}
 
 		// 2-way friendship established. Get Historical updates here!
@@ -3983,7 +4031,7 @@ public class Utils
 			fetchHistoricalUpdates(contactInfo.getMsisdn());
 		}
 
-		HikeAnalyticsEvent.recordAnalyticsForAddFriend(contactInfo.getMsisdn(), addFavSource, isRequestSent);
+		HikeAnalyticsEvent.recordAnalyticsForAddFriend(contactInfo.getMsisdn(), addFavSource, favSourceMetadata, isRequestSent);
 
 		Pair<ContactInfo, FavoriteType> favoriteAdded;
 
@@ -4551,7 +4599,7 @@ public class Utils
 	}
 
 	public static void setupCountryCodeData(Context context, String countryCode, final EditText countryCodeEditor, final TextView countryNameEditor,
-			final ArrayList<String> countriesArray, final HashMap<String, String> countriesMap, final HashMap<String, String> codesMap, final HashMap<String, String> languageMap)
+											final ArrayList<String> countriesArray, final HashMap<String, String> countriesMap, final HashMap<String, String> codesMap, final HashMap<String, String> languageMap)
 	{
 		try
 		{
@@ -4632,7 +4680,7 @@ public class Utils
 	}
 
 	public static boolean selectCountry(String countryName, HashMap<String, String> countriesMap, ArrayList<String> countriesArray, String countryCode, TextView countryCodeEditor,
-			TextView countryNameEditor)
+										TextView countryNameEditor)
 	{
 		int index = countriesArray.indexOf(countryName);
 		if (index != -1)
@@ -4681,29 +4729,22 @@ public class Utils
 		context.startActivity(intent);
 	}
 
-	public static Drawable getChatTheme(ChatTheme chatTheme, Context context)
+	public static Drawable getChatTheme(String chatThemeId, Context context)
 	{
-		/*
-		 * for xhdpi and above we should not scale down the chat theme nodpi asset for hdpi and below to save memory we should scale it down
-		 */
-		int inSampleSize = 1;
-		if (!chatTheme.isTiled() && Utils.scaledDensityMultiplier < 2)
-		{
-			inSampleSize = 2;
+		byte asset = HikeChatThemeConstants.ASSET_INDEX_BG_PORTRAIT;
+		if(context.getResources().getConfiguration().orientation == context.getResources().getConfiguration().ORIENTATION_LANDSCAPE) {
+			asset = HikeChatThemeConstants.ASSET_INDEX_BG_LANDSCAPE;
 		}
-
-		Bitmap b = HikeBitmapFactory.decodeSampledBitmapFromResource(context.getResources(), chatTheme.bgResId(), inSampleSize);
-
-		BitmapDrawable bd = HikeBitmapFactory.getBitmapDrawable(context.getResources(), b);
-
-		Logger.d(context.getClass().getSimpleName(), "chat themes bitmap size= " + BitmapUtils.getBitmapSize(b));
-
-		if (bd != null && chatTheme.isTiled())
-		{
-			bd.setTileModeXY(TileMode.REPEAT, TileMode.REPEAT);
+		Drawable drawable = ChatThemeManager.getInstance().getDrawableForTheme(chatThemeId, asset);
+		if(drawable instanceof BitmapDrawable) {
+			BitmapDrawable bd = (BitmapDrawable) drawable;
+			Logger.d(context.getClass().getSimpleName(), "chat themes bitmap size= " + BitmapUtils.getBitmapSize(bd.getBitmap()));
+			if (bd != null && ChatThemeManager.getInstance().getTheme(chatThemeId).isTiled()) {
+				bd.setTileModeXY(TileMode.REPEAT, TileMode.REPEAT);
+			}
+			return bd;
 		}
-
-		return bd;
+		return drawable;
 	}
 
 	public static void resetPinUnreadCount(OneToNConversation conv)
@@ -4868,6 +4909,68 @@ public class Utils
 		{
 			return getFallBackPrettyTime(context, timestampInSeconds);
 		}
+
+	}
+
+	public static String getFormattedTimeinMessageInfo(long timestampInSeconds){
+
+		Context context=HikeMessengerApp.getInstance().getApplicationContext();
+		try{
+		long givenTimeStampInMillis = timestampInSeconds * 1000;
+		Calendar givenCalendar = Calendar.getInstance();
+		givenCalendar.setTimeInMillis(givenTimeStampInMillis);
+		long currentTime = System.currentTimeMillis();
+		Calendar currentCalendar = Calendar.getInstance();
+
+		//Checking if today
+			Time startTime = new Time();
+			startTime.set(givenTimeStampInMillis);
+			int startDay = Time.getJulianDay(givenTimeStampInMillis, startTime.gmtoff);
+
+			Time currentTime1 = new Time();
+			currentTime1.set(currentTime);
+			int currentDay = Time.getJulianDay(currentTime, currentTime1.gmtoff);
+
+			int days = Math.abs(currentDay - startDay);
+			String daySuffix;
+			String time=getFormattedTime(context, givenTimeStampInMillis);
+			// TODO: some locales name other days too, such as de_DE's "Vorgestern" (today - 2).
+			if (days == 1) {
+				daySuffix=context.getString(R.string.yesterday);
+				return time+", "+daySuffix;
+			} else if (days == 0) {
+				daySuffix= context.getString(R.string.today);
+				return time+", "+daySuffix;
+			}
+
+		else
+		{
+			if (givenCalendar.get(Calendar.YEAR) == currentCalendar.get(Calendar.YEAR))
+			{
+				if (givenCalendar.get(Calendar.DAY_OF_YEAR) == currentCalendar.get(Calendar.DAY_OF_YEAR))
+				{
+					// Show time in non relate default time format
+					return getFormattedTime(context, givenTimeStampInMillis);
+				}
+				else
+				{
+					// Show date in MMM dd format eg. Apr 21, May 13 etc.
+					return time+", "+HikeDateUtils.getRelativeTimeSpanString(context, givenTimeStampInMillis, currentTime, DateUtils.YEAR_IN_MILLIS,
+						DateUtils.FORMAT_ABBREV_MONTH | DateUtils.FORMAT_SHOW_DATE).toString();
+				}
+			}
+			else
+			{
+				// Show date in abbreviated  format with year
+				return time+", "+HikeDateUtils.getRelativeTimeSpanString(context, givenTimeStampInMillis, currentTime, DateUtils.YEAR_IN_MILLIS, DateUtils.FORMAT_ABBREV_ALL)
+					.toString();
+			}
+		}
+	}
+	catch (Exception e)
+	{
+		return getFallBackPrettyTime(context, timestampInSeconds);
+	}
 
 	}
 
@@ -5130,20 +5233,20 @@ public class Utils
 	{
 		switch (networkType)
 		{
-		case "wifi":
-			return 1;
-		case "2g":
-			return 4;
-		case "3g":
-			return 3;
-		case "4g":
-			return 2;
-		case "off":
-			return -1;
-		case "unknown":
-			return 0;
-		default:
-			return 0;
+			case "wifi":
+				return 1;
+			case "2g":
+				return 4;
+			case "3g":
+				return 3;
+			case "4g":
+				return 2;
+			case "off":
+				return -1;
+			case "unknown":
+				return 0;
+			default:
+				return 0;
 		}
 	}
 
@@ -5187,28 +5290,28 @@ public class Utils
 		// There are following types of mobile networks
 		switch (networkType)
 		{
-		case TelephonyManager.NETWORK_TYPE_LTE: // ~ 10+ Mbps // API level 11
-			return 4;
-		case TelephonyManager.NETWORK_TYPE_EVDO_0: // ~ 400-1000 kbps
-		case TelephonyManager.NETWORK_TYPE_EVDO_A: // ~ 600-1400 kbps
-		case TelephonyManager.NETWORK_TYPE_HSDPA: // ~ 2-14 Mbps
-		case TelephonyManager.NETWORK_TYPE_HSPA: // ~ 700-1700 kbps
-		case TelephonyManager.NETWORK_TYPE_UMTS: // ~ 400-7000 kbps
-		case TelephonyManager.NETWORK_TYPE_EHRPD: // ~ 1-2 Mbps // API level 11
-		case TelephonyManager.NETWORK_TYPE_HSPAP: // ~ 10-20 Mbps // API level 13
-		case TelephonyManager.NETWORK_TYPE_EVDO_B: // ~ 5 Mbps // API level 9
-		case TelephonyManager.NETWORK_TYPE_HSUPA: // ~ 1-23 Mbps
-			return 3;
-		case TelephonyManager.NETWORK_TYPE_1xRTT: // ~ 50-100 kbps
-		case TelephonyManager.NETWORK_TYPE_CDMA: // ~ 14-64 kbps
-		case TelephonyManager.NETWORK_TYPE_EDGE: // ~ 50-100 kbps
-		case TelephonyManager.NETWORK_TYPE_GPRS: // ~ 100 kbps
-		case TelephonyManager.NETWORK_TYPE_IDEN: // ~25 kbps // API level 8
-		case NETWORK_TYPE_GSM:
-			return 2;
-		case TelephonyManager.NETWORK_TYPE_UNKNOWN:
-		default:
-			return 0;
+			case TelephonyManager.NETWORK_TYPE_LTE: // ~ 10+ Mbps // API level 11
+				return 4;
+			case TelephonyManager.NETWORK_TYPE_EVDO_0: // ~ 400-1000 kbps
+			case TelephonyManager.NETWORK_TYPE_EVDO_A: // ~ 600-1400 kbps
+			case TelephonyManager.NETWORK_TYPE_HSDPA: // ~ 2-14 Mbps
+			case TelephonyManager.NETWORK_TYPE_HSPA: // ~ 700-1700 kbps
+			case TelephonyManager.NETWORK_TYPE_UMTS: // ~ 400-7000 kbps
+			case TelephonyManager.NETWORK_TYPE_EHRPD: // ~ 1-2 Mbps // API level 11
+			case TelephonyManager.NETWORK_TYPE_HSPAP: // ~ 10-20 Mbps // API level 13
+			case TelephonyManager.NETWORK_TYPE_EVDO_B: // ~ 5 Mbps // API level 9
+			case TelephonyManager.NETWORK_TYPE_HSUPA: // ~ 1-23 Mbps
+				return 3;
+			case TelephonyManager.NETWORK_TYPE_1xRTT: // ~ 50-100 kbps
+			case TelephonyManager.NETWORK_TYPE_CDMA: // ~ 14-64 kbps
+			case TelephonyManager.NETWORK_TYPE_EDGE: // ~ 50-100 kbps
+			case TelephonyManager.NETWORK_TYPE_GPRS: // ~ 100 kbps
+			case TelephonyManager.NETWORK_TYPE_IDEN: // ~25 kbps // API level 8
+			case NETWORK_TYPE_GSM:
+				return 2;
+			case TelephonyManager.NETWORK_TYPE_UNKNOWN:
+			default:
+				return 0;
 		}
 	}
 
@@ -5441,41 +5544,41 @@ public class Utils
 		String networkType = "";
 		switch (getNetworkType(context))
 		{
-		case -1:
-			networkType = "off";
-			break;
+			case -1:
+				networkType = "off";
+				break;
 
-		case 0:
-			networkType = "unknown";
-			break;
+			case 0:
+				networkType = "unknown";
+				break;
 
-		case 1:
-			networkType = "wifi";
-			break;
+			case 1:
+				networkType = "wifi";
+				break;
 
-		case 2:
-			networkType = "2g";
-			break;
+			case 2:
+				networkType = "2g";
+				break;
 
-		case 3:
-			networkType = "3g";
-			break;
+			case 3:
+				networkType = "3g";
+				break;
 
-		case 4:
-			networkType = "4g";
-			break;
+			case 4:
+				networkType = "4g";
+				break;
 
-		default:
-			break;
+			default:
+				break;
 		}
 		return networkType;
 	}
 
 	/*
 	 * Returns the name of the device owner.
-	 * 
+	 *
 	 * @param context
-	 * 
+	 *
 	 * @return The device owner's name, or an empty string
 	 */
 	@SuppressLint("InlinedApi")
@@ -5569,25 +5672,6 @@ public class Utils
 		view.measure(measuredWidth, measuredHeight);
 		view.layout(0, 0, view.getMeasuredWidth(), view.getMeasuredHeight());
 		return viewToBitmap(view);
-	}
-
-	public static boolean isConversationMuted(String msisdn)
-	{
-		if ((OneToNConversationUtils.isGroupConversation(msisdn)))
-		{
-			if (HikeConversationsDatabase.getInstance().isGroupMuted(msisdn))
-			{
-				return true;
-			}
-		}
-		else if (BotUtils.isBot(msisdn))
-		{
-			if (HikeConversationsDatabase.getInstance().isBotMuted(msisdn))
-			{
-				return true;
-			}
-		}
-		return false;
 	}
 
 	public static boolean isLastSeenSetToFavorite()
@@ -5892,63 +5976,10 @@ public class Utils
 		return createTimelinePostForDPChange(response, true);
 	}
 
-	public static boolean isDeviceRooted()
-	{
-		return RootUtil.isDeviceRooted();
-	}
-
-	private static class RootUtil
-	{
-		public static boolean isDeviceRooted()
-		{
-			return checkRootMethod1() || checkRootMethod2() || checkRootMethod3() || checkRootMethod4();
-		}
-
-		private static boolean checkRootMethod1()
-		{
-			String buildTags = android.os.Build.TAGS;
-			return buildTags != null && buildTags.contains("test-keys");
-		}
-
-		private static boolean checkRootMethod2()
-		{
-			return new File("/system/app/Superuser.apk").exists();
-		}
-
-		private static boolean checkRootMethod3()
-		{
-			String[] paths = { "/sbin/su", "/system/bin/su", "/system/xbin/su", "/data/local/xbin/su", "/data/local/bin/su", "/system/sd/xbin/su", "/system/bin/failsafe/su",
-					"/data/local/su" };
-			for (String path : paths)
-			{
-				if (new File(path).exists())
-					return true;
-			}
-			return false;
-		}
-
-		private static boolean checkRootMethod4()
-		{
-			Process process = null;
-			try
-			{
-				process = Runtime.getRuntime().exec(new String[] { "/system/xbin/which", "su" });
-				BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
-				if (in.readLine() != null)
-					return true;
-				return false;
-			}
-			catch (Throwable t)
-			{
-				return false;
-			}
-			finally
-			{
-				if (process != null)
-					process.destroy();
-			}
-		}
-	}
+//	public static boolean isDeviceRooted()
+//	{
+//		return RootUtil.isDeviceRooted();
+//	}
 
 	public static boolean isPhotosEditEnabled()
 	{
@@ -6957,58 +6988,58 @@ public class Utils
 
 		switch (precisionOfTimeUnitInSecond)
 		{
-		case ExecutionDurationLogger.PRECISION_UNIT_SECOND:
-		{
-			timeLogBuilder.append(diff).append(ExecutionDurationLogger.sec);
-			break;
-		}
+			case ExecutionDurationLogger.PRECISION_UNIT_SECOND:
+			{
+				timeLogBuilder.append(diff).append(ExecutionDurationLogger.sec);
+				break;
+			}
 
-		case ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND:
-		{
-			int unitInSecond = (int) Math.pow(10, ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND);
-			long sec = diff / unitInSecond;
-			timeLogBuilder.append(sec).append(ExecutionDurationLogger.sec).append(ExecutionDurationLogger.DELIMITER);
-			long milliSec = diff - (sec * unitInSecond);
-			timeLogBuilder.append(milliSec).append(ExecutionDurationLogger.ms);
-			break;
-		}
+			case ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND:
+			{
+				int unitInSecond = (int) Math.pow(10, ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND);
+				long sec = diff / unitInSecond;
+				timeLogBuilder.append(sec).append(ExecutionDurationLogger.sec).append(ExecutionDurationLogger.DELIMITER);
+				long milliSec = diff - (sec * unitInSecond);
+				timeLogBuilder.append(milliSec).append(ExecutionDurationLogger.ms);
+				break;
+			}
 
-		case ExecutionDurationLogger.PRECISION_UNIT_MICRO_SECOND:
-		{
-			int unitInSecond = (int) Math.pow(10, ExecutionDurationLogger.PRECISION_UNIT_MICRO_SECOND);
-			long sec = diff / unitInSecond;
-			timeLogBuilder.append(sec).append(ExecutionDurationLogger.sec).append(ExecutionDurationLogger.DELIMITER);
-			diff = diff - (sec * unitInSecond);
-			int unitInMilliSecond = (int) Math.pow(10, (ExecutionDurationLogger.PRECISION_UNIT_MICRO_SECOND - ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND));
-			long milliSec = diff / unitInMilliSecond;
-			timeLogBuilder.append(milliSec).append(ExecutionDurationLogger.ms).append(ExecutionDurationLogger.DELIMITER);
-			long microSec = diff - (milliSec * unitInMilliSecond);
-			timeLogBuilder.append(microSec).append(ExecutionDurationLogger.μs);
-			break;
-		}
+			case ExecutionDurationLogger.PRECISION_UNIT_MICRO_SECOND:
+			{
+				int unitInSecond = (int) Math.pow(10, ExecutionDurationLogger.PRECISION_UNIT_MICRO_SECOND);
+				long sec = diff / unitInSecond;
+				timeLogBuilder.append(sec).append(ExecutionDurationLogger.sec).append(ExecutionDurationLogger.DELIMITER);
+				diff = diff - (sec * unitInSecond);
+				int unitInMilliSecond = (int) Math.pow(10, (ExecutionDurationLogger.PRECISION_UNIT_MICRO_SECOND - ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND));
+				long milliSec = diff / unitInMilliSecond;
+				timeLogBuilder.append(milliSec).append(ExecutionDurationLogger.ms).append(ExecutionDurationLogger.DELIMITER);
+				long microSec = diff - (milliSec * unitInMilliSecond);
+				timeLogBuilder.append(microSec).append(ExecutionDurationLogger.μs);
+				break;
+			}
 
-		case ExecutionDurationLogger.PRECISION_UNIT_NANO_SECOND:
-		{
-			int unitInSecond = (int) Math.pow(10, ExecutionDurationLogger.PRECISION_UNIT_NANO_SECOND);
-			long sec = diff / unitInSecond;
-			timeLogBuilder.append(sec).append(ExecutionDurationLogger.sec).append(ExecutionDurationLogger.DELIMITER);
-			diff = diff - (sec * unitInSecond);
-			int unitInMilliSecond = (int) Math.pow(10, (ExecutionDurationLogger.PRECISION_UNIT_NANO_SECOND - ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND));
-			long milliSec = diff / unitInMilliSecond;
-			timeLogBuilder.append(milliSec).append(ExecutionDurationLogger.ms).append(ExecutionDurationLogger.DELIMITER);
-			diff = diff - (milliSec * unitInMilliSecond);
-			int unitInMicroSecond = (int) Math.pow(10, (ExecutionDurationLogger.PRECISION_UNIT_NANO_SECOND - ExecutionDurationLogger.PRECISION_UNIT_MICRO_SECOND));
-			long microSec = diff / unitInMicroSecond;
-			timeLogBuilder.append(microSec).append(ExecutionDurationLogger.μs).append(ExecutionDurationLogger.DELIMITER);
-			long nanoSec = diff - (microSec * unitInMicroSecond);
-			timeLogBuilder.append(nanoSec).append(ExecutionDurationLogger.ns);
-			break;
-		}
+			case ExecutionDurationLogger.PRECISION_UNIT_NANO_SECOND:
+			{
+				int unitInSecond = (int) Math.pow(10, ExecutionDurationLogger.PRECISION_UNIT_NANO_SECOND);
+				long sec = diff / unitInSecond;
+				timeLogBuilder.append(sec).append(ExecutionDurationLogger.sec).append(ExecutionDurationLogger.DELIMITER);
+				diff = diff - (sec * unitInSecond);
+				int unitInMilliSecond = (int) Math.pow(10, (ExecutionDurationLogger.PRECISION_UNIT_NANO_SECOND - ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND));
+				long milliSec = diff / unitInMilliSecond;
+				timeLogBuilder.append(milliSec).append(ExecutionDurationLogger.ms).append(ExecutionDurationLogger.DELIMITER);
+				diff = diff - (milliSec * unitInMilliSecond);
+				int unitInMicroSecond = (int) Math.pow(10, (ExecutionDurationLogger.PRECISION_UNIT_NANO_SECOND - ExecutionDurationLogger.PRECISION_UNIT_MICRO_SECOND));
+				long microSec = diff / unitInMicroSecond;
+				timeLogBuilder.append(microSec).append(ExecutionDurationLogger.μs).append(ExecutionDurationLogger.DELIMITER);
+				long nanoSec = diff - (microSec * unitInMicroSecond);
+				timeLogBuilder.append(nanoSec).append(ExecutionDurationLogger.ns);
+				break;
+			}
 
-		default:
-		{
-			Logger.w(ExecutionDurationLogger.TAG, "Unable to determine time units.");
-		}
+			default:
+			{
+				Logger.w(ExecutionDurationLogger.TAG, "Unable to determine time units.");
+			}
 		}
 
 		return timeLogBuilder.toString();
@@ -7407,20 +7438,20 @@ public class Utils
 	{
 		switch (networkType)
 		{
-		case "wifi":
-			return 1;
-		case "2g":
-			return 4;
-		case "3g":
-			return 3;
-		case "4g":
-			return 2;
-		case "off":
-			return -1;
-		case "unknown":
-			return 5;
-		default:
-			return 0;
+			case "wifi":
+				return 1;
+			case "2g":
+				return 4;
+			case "3g":
+				return 3;
+			case "4g":
+				return 2;
+			case "off":
+				return -1;
+			case "unknown":
+				return 5;
+			default:
+				return 0;
 		}
 	}
 
@@ -7499,10 +7530,12 @@ public class Utils
 		if (isFavToFriendsMigrationAllowed())
 		{
 			changeFavToFriends();
+			BirthdayUtils.modifyBDPrefForFavToFriends(true);
 		}
 		else
 		{
 			revertFavToFriendsChange();
+			BirthdayUtils.modifyBDPrefForFavToFriends(false);
 		}
 	}
 
@@ -7554,7 +7587,7 @@ public class Utils
 					HikePreferences.sendNLSToServer(slectedPrivacyId, true);
 					settingEditor.commit();
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 0); // Resetting the flag, so that when the packet might
-																																// be sent again, it is able to alter the prefs
+					// be sent again, it is able to alter the prefs
 				}
 				catch (JSONException e)
 				{
@@ -7815,8 +7848,8 @@ public class Utils
 		{
 			ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 
-			ops.add(ContentProviderOperation.newUpdate(Data.CONTENT_URI).withSelection(Data.RAW_CONTACT_ID + " = ?", new String[] { mRawContactId })
-					.withSelection(Data._ID + " = ?", new String[] { mDataId }).withValue(Data.MIMETYPE, Phone.CONTENT_ITEM_TYPE).withValue(StructuredName.DISPLAY_NAME, name)
+			ops.add(ContentProviderOperation.newUpdate(Data.CONTENT_URI).withSelection(Data.RAW_CONTACT_ID + " = ?", new String[]{mRawContactId})
+					.withSelection(Data._ID + " = ?", new String[]{mDataId}).withValue(Data.MIMETYPE, Phone.CONTENT_ITEM_TYPE).withValue(StructuredName.DISPLAY_NAME, name)
 					.build());
 			context.getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
 
@@ -7885,22 +7918,36 @@ public class Utils
 
 		if (!newRootDir.exists())
 		{
-			result = result && newRootDir.mkdirs();
+			result = newRootDir.mkdirs();
 		}
 
-		if (!oldRootDir.exists() || (oldRootDir.listFiles() == null))
+		else // newRootDir exists, but can it be a simple file instead of DIR ?
+		{
+			if (!newRootDir.isDirectory())
+			{
+				result = deleteFile(newRootDir) && newRootDir.mkdirs();
+			}
+		}
+		File listFiles[] = oldRootDir.listFiles();
+
+		if (!oldRootDir.exists() || (listFiles == null))
 		{
 			Logger.d("StickerMigration", "Migration unsuccessful but new folder created");
-			return true; // Migration unsuccessful but new folder created
+			StickerManager.getInstance().recordStickerMigrationFailure("Migration unsuccessful but new folder created, The oldDir was absent or listFiles were null");
+			return result; // Migration unsuccessful but new folder created
 		}
 
 		if (result)
 		{
-			for (File f : oldRootDir.listFiles())
+			for (File f : listFiles)
 			{
 				if (f.isDirectory())
 				{
 					File newDir = new File(newRootDir, f.getName());
+					if (!newDir.exists())
+					{
+						newDir.mkdirs();
+					}
 					result = result && moveDirectoryByRename(f, newDir);
 				}
 				else
@@ -7908,20 +7955,22 @@ public class Utils
 					File newFile = new File(newRootDir, f.getName());
 					if (newFile.exists())
 					{
-						result = result && newFile.delete();
+						result = result && Utils.deleteFile(newFile);
 					}
+
 					result = result && f.renameTo(newFile);
 				}
 			}
-
-			// Delete residual dirs
-			Utils.deleteFile(oldRootDir);
 		}
 
 		return result;
 	}
+	public static void recordCoreAnalyticsForShare(String uniqueKey_order, String species, String toUser_msisdn, boolean isStealth, String genus, String family) {
+		recordCoreAnalyticsForShare(uniqueKey_order, species, toUser_msisdn, isStealth, genus, family, null);
+	}
 
-	public static void recordCoreAnalyticsForShare(String uniqueKey_order, String species, String toUser_msisdn, boolean isStealth, String genus, String family)
+
+	public static void recordCoreAnalyticsForShare(String uniqueKey_order, String species, String toUser_msisdn, boolean isStealth, String genus, String family, String form)
 	{
 		try
 		{
@@ -7940,7 +7989,8 @@ public class Utils
 				json.put(AnalyticsConstants.V2.GENUS, genus);
 			if (!TextUtils.isEmpty(family))
 				json.put(AnalyticsConstants.V2.FAMILY, family);
-
+			if (!TextUtils.isEmpty(form))
+				json.put(AnalyticsConstants.V2.FORM, form);
 			HAManager.getInstance().recordV2(json);
 		}
 		catch (JSONException e)
@@ -7948,6 +7998,7 @@ public class Utils
 			e.printStackTrace();
 		}
 	}
+
 
 	public static void recordEventMaxSizeToastShown(String uniqueKey_order, String species, String toUser_msisdn, long fileSize)
 	{
@@ -7975,7 +8026,7 @@ public class Utils
 		RequestToken token = HttpRequests.getHistoricSUToken(msisdn, new IRequestListener()
 		{
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 
 			}
@@ -8029,7 +8080,7 @@ public class Utils
 	 *
 	 * Function to get the last known Passive Location
 	 * Can return null
-     */
+	 */
 	public static Location getPassiveLocation() {
 		Location bestLocation = null;
 		LocationManager locManager = (LocationManager) HikeMessengerApp.getInstance().getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
@@ -8048,33 +8099,244 @@ public class Utils
 		return bestLocation;
 	}
 
+	public static String repeatString(String repeat, int repeatCount) {
+		StringBuilder repeatedString = new StringBuilder();
 
-    public static String formatDOB(String dobString) {
-        if (TextUtils.isEmpty(dobString)) {
-            return "";
-        }
+		for (int i = 0; i < repeatCount; i++)
+			repeatedString.append(repeat);
 
-        Birthday dob = new Birthday(dobString);
-        return String.format("%d/%d/%d", dob.day, dob.month, dob.year);
-    }
+		return repeatedString.toString();
+	}
 
-    public static void setGenus(String argGenus, Intent argIntent)
-    {
-        if(TextUtils.isEmpty(argGenus) || argIntent == null)
-        {
-            return;
-        }
+	public static String formatDOB(String dobString) {
+		if (TextUtils.isEmpty(dobString)) {
+			return "";
+		}
 
-        argIntent.putExtra(HikeConstants.Extras.GENUS, argGenus);
-    }
+		Birthday dob = new Birthday(dobString);
+		return String.format("%d/%d/%d", dob.day, dob.month, dob.year);
+	}
 
-    public static void setSpecies(String argSpecies, Intent argIntent)
-    {
-        if(TextUtils.isEmpty(argSpecies) || argIntent == null)
-        {
-            return;
-        }
+	public static void setGenus(@HomeAnalyticsConstants.StatusUpdateSpecies String argGenus, Intent argIntent)
+	{
+		if(argIntent == null)
+		{
+			return;
+		}
 
-        argIntent.putExtra(HikeConstants.Extras.SPECIES, argSpecies);
-    }
+		argIntent.putExtra(HikeConstants.Extras.GENUS, argGenus);
+	}
+
+	public static void setSpecies(@HomeAnalyticsConstants.ProfilePicUpdateSpecies
+								  @HomeAnalyticsConstants.StatusUpdateSpecies String argSpecies, Intent argIntent)
+	{
+		if(argIntent == null)
+		{
+			return;
+		}
+
+		argIntent.putExtra(HikeConstants.Extras.SPECIES, argSpecies);
+	}
+
+	public static void setBackground(View view, Drawable drawable){
+		if (isJellybeanOrHigher()) {
+			view.setBackground(drawable);
+		} else {
+			view.setBackgroundDrawable(drawable);
+		}
+	}
+
+	public static boolean isBDayInNewChatEnabled() {
+		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
+
+		if (prefs != null) {
+			return prefs.getData(HikeConstants.ENABLE_BDAY_IN_CCA, false);
+		}
+
+		return false;
+	}
+
+	public static void connectToGcmPreSignup()
+	{
+		// GCM_ID_SENT_PRELOAD=true,UserAuth=false,UserOnline=true;GooglePlayServices Installed---->Best Case Scenario
+
+		Context context = HikeMessengerApp.getInstance().getApplicationContext();
+		HikeSharedPreferenceUtil mprefs = HikeSharedPreferenceUtil.getInstance();
+
+		if (Utils.isUserOnline(context) && (!Utils.isUserAuthenticated(context)) && !mprefs.getData(HikeMessengerApp.GCM_ID_SENT_PRELOAD, false))
+		{
+			Intent in = new Intent(HikeService.REGISTER_TO_GCM_ACTION);
+			mprefs.saveData(HikeConstants.REGISTER_GCM_SIGNUP, HikeConstants.REGISTEM_GCM_BEFORE_SIGNUP);
+			LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(in);
+		}
+	}
+
+	/**
+	 * Taken from https://github.com/googlesamples/google-services/blob/master/android/gcm/app/src/main/java/gcm/play/android/samples/com/gcmquickstart/MainActivity.java
+	 *
+	 * @return true : If Play Services are available on the device
+	 */
+	public static boolean checkAndShowPlayServicesErrorDialog(final Activity activity)
+	{
+		int resultCode = getPlayServicesAvailableCode(activity.getApplicationContext());
+
+		if (resultCode != ConnectionResult.SUCCESS)
+		{
+			if (GoogleApiAvailability.getInstance().isUserResolvableError(resultCode))
+			{
+				int requestCode = 10; //Magic Number
+				Dialog errorDialog = GoogleApiAvailability.getInstance()
+						.getErrorDialog(activity, resultCode, requestCode);
+				errorDialog.setOnDismissListener(new DialogInterface.OnDismissListener()
+				{
+					@Override
+					public void onDismiss(DialogInterface dialog)
+					{
+						activity.finish();
+					}
+				});
+				errorDialog.show();
+			}
+			else
+			{
+				Logger.wtf(TAG, "This device is not supported.");
+				activity.finish();
+			}
+
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Can return any of the following :
+	 * SUCCESS, SERVICE_MISSING, SERVICE_VERSION_UPDATE_REQUIRED, SERVICE_DISABLED, SERVICE_INVALID
+	 *
+	 * @param context
+	 * @return
+	 */
+	public static int getPlayServicesAvailableCode(Context context)
+	{
+		int resultCode = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context);
+		Logger.d(TAG, "Is PlayService Available ? : " + resultCode);
+		return resultCode;
+	}
+
+	public static byte[] getBytesFromBundle(Bundle bundle)
+	{
+		byte[] bundleBytes = null;
+
+		if(bundle != null)
+		{
+			Parcel parcel = Parcel.obtain();
+			bundle.writeToParcel(parcel, 0);
+			bundleBytes = parcel.marshall();
+			parcel.recycle();
+		}
+
+		return bundleBytes;
+	}
+
+	public static Bundle getBundleFromBytes(byte[] bundleBytes)
+	{
+		Bundle bundle = null;
+
+		if (!isEmpty(bundleBytes))
+		{
+			Parcel parcel = Parcel.obtain();
+			parcel.unmarshall(bundleBytes, 0, bundleBytes.length);
+			parcel.setDataPosition(0);
+			bundle = parcel.readBundle();
+			parcel.recycle();
+		}
+
+		return bundle;
+	}
+
+	public static boolean isEmpty(byte[] argument)
+	{
+		return (argument == null) || argument.length == 0;
+	}
+
+	public static int getFilesCountRecursive(File file)
+	{
+		if (file == null)
+		{
+			return 0;
+		}
+
+		try
+		{
+			if (!file.exists() || file.listFiles() == null)
+			{
+				return 0;
+			}
+
+			int count = 0;
+
+			for (File newFile : file.listFiles())
+			{
+				if (newFile.isDirectory())
+				{
+					count += getFilesCountRecursive(newFile);
+				}
+
+				else
+				{
+					count++;
+				}
+			}
+
+			return count;
+		}
+
+		catch (Exception e) // To prevent any File I/O exceptions!
+		{
+			return 0;
+		}
+
+	}
+
+	/**
+	 * Used to toggle mute and unmute for chat
+	 */
+	public static void toggleMuteChat(Context context, Mute mute) {
+		if (mute != null) {
+			mute.setIsMute(!(mute.isMute()));
+
+			boolean muteApproach = HikeSharedPreferenceUtil.getInstance().getData(
+					(OneToNConversationUtils.isOneToNConversation(mute.getMsisdn()) ? HikeConstants.MUTE_GC_SERVER_SWITCH : HikeConstants.MUTE_ONE_TO_ONE_SERVER_SWITCH), true);
+
+			if (mute.isMute()) {
+				if (muteApproach) {
+					int convHash = convInfohashCode(mute.getMsisdn());
+					Intent intent = IntentFactory.getIntentForMuteAlarm(mute);
+					HikeAlarmManager.setAlarmwithIntentPersistanceMute(context.getApplicationContext(), mute.getMuteEndTime(), HikeAlarmManager.REQUESTCODE_END_CONVERSATION_MUTE, true, intent, true, convHash);
+				} else {
+					mute.setMuteDuration(HikeConstants.MuteDuration.DURATION_FOREVER);
+				}
+			}
+
+			HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, mute);
+		}
+	}
+
+	public static int convInfohashCode(String msisdn) {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + msisdn.hashCode();
+
+		return result;
+	}
+
+	public static boolean isPowerSavingModeRunning(Context context) {
+		if (Utils.isLollipopOrHigher()) {
+			PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+			if (powerManager != null && powerManager.isPowerSaveMode()) {
+				return true;
+			}
+		}
+		return false;
+	}
 }

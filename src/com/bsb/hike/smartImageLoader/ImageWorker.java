@@ -21,18 +21,20 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.http.util.TextUtils;
 
-import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.AsyncTask;
 import android.support.v4.app.FragmentManager;
+import android.view.View;
 import android.widget.ImageView;
 
 import com.bsb.hike.BitmapModule.BitmapUtils;
@@ -43,9 +45,9 @@ import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.utils.customClasses.AsyncTask.MyAsyncTask;
 import com.bsb.hike.view.TextDrawable;
 import com.bsb.hike.view.TextDrawable.Builder;
-import com.bsb.hike.utils.customClasses.AsyncTask.MyAsyncTask;
 
 /**
  * This class wraps up completing some arbitrary long running work when loading a bitmap to an ImageView. It handles things like using a memory and disk cache, running the work in
@@ -59,7 +61,7 @@ public abstract class ImageWorker
 
     protected HikeLruCache mImageCache;
 
-    private Bitmap mLoadingBitmap;
+    protected Bitmap mLoadingBitmap;
 
     private boolean dontSetBackground = false;
 
@@ -73,11 +75,16 @@ public abstract class ImageWorker
 
     private boolean setHiResDefaultAvatar = false;
 
-    private boolean setDefaultDrawableNull = true;
+    protected boolean setDefaultDrawableNull = true;
 
     protected boolean cachingEnabled = true;
 
     protected ImageLoaderListener imageLoaderListener;
+    protected String foreGroundColor;
+
+    public void setForeGroundColor(String foreGroundColor) {
+        this.foreGroundColor = foreGroundColor;
+    }
 
     /*
      * This case is currently being used in very specific scenerio of
@@ -88,11 +95,7 @@ public abstract class ImageWorker
     protected ImageWorker()
     {
         this.mImageCache = HikeMessengerApp.getLruCache();
-    }
-
-    public void setResource(Context ctx)
-    {
-        mResources = ctx.getResources();
+        mResources = HikeMessengerApp.getInstance().getApplicationContext().getResources();
     }
 
     /**
@@ -172,8 +175,12 @@ public abstract class ImageWorker
         {
             Logger.d(TAG, key + " Bitmap found in cache and is not recycled.");
             // Bitmap found in memory cache
-            imageView.setImageDrawable(value);
-
+            if(android.text.TextUtils.isEmpty(foreGroundColor)){
+                imageView.setImageDrawable(value);
+            }else{
+                LayerDrawable layerDrawable = new LayerDrawable(new Drawable[]{value, new ColorDrawable(Color.parseColor(foreGroundColor))});
+                imageView.setImageDrawable(layerDrawable);
+            }
             sendImageCallback(imageView , true);
         }
         else if (runOnUiThread)
@@ -217,7 +224,7 @@ public abstract class ImageWorker
             Builder textDrawableBuilder = null;
 
             Drawable drawable = imageView.getDrawable();
-
+            Drawable[] layers = null;
             if (drawable != null)
             {
                 if (drawable instanceof BitmapDrawable)
@@ -227,6 +234,12 @@ public abstract class ImageWorker
                 else if (drawable instanceof TextDrawable)
                 {
                     textDrawableBuilder = ((TextDrawable) drawable).getBuilder();
+                }else if(drawable instanceof LayerDrawable){
+                    LayerDrawable layerDrawable = (LayerDrawable)drawable;
+                    layers = new Drawable[layerDrawable.getNumberOfLayers()];
+                    for(int i=0;i<layerDrawable.getNumberOfLayers();i++){
+                        layers[i] = layerDrawable.getDrawable(i);
+                    }
                 }
             }
 
@@ -234,6 +247,10 @@ public abstract class ImageWorker
             {
                 final AsyncShapeDrawable asyncDrawable = new AsyncShapeDrawable(task, textDrawableBuilder);
                 imageView.setImageDrawable(asyncDrawable);
+            }
+            else if(layers != null && layers.length > 0){
+                final AsyncLayerDrawable layerDrawable = new AsyncLayerDrawable(layers,task);
+                imageView.setImageDrawable(layerDrawable);
             }
             else
             {
@@ -460,6 +477,10 @@ public abstract class ImageWorker
             {
                 final AsyncShapeDrawable asyncDrawable = (AsyncShapeDrawable) drawable;
                 return asyncDrawable.getBitmapWorkerTask();
+            }else if (drawable instanceof AsyncLayerDrawable)
+            {
+                final AsyncLayerDrawable asyncDrawable = (AsyncLayerDrawable) drawable;
+                return asyncDrawable.getBitmapWorkerTask();
             }
         }
         return null;
@@ -468,12 +489,12 @@ public abstract class ImageWorker
     /**
      * The actual AsyncTask that will asynchronously process the image.
      */
-    private class BitmapWorkerTask extends MyAsyncTask<String, Void, BitmapDrawable>
+    protected class BitmapWorkerTask extends MyAsyncTask<String, Void, BitmapDrawable>
     {
         private String data;
 
         private final WeakReference<ImageView> imageViewReference;
-
+        private final WeakReference<View> viewReference;
         private WeakReference<Object> objectReference;
 
         public void setContextObject(Object refObject)
@@ -484,8 +505,13 @@ public abstract class ImageWorker
         public BitmapWorkerTask(ImageView imageView)
         {
             imageViewReference = new WeakReference<ImageView>(imageView);
+            viewReference = null;
         }
-
+        public BitmapWorkerTask(View imageView)
+        {
+            viewReference = new WeakReference<View>(imageView);
+            imageViewReference = null;
+        }
         /**
          * Background processing.
          */
@@ -593,6 +619,9 @@ public abstract class ImageWorker
          */
         private ImageView getAttachedImageView()
         {
+            if(imageViewReference == null){
+                return null;
+            }
             final ImageView imageView = imageViewReference.get();
             final BitmapWorkerTask bitmapWorkerTask = getBitmapWorkerTask(imageView);
 
@@ -609,7 +638,7 @@ public abstract class ImageWorker
      * A custom Drawable that will be attached to the imageView while the work is in progress. Contains a reference to the actual worker task, so that it can be stopped if a new
      * binding is required, and makes sure that only the last started worker process can bind its result, independently of the finish order.
      */
-    private static class AsyncDrawable extends BitmapDrawable
+    protected static class AsyncDrawable extends BitmapDrawable
     {
         private final WeakReference<BitmapWorkerTask> bitmapWorkerTaskReference;
 
@@ -625,7 +654,7 @@ public abstract class ImageWorker
         }
     }
 
-    private static class AsyncShapeDrawable extends TextDrawable
+    protected static class AsyncShapeDrawable extends TextDrawable
     {
         private final WeakReference<BitmapWorkerTask> bitmapWorkerTaskReference;
 
@@ -640,14 +669,29 @@ public abstract class ImageWorker
             return bitmapWorkerTaskReference.get();
         }
     }
-
+    protected static class AsyncLayerDrawable extends LayerDrawable{
+        private final WeakReference<BitmapWorkerTask> bitmapWorkerTaskReference;
+        /**
+         * Create a new layer drawable with the list of specified layers.
+         *
+         * @param layers A list of drawables to use as layers in this new drawable.
+         */
+        public AsyncLayerDrawable(Drawable[] layers, BitmapWorkerTask bitmapWorkerTask) {
+            super(layers);
+            bitmapWorkerTaskReference = new WeakReference<BitmapWorkerTask>(bitmapWorkerTask);
+        }
+        public BitmapWorkerTask getBitmapWorkerTask()
+        {
+            return bitmapWorkerTaskReference.get();
+        }
+    }
     /**
      * Called when the processing is complete and the final drawable should be set on the ImageView.
      *
      * @param imageView
      * @param drawable
      */
-    private void setImageDrawable(ImageView imageView, Drawable drawable)
+    protected void setImageDrawable(ImageView imageView, Drawable drawable)
     {
         if (drawable != null && ((BitmapDrawable) drawable).getBitmap().isRecycled())
         {
@@ -659,7 +703,8 @@ public abstract class ImageWorker
             if (mFadeInBitmap)
             {
                 // Transition drawable with a transparent drawable and the final drawable
-                final TransitionDrawable td = new TransitionDrawable(new Drawable[] { new ColorDrawable(mResources.getColor(android.R.color.transparent)), drawable });
+                final TransitionDrawable td = new TransitionDrawable(new Drawable[] {new ColorDrawable(mResources.getColor(android.R.color.transparent)), drawable});
+
                 if (!dontSetBackground)
                 {
                     // Set background to loading bitmap
@@ -735,5 +780,10 @@ public abstract class ImageWorker
         {
             imageLoaderListener.onImageWorkFailed(imageView);
         }
+    }
+
+    protected Resources getResources()
+    {
+        return mResources;
     }
 }

@@ -1,6 +1,7 @@
 package com.bsb.hike.platform;
 
 import android.support.annotation.IntDef;
+import android.support.annotation.StringDef;
 
 public interface HikePlatformConstants
 {
@@ -9,28 +10,35 @@ public interface HikePlatformConstants
 	String ASSETS = "assets";
 	String TEXTS = "textLinks";
 	String IMAGES = "images";
-	String VIDEOS = "videos";
+	String ACTION = "action";
+	String ACTION_TEXT = "text";
+	String ACTION_EXTRA = "extra";
 	String AUDIO = "audios";
 	String ACTIONS = "actions";
+	String MEDIA = "media";
 	String INTENT_URI = "intentUri";
 	String CONTENT_TYPE = "contentType";
 	String VERSION = "version";
-	String TAG = "platform";
+	String TAG = "tag";
 	String KEY = "key";
-	String SUBTYPE = "st";
 	String TEXT = "title";
-	String THUMBNAIL = "thumbnail";
+	String TEXT_COLOR = "color";
+	String TEXT_SIZE = "size";
+	String THUMBNAIL = "tn";
 	String URL = "url";
 	String MEDIA_SIZE = "size";
 	String DURATION = "duration";
 	String LAYOUT_ID = "layoutID";
+	String BACKGROUND_COLOR = "bg_color";
+	String FILE_MAPPING = "file_mapping";
+	String WIDE = "wide";
+	String BACKGROUND = "bg";
+	String SHOW_SHARE = "showActionContainer";
+	String CARD_ACTION = "cardAction";
+	String CARDS = "cards";
 	String NOTIF_TEXT = "summary";
-	String LOVE_ID = "loveID";
 	String RECEPIENT = "to";
 	String MESSAGE_TYPE = "t";
-	String ANDROID_INTENT = "android";
-	String CHANNEL_SOURCE = "channelSource";
-	String CLICK_TRACK_URL = "clickTrackURL";
 	public static final String GAME_SDK_ID = "gamesdk";
 	String MESSAGE = "message";
 	String SOURCE = "clientPkgName";
@@ -88,6 +96,7 @@ public interface HikePlatformConstants
 	public static final String RECIPIENT_NAMESPACES = "recipients";
 	public static final String MAPPED_EVENT_ID = "i";
 	public static final String EVENT_CARDDATA = "cd";
+	public static final String EVENT_FROM_USER_MSISDN = "from_user_msisdn";
 	public static final String CLIENT_TIMESTAMP = "c";
 	public static final String MICROAPP_DATA = "mmData";
 	public static final String PARENT_MSISDN = "parent_msisdn";
@@ -109,7 +118,9 @@ public interface HikePlatformConstants
 	String CLUB_BY_MSISDN="clubbymsisdn";
 	public static final String CUSTOM_TABS="customTabs";
 	public static final String NEW_AUTH_ENABLE="newAuthEnable";
-	
+	String TAG_TYPE = "tag_type";
+	String TAG_ID = "tag_id";
+
 	public static final class AuthConstants
 	{
 		public static final String AUTH_TEST_CLIENT_PACKAGE_NAME = "test_package_name";
@@ -219,6 +230,8 @@ public interface HikePlatformConstants
 
 	public static final String INCREASE_UNREAD = "increase_unread";
 
+	public static final String REARRANGE_CARD = "rearrange_card";
+
 	public static final String REARRANGE_CHAT = "rearrange_chat";
 
 	public static final String MESSAGE_ID = "message_id";
@@ -285,7 +298,7 @@ public interface HikePlatformConstants
 	
 	public static final int VERSION_ALTO = 1;
 
-	public static final int CURRENT_VERSION = 11;
+	public static final int CURRENT_VERSION = 12;
 
 	public static final String AB_COLOR = "color";
 	
@@ -430,4 +443,26 @@ public interface HikePlatformConstants
     String APP_STATUS = "app_status";
 
     String BOT_DISCOVERY = "bot_discovery";
+
+    String INTRO = "intro";
+
+    String IS_KEYBOARD_PERSISTENT = "keep";
+
+    String REMOVE_PREVIOUS_KEYBOARD = "remove";
+
+    String KEYBOARD_DEFAULT_DATA = "keyboard_default_data";
+
+    @StringDef({BotsStickerSize.SMALL,BotsStickerSize.MEDIUM,BotsStickerSize.LARGE})
+    @interface BotsStickerSize
+    {
+        String SMALL = "s";
+        String MEDIUM = "m";
+        String LARGE = "l";
+    }
+
+    int stickerGridNoOfCols = 3;
+
+    String BOT_CUSTOM_KEYBOARD_TYPE_STICKER = "s";
+
+    String BOT_CUSTOM_KEYBOARD_TYPE_TEXT = "t";
 }

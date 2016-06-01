@@ -21,12 +21,12 @@ public abstract class ExperimentsLoader {
     public abstract void parse() throws ParserException;
 
     public Map<String, Experiment> getExperiments() {
-        if(!isParsed) throw new IllegalStateException();
+        if (!isParsed) throw new IllegalStateException();
         return mExperimentMap;
     }
 
     public Map<String, Variable> getVariables() {
-        if(!isParsed) throw new IllegalStateException();
+        if (!isParsed) throw new IllegalStateException();
         return mVariableMap;
     }
 }

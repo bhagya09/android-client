@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -13,9 +14,12 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StealthModeManager;
@@ -69,6 +73,8 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		public static final int NEW_GROUP = 16;
 
 		public static final int MICRO_APP = 17;
+
+        public static final int INITIATE_BOT = 19;
 	}
 
 	@Override
@@ -132,6 +138,21 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		
 		if (StealthModeManager.getInstance().isStealthMsisdn(msisdn) && !StealthModeManager.getInstance().isActive())
 		{
+			/**
+			 * If Birthday feature is enabled, then for case
+			 * Hidden mode was off, Notification was generated for Birthday for Hidden contact
+			 * Then Hidden mode is on and chat is hidden and then on tapping notification
+			 * Bounce Hike logo + close 1-1 Chat + open Home Screen
+			 */
+			if (Utils.isBDayInNewChatEnabled() && intent.hasExtra(HikeConstants.Extras.BIRTHDAY_NOTIF))
+			{
+				if (PreferenceManager.getDefaultSharedPreferences(ChatThreadActivity.this).getBoolean(HikeConstants.STEALTH_INDICATOR_ENABLED, false))
+				{
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STEALTH_INDICATOR_SHOW_REPEATED, true);
+					HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_INDICATOR, null);
+					return false;
+				}
+			}
 			return false;
 		}
 		

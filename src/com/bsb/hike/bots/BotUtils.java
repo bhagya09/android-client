@@ -2,6 +2,9 @@ package com.bsb.hike.bots;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.support.annotation.Nullable;
+import android.net.Uri;
+import android.graphics.drawable.BitmapDrawable;
 import android.text.TextUtils;
 import android.util.Pair;
 
@@ -682,7 +685,7 @@ public class BotUtils
 
 	}
 
-	private static BotInfo getBotInfoFormessagingBots(JSONObject jsonObj, String msisdn)
+	public static BotInfo getBotInfoFormessagingBots(JSONObject jsonObj, String msisdn)
 	{
 		BotInfo existingBotInfo = getBotInfoForBotMsisdn(msisdn);
 		BotInfo botInfo = null;
@@ -877,7 +880,7 @@ public class BotUtils
 							}
 
 							@Override
-							public void onRequestFailure(HttpException httpException)
+							public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 							{
 								Logger.i(
 										TAG,
@@ -1127,5 +1130,96 @@ public class BotUtils
 		}
 		return true;
 	}
+
+    /**
+     * Is bot url boolean.
+     *
+     * @param uri
+     *            the uri
+     * @return the boolean
+     */
+    public static boolean isBotUrl(Uri uri)
+    {
+        if (HikeConstants.HIKE_SERVICE.equals(uri.getScheme()) && HikePlatformConstants.BOTS.equals(uri.getAuthority()) && !TextUtils.isEmpty(uri.getQueryParameter(HikeConstants.HANDLE)))
+        {
+            return true;
+        }
+        return false;
+    }
+
+
+	public static String getParentMsisdnFromBotMsisdn(String botMsisdn)
+	{
+		if(TextUtils.isEmpty(botMsisdn))
+		{
+			return null;
+		}
+		BotInfo botInfo = getBotInfoForBotMsisdn(botMsisdn);
+		if(botInfo == null)
+		{
+			return null;
+		}
+		NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
+		return nonMessagingBotMetadata.getParentMsisdn();
+	}
+
+	public static JSONObject getBotInfoAsString(BotInfo botInfo) throws JSONException, IOException
+	{
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put(HikePlatformConstants.BOT_DESCRIPTION, botInfo.getBotDescription());
+		jsonObject.put(HikePlatformConstants.BOT_TYPE, botInfo.getBotType());
+		jsonObject.put(HikePlatformConstants.HELPER_DATA, botInfo.getHelperData());
+		jsonObject.put(HikePlatformConstants.METADATA, botInfo.getMetadata());
+		jsonObject.put(HikePlatformConstants.NAMESPACE, botInfo.getNamespace());
+		jsonObject.put(HikePlatformConstants.MSISDN, botInfo.getMsisdn());
+		jsonObject.put(HikePlatformConstants.MAPP_VERSION_CODE, botInfo.getMAppVersionCode());
+		jsonObject.put(HikePlatformConstants.VERSION, botInfo.getVersion());
+		jsonObject.put(HikePlatformConstants.NAME, botInfo.getConversationName());
+		jsonObject.put(HikePlatformConstants.TYPE, botInfo.getType());
+		BitmapDrawable bitmap = HikeMessengerApp.getLruCache().getIconFromCache(botInfo.getMsisdn());
+		if(bitmap !=null)
+		{
+			String picture = Utils.drawableToString(bitmap);
+			File botPicFile = new File(HikeMessengerApp.getInstance().getExternalCacheDir(), "bot_"+ botInfo.getMsisdn() + ".jpg");
+			if(!botPicFile.exists())
+			{
+				botPicFile.createNewFile();
+				Utils.saveByteArrayToFile(botPicFile, picture.getBytes());
+			}
+			jsonObject.put("picture", botPicFile.getAbsolutePath());
+		}
+		else
+		{
+			jsonObject.put("picture" , "");
+		}
+		return jsonObject;
+	}
+
+    /**
+     * Gets custom key board height.
+     *
+     * @param customKeyboard
+     *            the custom keyboard object
+     * @return the custom key board height
+     */
+    public static int getCustomKeyBoardHeight(CustomKeyboard customKeyboard,int screenWidth,int stickerPadding,int stickerGridPadding)
+    {
+        // Precautionary null check
+        if (customKeyboard == null)
+            return 0;
+
+        if (customKeyboard != null && customKeyboard.getT() != null && customKeyboard.getT().equals(HikePlatformConstants.BOT_CUSTOM_KEYBOARD_TYPE_TEXT))
+            return Utils.dpToPx(customKeyboard.getTk().size() * 48 + (customKeyboard.getTk().size() + 1) * 16);
+        else if (customKeyboard != null && customKeyboard.getT() != null && customKeyboard.getT().equals(HikePlatformConstants.BOT_CUSTOM_KEYBOARD_TYPE_STICKER))
+        {
+
+            int horizontalSpacing = (HikePlatformConstants.stickerGridNoOfCols - 1) * stickerGridPadding;
+
+            int actualSpace = (screenWidth - horizontalSpacing - stickerPadding);
+
+            return (int) Math.ceil( (double) customKeyboard.getSk().size() / HikePlatformConstants.stickerGridNoOfCols) * actualSpace/HikePlatformConstants.stickerGridNoOfCols + Utils.dpToPx(((int) Math.ceil( (double) customKeyboard.getSk().size() / HikePlatformConstants.stickerGridNoOfCols) + 0) * 10);
+        }
+        return 0;
+    }
 	
 }

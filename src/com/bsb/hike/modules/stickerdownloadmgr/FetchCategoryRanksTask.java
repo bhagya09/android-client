@@ -1,6 +1,6 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
-import android.os.AsyncTask;
+import android.support.annotation.Nullable;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -13,7 +13,6 @@ import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHTTPTask;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHttpTaskResult;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.ui.fragments.StickerShopBaseFragment;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
@@ -23,7 +22,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.Calendar;
-import java.util.concurrent.ThreadPoolExecutor;
 
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.getPrefOrderForCategories;
 
@@ -38,12 +36,9 @@ public class FetchCategoryRanksTask implements IHikeHTTPTask, IHikeHttpTaskResul
 
 	private int offset;
 
-	private boolean toPublish;
-
-	public FetchCategoryRanksTask(int offset, boolean toPublish)
+	public FetchCategoryRanksTask(int offset)
 	{
 		this.offset = offset;
-		this.toPublish = toPublish;
 	}
 
 	private IRequestListener getRequestListener()
@@ -52,7 +47,7 @@ public class FetchCategoryRanksTask implements IHikeHTTPTask, IHikeHttpTaskResul
 		return new IRequestListener()
 		{
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 				doOnFailure(httpException);
 			}
@@ -64,7 +59,10 @@ public class FetchCategoryRanksTask implements IHikeHTTPTask, IHikeHttpTaskResul
 				{
 					JSONObject response = (JSONObject) result.getBody().getContent();
 
-					Logger.d(TAG, response.toString());
+					if (response != null)
+					{
+						Logger.d(TAG, response.toString());
+					}
 
 					if (!Utils.isResponseValid(response))
 					{
@@ -82,26 +80,24 @@ public class FetchCategoryRanksTask implements IHikeHTTPTask, IHikeHttpTaskResul
 					}
 					JSONArray orderArray = resultData.optJSONArray(HikeConstants.PACKS);
 					HikeConversationsDatabase.getInstance().updateStickerCategoryRanks(orderArray, offset != 0);
-					if (orderArray != null && orderArray.length() != 0)
+					if (!Utils.isEmpty(orderArray))
 					{
 						HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.STICKER_SHOP_DATA_FULLY_FETCHED, false);
 						HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.STICKER_SHOP_RANK_FULLY_FETCHED, false);
-						if (toPublish)
-						{
-							StickerManager.getInstance().executeFetchShopPackTask(offset + StickerManager.SHOP_FETCH_PACK_COUNT);
-						}
 					}
 					else
 					{
 						HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.STICKER_SHOP_RANK_FULLY_FETCHED, true);
-						if (toPublish)
-						{
-							HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_SHOP_DOWNLOAD_SUCCESS, null);
-						}
 					}
+					HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_SHOP_DOWNLOAD_SUCCESS, null);
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPDATED_ALL_CATEGORIES_METADATA, false);
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPDATED_ALL_CATEGORIES_TAGDATA, false);
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPDATE_SHOP_RANK_TIMESTAMP, System.currentTimeMillis());
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ALREDAY_FETCHED_CATEGORIES_RANK_LIMIT,
+							offset + HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NUMBER_OF_ROWS_FOR_ORDER, StickerConstants.DEFAULT_NUMBER_OF_ROWS_FOR_ORDER));
+					if (offset == 0)
+					{
+						HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPDATE_SHOP_RANK_TIMESTAMP, System.currentTimeMillis());
+					}
 					doOnSuccess(null);
 				}
 				catch (Exception e)
@@ -165,10 +161,7 @@ public class FetchCategoryRanksTask implements IHikeHTTPTask, IHikeHttpTaskResul
 	@Override
 	public void doOnFailure(HttpException exception)
 	{
-		if (toPublish)
-		{
-			HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_SHOP_DOWNLOAD_FAILURE, exception);
-		}
+		HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_SHOP_DOWNLOAD_FAILURE, exception);
 		Logger.e(TAG, "Exception", exception);
 		setAlarmForFetchOrder();
 	}

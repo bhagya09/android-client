@@ -8,16 +8,23 @@ import com.bsb.hike.modules.stickersearch.provider.db.CategorySearchManager;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Utils;
 
+/**
+ * Created by akhiltripathi on 12/04/16.
+ */
+
 public class CategorySearchTask implements Runnable
 {
 	private String query;
 
 	private CategorySearchListener mListener;
 
-	public CategorySearchTask(String query, CategorySearchListener listener)
+    private boolean sendLogs;
+
+	public CategorySearchTask(String query, CategorySearchListener listener, boolean sendLogs)
 	{
 		this.query = preProcessQuery(query);
 		this.mListener = listener;
+        this.sendLogs = sendLogs;
 	}
 
 	@Override
@@ -30,9 +37,10 @@ public class CategorySearchTask implements Runnable
 
 		mListener.onSearchInitiated();
 
-		List<StickerCategory> results = CategorySearchManager.getInstance().searchForPacks(query);
+		List<StickerCategory> results = CategorySearchManager.getInstance().searchForPacks(query, sendLogs);
 
 		sendResponse(results);
+
 	}
 
 	private void sendResponse(List<StickerCategory> results)
