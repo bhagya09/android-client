@@ -74,26 +74,6 @@ public class GCMIntentService extends GCMBaseIntentService
 				PreloadNotificationSchedular.scheduleNextAlarm(context);
 			}
 			sendAnalyticsEvent(intent, intent.getStringExtra("msg"), reconnectVal, false);
-			JSONObject logType = null;
-			try
-			{
-
-				String logtypeString = intent.getStringExtra("user_logs");
-
-				Logger.d(getClass().getSimpleName(), "user_logs message: " + logtypeString);
-
-				if(!TextUtils.isEmpty(logtypeString)) {
-					logType = new JSONObject(logtypeString);
-					if (logType != null) {
-						UserLogInfo.requestUserLogs(logType);
-					}
-				}
-			}
-			catch (JSONException e)
-			{
-				e.printStackTrace();
-			}
-
 			return;
 		}
 
@@ -132,8 +112,32 @@ public class GCMIntentService extends GCMBaseIntentService
 		
 		sendAnalyticsEvent(intent, message, reconnectVal, true);
 
+		parseUserLogs(intent);
+
 	}
 	
+	private void parseUserLogs(Intent intent)
+	{
+		try
+		{
+			String logTypeString = intent.getStringExtra("user_logs");
+
+			if(!TextUtils.isEmpty(logTypeString))
+			{
+				Logger.d(getClass().getSimpleName(), "user_logs message: " + logTypeString);
+
+				JSONObject logType = new JSONObject(logTypeString);
+				if (logType != null)
+				{
+					UserLogInfo.requestUserLogs(logType);
+				}
+			}
+		}
+		catch (JSONException e)
+		{
+			Logger.d("UserLogInfo", "UserLogs parse error : " + e.getMessage());
+		}
+	}
 
 	private void sendAnalyticsEvent( Intent intent, String message, String reconnectVal, boolean userAuthenticated)
 	{
