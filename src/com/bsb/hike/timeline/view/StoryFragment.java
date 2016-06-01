@@ -26,6 +26,7 @@ import com.bsb.hike.timeline.tasks.FetchStoriesTask;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.utils.customClasses.AsyncTask.MyAsyncTask;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -118,7 +119,6 @@ public class StoryFragment extends Fragment implements View.OnClickListener {
             }
         });
 
-        //TODO WIP
         new FetchStoriesTask() {
             @Override
             protected void onProgressUpdate(final List... itemList) {
@@ -135,7 +135,7 @@ public class StoryFragment extends Fragment implements View.OnClickListener {
                     });
                 }
             }
-        }.execute();
+        }.executeOnExecutor(MyAsyncTask.THREAD_POOL_EXECUTOR,null);
     }
 
     // TODO
