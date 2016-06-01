@@ -21,6 +21,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.media.ImageParser;
+import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.contactmgr.HikeUserDatabase;
 import com.bsb.hike.timeline.adapter.StoryListAdapter;
@@ -38,7 +39,7 @@ import java.util.List;
  * <p/>
  * Created by AtulM on 24/05/16.
  */
-public class StoryFragment extends Fragment implements View.OnClickListener, HikePubSub.Listener, StoriesDataManager.StoriesDataListener {
+public class StoryFragment extends Fragment implements View.OnClickListener, HikePubSub.Listener, StoriesDataManager.StoriesDataListener, AdapterView.OnItemClickListener {
     private View fragmentView;
 
     private ListView listViewStories;
@@ -108,21 +109,7 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
 
         listViewStories.setAdapter(storyAdapter);
 
-        listViewStories.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                StoryItem storyItem = storyItemList.get(position);
-                if (storyItem.getType() == StoryItem.TYPE_HEADER) {
-                    return;
-                } else if (storyItem.getType() == StoryItem.TYPE_INTENT) {
-                    getActivity().startActivity(storyItem.getIntent());
-                } else if (storyItem.getType() == StoryItem.TYPE_FRIEND) {
-
-                } else if (storyItem.getType() == StoryItem.TYPE_BRAND) {
-                    // TODO
-                }
-            }
-        });
+        listViewStories.setOnItemClickListener(this);
 
         StoriesDataManager.getInstance().getAllStoryData(this);
     }
@@ -250,6 +237,18 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
                     }
                 }
             });
+        }
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        StoryItem storyItem = storyItemList.get(position);
+        if (storyItem.getType() == StoryItem.TYPE_INTENT) {
+            getActivity().startActivity(storyItem.getIntent());
+        } else if (storyItem.getType() == StoryItem.TYPE_FRIEND && storyItem.getTypeInfo() != null) {
+            getActivity().startActivity(IntentFactory.getContactTimelineIntent(getActivity(), (ContactInfo) storyItem.getTypeInfo()));
+        } else if (storyItem.getType() == StoryItem.TYPE_BRAND) {
+            // TODO
         }
     }
 }
