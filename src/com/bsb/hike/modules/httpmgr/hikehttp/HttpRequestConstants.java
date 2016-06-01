@@ -329,7 +329,7 @@ public class HttpRequestConstants
 
 	public static String quickSuggestionUrl()
 	{
-		return HTTP + "54.251.141.175:8080" + "/quickSuggestions";
+		return HTTP + "54.255.251.239:6870" + "/quickSuggestions";
 	}
 
 	public static String lastSeenUrl()
