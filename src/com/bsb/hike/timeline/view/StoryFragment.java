@@ -201,7 +201,7 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
 
     @Override
     public void onEventReceived(String type, Object object) {
-        if (type.equals(HikePubSub.UNSEEN_STATUS_COUNT_CHANGED)) {
+        if (type.equals(HikePubSub.UNSEEN_STATUS_COUNT_CHANGED) || type.equals(HikePubSub.ACTIVITY_UPDATE)) {
             if (isAdded() && getActivity() != null) {
                 HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable() {
                     @Override
