@@ -2,6 +2,11 @@ package com.bsb.hike.ui;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.TextView;
 
 import com.bsb.hike.R;
 import com.bsb.hike.ui.fragments.AddFriendsFragment;
@@ -21,15 +26,30 @@ public class FriendRequestActivity extends HikeAppStateBaseFragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_friend_request);
-        if (getIntent().hasExtra(ADD_FRIENDS))
+        if (getIntent().hasExtra(ADD_FRIENDS)) {
+            setupActionBar(R.string.add_friends);
             addAddFriendsFragment();
-        else
+        } else {
+            setupActionBar(R.string.added_me);
             addAddedMeFragment();
+        }
+    }
+
+    private void setupActionBar(int titleResId) {
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        View actionBarView = LayoutInflater.from(this).inflate(R.layout.compose_action_bar, null);
+        TextView title = (TextView) actionBarView.findViewById(R.id.title);
+        if (titleResId > 0)
+            title.setText(titleResId);
+        else
+            title.setText("");
+        actionBar.setCustomView(actionBarView);
+        Toolbar parent = (Toolbar) actionBarView.getParent();
+        parent.setContentInsetsAbsolute(0, 0);
     }
 
     private void addAddFriendsFragment() {
-        getSupportActionBar().setTitle(R.string.add_friends);
-
         AddFriendsFragment addFriendsFragment = null;
 
         Fragment frag = getSupportFragmentManager().findFragmentByTag(ADD_FRIENDS);
@@ -43,8 +63,6 @@ public class FriendRequestActivity extends HikeAppStateBaseFragmentActivity {
     }
 
     private void addAddedMeFragment() {
-        getSupportActionBar().setTitle(R.string.added_me);
-
         AddedMeFragment addedMeFragment = null;
 
         Fragment frag = getSupportFragmentManager().findFragmentByTag(ADD_FRIENDS);
