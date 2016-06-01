@@ -69,6 +69,8 @@ public class StoryListAdapter extends BaseAdapter implements PinnedSectionListVi
 
         mDPImageLoader = new IconLoader(mContext, mContext.getResources().getDimensionPixelSize(R.dimen.icon_picture_size));
         mDPImageLoader.setDefaultAvatarIfNoCustomIcon(true);
+        mDPImageLoader.setImageFadeIn(false);
+
     }
 
     public void setStoryItemList(List<StoryItem> argList) {
