@@ -119,6 +119,7 @@ import java.util.List;
 public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Listener, HikeDialogListener,
 		AccountRestoreAsyncTask.IRestoreCallback
 {
+	public static final String OPEN_DEFAULT_TAB = "openDefaultTab";
 
 	public static FtueContactsData ftueContactsData = new FtueContactsData();
 
@@ -755,8 +756,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 			
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
-		// When home activity is launched from with in, the intent so far has been to get to conv screen. This is to be continued.
-		mPager.setCurrentItem(DEAFULT_FRAGMENT_POSITION);
+
+		if (intent.hasExtra(OPEN_DEFAULT_TAB))
+			mPager.setCurrentItem(DEAFULT_FRAGMENT_POSITION);
 	}
 
 	private void showSmsOrFreeInvitePopup()
