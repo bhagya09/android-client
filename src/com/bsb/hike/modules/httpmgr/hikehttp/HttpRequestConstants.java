@@ -33,6 +33,7 @@ public class HttpRequestConstants
 	public static final String STICKERS_CDN_PRODUCTION_API = "staticstickers.im.hike.in";
 	
 	public static final String BASE_LINK_SHARING_URL = HTTP + "hike.in";
+	public static final String BASE_LINK_SHARING_HTTPS_URL = HTTPS + "hike.in";
 		
 	public static final int PRODUCTION_PORT = 80;
 

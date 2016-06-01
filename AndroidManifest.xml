@@ -437,6 +437,10 @@
                      android:host="bots"
                      android:pathPrefix="/"
                      android:scheme="hike" />
+                 <data
+                     android:host="channel"
+                     android:pathPrefix="/"
+                     android:scheme="hike" />
             </intent-filter>
         </activity>
 

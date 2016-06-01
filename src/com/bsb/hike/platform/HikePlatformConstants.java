@@ -332,9 +332,9 @@ public interface HikePlatformConstants
     public static final String BOT_MSISDN = "botMsisdn";
 	
 	public static final String BOT_NAME = "name";
-	
+	public static final String HIKE_VIRAL_MSISDN = "+hikeviral+";
 	public static final String BOTS = "bots";
-	
+	public static final String CHANNELS = "channel";
 	public static final String ALL_REQUIRED = "all_required";
 	
 	public static final String BOT_DP = "dp";
