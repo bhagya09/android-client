@@ -17,16 +17,18 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.media.ImageParser;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.contactmgr.HikeUserDatabase;
 import com.bsb.hike.timeline.adapter.StoryListAdapter;
 import com.bsb.hike.timeline.model.StoryItem;
-import com.bsb.hike.timeline.tasks.FetchStoriesTask;
+import com.bsb.hike.timeline.tasks.StoriesDataManager;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Utils;
-import com.bsb.hike.utils.customClasses.AsyncTask.MyAsyncTask;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +38,7 @@ import java.util.List;
  * <p/>
  * Created by AtulM on 24/05/16.
  */
-public class StoryFragment extends Fragment implements View.OnClickListener {
+public class StoryFragment extends Fragment implements View.OnClickListener, HikePubSub.Listener, StoriesDataManager.StoriesDataListener {
     private View fragmentView;
 
     private ListView listViewStories;
@@ -51,6 +53,8 @@ public class StoryFragment extends Fragment implements View.OnClickListener {
 
     private View btnAddFriends;
 
+    private final String[] pubsubEvents = new String[]{HikePubSub.UNSEEN_STATUS_COUNT_CHANGED, HikePubSub.TIMELINE_UPDATE_RECIEVED, HikePubSub.ICON_CHANGED, HikePubSub.ACTIVITY_UPDATE, HikePubSub.STATUS_MARKED_READ};
+
     public static StoryFragment newInstance(@Nullable Bundle argBundle) {
         StoryFragment fragmentInstance = new StoryFragment();
         if (argBundle != null) {
@@ -63,6 +67,7 @@ public class StoryFragment extends Fragment implements View.OnClickListener {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
+        HikeMessengerApp.getInstance().getPubSub().addListeners(this, pubsubEvents);
     }
 
     @Override
@@ -119,29 +124,7 @@ public class StoryFragment extends Fragment implements View.OnClickListener {
             }
         });
 
-        new FetchStoriesTask() {
-            @Override
-            protected void onProgressUpdate(final List... itemList) {
-                if (isAdded() && getActivity() != null) {
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (itemList != null && !Utils.isEmpty(itemList[0])) {
-                                storyItemList = itemList[0];
-                                storyAdapter.setStoryItemList(storyItemList);
-                                storyAdapter.notifyDataSetChanged();
-                            }
-                        }
-                    });
-                }
-            }
-        }.executeOnExecutor(MyAsyncTask.THREAD_POOL_EXECUTOR,null);
-    }
-
-    // TODO
-    private void updateTimelineSubText()
-    {
-
+        StoriesDataManager.getInstance().getAllStoryData(this);
     }
 
     private void bindEmptyStateView() {
@@ -213,6 +196,42 @@ public class StoryFragment extends Fragment implements View.OnClickListener {
             case R.id.btn_add_friends:
                 // TODO Open add friends screen
                 break;
+        }
+    }
+
+    @Override
+    public void onEventReceived(String type, Object object) {
+        if (type.equals(HikePubSub.UNSEEN_STATUS_COUNT_CHANGED)) {
+            if (isAdded() && getActivity() != null) {
+                HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable() {
+                    @Override
+                    public void run() {
+                        StoriesDataManager.getInstance().updateDefaultData();
+                    }
+                }, 2000); // This is to avoid changing of subtext right when timeline is tapped since it takes time for timeline activity to show up
+            }
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        HikeMessengerApp.getInstance().getPubSub().removeListeners(this, pubsubEvents);
+    }
+
+    @Override
+    public void onDataUpdated(final List<StoryItem> argList) {
+        if (isAdded() && getActivity() != null) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (!Utils.isEmpty(argList)) {
+                        storyItemList = argList;
+                        storyAdapter.setStoryItemList(storyItemList);
+                        storyAdapter.notifyDataSetChanged();
+                    }
+                }
+            });
         }
     }
 }
