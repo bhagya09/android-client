@@ -128,11 +128,6 @@ public class ToastListener implements Listener
 				return;
 			}
 			Activity activity = (currentActivity != null) ? currentActivity.get() : null;
-			if (activity instanceof PeopleActivity)
-			{
-				Utils.resetUnseenFriendRequestCount(activity);
-				return;
-			}
 			if (StealthModeManager.getInstance().isStealthMsisdn(contactInfo.getMsisdn()))
 			{
 				this.toaster.notifyStealthMessage(NotificationType.HIDDEN,contactInfo.getMsisdn());
