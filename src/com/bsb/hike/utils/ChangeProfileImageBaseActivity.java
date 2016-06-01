@@ -725,6 +725,8 @@ public abstract class ChangeProfileImageBaseActivity extends HikeAppStateBaseFra
 			mRemoveImagePath = ProfileImageActions.DP_EDIT_FROM_DISPLAY_IMAGE;
 		} else if (whichActivity == ImageViewerFragment.FROM_SETTINGS_ACTIVITY) {
 			mRemoveImagePath = ProfileImageActions.DP_EDIT_FROM_SETTINGS_PREVIEW_IMAGE;
+		} else if (whichActivity == ImageViewerFragment.FROM_EDIT_DP_ACTIVITY) {
+			mRemoveImagePath = ProfileImageActions.DP_EDIT_FROM_EDIT_DP_SCREEN;
 		}
 		sendDPEditAnalytics(whichActivity);
 		showRemovePhotoConfirmDialog();
