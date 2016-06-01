@@ -28,7 +28,6 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.db.DBConstants;
-import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -41,6 +40,7 @@ import com.bsb.hike.utils.PhoneSpecUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.PhoneUtils;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPUtils.CallSource;
 import com.google.gson.Gson;
@@ -54,10 +54,7 @@ import org.json.JSONObject;
 import java.lang.reflect.Field;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -754,7 +751,7 @@ public class ChatHeadUtils
 		String number = null;
 		if (!TextUtils.isEmpty(searchNumber))
 		{
-			 number = getValidNumber(Utils.normalizeNumber(searchNumber, HikeMessengerApp.getInstance().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0)
+			 number = getValidNumber(PhoneUtils.normalizeNumber(searchNumber, HikeMessengerApp.getInstance().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0)
 					.getString(HikeMessengerApp.COUNTRY_CODE, HikeConstants.INDIA_COUNTRY_CODE)));
 
 		if (!TextUtils.isEmpty(number))
