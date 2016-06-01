@@ -31,8 +31,11 @@ public class UpgradeIntentService extends IntentService
 	@Override
 	protected void onHandleIntent(Intent dbIntent)
 	{
+		long upgradeIntentServiceInitSt = System.currentTimeMillis();
+
 		context = this;
 		prefs = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
+
 		if (prefs.getInt(HikeConstants.UPGRADE_AVATAR_CONV_DB, -1) == 1)
 		{
 			initialiseSharedMediaAndFileThumbnailTable();
@@ -96,7 +99,6 @@ public class UpgradeIntentService extends IntentService
 			}
 		}
 
-		Logger.d("Migration", "UPGRADE_SORTING_ID_FIELD started ");
 		long upgradeSortingIdSt = System.currentTimeMillis();
 		// This value is set as 1 in onUpgrade of HikeConversationsDatabase.
 		if (prefs.getInt(HikeMessengerApp.UPGRADE_SORTING_ID_FIELD, 0) == 1)
@@ -109,9 +111,8 @@ public class UpgradeIntentService extends IntentService
 				editor.commit();
 			}
 		}
-		Logger.d("Migration", "UPGRADE_SORTING_ID_FIELD completed :  took time : " + (System.currentTimeMillis() - upgradeSortingIdSt));
+		Utils.recordUpgradeTaskCompletion(HikeMessengerApp.UPGRADE_SORTING_ID_FIELD, (System.currentTimeMillis() - upgradeSortingIdSt));
 
-		Logger.d("Migration", "UPGRADE_LANG_ORDER started ");
 		long upgradeLangOrderSt = System.currentTimeMillis();
 		if (prefs.getInt(HikeMessengerApp.UPGRADE_LANG_ORDER, 0) == 0)
 		{
@@ -119,18 +120,16 @@ public class UpgradeIntentService extends IntentService
 				LocalLanguageUtils.requestLanguageOrderListFromServer();
 			}
 		}
-		Logger.d("Migration", "UPGRADE_LANG_ORDER completed :  took time : " + (System.currentTimeMillis() - upgradeLangOrderSt));
+		Utils.recordUpgradeTaskCompletion(HikeMessengerApp.UPGRADE_LANG_ORDER, (System.currentTimeMillis() - upgradeLangOrderSt));
 
-		Logger.d("Migration", "HIKE_CONTENT_MICROAPPS_MIGRATION started ");
 		long hikeCtMaMigSt = System.currentTimeMillis();
         // Schedule versioning migration if its not done already
         if(prefs.getBoolean(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, false) == false)
         {
             scheduleHikeMicroAppsMigrationAlarm(getBaseContext());
         }
-		Logger.d("Migration", "HIKE_CONTENT_MICROAPPS_MIGRATION completed :  took time : " + (System.currentTimeMillis() - hikeCtMaMigSt));
+		Utils.recordUpgradeTaskCompletion(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, (System.currentTimeMillis() - hikeCtMaMigSt));
 
-		Logger.d("Migration", "UPGRADE_FOR_STICKER_TABLE started ");
 		long upgradeForStickerTableSt = System.currentTimeMillis();
 		if(prefs.getInt(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 1) == 1)
 		{
@@ -143,9 +142,8 @@ public class UpgradeIntentService extends IntentService
 				StickerManager.getInstance().doInitialSetup();
 			}
 		}
-		Logger.d("Migration", "UPGRADE_FOR_STICKER_TABLE completed :  took time : " + (System.currentTimeMillis() - upgradeForStickerTableSt));
+		Utils.recordUpgradeTaskCompletion(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, (System.currentTimeMillis() - upgradeForStickerTableSt));
 
-		Logger.d("Migration", "KEY_MOVED_STICKER_EXTERNAL started ");
 		long moveStickerExternalSt = System.currentTimeMillis();
 		if((!prefs.getBoolean(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, false)) && Utils
 				.doesExternalDirExists())
@@ -154,16 +152,15 @@ public class UpgradeIntentService extends IntentService
 					StickerManager.getInstance().getNewStickerDirFilePath()))
 			{
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, true);
-				Logger.v("Migration", "Upgrade for sticker table was successful");
+				Logger.v(TAG, "Upgrade for sticker table was successful");
 			}
 			else
 			{
-				Logger.v("Migration", "Upgrade for sticker table was NOT successful");
+				Logger.v(TAG, "Upgrade for sticker table was NOT successful");
 			}
 		}
-		Logger.d("Migration", "KEY_MOVED_STICKER_EXTERNAL completed :  took time : " + (System.currentTimeMillis() - moveStickerExternalSt));
+		Utils.recordUpgradeTaskCompletion(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, (System.currentTimeMillis() - moveStickerExternalSt));
 
-		Logger.d("Migration", "MIGRATE_RECENT_STICKER_TO_DB started ");
 		long migrateRecentStkToDbTs = System.currentTimeMillis();
 		if((!prefs.getBoolean(HikeMessengerApp.MIGRATE_RECENT_STICKER_TO_DB, false)))
 		{
@@ -172,9 +169,8 @@ public class UpgradeIntentService extends IntentService
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.MIGRATE_RECENT_STICKER_TO_DB, true);
 			}
 		}
-		Logger.d("Migration", "MIGRATE_RECENT_STICKER_TO_DB completed :  took time : " + (System.currentTimeMillis() - migrateRecentStkToDbTs));
+		Utils.recordUpgradeTaskCompletion(HikeMessengerApp.MIGRATE_RECENT_STICKER_TO_DB, (System.currentTimeMillis() - migrateRecentStkToDbTs));
 
-		Logger.d("Migration", "UPGRADE_STICKER_CATEGORIES_TABLE started ");
 		long upgradeStickerCategoriesTableTs = System.currentTimeMillis();
 		if (!prefs.getBoolean(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, false))
 		{
@@ -183,24 +179,20 @@ public class UpgradeIntentService extends IntentService
 			editor.putBoolean(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, true);
 			editor.apply();
 		}
-		Logger.d("Migration", "UPGRADE_STICKER_CATEGORIES_TABLE completed :  took time : " + (System.currentTimeMillis() - upgradeStickerCategoriesTableTs));
+		Utils.recordUpgradeTaskCompletion(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, (System.currentTimeMillis() - upgradeStickerCategoriesTableTs));
 
 		// Set block notifications as false in shared preference i.e allow notifications to occur once Upgrade intent completes
         Editor editor = prefs.edit();
         editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
         editor.apply();
 
-		Logger.d("Migration", "BLOCK_NOTIFICATIONS set to false ");
-
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPGRADING, false);
-
-		Logger.d("Migration", "UPGRADING preference set to false ");
 
 		HikeMessengerApp.getPubSub().publish(HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE, null);
 
-		Logger.d("Migration", "FINISHED_UPGRADE_INTENT_SERVICE published ");
-
 		Utils.connectToGcmPreSignup();
+
+		Utils.recordUpgradeTaskCompletion(TAG, (System.currentTimeMillis() - upgradeIntentServiceInitSt));
 
 	}
 

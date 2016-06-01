@@ -1478,7 +1478,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		else if (type.equals(HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE))
 		{
-			Logger.d("Migration", "FINISHED_UPGRADE_INTENT_SERVICE received in home activity ");
+			long upgradeDialogueSt = HikeSharedPreferenceUtil.getInstance().getData(HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE, 0L);
+			Utils.recordUpgradeTaskCompletion(HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE, (System.currentTimeMillis() - upgradeDialogueSt));
 
 			runOnUiThread(new Runnable()
 			{
@@ -1500,8 +1501,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 						restoreProgDialog.dismiss();
 						restoreProgDialog = null;
 					}
-
-					Logger.d("Migration", "dismissed diaglogues in home activity");
 
 					if (Utils.isDBCorrupt())
 					{

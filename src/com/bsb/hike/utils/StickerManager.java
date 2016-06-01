@@ -3497,12 +3497,7 @@ public class StickerManager
 
 		int oldCount = TextUtils.isEmpty(fromPath) ? 0 : Utils.getFilesCountRecursive(new File(fromPath));
 
-		Logger.d("Migration", " ********** movement of sticker folders started ************");
-		long moveTs = System.currentTimeMillis();
 		boolean isMoved = moveStickersFolder(fromPath, toPath);
-		Logger.d("Migration", " ********** movement of sticker folders completed ************  time taken : " + (System.currentTimeMillis() - moveTs));
-
-		Logger.d("Migration", " movement successfull : " + isMoved);
 
 		if (isMoved)
 		{
@@ -3512,13 +3507,12 @@ public class StickerManager
 
 			int newCount = TextUtils.isEmpty(toPath) ? 0 : Utils.getFilesCountRecursive(new File(toPath));
 
-			Logger.d("Migration", " Old Count : " + oldCount + " New Count : " + newCount);
+			Logger.d("StickerMigration", " Old Count : " + oldCount + " New Count : " + newCount);
 
 			if (HikeConversationsDatabase.getInstance().upgradeForStickerTable())
 			{
 				recordStickerMigrationSuccess("Stickers Successfully Moved. Old Count : " + oldCount + " New Count : " + newCount);
 				doInitialSetup();
-				Logger.d("Migration", " upgrade sticker table after movement completed ");
 				return true;
 			}
 			else
@@ -3552,7 +3546,6 @@ public class StickerManager
 		}
 		else
 		{
-			Logger.d("Migration", " movement failure ");
 			recordStickerMigrationFailure("Either fromPath is null or toPath is null ");
 			return false;
 		}

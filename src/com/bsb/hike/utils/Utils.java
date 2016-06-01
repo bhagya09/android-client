@@ -295,8 +295,6 @@ public class Utils
 {
 	private static final String TAG = Utils.class.getSimpleName();
 
-	private static int count = 0;
-
 	// Precision points definition for duration logging========================================[[
 	public static final class ExecutionDurationLogger
 	{
@@ -7890,7 +7888,6 @@ public class Utils
 	{
 		boolean result = true;
 
-		Logger.d("Migration", "in move function for " + (count++) + " th time");
 		// param check
 		if (oldRootDir == null || newRootDir == null)
 		{
@@ -7913,7 +7910,7 @@ public class Utils
 
 		if (!oldRootDir.exists() || (listFiles == null))
 		{
-			Logger.d("Migration", "Migration unsuccessful but new folder created");
+			Logger.d("StickerMigration", "Migration unsuccessful but new folder created");
 			StickerManager.getInstance().recordStickerMigrationFailure("Migration unsuccessful but new folder created, The oldDir was absent or listFiles were null");
 			return result; // Migration unsuccessful but new folder created
 		}
@@ -8157,5 +8154,23 @@ public class Utils
 			return 0;
 		}
 
+	}
+
+	public static void recordUpgradeTaskCompletion(String taskKey, long duration)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, "db_update");
+			json.put(AnalyticsConstants.V2.KINGDOM, "act_hs");
+			json.put(AnalyticsConstants.V2.ORDER, "db_update");
+			json.put(AnalyticsConstants.V2.FAMILY, taskKey);
+			json.put(AnalyticsConstants.V2.GENUS, duration);
+			HAManager.getInstance().recordV2(json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
 	}
 }
