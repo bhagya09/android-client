@@ -132,6 +132,7 @@ public class MyFragment extends Fragment implements HikePubSub.Listener {
                 beginImageDownload();
             }
         });
+        profileImageLoader.setDefaultDrawable(profileImageView.getDrawable());
         profileImageLoader.loadProfileImage(getActivity().getSupportLoaderManager());
     }
 

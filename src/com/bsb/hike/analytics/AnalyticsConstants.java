@@ -312,6 +312,8 @@ public class AnalyticsConstants
 		public static final String DP_EDIT_FROM_DISPLAY_IMAGE = "propic";
 		
 		public static final String DP_EDIT_FROM_PROFILE_OVERFLOW_MENU = "editpropic";
+
+		public static final String DP_EDIT_FROM_EDIT_DP_SCREEN = "editscrn";
 		
 		public static final String DP_EDIT_EVENT = "editpic";
 		
