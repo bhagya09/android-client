@@ -1,5 +1,7 @@
 package com.bsb.hike.backup.impl;
 
+import android.support.annotation.Nullable;
+
 import com.bsb.hike.BuildConfig;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -203,7 +205,7 @@ public class HikeSettingsCloudBackup implements BackupRestoreTaskLifecycle, IReq
 	}
 
 	@Override
-	public void onRequestFailure(HttpException httpException)
+	public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 	{
 		Logger.d(TAG, "Upload failed");
 
@@ -229,7 +231,7 @@ public class HikeSettingsCloudBackup implements BackupRestoreTaskLifecycle, IReq
 		}
 		else
 		{
-			onRequestFailure(new HttpException(HttpException.REASON_CODE_SERVER_STATUS_FAILED));
+			onRequestFailure(null, new HttpException(HttpException.REASON_CODE_SERVER_STATUS_FAILED));
 		}
 	}
 

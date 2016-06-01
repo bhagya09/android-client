@@ -28,7 +28,6 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotInfo;
-import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -36,7 +35,6 @@ import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.tasks.FetchFriendsTask;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.ui.HomeActivity;
-import com.bsb.hike.utils.BirthdayUtils;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.LastSeenComparator;
@@ -1795,7 +1793,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		removeFromGroup(contactInfo, FRIEND_INDEX);
 		if (accept)
 		{
-			HikeAnalyticsEvent.recordAnalyticsForAddFriend(contactInfo.getMsisdn(), HikeConstants.AddFriendSources.FRIENDS_SCREEN, false); //req_acc
+			HikeAnalyticsEvent.recordAnalyticsForAddFriend(contactInfo.getMsisdn(), HikeConstants.AddFriendSources.FRIENDS_SCREEN, null, false); //req_acc
 		}
 	}
 

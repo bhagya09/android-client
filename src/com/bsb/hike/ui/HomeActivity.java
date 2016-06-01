@@ -19,6 +19,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
@@ -192,7 +193,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			HikePubSub.USER_JOINED, HikePubSub.USER_LEFT, HikePubSub.FRIEND_REQUEST_ACCEPTED, HikePubSub.REJECT_FRIEND_REQUEST, HikePubSub.UPDATE_OF_MENU_NOTIFICATION,
 			HikePubSub.SERVICE_STARTED, HikePubSub.UPDATE_PUSH, HikePubSub.REFRESH_FAVORITES, HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.CONTACT_SYNCED, HikePubSub.FAVORITE_COUNT_CHANGED,
 			HikePubSub.STEALTH_UNREAD_TIP_CLICKED,HikePubSub.FTUE_LIST_FETCHED_OR_UPDATED, HikePubSub.STEALTH_INDICATOR, HikePubSub.USER_JOINED_NOTIFICATION, HikePubSub.UPDATE_OF_PHOTOS_ICON,
-			HikePubSub.SHOW_NEW_CHAT_RED_DOT, HikePubSub.PRODUCT_POPUP_RECEIVE_COMPLETE, HikePubSub.OPEN_COMPOSE_CHAT_SCREEN, HikePubSub.STEALTH_MODE_TOGGLED, HikePubSub.BOT_CREATED};
+			HikePubSub.SHOW_NEW_CHAT_RED_DOT, HikePubSub.PRODUCT_POPUP_RECEIVE_COMPLETE, HikePubSub.OPEN_COMPOSE_CHAT_SCREEN, HikePubSub.STEALTH_MODE_TOGGLED, HikePubSub.BOT_CREATED,
+			HikePubSub.RICH_USER_JOINED_NOTIFICATION};
 
 	private String[] progressPubSubListeners = { HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE };
 
@@ -336,7 +338,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		FTApkManager.removeApkIfNeeded();
 		moveToComposeChatScreen();
 
-		BirthdayUtils.fetchAndUpdateBdayList(false);
+		BirthdayUtils.fetchAndUpdateBdayList(false, null);
     }
 	
 	@Override
@@ -1160,7 +1162,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		recordActivityEndTime();
 	}
 
-
     private void acceptGroupMembershipConfirmation(Intent intent)
     {
         String action = intent.getAction();
@@ -1206,7 +1207,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
                     }
 
                     @Override
-                    public void onRequestFailure(HttpException httpException)
+                    public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
                     {
                         String errorText = "";
 
@@ -1658,7 +1659,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				}
 			}
 		}
-		else if (HikePubSub.USER_JOINED_NOTIFICATION.equals(type))
+		else if (HikePubSub.USER_JOINED_NOTIFICATION.equals(type) || HikePubSub.RICH_USER_JOINED_NOTIFICATION.equals(type))
 		{
 			showRecentlyJoinedDot(1000);
 		}
@@ -2768,7 +2769,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
                 }
 
                 @Override
-                public void onRequestFailure(HttpException httpException)
+                public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
                 {
                     Toast.makeText(HomeActivity.this, getString(R.string.something_went_wrong), Toast.LENGTH_SHORT).show();
                 }
@@ -2874,5 +2875,4 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			e.toString();
 		}
 	}
-
 }

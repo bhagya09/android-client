@@ -130,6 +130,8 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.updateA
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.updateLoveLinkUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.updateUnLoveLinkUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.validateNumberBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getCesScoreUploadUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getCesLevelOneInfoUploadUrl;
 import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_HIGH;
 import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_LOW;
 import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_NORMAL;
@@ -1652,6 +1654,36 @@ public class HttpRequests
 		return requestToken;
 	}
 
+	public static RequestToken uploadCesScore(JSONObject json, IRequestListener requestListener, BasicRetryPolicy retryPolicy)
+	{
+		JsonBody body = new JsonBody(json);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(getCesScoreUploadUrl())
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(requestListener)
+				.setRetryPolicy(retryPolicy)
+				.post(body)
+				.setAsynchronous(false)
+				.build();
+		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
+		return requestToken;
+	}
+
+	public static RequestToken uploadCesLevelOneInfo(JSONObject json, IRequestListener requestListener, BasicRetryPolicy retryPolicy)
+	{
+		JsonBody body = new JsonBody(json);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(getCesLevelOneInfoUploadUrl())
+				.setRequestType(Request.REQUEST_TYPE_LONG)
+				.setRequestListener(requestListener)
+				.setRetryPolicy(retryPolicy)
+				.post(body)
+				.setAsynchronous(false)
+				.build();
+		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
+		return requestToken;
+	}
+
 	public static RequestToken microAppSubscribeRequest(String url, JSONObject json, IRequestListener requestListener) {
 		if (json == null) {
 			return null;
@@ -1668,6 +1700,7 @@ public class HttpRequests
 			return requestToken;
 		}
 	}
+
 	public static RequestToken cognitoUploadRequest(String url, final String dataType, JSONObject payload, IRequestListener requestListener)
 	{
 		final String requestId = url;

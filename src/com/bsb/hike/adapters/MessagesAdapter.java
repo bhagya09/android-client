@@ -3669,7 +3669,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 							} else if(hikeFile.getHikeFileType() == HikeFileType.IMAGE){
 								sendImageVideoRelatedAnalytic(ChatAnalyticConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.IMAGE, ChatAnalyticConstants.UPLOAD_MEDIA);
 							}
-							FileTransferManager.getInstance(context).uploadFile(convMessage, null);
+							FileTransferManager.getInstance(context).uploadFile(convMessage, null, true);
 						}
 					}
 					notifyDataSetChanged();
@@ -4765,6 +4765,16 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		if(mActivity!=null && mActivity instanceof ChatThreadActivity) {
 			((ChatThreadActivity)mActivity).recordMediaShareEvent(uniqueKey_Order, genus, family);
 		}
+	}
+
+	public int getVoiceMessagePlayerState(){
+		if(voiceMessagePlayer.getPlayerState()!=null)
+		return voiceMessagePlayer.getPlayerState().ordinal();
+		else
+			return VoiceMessagePlayerState.STOPPED.ordinal();
+	}
+	public String getVoiceMessagePlayerFileKey() {
+		return voiceMessagePlayer.getFileKey();
 	}
 
 	public boolean onGeneralEventStateChange(ConvMessage convMessage)

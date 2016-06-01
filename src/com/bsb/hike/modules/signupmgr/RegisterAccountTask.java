@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Build;
 import android.provider.Settings.Secure;
+import android.support.annotation.Nullable;
 import android.telephony.TelephonyManager;
 
 import com.bsb.hike.HikeConstants;
@@ -126,7 +127,7 @@ public class RegisterAccountTask
 			}
 
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 				resultAccountInfo = null;
 			}

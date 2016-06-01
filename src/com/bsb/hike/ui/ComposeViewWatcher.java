@@ -95,25 +95,7 @@ public class ComposeViewWatcher extends EmoticonTextWatcher implements Runnable,
             boolean nativeSmsPref = Utils.getSendSmsPref(context);
             canSend = nativeSmsPref;
         }
-
-        if (!canSend)
-        {
-            if (BotUtils.isBot(mConversation.getMsisdn()) && CustomKeyboardManager.getInstance().shouldShowInputBox(mConversation.getMsisdn()))
-            {
-                mButton.setImageResource(R.drawable.keyboard_button_selector);
-                mButton.setContentDescription(context.getResources().getString(R.string.content_des_send_recorded_audio_text_chatting));
-            }
-            else
-            {
-                mButton.setImageResource(R.drawable.walkie_talkie_btn_selector);
-                mButton.setContentDescription(context.getResources().getString(R.string.content_des_send_recorded_audio_text_chatting));
-            }
-        }
-        else
-        {
-            mButton.setImageResource(R.drawable.send_btn_selector);
-            mButton.setContentDescription(context.getResources().getString(R.string.content_des_send_message_button));
-        }
+        setSendButton(canSend);
 
         if (mConversation instanceof OneToNConversation)
         {
@@ -125,37 +107,48 @@ public class ComposeViewWatcher extends EmoticonTextWatcher implements Runnable,
         }
     }
 
-	private void setSendButton(boolean canSend){
-		if(!useWTRevamped) {
-			if (!canSend) {
-				mButton.setImageResource(R.drawable.walkie_talkie_btn_selector);
-				mButton.setContentDescription(context.getResources().getString(R.string.content_des_send_recorded_audio_text_chatting));
-			} else {
-				mButton.setImageResource(R.drawable.send_btn_selector);
-				mButton.setContentDescription(context.getResources().getString(R.string.content_des_send_message_button));
-			}
-		} else {
-			if (!canSend)
-			{
-				audButton.setVisibility(View.VISIBLE);
-				mButton.setVisibility(View.GONE);
-				if(mSendBtnListener != null) mSendBtnListener.onSendBtnChanged(false);
-			}
-			else
-			{
-				audButton.setVisibility(View.GONE);
-				mButton.setVisibility(View.VISIBLE);
-				if(mSendBtnListener != null) mSendBtnListener.onSendBtnChanged(true);
-			}
-		}
-	}
-	public void onTextLastChanged()
-	{
-		if (!mInitialized)
-		{
-			Logger.d("ComposeViewWatcher", "not initialized");
-			return;
-		}
+    private void setSendButton(boolean canSend){
+
+        if (BotUtils.isBot(mConversation.getMsisdn()) && CustomKeyboardManager.getInstance().shouldShowInputBox(mConversation.getMsisdn()))
+        {
+            audButton.setVisibility(View.GONE);
+            mButton.setVisibility(View.VISIBLE);
+            if(!canSend) {
+                mButton.setImageResource(R.drawable.keyboard_button_selector);
+                mButton.setContentDescription(context.getResources().getString(R.string.content_des_send_recorded_audio_text_chatting));
+            } else {
+                mButton.setImageResource(R.drawable.send_btn_selector);
+                mButton.setContentDescription(context.getResources().getString(R.string.content_des_send_message_button));
+            }
+            return;
+        }
+
+        if (!useWTRevamped) {
+            if (!canSend) {
+                mButton.setImageResource(R.drawable.walkie_talkie_btn_selector);
+                mButton.setContentDescription(context.getResources().getString(R.string.content_des_send_recorded_audio_text_chatting));
+            } else {
+                mButton.setImageResource(R.drawable.send_btn_selector);
+                mButton.setContentDescription(context.getResources().getString(R.string.content_des_send_message_button));
+            }
+        } else {
+            if (!canSend) {
+                audButton.setVisibility(View.VISIBLE);
+                mButton.setVisibility(View.GONE);
+                if (mSendBtnListener != null) mSendBtnListener.onSendBtnChanged(false);
+            } else {
+                audButton.setVisibility(View.GONE);
+                mButton.setVisibility(View.VISIBLE);
+                if (mSendBtnListener != null) mSendBtnListener.onSendBtnChanged(true);
+            }
+        }
+    }
+
+    public void onTextLastChanged() {
+        if (!mInitialized) {
+            Logger.d("ComposeViewWatcher", "not initialized");
+            return;
+        }
 
 		long lastChanged = System.currentTimeMillis();
 
@@ -253,8 +246,13 @@ public class ComposeViewWatcher extends EmoticonTextWatcher implements Runnable,
 
 	private SendBtnChangedListener mSendBtnListener = null;
 
-	public void setSendBtnChangeListener(SendBtnChangedListener listener) {
-		mSendBtnListener = listener;
-	}
-	//End CE-487
+    public void setSendBtnChangeListener(SendBtnChangedListener listener) {
+        mSendBtnListener = listener;
+        boolean mBotChatWithInputBox = BotUtils.isBot(mConversation.getMsisdn()) && CustomKeyboardManager.getInstance().shouldShowInputBox(mConversation.getMsisdn());
+        //To remove WT Tip for BOTS when input box is enabled.
+        if (mBotChatWithInputBox && useWTRevamped && mSendBtnListener != null) {
+            mSendBtnListener.onSendBtnChanged(true);
+        }
+    }
+    //End CE-487
 }

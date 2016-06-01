@@ -1,5 +1,7 @@
 package com.hike.cognito.transport;
 
+import android.support.annotation.Nullable;
+
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
@@ -83,7 +85,7 @@ public class RealTimeTransport extends Transport {
             }
 
             @Override
-            public void onRequestFailure(final HttpException httpException) {
+            public void onRequestFailure(@Nullable Response errorResponse, final HttpException httpException) {
                 Logger.d("Cognito", "Failed to upload: " + dataToUpload);
                 httpException.printStackTrace();
             }
