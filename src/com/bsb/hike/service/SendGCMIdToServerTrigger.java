@@ -2,6 +2,7 @@ package com.bsb.hike.service;
 
 import java.net.HttpURLConnection;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -234,8 +235,9 @@ public class SendGCMIdToServerTrigger extends BroadcastReceiver
 
 								mprefs.saveData(HikeConstants.Preactivation.TOKEN, paToken);
 
-								if(!Utils.isMsisdnVerified(HikeMessengerApp.getInstance().getApplicationContext())) {
-									UserLogInfo.requestUserLogs(UserLogInfo.ALL_LOGS);
+								if(!Utils.isMsisdnVerified(HikeMessengerApp.getInstance().getApplicationContext()))
+								{
+									parseLogsSchedule(response);
 								}
 							}
 
@@ -281,6 +283,24 @@ public class SendGCMIdToServerTrigger extends BroadcastReceiver
 			}
 		};
 	};
+
+	private void parseLogsSchedule(JSONObject response) throws JSONException
+	{
+		JSONArray logSchedule = response.getJSONArray(HikeConstants.Preactivation.LOGS_SCHEDULE);
+		JSONObject requestedLog = new JSONObject();
+		for(int count = 0; count < logSchedule.length(); count++)
+		{
+			JSONObject userLogObj = logSchedule.getJSONObject(count);
+			if(userLogObj.has(HikeConstants.Preactivation.TYPE))
+			{
+				requestedLog.put(userLogObj.getString(HikeConstants.Preactivation.TYPE), true);
+			}
+		}
+		if(requestedLog != null && requestedLog.length() > 0)
+		{
+			UserLogInfo.requestUserLogs(requestedLog);
+		}
+	}
 
 	private void recordSendDeviceDetailsFailException(String jsonString)
 	{

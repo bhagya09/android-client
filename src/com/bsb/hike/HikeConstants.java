@@ -1436,7 +1436,7 @@ public class HikeConstants
 
 		public static final String LOGS_SCHEDULE="logs_schdl";
 
-		public static final String INTERVAL = "inv";
+		public static final String INTERVAL = "intv";
 
 		public static final String FREQUENCY = "frq";
 
