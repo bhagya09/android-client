@@ -81,7 +81,6 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
-import com.bsb.hike.adapters.CustomKeyboardInputBoxAdapter;
 import com.bsb.hike.adapters.MessagesAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
@@ -91,7 +90,8 @@ import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.CustomKeyboard;
 import com.bsb.hike.bots.CustomKeyboardManager;
-import com.bsb.hike.bots.TextPickerListener;
+import com.bsb.hike.bots.CustomKeyboardStickerPickerListener;
+import com.bsb.hike.bots.CustomKeyboardTextPickerListener;
 import com.bsb.hike.chatthemes.ChatThemeManager;
 import com.bsb.hike.chatthemes.CustomBGRecyclingImageView;
 import com.bsb.hike.chatthemes.HikeChatThemeConstants;
@@ -208,7 +208,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 @SuppressLint("ResourceAsColor") public abstract class ChatThread extends SimpleOnGestureListener implements OverflowItemClickListener, View.OnClickListener, ThemePickerListener, ImageParserListener,
 		PickFileListener, StickerPickerListener, HikeAudioRecordListener, LoaderCallbacks<Object>, OnItemLongClickListener, OnTouchListener, OnScrollListener,
 		Listener, ActionModeListener, HikeDialogListener, TextWatcher, OnDismissListener, OnEditorActionListener, OnKeyListener, PopupListener, BackKeyListener,
-		OverflowViewListener, OnSoftKeyboardListener, IStickerPickerRecommendationListener, IOfflineCallbacks, IShopIconClickedCallback,TextPickerListener
+		OverflowViewListener, OnSoftKeyboardListener, IStickerPickerRecommendationListener, IOfflineCallbacks, IShopIconClickedCallback,CustomKeyboardTextPickerListener,CustomKeyboardStickerPickerListener
 {
 
 	private static boolean useWTRevamped;
@@ -2447,26 +2447,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		Logger.i(TAG, "sticker clicked " + sticker.getStickerId() + sticker.getCategoryId() + sourceOfSticker);
 		StickerSearchManager.getInstance().sentMessage(null, sticker, null, mComposeView.getText().toString());
 		sendSticker(sticker, sourceOfSticker);
-
-        // Added this code for custom bots keyboard , delete keyboard data only if we get keyboard data from shared pref for this msisdn and if the keyboard type is not persistent
-        String keyboardDataJson = HikeSharedPreferenceUtil.getInstance(CustomKeyboardManager.CUSTOM_INPUT_BOX_KEY).getData(CustomKeyboardManager.getKeyboardKey(msisdn),
-                HikePlatformConstants.KEYBOARD_DEFAULT_DATA);
-        try
-        {
-            if (!keyboardDataJson.equals(HikePlatformConstants.KEYBOARD_DEFAULT_DATA))
-            {
-                boolean isKeyBoardPersistent = new JSONObject(keyboardDataJson).optBoolean(HikePlatformConstants.IS_KEYBOARD_PERSISTENT, false);
-                if (!isKeyBoardPersistent)
-                {
-                    CustomKeyboardManager.getInstance().removeFromSharedPreferences(msisdn);
-                    dismissInputBox();
-                }
-            }
-        }
-        catch (JSONException e)
-        {
-            e.printStackTrace();
-        }
 	}
 
 	@Override
@@ -6669,7 +6649,10 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
         }
 
 		final CustomKeyboard customKeyboard = CustomKeyboardManager.getInstance().getCustomKeyboardObject(msisdn);
-		final int customKeyBoardHeight = CustomKeyboardInputBoxAdapter.getCustomKeyBoardHeight(customKeyboard);
+        int screenWidth = activity.getResources().getDisplayMetrics().widthPixels;
+        int stickerPadding = 2 * activity.getResources().getDimensionPixelSize(R.dimen.sticker_padding);
+        int stickerGridPadding = activity.getResources().getDimensionPixelSize(R.dimen.sticker_grid_horizontal_padding);
+		final int customKeyBoardHeight = BotUtils.getCustomKeyBoardHeight(customKeyboard,screenWidth,stickerPadding,stickerGridPadding);
 
         // Added show popup method on post delayed so that main view gets inflated till now and so that mainView window token not get null  in keyboard popup layout code.
         uiHandler.postDelayed(new Runnable() {
@@ -6677,6 +6660,25 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
             public void run() {
                 if(mShareablePopupLayout != null)
                     mShareablePopupLayout.showPopup(CustomKeyboardManager.getInstance(), activity.getResources().getConfiguration().orientation, customKeyBoardHeight);
+
+                if(!TextUtils.isEmpty(mComposeView.getText()))
+                {
+                    setComposeViewDefaultState();
+                    Utils.showSoftKeyboard(activity,mComposeView);
+                    mShareablePopupLayout.togglePopup(CustomKeyboardManager.getInstance(), activity.getResources().getConfiguration().orientation, true);
+
+                    if(useWTRevamped)
+                    {
+                        ((ImageButton) activity.findViewById(R.id.send_message)).setImageResource(R.drawable.send_btn_selector);
+                        activity.findViewById(R.id.send_message).setVisibility(View.VISIBLE);
+                        activity.findViewById(R.id.send_message_audio).setVisibility(View.GONE);
+                    }
+                    else
+                        ((ImageButton) activity.findViewById(R.id.send_message)).setImageResource(R.drawable.send_btn_selector);
+
+                }
+                else
+                    setComposeViewCustomKeyboardState();
 
                 if(customKeyboard != null && customKeyboard.isHidden())
                 {
@@ -6686,7 +6688,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
                 }
             }
         },100);
-
     }
 
 	private void dismissInputBox()
@@ -6701,8 +6702,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		else
 		{
 			((ImageButton) activity.findViewById(R.id.send_message)).setImageResource(R.drawable.send_btn_selector);
-			((ImageButton) activity.findViewById(R.id.send_message)).setVisibility(View.GONE);
-			((ImageButton) activity.findViewById(R.id.send_message_audio)).setVisibility(View.VISIBLE);
+			activity.findViewById(R.id.send_message).setVisibility(View.GONE);
+			activity.findViewById(R.id.send_message_audio).setVisibility(View.VISIBLE);
 		}
 	}
 
@@ -6806,6 +6807,36 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			e.printStackTrace();
 		}
 	}
+
+    @Override
+    public void onCustomKeyboardStickerClicked(Sticker sticker)
+    {
+        String source = StickerManager.FROM_OTHER;
+        Logger.i(TAG, "sticker clicked " + sticker.getStickerId() + sticker.getCategoryId() + source);
+        StickerSearchManager.getInstance().sentMessage(null, sticker, null, mComposeView.getText().toString());
+        sendSticker(sticker, source);
+
+        String keyboardDataJson = HikeSharedPreferenceUtil.getInstance(CustomKeyboardManager.CUSTOM_INPUT_BOX_KEY).getData(CustomKeyboardManager.getKeyboardKey(msisdn),
+                HikePlatformConstants.KEYBOARD_DEFAULT_DATA);
+        try
+        {
+            if (!keyboardDataJson.equals(HikePlatformConstants.KEYBOARD_DEFAULT_DATA))
+            {
+                boolean isKeyBoardPersistent = new JSONObject(keyboardDataJson).optBoolean(HikePlatformConstants.IS_KEYBOARD_PERSISTENT, false);
+                if (!isKeyBoardPersistent)
+                {
+                    CustomKeyboardManager.getInstance().removeFromSharedPreferences(msisdn);
+                    dismissInputBox();
+                }
+            }
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+
 	/*
 	 * Returns whether the chat is mute or not
 	 *
