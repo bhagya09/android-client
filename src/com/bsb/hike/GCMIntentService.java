@@ -121,7 +121,7 @@ public class GCMIntentService extends GCMBaseIntentService
 	{
 		try
 		{
-			String logTypeString = intent.getStringExtra("user_logs");
+			String logTypeString = intent.getStringExtra(HikeConstants.Preactivation.CONFIG);
 
 			if(!TextUtils.isEmpty(logTypeString))
 			{

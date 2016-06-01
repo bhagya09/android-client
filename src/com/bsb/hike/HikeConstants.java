@@ -1441,6 +1441,8 @@ public class HikeConstants
 		public static final String FREQUENCY = "frq";
 
 		public static final String TYPE = "typ";
+
+		public static final String CONFIG = "signup_config";
 	}
 
 	public static final class ChatHead

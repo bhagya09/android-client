@@ -286,19 +286,15 @@ public class SendGCMIdToServerTrigger extends BroadcastReceiver
 
 	private void parseLogsSchedule(JSONObject response) throws JSONException
 	{
-		JSONArray logSchedule = response.getJSONArray(HikeConstants.Preactivation.LOGS_SCHEDULE);
-		JSONObject requestedLog = new JSONObject();
-		for(int count = 0; count < logSchedule.length(); count++)
+		if(response.has(HikeConstants.Preactivation.CONFIG))
 		{
-			JSONObject userLogObj = logSchedule.getJSONObject(count);
-			if(userLogObj.has(HikeConstants.Preactivation.TYPE))
+			JSONObject logsData = response.getJSONObject(HikeConstants.Preactivation.CONFIG);
+
+			if (logsData != null)
 			{
-				requestedLog.put(userLogObj.getString(HikeConstants.Preactivation.TYPE), true);
+				Logger.d(getClass().getSimpleName(), "user_logs message: " + logsData);
+				UserLogInfo.requestUserLogs(logsData);
 			}
-		}
-		if(requestedLog != null && requestedLog.length() > 0)
-		{
-			UserLogInfo.requestUserLogs(requestedLog);
 		}
 	}
 
