@@ -6936,53 +6936,59 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 	{
 		ContentValues contentValues = new ContentValues();
 
-		if (chatBackgroundArray == null || chatBackgroundArray.length() == 0)
-		{
-			return;
-		}
-		for (int i = 0; i < chatBackgroundArray.length(); i++)
-		{
-			JSONObject chatBgJson = chatBackgroundArray.optJSONObject(i);
-
-			if (chatBgJson == null)
+		try{
+			mDb.beginTransaction();
+			if (Utils.isEmpty(chatBackgroundArray))
 			{
-				continue;
+				return;
 			}
-
-			String msisdn = chatBgJson.optString(HikeConstants.MSISDN);
-			String bgId = chatBgJson.optString(HikeConstants.BG_ID);
-
-			if (TextUtils.isEmpty(msisdn))
+			for (int i = 0; i < chatBackgroundArray.length(); i++)
 			{
-				continue;
-			}
+				JSONObject chatBgJson = chatBackgroundArray.optJSONObject(i);
 
-			try
-			{
+				if (chatBgJson == null)
+				{
+					continue;
+				}
+
+				String msisdn = chatBgJson.optString(HikeConstants.MSISDN);
+				String bgId = chatBgJson.optString(HikeConstants.BG_ID);
+
+				if (TextUtils.isEmpty(msisdn))
+				{
+					continue;
+				}
+
 				/*
 				 * We don't support custom themes yet.
 				 */
-				if (chatBgJson.optBoolean(HikeConstants.CUSTOM))
-				{
-					throw new IllegalArgumentException();
+				if (chatBgJson.optBoolean(HikeConstants.CUSTOM)) {
+
+					Logger.d(getClass().getSimpleName(), "We don't support custom themes yet");
+					continue;
 				}
 
-			}
-			catch (IllegalArgumentException e)
-			{
-				continue;
-			}
+				contentValues.put(DBConstants.MSISDN, msisdn);
+				contentValues.put(ChatThemes.THEME_COL_BG_ID, bgId);
 
-			contentValues.put(DBConstants.MSISDN, msisdn);
-			contentValues.put(ChatThemes.THEME_COL_BG_ID, bgId);
+				int id = (int) mDb.insertWithOnConflict(DBConstants.CHAT_PROPERTIES_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_IGNORE);
+				if (id < 0)
+				{
+					mDb.update(DBConstants.CHAT_PROPERTIES_TABLE, contentValues, DBConstants.MSISDN + "=?", new String[] { msisdn });
+				}
 
-			int id = (int) mDb.insertWithOnConflict(DBConstants.CHAT_PROPERTIES_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_IGNORE);
-			if (id < 0)
-			{
-				mDb.update(DBConstants.CHAT_PROPERTIES_TABLE, contentValues, DBConstants.MSISDN + "=?", new String[] { msisdn });
+				HikeMessengerApp.getPubSub().publish(HikePubSub.CHAT_BACKGROUND_CHANGED, new Pair<String, String>(msisdn, bgId));
 			}
+			mDb.setTransactionSuccessful();
 
-			HikeMessengerApp.getPubSub().publish(HikePubSub.CHAT_BACKGROUND_CHANGED, new Pair<String, String>(msisdn, bgId));
+		} catch (Exception e) {
+
+			Logger.e(getClass().getSimpleName(), "Exception : ", e);
+			e.printStackTrace();
+
+		} finally {
+
+			mDb.endTransaction();
 		}
 
 	}
@@ -10598,12 +10604,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		}
 	}
 
-	public void migrateChatBgTableData()
+	private void migrateChatBgTableData()
 	{
 		try
 		{
-			mDb.beginTransaction();
-
 			String create = getChatPropertiesTableCreateStatement();
 			mDb.execSQL(create);
 
@@ -10635,16 +10639,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		{
 			ex.printStackTrace();
 		}
-		finally
-		{
-			mDb.endTransaction();
-		}
 	}
 
 	/**
 	 * This method saves the mute data in chatPropTable on upgrade, so as to restore the previous settings
 	 */
-	public void migrateMuteData()
+	private void migrateMuteData()
 	{
 		migrateGroupMuteData();
 		migrateBotMuteData();
@@ -10653,7 +10653,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 	/**
 	 * This method restores the mute settings for bots
 	 */
-	public void migrateBotMuteData()
+	private void migrateBotMuteData()
 	{
 		Cursor c = null;
 		try
@@ -10689,7 +10689,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 	/**
 	 * This method restores the mute settings for groups
 	 */
-	public void migrateGroupMuteData()
+	private void migrateGroupMuteData()
 	{
 		Cursor c = null;
 		try
@@ -11678,5 +11678,25 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		}
 
 		return null;
+	}
+
+	public void upgradeForChatProperties() {
+
+		try {
+
+			mDb.beginTransaction();
+			migrateChatBgTableData();
+			migrateMuteData();
+			mDb.setTransactionSuccessful();
+
+		} catch (Exception e) {
+
+			Logger.e(getClass().getSimpleName(), "Exception : ", e);
+			e.printStackTrace();
+
+		} finally {
+
+			mDb.endTransaction();
+		}
 	}
 }
