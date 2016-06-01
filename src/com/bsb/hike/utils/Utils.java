@@ -295,6 +295,7 @@ public class Utils
 {
 	private static final String TAG = Utils.class.getSimpleName();
 
+	private static int count = 0;
 
 	// Precision points definition for duration logging========================================[[
 	public static final class ExecutionDurationLogger
@@ -7889,6 +7890,7 @@ public class Utils
 	{
 		boolean result = true;
 
+		Logger.d("Migration", "in move function for " + (count++) + " th time");
 		// param check
 		if (oldRootDir == null || newRootDir == null)
 		{
@@ -7911,7 +7913,7 @@ public class Utils
 
 		if (!oldRootDir.exists() || (listFiles == null))
 		{
-			Logger.d("StickerMigration", "Migration unsuccessful but new folder created");
+			Logger.d("Migration", "Migration unsuccessful but new folder created");
 			StickerManager.getInstance().recordStickerMigrationFailure("Migration unsuccessful but new folder created, The oldDir was absent or listFiles were null");
 			return result; // Migration unsuccessful but new folder created
 		}
