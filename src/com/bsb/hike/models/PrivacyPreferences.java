@@ -27,7 +27,7 @@ public class PrivacyPreferences
 
 	private boolean isBitSet(int bitPosition)
 	{
-		return ((config << bitPosition) & 1) == 1;
+		return ((config >> bitPosition) & 1) ==1;
 	}
 
 	/**
