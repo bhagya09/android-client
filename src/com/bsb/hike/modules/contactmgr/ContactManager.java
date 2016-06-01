@@ -1106,7 +1106,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 			updatedContact.setUnreadRequestReceivedTime(unreadRequestTime);
 			updateContacts(updatedContact);
 		}
-		hDb.updateUnreadRequestTime(contact.getMsisdn(), contact.getUnreadRequestReceivedTime());
+		hDb.updateUnreadRequestTime(contact.getMsisdn(), unreadRequestTime);
 	}
 
 	/**
