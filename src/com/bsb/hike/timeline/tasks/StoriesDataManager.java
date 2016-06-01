@@ -30,7 +30,7 @@ public class StoriesDataManager {
         public void onDataUpdated(List<StoryItem> storyItemList);
     }
 
-    private static StoriesDataManager instance;
+    private volatile static StoriesDataManager instance;
 
     private static final String TAG = StoriesDataManager.class.getSimpleName();
 

@@ -11,7 +11,7 @@ import java.util.Random;
  */
 public class StoryShyTextGenerator {
 
-    private static StoryShyTextGenerator instance;
+    private volatile static StoryShyTextGenerator instance;
 
     private ArrayList<Integer> recentCameraShySuggestions;
 
@@ -31,12 +31,11 @@ public class StoryShyTextGenerator {
     }
 
     private StoryShyTextGenerator() {
-        recentCameraShySuggestions = new ArrayList<Integer>()
-        {
+        recentCameraShySuggestions = new ArrayList<Integer>() {
             @Override
             public boolean add(Integer object) {
-                if(size() > 2)
-                {
+                //We want to store only last 2 suggestions (to make sure that those are never repeated again)
+                if (size() > 2) {
                     remove(0);
                 }
                 return super.add(object);
