@@ -17,6 +17,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
+import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowLog;
@@ -29,7 +30,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
  * Created by ashishagarwal on 10/05/16.
  */
 /**/
-@RunWith(CustomRobolectricGradleTestRunner.class)
+@RunWith(RobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class, shadows = { MultiDexShadowClass.class })
 public class UtilsTest
 {
