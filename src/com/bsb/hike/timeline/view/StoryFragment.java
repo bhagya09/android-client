@@ -54,7 +54,7 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
 
     private View btnAddFriends;
 
-    private final String[] pubsubEvents = new String[]{HikePubSub.UNSEEN_STATUS_COUNT_CHANGED, HikePubSub.TIMELINE_UPDATE_RECIEVED, HikePubSub.ICON_CHANGED, HikePubSub.ACTIVITY_UPDATE, HikePubSub.STATUS_MARKED_READ};
+    private final String[] pubsubEvents = new String[]{HikePubSub.UNSEEN_STATUS_COUNT_CHANGED, HikePubSub.TIMELINE_UPDATE_RECIEVED, HikePubSub.ICON_CHANGED, HikePubSub.ACTIVITY_UPDATE, HikePubSub.STATUS_MARKED_READ, HikePubSub.STEALTH_MODE_TOGGLED};
 
     public static StoryFragment newInstance(@Nullable Bundle argBundle) {
         StoryFragment fragmentInstance = new StoryFragment();
@@ -197,14 +197,14 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
                     }
                 }, 2000); // This is to avoid changing of subtext right when timeline is tapped since it takes time for timeline activity to show up
             }
-        } else if (type.equals(HikePubSub.TIMELINE_UPDATE_RECIEVED) || type.equals(HikePubSub.STATUS_MARKED_READ)) {
+        } else if (type.equals(HikePubSub.TIMELINE_UPDATE_RECIEVED) || type.equals(HikePubSub.STATUS_MARKED_READ) || type.equals(HikePubSub.STEALTH_MODE_TOGGLED)) {
             if (isAdded() && getActivity() != null) {
-                HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable() {
+                HikeHandlerUtil.getInstance().postRunnable(new Runnable() {
                     @Override
                     public void run() {
                         StoriesDataManager.getInstance().getAllStoryData(StoryFragment.this);
                     }
-                }, 1000); // This is to avoid changing of subtext right when timeline is tapped since it takes time for timeline activity to show up
+                });
             }
         } else if (type.equals(HikePubSub.ICON_CHANGED)) {
             if (isAdded() && getActivity() != null) {
