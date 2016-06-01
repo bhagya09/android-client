@@ -170,6 +170,7 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.PairModified;
+import com.bsb.hike.utils.PhoneUtils;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
@@ -5036,7 +5037,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 
 			if (groupRevived && !currentParticipants.isEmpty())
 			{
-				String removeMsisdns = Utils.getMsisdnStatement(currentParticipants.keySet());
+				String removeMsisdns = PhoneUtils.getMsisdnStatement(currentParticipants.keySet());
 				Logger.d(getClass().getSimpleName(), " remove these from group members table GroupId : " + groupId + " removed msisdns : " + removeMsisdns);
 				mDb.delete(DBConstants.GROUP_MEMBERS_TABLE, DBConstants.GROUP_ID + " = ? " + " AND " + DBConstants.MSISDN + " IN " + removeMsisdns, new String[] { groupId });
 				ContactManager.getInstance().removeGroupParticipant(groupId, currentParticipants.keySet());
@@ -7380,7 +7381,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		try
 		{
 			HashMap<String, String> groupIdMap = getAllOneToNConversations();
-			String convIdStatement = Utils.getMsisdnStatement(groupIdMap.keySet());
+			String convIdStatement = PhoneUtils.getMsisdnStatement(groupIdMap.keySet());
 			c = mDb.query(DBConstants.MESSAGES_TABLE, new String[] { " MAX (" + DBConstants.MESSAGE_ID + ") AS msgid", DBConstants.READ_BY, DBConstants.CONV_ID },
 					DBConstants.CONV_ID + " IN " + convIdStatement + " AND " + DBConstants.MSG_STATUS + " = " + State.SENT_DELIVERED_READ.ordinal(), null, DBConstants.CONV_ID,
 					null, null);

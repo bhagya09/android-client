@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.os.Handler;
-import android.os.Looper;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -36,6 +35,7 @@ import com.bsb.hike.ui.BlockCallerActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.PhoneUtils;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPUtils;
 
@@ -570,11 +570,11 @@ public class StickyCaller {
 		{
 			setValueOnID(R.id.caller_location, callerContentModel.getLocation());
 		}
-		else if (Utils.isIndianNumber(number))
+		else if (PhoneUtils.isIndianNumber(number))
 		{
 			setValueOnID(R.id.caller_location, INDIA);
 		}
-		if (((callerContentModel != null && callerContentModel.getIsOnHike()) || (Utils.isIndianMobileNumber(number)))
+		if (((callerContentModel != null && callerContentModel.getIsOnHike()) || (PhoneUtils.isIndianMobileNumber(number)))
 				&& (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREECALL, true) || HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREEMESSAGE, true)))
 		{
 			setFreeCallButton(number);
@@ -675,11 +675,11 @@ public class StickyCaller {
 		{
 			setValueOnID(R.id.caller_location, callerContentModel.getLocation());
 		}
-		else if (Utils.isIndianNumber(number))
+		else if (PhoneUtils.isIndianNumber(number))
 		{
 			setValueOnID(R.id.caller_location, INDIA);
 		}
-		if (callerContentModel != null && (callerContentModel.getIsOnHike() || Utils.isIndianMobileNumber(number)))
+		if (callerContentModel != null && (callerContentModel.getIsOnHike() || PhoneUtils.isIndianMobileNumber(number)))
 		{
 			isIndianOrhikeNo = true;
 

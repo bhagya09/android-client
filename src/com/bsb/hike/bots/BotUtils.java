@@ -36,6 +36,7 @@ import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.PhoneUtils;
 import com.bsb.hike.utils.Utils;
 
 import org.json.JSONArray;
@@ -270,7 +271,7 @@ public class BotUtils
 
 	public static void deleteBot(String msisdn)
 	{
-		if (!Utils.validateBotMsisdn(msisdn))
+		if (!PhoneUtils.validateBotMsisdn(msisdn))
 		{
 			return;
 		}
@@ -426,7 +427,7 @@ public class BotUtils
 		}
 
 		String msisdn = jsonObj.optString(HikeConstants.MSISDN);
-		if (!Utils.validateBotMsisdn(msisdn))
+		if (!PhoneUtils.validateBotMsisdn(msisdn))
 		{
 			return;
 		}
