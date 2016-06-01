@@ -340,60 +340,23 @@ public class HikeAnalyticsEvent
 		}
 	}
 
-	public static void recordTrialsCameraClick(String msisdn, boolean isStealth){
+	public static void recordCTAnalyticEvents(String uniqueKey, String phylum, String eventType, String msisdn, String themeId, String groupId) {
 		try
 		{
 			JSONObject metadata = new JSONObject();
 			metadata.put(AnalyticsConstants.V2.KINGDOM, ChatAnalyticConstants.ACT_CORE_LOGS);
-			metadata.put(AnalyticsConstants.V2.UNIQUE_KEY, ChatAnalyticConstants.CUSTOM_THEME_CAMERA_UK);
-			metadata.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
-			metadata.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
-			metadata.put(AnalyticsConstants.V2.ORDER, ChatAnalyticConstants.CUSTOM_THEME_CAMERA_UK);
-			metadata.put(AnalyticsConstants.V2.SPECIES, ChatThreadUtils.getChatThreadType(msisdn));
-			metadata.put(AnalyticsConstants.TO_USER, msisdn);
-			if (isStealth) {
-				metadata.put(AnalyticsConstants.V2.VARIETY, ChatAnalyticConstants.STEALTH_CHAT_THREAD);
+			metadata.put(AnalyticsConstants.V2.UNIQUE_KEY, uniqueKey);
+			metadata.put(AnalyticsConstants.V2.PHYLUM, phylum);
+			if(!TextUtils.isEmpty(eventType)) {
+				metadata.put(AnalyticsConstants.V2.CLASS, eventType);
 			}
-			HAManager.getInstance().recordV2(metadata);
-		} catch (JSONException e)
-		{
-			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-		}
-	}
-
-	public static void recordTrialsCTDone(String msisdn, String themeId, boolean isStealth){
-		try
-		{
-			JSONObject metadata = new JSONObject();
-			metadata.put(AnalyticsConstants.V2.KINGDOM, ChatAnalyticConstants.ACT_CORE_LOGS);
-			metadata.put(AnalyticsConstants.V2.UNIQUE_KEY, ChatAnalyticConstants.CUSTOM_THEME_DONE);
-			metadata.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
-			metadata.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
-			metadata.put(AnalyticsConstants.V2.ORDER, ChatAnalyticConstants.CUSTOM_THEME_DONE);
+			metadata.put(AnalyticsConstants.V2.ORDER, uniqueKey);
 			metadata.put(AnalyticsConstants.V2.SPECIES, ChatThreadUtils.getChatThreadType(msisdn));
 			metadata.put(AnalyticsConstants.TO_USER, msisdn);
-			metadata.put(AnalyticsConstants.V2.VAL_STR, themeId);
-			if (isStealth) {
-				metadata.put(AnalyticsConstants.V2.VARIETY, ChatAnalyticConstants.STEALTH_CHAT_THREAD);
+			metadata.put(AnalyticsConstants.V2.VARIETY, StealthModeManager.getInstance().isStealthMsisdn(msisdn) ? ChatAnalyticConstants.STEALTH_CHAT_THREAD : "");
+			if(!TextUtils.isEmpty(themeId)) {
+				metadata.put(AnalyticsConstants.V2.VAL_STR, themeId);
 			}
-			HAManager.getInstance().recordV2(metadata);
-		} catch (JSONException e)
-		{
-			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-		}
-	}
-
-	public static void recordAnalyticOrganicCTPacket(String themeID, String msisdn, String groupId) {
-		try
-		{
-			JSONObject metadata = new JSONObject();
-			metadata.put(AnalyticsConstants.V2.KINGDOM, ChatAnalyticConstants.ACT_CORE_LOGS);
-			metadata.put(AnalyticsConstants.V2.UNIQUE_KEY, ChatAnalyticConstants.CUSTOM_THEME_ENABLE);
-			metadata.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.NON_UI_EVENT);
-			metadata.put(AnalyticsConstants.V2.ORDER, ChatAnalyticConstants.CUSTOM_THEME_ENABLE);
-			metadata.put(AnalyticsConstants.V2.VAL_STR, themeID);
-			metadata.put(AnalyticsConstants.V2.SPECIES, ChatThreadUtils.getChatThreadType(msisdn));
-			metadata.put(AnalyticsConstants.TO_USER, msisdn);
 			if(!TextUtils.isEmpty(groupId)) {
 				metadata.put(AnalyticsConstants.V2.REC_ID, groupId);
 			}
@@ -403,6 +366,7 @@ public class HikeAnalyticsEvent
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 		}
 	}
+
 
 	public static void recordAnalyticsForMuteCancel(String msisdn)
 	{
