@@ -1346,7 +1346,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	private void stickerClicked(ConvMessage convMessage)
 	{
 		boolean isSent = convMessage.isSent();
-		if(QuickStickerSuggestionController.getInstance().isStickerClickAllowed(isSent))
+		if (QuickStickerSuggestionController.getInstance().isStickerClickAllowed(isSent))
 		{
 			if(QuickStickerSuggestionController.getInstance().isFtueSessionRunning() && !QuickStickerSuggestionController.getInstance().isFtueSessionRunning(convMessage.isSent()))
 			{
@@ -1363,6 +1363,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
 			}
 		}
+
+		StickerManager.getInstance().sendStickerClickedLogs(convMessage, HikeConstants.SINGLE_TAP);
 	}
 
 	@Override

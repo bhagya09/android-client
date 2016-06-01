@@ -602,6 +602,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
     public static final String EMOTICONS_CLICKED_LIST = "emoticonClickedIndex";
 
+    public static final String VIEWED_IN_PALLETE_CATEGORY_LIST = "viewedInPalletCatList";
+
 	public static final String LAST_STICKER_PACK_AND_ORDERING_SENT_TIME = "lastPackAndOrderingSentTime";
 
 	public static final String LAST_STICKER_TAG_REFRESH_TIME = "lastStickerTagRefreshTime";
