@@ -129,6 +129,7 @@ import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
 import com.bsb.hike.models.Conversation.OneToOneConversation;
+import com.bsb.hike.models.Conversation.OneToOneConversationMetadata;
 import com.bsb.hike.models.CustomStickerCategory;
 import com.bsb.hike.models.FetchUIDTaskPojo;
 import com.bsb.hike.models.FileListItem;
@@ -3715,7 +3716,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				{
 					if (conv instanceof OneToOneConversation)
 					{
-						conv.setMetadata(new ConversationMetadata(metadata));
+						//conv.setMetadata(new ConversationMetadata(metadata));
+						conv.setMetadata(new OneToOneConversationMetadata(metadata));
 					}
 					else if (conv instanceof OneToNConversation)
 					{

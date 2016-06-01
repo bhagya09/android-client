@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.os.Handler;
-import android.os.Looper;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -21,13 +20,17 @@ import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AccelerateInterpolator;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.adapters.CallerQuickReplyListAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatthread.ChatThreadUtils;
@@ -38,6 +41,13 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPUtils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 
 public class StickyCaller {
 	private static final String TAG = "StickyCaller";
@@ -77,6 +87,8 @@ public class StickyCaller {
 	public static final short AFTER_INCOMING_UNKNOWN = 6;
 
 	public static final short AFTER_OUTGOING_UNKNOWN = 7;
+
+	public static final short QUICK_REPLY = 8;
 
 	public static String callCurrentNumber = null;
 
@@ -128,13 +140,19 @@ public class StickyCaller {
 
 	public static boolean showFailCard = false;
 
+	private static CallerContentModel quickReplyContentModel;
+
+	private static boolean isItemClicked = false;
+
+	private static String quickCallerCardOpenSource;
+
 	public static Runnable removeViewRunnable = new Runnable() {
 
 		@Override
 		public void run()
 		{
 			//this will ensure that the remove caller view is not called for the following cards on callback
-			if (CALL_TYPE != MISSED && CALL_TYPE != SMS && CALL_TYPE != AFTER_INCOMING_UNKNOWN && CALL_TYPE != AFTER_OUTGOING_UNKNOWN)
+			if (CALL_TYPE != MISSED && CALL_TYPE != SMS && CALL_TYPE != AFTER_INCOMING_UNKNOWN && CALL_TYPE != AFTER_OUTGOING_UNKNOWN && CALL_TYPE != QUICK_REPLY)
 			{
 				removeCallerView();
 			}
@@ -206,6 +224,7 @@ public class StickyCaller {
 	}
 
 	public static void removeCallerViewWithDelay(int delay) {
+
 		Handler uiHandler = new Handler(HikeMessengerApp.getInstance().getApplicationContext().getMainLooper());
 		if (uiHandler != null) {
 			uiHandler.postDelayed(removeViewRunnable, delay);
@@ -223,12 +242,13 @@ public class StickyCaller {
 			VelocityTracker exitSpeedTracker = VelocityTracker.obtain();
 			Context ctx = HikeMessengerApp.getInstance().getApplicationContext();
 			statusBarHeight = Utils.getDeviceHeight() - ChatThreadUtils.getStatusBarHeight(ctx);
-
 			switch (event.getAction()) {
 				case MotionEvent.ACTION_OUTSIDE:
 					removeCallerView();
+					isItemClicked = false;
 					break;
 				case MotionEvent.ACTION_DOWN:
+					isItemClicked = true;
 					initialX = callerParams.x;
 					initialY = callerParams.y;
 
@@ -260,9 +280,26 @@ public class StickyCaller {
 					}
 					verticalMovementDetected = false;
 
+					if(isItemClicked)
+					{
+						isItemClicked = false;
+						if(v instanceof ListView)
+						{
+							ListView listView = ((ListView)v);
+							int position = listView.pointToPosition((int) event.getX(), (int) event.getY());
+							if(position!=ListView.INVALID_POSITION)
+							{
+								listView.performItemClick(listView.getChildAt(position - listView.getFirstVisiblePosition()), position, listView.getItemIdAtPosition(position));
+							}
+						}
+					}
 					break;
 				case MotionEvent.ACTION_MOVE:
 					actionMove(HikeMessengerApp.getInstance(), initialX, initialY, initialTouchX, initialTouchY, event);
+					if(horizontalMovementDetected || verticalMovementDetected)
+					{
+						isItemClicked = false;
+					}
 					break;
 			}
 			return true;
@@ -382,6 +419,13 @@ public class StickyCaller {
 				return;
 			}
 			break;
+
+		case QUICK_REPLY:
+			HAManager.getInstance().stickyCallerAnalyticsNonUIEvent(getCallEventFromCallType(CALL_TYPE), AnalyticsConstants.StickyCallerEvents.KNOWN, number,
+					AnalyticsConstants.StickyCallerEvents.SUCCESS, source);
+			quickReplyContentModel = callerContentModel;
+			settingQuickReplyCardLayout(context, number, callerContentModel);
+			break;
 		}
 
 		setCallerParams();
@@ -424,6 +468,7 @@ public class StickyCaller {
 			case AFTER_OUTGOING_UNKNOWN:
 			case MISSED:
 			case SMS:
+			case QUICK_REPLY:
 				callerParams.type = LayoutParams.TYPE_PHONE;
 				break;
 		}
@@ -469,6 +514,9 @@ public class StickyCaller {
 
 			case AFTER_OUTGOING_UNKNOWN:
 				return AnalyticsConstants.StickyCallerEvents.AFTER_OUTGOING_UNKNOWN;
+
+			case QUICK_REPLY:
+				return AnalyticsConstants.StickyCallerEvents.QUICK_REPLY;
 
 		}
 		return null;
@@ -581,7 +629,7 @@ public class StickyCaller {
 
 			setFreeMsgDivider();
 
-			setFreeSmsButton(number);
+			setFreeSmsButton(number, callerContentModel);
 
 			if (showSaveContactDivider && !isSaved)
 			{
@@ -650,6 +698,52 @@ public class StickyCaller {
 		}
 	}
 
+	private static void settingQuickReplyCardLayout(final Context context, final String number, final CallerContentModel callerContentModel)
+	{
+		final LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		stickyCallerView = (LinearLayout) inflater.inflate(R.layout.caller_quick_reply_layout, null);
+		callerParams.flags = LayoutParams.FLAG_LAYOUT_NO_LIMITS | LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH | LayoutParams.FLAG_NOT_TOUCH_MODAL;
+		final ListView defaultQuickReplyListView = (ListView)stickyCallerView.findViewById(R.id.caller_quick_reply_list);
+		HashSet<String> set = (HashSet<String>)HikeSharedPreferenceUtil.getInstance().getStringSet(HikeConstants.CALLER_QUICK_REPLY_SET, new HashSet<String>(Arrays.asList(context.getResources().getStringArray(R.array.caller_quick_reply_items))));
+		final BaseAdapter adapter = new CallerQuickReplyListAdapter(context, new ArrayList<String>(set));
+		defaultQuickReplyListView.setAdapter(adapter);
+		defaultQuickReplyListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+				String itemValue = (String) defaultQuickReplyListView.getItemAtPosition(position);
+
+				removeCallerView();
+
+				JSONObject textJSON = new JSONObject();
+				try
+				{
+					textJSON.put(AnalyticsConstants.StickyCallerEvents.TEXT, itemValue);
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+				}
+
+				Utils.openChatThreadViaFreeSmsButton(callerContentModel, itemValue);
+				recordQuickReplyCardItemSelected(position, adapter.getCount(), itemValue);
+			}
+		});
+
+		//Adding card movement from list view
+		defaultQuickReplyListView.setOnTouchListener(onTouchListener);
+
+		//Handling Close cross button
+		View callerCloseButton = stickyCallerView.findViewById(R.id.qr_caller_close_button);
+		callerCloseButton.setTag(number);
+		callerCloseButton.setOnClickListener(callerClickListener);
+
+		//Handling Custom Quick reply Button
+		View customQuickReplyButton = stickyCallerView.findViewById(R.id.caller_free_layout);
+		customQuickReplyButton.setTag(number);
+		customQuickReplyButton.setOnClickListener(callerClickListener);
+
+	}
+
 	private static void settingOtherCallLayoutDataSuccess(Context context, String number, CallerContentModel callerContentModel)
 	{
 		boolean isIndianOrhikeNo = false ;
@@ -683,7 +777,7 @@ public class StickyCaller {
 		{
 			isIndianOrhikeNo = true;
 
-			setFreeSmsButton(number);
+			setFreeSmsButton(number, callerContentModel);
 		}
 		setDismissWithVisible(isIndianOrhikeNo);
 
@@ -705,7 +799,7 @@ public class StickyCaller {
 		}
 	}
 
-	private static void setFreeSmsButton(String number)
+	private static void setFreeSmsButton(String number, CallerContentModel callerContentModel)
 	{
 		if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_FREEMESSAGE, true))
 		{
@@ -713,6 +807,10 @@ public class StickyCaller {
 			freeSmsButton.setVisibility(View.VISIBLE);
 			freeSmsButton.setTag(number);
 			freeSmsButton.setOnClickListener(callerClickListener);
+			if(callerContentModel != null)
+			{
+				quickReplyContentModel = callerContentModel;
+			}
 		}
 	}
 
@@ -776,14 +874,16 @@ public class StickyCaller {
 							VoIPUtils.CallSource.HIKE_STICKY_CALLER);
 				}
 				break;
+			/*  When "Free SMS" button is clicked on caller card */
 			case R.id.caller_free_message:
 				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.FREE_SMS_BUTTON, getPhoneNumberFromTag(v), AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
 				if (v.getTag() != null)
 				{
 					IncomingCallReceiver.callReceived = true;
-					CALL_TYPE = NONE;
+					quickCallerCardOpenSource = getCallEventFromCallType(CALL_TYPE);
+					CALL_TYPE = QUICK_REPLY;
 					Utils.killCall();
-					Utils.sendFreeSms(getPhoneNumberFromTag(v));
+					StickyCaller.showCallerViewWithDelay(getPhoneNumberFromTag(v), quickReplyContentModel, StickyCaller.QUICK_REPLY, AnalyticsConstants.StickyCallerEvents.STATIC_QUICK_REPLY_BUTTON);
 				}
 				break;
 			case R.id.missed_call_save_contact:
@@ -804,6 +904,10 @@ public class StickyCaller {
 				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CLOSE_BUTTON, getPhoneNumberFromTag(v),
 						AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
 				break;
+			/*  When cross button is clicked on Quick reply card */
+			case R.id.qr_caller_close_button:
+				recordQuickReplyCrossButtonClicked();
+				break;
 			case R.id.block_contact:
 				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.BLOCK, getPhoneNumberFromTag(v),
 						AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
@@ -820,8 +924,70 @@ public class StickyCaller {
 				CALL_TYPE = NONE;
 				Utils.killCall();
 				break;
+			/*  When "Write your own" button is clicked on Quick reply card */
+			case R.id.caller_free_layout:
+				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CUSTOM_QUICK_REPLY_BUTTON, getPhoneNumberFromTag(v),
+						AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
+				if (v.getTag() != null)
+				{
+					IncomingCallReceiver.callReceived = true;
+					CALL_TYPE = NONE;
+					Utils.killCall();
+					removeCallerView();
+					Utils.openChatThreadViaFreeSmsButton(quickReplyContentModel, null);
+					recordQuickReplyCardItemSelected(-1, -1, null);
+				}
+				break;
 			}
 		}
 	};
+
+	private static void recordQuickReplyCrossButtonClicked()
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.CALLER_FREE_SMS_CROSS);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_LOG);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.STICKY_CALLER);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CALLER_CARD);
+			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.CALLER_FREE_SMS);
+			json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
+			json.put(AnalyticsConstants.V2.SPECIES, AnalyticsConstants.CROSS);
+			json.put(AnalyticsConstants.V2.GENUS, quickCallerCardOpenSource);
+			Logger.d("c_spam_logs", " QuickReplyCrossButtonClicked logs are \n " + json);
+			HAManager.getInstance().recordV2(json);
+
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	private static void recordQuickReplyCardItemSelected(int position, int totalItem, String text)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.CALLER_FREE_SMS_QUICK_REPLY_MSG);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_LOG);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.STICKY_CALLER);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CALLER_CARD);
+			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.CALLER_FREE_SMS);
+			json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
+			json.put(AnalyticsConstants.V2.SPECIES, position + 1); //as list starts with 0
+			json.put(AnalyticsConstants.V2.RACE, text);
+			json.put(AnalyticsConstants.V2.BREED, totalItem);
+			json.put(AnalyticsConstants.V2.GENUS, quickCallerCardOpenSource);
+			Logger.d("c_spam_logs", " QuickReplyCrossButtonClicked logs are \n " + json);
+			HAManager.getInstance().recordV2(json);
+
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
 
 }

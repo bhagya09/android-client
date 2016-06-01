@@ -304,6 +304,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	protected static final int GENERAL_EVENT_STATE_CHANGE = 43;
 
+	protected static final int SPAM_UNSPAM_USER = 44;
+
 	protected static final int REMOVE_CHAT_BACKGROUND = 0;
 
     private final NudgeManager nudgeManager;
@@ -2363,7 +2365,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				dialog.dismiss();
 				this.dialog = null;
 				break;
-
 			case HikeDialogFactory.MUTE_CHAT_DIALOG:
 				HikeAnalyticsEvent.recordAnalyticsForMuteCancel(msisdn);
 				dialog.dismiss();

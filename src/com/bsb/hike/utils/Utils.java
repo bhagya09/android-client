@@ -184,6 +184,7 @@ import com.bsb.hike.analytics.HomeAnalyticsConstants;
 import com.bsb.hike.analytics.TrafficsStatsFile;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatHead.CallerContentModel;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatthemes.ChatThemeManager;
 import com.bsb.hike.chatthemes.HikeChatThemeConstants;
@@ -6878,11 +6879,19 @@ public class Utils
 		return directory + File.separator + Utils.getUniqueFilename(HikeFileType.IMAGE);
 	}
 
-	public static void sendFreeSms(String number)
+	public static void openChatThreadViaFreeSmsButton(CallerContentModel callerContentModel, String msg)
 	{
-		Intent intent = IntentFactory
-				.createChatThreadIntentFromMsisdn(HikeMessengerApp.getInstance(), number, true, false, ChatThreadActivity.ChatThreadOpenSources.STICKEY_CALLER);
+		Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(HikeMessengerApp.getInstance().getApplicationContext(), callerContentModel.getMsisdn(), true, false, ChatThreadActivity.ChatThreadOpenSources.STICKEY_CALLER);
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+		intent.putExtra(HikeConstants.SRC_CALLER_QUICK_REPLY_CARD, true);
+		intent.putExtra(HikeConstants.Extras.CALLER_CONTENT_MODEL, callerContentModel);
+
+		if(!TextUtils.isEmpty(msg))
+		{
+			intent.putExtra(HikeConstants.Extras.CALLER_QUICK_REPLY_MSG, msg);
+		}
+
 		HikeMessengerApp.getInstance().startActivity(intent);
 	}
 
@@ -8089,6 +8098,7 @@ public class Utils
 		Birthday dob = new Birthday(dobString);
 		return String.format("%d/%d/%d", dob.day, dob.month, dob.year);
 	}
+
 
 	public static void setGenus(@HomeAnalyticsConstants.StatusUpdateSpecies String argGenus, Intent argIntent)
 	{
