@@ -20,7 +20,7 @@ import static org.junit.Assert.assertTrue;
  * Created by ashishagarwal on 31/05/16.
  */
 
-@RunWith(RobolectricGradleTestRunner.class)
+@RunWith(CustomRobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class, shadows = { MultiDexShadowClass.class })
 public class StickerManagerTest {
 

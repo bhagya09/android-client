@@ -30,7 +30,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
  * Created by ashishagarwal on 10/05/16.
  */
 /**/
-@RunWith(RobolectricGradleTestRunner.class)
+@RunWith(CustomRobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class, shadows = { MultiDexShadowClass.class })
 public class UtilsTest
 {
