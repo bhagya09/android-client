@@ -69,7 +69,7 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 	private ParticipantInfoState participantInfoState;
 
 	private boolean isFileTransferMessage;
-
+    private boolean isNativeCardMessage;
 	private boolean isStickerMessage;
 
 	private TypingNotification typingNotification;
@@ -197,7 +197,10 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 	{
 		return isFileTransferMessage;
 	}
-
+	public boolean isNativeCardMessage()
+	{
+		return isNativeCardMessage;
+	}
 	public void setIsFileTranferMessage(boolean isFileTransferMessage)
 	{
 		this.isFileTransferMessage = isFileTransferMessage;
@@ -522,7 +525,7 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 			// TODO : We should parse metadata based on message type, so doing now for content, we should clean the else part sometime
 			if(HikeConstants.ConvMessagePacketKeys.CONTENT_TYPE.equals(obj.optString(HikeConstants.SUB_TYPE))){
 				this.messageType  = MESSAGE_TYPE.CONTENT;
-				platformMessageMetadata  = new PlatformMessageMetadata(data.optJSONObject(HikeConstants.METADATA), context, mIsSent);
+				platformMessageMetadata  = new PlatformMessageMetadata(data.optJSONObject(HikeConstants.METADATA), mIsSent);
                 platformMessageMetadata.addToThumbnailTable();
                 platformMessageMetadata.thumbnailMap.clear();
 			}
@@ -741,15 +744,21 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 
 	public void setMetadata(JSONObject metadata) throws JSONException
 	{
+
 		if (metadata != null)
 		{
-			this.metadata = new MessageMetadata(metadata, mIsSent);
+			if(metadata.has(HikePlatformConstants.CARDS)){
+				this.platformMessageMetadata = new PlatformMessageMetadata(metadata);
+				this.isNativeCardMessage = true;
+			}else{
+				this.metadata = new MessageMetadata(metadata, mIsSent);
 
-			isFileTransferMessage = this.metadata.getHikeFiles() != null  &&   this.metadata.getHikeFiles().size() > 0;
+				isFileTransferMessage = this.metadata.getHikeFiles() != null  &&   this.metadata.getHikeFiles().size() > 0;
 
-			participantInfoState = this.metadata.getParticipantInfoState();
+				participantInfoState = this.metadata.getParticipantInfoState();
 
-			isStickerMessage = this.metadata.getSticker() != null;
+				isStickerMessage = this.metadata.getSticker() != null;
+			}
 			
 		}
 	}

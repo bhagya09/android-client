@@ -31,24 +31,22 @@ public class PlatformMessageMetadata implements HikePlatformConstants {
     public int version;
     public boolean isInstalled;
     public HashMap<String, byte[]> thumbnailMap = new HashMap<String, byte[]>();
-    Context mContext;
     private JSONObject json;
     public String contentId;
     private boolean isWide;
     private List<HikeFile> hikeFileList;
     public List<CardPojo> cards = new ArrayList<>();
-    public PlatformMessageMetadata(String jsonString, Context context) throws JSONException {
-        this(new JSONObject(jsonString), context, false);
+    public PlatformMessageMetadata(String jsonString) throws JSONException {
+        this(new JSONObject(jsonString), false);
     }
-    public PlatformMessageMetadata(String jsonString, Context context, boolean isSent) throws JSONException {
-        this(new JSONObject(jsonString), context, isSent);
+    public PlatformMessageMetadata(String jsonString, boolean isSent) throws JSONException {
+        this(new JSONObject(jsonString), isSent);
     }
-    public PlatformMessageMetadata(JSONObject jsonObject, Context context) throws JSONException {
-        this(jsonObject, context, false);
+    public PlatformMessageMetadata(JSONObject metadata) {
+        this(metadata, false);
     }
-    public PlatformMessageMetadata(JSONObject metadata, Context context, boolean isSent) {
+    public PlatformMessageMetadata(JSONObject metadata, boolean isSent) {
         this.json = metadata;
-        this.mContext = context;
         try {
             version = PlatformUtils.getInt(metadata, VERSION);
             layoutId = PlatformUtils.getInt(metadata, LAYOUT_ID);
@@ -65,19 +63,41 @@ public class PlatformMessageMetadata implements HikePlatformConstants {
         }
 
     }
+
+    public JSONObject getJsonFromObj(){
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put(VERSION,version);
+            jsonObject.put(LAYOUT_ID, layoutId);
+            jsonObject.put(NOTIF_TEXT, notifText);
+            jsonObject.put(CONTENT_UID, contentId);
+            jsonObject.put(WIDE,isWide);
+            jsonObject.put(HikeConstants.FILES, getJSONArrayFromFileList(hikeFileList));
+            jsonObject.put(CARDS, getCardsArray(cards));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return jsonObject;
+    }
     private void parseCards(JSONArray jsonArray){
         int total = jsonArray.length();
         for(int i=0; i< total; i++){
             try{
                 JSONObject cardJSON = jsonArray.getJSONObject(i);
-                CardPojo cardPojo = new CardPojo(cardJSON, mContext, hikeFileList);
+                CardPojo cardPojo = new CardPojo(cardJSON, hikeFileList);
                 cards.add(cardPojo);
             }catch (JSONException ex){
 
             }
         }
     }
-
+    private JSONArray getCardsArray(List<CardPojo> cards){
+        JSONArray jsonArray = new JSONArray();
+        for(CardPojo cardPojo : cards){
+            jsonArray.put(cardPojo.getCardJSON());
+        }
+        return jsonArray;
+    }
 //    private void parseVideoComponents(JSONArray json) {
 //        int total = json.length();
 //        for (int i = 0; i < total; i++) {
@@ -227,7 +247,13 @@ public class PlatformMessageMetadata implements HikePlatformConstants {
         }
         return hikeFileList;
     }
-
+    private JSONArray getJSONArrayFromFileList(List<HikeFile> hikeFileList){
+        JSONArray jsonArray = new JSONArray();
+        for(HikeFile hikeFile : hikeFileList){
+            jsonArray.put(hikeFile.serialize());
+        }
+        return jsonArray;
+    }
     public List<HikeFile> getHikeFiles() {
         return hikeFileList;
     }

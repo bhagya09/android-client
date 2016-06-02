@@ -1106,38 +1106,12 @@ public class IntentFactory
 		return new Intent();
 	}
 
-	public static Intent getForwardIntentForCards(Context context, ConvMessage convMessage, File fileUri)
+	public static Intent getForwardIntentForCards(Context context, ConvMessage convMessage)
 	{
 		Intent intent = new Intent(context, ComposeChatActivity.class);
 		intent.putExtra(HikeConstants.Extras.FORWARD_MESSAGE, true);
-		JSONArray multipleMsgArray = new JSONArray();
-		JSONObject multiMsgFwdObject = new JSONObject();
-		JSONObject metadata = convMessage.platformMessageMetadata.getJSON();
-		try
-		{
-			multiMsgFwdObject.put(HikeConstants.MESSAGE_TYPE.MESSAGE_TYPE, convMessage.getMessageType());
-			if (metadata != null)
-			{
-				multiMsgFwdObject.put(HikeConstants.METADATA, metadata);
-			}
-
-			multiMsgFwdObject.put(HikeConstants.HIKE_MESSAGE, convMessage.getMessage());
-			if (fileUri != null)
-			{
-				// intent.putExtra((Intent.EXTRA_STREAM),fileUri);
-				multiMsgFwdObject.put(HikeConstants.Extras.FILE_PATH, fileUri.getPath());
-				multiMsgFwdObject.put(HikeConstants.Extras.FILE_TYPE, "img/jpg");
-				intent.putExtra(HikeConstants.Extras.SHOW_TIMELINE, true);
-			}
-			multipleMsgArray.put(multiMsgFwdObject);
-		}
-		catch (JSONException e)
-		{
-			Logger.e(context.getClass().getSimpleName(), "Invalid JSON", e);
-		}
-		intent.putExtra(HikeConstants.Extras.MULTIPLE_MSG_OBJECT, multipleMsgArray.toString());
 		intent.putExtra(HikeConstants.Extras.BYPASS_GALLERY, true);
-		intent.putExtra(AnalyticsConstants.NATIVE_CARD_FORWARD, convMessage.platformMessageMetadata.contentId);
+
 		return intent;
 	}
 	public static Intent getForwardIntentForConvMessage(Context context, ConvMessage convMessage, String metadata, boolean includeAllUsers )

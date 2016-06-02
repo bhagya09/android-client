@@ -78,6 +78,7 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.models.GalleryItem;
 import com.bsb.hike.models.HikeFeatureInfo;
+import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.MultipleConvMessage;
@@ -2453,24 +2454,50 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						}
 					}
 					else if(msgExtrasJson.optInt(MESSAGE_TYPE.MESSAGE_TYPE) == MESSAGE_TYPE.CONTENT){
-						// CONTENT Message
-						String metadata = msgExtrasJson.optString(HikeConstants.METADATA);
-						int loveId = msgExtrasJson.optInt(HikeConstants.ConvMessagePacketKeys.LOVE_ID);
-						loveId = loveId==0 ? -1 : loveId;
-						ConvMessage convMessage = new ConvMessage();
-						convMessage.contentLove = new ContentLove();
-						convMessage.contentLove.loveId = loveId;
-						convMessage.setMessageType(MESSAGE_TYPE.CONTENT);
-						convMessage.platformMessageMetadata = new PlatformMessageMetadata(metadata, getApplicationContext());
-						convMessage.setIsSent(true);
-						convMessage.setMessage(msgExtrasJson.optString(HikeConstants.HIKE_MESSAGE));
-						if(offlineContact!=null)
-						{
-							ConvMessage offlineConvMessage =  new ConvMessage(convMessage);
-							offlineConvMessage.setMessageOriginType(OriginType.OFFLINE);
-							offlineMessageList.add(offlineConvMessage);
+						JSONObject metadata = msgExtrasJson.optJSONObject(HikeConstants.METADATA);
+						if(metadata != null){
+							JSONArray filesArray = metadata.optJSONArray(HikeConstants.FILES);
+							if(metadata.optJSONArray(HikeConstants.FILES) != null){
+
+								JSONObject msg = filesArray.getJSONObject(0);
+								String fileKey = null;
+								if (msg.has(HikeConstants.FILE_KEY))
+								{
+									fileKey = msg.getString(HikeConstants.FILE_KEY);
+								}
+								String filePath = msg.getString(HikeConstants.FILE_PATH);
+								String fileType = msg.getString(HikeConstants.CONTENT_TYPE);
+
+								HikeFileType hikeFileType = HikeFileType.fromString(fileType);
+								FileTransferData fileData = initialiseFileTransfer(filePath, fileKey, hikeFileType, fileType,
+										false, 0, true, arrayList,imageCaptions.get(i), true, metadata, msgExtrasJson.optString(HikeConstants.HIKE_MESSAGE));
+								if (fileData != null && fileData.file != null)
+								{
+									if ((HikeConstants.MAX_FILE_SIZE > fileData.file.length()))
+									{
+										fileTransferList.add(fileData);
+										offlinefileTransferList.add(fileData);
+									} else {
+										if (offlineContact != null)
+										{
+											offlinefileTransferList.add(fileData);
+										}
+										FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_1_4, 0, FTAnalyticEvents.UPLOAD_FILE_TASK,
+												"init", "Compose - InitialiseFileTransfer - Max size reached.");
+										Toast.makeText(getApplicationContext(), R.string.max_file_size, Toast.LENGTH_SHORT).show();
+									}
+
+								}
+							}else{
+								ConvMessage convMessage = new ConvMessage();
+								convMessage.setMessageType(MESSAGE_TYPE.CONTENT);
+								convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.CONTENT);
+								convMessage.platformMessageMetadata = new PlatformMessageMetadata(metadata);
+								convMessage.setIsSent(true);
+								convMessage.setMessage(msgExtrasJson.optString(HikeConstants.HIKE_MESSAGE));
+								multipleMessageList.add(convMessage);
+							}
 						}
-						multipleMessageList.add(convMessage);
 					}
 					else if (msgExtrasJson.has(HikeConstants.Extras.FILE_PATH))
 					{
@@ -3243,11 +3270,15 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	private FileTransferData initialiseFileTransfer(String filePath, String fileKey, HikeFileType hikeFileType, String fileType, boolean isRecording, long recordingDuration,
 													boolean isForwardingFile, ArrayList<ContactInfo> arrayList)
 	{
-		return initialiseFileTransfer(filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, isForwardingFile, arrayList,null);
+		return initialiseFileTransfer(filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, isForwardingFile, arrayList,null, false, null, null);
 	}
-
 	private FileTransferData initialiseFileTransfer(String filePath, String fileKey, HikeFileType hikeFileType, String fileType, boolean isRecording, long recordingDuration,
-			boolean isForwardingFile, ArrayList<ContactInfo> arrayList, String caption)
+													boolean isForwardingFile, ArrayList<ContactInfo> arrayList, String caption){
+		return initialiseFileTransfer(filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, isForwardingFile, arrayList,caption, false, null, null);
+
+	}
+	private FileTransferData initialiseFileTransfer(String filePath, String fileKey, HikeFileType hikeFileType, String fileType, boolean isRecording, long recordingDuration,
+			boolean isForwardingFile, ArrayList<ContactInfo> arrayList, String caption, boolean isNativeCardFT, JSONObject nativeCardMetadata, String hikeMessage)
 	{
 		clearTempData();
 		if (filePath == null)
@@ -3264,7 +3295,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 //			Toast.makeText(getApplicationContext(), R.string.max_file_size, Toast.LENGTH_SHORT).show();
 //			return null;
 //		}
-		return new FileTransferData(filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, isForwardingFile, arrayList, file, caption);
+		return new FileTransferData(filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, isForwardingFile, arrayList, file, caption, isNativeCardFT, nativeCardMetadata, hikeMessage);
 	}
 	private void clearTempData()
 	{
@@ -3324,14 +3355,19 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
         public ArrayList<ContactInfo> arrayList;
         public File file;
         public String caption;
-
+        public boolean isNativeCardFT;
+		public JSONObject nativeCardMetadata;
+		public String hikeMessage;
         public FileTransferData(String filePath, String fileKey, HikeFileType hikeFileType, String fileType, boolean isRecording, long recordingDuration,
                                 boolean isForwardingFile, ArrayList<ContactInfo> arrayList, File file) {
-            this(filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, isForwardingFile, arrayList, file, null);
+            this(filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, isForwardingFile, arrayList, file, null, false, null, null);
         }
-
+		public FileTransferData(String filePath, String fileKey, HikeFileType hikeFileType, String fileType, boolean isRecording, long recordingDuration,
+								boolean isForwardingFile, ArrayList<ContactInfo> arrayList, File file, String caption) {
+			this(filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, isForwardingFile, arrayList, file, caption, false, null, null);
+		}
         public FileTransferData(String filePath, String fileKey, HikeFileType hikeFileType, String fileType, boolean isRecording, long recordingDuration,
-                                boolean isForwardingFile, ArrayList<ContactInfo> arrayList, File file, String caption) {
+                                boolean isForwardingFile, ArrayList<ContactInfo> arrayList, File file, String caption, boolean isNativeCardFT, JSONObject nativeCardMetadata, String hikeMessage) {
             this.filePath = filePath;
             this.fileKey = fileKey;
             this.hikeFileType = hikeFileType;
@@ -3341,6 +3377,9 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
             this.arrayList = arrayList;
             this.file = file;
             this.caption = caption;
+			this.isNativeCardFT = isNativeCardFT;
+			this.nativeCardMetadata = nativeCardMetadata;
+			this.hikeMessage = hikeMessage;
         }
     }
 
@@ -3403,7 +3442,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 								.setRecipientOnHike(((ContactInfo) file.arrayList.get(0)).isOnhike())
 								.setRecordingDuration(file.recordingDuration)
 								.setAttachement(FTAnalyticEvents.OTHER_ATTACHEMENT)
-								.setCaption(file.caption);
+								.setCaption(file.caption).setNativeCardFT(file.isNativeCardFT)
+								.setNativeCardMetadata(file.nativeCardMetadata)
+								.setHikeMessage(file.hikeMessage);
+
 						mBuilder.build();
 			        }
 				}else if(fileType == CONTACT_TRANSFER)

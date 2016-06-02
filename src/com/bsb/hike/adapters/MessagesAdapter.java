@@ -997,7 +997,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			}
 			dayHolder = nudgeHolder;
 			setSenderDetails(convMessage, position, nudgeHolder, true);
-			if (!ChatThemeManager.getInstance().getTheme(chatThemeId).isAnimated())
+			if (ChatThemeManager.getInstance().getTheme(chatThemeId)== null || !ChatThemeManager.getInstance().getTheme(chatThemeId).isAnimated())
 			{
 				nudgeHolder.nudge.setVisibility(View.VISIBLE);
 				setNudgeImageResource(chatThemeId, nudgeHolder.nudge, convMessage.isSent());

@@ -3,10 +3,12 @@ package com.bsb.hike.view;
 import android.content.Context;
 import android.util.AttributeSet;
 
+import com.bsb.hike.ui.utils.RecyclingImageView;
+
 /**
  * Created by varunarora on 24/05/16. This class is an ImageView implementation to expand the view dimensions equal to its parent used for Hike Daily backround image.
  */
-public class HikeDailyCustomImageView extends RoundedCornerImageView
+public class HikeDailyCustomImageView extends RecyclingImageView
 {
 	public HikeDailyCustomImageView(Context context)
 	{

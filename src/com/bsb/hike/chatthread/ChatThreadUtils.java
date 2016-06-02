@@ -214,13 +214,13 @@ public class ChatThreadUtils
 	
 	protected static void uploadFile(Context context, String msisdn, String filePath, HikeFileType fileType, boolean isConvOnHike, int attachmentType)
 	{
-		uploadFile(context, msisdn, filePath, fileType, isConvOnHike, attachmentType,null);
+		uploadFile(context, msisdn, filePath, fileType, isConvOnHike, attachmentType, null);
 	}
 
 	protected static void uploadFile(Context context, String msisdn, String filePath, HikeFileType fileType, boolean isConvOnHike, int attachmentType, String caption)
 	{
 		Logger.i(TAG, "upload file , filepath " + filePath + " filetype " + fileType);
-		initialiseFileTransfer(context, msisdn, filePath, null, fileType, null, false, -1, false, isConvOnHike, attachmentType,caption);
+		initialiseFileTransfer(context, msisdn, filePath, null, fileType, null, false, -1, false, isConvOnHike, attachmentType, caption);
 	}
 	
 	protected static void initiateFileTransferFromIntentData(Context context, String msisdn, String fileType, String filePath, boolean convOnHike, int attachmentType)
@@ -294,7 +294,45 @@ public class ChatThreadUtils
 		mBuilder.build();
 				
 	}
+	protected static void initialiseFileTransferForNativeCards(Context context, String msisdn, String filePath, String fileKey, HikeFileType hikeFileType, String fileType, boolean isRecording,
+												 long recordingDuration, boolean isForwardingFile, boolean convOnHike, int attachmentType, String caption, JSONObject nativeCardMetadata, String hikeMessage)
+	{
+		clearTempData(context);
 
+		if (filePath == null)
+		{
+			FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_2_3, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "InitialiseFileTransfer - File Path is null");
+			return;
+		}
+		File file = new File(filePath);
+		Logger.d(TAG, "File size: " + file.length() + " File name: " + file.getName());
+
+		boolean skipMaxSizeCheck = isMaxSizeUploadableFile(hikeFileType,context);
+
+		if (!skipMaxSizeCheck && HikeConstants.MAX_FILE_SIZE < file.length())
+		{
+			Toast.makeText(context, R.string.max_file_size, Toast.LENGTH_SHORT).show();
+			if (hikeFileType == HikeFileType.VIDEO) {
+				Utils.recordEventMaxSizeToastShown(ChatAnalyticConstants.VIDEO_MAX_SIZE_TOAST_SHOWN, getChatThreadType(msisdn), msisdn, file.length());
+			}
+			FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_1_3, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "InitialiseFileTransfer - Max size limit reached.");
+			return;
+		}
+		FTMessageBuilder.Builder mBuilder = new FTMessageBuilder.Builder()
+				.setMsisdn(msisdn)
+				.setSourceFile(file)
+				.setFileKey(fileKey)
+				.setFileType(fileType)
+				.setHikeFileType(hikeFileType)
+				.setRec(isRecording)
+				.setForwardMsg(isForwardingFile)
+				.setRecipientOnHike(convOnHike)
+				.setRecordingDuration(recordingDuration)
+				.setAttachement(attachmentType)
+				.setCaption(caption).setNativeCardFT(true).setNativeCardMetadata(nativeCardMetadata).setHikeMessage(hikeMessage);
+		mBuilder.build();
+
+	}
 	protected static void onShareFile(Context context, String msisdn, Intent intent, boolean isConvOnHike)
 	{
 		String fileKey = null;
