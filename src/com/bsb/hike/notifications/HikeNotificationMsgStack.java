@@ -333,8 +333,7 @@ public class HikeNotificationMsgStack implements Listener
 		}
 		else if (containsStealthMessage())
 		{
-			mNotificationIntent = new Intent(mContext, HomeActivity.class);
-			mNotificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			mNotificationIntent = IntentFactory.getHomeActivityIntent(mContext);
 		}
 		else
 		{
@@ -352,8 +351,7 @@ public class HikeNotificationMsgStack implements Listener
 				{
 					// Multiple msisdn, mixed types
 					// Home activity
-					mNotificationIntent = new Intent(mContext, HomeActivity.class);
-					mNotificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+					mNotificationIntent = IntentFactory.getHomeActivityIntent(mContext);
 				}
 			}
 			// if all the new messages belong to a single user/group
