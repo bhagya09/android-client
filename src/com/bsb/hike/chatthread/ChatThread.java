@@ -579,9 +579,9 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			case GENERAL_EVENT_STATE_CHANGE:
 				onGeneralEventStateChange(msg.obj);
 				break;
-			case SHOW_INPUT_BOX:
-				showInputBox();
-				break;
+            case SHOW_INPUT_BOX:
+                showInputBox();
+                break;
             case REMOVE_INPUT_BOX:
                 dismissInputBox();
                 break;
@@ -1485,19 +1485,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	 */
 	protected void sendMessage(ConvMessage convMessage)
 	{
-        if(BotUtils.isBot(msisdn) && CustomKeyboardManager.getInstance().isInputBoxButtonShowing(msisdn))
-        {
-            if (!useWTRevamped)
-                ((ImageButton) activity.findViewById(R.id.send_message)).setImageResource(R.drawable.walkie_talkie_btn_selector);
-            else
-            {
-                ((ImageButton) activity.findViewById(R.id.send_message)).setImageResource(R.drawable.send_btn_selector);
-                activity.findViewById(R.id.send_message).setVisibility(View.GONE);
-                activity.findViewById(R.id.send_message_audio).setVisibility(View.VISIBLE);
-            }
-            CustomKeyboardManager.getInstance().setInputBoxButtonShowing(msisdn,false);
-        }
-
         if (convMessage != null)
 		{
 			addMessage(convMessage);
