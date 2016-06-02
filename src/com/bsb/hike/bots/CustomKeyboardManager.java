@@ -1,6 +1,7 @@
 package com.bsb.hike.bots;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.text.TextUtils;
 import android.view.View;
 
@@ -45,6 +46,12 @@ public class CustomKeyboardManager implements ShareablePopup, CustomKeyboardText
 
     private ConcurrentHashMap<String,Boolean> botsKeyboardsDisplayMap = new ConcurrentHashMap<>();
 
+    private String msisdn;
+
+    private Context context;
+
+    private int currentConfig = Configuration.ORIENTATION_PORTRAIT;
+
 	private CustomKeyboardManager()
 	{
 
@@ -78,8 +85,10 @@ public class CustomKeyboardManager implements ShareablePopup, CustomKeyboardText
         if(customKeyboardInputBoxAdapter != null)
             customKeyboardInputBoxAdapter.releaseResources();
 
+        this.context = context;
         this.customKeyboardTextPickerListener = customKeyboardTextPickerListener;
 		this.customKeyboardStickerPickerListener = customKeyboardStickerPickerListener;
+        this.msisdn = msisdn;
 		customKeyboardInputBoxAdapter = new CustomKeyboardInputBoxAdapter(context, customKeyboardTextPickerListener, customKeyboardStickerPickerListener);
 
         CustomKeyboard customKeyboard = getCustomKeyboardObject(msisdn);
@@ -126,8 +135,20 @@ public class CustomKeyboardManager implements ShareablePopup, CustomKeyboardText
 	@Override
 	public View getView(int screenOrientation)
 	{
-		return viewToDisplay;
+        if (orientationChanged(screenOrientation))
+        {
+            Logger.i(getClass().getSimpleName(), "Orientation Changed");
+            initInputBox(this.context,this.customKeyboardTextPickerListener,this.customKeyboardStickerPickerListener,this.msisdn);
+            currentConfig = screenOrientation;
+        }
+
+        return viewToDisplay;
 	}
+
+    private boolean orientationChanged(int deviceOrientation)
+    {
+        return currentConfig != deviceOrientation;
+    }
 
 	@Override
 	public int getViewId()

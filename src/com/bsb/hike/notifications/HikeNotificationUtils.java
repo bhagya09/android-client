@@ -360,7 +360,7 @@ public class HikeNotificationUtils
 		return new NotificationCompat.Action(icon, label, actionPI);
 	}
 
-    public static void recordUJNotifAnalytics(String uk, String cls, String order, String family, String genus, String variety, String race, String division, String section, String val_int, String to_user)
+    public static void recordUJNotifAnalytics(String uk, String cls, String order, String family, String genus, String variety, String race, String division, String section, String val_int, String to_msisdn)
     {
         try
         {
@@ -377,7 +377,7 @@ public class HikeNotificationUtils
             json.put(AnalyticsConstants.V2.DIVISION, division);
             json.put(AnalyticsConstants.V2.SECTION, section);
             json.put(AnalyticsConstants.V2.VAL_INT, val_int);
-            json.put(AnalyticsConstants.V2.TO_USER, to_user);
+            json.put(AnalyticsConstants.V2.TO_MISISDN, to_msisdn);
 
             HAManager.getInstance().recordV2(json);
         }

@@ -434,7 +434,7 @@ public class BirthdayUtils
         }
     }
 
-	public static void recordBirthdayAnalytics(String uk, String eventClass, String order, String family, String genus, String species, String variety, String form, String race, String valInt, String toUser)
+	public static void recordBirthdayAnalytics(String uk, String eventClass, String order, String family, String genus, String species, String variety, String form, String race, String valInt, String toMsisdn)
 	{
 		try
 		{
@@ -451,7 +451,7 @@ public class BirthdayUtils
             json.put(AnalyticsConstants.V2.FORM, form);
             json.put(AnalyticsConstants.V2.RACE, race);
             json.put(AnalyticsConstants.V2.VAL_INT, valInt);
-            json.put(AnalyticsConstants.V2.TO_USER, toUser);
+            json.put(AnalyticsConstants.V2.TO_MISISDN, toMsisdn);
 			HAManager.getInstance().recordV2(json);
 		}
 

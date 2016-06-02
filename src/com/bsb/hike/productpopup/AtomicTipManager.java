@@ -63,6 +63,10 @@ public class AtomicTipManager
 
     public static final String NO_CTA_ACTION = "noCtaAction";
 
+    public static final String IS_CIRCULAR_ICON = "isCrcIcon";
+
+    public static final String SHOW_LAST_NAME = "sh_ln";
+
     public static final int FETCH_TIPS_FROM_DB = 1;
 
     public static final int ADD_TIP_TO_LIST = 2;
@@ -359,6 +363,10 @@ public class AtomicTipManager
         if(iconDrawable != null)
         {
             Logger.d(TAG, "caching atomic tip icon");
+            if(tipContentModel.isCircularIcon())
+            {
+                iconDrawable = HikeBitmapFactory.getBitmapDrawable(HikeBitmapFactory.getCircularBitmap(iconDrawable.getBitmap()));
+            }
             cacheTipAsset(tipContentModel.getIconKey(), iconDrawable);
             return true;
         }
@@ -656,6 +664,10 @@ public class AtomicTipManager
         {
             Logger.d(TAG, "didn't find atomic tip icon in cache. trying to recreate.");
             tipIcon = drawableFromString(currentlyShowing.getIcon());
+            if(currentlyShowing.isCircularIcon())
+            {
+                tipIcon = HikeBitmapFactory.getBitmapDrawable(HikeBitmapFactory.getCircularBitmap(tipIcon.getBitmap()));
+            }
             if(tipIcon == null)
             {
                 Logger.d(TAG, "creating tip icon from base64 failed.");
@@ -668,8 +680,12 @@ public class AtomicTipManager
         }
 
         ((ImageView)tipView.findViewById(R.id.atomic_tip_icon)).setImageDrawable(tipIcon);
-        ((TextView) tipView.findViewById(R.id.atomic_tip_header_text)).setText(currentlyShowing.getHeader());
-        ((TextView) tipView.findViewById(R.id.atomic_tip_body_text)).setText(currentlyShowing.getBody());
+        TextView header = (TextView) tipView.findViewById(R.id.atomic_tip_header_text);
+        header.setText(currentlyShowing.getHeader());
+        header.setTextColor(currentlyShowing.getHeaderTextColor());
+        TextView body = (TextView) tipView.findViewById(R.id.atomic_tip_body_text);
+        body.setText(currentlyShowing.getBody());
+        body.setTextColor(currentlyShowing.getBodyTextColor());
         if(isTipCancellable())
         {
             ((ViewStub) tipView.findViewById(R.id.close_tip_stub)).setVisibility(View.VISIBLE);

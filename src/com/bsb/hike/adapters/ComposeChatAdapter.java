@@ -45,6 +45,7 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.OneToNConversationUtils;
+import com.bsb.hike.utils.PhoneUtils;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.WhichScreen;
@@ -966,7 +967,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
 	private String getNormalisedMsisdn(String textEntered)
 	{
-		return Utils.normalizeNumber(textEntered,
+		return PhoneUtils.normalizeNumber(textEntered,
 				context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.COUNTRY_CODE, HikeConstants.INDIA_COUNTRY_CODE));
 	}
 
