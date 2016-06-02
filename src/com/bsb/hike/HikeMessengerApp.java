@@ -642,6 +642,10 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public static final String QUICK_SUGGESTION_RETRY_SET = "quickSuggestionRetrySet";
 
+	public static final String LAST_USER_PARAMETER_FETCH_TIME = "lastUserParameterFetchTime";
+
+	public static final String LAST_PARAMETER_MAPPING_FETCH_TIME = "lastParameterMappingFetchTime";
+
 	// =========================================================================================Constants for sticker search]]
 
 	private static HikePubSub mPubSubInstance;

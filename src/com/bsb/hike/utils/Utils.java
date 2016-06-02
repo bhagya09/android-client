@@ -8280,4 +8280,74 @@ public class Utils
 		}
 
 	}
+
+	public static List<String> jsonArrayToList(JSONArray jsonArray) {
+
+		List<String> list = null;
+		try {
+			if (!Utils.isEmpty(jsonArray)) {
+
+				int length = jsonArray.length();
+				list = new ArrayList<>(length);
+
+				for (int i = 0; i < length; i++) {
+					list.add(jsonArray.get(i).toString());
+				}
+			}
+		} catch (JSONException e) {
+			Logger.e(TAG, "exception in converting list to json array", e);
+		}
+		return list;
+	}
+
+	public String getParameterUrlForHttpApi(String url, String method) {
+		List<String> parameterList = HikeConversationsDatabase.getInstance().getParameterListForUrl(url, method);
+
+		if (Utils.isEmpty(parameterList)) {
+			return null;
+		}
+
+		String parameters = Utils.valuesToCommaSepratedString(parameterList);
+		List<Pair<String, String>> parameterMapping = HikeConversationsDatabase.getInstance().getParameterMapping(parameters);
+
+		if (Utils.isEmpty(parameterMapping)) {
+			return null;
+		}
+
+		StringBuilder stringBuilder = new StringBuilder();
+		for (Pair<String, String> parameterPair : parameterMapping) {
+			stringBuilder.append("&");
+			stringBuilder.append(parameterPair.first);
+			stringBuilder.append("=");
+			stringBuilder.append(parameterPair.second);
+		}
+
+		return stringBuilder.toString();
+	}
+
+	public JSONObject getParameterPostBodyForHttpApi(String url, String method) {
+		List<String> parameterList = HikeConversationsDatabase.getInstance().getParameterListForUrl(url, method);
+
+		if (Utils.isEmpty(parameterList)) {
+			return null;
+		}
+
+		String parameters = Utils.valuesToCommaSepratedString(parameterList);
+		List<Pair<String, String>> parameterMapping = HikeConversationsDatabase.getInstance().getParameterMapping(parameters);
+
+		if (Utils.isEmpty(parameterMapping)) {
+			return null;
+		}
+
+		JSONObject postBody = new JSONObject();
+		for (Pair<String, String> parameterPair : parameterMapping) {
+			try {
+				postBody.put(parameterPair.first, parameterPair.second);
+			} catch (JSONException e) {
+				Logger.e(HikeConversationsDatabase.class.getName(), " exception in adding parameters to body", e);
+			}
+		}
+
+		return postBody;
+	}
 }

@@ -46,6 +46,7 @@ import com.bsb.hike.modules.stickerdownloadmgr.FetchShopPackDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.MultiStickerDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.MultiStickerImageDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.MultiStickerQuickSuggestionDownloadTask;
+import com.bsb.hike.modules.stickerdownloadmgr.ParameterMappingDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerQuickSuggestionDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerCategoryDataUpdateTask;
@@ -55,6 +56,7 @@ import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerPreviewImageDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerSignupUpgradeDownloadTask;
+import com.bsb.hike.modules.stickerdownloadmgr.UserParameterDownloadTask;
 import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
@@ -435,6 +437,8 @@ public class StickerManager
 		initiateFetchCategoryRanksAndDataTask();
 
 		QuickStickerSuggestionController.getInstance().retryFailedQuickSuggestions();
+
+		makeCallForUserParameters();
 }
 
 	public void fetchCategoryMetadataTask(List<StickerCategory> list)
@@ -4058,5 +4062,34 @@ public class StickerManager
 	public void removeQuickSuggestionCategoryFromMap(String catId)
 	{
 		stickerCategoriesMap.remove(catId);
+	}
+
+	public void makeCallForUserParameters()
+	{
+		long lastUserParametersFetchTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.LAST_USER_PARAMETER_FETCH_TIME, 0L);
+		long lastParameterMappingFetchTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.LAST_PARAMETER_MAPPING_FETCH_TIME, 0L);
+		long refreshPeriod = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.USER_PARAMTER_REFRESH_PERIOD, 0L /*7 * HikeConstants.ONE_DAY_MILLS*/);
+
+		if((System.currentTimeMillis() - lastUserParametersFetchTime) >= refreshPeriod)
+		{
+			initiateUserParameterDownloadTask();
+		}
+
+		if((System.currentTimeMillis() - lastParameterMappingFetchTime) >= refreshPeriod)
+		{
+			initiateParameterMappingDownloadTask();
+		}
+	}
+
+	public void initiateUserParameterDownloadTask()
+	{
+		UserParameterDownloadTask userParameterDownloadTask = new UserParameterDownloadTask();
+		userParameterDownloadTask.execute();
+	}
+
+	public void initiateParameterMappingDownloadTask()
+	{
+		ParameterMappingDownloadTask parameterMappingDownloadTask = new ParameterMappingDownloadTask();
+		parameterMappingDownloadTask.execute();
 	}
 }

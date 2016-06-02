@@ -3277,6 +3277,10 @@ public class MqttMessagesManager
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.QUICK_SUGGESTION_SENT_THIRD_TIP_TEXT, data.getString(HikeConstants.QUICK_SUGGESTION_SENT_THIRD_TIP_TEXT));
 		}
+		if(data.has(HikeConstants.USER_PARAMTER_REFRESH_PERIOD))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.USER_PARAMTER_REFRESH_PERIOD, data.getLong(HikeConstants.USER_PARAMTER_REFRESH_PERIOD));
+		}
 
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
