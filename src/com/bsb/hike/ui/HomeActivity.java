@@ -1753,7 +1753,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					/**
 					 * If we are showing search mode action bar, we should not show tip/anim
 					 */
-					if (conversationFragment.isSearchInActionMode())
+					if (conversationFragment != null && conversationFragment.isSearchInActionMode())
 					{
 						return;
 					}
