@@ -310,11 +310,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
     private final NudgeManager nudgeManager;
 
-	private int AUDIO_PLAYING=0;
-
-	private int NUDGE_TOAST_OCCURENCE = 2;
-
-	private int currentNudgeCount = 0;
+	private int AUDIO_PLAYING;
 
 	protected ChatThreadActivity activity;
 
@@ -633,8 +629,9 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	{
 		this.activity = activity;
 		this.msisdn = msisdn;
-		useWTRevamped = ChatThreadUtils.isWT1RevampEnabled(activity.getApplicationContext());
-        nudgeManager = new NudgeManager(activity);
+		Context context = activity.getApplicationContext();
+		useWTRevamped = ChatThreadUtils.isWT1RevampEnabled(context);
+		nudgeManager = new NudgeManager(context, HikeSharedPreferenceUtil.getInstance(), HAManager.getInstance());
     }
 
 	public HikeActionBar mActionBar;
