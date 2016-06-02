@@ -181,7 +181,7 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btn_add_friends:
-                // TODO Open add friends screen
+                getActivity().startActivity(IntentFactory.getFriendReqActivityAddFriendsIntent(getActivity()));
                 break;
         }
     }
