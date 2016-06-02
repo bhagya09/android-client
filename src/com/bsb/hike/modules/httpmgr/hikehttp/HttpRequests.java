@@ -65,6 +65,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.chatThemeBgImgUploadBase;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.BASE_CATEGORY_DETAIL;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.authSDKBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.bulkLastSeenUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.chatThemeAssetIdDownloadBase;
@@ -121,7 +122,6 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.sticker
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerCategoryFetchPrefOrderUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerPalleteImageDownloadUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerPreviewImageDownloadUrl;
-import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerShopDownloadUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerShopFetchCategoryTagsUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerShopFetchCategoryUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerSignupUpgradeUrl;
@@ -165,8 +165,11 @@ public class HttpRequests
 	
 	public static RequestToken singleStickerDownloadRequest(String requestId, String stickerId, String categoryId, IRequestListener requestListener, String keyboardList)
 	{
+
+		String parameterUrl = Utils.getParameterUrlForHttpApi(HttpRequestConstants.BASE_STICKER_V3);
+
 		RequestToken requestToken = new JSONObjectRequest.Builder()
-				.setUrl(singleStickerDownloadBase() + "?catId=" + categoryId + "&stId=" + stickerId + "&resId=" + Utils.getResolutionId() + "&kbd=" + keyboardList)
+				.setUrl(singleStickerDownloadBase() + "?catId=" + categoryId + "&stId=" + stickerId + "&resId=" + Utils.getResolutionId() + "&kbd=" + keyboardList + parameterUrl)
 				.setId(requestId)
 				.setRequestListener(requestListener)
 				.setRequestType(REQUEST_TYPE_SHORT)
@@ -185,6 +188,9 @@ public class HttpRequests
 
 	public static RequestToken singleStickerImageDownloadRequest(String requestId, String stickerId, String categoryId, boolean miniStk, IRequestListener requestListener, Bundle extras)
 	{
+
+		String parameterUrl = Utils.getParameterUrlForHttpApi(HttpRequestConstants.BASE_STICKER_V4);
+
 		Config config = new Config.Builder()
 				.setExecutionWindow(0, 1)
 				.setPersisted(true)
@@ -195,7 +201,7 @@ public class HttpRequests
 				.build();
 
 		miniStk = miniStk & StickerManager.getInstance().isMiniStickersEnabled();
-		String url = singleStickerImageDownloadBase() + "?catId=" + categoryId + "&stId=" + stickerId + "&resId=" + Utils.getResolutionId() + "&mini_stk=" + miniStk;
+		String url = singleStickerImageDownloadBase() + "?catId=" + categoryId + "&stId=" + stickerId + "&resId=" + Utils.getResolutionId() + "&mini_stk=" + miniStk + parameterUrl;
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setUrl(url)
 				.setId(requestId)
@@ -241,8 +247,10 @@ public class HttpRequests
 
 	public static RequestToken StickerPalleteImageDownloadRequest(String requestId, String categoryId, IRequestInterceptor interceptor, IRequestListener requestListener)
 	{
+		String parameterUrl = Utils.getParameterUrlForHttpApi(HttpRequestConstants.BASE_PALETTE_IMAGE);
+
 		RequestToken requestToken = new JSONObjectRequest.Builder()
-				.setUrl(stickerPalleteImageDownloadUrl() + "?catId=" + categoryId + "&resId=" + Utils.getResolutionId())
+				.setUrl(stickerPalleteImageDownloadUrl() + "?catId=" + categoryId + "&resId=" + Utils.getResolutionId() + parameterUrl)
 				.setId(requestId)
 				.setRequestListener(requestListener)
 				.setRequestType(REQUEST_TYPE_LONG)
@@ -254,8 +262,10 @@ public class HttpRequests
 
 	public static RequestToken StickerPreviewImageDownloadRequest(String requestId, String categoryId, IRequestInterceptor interceptor, IRequestListener requestListener)
 	{
+		String parameterUrl = Utils.getParameterUrlForHttpApi(HttpRequestConstants.BASE_PREVIEW_IMAGE);
+
 		RequestToken requestToken = new JSONObjectRequest.Builder()
-				.setUrl(stickerPreviewImageDownloadUrl() + "?catId=" + categoryId + "&resId=" + Utils.getResolutionId())
+				.setUrl(stickerPreviewImageDownloadUrl() + "?catId=" + categoryId + "&resId=" + Utils.getResolutionId() + parameterUrl)
 				.setId(requestId)
 				.setRequestListener(requestListener)
 				.setRequestType(REQUEST_TYPE_SHORT)
@@ -294,7 +304,9 @@ public class HttpRequests
 
 	public static RequestToken getPrefOrderForCategories(String requestId, IRequestListener requestListener, int catSize, int offset)
 	{
-		String url = stickerCategoryFetchPrefOrderUrl() + "?N=" + catSize + "&offset=" + offset;
+		String parameterUrl = Utils.getParameterUrlForHttpApi(HttpRequestConstants.BASE_CATEGORY_FETCH_ORDER);
+
+		String url = stickerCategoryFetchPrefOrderUrl() + "?N=" + catSize + "&offset=" + offset + parameterUrl;
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setUrl(url)
 				.setId(requestId)
@@ -321,8 +333,9 @@ public class HttpRequests
 
 	public static RequestToken stickerCategoryDetailsDownloadRequest(String requestId, String categoryId, IRequestListener requestListener)
 	{
+		String parameterUrl = Utils.getParameterUrlForHttpApi(BASE_CATEGORY_DETAIL);
 		List<String> unsupportedLanguages = StickerLanguagesManager.getInstance().getUnsupportedLanguagesCollection();
-		String url = stickerCategoryDetailsUrl() + "?catId=" + categoryId + "&resId=" + Utils.getResolutionId() + "&lang=" + StickerSearchUtils.getCurrentLanguageISOCode();
+		String url = stickerCategoryDetailsUrl() + "?catId=" + categoryId + "&resId=" + Utils.getResolutionId() + "&lang=" + StickerSearchUtils.getCurrentLanguageISOCode() + parameterUrl;
 		url = Utils.isEmpty(unsupportedLanguages) ? url : (url + "&unknown_langs=" + StickerLanguagesManager.getInstance().listToString(unsupportedLanguages));
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setUrl(url)
@@ -669,9 +682,10 @@ public class HttpRequests
 	public static RequestToken tagsForSingleStickerRequest(String requestId, String stickerId, String categoryId, String keyboardList,  IRequestListener requestListener)
 	{
 
+		String parameterUrl = Utils.getParameterUrlForHttpApi(HttpRequestConstants.BASE_TAG_V4);
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setId(requestId)
-				.setUrl((singleStickerTagsUrl() + "?catId=" + categoryId + "&stId=" + stickerId + "&resId=" + Utils.getResolutionId() + "&kbd=" + keyboardList))
+				.setUrl((singleStickerTagsUrl() + "?catId=" + categoryId + "&stId=" + stickerId + "&resId=" + Utils.getResolutionId() + "&kbd=" + keyboardList + parameterUrl))
 				.setRequestListener(requestListener)
 				.setRequestType(REQUEST_TYPE_SHORT)
 				.setPriority(PRIORITY_HIGH)
@@ -698,9 +712,11 @@ public class HttpRequests
 
 	public static RequestToken defaultTagsRequest(String requestId, boolean isSignUp, long lastSuccessfulTagDownloadTime, IRequestListener requestListener, String languages)
 	{
+		String parameterUrl = Utils.getParameterUrlForHttpApi(HttpRequestConstants.BASE_TAGS_V3);
+
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setId(requestId)
-				.setUrl(getStickerTagsUrl() + "?signup_stickers=" + isSignUp + "&timestamp=" + lastSuccessfulTagDownloadTime + "&kbd=" + languages)
+				.setUrl(getStickerTagsUrl() + "?signup_stickers=" + isSignUp + "&timestamp=" + lastSuccessfulTagDownloadTime + "&kbd=" + languages + parameterUrl)
 				.setRequestListener(requestListener)
 				.setRequestType(REQUEST_TYPE_SHORT)
 				.setPriority(PRIORITY_HIGH)
@@ -712,10 +728,10 @@ public class HttpRequests
 
 	public static RequestToken quickSuggestionsForSingleStickerRequest(String requestId, Sticker sticker, String langList, int setId, IRequestListener requestListener)
 	{
-
+		String parameterUrl = Utils.getParameterUrlForHttpApi(HttpRequestConstants.BASE_QUICK_SUGGESTIONS);
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setId(requestId)
-				.setUrl((quickSuggestionUrl() + "?catId=" + sticker.getCategoryId() + "&stkId=" + sticker.getStickerId() + "&gender=" + HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.GENDER, 0) + "&lang=" + langList + "&setId=" + QuickStickerSuggestionController.getInstance().getSetIdForQuickSuggestions()))
+				.setUrl((quickSuggestionUrl() + "?catId=" + sticker.getCategoryId() + "&stkId=" + sticker.getStickerId() + "&gender=" + HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.GENDER, 0) + "&lang=" + langList + "&setId=" + QuickStickerSuggestionController.getInstance().getSetIdForQuickSuggestions() + parameterUrl))
 				.setRequestListener(requestListener)
 				.setRequestType(REQUEST_TYPE_SHORT)
 				.setPriority(PRIORITY_HIGH)

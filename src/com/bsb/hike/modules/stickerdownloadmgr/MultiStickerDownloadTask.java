@@ -8,6 +8,7 @@ import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHTTPTask;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHttpTaskResult;
 import com.bsb.hike.modules.httpmgr.interceptor.IRequestInterceptor;
@@ -138,6 +139,8 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 					bodyJson.put(HikeConstants.RESOLUTION_ID, Utils.getResolutionId());
 					bodyJson.put(HikeConstants.NUMBER_OF_STICKERS, getStickerDownloadSize());
 					bodyJson.put(HikeConstants.KEYBOARD_LIST, new JSONArray(StickerLanguagesManager.getInstance().getAccumulatedSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE, StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE)));
+
+					bodyJson = Utils.getParameterPostBodyForHttpApi(HttpRequestConstants.BASE_STICKER_V3, bodyJson);
 
 					Logger.d(TAG, "intercept(), Sticker Download Task Request: " + bodyJson.toString());
 

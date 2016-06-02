@@ -3,6 +3,7 @@ package com.bsb.hike.modules.stickerdownloadmgr;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHTTPTask;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHttpTaskResult;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
@@ -97,6 +98,7 @@ public class StickerSignupUpgradeDownloadTask implements IHikeHTTPTask, IHikeHtt
 				{
 					postObject.put("unknown_langs", new JSONArray(unSupportedLanguages));
 				}
+				postObject = Utils.getParameterPostBodyForHttpApi(HttpRequestConstants.BASE_CATEGORY_DETAIL, postObject);
 				return postObject;
 			}
 			Logger.e(TAG, "Sticker download failed null or empty category list");
