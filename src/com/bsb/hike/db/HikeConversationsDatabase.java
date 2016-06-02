@@ -5384,7 +5384,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		contentValues.put(DBConstants.MUTE_DURATION, mute.getMuteDuration());
 		contentValues.put(DBConstants.MUTE_NOTIFICATION, mute.shouldShowNotifInMute() ? 1 : 0);
 		contentValues.put(DBConstants.MUTE_TIMESTAMP, mute.getMuteTimestamp());
-		contentValues.put(DBConstants.MUTE_END_TIME, mute.getMuteEndTime());
 
 		int id = (int) mDb.insertWithOnConflict(DBConstants.CHAT_PROPERTIES_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_IGNORE);
 		if (id < 0)
@@ -10663,19 +10662,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 			while (c.moveToNext())
 			{
 				String msisdn = c.getString(c.getColumnIndex(DBConstants.MSISDN));
-				int mute = c.getInt(c.getColumnIndex(DBConstants.IS_MUTE));
+				int isMute = c.getInt(c.getColumnIndex(DBConstants.IS_MUTE));
+				int muteDuration = HikeConstants.MuteDuration.DURATION_FOREVER;
+				long muteTimestamp = System.currentTimeMillis();
 
-				ContentValues values = new ContentValues();
-				values.put(DBConstants.MSISDN, msisdn);
-				values.put(DBConstants.IS_MUTE, mute);
-				values.put(DBConstants.MUTE_DURATION, HikeConstants.MuteDuration.DURATION_FOREVER);
-				values.put(DBConstants.MUTE_TIMESTAMP, System.currentTimeMillis());
-
-				int id = (int) mDb.insertWithOnConflict(DBConstants.CHAT_PROPERTIES_TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
-				if (id < 0)
-				{
-					mDb.update(DBConstants.CHAT_PROPERTIES_TABLE, values, DBConstants.MSISDN + "=?", new String[] { msisdn });
-				}
+				Mute mute = new Mute.InitBuilder(msisdn).setIsMute(isMute == 1).setMuteDuration(muteDuration).setMuteTimestamp(muteTimestamp).setShowNotifInMute(false).build();
+				toggleChatMute(mute);
 			}
 		}
 		finally
@@ -10699,19 +10691,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 			while (c.moveToNext())
 			{
 				String msisdn = c.getString(c.getColumnIndex(DBConstants.GROUP_ID));
-				int mute = c.getInt(c.getColumnIndex(DBConstants.MUTE_GROUP));
+				int isMute = c.getInt(c.getColumnIndex(DBConstants.MUTE_GROUP));
+				int muteDuration = HikeConstants.MuteDuration.DURATION_FOREVER;
+				long muteTimestamp = System.currentTimeMillis();
 
-				ContentValues values = new ContentValues();
-				values.put(DBConstants.MSISDN, msisdn);
-				values.put(DBConstants.IS_MUTE, mute);
-				values.put(DBConstants.MUTE_DURATION, HikeConstants.MuteDuration.DURATION_FOREVER);
-				values.put(DBConstants.MUTE_TIMESTAMP, System.currentTimeMillis());
-
-				int id = (int) mDb.insertWithOnConflict(DBConstants.CHAT_PROPERTIES_TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
-				if (id < 0)
-				{
-					mDb.update(DBConstants.CHAT_PROPERTIES_TABLE, values, DBConstants.MSISDN + "=?", new String[] { msisdn });
-				}
+				Mute mute = new Mute.InitBuilder(msisdn).setIsMute(isMute == 1).setMuteDuration(muteDuration).setMuteTimestamp(muteTimestamp).setShowNotifInMute(false).build();
+				toggleChatMute(mute);
 			}
 		}
 		finally
@@ -11646,39 +11631,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		asset.setIsDownloaded((byte) isDownloaded);
 
 		return asset;
-	}
-
-	/**
-	 *
-	 * @param msisdn
-	 * @return the Mute object for a given msisdn
-     */
-	public Mute getMuteForMsisdn(String msisdn) {
-		Cursor c = null;
-		try {
-			c = mDb.query(DBConstants.CHAT_PROPERTIES_TABLE, null, DBConstants.MSISDN + "=?", new String[]{msisdn}, null, null, null);
-
-			int isMuteIdx = c.getColumnIndex(DBConstants.IS_MUTE);
-			int muteDurationIdx = c.getColumnIndex(DBConstants.MUTE_DURATION);
-			int muteNotificationIdx = c.getColumnIndex(DBConstants.MUTE_NOTIFICATION);
-			int muteTimestampIdx = c.getColumnIndex(DBConstants.MUTE_TIMESTAMP);
-
-			if (c.moveToFirst()) {
-				boolean isMute = c.getInt(isMuteIdx) == 1 ? true : false;
-				int muteDuration = c.getInt(muteDurationIdx);
-				boolean muteNotification = c.getInt(muteNotificationIdx) == 0 ? false : true;
-				long muteTimestamp = c.getLong(muteTimestampIdx);
-
-				Mute mute = new Mute.InitBuilder(msisdn).setIsMute(isMute).setMuteDuration(muteDuration).setShowNotifInMute(muteNotification).setMuteTimestamp(muteTimestamp).build();
-				return mute;
-			}
-		} finally {
-			if (c != null) {
-				c.close();
-			}
-		}
-
-		return null;
 	}
 
 	public void upgradeForChatProperties() {
