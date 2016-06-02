@@ -91,7 +91,7 @@ public class AccountBackupRestore
 	/**
 	 * If backup is taken on a version greater than this, then mute data will not be migrated from groupInfo table to chatProp table
 	 */
-	public static int MUTE_BACKUP_THRESHOLD_VERSION = 1732;
+	public static int MUTE_BACKUP_THRESHOLD_VERSION = 1735;
 
 	private final Context mContext;
 

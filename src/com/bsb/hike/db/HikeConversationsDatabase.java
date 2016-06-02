@@ -170,6 +170,7 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.PairModified;
+import com.bsb.hike.utils.PhoneUtils;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
@@ -269,7 +270,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		db.execSQL(sql);
 		sql=getReceiptsTableCreateStatement();
 		db.execSQL(sql);
-		sql = DBConstants.CREATE_INDEX + DBConstants.RECEIPTS_TABLE_CONTENT_INDEX + " ON " + DBConstants.MESSAGES_TABLE + " ( " + DBConstants.HIKE_CONTENT.CONTENT_ID + " ) ";
+		sql = DBConstants.CREATE_INDEX + DBConstants.RECEIPTS_TABLE_CONTENT_INDEX + " ON " + DBConstants.MESSAGES_TABLE + " ( " + DBConstants.MESSAGE_ID + " ) ";
 		db.execSQL(sql);
 
 		sql = DBConstants.CREATE_INDEX + DBConstants.MESSAGE_TABLE_NAMESPACE_INDEX + " ON " + DBConstants.MESSAGES_TABLE + " ( " + DBConstants.HIKE_CONTENT.NAMESPACE + " ) ";
@@ -5036,7 +5037,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 
 			if (groupRevived && !currentParticipants.isEmpty())
 			{
-				String removeMsisdns = Utils.getMsisdnStatement(currentParticipants.keySet());
+				String removeMsisdns = PhoneUtils.getMsisdnStatement(currentParticipants.keySet());
 				Logger.d(getClass().getSimpleName(), " remove these from group members table GroupId : " + groupId + " removed msisdns : " + removeMsisdns);
 				mDb.delete(DBConstants.GROUP_MEMBERS_TABLE, DBConstants.GROUP_ID + " = ? " + " AND " + DBConstants.MSISDN + " IN " + removeMsisdns, new String[] { groupId });
 				ContactManager.getInstance().removeGroupParticipant(groupId, currentParticipants.keySet());
@@ -5383,7 +5384,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		contentValues.put(DBConstants.MUTE_DURATION, mute.getMuteDuration());
 		contentValues.put(DBConstants.MUTE_NOTIFICATION, mute.shouldShowNotifInMute() ? 1 : 0);
 		contentValues.put(DBConstants.MUTE_TIMESTAMP, mute.getMuteTimestamp());
-		contentValues.put(DBConstants.MUTE_END_TIME, mute.getMuteEndTime());
 
 		int id = (int) mDb.insertWithOnConflict(DBConstants.CHAT_PROPERTIES_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_IGNORE);
 		if (id < 0)
@@ -6936,53 +6936,59 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 	{
 		ContentValues contentValues = new ContentValues();
 
-		if (chatBackgroundArray == null || chatBackgroundArray.length() == 0)
-		{
-			return;
-		}
-		for (int i = 0; i < chatBackgroundArray.length(); i++)
-		{
-			JSONObject chatBgJson = chatBackgroundArray.optJSONObject(i);
-
-			if (chatBgJson == null)
+		try{
+			mDb.beginTransaction();
+			if (Utils.isEmpty(chatBackgroundArray))
 			{
-				continue;
+				return;
 			}
-
-			String msisdn = chatBgJson.optString(HikeConstants.MSISDN);
-			String bgId = chatBgJson.optString(HikeConstants.BG_ID);
-
-			if (TextUtils.isEmpty(msisdn))
+			for (int i = 0; i < chatBackgroundArray.length(); i++)
 			{
-				continue;
-			}
+				JSONObject chatBgJson = chatBackgroundArray.optJSONObject(i);
 
-			try
-			{
+				if (chatBgJson == null)
+				{
+					continue;
+				}
+
+				String msisdn = chatBgJson.optString(HikeConstants.MSISDN);
+				String bgId = chatBgJson.optString(HikeConstants.BG_ID);
+
+				if (TextUtils.isEmpty(msisdn))
+				{
+					continue;
+				}
+
 				/*
 				 * We don't support custom themes yet.
 				 */
-				if (chatBgJson.optBoolean(HikeConstants.CUSTOM))
-				{
-					throw new IllegalArgumentException();
+				if (chatBgJson.optBoolean(HikeConstants.CUSTOM)) {
+
+					Logger.d(getClass().getSimpleName(), "We don't support custom themes yet");
+					continue;
 				}
 
-			}
-			catch (IllegalArgumentException e)
-			{
-				continue;
-			}
+				contentValues.put(DBConstants.MSISDN, msisdn);
+				contentValues.put(ChatThemes.THEME_COL_BG_ID, bgId);
 
-			contentValues.put(DBConstants.MSISDN, msisdn);
-			contentValues.put(ChatThemes.THEME_COL_BG_ID, bgId);
+				int id = (int) mDb.insertWithOnConflict(DBConstants.CHAT_PROPERTIES_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_IGNORE);
+				if (id < 0)
+				{
+					mDb.update(DBConstants.CHAT_PROPERTIES_TABLE, contentValues, DBConstants.MSISDN + "=?", new String[] { msisdn });
+				}
 
-			int id = (int) mDb.insertWithOnConflict(DBConstants.CHAT_PROPERTIES_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_IGNORE);
-			if (id < 0)
-			{
-				mDb.update(DBConstants.CHAT_PROPERTIES_TABLE, contentValues, DBConstants.MSISDN + "=?", new String[] { msisdn });
+				HikeMessengerApp.getPubSub().publish(HikePubSub.CHAT_BACKGROUND_CHANGED, new Pair<String, String>(msisdn, bgId));
 			}
+			mDb.setTransactionSuccessful();
 
-			HikeMessengerApp.getPubSub().publish(HikePubSub.CHAT_BACKGROUND_CHANGED, new Pair<String, String>(msisdn, bgId));
+		} catch (Exception e) {
+
+			Logger.e(getClass().getSimpleName(), "Exception : ", e);
+			e.printStackTrace();
+
+		} finally {
+
+			mDb.endTransaction();
 		}
 
 	}
@@ -7380,7 +7386,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		try
 		{
 			HashMap<String, String> groupIdMap = getAllOneToNConversations();
-			String convIdStatement = Utils.getMsisdnStatement(groupIdMap.keySet());
+			String convIdStatement = PhoneUtils.getMsisdnStatement(groupIdMap.keySet());
 			c = mDb.query(DBConstants.MESSAGES_TABLE, new String[] { " MAX (" + DBConstants.MESSAGE_ID + ") AS msgid", DBConstants.READ_BY, DBConstants.CONV_ID },
 					DBConstants.CONV_ID + " IN " + convIdStatement + " AND " + DBConstants.MSG_STATUS + " = " + State.SENT_DELIVERED_READ.ordinal(), null, DBConstants.CONV_ID,
 					null, null);
@@ -10598,12 +10604,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		}
 	}
 
-	public void migrateChatBgTableData()
+	private void migrateChatBgTableData()
 	{
 		try
 		{
-			mDb.beginTransaction();
-
 			String create = getChatPropertiesTableCreateStatement();
 			mDb.execSQL(create);
 
@@ -10635,16 +10639,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		{
 			ex.printStackTrace();
 		}
-		finally
-		{
-			mDb.endTransaction();
-		}
 	}
 
 	/**
 	 * This method saves the mute data in chatPropTable on upgrade, so as to restore the previous settings
 	 */
-	public void migrateMuteData()
+	private void migrateMuteData()
 	{
 		migrateGroupMuteData();
 		migrateBotMuteData();
@@ -10653,7 +10653,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 	/**
 	 * This method restores the mute settings for bots
 	 */
-	public void migrateBotMuteData()
+	private void migrateBotMuteData()
 	{
 		Cursor c = null;
 		try
@@ -10662,19 +10662,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 			while (c.moveToNext())
 			{
 				String msisdn = c.getString(c.getColumnIndex(DBConstants.MSISDN));
-				int mute = c.getInt(c.getColumnIndex(DBConstants.IS_MUTE));
+				int isMute = c.getInt(c.getColumnIndex(DBConstants.IS_MUTE));
+				int muteDuration = HikeConstants.MuteDuration.DURATION_FOREVER;
+				long muteTimestamp = System.currentTimeMillis();
 
-				ContentValues values = new ContentValues();
-				values.put(DBConstants.MSISDN, msisdn);
-				values.put(DBConstants.IS_MUTE, mute);
-				values.put(DBConstants.MUTE_DURATION, HikeConstants.MuteDuration.DURATION_FOREVER);
-				values.put(DBConstants.MUTE_TIMESTAMP, System.currentTimeMillis());
-
-				int id = (int) mDb.insertWithOnConflict(DBConstants.CHAT_PROPERTIES_TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
-				if (id < 0)
-				{
-					mDb.update(DBConstants.CHAT_PROPERTIES_TABLE, values, DBConstants.MSISDN + "=?", new String[] { msisdn });
-				}
+				Mute mute = new Mute.InitBuilder(msisdn).setIsMute(isMute == 1).setMuteDuration(muteDuration).setMuteTimestamp(muteTimestamp).setShowNotifInMute(false).build();
+				toggleChatMute(mute);
 			}
 		}
 		finally
@@ -10689,7 +10682,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 	/**
 	 * This method restores the mute settings for groups
 	 */
-	public void migrateGroupMuteData()
+	private void migrateGroupMuteData()
 	{
 		Cursor c = null;
 		try
@@ -10698,19 +10691,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 			while (c.moveToNext())
 			{
 				String msisdn = c.getString(c.getColumnIndex(DBConstants.GROUP_ID));
-				int mute = c.getInt(c.getColumnIndex(DBConstants.MUTE_GROUP));
+				int isMute = c.getInt(c.getColumnIndex(DBConstants.MUTE_GROUP));
+				int muteDuration = HikeConstants.MuteDuration.DURATION_FOREVER;
+				long muteTimestamp = System.currentTimeMillis();
 
-				ContentValues values = new ContentValues();
-				values.put(DBConstants.MSISDN, msisdn);
-				values.put(DBConstants.IS_MUTE, mute);
-				values.put(DBConstants.MUTE_DURATION, HikeConstants.MuteDuration.DURATION_FOREVER);
-				values.put(DBConstants.MUTE_TIMESTAMP, System.currentTimeMillis());
-
-				int id = (int) mDb.insertWithOnConflict(DBConstants.CHAT_PROPERTIES_TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
-				if (id < 0)
-				{
-					mDb.update(DBConstants.CHAT_PROPERTIES_TABLE, values, DBConstants.MSISDN + "=?", new String[] { msisdn });
-				}
+				Mute mute = new Mute.InitBuilder(msisdn).setIsMute(isMute == 1).setMuteDuration(muteDuration).setMuteTimestamp(muteTimestamp).setShowNotifInMute(false).build();
+				toggleChatMute(mute);
 			}
 		}
 		finally
@@ -11647,36 +11633,23 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		return asset;
 	}
 
-	/**
-	 *
-	 * @param msisdn
-	 * @return the Mute object for a given msisdn
-     */
-	public Mute getMuteForMsisdn(String msisdn) {
-		Cursor c = null;
+	public void upgradeForChatProperties() {
+
 		try {
-			c = mDb.query(DBConstants.CHAT_PROPERTIES_TABLE, null, DBConstants.MSISDN + "=?", new String[]{msisdn}, null, null, null);
 
-			int isMuteIdx = c.getColumnIndex(DBConstants.IS_MUTE);
-			int muteDurationIdx = c.getColumnIndex(DBConstants.MUTE_DURATION);
-			int muteNotificationIdx = c.getColumnIndex(DBConstants.MUTE_NOTIFICATION);
-			int muteTimestampIdx = c.getColumnIndex(DBConstants.MUTE_TIMESTAMP);
+			mDb.beginTransaction();
+			migrateChatBgTableData();
+			migrateMuteData();
+			mDb.setTransactionSuccessful();
 
-			if (c.moveToFirst()) {
-				boolean isMute = c.getInt(isMuteIdx) == 1 ? true : false;
-				int muteDuration = c.getInt(muteDurationIdx);
-				boolean muteNotification = c.getInt(muteNotificationIdx) == 0 ? false : true;
-				long muteTimestamp = c.getLong(muteTimestampIdx);
+		} catch (Exception e) {
 
-				Mute mute = new Mute.InitBuilder(msisdn).setIsMute(isMute).setMuteDuration(muteDuration).setShowNotifInMute(muteNotification).setMuteTimestamp(muteTimestamp).build();
-				return mute;
-			}
+			Logger.e(getClass().getSimpleName(), "Exception : ", e);
+			e.printStackTrace();
+
 		} finally {
-			if (c != null) {
-				c.close();
-			}
-		}
 
-		return null;
+			mDb.endTransaction();
+		}
 	}
 }
