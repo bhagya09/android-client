@@ -7,7 +7,6 @@ import android.view.View;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.adapters.CustomKeyboardInputBoxAdapter;
 import com.bsb.hike.media.ShareablePopup;
-import com.bsb.hike.media.StickerPickerListener;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -26,12 +25,12 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * The type Custom keyboard manager.
  */
-public class CustomKeyboardManager implements ShareablePopup, TextPickerListener, StickerPickerListener
+public class CustomKeyboardManager implements ShareablePopup, CustomKeyboardTextPickerListener, CustomKeyboardStickerPickerListener
 {
 
-	private TextPickerListener textPickerListener;
+	private CustomKeyboardTextPickerListener customKeyboardTextPickerListener;
 
-	private StickerPickerListener stickerPickerListener;
+	private CustomKeyboardStickerPickerListener customKeyboardStickerPickerListener;
 
 	/**
 	 * The constant CUSTOM_INPUT_BOX_KEY.
@@ -66,22 +65,22 @@ public class CustomKeyboardManager implements ShareablePopup, TextPickerListener
 	 *
 	 * @param context
 	 *            the context
-	 * @param textPickerListener
+	 * @param customKeyboardTextPickerListener
 	 *            the text picker listener
-	 * @param stickerPickerListener
+	 * @param customKeyboardStickerPickerListener
 	 *            the sticker picker listener
 	 * @param msisdn
 	 *            the bot msisdn
 	 */
-	public void initInputBox(Context context, TextPickerListener textPickerListener, StickerPickerListener stickerPickerListener, String msisdn)
+	public void initInputBox(Context context, CustomKeyboardTextPickerListener customKeyboardTextPickerListener, CustomKeyboardStickerPickerListener customKeyboardStickerPickerListener, String msisdn)
 	{
         // Removing listening pubsubs on previous adapter so that gc can remove previous instance
         if(customKeyboardInputBoxAdapter != null)
             customKeyboardInputBoxAdapter.releaseResources();
 
-        this.textPickerListener = textPickerListener;
-		this.stickerPickerListener = stickerPickerListener;
-		customKeyboardInputBoxAdapter = new CustomKeyboardInputBoxAdapter(context, textPickerListener, stickerPickerListener);
+        this.customKeyboardTextPickerListener = customKeyboardTextPickerListener;
+		this.customKeyboardStickerPickerListener = customKeyboardStickerPickerListener;
+		customKeyboardInputBoxAdapter = new CustomKeyboardInputBoxAdapter(context, customKeyboardTextPickerListener, customKeyboardStickerPickerListener);
 
         CustomKeyboard customKeyboard = getCustomKeyboardObject(msisdn);
 		if (customKeyboard != null && customKeyboard.getT() != null && customKeyboardInputBoxAdapter != null && customKeyboard.getT().equals(HikePlatformConstants.BOT_CUSTOM_KEYBOARD_TYPE_TEXT))
@@ -226,15 +225,9 @@ public class CustomKeyboardManager implements ShareablePopup, TextPickerListener
 	}
 
 	@Override
-	public void stickerSelected(Sticker sticker, String source)
-	{
-		stickerPickerListener.stickerSelected(sticker, source);
-	}
-
-	@Override
 	public void onTextClicked(String string)
 	{
-		textPickerListener.onTextClicked(string);
+		customKeyboardTextPickerListener.onTextClicked(string);
 	}
 
 	/**
@@ -246,4 +239,9 @@ public class CustomKeyboardManager implements ShareablePopup, TextPickerListener
             customKeyboardInputBoxAdapter.releaseResources();
     }
 
+    @Override
+	public void onCustomKeyboardStickerClicked(Sticker sticker)
+	{
+		customKeyboardStickerPickerListener.onCustomKeyboardStickerClicked(sticker);
+	}
 }

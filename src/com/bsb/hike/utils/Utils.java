@@ -151,7 +151,6 @@ import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.View;
 import android.view.View.OnTouchListener;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AccelerateInterpolator;
@@ -242,56 +241,6 @@ import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.SignupActivity;
 import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.ui.WelcomeActivity;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Field;
-import java.net.URI;
-import java.net.URL;
-import java.nio.CharBuffer;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Random;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.concurrent.RejectedExecutionHandler;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.jar.JarFile;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.zip.GZIPInputStream;
-
 import com.bsb.hike.voip.VoIPUtils;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -300,33 +249,6 @@ import com.google.android.gms.maps.model.LatLng;
 public class Utils
 {
 	private static final String TAG = Utils.class.getSimpleName();
-
-
-	// Precision points definition for duration logging========================================[[
-	public static final class ExecutionDurationLogger
-	{
-		public static final String TAG = ExecutionDurationLogger.class.getSimpleName();
-
-		public static final int PRECISION_UNIT_SECOND = 0;
-
-		public static final int PRECISION_UNIT_MILLI_SECOND = 3;
-
-		public static final int PRECISION_UNIT_MICRO_SECOND = 6;
-
-		public static final int PRECISION_UNIT_NANO_SECOND = 9;
-
-		public static final String sec = " s";
-
-		public static final String ms = " ms";
-
-		public static final String μs = " μs";
-
-		public static final String ns = " ns";
-
-		public static final String DELIMITER = ", ";
-	}
-
-	// ========================================Precision points definition for duration logging]]
 
 	public static Pattern shortCodeRegex;
 
@@ -383,26 +305,6 @@ public class Utils
 		}
 		Logger.d("Utils", "Joined string is: " + builder.toString());
 		return builder.toString();
-	}
-
-	public static boolean isIndianMobileNumber(String number)
-	{
-		// 13 is the number of chars in the phone msisdn
-		if (number != null && (number.startsWith("+919") || number.startsWith("+918") || number.startsWith("+917")) && number.length() == 13)
-		{
-			return true;
-		}
-		return false;
-	}
-
-	public static boolean isIndianNumber(String number)
-	{
-		// 13 is the number of chars in the phone msisdn
-		if (number != null && number.startsWith("+91"))
-		{
-			return true;
-		}
-		return false;
 	}
 
 	public static long gettingMidnightTimeinMilliseconds()
@@ -815,21 +717,6 @@ public class Utils
 		Editor editor = prefs.edit();
 		editor.putLong(event, currentVal);
 		editor.commit();
-	}
-
-	public static boolean validateBotMsisdn(String msisdn)
-	{
-		if (TextUtils.isEmpty(msisdn))
-		{
-			Logger.wtf(HikePlatformConstants.TAG, "msisdn is ---->" + msisdn);
-			return false;
-		}
-		if (!msisdn.startsWith("+"))
-		{
-			Logger.wtf(HikePlatformConstants.TAG, "msisdn does not start with +. It is ---->" + msisdn);
-			return false;
-		}
-		return true;
 	}
 
 	public static String getConversationJoinHighlightText(JSONArray participantInfoArray, OneToNConvInfo convInfo, boolean newGrp, Context context)
@@ -2106,29 +1993,6 @@ public class Utils
 		}
 
 		return currentFiles;
-	}
-
-	public static String normalizeNumber(String inputNumber, String countryCode)
-	{
-		if (inputNumber.startsWith("+"))
-		{
-			return inputNumber;
-		}
-		else if (inputNumber.startsWith("00"))
-		{
-			/*
-			 * Doing for US numbers
-			 */
-			return inputNumber.replaceFirst("00", "+");
-		}
-		else if (inputNumber.startsWith("0"))
-		{
-			return inputNumber.replaceFirst("0", countryCode);
-		}
-		else
-		{
-			return countryCode + inputNumber;
-		}
 	}
 
 	public static File getCloudFile(Context context, Uri uri) throws IOException, SecurityException
@@ -4686,34 +4550,6 @@ public class Utils
 			countryNameEditor.setText(countryName);
 		}
 		return !TextUtils.isEmpty(countryCode);
-	}
-
-	// added for db query
-	public static String getMsisdnStatement(Collection<String> msisdnList)
-	{
-		if (null == msisdnList)
-		{
-			return null;
-		}
-		else
-		{
-			if (msisdnList.isEmpty())
-			{
-				return null;
-			}
-			StringBuilder sb = new StringBuilder("(");
-			for (String msisdn : msisdnList)
-			{
-				sb.append(DatabaseUtils.sqlEscapeString(msisdn));
-				sb.append(",");
-			}
-			int idx = sb.lastIndexOf(",");
-			if (idx >= 0)
-				sb.replace(idx, sb.length(), ")");
-			else
-				sb.append(")");
-			return sb.toString();
-		}
 	}
 
 	public static void startWebViewActivity(Context context, String url, String title)
