@@ -44,6 +44,8 @@ public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
 	private View.OnClickListener onClickListener;
 
+	private View.OnLongClickListener onLongClickListener;
+
 	public static final int VIEW_TYPE_GRID_TOP_MARGIN = 0;
 
 	public static final int VIEW_TYPE_TAP_TEXT_HEADER = 1;
@@ -58,10 +60,11 @@ public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
 	private int rowSize;
 
-	public PackPreviewAdapter(Context context, View.OnClickListener onClickListener)
+	public PackPreviewAdapter(Context context, View.OnClickListener onClickListener, View.OnLongClickListener onLongClickListener)
 	{
 		this.mContext = context;
 		this.onClickListener = onClickListener;
+		this.onLongClickListener = onLongClickListener;
 		init();
 
 	}
@@ -228,7 +231,7 @@ public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 		return null;
 	}
 
-	private class StickerViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener
+	private class StickerViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener
 	{
 		private ImageView stickerIv;
 
@@ -239,6 +242,7 @@ public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 			RecyclerView.LayoutParams ll = new RecyclerView.LayoutParams(sizeEachImage, sizeEachImage);
 			stickerIv.setLayoutParams(ll);
 			row.setOnClickListener(this);
+			row.setOnLongClickListener(this);
 		}
 
 		@Override
@@ -249,7 +253,18 @@ public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 				onClickListener.onClick(v);
 			}
 		}
-	}
+
+		@Override
+		public boolean onLongClick(View v)
+		{
+			if (onLongClickListener != null)
+			{
+				return onLongClickListener.onLongClick(v);
+			}
+
+			return false;
+		}
+    }
 
 	public void releaseResources()
 	{
