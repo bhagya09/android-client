@@ -237,6 +237,10 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 
 	private CustomTabsBar.CustomTabBadgeCounterListener badgeCounterListener;
 
+	int unreadConversationsTotal;
+
+	int unreadConversationsTillLastVisit;
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
@@ -2807,6 +2811,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 					{
 						mAdapter.sortLists(mConversationsComparator);
 						notifyDataSetChanged();
+						checkAndUpdateBadgeCount();
 					}
 				});
 			}
@@ -3339,11 +3344,11 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		convInfo.setUnreadCount(message.arg1);
 		getActivity().runOnUiThread(new Runnable()
 		{
-
 			@Override
 			public void run()
 			{
 				notifyDataSetChanged();
+				checkAndUpdateBadgeCount();
 			}
 		});
 	}
@@ -4135,6 +4140,14 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		if (Utils.shouldIncrementCounter(message))
 		{
 			conv.setUnreadCount(conv.getUnreadCount() + 1);
+			getActivity().runOnUiThread(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					checkAndUpdateBadgeCount();
+				}
+			});
 		}
 
 		if (message.getParticipantInfoState() == ParticipantInfoState.STATUS_MESSAGE)
@@ -4186,6 +4199,45 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 	public void setCustomTabBadgeCounterListener(CustomTabsBar.CustomTabBadgeCounterListener listener)
 	{
 		this.badgeCounterListener = listener;
+	}
+
+	/*
+     * This is to detect the visibility change in the fragment
+     */
+	@Override
+	public void setUserVisibleHint(boolean isVisibleToUser) {
+		super.setUserVisibleHint(isVisibleToUser);
+		if (isVisibleToUser) {
+			resetBadgeCount();
+		}
+	}
+
+	private void resetBadgeCount() {
+		if (unreadConversationsTillLastVisit != unreadConversationsTotal) {
+			unreadConversationsTillLastVisit = unreadConversationsTotal;
+			updateBadgeCount();
+		}
+	}
+
+	private void checkAndUpdateBadgeCount() {
+		if (getUserVisibleHint())
+			resetBadgeCount();
+		else
+		{
+			int unreadConvCount = 0;
+			for(ConvInfo info : mAdapter.getCompleteList()) {
+				if (info.getUnreadCount() > 0)
+					unreadConvCount++;
+			}
+			unreadConversationsTotal = unreadConvCount;
+			updateBadgeCount();
+		}
+
+	}
+
+	private void updateBadgeCount() {
+		if (badgeCounterListener != null)
+			badgeCounterListener.onBadgeCounterUpdated(unreadConversationsTotal - unreadConversationsTillLastVisit);
 	}
 
 }
