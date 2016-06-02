@@ -4336,7 +4336,7 @@ public class HikeConstants
 
     public static final int DEFAULT_SEARCH_FTUE_LIMIT = 2;
 
-	public static final String CHAT_BG_TABLE_MIGRATION = "chatBgTableMigration";
+	public static final String UPGRADE_FOR_CHAT_PROPERTIES = "chatBgTableMigration";
 
 	public static final String MUTE_NOTIF = "muteNotif";
 

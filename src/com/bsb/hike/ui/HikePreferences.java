@@ -1470,7 +1470,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
                 BirthdayUtils.recordBirthdayAnalytics(
                         AnalyticsConstants.BirthdayEvents.BIRTHDAY_CHANGE_SETTING,
                         AnalyticsConstants.BirthdayEvents.BIRTHDAY_SETTING,
-                        AnalyticsConstants.BirthdayEvents.BIRTHDAY_CHANGE,
+                        AnalyticsConstants.BirthdayEvents.BIRTHDAY_SETTING_OPEN,
                         null, BirthdayUtils.getCurrentBDPref(), null, null, null, null, null, null);
                 return false;
             }

@@ -44,6 +44,7 @@ import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
+import com.bsb.hike.utils.PhoneUtils;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 
@@ -463,7 +464,7 @@ public class ToastListener implements Listener
 							msisdnList.add(offlineMsisdnsArray.getString(i));
 						}
 
-						String msisdnStatement = Utils.getMsisdnStatement(msisdnList);
+						String msisdnStatement = PhoneUtils.getMsisdnStatement(msisdnList);
 
 						ArrayList<String> filteredMsisdnList = HikeConversationsDatabase.getInstance().getOfflineMsisdnsList(msisdnStatement); // this db query will
 																																				// return new list
@@ -478,7 +479,7 @@ public class ToastListener implements Listener
 							return;
 						}
 
-						msisdnStatement = Utils.getMsisdnStatement(filteredMsisdnList);
+						msisdnStatement = PhoneUtils.getMsisdnStatement(filteredMsisdnList);
 						List<ContactInfo> contactList = ContactManager.getInstance().getContact(filteredMsisdnList, true, false); // contact info list
 
 						HashMap<String, String> nameMap = new HashMap<String, String>(); // nameMap to map msisdn to corresponding name

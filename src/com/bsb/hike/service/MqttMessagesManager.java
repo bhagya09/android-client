@@ -916,8 +916,10 @@ public class MqttMessagesManager
                 // Delete previous keyboard data from shared pref is the remove previous keyboard is set as true
                 if(customKeyboard != null && customKeyboard.getRemove())
                     CustomKeyboardManager.getInstance().removeFromSharedPreferences(convMessage.getMsisdn());
-                else
+                else {
                     CustomKeyboardManager.getInstance().saveToSharedPreferences(convMessage.getMsisdn(), convMessage.getPlatformData());
+                    CustomKeyboardManager.getInstance().setInputBoxButtonShowing(convMessage.getMsisdn(),false);
+                }
             }
         }
         else
