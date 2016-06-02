@@ -1860,30 +1860,16 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			if(getResources().getConfiguration().orientation == getResources().getConfiguration().ORIENTATION_LANDSCAPE) {
 				backgroundImage.setScaleType(ScaleType.CENTER_CROP);
 			} else {
-				backgroundImage.setScaleType(ScaleType.FIT_CENTER);
+				backgroundImage.setScaleType(ScaleType.MATRIX);
 			}
+			ChatThreadUtils.applyMatrixTransformationToImageView(drawable, backgroundImage);
 		}
 
 		if(isCustom && !ChatThreadUtils.disableOverlayEffectForCCT()) {
 			backgroundImage.setOverLay(true);
 		}
 
-		boolean showTransistionEffect = true;
-		if(TextUtils.isEmpty(mThemeIdBGRendered) || HikeChatThemeConstants.THEME_PALETTE_CAMERA_ICON.equalsIgnoreCase(mThemeIdBGRendered)){
-			showTransistionEffect = false;
-		}
-		if(showTransistionEffect) {
-			Drawable srcDrawable = ChatThemeManager.getInstance().getDrawableForTheme(mThemeIdBGRendered, HikeChatThemeConstants.ASSET_INDEX_BG_PORTRAIT);
-			Drawable[] layers = new Drawable[2];
-			layers[0] = srcDrawable;
-			layers[1] = drawable;
-
-			TransitionDrawable td = new TransitionDrawable(layers);
-			backgroundImage.setImageDrawable(td);
-			td.startTransition(HikeChatThemeConstants.CHATTHEME_FADE_IN_TIME);
-		} else {
-			backgroundImage.setImageDrawable(drawable);
-		}
+		backgroundImage.setImageDrawable(drawable);
 	}
 
 	private void setCustomThemeBackground() {
