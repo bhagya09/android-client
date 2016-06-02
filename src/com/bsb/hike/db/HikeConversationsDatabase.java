@@ -5383,7 +5383,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		contentValues.put(DBConstants.MUTE_DURATION, mute.getMuteDuration());
 		contentValues.put(DBConstants.MUTE_NOTIFICATION, mute.shouldShowNotifInMute() ? 1 : 0);
 		contentValues.put(DBConstants.MUTE_TIMESTAMP, mute.getMuteTimestamp());
-		contentValues.put(DBConstants.MUTE_END_TIME, mute.getMuteEndTime());
 
 		int id = (int) mDb.insertWithOnConflict(DBConstants.CHAT_PROPERTIES_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_IGNORE);
 		if (id < 0)
@@ -10666,19 +10665,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				int muteDuration = HikeConstants.MuteDuration.DURATION_FOREVER;
 				long muteTimestamp = System.currentTimeMillis();
 
-				ContentValues values = new ContentValues();
-				values.put(DBConstants.MSISDN, msisdn);
-				values.put(DBConstants.IS_MUTE, isMute);
-				values.put(DBConstants.MUTE_DURATION, muteDuration);
-				values.put(DBConstants.MUTE_TIMESTAMP, muteTimestamp);
-
-				int id = (int) mDb.insertWithOnConflict(DBConstants.CHAT_PROPERTIES_TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
-				if (id < 0)
-				{
-					mDb.update(DBConstants.CHAT_PROPERTIES_TABLE, values, DBConstants.MSISDN + "=?", new String[] { msisdn });
-				}
 				Mute mute = new Mute.InitBuilder(msisdn).setIsMute(isMute == 1).setMuteDuration(muteDuration).setMuteTimestamp(muteTimestamp).setShowNotifInMute(false).build();
-				ContactManager.getInstance().setChatMute(msisdn, mute);
+				toggleChatMute(mute);
 			}
 		}
 		finally
@@ -10706,19 +10694,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				int muteDuration = HikeConstants.MuteDuration.DURATION_FOREVER;
 				long muteTimestamp = System.currentTimeMillis();
 
-				ContentValues values = new ContentValues();
-				values.put(DBConstants.MSISDN, msisdn);
-				values.put(DBConstants.IS_MUTE, isMute);
-				values.put(DBConstants.MUTE_DURATION, muteDuration);
-				values.put(DBConstants.MUTE_TIMESTAMP, muteTimestamp);
-
-				int id = (int) mDb.insertWithOnConflict(DBConstants.CHAT_PROPERTIES_TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
-				if (id < 0)
-				{
-					mDb.update(DBConstants.CHAT_PROPERTIES_TABLE, values, DBConstants.MSISDN + "=?", new String[] { msisdn });
-				}
 				Mute mute = new Mute.InitBuilder(msisdn).setIsMute(isMute == 1).setMuteDuration(muteDuration).setMuteTimestamp(muteTimestamp).setShowNotifInMute(false).build();
-				ContactManager.getInstance().setChatMute(msisdn, mute);
+				toggleChatMute(mute);
 			}
 		}
 		finally
