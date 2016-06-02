@@ -42,6 +42,12 @@ public class StoryListAdapter extends BaseAdapter implements PinnedSectionListVi
 
     private LayoutInflater mInflater;
 
+    private final int VIEW_TYPE_SPACE = 0;
+
+    private final int VIEW_TYPE_HEADER = 1;
+
+    private final int VIEW_TYPE_FRIENDS = 2;
+
     private final String TAG = StoryListAdapter.class.getSimpleName();
 
     private class ViewHolder {
@@ -70,7 +76,6 @@ public class StoryListAdapter extends BaseAdapter implements PinnedSectionListVi
         mDPImageLoader = new IconLoader(mContext, mContext.getResources().getDimensionPixelSize(R.dimen.icon_picture_size));
         mDPImageLoader.setDefaultAvatarIfNoCustomIcon(true);
         mDPImageLoader.setImageFadeIn(false);
-
     }
 
     public void setStoryItemList(List<StoryItem> argList) {
@@ -94,13 +99,25 @@ public class StoryListAdapter extends BaseAdapter implements PinnedSectionListVi
 
     @Override
     public int getViewTypeCount() {
-        // Header and non-header
-        return 2;
+        // Header, non-header and space
+        return 3;
     }
 
     @Override
     public int getItemViewType(int position) {
-        return getItem(position).getType() == StoryItem.TYPE_HEADER ? 0 : 1;
+        int viewType = -1;
+        StoryItem storyItem = getItem(position);
+        int type = storyItem.getType();
+
+        if (type == StoryItem.TYPE_HEADER && TextUtils.isEmpty(storyItem.getTitle())) {
+            viewType = VIEW_TYPE_SPACE;
+        } else if (type == StoryItem.TYPE_HEADER) {
+            viewType = VIEW_TYPE_HEADER;
+        } else {
+            viewType = VIEW_TYPE_FRIENDS;
+        }
+
+        return viewType;
     }
 
     @Override
@@ -192,13 +209,10 @@ public class StoryListAdapter extends BaseAdapter implements PinnedSectionListVi
 
 
             //Setup alpha
-            if(storyItem.getCategory() != StoryItem.CATEGORY_RECENT)
-            {
+            if (storyItem.getCategory() != StoryItem.CATEGORY_RECENT) {
                 viewHolder.titleView.setAlpha(0.6f);
                 viewHolder.avatarView.setAlpha(0.6f);
-            }
-            else
-            {
+            } else {
                 viewHolder.titleView.setAlpha(1f);
                 viewHolder.avatarView.setAlpha(1f);
             }
@@ -228,6 +242,6 @@ public class StoryListAdapter extends BaseAdapter implements PinnedSectionListVi
 
     @Override
     public boolean isItemViewTypePinned(int viewType) {
-        return viewType == StoryItem.TYPE_HEADER ? true : false;
+        return viewType == VIEW_TYPE_HEADER ? true : false;
     }
 }
