@@ -1,5 +1,7 @@
 package com.bsb.hike.imageHttp;
 
+import android.support.annotation.Nullable;
+
 import java.io.File;
 
 import com.bsb.hike.HikeConstants;
@@ -152,7 +154,7 @@ public class HikeImageUploader extends HikeImageWorker
 		}
 
 		@Override
-		public void onRequestFailure(HttpException httpException)
+		public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 		{
 			clearTokens();
 			

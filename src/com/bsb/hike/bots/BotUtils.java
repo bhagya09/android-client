@@ -2,6 +2,8 @@ package com.bsb.hike.bots;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.support.annotation.Nullable;
+import android.net.Uri;
 import android.graphics.drawable.BitmapDrawable;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -34,6 +36,7 @@ import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.PhoneUtils;
 import com.bsb.hike.utils.Utils;
 
 import org.json.JSONArray;
@@ -268,7 +271,7 @@ public class BotUtils
 
 	public static void deleteBot(String msisdn)
 	{
-		if (!Utils.validateBotMsisdn(msisdn))
+		if (!PhoneUtils.validateBotMsisdn(msisdn))
 		{
 			return;
 		}
@@ -424,7 +427,7 @@ public class BotUtils
 		}
 
 		String msisdn = jsonObj.optString(HikeConstants.MSISDN);
-		if (!Utils.validateBotMsisdn(msisdn))
+		if (!PhoneUtils.validateBotMsisdn(msisdn))
 		{
 			return;
 		}
@@ -683,7 +686,7 @@ public class BotUtils
 
 	}
 
-	private static BotInfo getBotInfoFormessagingBots(JSONObject jsonObj, String msisdn)
+	public static BotInfo getBotInfoFormessagingBots(JSONObject jsonObj, String msisdn)
 	{
 		BotInfo existingBotInfo = getBotInfoForBotMsisdn(msisdn);
 		BotInfo botInfo = null;
@@ -878,7 +881,7 @@ public class BotUtils
 							}
 
 							@Override
-							public void onRequestFailure(HttpException httpException)
+							public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 							{
 								Logger.i(
 										TAG,
@@ -1129,6 +1132,23 @@ public class BotUtils
 		return true;
 	}
 
+    /**
+     * Is bot url boolean.
+     *
+     * @param uri
+     *            the uri
+     * @return the boolean
+     */
+    public static boolean isBotUrl(Uri uri)
+    {
+        if (HikeConstants.HIKE_SERVICE.equals(uri.getScheme()) && HikePlatformConstants.BOTS.equals(uri.getAuthority()) && !TextUtils.isEmpty(uri.getQueryParameter(HikeConstants.HANDLE)))
+        {
+            return true;
+        }
+        return false;
+    }
+
+
 	public static String getParentMsisdnFromBotMsisdn(String botMsisdn)
 	{
 		if(TextUtils.isEmpty(botMsisdn))
@@ -1175,5 +1195,32 @@ public class BotUtils
 		}
 		return jsonObject;
 	}
+
+    /**
+     * Gets custom key board height.
+     *
+     * @param customKeyboard
+     *            the custom keyboard object
+     * @return the custom key board height
+     */
+    public static int getCustomKeyBoardHeight(CustomKeyboard customKeyboard,int screenWidth,int stickerPadding,int stickerGridPadding)
+    {
+        // Precautionary null check
+        if (customKeyboard == null)
+            return 0;
+
+        if (customKeyboard != null && customKeyboard.getT() != null && customKeyboard.getT().equals(HikePlatformConstants.BOT_CUSTOM_KEYBOARD_TYPE_TEXT))
+            return Utils.dpToPx(customKeyboard.getTk().size() * 48 + (customKeyboard.getTk().size() + 1) * 16);
+        else if (customKeyboard != null && customKeyboard.getT() != null && customKeyboard.getT().equals(HikePlatformConstants.BOT_CUSTOM_KEYBOARD_TYPE_STICKER))
+        {
+
+            int horizontalSpacing = (HikePlatformConstants.stickerGridNoOfCols - 1) * stickerGridPadding;
+
+            int actualSpace = (screenWidth - horizontalSpacing - stickerPadding);
+
+            return (int) Math.ceil( (double) customKeyboard.getSk().size() / HikePlatformConstants.stickerGridNoOfCols) * actualSpace/HikePlatformConstants.stickerGridNoOfCols + Utils.dpToPx(((int) Math.ceil( (double) customKeyboard.getSk().size() / HikePlatformConstants.stickerGridNoOfCols) + 0) * 10);
+        }
+        return 0;
+    }
 	
 }

@@ -298,7 +298,7 @@
     <string name="system_health_hinttext">hike ಸಿಸ್ಟಂ ಸ್ಟೇಟಸ್‌ ನೋಡಿ</string>
     <string name="app_version">ಆವೃತ್ತಿ %1$s</string>
     <string name="remind">ಮರುನೆನಪಿಸಿ</string>
-    <string name="OK">ಓಕೆ</string>
+    <string name="OK">ಸರಿ</string>
     <string name="not_show_call_alert_msg">ಮತ್ತೆ ತೋರಿಸಬೇಡಿ</string>
     <string name="view_profile">ಪ್ರೊಫೈಲ್‌ ನೋಡಿ</string>
     <string name="normal_update_head">ಪ್ರಮುಖ ಅಪ್‌ಡೇಟ್‌ ಲಭ್ಯವಿದೆ</string>
@@ -1430,6 +1430,14 @@
     <string name="recording_help_text">ಒತ್ತಿ ಹಿಡಿದು ರೆಕಾರ್ಡ್ ಮಾಡಿ, ಕಳುಹಿಸಲು ಬಿಡಿ</string>
     <string name="max_duration_recorded">ಗರಿಷ್ಠ ಸಮಯದವರೆಗೆ ರೆಕಾರ್ಡಿಂಗ್ ಆಗಿದೆ</string>
     <string name="stream_volume_muted_or_low">ದಯವಿಟ್ಟು ವಾಲ್ಯೂಮ್ಅನ್ನು ಜಾಸ್ತಿ ಮಾಡಿ</string>
+    <string name="group_mute_dialog_title">ಗ್ರೂಪ್ಅನ್ನು ಮ್ಯೂಟ್ ಮಾಡಿ</string>
+    <string name="chat_mute_dialog_title">ಚಾಟ್ಅನ್ನು ಮ್ಯೂಟ್ ಮಾಡಿ</string>
+    <string name="mute_chat_eight_hrs">8 ಗಂಟೆ</string>
+    <string name="mute_chat_one_week">1 ವಾರ</string>
+    <string name="mute_chat_one_yr">1 ವರ್ಷ</string>
+    <string name="show_notif">ಪ್ರಕಟಣೆಅನ್ನು  ತೋರಿಸು</string>
+    <string name="mute_chat">ಚಾಟ್ಅನ್ನು ಮ್ಯೂಟ್ ಮಾಡಿ</string>
+    <string name="unmute_chat">ಚಾಟ್ಅನ್ನು ಸದ್ದಾಗಿಸು</string>
     <string name="shop_search_hint">ಲವ್, ಹಿಂದಿ, ಬಾಲಿವುಡ್ ಇತ್ಯಾದಿ</string>
     <string name="no_sticker_pack_match_found">ನೀವು ಹೊಡುಕುವ \'%1$s\' ಯಾವದೇ ಸ್ಟಿಕ್ಕರ  ಪ್ಯಾಕಗಳಿಗೆ ಮ್ಯಾಚ್ ಆಗುತಿಲ್ಲ</string>
     <string name="pack_search_again_hint">ಪೂರ್ತಿ ಶಬ್ದವನ್ನು ಟೈಪ್ ಮಾಡಿ ಉದಾ: ಲವ್, ಹಿಂದಿ, ಬಾಲಿವುಡ್ ಇತ್ಯಾದಿा</string>

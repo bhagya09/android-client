@@ -104,6 +104,7 @@ import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.CardRenderer;
+import com.bsb.hike.platform.NativeCardRenderer;
 import com.bsb.hike.platform.WebViewCardRenderer;
 import com.bsb.hike.smartImageLoader.HighQualityThumbLoader;
 import com.bsb.hike.smartImageLoader.IconLoader;
@@ -353,7 +354,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 	private HighQualityThumbLoader hqThumbLoader;
 
-	private CardRenderer mChatThreadCardRenderer;
+	private NativeCardRenderer mChatThreadCardRenderer;
 
 	private WebViewCardRenderer mWebViewCardRenderer;
 
@@ -407,7 +408,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
                         .stretchMini(useMiniSticker)
                         .build();
 
-		this.mChatThreadCardRenderer = new CardRenderer(context);
+		this.mChatThreadCardRenderer = new NativeCardRenderer(context, conversation, this, hqThumbLoader, isListFlinging);
 		this.mWebViewCardRenderer = new WebViewCardRenderer(activity, convMessages,this);
 		this.messageTextMap = new HashMap<Long, CharSequence>();
 
@@ -2607,6 +2608,11 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		{
 			Logger.d(HikeConstants.CHAT_OPENING_BENCHMARK, " msisdn=" + conversation.getMsisdn() + " end=" + System.currentTimeMillis());
 		}
+		else
+		{
+			// Logging for automation suites - for unread msg chat opening cases
+			Logger.d(HikeConstants.CHAT_OPENING_BENCHMARK, " msisdn=" + conversation.getMsisdn() + " unreadend=" + System.currentTimeMillis());
+		}
 		return v;
 	}
 
@@ -3669,7 +3675,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 							} else if(hikeFile.getHikeFileType() == HikeFileType.IMAGE){
 								sendImageVideoRelatedAnalytic(ChatAnalyticConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.IMAGE, ChatAnalyticConstants.UPLOAD_MEDIA);
 							}
-							FileTransferManager.getInstance(context).uploadFile(convMessage, null);
+							FileTransferManager.getInstance(context).uploadFile(convMessage, null, true);
 						}
 					}
 					notifyDataSetChanged();
@@ -4781,6 +4787,16 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		if(mActivity!=null && mActivity instanceof ChatThreadActivity) {
 			((ChatThreadActivity)mActivity).recordMediaShareEvent(uniqueKey_Order, genus, family);
 		}
+	}
+
+	public int getVoiceMessagePlayerState(){
+		if(voiceMessagePlayer.getPlayerState()!=null)
+		return voiceMessagePlayer.getPlayerState().ordinal();
+		else
+			return VoiceMessagePlayerState.STOPPED.ordinal();
+	}
+	public String getVoiceMessagePlayerFileKey() {
+		return voiceMessagePlayer.getFileKey();
 	}
 
 	public boolean onGeneralEventStateChange(ConvMessage convMessage)

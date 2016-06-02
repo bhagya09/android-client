@@ -7,8 +7,10 @@ import android.content.Intent;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.analytics.AnalyticsSender;
+import com.bsb.hike.ces.CustomerExperienceScore;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.backup.AccountBackupRestore;
+import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.filetransfer.FTApkManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
@@ -55,32 +57,29 @@ public class HikeAlarmManager
 	public static final String ALARM_TIME="time";
 
 	// Declare all the request code here .Should be unique.//
+	public static final int REQUESTCODE_DEFAULT = 0;
+
+	public static final int REQUESTCODE_HIKE_ANALYTICS = 3456;
 
 	public static final int REQUESTCODE_NOTIFICATION_PRELOAD = 4567;
 
 	public static final int REQUESTCODE_RETRY_LOCAL_NOTIFICATION = 4568;
 	
-	public static final int REQUESTCODE_HIKE_ANALYTICS = 3456;
-
 	public static final int REQUESTCODE_PERIODIC_BACKUP = 4569;
 
 	public static final int PLATFORM_ALARMS = 4570;
 
-	public static final int REQUESTCODE_DEFAULT = 0;
-	
-	public static final int REQUESTCODE_REPOPULATE_ALARM_DATABASE=4572;
-	
 	//Notification to be shown in future popups
-	
+
 	public static final int REQUESTCODE_PRODUCT_POPUP=4571;
+
+	public static final int REQUESTCODE_REPOPULATE_ALARM_DATABASE=4572;
 	
 	public static final int REQUESTCODE_START_STICKER_SHARE_SERVICE = 4573;
 	
 	public static final int REQUEST_CODE_STICKER_RECOMMENDATION = 4574;
 	
 	public static final int REQUESTCODE_UPDATE_PERSISTENT_NOTIF = 4575;
-
-    public static final int REQUEST_CODE_MICROAPPS_MIGRATION = 4581;
 
 	public static final int REQUESTCODE_FETCH_BLOCK_LIST_CALLER = 4576;
 
@@ -92,8 +91,13 @@ public class HikeAlarmManager
 
 	public static final int REQUESTCODE_SHOW_CORRUPT_DB_NOTIF = 4580;
 
+	public static final int REQUEST_CODE_MICROAPPS_MIGRATION = 4581;
+
 	public static final int REQUESTCODE_FETCH_PACK_ORDER = 4582;
 
+	public static final int REQUESTCODE_END_CONVERSATION_MUTE = 4583;
+
+	public static final int REQUESTCODE_PERIODIC_CES_DATA_SYNC = 4584;
 	// ******************************************************//
 	
 	public static final String INTENT_EXTRA = "intent_extra";
@@ -246,6 +250,28 @@ public class HikeAlarmManager
 		}
 
 	}
+
+	public static void setAlarmwithIntentPersistanceMute(Context context, long time, int requestCode, boolean WillWakeCPU, Intent intent, boolean persistance, int convHashAsRequestCode) {
+
+		AlarmManager mAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+
+		intent.setAction(INTENT_ALARM);
+		intent.putExtra(INTENT_EXTRA, requestCode);
+		intent.putExtra(ALARM_TIME, time);
+
+		if (persistance)
+			HikeContentDatabase.getInstance().insertIntoAlarmManagerDB(time, convHashAsRequestCode, WillWakeCPU, intent);
+
+		PendingIntent mPendingIntent = PendingIntent.getBroadcast(context, convHashAsRequestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+		if (Utils.isKitkatOrHigher()) {
+			mAlarmManager.setExact(WillWakeCPU ? AlarmManager.RTC_WAKEUP : AlarmManager.RTC, time, mPendingIntent);
+		} else {
+
+			mAlarmManager.set(WillWakeCPU ? AlarmManager.RTC_WAKEUP : AlarmManager.RTC, time, mPendingIntent);
+		}
+
+	}
 	/**
 	 * 
 	 * @param context
@@ -286,7 +312,7 @@ public class HikeAlarmManager
 		
 		int requestCode = intent.getIntExtra(HikeAlarmManager.INTENT_EXTRA, HikeAlarmManager.REQUESTCODE_DEFAULT);
 		deleteAlarmFromDatabase(intent);
-		
+
 		switch (requestCode)
 		{
 		case HikeAlarmManager.REQUESTCODE_NOTIFICATION_PRELOAD:
@@ -352,6 +378,12 @@ public class HikeAlarmManager
             break;
 		case HikeAlarmManager.REQUESTCODE_SHOW_CORRUPT_DB_NOTIF:
 			HikeNotification.getInstance().showCorruptDbNotification();
+			break;
+		case HikeAlarmManager.REQUESTCODE_PERIODIC_CES_DATA_SYNC:
+			CustomerExperienceScore.getInstance().processCesScoreAndL1Data();
+			break;
+		case HikeAlarmManager.REQUESTCODE_END_CONVERSATION_MUTE:
+			ChatThreadUtils.processTasks(intent);
 			break;
 		default:
 			if (intent.hasExtra(HikePlatformConstants.BOT_TYPE))
@@ -457,6 +489,12 @@ public class HikeAlarmManager
             break;
 		case HikeAlarmManager.REQUESTCODE_SHOW_CORRUPT_DB_NOTIF:
 			HikeNotification.getInstance().showCorruptDbNotification();
+			break;
+		case HikeAlarmManager.REQUESTCODE_PERIODIC_CES_DATA_SYNC:
+			processTasks(intent, context);
+			break;
+		case HikeAlarmManager.REQUESTCODE_END_CONVERSATION_MUTE:
+			ChatThreadUtils.processTasks(intent);
 			break;
 		default:
 			if (intent.hasExtra(HikePlatformConstants.BOT_TYPE))

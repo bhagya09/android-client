@@ -49,9 +49,9 @@ public abstract class RequestRunnerBase
 			public void onResponse(Response response, HttpException ex)
 					{
 						final Config gcmTaskConfig = request.getGcmTaskConfig();
-						if (null == response)
+						if (null == response || response.getBody() == null || response.getBody().getContent() == null)
 						{
-							requestListenerNotifier.notifyListenersOfRequestFailure(request, ex);
+							requestListenerNotifier.notifyListenersOfRequestFailure(request, response, ex);
 							if (gcmTaskConfig != null && gcmTaskConfig.getNumRetries() > 0)
 							{
 								gcmTaskConfig.decrementRetries();

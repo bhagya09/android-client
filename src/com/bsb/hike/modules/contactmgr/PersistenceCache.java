@@ -19,6 +19,7 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.Conversation.OneToNConversation;
+import com.bsb.hike.models.Mute;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.PairModified;
 
@@ -37,6 +38,8 @@ class PersistenceCache extends ContactsCache
 
 	private Set<String> blockedMsisdns;
 
+	private Map<String, Mute> mutePersistence;
+
 	private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
 
 	private final Lock readLock = readWriteLock.readLock();
@@ -53,6 +56,7 @@ class PersistenceCache extends ContactsCache
 		groupContactsPersistence = new HashMap<String, PairModified<ContactInfo, Integer>>();
 		groupPersistence = new HashMap<String, GroupDetails>();
 		blockedMsisdns = new HashSet<String>();
+		mutePersistence = new HashMap<>();
 		loadMemory();
 	}
 
@@ -513,6 +517,9 @@ class PersistenceCache extends ContactsCache
 			groupPersistence.put(grpId, groupDetails);
 		}
 
+		// Caching the mute data from Chat Properties Table in mutePersistence map
+		mutePersistence.putAll(HikeConversationsDatabase.getInstance().getChatMuteMap());
+
 		// msisdnsToGetContactInfo is combination of one to one msisdns and group last msisdns to get contact info from users db
 		List<String> msisdnsToGetContactInfo = new ArrayList<String>();
 		msisdnsToGetContactInfo.addAll(oneToOneMsisdns);
@@ -798,6 +805,11 @@ class PersistenceCache extends ContactsCache
 			{
 				groupPersistence.clear();
 			}
+
+			if (null != mutePersistence)
+			{
+				mutePersistence.clear();
+			}
 		}
 		finally
 		{
@@ -916,6 +928,25 @@ class PersistenceCache extends ContactsCache
 			writeLock.unlock();
 		}
 
+	}
+
+	/**
+	 * Sets Mute for given msisdn in {@link #mutePersistence}
+	 *
+	 * @param msisdn
+	 * @param mute
+     */
+	void setChatMute(String msisdn, Mute mute)
+	{
+		writeLock.lock();
+		try
+		{
+			mutePersistence.put(msisdn, mute);
+		}
+		finally
+		{
+			writeLock.unlock();
+		}
 	}
 
 	public void insertGroup(String grpId, GroupDetails grpDetails)
@@ -1116,6 +1147,24 @@ class PersistenceCache extends ContactsCache
 	}
 
 	/**
+	 *
+	 * @param msisdn
+	 * @return Mute object for an msisdn
+     */
+	public Mute getMute(String msisdn)
+	{
+		readLock.lock();
+		try
+		{
+			return mutePersistence.get(msisdn);
+		}
+		finally
+		{
+			readLock.unlock();
+		}
+	}
+
+	/**
 	 * Blocks a msisdn , adds it to {@link #blockedMsisdns}
 	 * 
 	 * @param msisdn
@@ -1217,5 +1266,6 @@ class PersistenceCache extends ContactsCache
 		convsContactsPersistence = null;
 		groupContactsPersistence = null;
 		groupPersistence = null;
+		mutePersistence = null;
 	}
 }

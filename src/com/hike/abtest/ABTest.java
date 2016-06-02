@@ -51,15 +51,15 @@ public class ABTest {
     private DataPersist getDataPersist() {
         return mDataPersist;
     }
+
     /**
      * Applies/Loads all the stored ABExperiments if available.
      * Called as and when the application starts up
      *
      * @param context Application context.
-     *
      */
     public static void apply(Context context) {
-        if(isInitialized.get()) {
+        if (isInitialized.get()) {
             Logger.d(TAG, "Already initialized!!!");
             return;
         }
@@ -73,9 +73,8 @@ public class ABTest {
     /**
      * Retrieve a long value from the ABExperiments if any.
      *
-     * @param varKey The name of the variable to retrieve.
+     * @param varKey       The name of the variable to retrieve.
      * @param defaultValue Value to return if this variable does not exist OR experiment is not applicable.
-     *
      * @return Returns the variable value if the corresponding experiment is applicable, or defValue.
      * Throws ClassCastException, if the variable type mismatches
      */
@@ -96,9 +95,8 @@ public class ABTest {
     /**
      * Retrieve a boolean value from the ABExperiments if any.
      *
-     * @param varKey The name of the variable to retrieve.
+     * @param varKey       The name of the variable to retrieve.
      * @param defaultValue Value to return if this variable does not exist OR experiment is not applicable.
-     *
      * @return Returns the variable value if the corresponding experiment is applicable, or defValue.
      * Throws ClassCastException, if the variable type mismatches
      */
@@ -119,9 +117,8 @@ public class ABTest {
     /**
      * Retrieve a long value from the ABExperiments if any.
      *
-     * @param varKey The name of the variable to retrieve.
+     * @param varKey       The name of the variable to retrieve.
      * @param defaultValue Value to return if this variable does not exist OR experiment is not applicable.
-     *
      * @return Returns the variable value if the corresponding experiment is applicable, or defValue.
      * Throws ClassCastException, if the variable type mismatches
      */
@@ -132,7 +129,7 @@ public class ABTest {
         }
 
         Long variableValue = getInstance().getDataManager().getVariable(varKey, Long.class);
-        if(variableValue!=null) {
+        if (variableValue != null) {
             result = variableValue.longValue();
         }
 
@@ -142,9 +139,8 @@ public class ABTest {
     /**
      * Retrieve a String value from the ABExperiments if any.
      *
-     * @param varKey The name of the variable to retrieve.
+     * @param varKey       The name of the variable to retrieve.
      * @param defaultValue Value to return if this variable does not exist OR experiment is not applicable.
-     *
      * @return Returns the variable value if the corresponding experiment is applicable, or defValue.
      * Throws ClassCastException, if the variable type mismatches
      */
@@ -155,7 +151,7 @@ public class ABTest {
         }
 
         String variableValue = getInstance().getDataManager().getVariable(varKey, String.class);
-        if(variableValue!=null) {
+        if (variableValue != null) {
             result = variableValue;
         }
 
@@ -166,7 +162,6 @@ public class ABTest {
      * Retrieve a ABExperiments associated with the variable, which can be logged as analytics
      *
      * @param varKey The name of the variable to retrieve.
-     *
      * @return Returns experiment details for the given variable if applicable, or null.
      */
     public static synchronized JSONObject getLogDetails(String varKey) {
@@ -190,10 +185,10 @@ public class ABTest {
 
     /**
      * Retrieve a ABExperiments associated with the variable, which can be logged as analytics
-     *  @param requestType type of the request received
-     *  @param requestPayload payload of the request received
      *
-     *  @return returns true if the message is handled, false otherwise
+     * @param requestType    type of the request received
+     * @param requestPayload payload of the request received
+     * @return returns true if the message is handled, false otherwise
      */
     public static boolean onRequestReceived(String requestType, JSONObject requestPayload) {
         boolean result = false;
@@ -203,10 +198,10 @@ public class ABTest {
         }
 
         if (DataParser.isABTestMessage(requestType)) {
-            Logger.d(TAG,"requestType: " + requestType);
-            Logger.d(TAG,"requestPayload: " + requestPayload.toString());
+            Logger.d(TAG, "requestType: " + requestType);
+            Logger.d(TAG, "requestPayload: " + requestPayload.toString());
             try {
-                if(requestPayload.has(HikeConstants.DATA) &&
+                if (requestPayload.has(HikeConstants.DATA) &&
                         requestPayload.getJSONObject(HikeConstants.DATA).has(HikeConstants.METADATA)) {
                     requestPayload = requestPayload.getJSONObject(HikeConstants.DATA)
                             .getJSONObject(HikeConstants.METADATA);
@@ -235,7 +230,6 @@ public class ABTest {
 
     /**
      * Apply new user ABExperiments, if available
-     *
      */
     public static void applyNewUserExperiments() {
         Logger.d(TAG, "Checking for new User experiments...");
@@ -245,7 +239,8 @@ public class ABTest {
         }
     }
 
-    /*package*/ static void setNewExperimentsAvailable() {
+    /*package*/
+    static void setNewExperimentsAvailable() {
         areExperimentsForNewUserAvail.getAndSet(true);
     }
 

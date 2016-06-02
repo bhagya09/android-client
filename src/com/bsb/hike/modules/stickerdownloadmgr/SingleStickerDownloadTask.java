@@ -12,6 +12,7 @@ import org.json.JSONObject;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.bsb.hike.BitmapModule.BitmapUtils;
@@ -271,7 +272,7 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 			}
 
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 				Logger.e(TAG, "Sticker download failed :", httpException);
 				doOnFailure(httpException);

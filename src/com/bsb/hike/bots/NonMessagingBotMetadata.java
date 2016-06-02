@@ -41,6 +41,8 @@ public class NonMessagingBotMetadata
     private int mAppVersionCode;
 	private boolean autoResume;
 	private int prefNetwork;
+	private int tagId =-1;
+	private int tagType=-1;
 
 	public NonMessagingBotMetadata(String jsonString)
 	{
@@ -84,8 +86,10 @@ public class NonMessagingBotMetadata
 		setCallbackId(json.optString(HikePlatformConstants.CALLBACK_ID));
 		setResumeSupported(json.optBoolean(HikePlatformConstants.RESUME_SUPPORTED));
 		setAsocmapp(json.optJSONArray(HikePlatformConstants.ASSOCIATE_MAPP));
-		setAutoResume(json.optBoolean(HikePlatformConstants.AUTO_RESUME,false));
-		setPrefNetwork(json.optInt(HikePlatformConstants.PREF_NETWORK,Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK)));
+		setAutoResume(json.optBoolean(HikePlatformConstants.AUTO_RESUME, false));
+		setPrefNetwork(json.optInt(HikePlatformConstants.PREF_NETWORK, Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK)));
+		setTagId(json.optInt(HikePlatformConstants.TAG_ID, -1));
+		setTagType(json.optInt(HikePlatformConstants.TAG_TYPE,-1));
 
 		if (json.has(HikePlatformConstants.CARD_OBJECT))
 		{
@@ -403,4 +407,19 @@ public class NonMessagingBotMetadata
 		return prefNetwork;
 	}
 
+	public int getTagId() {
+		return tagId;
+	}
+
+	public void setTagId(int tagId) {
+		this.tagId = tagId;
+	}
+
+	public int getTagType() {
+		return tagType;
+	}
+
+	public void setTagType(int tagType) {
+		this.tagType = tagType;
+	}
 }
