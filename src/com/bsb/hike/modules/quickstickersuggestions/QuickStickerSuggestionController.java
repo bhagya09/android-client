@@ -307,9 +307,9 @@ public class QuickStickerSuggestionController
         return isFtueSessionRunning() && (isSent ? sessionType == FTUE_SENT_SESSION : sessionType == FTUE_RECEIVE_SESSION);
     }
 
-    public void ftueSessionCompleted()
+    public void completeFtueSession()
     {
-        if(isFtueSessionRunning())
+        if(isFtueSessionCompleted())
         {
             if(sessionType == FTUE_RECEIVE_SESSION)
             {
@@ -322,6 +322,18 @@ public class QuickStickerSuggestionController
         }
         ftueSessionRunning = false;
         ftueTipSeenArray.clear();
+    }
+
+    public boolean isFtueSessionCompleted() {
+        return isFtueSessionRunning() && isAllTipsSeen();
+    }
+
+    private boolean isAllTipsSeen() {
+        if (sessionType == FTUE_RECEIVE_SESSION) {
+            return isTipSeen(ChatThreadTips.QUICK_SUGGESTION_RECEIVED_FIRST_TIP) && isTipSeen(ChatThreadTips.QUICK_SUGGESTION_RECEIVED_SECOND_TIP) && isTipSeen(ChatThreadTips.QUICK_SUGGESTION_RECEIVED_THIRD_TIP);
+        } else {
+            return isTipSeen(ChatThreadTips.QUICK_SUGGESTION_SENT_FIRST_TIP) && isTipSeen(ChatThreadTips.QUICK_SUGGESTION_SENT_SECOND_TIP) && isTipSeen(ChatThreadTips.QUICK_SUGGESTION_SENT_THIRD_TIP);
+        }
     }
 
     public String getTiptext(int whichTip)
