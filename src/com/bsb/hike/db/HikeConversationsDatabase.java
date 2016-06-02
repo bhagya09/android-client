@@ -52,12 +52,19 @@ import static com.bsb.hike.db.DBConstants.MESSAGE_EVENT_TABLE;
 import static com.bsb.hike.db.DBConstants.MESSAGE_HASH;
 import static com.bsb.hike.db.DBConstants.MESSAGE_ID;
 import static com.bsb.hike.db.DBConstants.MESSAGE_METADATA;
+import static com.bsb.hike.db.DBConstants.METHOD;
 import static com.bsb.hike.db.DBConstants.MSISDN;
+import static com.bsb.hike.db.DBConstants.PARAMETER_KEY;
+import static com.bsb.hike.db.DBConstants.PARAMETER_LIST;
+import static com.bsb.hike.db.DBConstants.PARAMETER_MAPPING_TABLE;
+import static com.bsb.hike.db.DBConstants.PARAMETER_VALUE;
 import static com.bsb.hike.db.DBConstants.QUICK_SUGGESTED_REPLY_STICKERS;
 import static com.bsb.hike.db.DBConstants.QUICK_SUGGESTED_SENT_STICKERS;
 import static com.bsb.hike.db.DBConstants.STATUS_MAPPED_ID;
 import static com.bsb.hike.db.DBConstants.STATUS_TABLE;
 import static com.bsb.hike.db.DBConstants.UNREAD_COUNT;
+import static com.bsb.hike.db.DBConstants.URL;
+import static com.bsb.hike.db.DBConstants.USER_PARAMETER_TABLE;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -452,11 +459,17 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		db.execSQL(sql);
 
 		//creating tables for OTA ChatThemes
-		String assetTableQuery = getAssetTableCreateQuery();
-		db.execSQL(assetTableQuery);
+		sql = getAssetTableCreateQuery();
+		db.execSQL(sql);
 
-		String themeTableQuery = getThemeTableCreateQuery();
-		db.execSQL(themeTableQuery);
+		sql = getThemeTableCreateQuery();
+		db.execSQL(sql);
+
+		sql = getUserParameterTableCreateQuery();
+		db.execSQL(sql);
+
+		sql = getParameterMappingTableCreateQuery();
+		db.execSQL(sql);
 	}
 
 	private void createIndexOverServerIdField(SQLiteDatabase db)
@@ -1216,6 +1229,15 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		if (oldVersion < 55)
 		{
 			String sql = "DROP TABLE IF EXISTS " + DBConstants.STICKER_SHOP_TABLE;
+			db.execSQL(sql);
+		}
+
+		if (oldVersion < 56)
+		{
+			String sql = getUserParameterTableCreateQuery();
+			db.execSQL(sql);
+
+			sql = getParameterMappingTableCreateQuery();
 			db.execSQL(sql);
 		}
 	}
@@ -11234,5 +11256,121 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		asset.setIsDownloaded((byte) isDownloaded);
 
 		return asset;
+	}
+
+	private String getUserParameterTableCreateQuery()
+	{
+		String sql = CREATE_TABLE + DBConstants.USER_PARAMETER_TABLE
+				+ " ( "
+				+ DBConstants.PARAMETER_KEY + " TEXT PRIMARY KEY, "
+				+ DBConstants.PARAMETER_VALUE + " TEXT"
+				+ " )";
+
+		return sql;
+	}
+
+	private String getParameterMappingTableCreateQuery()
+	{
+		String sql = CREATE_TABLE + DBConstants.PARAMETER_MAPPING_TABLE
+				+ " ( "
+				+ DBConstants.URL + " TEXT PRIMARY KEY, "
+				+ DBConstants.METHOD + " TEXT, "
+				+ DBConstants.PARAMETER_LIST + " TEXT"
+				+ " )";
+
+		return sql;
+	}
+
+	public void insertParameterListInDb(List<Pair<String, String>> parameterList)
+	{
+		try {
+			mDb.beginTransaction();
+			ContentValues contentValues = new ContentValues();
+			for(Pair<String, String> pair : parameterList)
+			{
+				contentValues.clear();
+				contentValues.put(PARAMETER_KEY, pair.first);
+				contentValues.put(PARAMETER_VALUE, pair.second);
+				mDb.insertWithOnConflict(USER_PARAMETER_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
+			}
+			mDb.setTransactionSuccessful();
+		} finally {
+			mDb.endTransaction();
+		}
+	}
+
+	public void insertParameterMappingInDb(List<Pair<String, Pair<String, String>>> parameterMapping)
+	{
+		try {
+			mDb.beginTransaction();
+			ContentValues contentValues = new ContentValues();
+			for(Pair<String, Pair<String, String>> pair : parameterMapping)
+			{
+				contentValues.clear();
+				contentValues.put(URL, pair.first);
+				contentValues.put(METHOD, pair.second.first);
+				contentValues.put(PARAMETER_LIST, pair.second.second);
+				mDb.insertWithOnConflict(PARAMETER_MAPPING_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
+			}
+			mDb.setTransactionSuccessful();
+		} finally {
+			mDb.endTransaction();
+		}
+	}
+
+	public List<String> getParameterListForUrl(String url, String method) {
+		Cursor c = null;
+		List<String> parameterList = null;
+
+		try {
+			c = mDb.query(
+					DBConstants.PARAMETER_MAPPING_TABLE,
+					new String[]{DBConstants.PARAMETER_LIST},
+					DBConstants.URL + "=?" + " AND " + DBConstants.METHOD + "=?",
+					new String[]{url, method},
+					null, null, null, null);
+
+			int parameterListIdx = c.getColumnIndex(DBConstants.PARAMETER_LIST);
+			if (c.moveToFirst()) {
+				String parameterString = c.getString(parameterListIdx);
+
+				JSONArray parameterArray = TextUtils.isEmpty(parameterString) ? null : new JSONArray(parameterString);
+				parameterList = Utils.jsonArrayToList(parameterArray);
+			}
+		} catch (JSONException e) {
+			Logger.e(HikeConversationsDatabase.class.getName(), "exception in getParameterArrayForUrl ", e);
+		} finally {
+			if (null != c) {
+				c.close();
+			}
+		}
+		return parameterList;
+	}
+
+	public List<Pair<String, String >> getParameterMapping(String parameters) {
+
+		Cursor c = null;
+		List<Pair<String, String>> parameterMapping = null;
+		try {
+			if (!TextUtils.isEmpty(parameters)) {
+
+				c = mDb.query(DBConstants.PARAMETER_MAPPING_TABLE, null, DBConstants.PARAMETER_KEY + " IN " + parameters, null, null, null, null);
+				parameterMapping = new ArrayList<>(c.getCount());
+
+				int parameterKeyIdx = c.getColumnIndex(DBConstants.PARAMETER_KEY);
+				int parameterValueIdx = c.getColumnIndex(DBConstants.PARAMETER_VALUE);
+
+				while(c.moveToNext()) {
+					String parameterKey = c.getString(parameterKeyIdx);
+					String parameterValue = c.getString(parameterValueIdx);
+					parameterMapping.add(new Pair<>(parameterKey, parameterValue));
+				}
+			}
+		} finally {
+			if( null != c) {
+				c.close();
+			}
+		}
+		return parameterMapping;
 	}
 }

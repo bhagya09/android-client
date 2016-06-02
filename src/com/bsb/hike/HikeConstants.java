@@ -4378,4 +4378,6 @@ public class HikeConstants
 	public static final String MAX_FETCH_COUNT = "maxFetchCount";
 
 	public static final String MIN_SEEN_COUNT = "minSeenCount";
+
+	public static final String USER_PARAMTER_REFRESH_PERIOD = "usPrRfPd";
 }

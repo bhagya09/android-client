@@ -332,6 +332,16 @@ public class HttpRequestConstants
 		return HTTP + "54.255.251.239:6870" + "/quickSuggestions";
 	}
 
+	public static String userParameterUrl()
+	{
+		return BASE_STICKERS_URL + BASE_V4 + BASE_STICKER + "/dynamic_params";
+	}
+
+	public static String parameterMappingUrl()
+	{
+		return BASE_STICKERS_URL + BASE_V4 + BASE_STICKER + "/params";
+	}
+
 	public static String lastSeenUrl()
 	{
 		return BASE_URL + BASE_V1 + BASE_USER + "/lastseen";
