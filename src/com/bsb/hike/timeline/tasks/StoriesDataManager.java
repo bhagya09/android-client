@@ -144,6 +144,7 @@ public class StoriesDataManager {
     public void updateAllPhotosStories() {
         // Get all photos
         allPhotosList = HikeConversationsDatabase.getInstance().getStories(StoryItem.CATEGORY_ALL);
+        removeSimilarElements(recentsList,allPhotosList);
         if (!Utils.isEmpty(allPhotosList)) {
             Collections.reverse(allPhotosList);
             // Make a header
@@ -158,14 +159,28 @@ public class StoriesDataManager {
     public void updateCameraShyStories() {
         // Get camera shy
         cameraShyList = HikeConversationsDatabase.getInstance().getStories(StoryItem.CATEGORY_DEFAULT);
+        removeSimilarElements(recentsList,cameraShyList);
+        removeSimilarElements(allPhotosList,cameraShyList);
         if (!Utils.isEmpty(cameraShyList)) {
             Collections.sort(cameraShyList, cameraShyFriendsComparator);
+
             // Make a header
             StoryItem defaultHeader = new StoryItem(StoryItem.TYPE_HEADER, mContext.getString(R.string.story_category_default));
             defaultHeader.setSubText(String.valueOf(cameraShyList.size()));
             cameraShyList.add(0, defaultHeader);
 
             notifyDataUpdate();
+        }
+    }
+
+    private void removeSimilarElements(List referenceList, List workingList)
+    {
+        for(int i = workingList.size() - 1; i >= 0 ; i--)
+        {
+            if(referenceList.contains(workingList.get(i)))
+            {
+                workingList.remove(i);
+            }
         }
     }
 

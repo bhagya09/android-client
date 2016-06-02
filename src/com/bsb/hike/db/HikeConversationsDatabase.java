@@ -11108,8 +11108,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 
 		String selection = null;
 
-		StringBuilder stringBuilder = new StringBuilder();
-
 		long storyTimeLimit = TimeUnit.HOURS.toSeconds(24);
 		long currentTimeSec = System.currentTimeMillis()/1000;
 		long storyTimeRange = currentTimeSec - storyTimeLimit;
