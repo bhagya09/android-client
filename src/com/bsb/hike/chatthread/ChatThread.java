@@ -2479,8 +2479,10 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			setStatusBarColorValue(statusBarColor.getColor());
 
 		}
+		setChatThemeBackground(themeId);
+	}
 
-
+	public void setChatThemeBackground(String themeId) {
 		// background image
 		if(HikeChatThemeConstants.THEME_ID_CUSTOM_THEME.equalsIgnoreCase(themeId)) {
 			setCustomThemeBackground();
@@ -5922,11 +5924,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		 */
 		if (getCurrentlThemeId() != null && !getCurrentlThemeId().equals(ChatThemeManager.getInstance().defaultChatThemeId))
 		{
-			if(HikeChatThemeConstants.THEME_ID_CUSTOM_THEME.equalsIgnoreCase(getCurrentlThemeId())){
-				setCustomThemeBackground();
-			} else {
-				setBackground(getCurrentlThemeId());
-			}
+			setChatThemeBackground(getCurrentlThemeId());
 			ColorDrawable statusBarColor = (ColorDrawable) ChatThemeManager.getInstance().
 					getDrawableForTheme(getCurrentlThemeId(), HikeChatThemeConstants.ASSET_INDEX_STATUS_BAR_BG);
 			setStatusBarColorValue(statusBarColor.getColor());
