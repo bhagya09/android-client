@@ -315,4 +315,10 @@
         <item>@color/v2_dp_bg_11</item>
     </array>
 
+    <array name="caller_quick_reply_items">
+        <item>Can\'t talk now. What\'s up?</item>
+        <item>I\'ll call you back.</item>
+        <item>I\'ll call you later.</item>
+        <item>Can\'t talk now. Call you later?</item>
+    </array>
 </resources>

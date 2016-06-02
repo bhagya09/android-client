@@ -1561,6 +1561,13 @@
     <string name="db_corrupt_notif_msg">You have a new notification</string>
     <string name="recording_help_text">Tap and hold to record, release to send</string>
     <string name="restore_version_error">Your backup was taken on a newer version of hike. Update your app to the latest version and try again.</string>
+    <string name="custom_quick_reply">WRITE YOUR OWN</string>
+    <string name="save_unknown_contact">SAVE</string>
+    <string name="spam_call_fail">Could not mark user as spam</string>
+    <string name="block_dialog_title">Block User</string>
+    <string name="block_dialog_body">Are you sure you want to block this user ?</string>
+    <string name="spam_info_in_dialog">Mark as spam and block</string>
+    <string name="unknown_user_spam_info"><![CDATA[ <font color="#ff5f5f"> Marked as Spam by %1$d people</font> ]]></string>
     <string name="restore_failed">Restore failed</string>
     <string name="ADD_FRIEND">ADD FRIEND</string>
     <string name="ACCEPT_REQUEST">ACCEPT REQUEST</string>
@@ -1625,6 +1632,9 @@
     <string name="sticker_restore_diffdpi_message">Looks like you have upgraded your phone. You will need to upgrade your sticker packs to support your new phone</string>
     <string name="GOT_IT">GOT IT</string>
     <string name="file_size_invalid_error">The file size which you are trying to share is invalid</string>
+    <string name="overlay_block_title">BLOCK | SPAM</string>
+    <string name="bot_overlay_block_title">BLOCK</string>
+    <string name="overlay_add_title">ADD CONTACT</string>
     <string name="my_location">My Location</string>
     <string name="custom_location">Custom Location</string>
     <string name="birthday_privacy_header">Birthday visible to </string>

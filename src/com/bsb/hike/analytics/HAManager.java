@@ -762,18 +762,34 @@ public class HAManager {
 
     }
 
-    public void stickyCallerAnalyticsUIEvent(String eventType, String msisdn, String source, String callType) {
-        JSONObject metadata = new JSONObject();
-        try {
-            metadata.put(HikeConstants.EVENT_KEY, AnalyticsConstants.StickyCallerEvents.STICKY_CALLER);
-            metadata.put(HikeConstants.EVENT_TYPE, eventType);
-            metadata.put(AnalyticsConstants.StickyCallerEvents.MSISDN, msisdn);
-            metadata.put(AnalyticsConstants.StickyCallerEvents.SOURCE, source);
-            metadata.put(AnalyticsConstants.StickyCallerEvents.CALL_TYPE, callType);
-            record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+    public void stickyCallerAnalyticsUIEvent(String eventType, String msisdn, String source, String callType)
+    {
+        stickyCallerAnalyticsUIEvent(eventType, msisdn, source, callType, null);
+    }
+
+    public void stickyCallerAnalyticsUIEvent(String eventKey, String msisdn, String source, String callType, JSONObject metadata)
+	{
+		if (metadata == null)
+		{
+			metadata = new JSONObject();
+		}
+		else
+		{
+			metadata = Utils.cloneJsonObject(metadata);
+		}
+		try
+		{
+			metadata.put(HikeConstants.EVENT_KEY, AnalyticsConstants.StickyCallerEvents.STICKY_CALLER);
+			metadata.put(HikeConstants.EVENT_TYPE, eventKey);
+			metadata.put(AnalyticsConstants.StickyCallerEvents.MSISDN, msisdn);
+			metadata.put(AnalyticsConstants.StickyCallerEvents.SOURCE, source);
+			metadata.put(AnalyticsConstants.StickyCallerEvents.CALL_TYPE, callType);
+			record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
     }
 
     public void updateTipAndNotifAnalyticEvent(String eventType, String eventKey, String eventContext) {
@@ -1153,4 +1169,26 @@ public class HAManager {
                 getPrefs().getInt(AnalyticsConstants.EVENTS_TO_UPLOAD_COUNT, 0) + 1);
         sharedPrefEditor.commit();
     }
+
+	public void recordCallerChatSpamAnalytics(String uk, String order, String msisdn, String species)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, uk);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_LOG);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.STICKY_CALLER);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CHAT_THREAD);
+			json.put(AnalyticsConstants.V2.ORDER, order);
+			json.put(AnalyticsConstants.V2.TO_MISISDN, msisdn);
+			json.put(AnalyticsConstants.V2.SPECIES, species);
+			Logger.d("c_spam_logs", " Caller spam logs are \n " + json);
+			recordV2(json);
+
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
 }

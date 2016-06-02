@@ -10,6 +10,7 @@ import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHttpTaskResult;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerCategoryDownloadTask;
+import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
 public class FetchCategoryDetailsTask extends AsyncTask<Void, Void, StickerCategory> implements IHikeHttpTaskResult
@@ -36,8 +37,7 @@ public class FetchCategoryDetailsTask extends AsyncTask<Void, Void, StickerCateg
 		if (stickerCategory == null || Utils.isEmpty(stickerCategory.getAllStickers())
 				|| (stickerCategory.getPreviewUpdationTime() < (System.currentTimeMillis() - HikeConstants.ONE_DAY_MILLS)))
 		{
-			StickerCategoryDownloadTask stickerCategoryDownloadTask = new StickerCategoryDownloadTask(catId);
-			stickerCategoryDownloadTask.execute();
+			StickerManager.getInstance().initialiseCategoryDetailsTask(catId);
 		}
 		else
 		{

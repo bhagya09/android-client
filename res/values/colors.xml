@@ -142,11 +142,12 @@
     <color name="stealth_ftue_popup_divider">#ca4c45</color>
     <color name="black_alpha_10">#1A000000</color>
     <color name="white_alpha_48">#7bffffef</color>
-    <color name="black_unknwon_contacts">#66000000</color>
+    <color name="black_unknwon_contacts">#424a5d</color>
     <color name="black_unknwon_contacts_pressed">#9A000000</color>
     <color name="unsaved_contact_name">#66000000</color>
     <color name="white_alpha_10">#1Affffff</color>
     <color name="block_add_unknown">#FFFFFF</color>
+    <color name="add_block_bg_bot_color">#66000000</color>
     <color name="tip_green_bg">#26bd86</color>
     <color name="tip_green_divider_color">#49c899</color>
     <color name="dark_grey_drop_shadow">#bdbdbd</color>
@@ -337,6 +338,8 @@
     <color name="rec_progress_alpha">#c4ef554e</color>
     <color name="view_all_btn_pressed">#f1f1f1</color>
     <color name="default_update_tip_bg">#04c687</color>
+    <color name="unknown_user_info_ct">#FFFFFF</color>
+    <color name="unknown_user_info_ct_bg">#676460</color>
     <color name="white_90">#E6FFFFFF</color>
     <color name="show_notif_color">#525252</color>
     <color name="atomic_tip_header_text">#f7f8f9</color>
