@@ -87,6 +87,7 @@ import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.service.HikeMqttManagerNew;
+import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.fragments.OfflineAnimationFragment;
 import com.bsb.hike.ui.fragments.OfflineDisconnectFragment;
 import com.bsb.hike.ui.fragments.OfflineDisconnectFragment.OfflineConnectionRequestListener;
@@ -232,6 +233,8 @@ import java.util.Map;
 	private boolean shouldinitialteConnectionFragment=false;
 
 	boolean friendsFtueAnimationShown = false;
+
+	boolean wasFriendsPrivacyRedDotShown = false;
 	
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
@@ -248,8 +251,9 @@ import java.util.Map;
 	{
 		super.onResume();
 		checkOfflineConnectionStatus();
+		showRedDotNotificationForPrivacyFtue();
 		activity.recordActivityEndTime();
-	};
+	}
 	
 	@Override
 	protected void init()
@@ -373,6 +377,9 @@ import java.util.Map;
 			{
 				menu.findItem(R.id.voip_call).setVisible(true);
 			}
+
+			showRedDotNotificationForPrivacyFtue();
+
 			return super.onCreateOptionsMenu(menu);
 		}
 
@@ -519,6 +526,8 @@ import java.util.Map;
 		{
 			doSetupForAddFriend();
 		}
+
+		showRedDotNotificationForPrivacyFtue();
 	}
 
 	private void showTips()
@@ -1875,7 +1884,10 @@ import java.util.Map;
 		if (!mConversation.isBlocked())
 		{
 			Intent profileIntent = IntentFactory.getSingleProfileIntent(activity.getApplicationContext(), mConversation.isOnHike(), msisdn);
-
+			if (wasFriendsPrivacyRedDotShown) {
+				setFriendsPrivacyFtueShown();
+				profileIntent.putExtra(ProfileActivity.EXPAND_PRIVACY_VIEW, true);
+			}
 			activity.startActivity(profileIntent);
 		}
 		else
@@ -1883,6 +1895,7 @@ import java.util.Map;
 			Toast.makeText(activity.getApplicationContext(), activity.getString(R.string.block_overlay_message, mConversation.getLabel()), Toast.LENGTH_SHORT).show();
 		}
 	}
+
 	@Override
 	protected void openMessageInfoScreen(ConvMessage convMessage){
 		Intent intent=IntentFactory.messageInfoIntent(activity,convMessage.getMsgID());
@@ -3818,6 +3831,8 @@ import java.util.Map;
 		removeAddFriendViews(viewResId == R.id.add_friend_ftue_button);
 
 		setMessagesRead(); //If any previous messages were marked as unread, now is a good time to send MR
+
+		showRedDotNotificationForPrivacyFtue();
 	}
 
 	@Override
@@ -4224,6 +4239,28 @@ import java.util.Map;
 		if (mComposeView != null)
 		{
 			mComposeView.setText(getString(R.string.composeview_bday));
+		}
+	}
+
+	private void showRedDotNotificationForPrivacyFtue() {
+
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FRIENDS_PRIVACY_RED_DOT_SHOWN, false)) {
+			return;
+		}
+
+		if (Utils.isFavToFriendsMigrationAllowed() && mContactInfo != null && mContactInfo.isMyOneWayFriend()) {
+			mActionBar.updateOverflowMenuIndicatorCount(1);
+			mActionBar.updateOverflowMenuItemCount(R.string.view_profile, 1);
+			wasFriendsPrivacyRedDotShown = true;
+		}
+	}
+
+	private void setFriendsPrivacyFtueShown() {
+
+		if (wasFriendsPrivacyRedDotShown) {
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FRIENDS_PRIVACY_RED_DOT_SHOWN, true);
+			mActionBar.updateOverflowMenuIndicatorCount(0);
+			mActionBar.updateOverflowMenuItemCount(R.string.view_profile, 0);
 		}
 	}
 

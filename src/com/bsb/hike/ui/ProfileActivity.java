@@ -150,6 +150,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		View.OnClickListener, HikeDialogListener
 {
 
+	public static final String EXPAND_PRIVACY_VIEW = "exp_privacy_view";
+
 	private ImageView mAvatarEdit;
 
 	private int defAvBgColor;
@@ -3999,8 +4001,15 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	}
 
 	private void checkAndAddPrivacySection() {
-		if (Utils.isFavToFriendsMigrationAllowed() && contactInfo.isMyOneWayFriend())
-			profileItems.add(new ProfileItem.ProfilePrivacyItem(ProfileItem.PRIVACY_SECTION));
+		if (Utils.isFavToFriendsMigrationAllowed() && contactInfo.isMyOneWayFriend()) {
+			boolean shouldShowFTUE = false;
+			if (getIntent() != null) {
+				if (getIntent().getBooleanExtra(EXPAND_PRIVACY_VIEW, false) || !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FRIENDS_PRIVACY_PROFILE_VIEW_SHOWN, false))
+					shouldShowFTUE = true;
+			}
+
+			profileItems.add(new ProfileItem.ProfilePrivacyItem(ProfileItem.PRIVACY_SECTION, shouldShowFTUE));
+		}
 	}
 
 }

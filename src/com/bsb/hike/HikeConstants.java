@@ -4411,4 +4411,8 @@ public class HikeConstants
 	public static final String TEXT = "txt";
 
 	public static final String TEXT_COLOR = "txtc";
+
+	public static final String FRIENDS_PRIVACY_RED_DOT_SHOWN = "fr_privacy_ftue";
+
+	public static final String FRIENDS_PRIVACY_PROFILE_VIEW_SHOWN = "fr_privacy_profile_ftue";
 }

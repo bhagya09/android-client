@@ -19,6 +19,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bsb.hike.BitmapModule.BitmapUtils;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.view.ExplandingCells.ExpandableListItem;
 import com.bsb.hike.view.ExplandingCells.ExpandingLayout;
 import com.bsb.hike.view.ExplandingCells.ExpandingListView;
@@ -245,7 +246,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.On
 
 		ViewType viewType = ViewType.values()[getItemViewType(position)];
 
-		ProfileItem profileItem = getItem(position);
+		final ProfileItem profileItem = getItem(position);
 
 		View v = convertView;
 		
@@ -863,6 +864,24 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.On
 				viewHolder.lastSeenSwitch.setOnCheckedChangeListener(this);
 				viewHolder.statusUpdateSwitch.setOnCheckedChangeListener(this);
 
+				if (((ProfileItem.ProfilePrivacyItem) profileItem).getFtueShown()) {
+
+					if (!profileItem.isExpanded()) {
+						final ViewHolder tempViewHolder = viewHolder;
+						listView.postDelayed(new Runnable() {
+							@Override
+							public void run() {
+								if (!profileItem.isExpanded()) {
+									((ExpandingListView) listView).expandView((View) tempViewHolder.parent.getParent());
+									((ProfileItem.ProfilePrivacyItem) profileItem).setFtueShown(false);
+									HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FRIENDS_PRIVACY_PROFILE_VIEW_SHOWN, true);
+								}
+							}
+						}, 500); // Small delay to show the animation smoothly
+
+					}
+				}
+
 				break;
 		}
 
@@ -1085,6 +1104,8 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.On
 
 				if (!item.isExpanded()) {
 					((ExpandingListView) listView).expandView((View) v.getParent());
+					((ProfileItem.ProfilePrivacyItem) item).setFtueShown(false);
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FRIENDS_PRIVACY_PROFILE_VIEW_SHOWN, true);
 				} else {
 					((ExpandingListView) listView).collapseView((View) v.getParent());
 				}
