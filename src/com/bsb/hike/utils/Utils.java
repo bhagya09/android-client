@@ -7418,9 +7418,11 @@ public class Utils
 			if (currentValue.equals(context.getString(R.string.privacy_nobody))) {
 				settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, currentValue);
 				slectedPrivacyId = Integer.parseInt(currentValue);
+				ContactManager.getInstance().setAllLastSeenValues(false); //Hidden from everyone
 			} else {
 				settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_favorites));
 				slectedPrivacyId = Integer.parseInt(context.getString(R.string.privacy_favorites));
+				ContactManager.getInstance().setAllLastSeenValues(true); //Visible to all friends
 			}
 
 			try {

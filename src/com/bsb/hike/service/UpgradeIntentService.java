@@ -15,6 +15,7 @@ import com.bsb.hike.chatthemes.ChatThemeManager;
 import com.bsb.hike.chatthemes.HikeChatThemeConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.localisation.LocalLanguageUtils;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.tasks.MigrateTablesForHikeUID;
 import com.bsb.hike.ui.HikePreferences;
@@ -276,9 +277,11 @@ public class UpgradeIntentService extends IntentService
 		if (currentValue.equals(context.getString(R.string.privacy_nobody))) {
 			settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, currentValue);
 			slectedPrivacyId = Integer.parseInt(currentValue);
+			ContactManager.getInstance().setAllLastSeenValues(false); //Hidden from everyone
 		} else {
 			settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_favorites));
 			slectedPrivacyId = Integer.parseInt(context.getString(R.string.privacy_favorites));
+			ContactManager.getInstance().setAllLastSeenValues(true); //Visible to all friends
 		}
 
 		try {
