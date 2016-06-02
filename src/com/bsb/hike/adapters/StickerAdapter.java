@@ -531,6 +531,7 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 		filter.addAction(StickerManager.QUICK_STICKER_SUGGESTION_FETCH_SUCCESS);
 		filter.addAction(StickerManager.QUICK_STICKER_SUGGESTION_FETCH_FAILED);
 		filter.addAction(StickerManager.QUICK_STICKER_SUGGESTION_FTUE_STICKER_CLICKED);
+		LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiver);
 		LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiver, filter);
 
 		HikeMessengerApp.getPubSub().addListeners(this, pubSubListeners);
