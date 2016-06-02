@@ -16,6 +16,7 @@ import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.ui.HikeAuthActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.PhoneUtils;
 import com.bsb.hike.utils.Utils;
 
 import java.io.File;
@@ -139,7 +140,7 @@ public class HikeProvider extends ContentProvider
 							c = conMgr.getReadableDatabase().rawQuery("SELECT " + DBConstants.THUMBNAILS_TABLE + "." + DBConstants.IMAGE + ", " + DBConstants.USERS_TABLE + "." + DBConstants.ID + " "
 									+ "FROM " + DBConstants.THUMBNAILS_TABLE + " " + "INNER JOIN " + DBConstants.USERS_TABLE + " " + "ON " + DBConstants.THUMBNAILS_TABLE + "."
 									+ DBConstants.MSISDN + "=" + DBConstants.USERS_TABLE + "." + DBConstants.MSISDN + " " + "WHERE " + DBConstants.USERS_TABLE + "."
-									+ DBConstants.ID + " IN " + Utils.getMsisdnStatement(Arrays.asList(selectionArgs)), null);
+									+ DBConstants.ID + " IN " + PhoneUtils.getMsisdnStatement(Arrays.asList(selectionArgs)), null);
 						}
 					}
 				}

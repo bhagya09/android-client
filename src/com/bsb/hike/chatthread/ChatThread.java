@@ -300,6 +300,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
     protected static final int SHOW_INPUT_BOX = 45;
 
+    protected static final int REMOVE_INPUT_BOX = 46;
+
 	protected static final int SEND_CUSTOM_THEME_MESSAGE = 42;
 
 	protected static final int GENERAL_EVENT_STATE_CHANGE = 43;
@@ -577,9 +579,12 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			case GENERAL_EVENT_STATE_CHANGE:
 				onGeneralEventStateChange(msg.obj);
 				break;
-			case SHOW_INPUT_BOX:
-				showInputBox();
-				break;
+            case SHOW_INPUT_BOX:
+                showInputBox();
+                break;
+            case REMOVE_INPUT_BOX:
+                dismissInputBox();
+                break;
 			default:
 				Logger.d(TAG, "Did not find any matching event for msg.what : " + msg.what);
 				break;
@@ -1480,7 +1485,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	 */
 	protected void sendMessage(ConvMessage convMessage)
 	{
-		if (convMessage != null)
+        if (convMessage != null)
 		{
 			addMessage(convMessage);
 			/*This will publish pubsub if convmessage is being sent online
@@ -4178,11 +4183,20 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 			sendUIMessage(MESSAGE_RECEIVED, message);
 
-            if(CustomKeyboardManager.getInstance().shouldShowInputBox(senderMsisdn))
+            if(CustomKeyboardManager.getInstance().isInputBoxButtonShowing(senderMsisdn) && CustomKeyboardManager.getInstance().getCustomKeyboardObject(senderMsisdn) != null && CustomKeyboardManager.getInstance().getCustomKeyboardObject(senderMsisdn).getKeep())
+            {
+                // Ignore this msg for keyboard operation since bot custom keyboard is already in persistent state and is in display
+            }
+            else if(CustomKeyboardManager.getInstance().shouldShowInputBox(senderMsisdn))
             {
                 CustomKeyboardManager.getInstance().initInputBox(activity.getApplicationContext(),this,this,senderMsisdn);
                 sendUIMessage(SHOW_INPUT_BOX, senderMsisdn);
             }
+            else if(CustomKeyboardManager.getInstance().isInputBoxButtonShowing(senderMsisdn))
+            {
+                sendUIMessage(REMOVE_INPUT_BOX, null);
+            }
+
 		}
 	}
 
@@ -6641,8 +6655,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	{
 		CustomKeyboardManager customKeyboardManager = CustomKeyboardManager.getInstance();
 
-        setComposeViewCustomKeyboardState();
-
 		if (!customKeyboardManager.isInputBoxButtonShowing(msisdn))
 		{
             customKeyboardManager.setInputBoxButtonShowing(msisdn,true);
@@ -6686,6 +6698,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
                     setComposeViewDefaultState();
                     customKeyboard.setHidden(false);
                 }
+                scrollToEnd();
             }
         },100);
     }
@@ -6696,6 +6709,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
             mShareablePopupLayout.dismiss();
 
 		setComposeViewDefaultState();
+        CustomKeyboardManager.getInstance().setInputBoxButtonShowing(msisdn,false);
 
 		if (!useWTRevamped)
 			((ImageButton) activity.findViewById(R.id.send_message)).setImageResource(R.drawable.walkie_talkie_btn_selector);
@@ -6715,7 +6729,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
         composeTextView.setFocusable(true);
         composeTextView.setHint("");
         composeTextView.setPadding((int)(10 * Utils.densityMultiplier),(int)(6 * Utils.densityMultiplier),0,0);
-        CustomKeyboardManager.getInstance().setInputBoxButtonShowing(msisdn,false);
     }
 
     private void setComposeViewCustomKeyboardState()
@@ -6737,9 +6750,18 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
         composeTextView.setClickable(false);
 
         ImageButton keyboardInputButton = (ImageButton) activity.findViewById(R.id.send_message);
-        keyboardInputButton.setImageResource(R.drawable.keyboard_button_selector);
-        keyboardInputButton.setContentDescription(activity.getResources().getString(R.string.content_des_send_recorded_audio_text_chatting));
-        keyboardInputButton.setSelected(true);
+
+        if(useWTRevamped)
+        {
+            keyboardInputButton.setImageResource(R.drawable.keyboard_button_selector);
+            keyboardInputButton.setVisibility(View.VISIBLE);
+            activity.findViewById(R.id.send_message_audio).setVisibility(View.GONE);
+        }
+        else {
+            keyboardInputButton.setImageResource(R.drawable.keyboard_button_selector);
+            keyboardInputButton.setContentDescription(activity.getResources().getString(R.string.content_des_send_recorded_audio_text_chatting));
+            keyboardInputButton.setSelected(true);
+        }
     }
 
     protected ConvMessage createConvMessageFromString(String message)

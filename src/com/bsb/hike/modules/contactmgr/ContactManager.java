@@ -38,6 +38,7 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.PairModified;
+import com.bsb.hike.utils.PhoneUtils;
 import com.bsb.hike.utils.Utils;
 
 import org.json.JSONArray;
@@ -3041,7 +3042,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 
 	public ArrayList<String> getMsisdnFromId(ArrayList<String> selectionArgs)
 	{
-		String msisdnStatement = Utils.getMsisdnStatement(selectionArgs);
+		String msisdnStatement = PhoneUtils.getMsisdnStatement(selectionArgs);
 		if (TextUtils.isEmpty(msisdnStatement))
 		{
 			return new ArrayList<String>();
