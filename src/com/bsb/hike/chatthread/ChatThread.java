@@ -4436,7 +4436,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			tipVisibilityAnimator = null;
 		}
 
-		QuickStickerSuggestionController.getInstance().ftueSessionCompleted();
+		QuickStickerSuggestionController.getInstance().completeFtueSession();
 
 		if(mCustomTabActivityHelper != null && Utils.isJellybeanOrHigher()) {
 			mCustomTabActivityHelper.unbindCustomTabsService(activity);
