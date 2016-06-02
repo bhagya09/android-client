@@ -303,6 +303,8 @@ public class AnalyticsConstants
 		public static final String POPULATION = "pop";
 
 		public static final String DIVISION = "d";
+
+		public static final String TO_MISISDN = "to_msisdn";
 	}
 
 	// Edit picture flags and events
