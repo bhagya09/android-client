@@ -270,7 +270,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		db.execSQL(sql);
 		sql=getReceiptsTableCreateStatement();
 		db.execSQL(sql);
-		sql = DBConstants.CREATE_INDEX + DBConstants.RECEIPTS_TABLE_CONTENT_INDEX + " ON " + DBConstants.MESSAGES_TABLE + " ( " + DBConstants.MESSAGE_ID + " ) ";
+		sql = DBConstants.CREATE_INDEX + DBConstants.RECEIPTS_TABLE_CONTENT_INDEX + " ON " + DBConstants.RECEIPTS_TABLE + " ( " + DBConstants.MESSAGE_ID + " ) ";
 		db.execSQL(sql);
 
 		sql = DBConstants.CREATE_INDEX + DBConstants.MESSAGE_TABLE_NAMESPACE_INDEX + " ON " + DBConstants.MESSAGES_TABLE + " ( " + DBConstants.HIKE_CONTENT.NAMESPACE + " ) ";
@@ -1235,6 +1235,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 
 			String sql=getReceiptsTableCreateStatement();
 			db.execSQL(sql);
+			sql = DBConstants.CREATE_INDEX + DBConstants.RECEIPTS_TABLE_CONTENT_INDEX + " ON " + DBConstants.RECEIPTS_TABLE + " ( " + DBConstants.MESSAGE_ID + " ) ";
+			db.execSQL(sql);
 		}
 	}
 
@@ -1883,7 +1885,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		 Logger.d("messageinfodata","logging in database messagedeliveryreceipt execute " );
 		 long rowID=-1;
 		 try {
-			 rowID = mDb.insertWithOnConflict(DBConstants.RECEIPTS_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
+			 rowID = mDb.insert(DBConstants.RECEIPTS_TABLE, null, contentValues);
 		 }catch (SQLiteException e)
 		 {
 			 e.printStackTrace();
@@ -10798,10 +10800,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 			+ DBConstants.MESSAGE_ID + " INTEGER, " // The message id (Unique)
 			+ DBConstants.RECEIVER_MSISDN + " TEXT, " // The msisdn of the receiver for which the report is received
 			+ DBConstants.MSISDN + " TEXT, " // The msisdn of the receiver for which the report is received
-			+ DBConstants.MSG_STATUS + " INTEGER, " // Whether the message is sent or not. Plus also tells us the current state of the message.
 			+ DBConstants.READ_TIMESTAMP + " INTEGER, " // Read Time when the message was read by the recepient.
 			+ DBConstants.DELIVERY_TIMESTAMP + " INTEGER, " // Delivery Time when the message was delivered to the recepient.
-			+ DBConstants.PLAYED_TIMESTAMP + " INTEGER " // Delivery Time when the message was delivered to the recepient.
+			+ DBConstants.PLAYED_TIMESTAMP + " INTEGER, " // Delivery Time when the message was delivered to the recepient.
+			+ "PRIMARY KEY ("+DBConstants.MESSAGE_ID+", "+DBConstants.RECEIVER_MSISDN+")"
 			+ " ) ";
 		return sql;
 	}
