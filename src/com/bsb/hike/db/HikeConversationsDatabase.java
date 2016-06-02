@@ -11354,7 +11354,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		try {
 			if (!TextUtils.isEmpty(parameters)) {
 
-				c = mDb.query(DBConstants.PARAMETER_MAPPING_TABLE, null, DBConstants.PARAMETER_KEY + " IN " + parameters, null, null, null, null);
+				c = mDb.query(DBConstants.USER_PARAMETER_TABLE, null, DBConstants.PARAMETER_KEY + " IN " + parameters, null, null, null, null);
 				parameterMapping = new ArrayList<>(c.getCount());
 
 				int parameterKeyIdx = c.getColumnIndex(DBConstants.PARAMETER_KEY);
