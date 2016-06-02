@@ -2197,9 +2197,7 @@ public class HikeNotification
 		NotificationCompat.Builder mBuilder = getNotificationBuilder(title, message, message, null, smallIconId, false, false, false);
 		mBuilder.setOngoing(true);
 
-		Intent mNotificationIntent = new Intent(context, HomeActivity.class);
-		mNotificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
+		Intent mNotificationIntent = IntentFactory.getHomeActivityIntent(context);
 		PendingIntent contentIntent = PendingIntent.getActivity(context, 0, mNotificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 		mBuilder.setContentIntent(contentIntent);
 

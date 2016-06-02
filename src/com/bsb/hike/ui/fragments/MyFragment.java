@@ -150,7 +150,7 @@ public class MyFragment extends Fragment implements HikePubSub.Listener {
     private void setTempProfileImage() {
         Drawable bd = getCachedProfilePic();
         if (bd == null) {
-            bd = HikeBitmapFactory.getDefaultTextAvatar(contactInfo.getName());
+            bd = HikeBitmapFactory.getDefaultTextAvatar(contactInfo.getMsisdn());
         }
         profileImageView.setImageDrawable(bd);
     }
