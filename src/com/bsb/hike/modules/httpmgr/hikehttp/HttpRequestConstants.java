@@ -329,7 +329,7 @@ public class HttpRequestConstants
 
 	public static String quickSuggestionUrl()
 	{
-		return HTTP + "54.255.251.239:6870" + "/quickSuggestions";
+		return BASE_STICKERS_URL + BASE_V4 + BASE_STICKER + "/quickSuggestions"
 	}
 
 	public static String userParameterUrl()
