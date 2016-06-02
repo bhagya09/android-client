@@ -4170,7 +4170,11 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 			sendUIMessage(MESSAGE_RECEIVED, message);
 
-            if(CustomKeyboardManager.getInstance().shouldShowInputBox(senderMsisdn))
+            if(CustomKeyboardManager.getInstance().isInputBoxButtonShowing(senderMsisdn) && CustomKeyboardManager.getInstance().getCustomKeyboardObject(senderMsisdn) != null && CustomKeyboardManager.getInstance().getCustomKeyboardObject(senderMsisdn).getKeep())
+            {
+                // Ignore this msg for keyboard operation since bot custom keyboard is already in persistent state and is in display
+            }
+            else if(CustomKeyboardManager.getInstance().shouldShowInputBox(senderMsisdn))
             {
                 CustomKeyboardManager.getInstance().initInputBox(activity.getApplicationContext(),this,this,senderMsisdn);
                 sendUIMessage(SHOW_INPUT_BOX, senderMsisdn);
