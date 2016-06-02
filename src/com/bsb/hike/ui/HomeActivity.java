@@ -1182,7 +1182,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
             return;
         }
 
-        if (linkUrl.contains(HttpRequestConstants.BASE_LINK_SHARING_URL) || linkUrl.contains(HttpRequestConstants.BASE_LINK_SHARING_HTTPS_URL))
+        if (linkUrl.contains(HttpRequestConstants.BASE_LINK_SHARING_URL) || linkUrl.contains(HttpRequestConstants.BASE_LINK_SHARING_HTTPS_URL) || linkUrl.contains(HttpRequestConstants.WWW_BASE_LINK_SHARING_URL) || linkUrl.contains(HttpRequestConstants.WWW_BASE_LINK_SHARING_HTTPS_URL))
         {
             // linkurl is http://hike.in/refid:gc:code
             String codeArray[] = linkUrl.split("/");
@@ -1268,7 +1268,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					makeBotsJoinRequestCall(codeArray[codeArray.length - 1]);
 				}
 				//Adding explicit support for https://hike.in/c/JFL
-				else if (linkUrl.contains("/c/JFL"))
+				else if (linkUrl.toLowerCase().contains("/c/jfl"))
 				{
 					handleJFLLink();
 				}
