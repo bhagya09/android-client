@@ -121,6 +121,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 {
 	public static final String OPEN_DEFAULT_TAB = "openDefaultTab";
 
+	public static final String OPEN_FRIENDS_TAB = "openFriendsTab";
+
 	public static FtueContactsData ftueContactsData = new FtueContactsData();
 
 	private OverflowAdapter overflowAdapter;
@@ -176,7 +178,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private MyFragment myFragment;
 
-	private static final int SU_FRAGMENT_POSITION = 0;
+	private static final int FRIENDS_FRAGMENT_POSITION = 0;
 
 	private static final int CONV_FRAGMENT_POSITION = 1;
 
@@ -594,7 +596,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private void setupTabsBar() {
 		tabsBar = new CustomTabsBar(this, (ViewGroup) findViewById(R.id.tab_action_bar_parent));
-		tabsBar.addTab(tabsBar.newTab(SU_FRAGMENT_POSITION).setIcon(R.drawable.ic_tab_friend_selector).setCustomTabListener(tabsListener));
+		tabsBar.addTab(tabsBar.newTab(FRIENDS_FRAGMENT_POSITION).setIcon(R.drawable.ic_tab_friend_selector).setCustomTabListener(tabsListener));
 		tabsBar.addTab(tabsBar.newTab(CONV_FRAGMENT_POSITION).setIcon(R.drawable.ic_tab_chat_selector).setCustomTabListener(tabsListener));
 		tabsBar.addTab(tabsBar.newTab(MY_FRAGMENT_POSITION).setIcon(R.drawable.ic_tab_me_selector).setCustomTabListener(tabsListener));
 		tabsBar.selectTab(DEAFULT_FRAGMENT_POSITION);
@@ -603,7 +605,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	CustomTabsBar.CustomTabBadgeCounterListener suFragCounterListener = new CustomTabsBar.CustomTabBadgeCounterListener() {
 		@Override
 		public void onBadgeCounterUpdated(int newCount) {
-			tabsBar.getTab(SU_FRAGMENT_POSITION).setIndicator(newCount);
+			tabsBar.getTab(FRIENDS_FRAGMENT_POSITION).setIndicator(newCount);
 		}
 	};
 
@@ -646,7 +648,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		@Override
 		public Fragment getItem(int position) {
 			switch (position) {
-				case SU_FRAGMENT_POSITION:
+				case FRIENDS_FRAGMENT_POSITION:
 					return getStoryFragment();
 				case CONV_FRAGMENT_POSITION:
 					return getConversationFragment();
@@ -757,6 +759,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		if (intent.hasExtra(OPEN_DEFAULT_TAB))
 			mPager.setCurrentItem(DEAFULT_FRAGMENT_POSITION);
+		else if (intent.hasExtra(OPEN_FRIENDS_TAB))
+			mPager.setCurrentItem(FRIENDS_FRAGMENT_POSITION);
 	}
 
 	private void showSmsOrFreeInvitePopup()

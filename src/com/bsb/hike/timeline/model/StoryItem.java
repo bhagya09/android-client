@@ -6,7 +6,6 @@ import android.support.annotation.NonNull;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -125,5 +124,16 @@ public class StoryItem<T, K> {
 
     public List<T> getDataObjects() {
         return mObjectList;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof StoryItem) {
+            StoryItem item = (StoryItem) o;
+            if (item.getTitle().equals(getTitle()) && item.getType() == getType()) {
+                return true;
+            }
+        }
+        return super.equals(o);
     }
 }

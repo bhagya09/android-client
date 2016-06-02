@@ -54,7 +54,7 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
 
     private View btnAddFriends;
 
-    private final String[] pubsubEvents = new String[]{HikePubSub.UNSEEN_STATUS_COUNT_CHANGED, HikePubSub.TIMELINE_UPDATE_RECIEVED, HikePubSub.ICON_CHANGED, HikePubSub.ACTIVITY_UPDATE, HikePubSub.STATUS_MARKED_READ, HikePubSub.STEALTH_MODE_TOGGLED};
+    private final String[] pubsubEvents = new String[]{HikePubSub.UNSEEN_STATUS_COUNT_CHANGED, HikePubSub.TIMELINE_UPDATE_RECIEVED, HikePubSub.ICON_CHANGED, HikePubSub.ACTIVITY_UPDATE, HikePubSub.STATUS_MARKED_READ, HikePubSub.STEALTH_MODE_TOGGLED, HikePubSub.DELETE_STATUS};
 
     public static StoryFragment newInstance(@Nullable Bundle argBundle) {
         StoryFragment fragmentInstance = new StoryFragment();
@@ -181,14 +181,15 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btn_add_friends:
-                // TODO Open add friends screen
+                getActivity().startActivity(IntentFactory.getFriendReqActivityAddFriendsIntent(getActivity()));
                 break;
         }
     }
 
     @Override
     public void onEventReceived(String type, Object object) {
-        if (type.equals(HikePubSub.UNSEEN_STATUS_COUNT_CHANGED) || type.equals(HikePubSub.ACTIVITY_UPDATE)) {
+        if (type.equals(HikePubSub.UNSEEN_STATUS_COUNT_CHANGED)
+                || type.equals(HikePubSub.ACTIVITY_UPDATE)) {
             if (isAdded() && getActivity() != null) {
                 HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable() {
                     @Override
@@ -197,7 +198,10 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
                     }
                 }, 2000); // This is to avoid changing of subtext right when timeline is tapped since it takes time for timeline activity to show up
             }
-        } else if (type.equals(HikePubSub.TIMELINE_UPDATE_RECIEVED) || type.equals(HikePubSub.STATUS_MARKED_READ) || type.equals(HikePubSub.STEALTH_MODE_TOGGLED)) {
+        } else if (type.equals(HikePubSub.TIMELINE_UPDATE_RECIEVED)
+                || type.equals(HikePubSub.STATUS_MARKED_READ)
+                || type.equals(HikePubSub.STEALTH_MODE_TOGGLED)
+                || type.equals(HikePubSub.DELETE_STATUS)) {
             if (isAdded() && getActivity() != null) {
                 HikeHandlerUtil.getInstance().postRunnable(new Runnable() {
                     @Override

@@ -510,7 +510,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		// If none, open home activity
 		if (count == 0)
 		{
-			IntentFactory.openHomeActivity(TimelineActivity.this, true);
+			startActivity(IntentFactory.getHomeActivityFriendsTabIntent(TimelineActivity.this));
 		}
 		// Else, found a backstack record, fragmentactivity will pop it, do actionbar changes
 		else
