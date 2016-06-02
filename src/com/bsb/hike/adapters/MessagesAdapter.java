@@ -2607,6 +2607,11 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		{
 			Logger.d(HikeConstants.CHAT_OPENING_BENCHMARK, " msisdn=" + conversation.getMsisdn() + " end=" + System.currentTimeMillis());
 		}
+		else
+		{
+			// Logging for automation suites - for unread msg chat opening cases
+			Logger.d(HikeConstants.CHAT_OPENING_BENCHMARK, " msisdn=" + conversation.getMsisdn() + " unreadend=" + System.currentTimeMillis());
+		}
 		return v;
 	}
 

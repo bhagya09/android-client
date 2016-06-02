@@ -1252,7 +1252,7 @@
     <string name="pers_notif_title">Update Hike</string>
     <string name="pers_notif_message">Update Hike for exciting new features!</string>
     <string name="close_gps">You can now turn off your location to save battery. Your Hike Direct connection will not get affected.</string>
-    <string name="gps_not_on">Sorry hike direct wont work if gps not on</string>
+    <string name="gps_not_on">Sorry hike direct won\'t work if GPS is not on</string>
     <string name="switch_on_gps">Please enable location to use Hike Direct.</string>
     <string name="gps_settings">SETTING</string>
     <string name="user_gps_off">Hike Direct cannot work till your location is enabled.</string>
@@ -1468,7 +1468,7 @@
     <string name="unsupported_langs_toast">Your Phone does not support %1$s</string>
     <string name="unsupported_language_toast_msg">Your phone does not support this language</string>
     <string name="error_message_upgrade_peer">Sorry could not connect. Your friend is not on the latest Hike version with Hike Direct.</string>
-    <string name="error_message_unsupported_peer">Sorry could not connect. Hike Directly currently works only with Android phones.</string>
+    <string name="error_message_unsupported_peer">Sorry could not connect. Hike Direct currently works only with Android phones.</string>
     <string name="bengali">Bengali</string>
     <string name="gujarati">Gujarati</string>
     <string name="hindi">Hindi</string>

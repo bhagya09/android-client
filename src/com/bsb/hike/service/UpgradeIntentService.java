@@ -180,11 +180,10 @@ public class UpgradeIntentService extends IntentService
 					.saveData(HikeMessengerApp.PRIVACY_SETTINGS_LAST_SEEN_UPGRADE, true);
 		}
 
-		if (prefs.getInt(HikeConstants.CHAT_BG_TABLE_MIGRATION, 0) == 0) {
-			migrateChatBgTableData();
-			migrateMuteData();
+		if (prefs.getInt(HikeConstants.UPGRADE_FOR_CHAT_PROPERTIES, 0) == 0) {
+			upgradeForChatProperties();
 			Editor editor = prefs.edit();
-			editor.putInt(HikeConstants.CHAT_BG_TABLE_MIGRATION, 1);
+			editor.putInt(HikeConstants.UPGRADE_FOR_CHAT_PROPERTIES, 1);
 			editor.commit();
 		}
 
@@ -205,14 +204,8 @@ public class UpgradeIntentService extends IntentService
 		super(TAG);
 	}
 
-	private void migrateChatBgTableData()
-	{
-		HikeConversationsDatabase.getInstance().migrateChatBgTableData();
-	}
-
-	private void migrateMuteData()
-	{
-		HikeConversationsDatabase.getInstance().migrateMuteData();
+	private void upgradeForChatProperties() {
+		HikeConversationsDatabase.getInstance().upgradeForChatProperties();
 	}
 
 	private void initialiseSharedMediaAndFileThumbnailTable()

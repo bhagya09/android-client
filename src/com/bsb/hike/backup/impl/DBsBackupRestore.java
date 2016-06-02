@@ -160,7 +160,7 @@ public class DBsBackupRestore implements BackupableRestorable
 			int oldBackupVersion = metadata.getAppVersion();
 
 			if (oldBackupVersion <= AccountBackupRestore.MUTE_BACKUP_THRESHOLD_VERSION) {
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CHAT_BG_TABLE_MIGRATION, 0);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPGRADE_FOR_CHAT_PROPERTIES, 0);
 			}
 		}
 	}
