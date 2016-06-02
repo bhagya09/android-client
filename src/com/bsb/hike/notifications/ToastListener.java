@@ -42,6 +42,7 @@ import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.StealthModeManager;
@@ -742,7 +743,7 @@ public class ToastListener implements Listener
 
 	public void notifyUser(String text, String title)
 	{
-		Intent intent = new Intent(context, HomeActivity.class);
+		Intent intent = IntentFactory.getHomeActivityIntent(context);
 		toaster.showBigTextStyleNotification(intent, 0, System.currentTimeMillis(), HikeNotification.HIKE_SUMMARY_NOTIFICATION_ID, title, text, title, "",
 				null, null, false, 0);
 	}

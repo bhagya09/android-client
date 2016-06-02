@@ -594,32 +594,30 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private void setupTabsBar() {
 		tabsBar = new CustomTabsBar(this, (ViewGroup) findViewById(R.id.tab_action_bar_parent));
-		tabsBar.addTab(tabsBar.newTab(SU_FRAGMENT_POSITION).setIcon(R.drawable.ic_tab_friend_selector).setCustomTabListener(tabsListener)
-				.setBadgeCounterBG(R.drawable.bg_badge_counter_friends_frag));
+		tabsBar.addTab(tabsBar.newTab(SU_FRAGMENT_POSITION).setIcon(R.drawable.ic_tab_friend_selector).setCustomTabListener(tabsListener));
 		tabsBar.addTab(tabsBar.newTab(CONV_FRAGMENT_POSITION).setIcon(R.drawable.ic_tab_chat_selector).setCustomTabListener(tabsListener));
-		tabsBar.addTab(tabsBar.newTab(MY_FRAGMENT_POSITION).setIcon(R.drawable.ic_tab_me_selector).setCustomTabListener(tabsListener)
-				.setBadgeCounterBG(R.drawable.bg_badge_counter_my_frag));
+		tabsBar.addTab(tabsBar.newTab(MY_FRAGMENT_POSITION).setIcon(R.drawable.ic_tab_me_selector).setCustomTabListener(tabsListener));
 		tabsBar.selectTab(DEAFULT_FRAGMENT_POSITION);
 	}
 
 	CustomTabsBar.CustomTabBadgeCounterListener suFragCounterListener = new CustomTabsBar.CustomTabBadgeCounterListener() {
 		@Override
 		public void onBadgeCounterUpdated(int newCount) {
-			tabsBar.getTab(SU_FRAGMENT_POSITION).updateBadgeCounter(newCount);
+			tabsBar.getTab(SU_FRAGMENT_POSITION).setIndicator(newCount);
 		}
 	};
 
 	CustomTabsBar.CustomTabBadgeCounterListener convFragCounterListener = new CustomTabsBar.CustomTabBadgeCounterListener() {
 		@Override
 		public void onBadgeCounterUpdated(int newCount) {
-			tabsBar.getTab(CONV_FRAGMENT_POSITION).updateBadgeCounter(newCount);
+			tabsBar.getTab(CONV_FRAGMENT_POSITION).setIndicator(newCount);
 		}
 	};
 
 	CustomTabsBar.CustomTabBadgeCounterListener myFragCounterListener = new CustomTabsBar.CustomTabBadgeCounterListener() {
 		@Override
 		public void onBadgeCounterUpdated(int newCount) {
-			tabsBar.getTab(MY_FRAGMENT_POSITION).updateBadgeCounter(newCount);
+			tabsBar.getTab(MY_FRAGMENT_POSITION).setIndicator(newCount);
 		}
 	};
 
@@ -1753,7 +1751,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					/**
 					 * If we are showing search mode action bar, we should not show tip/anim
 					 */
-					if (conversationFragment.isSearchInActionMode())
+					if (conversationFragment != null && conversationFragment.isSearchInActionMode())
 					{
 						return;
 					}

@@ -138,11 +138,6 @@ public class ImageViewerFragment extends Fragment implements OnClickListener, Li
 	{
 		View parent = inflater.inflate(R.layout.image_viewer, null);
 		imageView = (ImageView) parent.findViewById(R.id.image);
-		ViewGroup.LayoutParams lp = imageView.getLayoutParams();
-		int size = Utils.displayHeightPixels > Utils.displayWidthPixels ? Utils.displayWidthPixels : Utils.displayHeightPixels;
-		lp.height = size;
-		lp.width = size;
-		imageView.setLayoutParams(lp);
 		imageView.setOnClickListener(this);
 		return parent;
 	}
