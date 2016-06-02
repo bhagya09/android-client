@@ -54,7 +54,7 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
-import com.bsb.hike.utils.Utils.ExecutionDurationLogger;
+import com.bsb.hike.utils.ExecutionDurationLogger;
 
 public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 {

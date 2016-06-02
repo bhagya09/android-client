@@ -1326,7 +1326,12 @@ public class PlatformUtils
 				targetLocation.mkdir();
 			}
 			String[] children = sourceLocation.list();
-			for (int i = 0; i < sourceLocation.listFiles().length; i++)
+            // Precautionary check to prevent NPE from empty list files.
+            // Saving sourceLocation.listFiles() in a temp array to avoid null pointer exception arising because of race condition
+            File[] directory = sourceLocation.listFiles();
+            if (directory == null)
+                return true;
+			for (int i = 0; i < directory.length; i++)
 			{
 				copyDirectoryTo(new File(sourceLocation, children[i]), new File(targetLocation, children[i]));
 			}

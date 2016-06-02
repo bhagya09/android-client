@@ -84,7 +84,6 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
-import com.bsb.hike.adapters.CustomKeyboardInputBoxAdapter;
 import com.bsb.hike.adapters.MessagesAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
@@ -94,7 +93,8 @@ import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.CustomKeyboard;
 import com.bsb.hike.bots.CustomKeyboardManager;
-import com.bsb.hike.bots.TextPickerListener;
+import com.bsb.hike.bots.CustomKeyboardStickerPickerListener;
+import com.bsb.hike.bots.CustomKeyboardTextPickerListener;
 import com.bsb.hike.chatthemes.ChatThemeManager;
 import com.bsb.hike.chatthemes.CustomBGRecyclingImageView;
 import com.bsb.hike.chatthemes.HikeChatThemeConstants;
@@ -211,7 +211,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 @SuppressLint("ResourceAsColor") public abstract class ChatThread extends SimpleOnGestureListener implements OverflowItemClickListener, View.OnClickListener, ThemePickerListener, ImageParserListener,
 		PickFileListener, StickerPickerListener, HikeAudioRecordListener, LoaderCallbacks<Object>, OnItemLongClickListener, OnTouchListener, OnScrollListener,
 		Listener, ActionModeListener, HikeDialogListener, TextWatcher, OnDismissListener, OnEditorActionListener, OnKeyListener, PopupListener, BackKeyListener,
-		OverflowViewListener, OnSoftKeyboardListener, IStickerPickerRecommendationListener, IOfflineCallbacks, IShopIconClickedCallback,TextPickerListener
+		OverflowViewListener, OnSoftKeyboardListener, IStickerPickerRecommendationListener, IOfflineCallbacks, IShopIconClickedCallback,CustomKeyboardTextPickerListener,CustomKeyboardStickerPickerListener
 {
 
 	private static boolean useWTRevamped;
@@ -310,6 +310,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	protected static final int GENERAL_EVENT_STATE_CHANGE = 45;
 
 	protected static final int SHOW_INPUT_BOX = 46;
+
+	protected static final int REMOVE_INPUT_BOX = 47;
 
 	protected static final int REMOVE_CHAT_BACKGROUND = 0;
 
@@ -418,8 +420,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	private final FutureTask<Conversation> conversationFuture=new FutureTask<>(callable);
 
 	private CustomTabActivityHelper mCustomTabActivityHelper;
-
-	private String mThemeIdBGRendered = null;
 
 	private class ChatThreadBroadcasts extends BroadcastReceiver
 	{
@@ -590,11 +590,14 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				customThemeErrorNotifier((String) msg.obj);
 				break;
 			case SET_CUSTOM_THEME_BACKGROUND:
-				setCustomThemeBackground();
+				updateUIAsPerTheme(HikeChatThemeConstants.THEME_ID_CUSTOM_THEME);
 				break;
 			case SHOW_INPUT_BOX:
 				showInputBox();
 				break;
+            case REMOVE_INPUT_BOX:
+                dismissInputBox();
+                break;
 			default:
 				Logger.d(TAG, "Did not find any matching event for msg.what : " + msg.what);
 				break;
@@ -1153,7 +1156,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			if(ChatThemeManager.getInstance().customThemeTempUploadImagePath != null) {
 				FileTransferManager.getInstance(activity).uploadCustomThemeBackgroundImage(ChatThemeManager.getInstance().customThemeTempUploadImagePath);
 			}
-			uiHandler.sendEmptyMessageDelayed(SET_CUSTOM_THEME_BACKGROUND, 1000);
+			uiHandler.sendEmptyMessageDelayed(SET_CUSTOM_THEME_BACKGROUND, 100);
 			if (themePicker != null && themePicker.isShowing()) {
 				themePicker.dismiss();
 			}
@@ -1503,7 +1506,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	 */
 	protected void sendMessage(ConvMessage convMessage)
 	{
-		if (convMessage != null)
+        if (convMessage != null)
 		{
 			addMessage(convMessage);
 			/*This will publish pubsub if convmessage is being sent online
@@ -1737,7 +1740,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	@Override
 	public void themeClicked(String themeId)
 	{
-		if (themeId.equalsIgnoreCase(HikeChatThemeConstants.THEME_PALETTE_CAMERA_ICON)) {
+		if (HikeChatThemeConstants.THEME_ID_CUSTOM_THEME.equalsIgnoreCase(themeId)) {
 			ChatThemeManager.getInstance().customThemeTempUploadImagePath = ChatThemeManager.getInstance().getCCTTempUploadPath();
 			int galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS | GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
 			int height = DrawUtils.displayMetrics.heightPixels;
@@ -1749,7 +1752,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			if (themePicker != null && themePicker.isShowing()) {
 				themePicker.dismiss();
 			}
-		}else {
+		} else {
 			postTrialsAnalytic(themeId);
 			updateUIAsPerTheme(themeId);
 		}
@@ -1768,7 +1771,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		/**
 		 * Save current theme and send chat theme message
 		 */
-		if (chatThemeId.equalsIgnoreCase(HikeChatThemeConstants.THEME_PALETTE_CAMERA_ICON)) {
+		if (HikeChatThemeConstants.THEME_ID_CUSTOM_THEME.equalsIgnoreCase(chatThemeId)) {
 			return;
 		}
 		if (!currentThemeId.equals(chatThemeId))
@@ -1847,7 +1850,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 			setThemeBackground(backgroundImage, drawable, ChatThemeManager.getInstance().getTheme(themeId).isTiled(), ChatThemeManager.getInstance().getTheme(themeId).isCustomTheme());
 		}
-		mThemeIdBGRendered = themeId;
 	}
 
 	private void setThemeBackground(CustomBGRecyclingImageView backgroundImage, Drawable drawable, boolean isTiled, boolean isCustom) {
@@ -1860,30 +1862,16 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			if(getResources().getConfiguration().orientation == getResources().getConfiguration().ORIENTATION_LANDSCAPE) {
 				backgroundImage.setScaleType(ScaleType.CENTER_CROP);
 			} else {
-				backgroundImage.setScaleType(ScaleType.FIT_CENTER);
+				backgroundImage.setScaleType(ScaleType.MATRIX);
 			}
+			ChatThreadUtils.applyMatrixTransformationToImageView(drawable, backgroundImage);
 		}
 
 		if(isCustom && !ChatThreadUtils.disableOverlayEffectForCCT()) {
 			backgroundImage.setOverLay(true);
 		}
 
-		boolean showTransistionEffect = true;
-		if(TextUtils.isEmpty(mThemeIdBGRendered) || HikeChatThemeConstants.THEME_PALETTE_CAMERA_ICON.equalsIgnoreCase(mThemeIdBGRendered)){
-			showTransistionEffect = false;
-		}
-		if(showTransistionEffect) {
-			Drawable srcDrawable = ChatThemeManager.getInstance().getDrawableForTheme(mThemeIdBGRendered, HikeChatThemeConstants.ASSET_INDEX_BG_PORTRAIT);
-			Drawable[] layers = new Drawable[2];
-			layers[0] = srcDrawable;
-			layers[1] = drawable;
-
-			TransitionDrawable td = new TransitionDrawable(layers);
-			backgroundImage.setImageDrawable(td);
-			td.startTransition(HikeChatThemeConstants.CHATTHEME_FADE_IN_TIME);
-		} else {
-			backgroundImage.setImageDrawable(drawable);
-		}
+		backgroundImage.setImageDrawable(drawable);
 	}
 
 	private void setCustomThemeBackground() {
@@ -1898,7 +1886,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		Drawable drawable = new BitmapDrawable(getResources(), bmp);
 
 		setThemeBackground(backgroundImage, drawable, false, true);
-		mThemeIdBGRendered = HikeChatThemeConstants.THEME_PALETTE_CAMERA_ICON;
 	}
 
 	@Override
@@ -2495,11 +2482,18 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 			ColorDrawable statusBarColor = (ColorDrawable) ChatThemeManager.getInstance().getDrawableForTheme(themeId, HikeChatThemeConstants.ASSET_INDEX_STATUS_BAR_BG);
 			setStatusBarColorValue(statusBarColor.getColor());
+
 		}
+		setChatThemeBackground(themeId);
+	}
 
-
+	public void setChatThemeBackground(String themeId) {
 		// background image
-		setBackground(themeId);
+		if(HikeChatThemeConstants.THEME_ID_CUSTOM_THEME.equalsIgnoreCase(themeId)) {
+			setCustomThemeBackground();
+		} else {
+			setBackground(themeId);
+		}
 	}
 
 	@Override
@@ -2508,26 +2502,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		Logger.i(TAG, "sticker clicked " + sticker.getStickerId() + sticker.getCategoryId() + sourceOfSticker);
 		StickerSearchManager.getInstance().sentMessage(null, sticker, null, mComposeView.getText().toString());
 		sendSticker(sticker, sourceOfSticker);
-
-        // Added this code for custom bots keyboard , delete keyboard data only if we get keyboard data from shared pref for this msisdn and if the keyboard type is not persistent
-        String keyboardDataJson = HikeSharedPreferenceUtil.getInstance(CustomKeyboardManager.CUSTOM_INPUT_BOX_KEY).getData(CustomKeyboardManager.getKeyboardKey(msisdn),
-                HikePlatformConstants.KEYBOARD_DEFAULT_DATA);
-        try
-        {
-            if (!keyboardDataJson.equals(HikePlatformConstants.KEYBOARD_DEFAULT_DATA))
-            {
-                boolean isKeyBoardPersistent = new JSONObject(keyboardDataJson).optBoolean(HikePlatformConstants.IS_KEYBOARD_PERSISTENT, false);
-                if (!isKeyBoardPersistent)
-                {
-                    CustomKeyboardManager.getInstance().removeFromSharedPreferences(msisdn);
-                    dismissInputBox();
-                }
-            }
-        }
-        catch (JSONException e)
-        {
-            e.printStackTrace();
-        }
 	}
 
 	@Override
@@ -4262,11 +4236,20 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 			sendUIMessage(MESSAGE_RECEIVED, message);
 
-            if(CustomKeyboardManager.getInstance().shouldShowInputBox(senderMsisdn))
+            if(CustomKeyboardManager.getInstance().isInputBoxButtonShowing(senderMsisdn) && CustomKeyboardManager.getInstance().getCustomKeyboardObject(senderMsisdn) != null && CustomKeyboardManager.getInstance().getCustomKeyboardObject(senderMsisdn).getKeep())
+            {
+                // Ignore this msg for keyboard operation since bot custom keyboard is already in persistent state and is in display
+            }
+            else if(CustomKeyboardManager.getInstance().shouldShowInputBox(senderMsisdn))
             {
                 CustomKeyboardManager.getInstance().initInputBox(activity.getApplicationContext(),this,this,senderMsisdn);
                 sendUIMessage(SHOW_INPUT_BOX, senderMsisdn);
             }
+            else if(CustomKeyboardManager.getInstance().isInputBoxButtonShowing(senderMsisdn))
+            {
+                sendUIMessage(REMOVE_INPUT_BOX, null);
+            }
+
 		}
 	}
 
@@ -5935,7 +5918,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		 */
 		if (getCurrentlThemeId() != null && !getCurrentlThemeId().equals(ChatThemeManager.getInstance().defaultChatThemeId))
 		{
-			setBackground(getCurrentlThemeId());
+			setChatThemeBackground(getCurrentlThemeId());
 			ColorDrawable statusBarColor = (ColorDrawable) ChatThemeManager.getInstance().
 					getDrawableForTheme(getCurrentlThemeId(), HikeChatThemeConstants.ASSET_INDEX_STATUS_BAR_BG);
 			setStatusBarColorValue(statusBarColor.getColor());
@@ -6721,15 +6704,16 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	{
 		CustomKeyboardManager customKeyboardManager = CustomKeyboardManager.getInstance();
 
-        setComposeViewCustomKeyboardState();
-
 		if (!customKeyboardManager.isInputBoxButtonShowing(msisdn))
 		{
             customKeyboardManager.setInputBoxButtonShowing(msisdn,true);
         }
 
 		final CustomKeyboard customKeyboard = CustomKeyboardManager.getInstance().getCustomKeyboardObject(msisdn);
-		final int customKeyBoardHeight = CustomKeyboardInputBoxAdapter.getCustomKeyBoardHeight(customKeyboard);
+        int screenWidth = activity.getResources().getDisplayMetrics().widthPixels;
+        int stickerPadding = 2 * activity.getResources().getDimensionPixelSize(R.dimen.sticker_padding);
+        int stickerGridPadding = activity.getResources().getDimensionPixelSize(R.dimen.sticker_grid_horizontal_padding);
+		final int customKeyBoardHeight = BotUtils.getCustomKeyBoardHeight(customKeyboard,screenWidth,stickerPadding,stickerGridPadding);
 
         // Added show popup method on post delayed so that main view gets inflated till now and so that mainView window token not get null  in keyboard popup layout code.
         uiHandler.postDelayed(new Runnable() {
@@ -6738,15 +6722,34 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
                 if(mShareablePopupLayout != null)
                     mShareablePopupLayout.showPopup(CustomKeyboardManager.getInstance(), activity.getResources().getConfiguration().orientation, customKeyBoardHeight);
 
+                if(!TextUtils.isEmpty(mComposeView.getText()))
+                {
+                    setComposeViewDefaultState();
+                    Utils.showSoftKeyboard(activity,mComposeView);
+                    mShareablePopupLayout.togglePopup(CustomKeyboardManager.getInstance(), activity.getResources().getConfiguration().orientation, true);
+
+                    if(useWTRevamped)
+                    {
+                        ((ImageButton) activity.findViewById(R.id.send_message)).setImageResource(R.drawable.send_btn_selector);
+                        activity.findViewById(R.id.send_message).setVisibility(View.VISIBLE);
+                        activity.findViewById(R.id.send_message_audio).setVisibility(View.GONE);
+                    }
+                    else
+                        ((ImageButton) activity.findViewById(R.id.send_message)).setImageResource(R.drawable.send_btn_selector);
+
+                }
+                else
+                    setComposeViewCustomKeyboardState();
+
                 if(customKeyboard != null && customKeyboard.isHidden())
                 {
                     mShareablePopupLayout.dismiss();
                     setComposeViewDefaultState();
                     customKeyboard.setHidden(false);
                 }
+                scrollToEnd();
             }
         },100);
-
     }
 
 	private void dismissInputBox()
@@ -6755,14 +6758,15 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
             mShareablePopupLayout.dismiss();
 
 		setComposeViewDefaultState();
+        CustomKeyboardManager.getInstance().setInputBoxButtonShowing(msisdn,false);
 
 		if (!useWTRevamped)
 			((ImageButton) activity.findViewById(R.id.send_message)).setImageResource(R.drawable.walkie_talkie_btn_selector);
 		else
 		{
 			((ImageButton) activity.findViewById(R.id.send_message)).setImageResource(R.drawable.send_btn_selector);
-			((ImageButton) activity.findViewById(R.id.send_message)).setVisibility(View.GONE);
-			((ImageButton) activity.findViewById(R.id.send_message_audio)).setVisibility(View.VISIBLE);
+			activity.findViewById(R.id.send_message).setVisibility(View.GONE);
+			activity.findViewById(R.id.send_message_audio).setVisibility(View.VISIBLE);
 		}
 	}
 
@@ -6774,7 +6778,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
         composeTextView.setFocusable(true);
         composeTextView.setHint("");
         composeTextView.setPadding((int)(10 * Utils.densityMultiplier),(int)(6 * Utils.densityMultiplier),0,0);
-        CustomKeyboardManager.getInstance().setInputBoxButtonShowing(msisdn,false);
     }
 
     private void setComposeViewCustomKeyboardState()
@@ -6796,9 +6799,18 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
         composeTextView.setClickable(false);
 
         ImageButton keyboardInputButton = (ImageButton) activity.findViewById(R.id.send_message);
-        keyboardInputButton.setImageResource(R.drawable.keyboard_button_selector);
-        keyboardInputButton.setContentDescription(activity.getResources().getString(R.string.content_des_send_recorded_audio_text_chatting));
-        keyboardInputButton.setSelected(true);
+
+        if(useWTRevamped)
+        {
+            keyboardInputButton.setImageResource(R.drawable.keyboard_button_selector);
+            keyboardInputButton.setVisibility(View.VISIBLE);
+            activity.findViewById(R.id.send_message_audio).setVisibility(View.GONE);
+        }
+        else {
+            keyboardInputButton.setImageResource(R.drawable.keyboard_button_selector);
+            keyboardInputButton.setContentDescription(activity.getResources().getString(R.string.content_des_send_recorded_audio_text_chatting));
+            keyboardInputButton.setSelected(true);
+        }
     }
 
     protected ConvMessage createConvMessageFromString(String message)
@@ -6865,6 +6877,36 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			e.printStackTrace();
 		}
 	}
+
+    @Override
+    public void onCustomKeyboardStickerClicked(Sticker sticker)
+    {
+        String source = StickerManager.FROM_OTHER;
+        Logger.i(TAG, "sticker clicked " + sticker.getStickerId() + sticker.getCategoryId() + source);
+        StickerSearchManager.getInstance().sentMessage(null, sticker, null, mComposeView.getText().toString());
+        sendSticker(sticker, source);
+
+        String keyboardDataJson = HikeSharedPreferenceUtil.getInstance(CustomKeyboardManager.CUSTOM_INPUT_BOX_KEY).getData(CustomKeyboardManager.getKeyboardKey(msisdn),
+                HikePlatformConstants.KEYBOARD_DEFAULT_DATA);
+        try
+        {
+            if (!keyboardDataJson.equals(HikePlatformConstants.KEYBOARD_DEFAULT_DATA))
+            {
+                boolean isKeyBoardPersistent = new JSONObject(keyboardDataJson).optBoolean(HikePlatformConstants.IS_KEYBOARD_PERSISTENT, false);
+                if (!isKeyBoardPersistent)
+                {
+                    CustomKeyboardManager.getInstance().removeFromSharedPreferences(msisdn);
+                    dismissInputBox();
+                }
+            }
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+
 	/*
 	 * Returns whether the chat is mute or not
 	 *

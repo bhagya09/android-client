@@ -80,6 +80,7 @@ public class ChatThemeManager {
         mChatThemesMap = HikeConversationsDatabase.getInstance().getAllChatThemes();
         mDrawableHelper = new ChatThemeDrawableHelper();
         mAssetHelper = new ChatThemeAssetHelper();
+        addTempCustomThemeToMap();
     }
 
     private void getAllHikeThemesForDisplay() {
@@ -424,7 +425,28 @@ public class ChatThemeManager {
         HikeSharedPreferenceUtil.getInstance().saveData(HikeChatThemeConstants.MIGRATED_CHAT_THEMES_DATA_TO_DB, false);
         clearThemes();
         mAssetHelper.clearAssets();
+        addTempCustomThemeToMap();
     }
 
+    public void addTempCustomThemeToMap() {
+        HikeChatTheme theme = new HikeChatTheme();
+        theme.setThemeId(HikeChatThemeConstants.THEME_ID_CUSTOM_THEME);
+        theme.setThemeType(HikeChatThemeConstants.THEME_TYPE_CUSTOM);
+        theme.setVisibilityStatus(false);
+        theme.setThemeOrderIndex(0);
+        theme.setSystemMessageType(HikeChatThemeConstants.SYSTEM_MESSAGE_TYPE_LIGHT);
+        theme.setAssetDownloadStatus(HikeChatThemeConstants.ASSET_STATUS_DOWNLOAD_COMPLETE);
+
+        for (byte j = 0; j < HikeChatThemeConstants.ASSET_INDEX_COUNT; j++) {
+            String assetKey = HikeChatThemeConstants.JSON_SIGNAL_THEME[j];
+            if (!(assetKey.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_THEME_BG_PORTRAIT) || assetKey.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_THEME_BG_LANDSCAPE) || assetKey.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_THEME_THUMBNAIL))) {
+                HikeChatThemeAsset asset = getDrawableHelper().getDefaultCustomDrawable(assetKey);
+                if (asset != null) {
+                    theme.setAsset(j, asset.getAssetId());
+                }
+            }
+        }
+        mChatThemesMap.put(theme.getThemeId(), theme);
+    }
 
 }
