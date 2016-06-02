@@ -175,7 +175,9 @@ public class UpgradeIntentService extends IntentService
 
 		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PRIVACY_SETTINGS_LAST_SEEN_UPGRADE, false))
 		{
-			upgradeForLastSeenPrivacySettingsChange();
+			if (Utils.isFavToFriendsMigrationAllowed()) {
+				upgradeForLastSeenPrivacySettingsChange();
+			}
 			HikeSharedPreferenceUtil.getInstance()
 					.saveData(HikeMessengerApp.PRIVACY_SETTINGS_LAST_SEEN_UPGRADE, true);
 		}
@@ -263,30 +265,29 @@ public class UpgradeIntentService extends IntentService
 		return HikeConversationsDatabase.getInstance().upgradeForStickerTable();
 	}
 
-	private void upgradeForLastSeenPrivacySettingsChange()
-	{
+	private void upgradeForLastSeenPrivacySettingsChange() {
 		Context context = HikeMessengerApp.getInstance().getApplicationContext();
 		// Change last seen pref to friends if its is not already set to friends or noone.
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
 		String currentValue = settings.getString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_favorites));
+		int slectedPrivacyId;
+		Editor settingEditor = settings.edit();
 
-		if (!currentValue.equals(context.getString(R.string.privacy_favorites)) && !currentValue.equals(context.getString(R.string.privacy_nobody)))
-		{
-			Editor settingEditor = settings.edit();
+		if (currentValue.equals(context.getString(R.string.privacy_nobody))) {
+			settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, currentValue);
+			slectedPrivacyId = Integer.parseInt(currentValue);
+		} else {
 			settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_favorites));
-			int slectedPrivacyId = Integer.parseInt(context.getString(R.string.privacy_favorites));
-
-			try
-			{
-				HikePreferences.sendNLSToServer(slectedPrivacyId, true);
-				settingEditor.commit();
-			}
-			catch (JSONException e)
-			{
-				Logger.e(TAG, "Could not send NLS to server");
-			}
+			slectedPrivacyId = Integer.parseInt(context.getString(R.string.privacy_favorites));
 		}
 
+		try {
+			HikePreferences.sendULSToServer(slectedPrivacyId, true);
+			settingEditor.apply();
+		} catch (JSONException e) {
+			Logger.e("FavToFriends", "Got error while sending uls packet " + e.toString());
+			e.printStackTrace();
+		}
 	}
 
 }
