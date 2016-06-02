@@ -1,5 +1,7 @@
 package com.bsb.hike.tasks;
 
+import android.support.annotation.Nullable;
+
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.updateAddressBookRequest;
 
 import java.net.HttpURLConnection;
@@ -13,7 +15,6 @@ import org.json.JSONObject;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -26,7 +27,6 @@ import com.bsb.hike.modules.httpmgr.request.requestbody.JsonBody;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUIDFetch;
-import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 
@@ -93,7 +93,7 @@ public class UpdateAddressBookTask
 			}
 
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 				resultObject = null;
 				// TODO Below code is for investigating an issue where invalid json is received at server end , should be removed once issue is solved

@@ -1,6 +1,7 @@
 package com.bsb.hike.modules.quickstickersuggestions.model;
 
 import android.os.Bundle;
+import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.models.CustomStickerCategory;
@@ -254,7 +255,7 @@ public class QuickSuggestionStickerCategory extends CustomStickerCategory
 
 	public static Set<Sticker> replyStickerSetFromString(String jsonString)
 	{
-		Set<Sticker> replyStickers = new LinkedHashSet<>(8); // got this number through rigorous research
+		Set<Sticker> replyStickers = TextUtils.isEmpty(jsonString) ? null : new LinkedHashSet<Sticker>(8); // got this number through rigorous research
 		try
 		{
 			JSONArray jsonArray = new JSONArray(jsonString);
@@ -276,7 +277,7 @@ public class QuickSuggestionStickerCategory extends CustomStickerCategory
 
 	public static Set<Sticker> sentStickerSetFromSting(String jsonString)
 	{
-		Set<Sticker> sentStickers = new LinkedHashSet<>(0);
+		Set<Sticker> sentStickers = TextUtils.isEmpty(jsonString) ? null : new LinkedHashSet<Sticker>(8);
 		try
 		{
 			JSONArray jsonArray = new JSONArray(jsonString);

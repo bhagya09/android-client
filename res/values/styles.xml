@@ -322,6 +322,7 @@
         <item name="android:listSelector">@android:color/transparent</item>
         <item name="android:overScrollFooter">@android:color/transparent</item>
     </style>
+
     
     <style name="HomeList" parent = "HomeListParent"/>
     
@@ -861,6 +862,9 @@
         <item name="android:ellipsize">end</item>
         <item name="android:singleLine">true</item>
     </style>
+    <style name="ListItemSubText" parent="ListItemSubHeaderTextView">
+        <item name="android:textColor">@color/black_36</item>
+    </style>
     
 	<style name="ListSectionHeaderMargins">
 	    <item name="android:layout_marginLeft">16dp</item>
@@ -870,13 +874,20 @@
 	</style>
 	
 	<style name="ListSectionTextView" parent="BaseStyleTextView">
-	    <item name="android:textColor">#1DA8E8</item>
-	    <item name="android:textSize">14sp</item>
-	    <item name="android:textStyle">bold|italic</item>
-	    <item name="android:layout_width">wrap_content</item>
-	    <item name="android:layout_height">wrap_content</item>
-	</style>
-	
+    <item name="android:textColor">#1DA8E8</item>
+    <item name="android:textSize">14sp</item>
+    <item name="android:textStyle">bold|italic</item>
+    <item name="android:layout_width">wrap_content</item>
+    <item name="android:layout_height">wrap_content</item>
+</style>
+    <style name="LisRemainingTextView" parent="BaseStyleTextView">
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold|italic</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">18.5dp</item>
+        <item name="android:layout_marginLeft">16dp</item>
+    </style>
 	<style name="ListItemRightSubText" parent="BaseStyleTextView">
 	    <item name="android:textColor">@color/conv_item_timestamp_color</item>
         <item name="android:textSize">12sp</item>
@@ -982,6 +993,11 @@
         <item name="android:paddingLeft">16dp</item>
         <item name="android:paddingRight">16dp</item>
     </style>
+
+    <style name="CheckboxBarCustomDialog">
+        <item name="android:paddingLeft">26dp</item>
+        <item name="android:paddingRight">16dp</item>
+    </style>
     
      <style name="ButtonCustomDialogBase" parent="@style/Widget.AppCompat.Button.Borderless.Colored">
         <item name="android:paddingBottom">10dp</item>
@@ -1083,7 +1099,7 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textColor">@color/atomic_tip_header_text</item>
-        <item name="android:textStyle">normal</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
     <style name="AtomicTipBodyText">

@@ -247,6 +247,10 @@ public class FileTransferManager
 		return null;
 	}
 
+	public void downloadFile(File destinationFile, String fileKey, long msgId, HikeFileType hikeFileType, ConvMessage userContext, boolean showToast)
+	{
+        downloadFile(destinationFile,fileKey,msgId,hikeFileType,userContext,showToast,null);
+	}
     /**
      *
      * @param destinationFile
@@ -256,7 +260,7 @@ public class FileTransferManager
      * @param userContext
      * @param showToast
      */
-	public void downloadFile(File destinationFile, String fileKey, long msgId, HikeFileType hikeFileType, ConvMessage userContext, boolean showToast)
+	public void downloadFile(File destinationFile, String fileKey, long msgId, HikeFileType hikeFileType, ConvMessage userContext, boolean showToast, HikeFile hikeFile)
 	{
 		Logger.d(getClass().getSimpleName(), "Downloading file: " + " NAME: " + destinationFile.getName() + " KEY: " + fileKey + "MSG ID: " + msgId);
 		DownloadFileTask downloadFileTask;
@@ -304,8 +308,12 @@ public class FileTransferManager
 				Toast.makeText(context, R.string.no_sd_card, Toast.LENGTH_SHORT).show();
 				return;
 			}
+            if(hikeFile == null){
+				downloadFileTask = new DownloadFileTask(context, tempDownloadedFile, destinationFile, fileKey, msgId, hikeFileType, userContext, showToast);
+			}else{
+				downloadFileTask = new DownloadFileTask(context, tempDownloadedFile, destinationFile, fileKey, msgId, hikeFileType, userContext, showToast, hikeFile);
 
-			downloadFileTask = new DownloadFileTask(context, tempDownloadedFile, destinationFile, fileKey, msgId, hikeFileType, userContext, showToast);
+			}
 			fileTaskMap.put(msgId, downloadFileTask);
 		}
 
@@ -329,7 +337,7 @@ public class FileTransferManager
 	 * @param convMessage
 	 * @param fileKey
 	 */
-	public void uploadFile(ConvMessage convMessage, String fileKey)
+	public void uploadFile(ConvMessage convMessage, String fileKey, boolean isManualRetry)
 	{
 		if (isFileTaskExist(convMessage.getMsgID()))
 		{
@@ -344,7 +352,7 @@ public class FileTransferManager
 				return;
 			}
 
-			UploadFileTask task = new UploadFileTask(context, convMessage, fileKey);
+			UploadFileTask task = new UploadFileTask(context, convMessage, fileKey, isManualRetry);
 			fileTaskMap.put(convMessage.getMsgID(), task);
 			task.startFileUploadProcess();
 		}
@@ -356,7 +364,7 @@ public class FileTransferManager
      * @param messageList
      * @param fileKey
      */
-	public void uploadFile(List<ContactInfo> contactList, List<ConvMessage> messageList, String fileKey)
+	public void uploadFile(List<ContactInfo> contactList, List<ConvMessage> messageList, String fileKey, boolean isManualRetry)
 	{
 		ConvMessage convMessage = messageList.get(0);
 		if (isFileTaskExist(convMessage.getMsgID()))
@@ -372,7 +380,7 @@ public class FileTransferManager
 				return;
 			}
 
-			UploadFileTask task = new UploadFileTask(context, contactList, messageList, fileKey);
+			UploadFileTask task = new UploadFileTask(context, contactList, messageList, fileKey, isManualRetry);
 			for (ConvMessage msg : messageList)
 			{
 				fileTaskMap.put(msg.getMsgID(), task);
