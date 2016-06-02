@@ -7404,27 +7404,31 @@ public class Utils
 		}
 	}
 
-	public static void changeFavToFriends()
-	{
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 0) != 1)
-		{
+	public static void changeFavToFriends() {
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 0) != 1) {
 			Context context = HikeMessengerApp.getInstance().getApplicationContext();
 			// Change last seen pref to friends if its is not already set to friends or noone.
 			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
 			String currentValue = settings.getString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_favorites));
 			Editor settingEditor = settings.edit();
-			settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_favorites));
+
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LAST_SEEN_TEMP_PREF, currentValue);
-			int slectedPrivacyId = Integer.parseInt(context.getString(R.string.privacy_favorites));
-			try
-			{
+			int slectedPrivacyId;
+
+			if (currentValue.equals(context.getString(R.string.privacy_nobody))) {
+				settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, currentValue);
+				slectedPrivacyId = Integer.parseInt(currentValue);
+			} else {
+				settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_favorites));
+				slectedPrivacyId = Integer.parseInt(context.getString(R.string.privacy_favorites));
+			}
+
+			try {
 				HikePreferences.sendULSToServer(slectedPrivacyId, true);
 				settingEditor.apply();
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 1);
-			}
-			catch (JSONException e)
-			{
-				Logger.e("FavToFriends", "Got error while sending uls packet "+ e.toString());
+			} catch (JSONException e) {
+				Logger.e("FavToFriends", "Got error while sending uls packet " + e.toString());
 				e.printStackTrace();
 			}
 		}
