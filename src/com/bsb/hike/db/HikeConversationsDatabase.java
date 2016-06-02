@@ -11145,7 +11145,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 
 			Cursor c = null;
 			try {
-				c = mDb.query(DBConstants.STATUS_TABLE, columns, selection, null, null, null, null);
+				c = mDb.query(DBConstants.STATUS_TABLE, columns, selection, null, null, null, DBConstants.TIMESTAMP +" DESC");
 
 				List<StatusMessage> statusMessages = new ArrayList<StatusMessage>(c.getCount());
 				Map<String, List<StatusMessage>> statusMessagesMap = new HashMap<String, List<StatusMessage>>();
