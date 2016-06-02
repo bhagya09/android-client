@@ -409,7 +409,7 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 	public Bundle getRequestBundle()
 	{
 		Bundle extras = new Bundle();
-		extras.putSerializable(HikeConstants.CATEGORY_ID, category);
+		extras.putString(HikeConstants.CATEGORY_ID, category.getCategoryId());
 		extras.putSerializable(HikeConstants.DOWNLOAD_TYPE, downloadType);
 		extras.putString(HikeConstants.BODY, bodyJson.toString());
 		return extras;
