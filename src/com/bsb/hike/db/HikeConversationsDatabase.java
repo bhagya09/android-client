@@ -11262,7 +11262,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 	{
 		String sql = CREATE_TABLE + DBConstants.USER_PARAMETER_TABLE
 				+ " ( "
-				+ DBConstants.PARAMETER_KEY + " TEXT, "
+				+ DBConstants.PARAMETER_KEY + " TEXT PRIMARY KEY, "
 				+ DBConstants.PARAMETER_VALUE + " TEXT"
 				+ " )";
 
@@ -11273,7 +11273,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 	{
 		String sql = CREATE_TABLE + DBConstants.PARAMETER_MAPPING_TABLE
 				+ " ( "
-				+ DBConstants.URL + " TEXT, "
+				+ DBConstants.URL + " TEXT PRIMARY KEY, "
 				+ DBConstants.METHOD + " TEXT, "
 				+ DBConstants.PARAMETER_LIST + " TEXT"
 				+ " )";
