@@ -425,6 +425,7 @@ public class ChatThemeManager {
         HikeSharedPreferenceUtil.getInstance().saveData(HikeChatThemeConstants.MIGRATED_CHAT_THEMES_DATA_TO_DB, false);
         clearThemes();
         mAssetHelper.clearAssets();
+        addTempCustomThemeToMap();
     }
 
     public void addTempCustomThemeToMap() {
@@ -438,13 +439,7 @@ public class ChatThemeManager {
 
         for (byte j = 0; j < HikeChatThemeConstants.ASSET_INDEX_COUNT; j++) {
             String assetKey = HikeChatThemeConstants.JSON_SIGNAL_THEME[j];
-            if (assetKey.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_THEME_BG_PORTRAIT)) {
-            } else if (assetKey.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_THEME_BG_LANDSCAPE)) {
-            } else if (assetKey.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_THEME_THUMBNAIL)) {
-                String assetId = HikeMessengerApp.getInstance().getApplicationContext().getResources().getResourceEntryName(R.drawable.ic_ct_default_preview) + HikeChatThemeConstants.FILEEXTN_PNG;
-                HikeChatThemeAsset thumb = new HikeChatThemeAsset(assetId, HikeChatThemeConstants.ASSET_TYPE_PNG, "", 0);
-                theme.setAsset(j, thumb.getAssetId());
-            } else {
+            if (!(assetKey.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_THEME_BG_PORTRAIT) || assetKey.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_THEME_BG_LANDSCAPE) || assetKey.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_THEME_THUMBNAIL))) {
                 HikeChatThemeAsset asset = getDrawableHelper().getDefaultCustomDrawable(assetKey);
                 if (asset != null) {
                     theme.setAsset(j, asset.getAssetId());
