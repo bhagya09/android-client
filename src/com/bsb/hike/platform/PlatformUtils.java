@@ -2316,7 +2316,7 @@ public class PlatformUtils
 		JSONArray mArray = PlatformUtils.readFileList(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS, false);
 
         // Precautionary check for NPE, return from here as no analytics would be required if there are no sub-directories found
-        if(mArray == null || mArray.length() == 0)
+        if(Utils.isEmpty(mArray))
             return;
 
         long contentFolderLength = 0,directorySize;
