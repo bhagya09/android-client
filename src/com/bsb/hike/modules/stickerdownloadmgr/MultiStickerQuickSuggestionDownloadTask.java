@@ -1,6 +1,7 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
 import android.support.annotation.Nullable;
+import android.os.Bundle;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.models.Sticker;
@@ -156,7 +157,8 @@ public class MultiStickerQuickSuggestionDownloadTask implements IHikeHTTPTask, I
 
 	}
 
-	private String getRequestId()
+    @Override
+    public String getRequestId()
 	{
 		return StickerRequestType.MULTI_QUICK_SUGGESTION.getLabel() + "\\" + requestStep;
 	}
@@ -173,4 +175,10 @@ public class MultiStickerQuickSuggestionDownloadTask implements IHikeHTTPTask, I
 	{
 		Logger.e(TAG, "response failed for quick suggestions", exception);
 	}
+
+    @Override
+    public Bundle getRequestBundle()
+    {
+        return null;
+    }
 }

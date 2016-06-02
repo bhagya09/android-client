@@ -76,7 +76,7 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 
 	private void download()
 	{
-		requestToken = multiStickerDownloadRequest(getRequestId(), getRequestInterceptor(), getRequestListener());
+		requestToken = multiStickerDownloadRequest(getRequestId(), getRequestInterceptor(), getRequestListener(), getRequestBundle());
 
 		if (requestToken.isRequestRunning()) // duplicate check
 		{
@@ -303,7 +303,8 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 		};
 	}
 
-	private String getRequestId()
+    @Override
+    public String getRequestId()
 	{
 		return (StickerRequestType.MULTIPLE.getLabel() + "\\" + category.getCategoryId() + "\\" + existingStickerNumber);
 	}
@@ -403,4 +404,15 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 			requestToken.cancel();
 		}
 	}
+
+    @Override
+	public Bundle getRequestBundle()
+	{
+		Bundle extras = new Bundle();
+		extras.putSerializable(HikeConstants.CATEGORY_ID, category);
+		extras.putSerializable(HikeConstants.DOWNLOAD_TYPE, downloadType);
+		extras.putString(HikeConstants.BODY, bodyJson.toString());
+		return extras;
+	}
+
 }

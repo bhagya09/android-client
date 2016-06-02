@@ -98,7 +98,7 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 			call ++;
 			offset ++;
 			RequestListener requestListener = new RequestListener();
-			RequestToken requestToken = multiStickerImageDownloadRequest(getRequestId(offset), new RequestInterceptor(offset, requestListener), requestListener);
+			RequestToken requestToken = multiStickerImageDownloadRequest(getRequestId(offset), new RequestInterceptor(offset, requestListener), requestListener, getRequestBundle());
 			requestListener.setRequestToken(requestToken);
 			requestTokenList.add(requestToken);
 			if (requestToken.isRequestRunning()) // duplicate check
@@ -376,5 +376,21 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 				requestToken.cancel();
 			}
 		}
+	}
+
+    @Override
+	public Bundle getRequestBundle()
+	{
+		Bundle extras = new Bundle();
+		extras.putSerializable(HikeConstants.CATEGORY_ID, category);
+		extras.putInt(HikeConstants.DOWNLOAD_TYPE, downloadType.ordinal());
+		extras.putString(HikeConstants.MINI_STICKER_IMAGE, bodyJson.toString());
+		return extras;
+	}
+
+	@Override
+	public String getRequestId()
+	{
+		return getRequestId(0);
 	}
 }

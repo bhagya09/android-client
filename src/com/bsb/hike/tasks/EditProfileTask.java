@@ -2,6 +2,7 @@ package com.bsb.hike.tasks;
 
 import android.content.Context;
 import android.support.annotation.Nullable;
+import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -371,6 +372,18 @@ public class EditProfileTask implements IHikeHTTPTask
             editEmailGenderRequestToken.cancel();
         }
     }
+
+	@Override
+	public Bundle getRequestBundle()
+	{
+		return null;
+	}
+
+	@Override
+	public String getRequestId()
+	{
+		return null;
+	}
 
     private void showErrorToast(int stringResId, int duration)
     {
