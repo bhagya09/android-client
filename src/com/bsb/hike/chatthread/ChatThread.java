@@ -419,8 +419,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	private CustomTabActivityHelper mCustomTabActivityHelper;
 
-	private String mThemeIdBGRendered = null;
-
 	private class ChatThreadBroadcasts extends BroadcastReceiver
 	{
 		@Override
@@ -1847,7 +1845,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 			setThemeBackground(backgroundImage, drawable, ChatThemeManager.getInstance().getTheme(themeId).isTiled(), ChatThemeManager.getInstance().getTheme(themeId).isCustomTheme());
 		}
-		mThemeIdBGRendered = themeId;
 	}
 
 	private void setThemeBackground(CustomBGRecyclingImageView backgroundImage, Drawable drawable, boolean isTiled, boolean isCustom) {
@@ -1884,7 +1881,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		Drawable drawable = new BitmapDrawable(getResources(), bmp);
 
 		setThemeBackground(backgroundImage, drawable, false, true);
-		mThemeIdBGRendered = HikeChatThemeConstants.THEME_PALETTE_CAMERA_ICON;
 	}
 
 	@Override
