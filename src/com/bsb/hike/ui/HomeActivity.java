@@ -3,6 +3,7 @@ package com.bsb.hike.ui;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -2889,6 +2890,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		Intent intent =IntentFactory.getComposeChatActivityIntent(this);
 		intent.putExtra(HikeConstants.SEND,sendText);
 		startActivity(intent);
+		finish();
 
 	}
 }
