@@ -333,7 +333,8 @@ public class HikeNotificationMsgStack implements Listener
 		}
 		else if (containsStealthMessage())
 		{
-			mNotificationIntent = IntentFactory.getHomeActivityIntent(mContext);
+			// Home activity default tab
+			mNotificationIntent = IntentFactory.getHomeActivityDefaultTabIntent(mContext);
 		}
 		else
 		{
@@ -350,8 +351,8 @@ public class HikeNotificationMsgStack implements Listener
 				else
 				{
 					// Multiple msisdn, mixed types
-					// Home activity
-					mNotificationIntent = IntentFactory.getHomeActivityIntent(mContext);
+					// Home activity default tab
+					mNotificationIntent = IntentFactory.getHomeActivityDefaultTabIntent(mContext);
 				}
 			}
 			// if all the new messages belong to a single user/group
