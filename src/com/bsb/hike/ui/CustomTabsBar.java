@@ -113,13 +113,9 @@ public class CustomTabsBar {
 
         private int iconResId;
 
-        private Drawable badgeCounterBG;
-
-        private int badgeCounterBGResId;
-
         private ImageView icon;
 
-        private TextView badgeCounter;
+        private View indicator;
 
         private CustomTabListener customTabListener;
 
@@ -158,16 +154,11 @@ public class CustomTabsBar {
             if (mView == null) {
                 mView = inflater.inflate(R.layout.custom_tab, actionBar, false);
                 icon = (ImageView) mView.findViewById(R.id.tab_icon);
-                badgeCounter = (TextView) mView.findViewById(R.id.txt_counter);
+                indicator = mView.findViewById(R.id.indicator);
                 if (iconResId > 0)
                     icon.setImageResource(iconResId);
                 else if (iconDrawable != null)
                     icon.setImageDrawable(iconDrawable);
-
-                if (badgeCounterBGResId > 0)
-                    badgeCounter.setBackgroundResource(badgeCounterBGResId);
-                else if (badgeCounterBG != null)
-                    badgeCounter.setBackground(badgeCounterBG);
             }
             return mView;
         }
@@ -196,28 +187,19 @@ public class CustomTabsBar {
                 customTabListener.onTabReselected(this);
         }
 
-        public CustomTabsBar.Tab setBadgeCounterBG(int resId) {
-            this.badgeCounterBGResId = resId;
-            return this;
+        public void setIndicator(int count) {
+            if (count > 0)
+                showIndicator();
+            else
+                hideIndicator();
         }
 
-        public CustomTabsBar.Tab setBadgeCounterBG(Drawable drawable) {
-            this.badgeCounterBG = drawable;
-            return this;
+        public void hideIndicator() {
+            indicator.setVisibility(View.GONE);
         }
 
-        public void updateBadgeCounter(Integer newCount) {
-            if (getCustomView() != null)
-                return;
-
-            if (newCount > 0) {
-                badgeCounter.setText(newCount.toString());
-                badgeCounter.setVisibility(View.VISIBLE);
-                icon.setVisibility(View.GONE);
-            } else {
-                badgeCounter.setVisibility(View.GONE);
-                icon.setVisibility(View.VISIBLE);
-            }
+        public void showIndicator() {
+            indicator.setVisibility(View.VISIBLE);
         }
     }
 
