@@ -781,6 +781,20 @@ public class HikeConstants
 
 	public static final String CALLER_BLOKED_LIST_PREF = "callerBlockedList";
 
+	public static final String CALLER_QUICK_REPLY_SET = "c_q_r_s";
+
+	public static final String SRC_CALLER_QUICK_REPLY_CARD = "src_quick_reply";
+
+	public static final String IS_USER_CHAT_SPAMMED_BY_YOU = "marked_spam";
+
+	public static final String CHAT_SPAM_COUNT = "spam_count";
+
+	public static final String SPAM = "spam";
+
+	public static final String SHOW_UNKNOWN_USER_INFO_INSIDE_ONE_TO_ONE_CHAT = "showUnknownUserInfo";
+
+	public static long NO_OF_MILISECONDS_IN_1_DAY = 24 * 60 * 60 * 1000;
+
 	public static final String CALL_TYPE = "call_type";
 	public static String CONTENT_RANGE = "Content-Range";
 
@@ -1872,8 +1886,15 @@ public class HikeConstants
 		public static final String CLEARED_OUT = "extrasClearedOut";
 
 		public static final String HIKE_DIRECT_MODE="hikedirectmode";
+
 		public static final String SHOW_TIMELINE = "showTimeline";
 		public static final String BYPASS_GALLERY = "bypassGallery";
+
+		public static final String CALLER_QUICK_REPLY_MSG = "caller_quick_reply_msg";
+
+		public static final String CALLER_CONTENT_MODEL = "caller_content_model";
+
+		public static final String HIKE_BDAY_MODE = "hikeBdayMode";
 
 		// constants related to sharing Functioanlity
 		public static final class ShareTypes
@@ -4198,6 +4219,8 @@ public class HikeConstants
 
 	public static final String LOG_SQLITE_PROPERTIES = "log_sqlite_props";
 
+	public static final String LOCATION = "location";
+
 	public static class BackupRestore
 	{
 		public static final String OS = "os";
@@ -4343,6 +4366,8 @@ public class HikeConstants
 	public static final String ADD_HEADER = "addHeader";
 
 	public static final String IS_ATOMIC_TIP = "isAtomicTip";
+
+	public static final String SHOW_USER_INFO_VIEW = "showUserInfoView";
 
 	public static final String VALUE_INT = "vi";
 

@@ -1651,6 +1651,51 @@ public class HttpRequests
 		return requestToken;
 	}
 
+	public static RequestToken toggleChatSpamUser(JSONObject json, IRequestListener requestListener, int noOfRetry, int retryDelay, float backOffMultiplier)
+	{
+		JsonBody body = null;
+		if (json != null)
+		{
+			body = new JsonBody(json);
+		}
+
+		RequestToken requestToken = null;
+
+		if (body != null)
+		{
+			requestToken = new JSONObjectRequest.Builder()
+					.setUrl(HttpRequestConstants.getUrlForMarkingUserAsSpam())
+					.setRetryPolicy(new BasicRetryPolicy(noOfRetry, retryDelay, backOffMultiplier))
+					.setRequestListener(requestListener).setRequestType(REQUEST_TYPE_SHORT)
+					.post(body).build();
+		}
+
+		return requestToken;
+	}
+
+	//http://private-9fd63-chatspam.apiary-mock.com/v1/userinfo?msisdn=%2B918011284664&spaminfo=1
+	public static RequestToken fetchUnknownChatUserInfo(String msisdn, boolean newRow, IRequestListener requestListener, int noOfRetry, int retryDelay, float backOffMultiplier) {
+		RequestToken requestToken = null;
+
+		if (!TextUtils.isEmpty(msisdn)) {
+			if (msisdn.contains("+")) {
+				msisdn = msisdn.substring(1);
+			}
+
+			String url = HttpRequestConstants.getUrlForFetchingUnknownChatUserInfo() + "?msisdn=" + msisdn;
+			if (!newRow)// we need info only about spam count
+			{
+				int spaminfo = newRow == true ? 1 : 0;
+				url = url + "&spaminfo=" + spaminfo;
+			}
+
+			Logger.d("c_spam", "The url is --------> " + url);
+			requestToken = new JSONObjectRequest.Builder().setUrl(url).setRetryPolicy(new BasicRetryPolicy(noOfRetry, retryDelay, backOffMultiplier))
+					.setRequestListener(requestListener).setRequestType(REQUEST_TYPE_SHORT).get().build();
+		}
+		return requestToken;
+	}
+
     public static RequestToken makeBotJoinPostRequest(JSONObject json, IRequestListener requestListener)
     {
         if(json==null)

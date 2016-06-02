@@ -451,7 +451,7 @@ public class BirthdayUtils
             json.put(AnalyticsConstants.V2.FORM, form);
             json.put(AnalyticsConstants.V2.RACE, race);
             json.put(AnalyticsConstants.V2.VAL_INT, valInt);
-            json.put(AnalyticsConstants.V2.TO_MSISDN, toMsisdn);
+            json.put(AnalyticsConstants.V2.TO_MISISDN, toMsisdn);
 			HAManager.getInstance().recordV2(json);
 		}
 
