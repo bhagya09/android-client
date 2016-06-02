@@ -690,6 +690,16 @@ public class IntentFactory
 		return getHomeActivityIntent(context).putExtra(HomeActivity.OPEN_FRIENDS_TAB, true);
 	}
 
+	public static Intent getHomeActivityConvTabIntent(Context context)
+	{
+		return getHomeActivityIntent(context).putExtra(HomeActivity.OPEN_CONV_TAB, true);
+	}
+
+	public static Intent getHomeActivityMeTabIntent(Context context)
+	{
+		return getHomeActivityIntent(context).putExtra(HomeActivity.OPEN_ME_TAB, true);
+	}
+
 	public static Intent getComposeChatActivityIntent(Context context)
 	{
 		return new Intent(context, ComposeChatActivity.class);

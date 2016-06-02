@@ -74,6 +74,10 @@ public class CustomTabsBar {
     }
 
     public void selectTab(Tab tab) {
+        if (tab == null) {
+            Logger.e(TAG,"Requested Tab is null. Returning...");
+            return;
+        }
         if (tabSelectionInProgress)
         {
             Logger.e(TAG,"Tab selection already in progress. Returning...");
