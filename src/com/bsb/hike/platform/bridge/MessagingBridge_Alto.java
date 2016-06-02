@@ -841,7 +841,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 
 		Boolean muteBot = Boolean.valueOf(mute);
 		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(message.webMetadata.getParentMsisdn());
-		botInfo.setMute(muteBot);
+		botInfo.setIsMute(muteBot);
 		HikeConversationsDatabase.getInstance().toggleMuteBot(botInfo.getMsisdn(), muteBot);
 	}
 

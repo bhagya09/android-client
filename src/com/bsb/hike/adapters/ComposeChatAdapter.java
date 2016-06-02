@@ -45,6 +45,7 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.OneToNConversationUtils;
+import com.bsb.hike.utils.PhoneUtils;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.WhichScreen;
@@ -189,11 +190,13 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
 			fetchFriendsTask = new FetchFriendsTask(this, context, friendsList, hikeContactsList, smsContactsList, recentContactsList,recentlyJoinedHikeContactsList, friendsStealthList, hikeStealthContactsList,
 					smsStealthContactsList, recentStealthContactsList, filteredFriendsList, filteredHikeContactsList, filteredSmsContactsList, groupsList, groupsStealthList, nuxRecommendedList, nuxFilteredRecoList, filteredGroupsList, filteredRecentsList,filteredRecentlyJoinedHikeContactsList,
-					existingParticipants, sendingMsisdn, false, existingGroupId, isCreatingOrEditingGroup, fetchSMSContacts, false, false , false, showDefaultEmptyList, fetchHikeContacts, false, fetchRecommendedContacts, fetchHideListContacts, null, null, false, null, showBdaySection);
+					existingParticipants, sendingMsisdn, false, existingGroupId, isCreatingOrEditingGroup, fetchSMSContacts, false, false , false, showDefaultEmptyList, fetchHikeContacts, false, fetchRecommendedContacts, fetchHideListContacts, null, null, false, null, showBdaySection,
+                    hikeBdayContactList, filteredHikeBdayContactList);
 		} else {
 			fetchFriendsTask = new FetchFriendsTask(this, context, friendsList, hikeContactsList, smsContactsList, recentContactsList,recentlyJoinedHikeContactsList, friendsStealthList, hikeStealthContactsList,
 					smsStealthContactsList, recentStealthContactsList, filteredFriendsList, filteredHikeContactsList, filteredSmsContactsList, groupsList, groupsStealthList, null, null, filteredGroupsList, filteredRecentsList,filteredRecentlyJoinedHikeContactsList,
-					existingParticipants, sendingMsisdn, fetchGroups, existingGroupId, isCreatingOrEditingGroup, showSMSContacts, false, fetchRecents , fetchRecentlyJoined, showDefaultEmptyList, true, true, false , false, microappShowcaseList , filteredmicroAppShowcaseList, showMicroappShowcase, composeExcludeList, showBdaySection);
+					existingParticipants, sendingMsisdn, fetchGroups, existingGroupId, isCreatingOrEditingGroup, showSMSContacts, false, fetchRecents , fetchRecentlyJoined, showDefaultEmptyList, true, true, false , false, microappShowcaseList , filteredmicroAppShowcaseList, showMicroappShowcase, composeExcludeList,
+                    showBdaySection, hikeBdayContactList, filteredHikeBdayContactList);
 		}
 
 		if(showTimeline)
@@ -964,7 +967,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
 	private String getNormalisedMsisdn(String textEntered)
 	{
-		return Utils.normalizeNumber(textEntered,
+		return PhoneUtils.normalizeNumber(textEntered,
 				context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.COUNTRY_CODE, HikeConstants.INDIA_COUNTRY_CODE));
 	}
 

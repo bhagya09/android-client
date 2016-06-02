@@ -10,6 +10,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HomeAnalyticsConstants;
+import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.content.PlatformContent;
@@ -18,6 +19,7 @@ import com.bsb.hike.service.HikeMqttManagerNew;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -218,7 +220,7 @@ public class HikeAnalyticsEvent
 		}
 	}
 
-	public static void recordAnalyticsForAddFriend(String userMsisdn, String source, boolean requestSent)
+	public static void recordAnalyticsForAddFriend(String userMsisdn, String source, String sourceMetadata, boolean requestSent)
 	{
 		try
 		{
@@ -231,6 +233,7 @@ public class HikeAnalyticsEvent
 			json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
 			json.put(AnalyticsConstants.V2.GENUS, requestSent ? "req_sent" : "req_acc");
 			json.put(AnalyticsConstants.V2.SPECIES, source);
+			json.put(AnalyticsConstants.V2.RACE, sourceMetadata);
 			json.put(AnalyticsConstants.V2.TO_USER, userMsisdn);
 
 			HAManager.getInstance().recordV2(json);
@@ -242,6 +245,22 @@ public class HikeAnalyticsEvent
 		}
 	}
 
+	public static void platformAnalytics(String json,String uniqueKey,String kingdom) {
+		if (TextUtils.isEmpty(uniqueKey) || TextUtils.isEmpty(kingdom)) {
+			Logger.e(TAG, "Either unique key or kingdom is null");
+		}
+		try {
+			JSONObject jsonObject = new JSONObject(json);
+
+			jsonObject.put(AnalyticsConstants.V2.NETWORK, (Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
+			jsonObject.put(AnalyticsConstants.V2.KINGDOM, kingdom);
+			jsonObject.put(AnalyticsConstants.V2.UNIQUE_KEY, uniqueKey);
+			HAManager.getInstance().recordV2(jsonObject);
+		} catch (JSONException e) {
+			Logger.e(TAG, e.toString());
+		}
+
+	}
 	public static void recordAnalyticsForGCPins(String uniqueKey_order, String genus, String source, String species)
 	{
 		try
@@ -318,6 +337,28 @@ public class HikeAnalyticsEvent
 		{
 			e.toString();
 			return null;
+		}
+	}
+
+	public static void recordAnalyticsForMuteCancel(String msisdn)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, ChatAnalyticConstants.MUTE_CANCEL_UK);
+			json.put(AnalyticsConstants.V2.KINGDOM, ChatAnalyticConstants.ACT_CORE_LOGS);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, ChatAnalyticConstants.MUTE_CANCEL_UK);
+			json.put(AnalyticsConstants.V2.SPECIES, ChatThreadUtils.getChatThreadType(msisdn));
+			json.put(AnalyticsConstants.V2.VARIETY, StealthModeManager.getInstance().isStealthMsisdn(msisdn) ? ChatAnalyticConstants.STEALTH_CHAT_THREAD : "");
+			json.put(AnalyticsConstants.V2.TO_USER, msisdn);
+
+			HAManager.getInstance().recordV2(json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
 		}
 	}
 }

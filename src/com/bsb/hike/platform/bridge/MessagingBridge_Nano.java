@@ -11,12 +11,17 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.Mute;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformHelper;
 import com.bsb.hike.platform.WebMetadata;
-import com.bsb.hike.utils.*;
+import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.CustomAnnotation.DoNotObfuscate;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -140,8 +145,8 @@ public class MessagingBridge_Nano extends JavascriptBridge
 	@JavascriptInterface
 	public void muteChatThread()
 	{
-
-		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_BOT, message.getMsisdn());
+		Mute mute = new Mute.InitBuilder(message.getMsisdn()).build();
+		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, mute);
 
 	}
 

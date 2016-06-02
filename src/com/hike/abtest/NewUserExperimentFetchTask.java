@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.support.annotation.Nullable;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -66,7 +67,7 @@ public class NewUserExperimentFetchTask implements IHikeHTTPTask, IHikeHttpTaskR
     @Override
     public void doOnSuccess(Object result) {
         Logger.d(TAG, "OnSuccess: ");
-        JSONObject requestJson = (JSONObject)result;
+        JSONObject requestJson = (JSONObject) result;
         try {
             ABTest.onRequestReceived(requestJson.getString(HikeConstants.TYPE), requestJson);
         } catch (JSONException e) {
@@ -94,17 +95,18 @@ public class NewUserExperimentFetchTask implements IHikeHTTPTask, IHikeHttpTaskR
             }
 
             @Override
-            public void onRequestProgressUpdate(float progress){
+            public void onRequestProgressUpdate(float progress) {
             }
 
             @Override
-            public void onRequestFailure(HttpException httpException) {
+            public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException) {
                 doOnFailure(null);
             }
         };
 
         return requestListener;
     }
+
     public JSONObject getRequest() throws JSONException {
         Context context = HikeMessengerApp.getInstance().getApplicationContext();
         SharedPreferences settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);

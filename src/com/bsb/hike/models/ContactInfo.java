@@ -287,6 +287,13 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 		this.name = name;
 	}
 
+	/**
+	 *
+	 * This method used only be used when there is a actual need for msisdn of the user.
+	 * This might return null in future.Instead Use {@link #getNameOrMsisdn()}
+	 * @return
+	 */
+	@Deprecated
 	public String getMsisdn()
 	{
 		return msisdn;
@@ -687,6 +694,17 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 	public void setBlockStatus(boolean status)
 	{
 		this.isBlocked = status;
+	}
+
+	/**
+	 * This method will return uid or msisdn depending on whether we know the user by msisdn or uid respectively.
+	 * For Now this is return msisdn only.But it will change in further commits
+	 * P.S. Don't use this for any UI related work.
+	 * @return
+     */
+	public String getUserIdentifer()
+	{
+		return msisdn;
 	}
 
 }

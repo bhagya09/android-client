@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <RelativeLayout
+        android:id="@+id/conversation_item"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/conversation_list_item"
+        android:paddingLeft="@dimen/conv_item_padding"
+        android:paddingRight="@dimen/conv_item_padding">
+
+
+        <RelativeLayout
+            android:id="@+id/avatarrel"
+            android:layout_width="@dimen/message_info_contact_avatar"
+            android:layout_height="@dimen/message_info_contact_avatar"
+            android:layout_alignParentTop="true">
+
+            <com.bsb.hike.view.RoundedImageView
+                android:id="@+id/avatar"
+                style="@style/AvatarStyle.MorePadding"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/default_name_contact"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12dp"
+            android:layout_toRightOf="@id/avatarrel"
+           >
+
+            <RelativeLayout
+                android:id="@+id/namelayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.bsb.hike.view.CustomFontTextView
+                    android:id="@+id/contact"
+                    style="@style/ListItemHeaderTextView"
+                    android:layout_alignParentLeft="true"
+                    android:layout_marginRight="5dp"
+                    android:textColor="@color/black_72"
+                    android:text="Alice Stone"/>
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/default_timestamp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/namelayout"
+                >
+
+                <com.bsb.hike.view.CustomFontTextView
+                    android:id="@+id/timestamp"
+                    style="@style/ListItemSubText"
+                    android:text="Defualt Ts"
+                    android:visibility="visible"/>
+
+                <RelativeLayout
+                    android:id="@+id/expandme"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone">
+
+                    <RelativeLayout
+                        android:id="@+id/expandedReadLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                       >
+
+                        <com.bsb.hike.view.CustomFontTextView
+                            android:id="@+id/expand_read_text"
+                            style="@style/ListItemSubText"
+                            android:layout_height="18dp"
+                            android:gravity="left"
+                            android:text="Read"/>
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_weight="1"
+                            />
+
+                        <com.bsb.hike.view.CustomFontTextView
+                            android:id="@+id/read_message_timestamp"
+                            style="@style/ListItemSubText"
+                            android:layout_height="18dp"
+                            android:layout_gravity="right"
+                            android:layout_marginRight="16dp"
+                            android:layout_alignParentRight="true"
+                            android:text="5 PM TOday"/>
+
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:id="@+id/expandedDeliveredLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/expandedReadLayout">
+
+                        <com.bsb.hike.view.CustomFontTextView
+                            android:id="@+id/expand_delivered_text"
+                            style="@style/ListItemSubText"
+                            android:layout_height="18dp"
+                            android:text="Delivered"/>
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_weight="1"
+                            />
+
+                        <com.bsb.hike.view.CustomFontTextView
+                            android:id="@+id/delivered_message_timestamp"
+                            style="@style/ListItemSubText"
+                            android:layout_height="18dp"
+                            android:layout_marginRight="16dp"
+                            android:layout_alignParentRight="true"
+                            android:text="4 PM TOday"/>
+                    </RelativeLayout>
+                </RelativeLayout>
+            </RelativeLayout>
+        </RelativeLayout>
+    </RelativeLayout>
+
+    <View
+        android:id="@+id/dividermiddle"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@id/conversation_item"
+        android:layout_marginLeft="72dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="10dp"
+        android:background="@color/black_8"
+        android:visibility="gone"></View>
+
+    <View
+        android:id="@+id/dividerend"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@id/conversation_item"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="10dp"
+        android:background="@color/black_8"
+        android:visibility="gone"></View>
+
+</RelativeLayout>

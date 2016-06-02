@@ -1,4 +1,4 @@
-package com.bsb.hike.userlogs;
+package com.bsb.hike.utils;
 
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
@@ -36,7 +36,7 @@ public class AESEncryption {
 				hexString.append(Integer.toHexString(0xFF & key[i]));
 			Logger.d(TAG,"Hex String of Key : " + hexString.toString());*/
 			Logger.d(TAG,"Base64 String of Key : " + Base64.encode(key, 0).toString());
-			
+
 			secretKey = new SecretKeySpec(key, encryptionAlgo);
 
 		} catch (NoSuchAlgorithmException e) {
@@ -45,7 +45,7 @@ public class AESEncryption {
 			Logger.d(TAG, e.toString());
 		}
 	}
-	
+
 	public String getDecryptedString() {
 		return decryptedString;
 	}

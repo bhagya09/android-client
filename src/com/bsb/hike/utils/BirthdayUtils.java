@@ -3,13 +3,17 @@ package com.bsb.hike.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
+import android.util.Pair;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -17,6 +21,7 @@ import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.notifications.HikeNotification;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,6 +32,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -87,7 +93,7 @@ public class BirthdayUtils
         RequestToken bdPrefUpdateRequest = HttpRequests.getBDPrefUpdateRequest(payload, new IRequestListener()
         {
             @Override
-            public void onRequestFailure(HttpException httpException)
+            public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
             {
                 Logger.d(TAG, "updating bd pref http failure code: " + httpException.getErrorCode());
                 showBDUpdateFailureToast();
@@ -128,6 +134,11 @@ public class BirthdayUtils
     public static void saveBDPrivacyPref(String bdPrefValue)
     {
         Logger.d(TAG, "saving new birthday privacy setting: " + bdPrefValue);
+        recordBirthdayAnalytics(
+                AnalyticsConstants.BirthdayEvents.BIRTHDAY_CHANGE_SETTING,
+                AnalyticsConstants.BirthdayEvents.BIRTHDAY_SETTING,
+                AnalyticsConstants.BirthdayEvents.BIRTHDAY_CHANGE,
+                null, getCurrentBDPref(), null, bdPrefValue, null, null, null, null);
         Context hikeAppContext = HikeMessengerApp.getInstance().getApplicationContext();
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(hikeAppContext);
         settings.edit().putString(HikeConstants.BIRTHDAY_PRIVACY_PREF, bdPrefValue).commit();
@@ -184,12 +195,12 @@ public class BirthdayUtils
                     @Override
 
                     public int compare(ContactInfo lhs, ContactInfo rhs) {
-                        return lhs.getFirstName().compareTo(rhs.getFirstName());
-
+                        return lhs.getNameOrMsisdn().compareTo(rhs.getNameOrMsisdn());
                     }
 
                 });
             }
+            Logger.d("bday_", " Now Sorted list is  " + bdayList);
         }
         return bdayList;
     }
@@ -227,8 +238,9 @@ public class BirthdayUtils
     /**
      * This API makes HTTP call to fetch Bday list and save in Shared pref
      * @param fromServerPacket
+     * @param packetId
      */
-    public static void fetchAndUpdateBdayList(final boolean fromServerPacket)
+    public static void fetchAndUpdateBdayList(final boolean fromServerPacket, final String packetId)
     {
         if(!Utils.isBDayInNewChatEnabled())
         {
@@ -273,9 +285,20 @@ public class BirthdayUtils
                         sharedPreferenceUtil.saveData(HikeConstants.BDAY_HTTP_CALL_TS, System.currentTimeMillis());
                         HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeConstants.BDAYS_LIST, bdayMsisdnSet);
 
-                        if(fromServerPacket && !bdayMsisdnSet.isEmpty())
+                        if (fromServerPacket)
                         {
-                            BirthdayUtils.showBdayNotifcations(bdayMsisdnSet);
+                            if (!bdayMsisdnSet.isEmpty())
+                            {
+                                showBdayNotifcations(bdayMsisdnSet, packetId);
+                            }
+                            else
+                            {
+                                recordBirthdayAnalytics(
+                                        AnalyticsConstants.BirthdayEvents.BIRTHDAY_REQ_RESPONSE,
+                                        AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
+                                        AnalyticsConstants.BirthdayEvents.BIRTHDAY_REQ_RESPONSE,
+                                        String.valueOf(packetId), null, String.valueOf(Utils.isBDayInNewChatEnabled()), null, null, null, "0", null);
+                            }
                         }
                     }
                     catch (JSONException e)
@@ -290,7 +313,7 @@ public class BirthdayUtils
                 }
 
                 @Override
-                public void onRequestFailure(HttpException httpException)
+                public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
                 {
                     Date currentDate = new Date(System.currentTimeMillis());
                     Date previousDate = new Date(ts);
@@ -302,7 +325,15 @@ public class BirthdayUtils
                 }
             });
             requestToken.execute();
-        }
+            if (fromServerPacket)
+            {
+                recordBirthdayAnalytics(
+                        AnalyticsConstants.BirthdayEvents.BIRTHDAY_HTTP_REQ,
+                        AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
+                        AnalyticsConstants.BirthdayEvents.BIRTHDAY_HTTP_REQ,
+                        String.valueOf(packetId), null, null, null, null, null, null, null);
+            }
+		}
     }
 
     /**
@@ -339,11 +370,13 @@ public class BirthdayUtils
         boolean isActive = StealthModeManager.getInstance().isActive();
         if(!isActive)
         {
-            for(ContactInfo contactInfo : bdayContactList)
+            Iterator<ContactInfo> iterator = bdayContactList.iterator();
+            while(iterator.hasNext())
             {
+                ContactInfo contactInfo = iterator.next();
                 if(StealthModeManager.getInstance().isStealthMsisdn(contactInfo.getMsisdn()))
                 {
-                    bdayContactList.remove(contactInfo);
+                    iterator.remove();
                 }
             }
         }
@@ -360,12 +393,14 @@ public class BirthdayUtils
         boolean isActive = StealthModeManager.getInstance().isActive();
         if(!isActive)
         {
-            for(String msisdn : bdayMsisdnList)
+            Iterator<String> iterator = bdayMsisdnList.iterator();
+            while(iterator.hasNext())
             {
+                String msisdn = iterator.next();
                 if(StealthModeManager.getInstance().isStealthMsisdn(msisdn))
                 {
                     Logger.d("bday_notif_", "Removing stealth misidn from list " + msisdn);
-                    bdayMsisdnList.remove(msisdn);
+                    iterator.remove();
                 }
             }
         }
@@ -375,20 +410,60 @@ public class BirthdayUtils
      * Fetched list of bday msisdns from Shared pref
      * Publish Pubsub to show notifications if list is non empty
      */
-    public static void showBdayNotifcations(Set<String> bdayMsisdnSet)
+    public static void showBdayNotifcations(Set<String> bdayMsisdnSet, String packetId)
     {
         ArrayList<String> bdayMsisdns = new ArrayList<String>(bdayMsisdnSet);
 
         removeHiddenMsisdn(bdayMsisdns);
 
+        recordBirthdayAnalytics(
+                AnalyticsConstants.BirthdayEvents.BIRTHDAY_REQ_RESPONSE,
+                AnalyticsConstants.BirthdayEvents.BIRTHDAY_PUSH_NOTIF,
+                AnalyticsConstants.BirthdayEvents.BIRTHDAY_REQ_RESPONSE,
+                String.valueOf(packetId), null, String.valueOf(Utils.isBDayInNewChatEnabled()), null, null, null, String.valueOf(bdayMsisdnSet.size() - bdayMsisdns.size()), bdayMsisdns.toString());
+
         if(bdayMsisdns != null && bdayMsisdns.size() > 0)
         {
             Logger.d("bday_notif_", "Going to show notif for " + bdayMsisdns);
-            HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_BIRTHDAY_NOTIF, bdayMsisdns);
+            Pair<ArrayList<String>, String> bdayNotifPair = new Pair<ArrayList<String>, String>(bdayMsisdns, packetId);
+            HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_BIRTHDAY_NOTIF, bdayNotifPair);
         }
         else
         {
             Logger.d("bday_", "As list is null or empty, so showing no notification " + bdayMsisdns);
         }
     }
+
+	public static void recordBirthdayAnalytics(String uk, String eventClass, String order, String family, String genus, String species, String variety, String form, String race, String valInt, String toMsisdn)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_EXPERIMENT);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.BirthdayEvents.BIRTHDAY);
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, uk);
+			json.put(AnalyticsConstants.V2.CLASS, eventClass);
+			json.put(AnalyticsConstants.V2.ORDER, order);
+			json.put(AnalyticsConstants.V2.FAMILY, family);
+            json.put(AnalyticsConstants.V2.GENUS, genus);
+            json.put(AnalyticsConstants.V2.SPECIES, species);
+            json.put(AnalyticsConstants.V2.VARIETY, variety);
+            json.put(AnalyticsConstants.V2.FORM, form);
+            json.put(AnalyticsConstants.V2.RACE, race);
+            json.put(AnalyticsConstants.V2.VAL_INT, valInt);
+            json.put(AnalyticsConstants.V2.TO_MSISDN, toMsisdn);
+			HAManager.getInstance().recordV2(json);
+		}
+
+		catch (JSONException e)
+		{
+			e.toString();
+		}
+	}
+
+	public static void cleanUpBirthdayDataAndNotifications()
+	{
+		resetBdayHttpCallInfo();
+		HikeNotification.getInstance().cancelNotification(HikeNotification.BIRTHDAY_NOTIF);
+	}
 }

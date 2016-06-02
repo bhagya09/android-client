@@ -3,8 +3,6 @@
  */
 package com.bsb.hike.dialog;
 
-import java.util.List;
-
 import android.content.Context;
 import android.support.v4.view.ViewCompat;
 import android.text.TextUtils;
@@ -19,6 +17,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bsb.hike.R;
+
+import java.util.List;
 
 /**
  * Extends {@link CustomAlertDialog} <br>
@@ -52,7 +52,7 @@ public class CustomAlertRadioButtonDialog extends CustomAlertDialog implements O
 		initRadioGroup();
 	}
 
-	private void initRadioGroup()
+	protected void initRadioGroup()
 	{
 		ListView checkBoxList = (ListView) findViewById(R.id.checkBoxContainer);
 

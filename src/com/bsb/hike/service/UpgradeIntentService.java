@@ -168,21 +168,32 @@ public class UpgradeIntentService extends IntentService
 				ChatThemeManager.getInstance().migrateChatThemesToDB();
 			}
 
-			// Set block notifications as false in shared preference i.e allow notifications to occur once Upgrade intent completes
+		if (prefs.getInt(HikeConstants.UPGRADE_FOR_CHAT_PROPERTIES, 0) == 0) {
+			upgradeForChatProperties();
 			Editor editor = prefs.edit();
-			editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
-			editor.apply();
-
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPGRADING, false);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE, null);
-
-			Utils.connectToGcmPreSignup();
-
+			editor.putInt(HikeConstants.UPGRADE_FOR_CHAT_PROPERTIES, 1);
+			editor.commit();
 		}
+
+		// Set block notifications as false in shared preference i.e allow notifications to occur once Upgrade intent completes
+		Editor editor = prefs.edit();
+		editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
+		editor.apply();
+
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPGRADING, false);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE, null);
+
+		Utils.connectToGcmPreSignup();
+
+	}
 
 	public UpgradeIntentService()
 	{
 		super(TAG);
+	}
+
+	private void upgradeForChatProperties() {
+		HikeConversationsDatabase.getInstance().upgradeForChatProperties();
 	}
 
 	private void initialiseSharedMediaAndFileThumbnailTable()
