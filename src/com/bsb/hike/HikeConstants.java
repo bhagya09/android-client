@@ -4397,4 +4397,8 @@ public class HikeConstants
 	public static final String ACTION = "action";
 
 	public static final String HIKE_CES_ENABLE = "ces_enable";
+
+	public static final String TEXT = "txt";
+
+	public static final String TEXT_COLOR = "txtc";
 }
