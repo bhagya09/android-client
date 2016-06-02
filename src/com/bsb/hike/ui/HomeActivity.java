@@ -778,7 +778,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
 
-		tabsBar.selectTab(getToBeSelectedFragmentPosition(intent, false));
+		tabsBar.selectTab(getToBeSelectedTabPosition(intent, false));
 
 	}
 
