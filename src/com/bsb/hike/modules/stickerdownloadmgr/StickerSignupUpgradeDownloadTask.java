@@ -1,6 +1,7 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
 import android.support.annotation.Nullable;
+import android.os.Bundle;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -75,8 +76,9 @@ public class StickerSignupUpgradeDownloadTask implements IHikeHTTPTask, IHikeHtt
 			token.cancel();
 		}
 	}
-	
-	private String getRequestId()
+
+    @Override
+    public String getRequestId()
 	{
 		return StickerRequestType.SIGNUP_UPGRADE.getLabel();
 	}
@@ -173,5 +175,11 @@ public class StickerSignupUpgradeDownloadTask implements IHikeHTTPTask, IHikeHtt
 	public void doOnFailure(HttpException e)
 	{
 		Logger.e(TAG, "on failure, exception ", e);
+	}
+
+	@Override
+	public Bundle getRequestBundle()
+	{
+		return null;
 	}
 }

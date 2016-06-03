@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.support.annotation.Nullable;
+import android.os.Bundle;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -63,6 +64,18 @@ public class NewUserExperimentFetchTask implements IHikeHTTPTask, IHikeHttpTaskR
     public void cancel() {
 
     }
+
+	@Override
+	public Bundle getRequestBundle()
+	{
+		return null;
+	}
+
+	@Override
+	public String getRequestId()
+	{
+		return null;
+	}
 
     @Override
     public void doOnSuccess(Object result) {

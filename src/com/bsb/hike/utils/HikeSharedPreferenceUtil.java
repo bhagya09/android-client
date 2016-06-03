@@ -11,6 +11,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.preference.PreferenceManager;
 import android.support.annotation.StringDef;
 
 import com.bsb.hike.HikeMessengerApp;
@@ -32,6 +33,7 @@ public class HikeSharedPreferenceUtil
 	public static final String CONV_UNREAD_COUNT = "ConvUnreadCount";
 
 	private SharedPreferences hikeSharedPreferences;
+	private SharedPreferences defaultSharedPreferences;
 
 	private Editor editor;
 
@@ -46,6 +48,7 @@ public class HikeSharedPreferenceUtil
 			hikeSharedPreferenceUtil.hikeSharedPreferences = context.getSharedPreferences(argSharedPrefName, Activity.MODE_PRIVATE | Context.MODE_MULTI_PROCESS);
 			hikeSharedPreferenceUtil.editor = hikeSharedPreferenceUtil.hikeSharedPreferences.edit();
 			hikePrefsMap.put(argSharedPrefName, hikeSharedPreferenceUtil);
+			hikeSharedPreferenceUtil.defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 		}
 		return hikeSharedPreferenceUtil;
 	}
@@ -214,6 +217,10 @@ public class HikeSharedPreferenceUtil
 	{
 		editor.clear();
 		editor.commit();
+	}
+
+	public boolean getSharedPreferenceAsBoolean(String key, boolean defaultValue) {
+		return defaultSharedPreferences.getBoolean(key, defaultValue);
 	}
 
 	public SharedPreferences getPref()

@@ -36,7 +36,6 @@ android {
         multiDexEnabled = true
         //testInstrumentationRunner "com.android.test.runner.MultiDexTestRunner
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
     }
     lintOptions {
         lintConfig file("lint.xml")
@@ -75,6 +74,10 @@ android {
 
         androidTest {
             java.srcDirs = ['androidTest']
+        }
+
+        test {
+            java.srcDirs = ['unitTest']
         }
 
     }
@@ -149,6 +152,9 @@ android {
             versionName computeCustomDevVersionName()
         }
     }
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
 }
 
 dependencies {
@@ -156,7 +162,6 @@ dependencies {
     compile(project(':appcompatv7')) {
         exclude module: 'support-v4'
     }
-
     compile(project(':viewpager-indicator-library')) {
         exclude module: 'support-v4'
     }
@@ -179,23 +184,21 @@ dependencies {
 
     customDevCompile 'com.facebook.stetho:stetho:1.3.0'
 
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.mockito:mockito-core:1.10.19'
+    testCompile 'org.json:json:20140107'
     androidTestCompile 'com.android.support:support-annotations:23.1.+'
-
     androidTestCompile 'com.android.support.test:runner:0.5'
-
     androidTestCompile 'com.android.support.test:rules:0.5'
-
     androidTestCompile 'com.android.support:multidex-instrumentation:1.0.1'
 
     compile('com.crashlytics.sdk.android:crashlytics:2.5.5@aar') {
         transitive = true;
     }
-
-    compile ('com.google.android.gms:play-services-location:8.4.0') {
+    compile('com.google.android.gms:play-services-location:8.4.0') {
         exclude module: 'support-v4'
     }
-
-    compile ('com.google.android.gms:play-services-gcm:8.4.0') {
+    compile('com.google.android.gms:play-services-gcm:8.4.0') {
         exclude module: 'support-v4'
     }
 
@@ -243,7 +246,7 @@ def computeCustomDevVersionName() {
 }
 
 android.packagingOptions {
-            exclude 'LICENSE.txt'
-            exclude 'META-INF/NOTICE'
-            exclude 'META-INF/LICENSE'
+    exclude 'LICENSE.txt'
+    exclude 'META-INF/NOTICE'
+    exclude 'META-INF/LICENSE'
 }
