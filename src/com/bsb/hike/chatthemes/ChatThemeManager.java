@@ -108,6 +108,12 @@ public class ChatThemeManager {
         return mChatThemesMap.get(themeId);
     }
 
+    public void clearThemes() {
+        if(mChatThemesMap != null) {
+            mChatThemesMap.clear();
+        }
+    }
+
     /**
      * Checks if all the assets for this is theme are available or not
      *
@@ -387,7 +393,7 @@ public class ChatThemeManager {
             e.printStackTrace();
             return false;
         }
-        HikeSharedPreferenceUtil.getInstance().saveData(HikeChatThemeConstants.MIGRATE_CHAT_THEMES_DATA_TO_DB, true);
+        HikeSharedPreferenceUtil.getInstance().saveData(HikeChatThemeConstants.MIGRATED_CHAT_THEMES_DATA_TO_DB, true);
         return true;
     }
 
@@ -413,4 +419,9 @@ public class ChatThemeManager {
         return R.drawable.bg_system_message_dark;
     }
 
+    public void postRestoreSetup() {
+        HikeSharedPreferenceUtil.getInstance().saveData(HikeChatThemeConstants.MIGRATED_CHAT_THEMES_DATA_TO_DB, false);
+        clearThemes();
+        mAssetHelper.clearAssets();
+    }
 }

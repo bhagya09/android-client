@@ -182,7 +182,7 @@ public class HikeChatThemeConstants {
 
     public static final String CHATTHEMES_DEFAULT_JSON_FILE_NAME = "chatthemes_data";
 
-	public static final String MIGRATE_CHAT_THEMES_DATA_TO_DB = "migrateChatThemesToDB";
+	public static final String MIGRATED_CHAT_THEMES_DATA_TO_DB = "migrateChatThemesToDB";
 
 	public static final String THEME_PALETTE_CAMERA_ICON = "camera";
 
