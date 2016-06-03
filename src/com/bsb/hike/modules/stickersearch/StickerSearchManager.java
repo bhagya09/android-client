@@ -1,12 +1,16 @@
 package com.bsb.hike.modules.stickersearch;
 
 import android.content.Intent;
+import android.text.TextUtils;
 import android.util.Pair;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatthread.ChatThreadTips;
 import com.bsb.hike.models.HikeAlarmManager;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickerdownloadmgr.StickersForcedDownloadTask;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerSearchListener;
@@ -35,17 +39,24 @@ import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
 public class StickerSearchManager
 {
+	private static final String TAG = StickerSearchManager.class.getSimpleName();
+
 	private static int WAIT_TIME_SINGLE_CHARACTER_RECOMMENDATION;
 
 	private static volatile StickerSearchManager _instance;
@@ -788,4 +799,198 @@ public class StickerSearchManager
 		StickersForcedDownloadTask stickersForcedDownloadTask= new StickersForcedDownloadTask(StickerLanguagesManager.getInstance().getLanguageSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE));
 		stickersForcedDownloadTask.execute();
 	}
+
+	public void logStickerSearchReport(final String text, final Collection<Sticker> searchedStickerSet, final Sticker selectedSticker, final int selectedStickerIndex)
+	{
+		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if (TextUtils.isEmpty(text) || Utils.isEmpty(searchedStickerSet))
+				{
+					return;
+				}
+
+				boolean isSuccess = (selectedSticker != null);
+
+				String searchReport = HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.STICKER_SERACH_DAILY_REPORT, "");
+
+				int searchCount = HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.STICKER_SEARCH_COUNT, 0);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeStickerSearchBaseConstants.STICKER_SEARCH_COUNT, ++searchCount);
+
+				if (isSuccess)
+				{
+					int searchSuccessCount = HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.STICKER_SEARCH_SUCCESS_COUNT, 0);
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeStickerSearchBaseConstants.STICKER_SEARCH_SUCCESS_COUNT, ++searchSuccessCount);
+
+					int selectedStickerIndexSum = HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.SELECTED_STICKER_INDEX, 0);
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeStickerSearchBaseConstants.SELECTED_STICKER_INDEX, selectedStickerIndexSum + selectedStickerIndex + 1);
+				}
+
+				int searchLimitCount = HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.STICKER_SEARCH_RECORD_COUNT_LIMIT,
+						HikeStickerSearchBaseConstants.DEFAULT_STICKER_SEARCH_COUNT_LIMIT);
+
+				if (searchCount > searchLimitCount)
+				{
+					return;
+				}
+
+				try
+				{
+					JSONObject searchReportMetadata = TextUtils.isEmpty(searchReport) ? new JSONObject() : new JSONObject(searchReport);
+					JSONArray stickerSetJsonArray = new JSONArray();
+
+					Pair<Boolean, List<Sticker>> resultPair = StickerSearchUtils.shouldShowStickerFtue(new ArrayList<Sticker>(searchedStickerSet),
+							StickerSearchUtils.getUndownloadedStickerToDisplayCount());
+
+					List<Sticker> allowedStickerList = resultPair.second;
+
+					for (Sticker sticker : allowedStickerList)
+					{
+						stickerSetJsonArray.put(sticker.getStickerCode());
+					}
+
+					JSONObject metadata = new JSONObject();
+
+					metadata.put(HikeConstants.LIST, stickerSetJsonArray);
+					metadata.put(HikeConstants.SUCCESSFUL_SELECTIONS, isSuccess);
+					metadata.put(HikeConstants.FTUE, resultPair.first);
+
+					if (isSuccess)
+					{
+						metadata.put(HikeConstants.STICKER_ID, selectedSticker.getStickerId());
+						metadata.put(HikeConstants.CATEGORY_ID, selectedSticker.getCategoryId());
+						metadata.put(HikeStickerSearchBaseConstants.SELECTED_STICKER_INDEX, selectedStickerIndex);
+					}
+					searchReportMetadata.put(text + HikeConstants.DELIMETER + isSuccess, metadata);
+
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeStickerSearchBaseConstants.STICKER_SERACH_DAILY_REPORT, searchReportMetadata.toString());
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+				}
+
+			}
+		});
+
+	}
+
+	public void sendStickerSearchDailyAnalytics()
+	{
+		sendStickerRecommendationAccuracyAnalytics();
+		sendDailyStickerSearchReport();
+		sendDailyStickerSearchEffeciencyReport();
+	}
+
+	public void sendDailyStickerSearchReport()
+	{
+		String searchReport = HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.STICKER_SERACH_DAILY_REPORT, "");
+
+		if (TextUtils.isEmpty(searchReport))
+		{
+			return;
+		}
+
+		try
+		{
+			JSONObject searchReportJSON = new JSONObject(searchReport);
+			Iterator<String> iterator = searchReportJSON.keys();
+			int successReportSentCount = 0, failureReportSentCount = 0;
+			int successSearchLimitCount = HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.STICKER_SEARCH_SUCCESS_COUNT_LIMIT,
+					HikeStickerSearchBaseConstants.DEFAULT_STICKER_SEARCH_SUCCESS_COUNT_LIMIT);
+			int failSearchLimitCount = HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.STICKER_SEARCH_FAIL_COUNT_LIMIT,
+					HikeStickerSearchBaseConstants.DEFAULT_STICKER_SEARCH_FAIL_COUNT_LIMIT);
+
+			while (iterator.hasNext())
+			{
+				JSONObject metadata = new JSONObject();
+				metadata.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_STICKER_LOGS);
+				metadata.put(AnalyticsConstants.V2.PHYLUM, HikeConstants.LogEvent.STICKER_RECOMMENDATION);
+				metadata.put(AnalyticsConstants.V2.ORDER, HikeConstants.LogEvent.STICKER_RECOMMENDATION_REPORT);
+				metadata.put(AnalyticsConstants.V2.UNIQUE_KEY, HikeConstants.LogEvent.STICKER_RECOMMENDATION_REPORT);
+				metadata.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
+
+				String searchedText = iterator.next();
+				JSONObject stickerSearchReportJson = searchReportJSON.getJSONObject(searchedText);
+				JSONArray searchedResults = stickerSearchReportJson.getJSONArray(HikeConstants.LIST);
+
+				metadata.put(AnalyticsConstants.V2.VAL_STR, searchedText);
+				metadata.put(AnalyticsConstants.V2.SOURCE, stickerSearchReportJson.optBoolean(HikeConstants.FTUE) ? HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_FTUE_TAG
+						: HikeConstants.STICKER_RECOMMENDATION_FRAGMENT_TAG);
+				metadata.put(AnalyticsConstants.V2.VAL_INT, searchedResults.length());
+				metadata.put(AnalyticsConstants.V2.FORM, searchedResults);
+
+				boolean isSuccess = stickerSearchReportJson.optBoolean(HikeConstants.SUCCESSFUL_SELECTIONS);
+
+				if (isSuccess)
+				{
+					if (successReportSentCount > successSearchLimitCount)
+					{
+						continue;
+					}
+
+					metadata.put(AnalyticsConstants.V2.GENUS, stickerSearchReportJson.optString(HikeConstants.CATEGORY_ID));
+					metadata.put(AnalyticsConstants.V2.SPECIES, stickerSearchReportJson.optString(HikeConstants.STICKER_ID));
+					metadata.put(AnalyticsConstants.V2.USER_STATE, stickerSearchReportJson.optInt(HikeStickerSearchBaseConstants.SELECTED_STICKER_INDEX));
+					metadata.put(AnalyticsConstants.V2.VARIETY, isSuccess ? HikeConstants.SUCCESSFUL_SELECTIONS : HikeConstants.FAIL);// success or not
+					HAManager.getInstance().recordV2(metadata);
+					successReportSentCount++;
+				}
+				else
+				{
+
+					if (failureReportSentCount > failSearchLimitCount)
+					{
+						continue;
+					}
+
+					metadata.put(AnalyticsConstants.V2.VARIETY, isSuccess ? HikeConstants.SUCCESSFUL_SELECTIONS : HikeConstants.FAIL);// success or not
+					HAManager.getInstance().recordV2(metadata);
+					failureReportSentCount++;
+				}
+
+			}
+
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeStickerSearchBaseConstants.STICKER_SERACH_DAILY_REPORT, "");
+
+		}
+		catch (JSONException e)
+		{
+			Logger.e(TAG, "sendSearchedCategoryDailyReport() : Exception While send report analytics JSON : " + e.getMessage());
+		}
+	}
+
+	public void sendDailyStickerSearchEffeciencyReport()
+	{
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_STICKER_LOGS);
+			metadata.put(AnalyticsConstants.V2.PHYLUM, HikeConstants.LogEvent.STICKER_RECOMMENDATION);
+			metadata.put(AnalyticsConstants.V2.ORDER, HikeConstants.LogEvent.STICKER_RECOMMENDATION_COUNT_REPORT);
+			metadata.put(AnalyticsConstants.V2.UNIQUE_KEY, HikeConstants.LogEvent.STICKER_RECOMMENDATION_COUNT_REPORT);
+			metadata.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
+
+			int searchCount = HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.STICKER_SEARCH_COUNT, 0);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeStickerSearchBaseConstants.STICKER_SEARCH_COUNT, 0);
+
+			int searchSuccessCount = HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.STICKER_SEARCH_SUCCESS_COUNT, 0);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeStickerSearchBaseConstants.STICKER_SEARCH_SUCCESS_COUNT, 0);
+
+			int selectedStickerIndexSum = HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.SELECTED_STICKER_INDEX, 0);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeStickerSearchBaseConstants.SELECTED_STICKER_INDEX, 0);
+
+			metadata.put(AnalyticsConstants.V2.VAL_INT, searchCount);
+			metadata.put(AnalyticsConstants.V2.USER_STATE, searchSuccessCount);
+			metadata.put(AnalyticsConstants.V2.FORM, (selectedStickerIndexSum * 1.0f / searchSuccessCount));
+			HAManager.getInstance().recordV2(metadata);
+		}
+		catch (JSONException e)
+		{
+			Logger.e(TAG, "sendSearchedCategoryDailyReport() : Exception While send report analytics JSON : " + e.getMessage());
+		}
+	}
+
 }
