@@ -1153,11 +1153,13 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				break;
 			case HikeConstants.ResultCodes.CHATTHEME_GALLERY_REQUEST_CODE:
 				if(resultCode == Activity.RESULT_OK) {
-					if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_CT_CONFIRMATIN_DIALOG, false)) {
-						this.dialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.CT_CONFIRMATION_DIALOG, this);
-					} else {
-						initializeCTBackground();
-					}
+					//TO CHATTHEME , this is intentionally commented for now. will do few user interviews around it and add it back.
+//					if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_CT_CONFIRMATIN_DIALOG, false)) {
+//						this.dialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.CT_CONFIRMATION_DIALOG, this);
+//					} else {
+//						initializeCTBackground();
+//					}
+					initializeCTBackground();
 				}
 				break;
 		}
