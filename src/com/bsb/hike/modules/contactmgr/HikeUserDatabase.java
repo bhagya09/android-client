@@ -356,11 +356,15 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 			// Need to migrate the DBs in upgradeIntentService
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.MIGRATE_TABLE_TO_USER, 1);
 
-			String alter1 = "ALTER TABLE " + DBConstants.HIKE_USER.HIKE_CALLER_TABLE + " ADD COLUMN " + DBConstants.HIKE_USER.CALLER_METADATA + " TEXT";
-			db.execSQL(alter1);
+			if (!Utils.isColumnExistsInTable(db, DBConstants.HIKE_USER.HIKE_CALLER_TABLE, DBConstants.HIKE_USER.CALLER_METADATA)) {
+				String alter = "ALTER TABLE " + DBConstants.HIKE_USER.HIKE_CALLER_TABLE + " ADD COLUMN " + DBConstants.HIKE_USER.CALLER_METADATA + " TEXT";
+				db.execSQL(alter);
+			}
 
-			String alter2 = "ALTER TABLE " + DBConstants.HIKE_USER.HIKE_CALLER_TABLE + " ADD COLUMN " + DBConstants.HIKE_USER.EXPIRY_TIME + " INTEGER DEFAULT 0";
-			db.execSQL(alter2);
+			if (!Utils.isColumnExistsInTable(db, DBConstants.HIKE_USER.HIKE_CALLER_TABLE, DBConstants.HIKE_USER.EXPIRY_TIME)) {
+				String alter = "ALTER TABLE " + DBConstants.HIKE_USER.HIKE_CALLER_TABLE + " ADD COLUMN " + DBConstants.HIKE_USER.EXPIRY_TIME + " INTEGER DEFAULT 0";
+				db.execSQL(alter);
+			}
 		}
 
 
