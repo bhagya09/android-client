@@ -114,11 +114,11 @@ public class StickerIconPageIndicator extends IconPageIndicator
 		{
 			Integer currentIndex = (Integer) view.getTag();
 			final int newSelected = currentIndex;
-			setCurrentItem(newSelected);
 			if (tabClickListener != null)
 			{
-				tabClickListener.onTabClick();
+				tabClickListener.onTabClick(newSelected);
 			}
+			setCurrentItem(newSelected);
 		}
 	};
 

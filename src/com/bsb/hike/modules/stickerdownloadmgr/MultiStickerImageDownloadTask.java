@@ -8,6 +8,7 @@ import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHTTPTask;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHttpTaskResult;
 import com.bsb.hike.modules.httpmgr.interceptor.IRequestInterceptor;
@@ -15,6 +16,7 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
 import com.bsb.hike.modules.httpmgr.request.requestbody.JsonBody;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.quickstickersuggestions.QuickStickerSuggestionController;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerRequestType;
 import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
@@ -151,6 +153,7 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 				bodyJson.put(HikeConstants.NUMBER_OF_STICKERS, getStickerDownloadSize());
 				bodyJson.put(HikeConstants.OFFSET, offset);
 
+				bodyJson = Utils.getParameterPostBodyForHttpApi(HttpRequestConstants.BASE_STICKER_V4, bodyJson);
 				Logger.d(TAG, "intercept(), Sticker Download Task Request: " + bodyJson.toString());
 
 				IRequestBody body = new JsonBody(bodyJson);
@@ -237,6 +240,7 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 							byte[] byteArray = StickerManager.getInstance().saveLargeStickers(largeStickerDir.getAbsolutePath(), stickerId, stickerImage);
 							StickerManager.getInstance().saveSmallStickers(smallStickerDir.getAbsolutePath(), stickerId, byteArray);
                             StickerManager.getInstance().saveInStickerTagSet(sticker);
+							QuickStickerSuggestionController.getInstance().saveInRetrySet(sticker);
                             StickerManager.getInstance().saveInTableStickerSet(sticker);
 							stickerSet.add(sticker.getStickerCode());
 						}
@@ -304,7 +308,9 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 		{
 			Logger.d(TAG, "sticker set for get tags : " + stickerSet);
 			StickerSearchManager.getInstance().downloadStickerTags(false, StickerSearchConstants.STATE_STICKER_DATA_FRESH_INSERT, stickerSet, StickerLanguagesManager.getInstance().getAccumulatedSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE, StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE));
-			StickerManager.getInstance().initiateMultiStickerQuickSuggestionDownloadTask(StickerManager.getInstance().getStickerSetFromStickerStringSet(stickerSet));
+			if(QuickStickerSuggestionController.getInstance().shouldFetchQuickSuggestions()) {
+				StickerManager.getInstance().initiateMultiStickerQuickSuggestionDownloadTask(StickerManager.getInstance().getStickerSetFromStickerStringSet(stickerSet));
+			}
 
 			if(isFailed)
 			{

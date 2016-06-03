@@ -1,60 +1,5 @@
 package com.bsb.hike.ui;
 
-import java.util.Locale;
-import java.util.Map;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
-import com.bsb.hike.MqttConstants;
-import com.bsb.hike.R;
-import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.analytics.HAManager.EventPriority;
-import com.bsb.hike.backup.HikeCloudSettingsManager;
-import com.bsb.hike.chatHead.ChatHeadUtils;
-import com.bsb.hike.chatHead.StickyCaller;
-import com.bsb.hike.backup.AccountBackupRestore;
-import com.bsb.hike.dialog.CustomAlertRadioButtonDialog;
-import com.bsb.hike.dialog.CustomAlertRadioButtonDialog.RadioButtonItemCheckedListener;
-import com.bsb.hike.dialog.CustomAlertRadioButtonDialog.RadioButtonPojo;
-import com.bsb.hike.dialog.DialogUtils;
-import com.bsb.hike.dialog.HikeDialog;
-import com.bsb.hike.dialog.HikeDialogFactory;
-import com.bsb.hike.dialog.HikeDialogListener;
-import com.bsb.hike.localisation.LocalLanguage;
-import com.bsb.hike.localisation.LocalLanguageUtils;
-import com.bsb.hike.models.Conversation.ConversationTip;
-import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
-import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerSettingsTask;
-import com.bsb.hike.modules.stickersearch.StickerSearchManager;
-import com.bsb.hike.offline.OfflineController;
-import com.bsb.hike.service.HikeMqttManagerNew;
-import com.bsb.hike.tasks.ActivityCallableTask;
-import com.bsb.hike.tasks.BackupAccountTask;
-import com.bsb.hike.tasks.BackupAccountTask.BackupAccountListener;
-import com.bsb.hike.tasks.DeleteAccountTask;
-import com.bsb.hike.tasks.DeleteAccountTask.DeleteAccountListener;
-import com.bsb.hike.tasks.RingtoneFetcherTask;
-import com.bsb.hike.tasks.RingtoneFetcherTask.RingtoneFetchListener;
-import com.bsb.hike.triggers.InterceptUtils;
-import com.bsb.hike.ui.utils.LockPattern;
-import com.bsb.hike.utils.BirthdayUtils;
-import com.bsb.hike.utils.HikeAppStateBasePreferenceActivity;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.IntentFactory;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.StealthModeManager;
-import com.bsb.hike.utils.StickerManager;
-import com.bsb.hike.utils.Utils;
-import com.bsb.hike.view.IconListPreference;
-import com.bsb.hike.view.NotificationToneListPreference;
-import com.bsb.hike.view.PreferenceWithSubText;
-import com.bsb.hike.view.SwitchPreferenceCompat;
-
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
@@ -82,8 +27,63 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bsb.hike.view.IconPreference;
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
+import com.bsb.hike.MqttConstants;
+import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.backup.AccountBackupRestore;
+import com.bsb.hike.backup.HikeCloudSettingsManager;
+import com.bsb.hike.chatHead.ChatHeadUtils;
+import com.bsb.hike.chatHead.StickyCaller;
+import com.bsb.hike.dialog.CustomAlertRadioButtonDialog;
+import com.bsb.hike.dialog.CustomAlertRadioButtonDialog.RadioButtonItemCheckedListener;
+import com.bsb.hike.dialog.CustomAlertRadioButtonDialog.RadioButtonPojo;
+import com.bsb.hike.dialog.DialogUtils;
+import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
+import com.bsb.hike.localisation.LocalLanguage;
+import com.bsb.hike.localisation.LocalLanguageUtils;
+import com.bsb.hike.models.Conversation.ConversationTip;
+import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerSettingsTask;
+import com.bsb.hike.modules.stickersearch.StickerSearchManager;
+import com.bsb.hike.offline.OfflineController;
+import com.bsb.hike.service.HikeMqttManagerNew;
+import com.bsb.hike.tasks.ActivityCallableTask;
+import com.bsb.hike.tasks.BackupAccountTask;
+import com.bsb.hike.tasks.BackupAccountTask.BackupAccountListener;
+import com.bsb.hike.tasks.DeleteAccountTask;
+import com.bsb.hike.tasks.DeleteAccountTask.DeleteAccountListener;
+import com.bsb.hike.tasks.RingtoneFetcherTask;
+import com.bsb.hike.tasks.RingtoneFetcherTask.RingtoneFetchListener;
+import com.bsb.hike.triggers.InterceptUtils;
+import com.bsb.hike.ui.utils.LockPattern;
+import com.bsb.hike.utils.BirthdayUtils;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
+import com.bsb.hike.utils.HikeAppStateBasePreferenceActivity;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StealthModeManager;
+import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.Utils;
+import com.bsb.hike.view.IconListPreference;
+import com.bsb.hike.view.IconPreference;
+import com.bsb.hike.view.NotificationToneListPreference;
+import com.bsb.hike.view.PreferenceWithSubText;
+import com.bsb.hike.view.SwitchPreferenceCompat;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Locale;
+import java.util.Map;
 
 public class HikePreferences extends HikeAppStateBasePreferenceActivity implements OnPreferenceClickListener,
         OnPreferenceChangeListener, DeleteAccountListener, BackupAccountListener, RingtoneFetchListener, HikePubSub.UiListener {
@@ -1001,6 +1001,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
                         selectedPrivacyValue = getApplicationContext().getString(R.string.privacy_nobody_key);
                         ls_summary = getApplicationContext().getString(R.string.ls_nobody_summary);
                         HAManager.logClickEvent(HikeConstants.LogEvent.LS_NOBODY_CLICKED);
+                        ContactManager.getInstance().setAllLastSeenValues(false); //Flushing list
                         break;
                     case EVERYONE:
                         selectedPrivacyValue = getApplicationContext().getString(R.string.privacy_everyone_key);
@@ -1011,6 +1012,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
                         selectedPrivacyValue = getApplicationContext().getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.privacy_friends_key : R.string.privacy_favorites_key);
                         ls_summary = getApplicationContext().getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.ls_friends_summary : R.string.ls_favorites_summary);
                         HAManager.logClickEvent(HikeConstants.LogEvent.LS_FAVOURITES_CLICKED);
+                        ContactManager.getInstance().setAllLastSeenValues(true); //Flushing list
                         break;
                     case MY_CONTACTS:
                         selectedPrivacyValue = getApplicationContext().getString(R.string.privacy_my_contacts_key);
@@ -1948,5 +1950,18 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
         if (type.equals(HikePubSub.BD_PRIVACY_PREF_UPDATED) && object != null && object instanceof Boolean) {
             updateBDPrefUI((boolean) object);
         }
+    }
+
+    public static void sendULSToServer(int selectedPrivacyId, boolean isLSEnabled) throws JSONException {
+        JSONObject object = new JSONObject();
+        object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.ACCOUNT_CONFIG);
+
+        JSONObject data = new JSONObject();
+        data.put(HikeConstants.UPDATED_LAST_SEEN_SETTING, selectedPrivacyId);
+        data.put(HikeConstants.LAST_SEEN_SETTING, isLSEnabled);
+        data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis()));
+        object.put(HikeConstants.DATA, data);
+
+        HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
     }
 }

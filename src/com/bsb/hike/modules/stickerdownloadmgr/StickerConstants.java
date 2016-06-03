@@ -91,7 +91,10 @@ public class StickerConstants
 		UPDATE_CATEGORY(13, "updtCt"),
 		UPDATE_ORDER(14, "updtOdr"),
 		SINGLE_QUICK_SUGGESTION(15, "sqs"),
-		MULTI_QUICK_SUGGESTION(16, "mqs");
+		MULTI_QUICK_SUGGESTION(16, "mqs"),
+		USER_PARAMETERS(17, "urPr"),
+		PARAMETER_MAPPING(18, "prMp");
+
 
 		private final int type;
 		private final String label;

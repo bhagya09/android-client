@@ -33,6 +33,7 @@ import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHttpTaskResult;
 import com.bsb.hike.modules.httpmgr.request.RequestConstants;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.quickstickersuggestions.QuickStickerSuggestionController;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerRequestType;
 import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
@@ -345,7 +346,9 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 
 	private void getQuickSuggestions(Sticker sticker)
 	{
-		StickerManager.getInstance().initiateSingleStickerQuickSuggestionDownloadTask(sticker);
+		if(QuickStickerSuggestionController.getInstance().shouldFetchQuickSuggestions()) {
+			StickerManager.getInstance().initiateSingleStickerQuickSuggestionDownloadTask(sticker);
+		}
 	}
 
 	private boolean saveFullSticker(String stickerImage, JSONObject stickerData) throws IOException
