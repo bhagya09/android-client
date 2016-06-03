@@ -70,6 +70,8 @@ public class QuickStickerSuggestionController
 
     public static final int QUICK_SUGGESTION_STICKER_ANIMATION = 16;
 
+    private boolean qsLoaded;
+
     private QuickStickerSuggestionController()
     {
         showQuickStickerSuggestionOnStickerReceive = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_QUICK_STICKER_SUGGESTION_ON_STICKER_RECEIVE, false);
