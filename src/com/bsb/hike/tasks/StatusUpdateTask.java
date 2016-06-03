@@ -11,6 +11,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 import android.support.annotation.Nullable;
+import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.widget.Toast;
@@ -193,7 +194,19 @@ public class StatusUpdateTask implements IHikeHTTPTask
 		token.cancel();
 	}
 
-	private IRequestListener requestListener = null;
+	@Override
+	public Bundle getRequestBundle()
+	{
+		return null;
+	}
+
+	@Override
+	public String getRequestId()
+	{
+		return null;
+	}
+
+    private IRequestListener requestListener = null;
 
 	public IRequestListener getRequestListener()
 	{

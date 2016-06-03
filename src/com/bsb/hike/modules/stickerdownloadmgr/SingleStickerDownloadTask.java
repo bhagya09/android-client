@@ -62,22 +62,13 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 
 	private boolean downloadMini;
 
-	public SingleStickerDownloadTask(String stickerId, String categoryId, ConvMessage convMessage, boolean imageOnly)
+	public SingleStickerDownloadTask(String stickerId, String categoryId, ConvMessage convMessage, boolean downloadMini)
 	{
 		this.stickerId = stickerId;
 		this.categoryId = categoryId;
 		this.convMessage = convMessage;
-		this.imageOnly = imageOnly;
-		this.downloadMini = false;
-	}
-
-	public SingleStickerDownloadTask(String stickerId, String categoryId, ConvMessage convMessage, boolean imageOnly, boolean downloadMini)
-	{
-		this.stickerId = stickerId;
-		this.categoryId = categoryId;
-		this.convMessage = convMessage;
-		this.imageOnly = imageOnly;
 		this.downloadMini = downloadMini;
+		this.imageOnly = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SINGLE_STICKER_CDN, true);
 	}
 
 	public void execute()
@@ -99,22 +90,15 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 
 		if (imageOnly)
 		{
-			Bundle extras = new Bundle();
-			extras.putString(HikeConstants.STICKER_ID, stickerId);
-			extras.putString(HikeConstants.CATEGORY_ID, categoryId);
-			extras.putLong(HikeConstants.MESSAGE_ID, convMessage != null ? convMessage.getMsgID() : -1);
-			token = singleStickerImageDownloadRequest(requestId, stickerId, categoryId, downloadMini, getRequestListener(), extras);
+			token = singleStickerImageDownloadRequest(requestId, stickerId, categoryId, downloadMini, getRequestListener(), getRequestBundle());
 		}
 		else
 		{
-			token = singleStickerDownloadRequest(
-					requestId,
-					stickerId,
-					categoryId,
-					getRequestListener(),
-					StickerLanguagesManager.getInstance().listToString(
-							StickerLanguagesManager.getInstance().getAccumulatedSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE,
-									StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE)));
+			String languageSet = StickerLanguagesManager.getInstance().listToString(
+					StickerLanguagesManager.getInstance().getAccumulatedSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE,
+							StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE));
+
+			token = singleStickerDownloadRequest(requestId, stickerId, categoryId, getRequestListener(), languageSet, downloadMini, getRequestBundle());
 		}
 
 		if (token.isRequestRunning()) // return if request is running
@@ -136,7 +120,20 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 		}
 	}
 
-	private String getRequestId()
+    @Override
+	public Bundle getRequestBundle()
+	{
+		Bundle extras = new Bundle();
+		extras.putString(HikeConstants.STICKER_ID, stickerId);
+		extras.putString(HikeConstants.CATEGORY_ID, categoryId);
+		extras.putLong(HikeConstants.MESSAGE_ID, convMessage != null ? convMessage.getMsgID() : -1);
+		extras.putBoolean(HikeConstants.MINI_STICKER_IMAGE, downloadMini);
+
+		return extras;
+	}
+
+    @Override
+    public String getRequestId()
 	{
 		return (StickerRequestType.SINGLE.getLabel() + "\\" + categoryId + "\\" + stickerId);
 	}

@@ -1,6 +1,7 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
 import android.support.annotation.Nullable;
+import android.os.Bundle;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -144,7 +145,8 @@ public class StickersForcedDownloadTask implements IHikeHTTPTask, IHikeHttpTaskR
 		};
 	}
 
-	private String getRequestId()
+    @Override
+	public String getRequestId()
 	{
 		return StickerConstants.StickerRequestType.FORCED.getLabel();
 	}
@@ -190,7 +192,13 @@ public class StickersForcedDownloadTask implements IHikeHTTPTask, IHikeHttpTaskR
 		Logger.e(TAG, "Forced Download Failed ", exception);
 	}
 
-	private boolean isValidForcedSticker(Sticker sticker)
+	@Override
+	public Bundle getRequestBundle()
+	{
+		return null;
+	}
+
+    private boolean isValidForcedSticker(Sticker sticker)
 	{
 		return !sticker.isStickerAvailable();
 	}

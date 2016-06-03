@@ -1,0 +1,20 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="48dp"
+    android:orientation="vertical">
+
+
+    <com.bsb.hike.view.CustomFontTextView
+        android:id="@+id/quick_reply_item"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="14dp"
+        android:layout_marginLeft="20dp"
+        android:textColor="@color/black"
+        android:textSize="14sp">
+    </com.bsb.hike.view.CustomFontTextView>
+
+</LinearLayout>
