@@ -115,6 +115,10 @@ public class HttpRequestConstants
 
 	private static final String BASE_BLOCKED_LIST = "/blocked_list";
 
+	private static final String SPAM_USER = "/v1/spam/mark";
+
+	private static final String FETCH_UNKNOWN_CHAT_USER_INFO = "/v1/spam/userinfo";
+
 	private static final String HIKE_SETTINGS = "/hikesettings";
 
 	private static final String  FETCH_TODAYS_BIRTHDAY_URL = "/events/birthday";
@@ -634,10 +638,31 @@ public class HttpRequestConstants
 		return  BASE_URL + BASE_V1 + ANALYTICS_UPLOAD_PATH;
 	}
 
+	public static String getUrlForMarkingUserAsSpam()
+	{
+		if (isProduction)
+		{
+			return PRODUCTION_HIKECALLER_API+ SPAM_USER;
+		}
+		else
+		{
+			return STAGING_HIKECALLER_API + SPAM_USER;
+		}
+	}
+
+	public static String getUrlForFetchingUnknownChatUserInfo() {
+		if (isProduction) {
+			return PRODUCTION_HIKECALLER_API + FETCH_UNKNOWN_CHAT_USER_INFO;
+		} else {
+			return STAGING_HIKECALLER_API + FETCH_UNKNOWN_CHAT_USER_INFO;
+		}
+	}
+
 	public static String getAbTestingNewUserExpUrl()
 	{
 		return  ABTEST_EXPERIMENT_URL;
 	}
+
     /*
      * Async Method to fetch latest micro app from server for forward card case
      */

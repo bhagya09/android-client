@@ -313,15 +313,13 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	protected static final int REMOVE_INPUT_BOX = 47;
 
+	protected static final int SPAM_UNSPAM_USER = 44;
+
 	protected static final int REMOVE_CHAT_BACKGROUND = 0;
 
     private final NudgeManager nudgeManager;
 
-	private int AUDIO_PLAYING=0;
-
-	private int NUDGE_TOAST_OCCURENCE = 2;
-
-	private int currentNudgeCount = 0;
+	private int AUDIO_PLAYING;
 
 	protected ChatThreadActivity activity;
 
@@ -646,8 +644,9 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	{
 		this.activity = activity;
 		this.msisdn = msisdn;
-		useWTRevamped = ChatThreadUtils.isWT1RevampEnabled(activity.getApplicationContext());
-        nudgeManager = new NudgeManager(activity);
+		Context context = activity.getApplicationContext();
+		useWTRevamped = ChatThreadUtils.isWT1RevampEnabled(context);
+		nudgeManager = new NudgeManager(context, HikeSharedPreferenceUtil.getInstance(), HAManager.getInstance());
     }
 
 	public HikeActionBar mActionBar;
@@ -1222,7 +1221,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			default:
 				break;
 		}
-		recordOverflowItemClicked(item);
+		if(item.id != AttachmentPicker.GALLERY) recordOverflowItemClicked(item);
 	}
 
 	/*
@@ -2406,7 +2405,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				dialog.dismiss();
 				this.dialog = null;
 				break;
-
 			case HikeDialogFactory.MUTE_CHAT_DIALOG:
 				HikeAnalyticsEvent.recordAnalyticsForMuteCancel(msisdn);
 				dialog.dismiss();

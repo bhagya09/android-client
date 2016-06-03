@@ -1,6 +1,7 @@
 package com.bsb.hike.chatthemes;
 
 import android.support.annotation.Nullable;
+import android.os.Bundle;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -78,6 +79,16 @@ public class DownloadAssetsTask implements IHikeHTTPTask, IHikeHttpTaskResult {
         Logger.d(TAG, "chat theme asset download failed");
         updateAssetDownloadStatus(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_NOT_DOWNLOADED);
         HikeMessengerApp.getPubSub().publish(HikePubSub.CHATTHEME_CONTENT_DOWNLOAD_FAILURE, exception);
+    }
+
+    @Override
+    public Bundle getRequestBundle() {
+        return null;
+    }
+
+    @Override
+    public String getRequestId() {
+        return null;
     }
 
     private IRequestListener getRequestListener() {
