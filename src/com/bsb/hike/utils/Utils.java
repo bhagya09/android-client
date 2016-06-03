@@ -183,6 +183,7 @@ import com.bsb.hike.analytics.HomeAnalyticsConstants;
 import com.bsb.hike.analytics.TrafficsStatsFile;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatHead.CallerContentModel;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatthemes.ChatThemeManager;
 import com.bsb.hike.chatthemes.HikeChatThemeConstants;
@@ -222,6 +223,7 @@ import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.RequestConstants;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.notifications.HikeNotification;
@@ -249,6 +251,32 @@ import com.google.android.gms.maps.model.LatLng;
 public class Utils
 {
 	private static final String TAG = Utils.class.getSimpleName();
+
+	// Precision points definition for duration logging========================================[[
+	public static final class ExecutionDurationLogger
+	{
+		public static final String TAG = ExecutionDurationLogger.class.getSimpleName();
+
+		public static final int PRECISION_UNIT_SECOND = 0;
+
+		public static final int PRECISION_UNIT_MILLI_SECOND = 3;
+
+		public static final int PRECISION_UNIT_MICRO_SECOND = 6;
+
+		public static final int PRECISION_UNIT_NANO_SECOND = 9;
+
+		public static final String sec = " s";
+
+		public static final String ms = " ms";
+
+		public static final String μs = " μs";
+
+		public static final String ns = " ns";
+
+		public static final String DELIMITER = ", ";
+	}
+
+	// ========================================Precision points definition for duration logging]]
 
 	public static Pattern shortCodeRegex;
 
@@ -1099,7 +1127,14 @@ public class Utils
 			data.put(HikeConstants.SENDBOT, sendbot);
 			data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis() / 1000));
 			data.put(HikeConstants.RESOLUTION_ID, Utils.getResolutionId());
-			data.put(HikeConstants.NEW_LAST_SEEN_SETTING, true);
+			if (Utils.isFavToFriendsMigrationAllowed())
+			{
+				data.put(HikeConstants.UPDATED_LAST_SEEN_SETTING, true);
+			}
+			else
+			{
+				data.put(HikeConstants.NEW_LAST_SEEN_SETTING, true);
+			}
 			data.put(HikeConstants.FAVS_RAI,false);
 			requestAccountInfo.put(HikeConstants.DATA, data);
 			HikeMqttManagerNew.getInstance().sendMessage(requestAccountInfo, MqttConstants.MQTT_QOS_ONE);
@@ -6737,11 +6772,19 @@ public class Utils
 		return directory + File.separator + Utils.getUniqueFilename(HikeFileType.IMAGE);
 	}
 
-	public static void sendFreeSms(String number)
+	public static void openChatThreadViaFreeSmsButton(CallerContentModel callerContentModel, String msg)
 	{
-		Intent intent = IntentFactory
-				.createChatThreadIntentFromMsisdn(HikeMessengerApp.getInstance(), number, true, false, ChatThreadActivity.ChatThreadOpenSources.STICKEY_CALLER);
+		Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(HikeMessengerApp.getInstance().getApplicationContext(), callerContentModel.getMsisdn(), true, false, ChatThreadActivity.ChatThreadOpenSources.STICKEY_CALLER);
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+		intent.putExtra(HikeConstants.SRC_CALLER_QUICK_REPLY_CARD, true);
+		intent.putExtra(HikeConstants.Extras.CALLER_CONTENT_MODEL, callerContentModel);
+
+		if(!TextUtils.isEmpty(msg))
+		{
+			intent.putExtra(HikeConstants.Extras.CALLER_QUICK_REPLY_MSG, msg);
+		}
+
 		HikeMessengerApp.getInstance().startActivity(intent);
 	}
 
@@ -7371,30 +7414,34 @@ public class Utils
 		}
 	}
 
-	public static void changeFavToFriends()
-	{
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 0) != 1)
-		{
+	public static void changeFavToFriends() {
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 0) != 1) {
 			Context context = HikeMessengerApp.getInstance().getApplicationContext();
 			// Change last seen pref to friends if its is not already set to friends or noone.
 			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
 			String currentValue = settings.getString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_favorites));
-			if (!currentValue.equals(context.getString(R.string.privacy_favorites)) && !currentValue.equals(context.getString(R.string.privacy_nobody)))
-			{
-				Editor settingEditor = settings.edit();
+			Editor settingEditor = settings.edit();
+
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LAST_SEEN_TEMP_PREF, currentValue);
+			int slectedPrivacyId;
+
+			if (currentValue.equals(context.getString(R.string.privacy_nobody))) {
+				settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, currentValue);
+				slectedPrivacyId = Integer.parseInt(currentValue);
+				ContactManager.getInstance().setAllLastSeenValues(false); //Hidden from everyone
+			} else {
 				settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_favorites));
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LAST_SEEN_TEMP_PREF, currentValue);
-				int slectedPrivacyId = Integer.parseInt(context.getString(R.string.privacy_favorites));
-				try
-				{
-					HikePreferences.sendNLSToServer(slectedPrivacyId, true);
-					settingEditor.commit();
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 1);
-				}
-				catch (JSONException e)
-				{
-					e.printStackTrace();
-				}
+				slectedPrivacyId = Integer.parseInt(context.getString(R.string.privacy_favorites));
+				ContactManager.getInstance().setAllLastSeenValues(true); //Visible to all friends
+			}
+
+			try {
+				HikePreferences.sendULSToServer(slectedPrivacyId, true);
+				settingEditor.apply();
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 1);
+			} catch (JSONException e) {
+				Logger.e("FavToFriends", "Got error while sending uls packet " + e.toString());
+				e.printStackTrace();
 			}
 		}
 	}
@@ -7406,25 +7453,21 @@ public class Utils
 			Context context = HikeMessengerApp.getInstance().getApplicationContext();
 			// Change last seen pref to friends if its is not already set to friends or noone.
 			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
-			String currentValue = settings.getString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_favorites));
-			if (!currentValue.equals(context.getString(R.string.privacy_my_contacts)) && !currentValue.equals(context.getString(R.string.privacy_everyone)))
+			String oldLsValue = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.LAST_SEEN_TEMP_PREF, context.getString(R.string.privacy_my_contacts));
+			Editor settingEditor = settings.edit();
+			settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, oldLsValue);
+			int slectedPrivacyId = Integer.parseInt(oldLsValue);
+			try
 			{
-
-				String oldLsValue = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.LAST_SEEN_TEMP_PREF, context.getString(R.string.privacy_my_contacts));
-				Editor settingEditor = settings.edit();
-				settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, oldLsValue);
-				int slectedPrivacyId = Integer.parseInt(oldLsValue);
-				try
-				{
-					HikePreferences.sendNLSToServer(slectedPrivacyId, true);
-					settingEditor.commit();
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 0); // Resetting the flag, so that when the packet might
-					// be sent again, it is able to alter the prefs
-				}
-				catch (JSONException e)
-				{
-					e.printStackTrace();
-				}
+				HikePreferences.sendNLSToServer(slectedPrivacyId, true);
+				ContactManager.getInstance().flushOldPrivacyValues(true, true);
+				settingEditor.apply();
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 0); // Resetting the flag, so that when the packet might
+				// be sent again, it is able to alter the prefs
+			}
+			catch (JSONException e)
+			{
+				e.printStackTrace();
 			}
 		}
 	}
@@ -7949,6 +7992,7 @@ public class Utils
 		return String.format("%d/%d/%d", dob.day, dob.month, dob.year);
 	}
 
+
 	public static void setGenus(@HomeAnalyticsConstants.StatusUpdateSpecies String argGenus, Intent argIntent)
 	{
 		if(argIntent == null)
@@ -8143,6 +8187,81 @@ public class Utils
 			}
 		}
 	}
+
+	public static List<String> jsonArrayToList(JSONArray jsonArray) {
+
+		List<String> list = null;
+		try {
+			if (!Utils.isEmpty(jsonArray)) {
+
+				int length = jsonArray.length();
+				list = new ArrayList<>(length);
+
+				for (int i = 0; i < length; i++) {
+					list.add(jsonArray.get(i).toString());
+				}
+			}
+		} catch (JSONException e) {
+			Logger.e(TAG, "exception in converting list to json array", e);
+		}
+		return list;
+	}
+
+	public static String getParameterUrlForHttpApi(String url) {
+
+		String parameterUrl = "";
+
+		List<String> parameterList = HikeConversationsDatabase.getInstance().getParameterListForUrl(url, RequestConstants.GET);
+
+		if (Utils.isEmpty(parameterList)) {
+			return parameterUrl;
+		}
+
+		String parameters = Utils.valuesToCommaSepratedString(parameterList);
+		List<Pair<String, String>> parameterMapping = HikeConversationsDatabase.getInstance().getParameterMapping(parameters);
+
+		if (Utils.isEmpty(parameterMapping)) {
+			return parameterUrl;
+		}
+
+		StringBuilder stringBuilder = new StringBuilder(parameterUrl);
+		for (Pair<String, String> parameterPair : parameterMapping) {
+			stringBuilder.append("&");
+			stringBuilder.append(parameterPair.first);
+			stringBuilder.append("=");
+			stringBuilder.append(parameterPair.second);
+		}
+		return parameterUrl;
+	}
+
+	public static JSONObject getParameterPostBodyForHttpApi(String url, JSONObject postBody) {
+
+		postBody = postBody == null ? new JSONObject() : postBody;
+
+		List<String> parameterList = HikeConversationsDatabase.getInstance().getParameterListForUrl(url, RequestConstants.POST);
+
+		if (Utils.isEmpty(parameterList)) {
+			return postBody;
+		}
+
+		String parameters = Utils.valuesToCommaSepratedString(parameterList);
+		List<Pair<String, String>> parameterMapping = HikeConversationsDatabase.getInstance().getParameterMapping(parameters);
+
+		if (Utils.isEmpty(parameterMapping)) {
+			return postBody;
+		}
+
+		for (Pair<String, String> parameterPair : parameterMapping) {
+			try {
+				postBody.put(parameterPair.first, parameterPair.second);
+			} catch (JSONException e) {
+				Logger.e(HikeConversationsDatabase.class.getName(), " exception in adding parameters to body", e);
+			}
+		}
+
+		return postBody;
+	}
+
 	/**
 	 * Used to toggle mute and unmute for chat
 	 */
@@ -8173,6 +8292,83 @@ public class Utils
 		result = prime * result + msisdn.hashCode();
 
 		return result;
+	}
+
+	/**
+	 * Sends the updated ls settings to the server :
+	 * Sample packet : {"t":"ac" ,"d": {"uls":2, “ls_ex”:[“+918788564326”]}}
+	 *
+	 * @param msisdns
+	 */
+	public static void sendULSPacket(List<String> msisdns) {
+
+		if (!Utils.isFavToFriendsMigrationAllowed()) {
+			return;
+		}
+
+		Context context = HikeMessengerApp.getInstance().getApplicationContext();
+		// Change last seen pref to friends if its is not already set to friends or noone.
+		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+
+		try {
+			String currentValue = settings.getString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_favorites));
+			int selectedPrivacyId = Integer.parseInt(currentValue);
+
+			JSONArray lsExclusionArray = new JSONArray();
+			for (String msisdn : msisdns) {
+				lsExclusionArray.put(msisdn);
+			}
+
+
+			JSONObject object = new JSONObject();
+			object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.ACCOUNT_CONFIG);
+
+			JSONObject data = new JSONObject();
+			data.put(HikeConstants.UPDATED_LAST_SEEN_SETTING, selectedPrivacyId);
+			// Inclusion/exclusion based on setting of none or friends
+			data.put(selectedPrivacyId == 0 ? HikeConstants.LS_INCLUSION : HikeConstants.LS_EXCLUSION, lsExclusionArray);
+			data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis()));
+			object.put(HikeConstants.DATA, data);
+
+			HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
+
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	/**
+	 * Sends the updated su settings to the server :
+	 * Sample packet : {"t":"ac" ,"d": {"sus":2, “su_ex”:[“+918788564326”]}}
+	 *
+	 * @param msisdns
+	 */
+	public static void sendUSUPacket(List<String> msisdns) {
+
+		if (!Utils.isFavToFriendsMigrationAllowed()) {
+			return;
+		}
+
+		try {
+			JSONObject object = new JSONObject();
+			object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.ACCOUNT_CONFIG);
+
+			JSONArray suExclusionArray = new JSONArray();
+			for (String msisdn : msisdns) {
+				suExclusionArray.put(msisdn);
+			}
+
+			JSONObject data = new JSONObject();
+			data.put(HikeConstants.UPDATED_STATUS_UPDATE_SETTING, 2);
+			data.put(HikeConstants.STATUS_UPDATE_EXCLUSION, suExclusionArray);
+			data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis()));
+			object.put(HikeConstants.DATA, data);
+
+			HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public static boolean isPowerSavingModeRunning(Context context) {

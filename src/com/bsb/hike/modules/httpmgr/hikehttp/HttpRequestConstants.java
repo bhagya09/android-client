@@ -115,11 +115,39 @@ public class HttpRequestConstants
 
 	private static final String BASE_BLOCKED_LIST = "/blocked_list";
 
+	private static final String SPAM_USER = "/v1/spam/mark";
+
+	private static final String FETCH_UNKNOWN_CHAT_USER_INFO = "/v1/spam/userinfo";
+
 	private static final String HIKE_SETTINGS = "/hikesettings";
 
 	private static final String  FETCH_TODAYS_BIRTHDAY_URL = "/events/birthday";
 
 	private static final String PREF_PATH = "/pref";
+
+	public static final String BASE_STICKER_V3 = BASE_V3 + BASE_STICKER;
+
+	public static final String BASE_STICKER_V4 = BASE_V4 + BASE_STICKER + "/image";
+
+	public static final String BASE_PALETTE_IMAGE = BASE_V1 + BASE_STICKER + "/enable_disable";
+
+	public static final String BASE_PREVIEW_IMAGE = BASE_V1 + BASE_STICKER + "/preview";
+
+	public static final String BASE_CATEGORY_FETCH_ORDER = BASE_V4 + BASE_SHOP + "/fetch_shop_order";
+
+	public static final String BASE_SHOP_METADATA = BASE_V4 + BASE_SHOP + "/update_metadata";
+
+	public static final String BASE_CATEGORY_TAG =  BASE_V4 + BASE_SHOP + "/update_tags";
+
+	public static final String BASE_CATEGORY_DETAIL  = BASE_V1 + BASE_STICKER + "/categories";
+
+	public static final String BASE_TAGS_V3 =  BASE_V3 + BASE_STICKER + "/tagdata";
+
+	public static final String BASE_TAG_V4 = BASE_V4 + BASE_STICKER + "/tags";
+
+	public static final String BASE_FORCED_STICKERS = BASE_V4 + BASE_STICKER + "/force_stickers";
+
+	public static final String BASE_QUICK_SUGGESTIONS = BASE_V4 + BASE_STICKER + "/quickSuggestions";
 
 	public static synchronized void setUpBase()
 	{
@@ -231,58 +259,52 @@ public class HttpRequestConstants
 
 	public static String singleStickerDownloadBase()
 	{
-		return BASE_STICKERS_URL + BASE_V3 + BASE_STICKER;
+		return BASE_STICKERS_URL + BASE_STICKER_V3;
 	}
 
 	public static String singleStickerImageDownloadBase()
 	{
-		return BASE_STICKERS_CDN_URL + BASE_V4 + BASE_STICKER + "/image";
+		return BASE_STICKERS_CDN_URL + BASE_STICKER_V4;
 	}
 
 	public static String multiStickerDownloadUrl()
 	{
-		return BASE_STICKERS_URL + BASE_V3 + BASE_STICKER;
+		return BASE_STICKERS_URL + BASE_STICKER_V3;
 	}
 
 	public static String multiStickerImageDownloadUrl()
 	{
-		return BASE_STICKERS_CDN_URL + BASE_V4 + BASE_STICKER + "/image";
+		return BASE_STICKERS_CDN_URL + BASE_STICKER_V4;
 	}
 	
 	public static String stickerPalleteImageDownloadUrl()
 	{
-		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER + "/enable_disable";
+		return BASE_STICKERS_URL + BASE_PALETTE_IMAGE;
 	}
 	
 	public static String stickerPreviewImageDownloadUrl()
 	{
-		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER + "/preview";
+		return BASE_STICKERS_URL + BASE_PREVIEW_IMAGE;
 	}
-	
-	public static String stickerShopDownloadUrl()
-	{
-		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER + BASE_SHOP;
-	}
-
 
 	public static String stickerCategoryFetchPrefOrderUrl()
 	{
-		return BASE_STICKERS_URL + BASE_V4 + BASE_SHOP + "/fetch_shop_order";
+		return BASE_STICKERS_URL + BASE_CATEGORY_FETCH_ORDER;
 	}
 
 	public static String stickerShopFetchCategoryUrl()
 	{
-		return BASE_STICKERS_URL + BASE_V4 + BASE_SHOP + "/update_metadata";
+		return BASE_STICKERS_URL + BASE_SHOP_METADATA;
 	}
 
 	public static String stickerShopFetchCategoryTagsUrl()
 	{
-		return BASE_STICKERS_URL + BASE_V4 + BASE_SHOP + "/update_tags";
+		return BASE_STICKERS_URL + BASE_CATEGORY_TAG;
 	}
 
     public static String stickerSignupUpgradeUrl()
 	{
-		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER + "/categories";
+		return BASE_STICKERS_URL + BASE_CATEGORY_DETAIL;
 	}
 	
 	public static String latestApkInfoUrl()
@@ -292,27 +314,37 @@ public class HttpRequestConstants
 	
 	public static String getStickerTagsUrl()
 	{
-		return BASE_STICKERS_URL + BASE_V3 + BASE_STICKER + "/tagdata";
+		return BASE_STICKERS_URL + BASE_TAGS_V3;
 	}
 
 	public static String singleStickerTagsUrl()
 	{
-		return BASE_STICKERS_URL + BASE_V4 + BASE_STICKER + "/tags";
+		return BASE_STICKERS_URL + BASE_TAG_V4;
 	}
 
 	public static String getForcedStickersUrl()
 	{
-		return BASE_STICKERS_URL + BASE_V4 + BASE_STICKER + "/force_stickers";
+		return BASE_STICKERS_URL + BASE_FORCED_STICKERS;
 	}
 	
 	public static String stickerCategoryDetailsUrl()
 	{
-		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER + "/categories";
+		return BASE_STICKERS_URL + BASE_CATEGORY_DETAIL;
 	}
 
 	public static String quickSuggestionUrl()
 	{
-		return HTTP + "54.251.141.175:8080" + "/quickSuggestions";
+		return BASE_STICKERS_URL + BASE_QUICK_SUGGESTIONS;
+	}
+
+	public static String userParameterUrl()
+	{
+		return BASE_STICKERS_URL + BASE_V4 + BASE_STICKER + "/dynamic_params";
+	}
+
+	public static String parameterMappingUrl()
+	{
+		return BASE_STICKERS_URL + BASE_V4 + BASE_STICKER + "/params";
 	}
 
 	public static String lastSeenUrl()
@@ -634,10 +666,31 @@ public class HttpRequestConstants
 		return  BASE_URL + BASE_V1 + ANALYTICS_UPLOAD_PATH;
 	}
 
+	public static String getUrlForMarkingUserAsSpam()
+	{
+		if (isProduction)
+		{
+			return PRODUCTION_HIKECALLER_API+ SPAM_USER;
+		}
+		else
+		{
+			return STAGING_HIKECALLER_API + SPAM_USER;
+		}
+	}
+
+	public static String getUrlForFetchingUnknownChatUserInfo() {
+		if (isProduction) {
+			return PRODUCTION_HIKECALLER_API + FETCH_UNKNOWN_CHAT_USER_INFO;
+		} else {
+			return STAGING_HIKECALLER_API + FETCH_UNKNOWN_CHAT_USER_INFO;
+		}
+	}
+
 	public static String getAbTestingNewUserExpUrl()
 	{
 		return  ABTEST_EXPERIMENT_URL;
 	}
+
     /*
      * Async Method to fetch latest micro app from server for forward card case
      */

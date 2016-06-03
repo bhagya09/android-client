@@ -5,12 +5,14 @@
     android:gravity="center"
     android:orientation="vertical" >
 
-    <ProgressBar
-        android:id="@+id/loading_progress_bar"
-        android:layout_width="24dp"
+    <com.bsb.hike.view.CustomFontTextView
+        android:id="@+id/qs_empty_state"
+        android:layout_width="wrap_content"
         android:layout_height="160dp"
-        android:indeterminateDrawable="@drawable/rotating_blue"
         android:layout_gravity="center"
-        android:gravity="center" />
+        android:gravity="center"
+        android:text="@string/qs_empty_page_text"
+        android:textColor="#7b807c"
+        android:textSize="14sp" />
 
 </LinearLayout>

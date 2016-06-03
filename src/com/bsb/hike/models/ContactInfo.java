@@ -94,6 +94,8 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 
 	private String platformId;
 
+	private PrivacyPreferences mPrivacyPrefs = new PrivacyPreferences(PrivacyPreferences.DEFAULT_VALUE);
+
 	/**
 	 * Returns true if bit at index is 1 otherwise false
 	 * 
@@ -696,14 +698,31 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 		this.isBlocked = status;
 	}
 
+	public void toggleLastSeen()
+	{
+		mPrivacyPrefs.toggleLastSeen();
+	}
+
+	public void toggleStatusUpdate()
+	{
+		mPrivacyPrefs.toggleStatusUpdate();
+	}
+
+	public void setPrivacyPrefs(PrivacyPreferences prefs)
+	{
+		this.mPrivacyPrefs = prefs;
+	}
+
+	public PrivacyPreferences getPrivacyPrefs() {
+		return mPrivacyPrefs;
+	}
 	/**
 	 * This method will return uid or msisdn depending on whether we know the user by msisdn or uid respectively.
 	 * For Now this is return msisdn only.But it will change in further commits
 	 * P.S. Don't use this for any UI related work.
 	 * @return
      */
-	public String getUserIdentifer()
-	{
+	public String getUserIdentifer() {
 		return msisdn;
 	}
 

@@ -22,6 +22,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.CallerContentModel;
+import com.bsb.hike.chatHead.CallerMetadata;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.db.DBConstants;
@@ -32,6 +33,7 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.FetchUIDTaskPojo;
 import com.bsb.hike.models.FtueContactsData;
+import com.bsb.hike.models.PrivacyPreferences;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
@@ -82,7 +84,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 	}
 
 	private void initPubSubListeners() {
-		HikeMessengerApp.getPubSub().addListeners(this,pubSubEvents);
+		HikeMessengerApp.getPubSub().addListeners(this, pubSubEvents);
 	}
 
 	public static HikeUserDatabase getInstance()
@@ -147,7 +149,9 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 				+ DBConstants.PLATFORM_USER_ID + " TEXT DEFAULT '' ,"    // Platform user id
 				+ DBConstants.HIKE_UID + " TEXT DEFAULT NULL , "
 				+ DBConstants.BLOCK_STATUS + " TEXT DEFAULT 0 ,"
-				+ DBConstants.FAVORITE_TYPE + " TEXT DEFAULT 0 "
+				+ DBConstants.FAVORITE_TYPE + " TEXT DEFAULT 0, "
+				+ DBConstants.LAST_SEEN_SETTINGS + " INTEGER DEFAULT 0, "
+				+ DBConstants.STATUS_UPDATE_SETTINGS + " INTEGER DEFAULT 1" // SUs are by default visible to friends
 				+ " )";
 
 		db.execSQL(create);
@@ -351,6 +355,25 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 			}
 			// Need to migrate the DBs in upgradeIntentService
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.MIGRATE_TABLE_TO_USER, 1);
+
+			String alter1 = "ALTER TABLE " + DBConstants.HIKE_USER.HIKE_CALLER_TABLE + " ADD COLUMN " + DBConstants.HIKE_USER.CALLER_METADATA + " TEXT";
+			db.execSQL(alter1);
+
+			String alter2 = "ALTER TABLE " + DBConstants.HIKE_USER.HIKE_CALLER_TABLE + " ADD COLUMN " + DBConstants.HIKE_USER.EXPIRY_TIME + " INTEGER DEFAULT 0";
+			db.execSQL(alter2);
+		}
+
+
+		if (oldVersion < 20) {
+			if (!Utils.isColumnExistsInTable(mDb, DBConstants.USERS_TABLE, DBConstants.LAST_SEEN_SETTINGS)) {
+				String alter = "ALTER TABLE " + DBConstants.USERS_TABLE + " ADD COLUMN " + DBConstants.LAST_SEEN_SETTINGS + " INTEGER DEFAULT 0";
+				db.execSQL(alter);
+			}
+
+			if (!Utils.isColumnExistsInTable(mDb, DBConstants.USERS_TABLE, DBConstants.STATUS_UPDATE_SETTINGS)) {
+				String alter = "ALTER TABLE " + DBConstants.USERS_TABLE + " ADD COLUMN " + DBConstants.STATUS_UPDATE_SETTINGS + " INTEGER DEFAULT 1"; // By default SU will be shown to friends
+				db.execSQL(alter);
+			}
 		}
 
 	}
@@ -363,9 +386,23 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 	private String getHikeCallerTable()
 	{
 
-		String hikeCallerTable = DBConstants.CREATE_TABLE + DBConstants.HIKE_USER.HIKE_CALLER_TABLE + " (" + BaseColumns._ID + " INTEGER , " + DBConstants.MSISDN + " TEXT PRIMARY KEY , " + DBConstants.NAME
-				+ " TEXT NOT NULL, " + DBConstants.HIKE_USER.LOCATION + " TEXT, " + DBConstants.HIKE_USER.IS_ON_HIKE + " INTEGER DEFAULT 0, " + DBConstants.HIKE_USER.IS_SPAM + " INTEGER DEFAULT 0, "
-				+ DBConstants.HIKE_USER.IS_BLOCK + " INTEGER DEFAULT 0," + DBConstants.HIKE_USER.SPAM_COUNT + " INTEGER DEFAULT 0," + DBConstants.HIKE_USER.CREATION_TIME + " INTEGER, " + DBConstants.HIKE_USER.ON_HIKE_TIME + " INTEGER, " + DBConstants.HIKE_USER.IS_SYNCED + " INTEGER DEFAULT 1 "+ ")";
+		String hikeCallerTable = DBConstants.CREATE_TABLE
+				+ DBConstants.HIKE_USER.HIKE_CALLER_TABLE
+				+ " ("
+				+ BaseColumns._ID + " INTEGER , "
+				+ DBConstants.MSISDN + " TEXT PRIMARY KEY , "
+				+ DBConstants.NAME + " TEXT NOT NULL, "
+				+ DBConstants.HIKE_USER.LOCATION + " TEXT, "
+				+ DBConstants.HIKE_USER.IS_ON_HIKE + " INTEGER DEFAULT 0, "
+				+ DBConstants.HIKE_USER.IS_SPAM + " INTEGER DEFAULT 0, "
+				+ DBConstants.HIKE_USER.IS_BLOCK + " INTEGER DEFAULT 0,"
+				+ DBConstants.HIKE_USER.SPAM_COUNT + " INTEGER DEFAULT 0,"
+				+ DBConstants.HIKE_USER.CREATION_TIME + " INTEGER, "
+				+ DBConstants.HIKE_USER.ON_HIKE_TIME + " INTEGER, "
+				+ DBConstants.HIKE_USER.IS_SYNCED + " INTEGER DEFAULT 1, "
+				+ DBConstants.HIKE_USER.EXPIRY_TIME + " INTEGER DEFAULT 0, "
+				+ DBConstants.HIKE_USER.CALLER_METADATA + " TEXT "
+				+ ")";
 
 		return hikeCallerTable;
 	}
@@ -394,7 +431,9 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 					!cursor.isNull(cursor.getColumnIndex(DBConstants.HIKE_USER.CREATION_TIME)) ? cursor.getLong(cursor.getColumnIndex(DBConstants.HIKE_USER.CREATION_TIME)) : 0);
 			callerContentModel.setUpdationTime(
 					!cursor.isNull(cursor.getColumnIndex(DBConstants.HIKE_USER.ON_HIKE_TIME)) ? cursor.getLong(cursor.getColumnIndex(DBConstants.HIKE_USER.ON_HIKE_TIME)) : 0);
-
+			callerContentModel.setCallerMetadata(cursor.getString(cursor.getColumnIndex(DBConstants.HIKE_USER.CALLER_METADATA)));
+			callerContentModel.setExpiryTime(
+					!cursor.isNull(cursor.getColumnIndex(DBConstants.HIKE_USER.EXPIRY_TIME)) ? cursor.getLong(cursor.getColumnIndex(DBConstants.HIKE_USER.EXPIRY_TIME)) : 0);
 			return callerContentModel;
 		}
 		catch (Exception e)
@@ -580,7 +619,17 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		}
 	}
 
-
+	public void updateMdIntoCallerTable(CallerContentModel callerContentModel)
+	{
+		if (callerContentModel != null && callerContentModel.getMsisdn() != null && callerContentModel.getFullName() != null)
+		{
+			ContentValues contentValues = new ContentValues();
+			contentValues.put(DBConstants.HIKE_USER.CALLER_METADATA, callerContentModel.getCallerMetadata().toString());
+			contentValues.put(DBConstants.HIKE_USER.EXPIRY_TIME, System.currentTimeMillis());
+			mDb.update(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, contentValues, DBConstants.MSISDN + "=? ", new String[]{callerContentModel.getMsisdn()});
+			Logger.d("c_spam", "HTTP res SUCCESS :- successfully updated old row in in DB " + contentValues);
+		}
+	}
 
 	public void insertIntoCallerTable(CallerContentModel callerContentModel, boolean isCompleteData, boolean setIsBlock)
 	{
@@ -590,6 +639,22 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 			contentValues.put(DBConstants.NAME, callerContentModel.getFullName());
 			contentValues.put(DBConstants.MSISDN, callerContentModel.getMsisdn());
 			contentValues.put(DBConstants.HIKE_USER.CREATION_TIME, System.currentTimeMillis());
+			Logger.d("c_spam", "HTTP res SUCCESS :- Successfully insert new row in in DB via CALLER" + contentValues);
+			mDb.insertWithOnConflict(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
+		}
+	}
+
+	public void insertIntoCallerTable(CallerContentModel callerContentModel, boolean isCompleteData, boolean setIsBlock, long creationTime)
+	{
+		if (callerContentModel != null && callerContentModel.getMsisdn() != null && callerContentModel.getFullName() != null)
+		{
+			ContentValues contentValues = getBasicCallerContentValues(callerContentModel, isCompleteData, setIsBlock);
+			contentValues.put(DBConstants.NAME, callerContentModel.getFullName());
+			contentValues.put(DBConstants.MSISDN, callerContentModel.getMsisdn());
+			contentValues.put(DBConstants.HIKE_USER.CREATION_TIME, creationTime);
+			contentValues.put(DBConstants.HIKE_USER.EXPIRY_TIME, System.currentTimeMillis());
+			contentValues.put(DBConstants.HIKE_USER.CALLER_METADATA, callerContentModel.getCallerMetadata().toString());
+			Logger.d("c_spam", "HTTP res SUCCESS :- Successfully insert new row in in DB via CHATSPAM" + contentValues);
 			mDb.insertWithOnConflict(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
 		}
 	}
@@ -894,7 +959,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		{
 			c = mReadDb.rawQuery("SELECT max(" + DBConstants.ID + ") AS " + DBConstants.ID + ", " + DBConstants.NAME + ", " + DBConstants.MSISDN + ", " + DBConstants.PHONE + ", "
 					+ DBConstants.LAST_MESSAGED + ", " + DBConstants.MSISDN_TYPE + ", " + DBConstants.ONHIKE + ", " + DBConstants.HAS_CUSTOM_PHOTO + ", "
-					+ DBConstants.HIKE_JOIN_TIME + ", " + DBConstants.LAST_SEEN + ", " + DBConstants.IS_OFFLINE + ", " + DBConstants.INVITE_TIMESTAMP +  ", " + DBConstants.PLATFORM_USER_ID +  ", "+ DBConstants.FAVORITE_TYPE +" , " + DBConstants.HIKE_UID + " , "+ DBConstants.BLOCK_STATUS +  " from "
+					+ DBConstants.HIKE_JOIN_TIME + ", " + DBConstants.LAST_SEEN + ", " + DBConstants.IS_OFFLINE + ", " + DBConstants.INVITE_TIMESTAMP + ", " + DBConstants.PLATFORM_USER_ID + ", " + DBConstants.FAVORITE_TYPE + " , " + DBConstants.HIKE_UID + " , " + DBConstants.BLOCK_STATUS + " from "
 					+ DBConstants.USERS_TABLE + " GROUP BY " + DBConstants.MSISDN + " ORDER BY " + DBConstants.NAME + " COLLATE NOCASE ", null);
 
 			int msisdnIdx = c.getColumnIndex(DBConstants.MSISDN);
@@ -1738,9 +1803,9 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 			return;
 		}
 		ContentValues cv=new ContentValues();
-		cv.put(DBConstants.BLOCK_STATUS,DBConstants.STATUS_UNBLOCKED);
+		cv.put(DBConstants.BLOCK_STATUS, DBConstants.STATUS_UNBLOCKED);
 		long value=mDb.update(DBConstants.USERS_TABLE,cv,DBConstants.HIKE_UID + "=?", new String[] { hikeUID});
-		Logger.d(TAG,"Unblocked UID= "+hikeUID+"And the Value in DB is "+value);
+		Logger.d(TAG, "Unblocked UID= " + hikeUID + "And the Value in DB is " + value);
 		//mDb.delete(DBConstants.BLOCK_TABLE, DBConstants.MSISDN + "=?", new String[] { hikeUID });
 	}
 
@@ -2572,6 +2637,36 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		return HikePlatformConstants.FILE_DESCRIPTOR + imageFile.getAbsolutePath();
 	}
 
+	public void toggleChatSpamUser(String msisdn, int markSpam) {
+		if (msisdn != null) {
+			Cursor c = null;
+			CallerMetadata callerMetadata = null;
+			try {
+
+				c = mReadDb.rawQuery("select " + DBConstants.HIKE_USER.CALLER_METADATA + " from " + DBConstants.HIKE_USER.HIKE_CALLER_TABLE + " where " + DBConstants.MSISDN + "=" + msisdn, null);
+
+
+				while (c.moveToNext()) {
+					String metadata = c.getString(c.getColumnIndex(DBConstants.HIKE_USER.HIKE_CALLER_TABLE));
+					callerMetadata = new CallerMetadata(metadata);
+				}
+
+				if (callerMetadata != null) {
+					callerMetadata.setIsUserSpammedByYou(markSpam);
+					ContentValues contentValues = new ContentValues();
+					contentValues.put(DBConstants.HIKE_USER.CALLER_METADATA, callerMetadata.toString());
+					int noOfRow = mDb.update(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, contentValues, DBConstants.MSISDN + "=? ", new String[]{msisdn});
+				}
+			} catch (JSONException ex) {
+				ex.printStackTrace();
+			} finally {
+				if (c != null) {
+					c.close();
+				}
+			}
+		}
+	}
+
 	public List<String> getBlockedMsisdnFromBlockTable() {
 		Cursor c = null;
 		List<String> blockedSet = new ArrayList<>();
@@ -2779,4 +2874,174 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		}
 		return isAddressBookContact;
 	}
+
+	/**
+	 * Queries Privacy Settings for a given msisdn from the user table Can return null if not found in the table or msisdn is empty
+	 * 
+	 * @param msisdn
+	 * @return
+	 */
+	PrivacyPreferences getPrivacyPreferencesForAGivenMsisdn(String msisdn)
+	{
+		if (TextUtils.isEmpty(msisdn))
+		{
+			return null;
+		}
+
+		Cursor c = null;
+
+		try
+		{
+
+			c = mDb.query(DBConstants.USERS_TABLE, new String[] { DBConstants.LAST_SEEN_SETTINGS, DBConstants.STATUS_UPDATE_SETTINGS }, DBConstants.MSISDN + "=?",
+					new String[] { msisdn }, null, null, null);
+
+			if (c.moveToFirst())
+			{
+				int lsSettingIdx = c.getColumnIndex(DBConstants.LAST_SEEN_SETTINGS);
+
+				int suSettingIdx = c.getColumnIndex(DBConstants.STATUS_UPDATE_SETTINGS);
+
+				PrivacyPreferences pref = new PrivacyPreferences(PrivacyPreferences.DEFAULT_VALUE);
+
+				int lsSetting = c.getInt(lsSettingIdx);
+
+				int suSetting = c.getInt(suSettingIdx);
+
+				pref.setLastSeen(lsSetting == 1);
+
+				pref.setStatusUpdate(suSetting == 1);
+
+				return pref;
+
+			}
+		}
+
+		finally
+		{
+			if (null != c)
+			{
+				c.close();
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Sets the Last Seen to the given value for a list of msisdns provided
+	 *
+	 * @param msisdns
+	 * @param newValue
+	 */
+	void setLastSeenForMsisdns(List<String> msisdns, int newValue)
+	{
+		if (Utils.isEmpty(msisdns))
+		{
+			return;
+		}
+
+		StringBuilder msisdnsString = new StringBuilder("(");
+		for (String msisdn : msisdns)
+		{
+			msisdnsString.append(DatabaseUtils.sqlEscapeString(msisdn) + ",");
+		}
+
+		int idx = msisdnsString.lastIndexOf(",");
+		if (idx >= 0)
+		{
+			msisdnsString.replace(idx, msisdnsString.length(), ")");
+		}
+
+		ContentValues cv = new ContentValues();
+		cv.put(DBConstants.LAST_SEEN_SETTINGS, newValue);
+
+		int rows = mDb.update(DBConstants.USERS_TABLE, cv, DBConstants.MSISDN + " IN " + msisdnsString, null);
+		if (rows > 0) {
+			Utils.sendULSPacket(msisdns);
+		}
+
+	}
+
+	/**
+	 * Sets the Status update setting to the given value for the list of msisdns
+	 * 
+	 * @param msisdns
+	 * @param newValue
+	 */
+	void setSUSettingForMsisdns(List<String> msisdns, int newValue)
+	{
+		if (Utils.isEmpty(msisdns))
+		{
+			return;
+		}
+
+		StringBuilder msisdnsString = new StringBuilder("(");
+		for (String msisdn : msisdns)
+		{
+			msisdnsString.append(DatabaseUtils.sqlEscapeString(msisdn) + ",");
+		}
+
+		int idx = msisdnsString.lastIndexOf(",");
+		if (idx >= 0)
+		{
+			msisdnsString.replace(idx, msisdnsString.length(), ")");
+		}
+
+		ContentValues cv = new ContentValues();
+		cv.put(DBConstants.STATUS_UPDATE_SETTINGS, newValue);
+
+		int rows = mDb.update(DBConstants.USERS_TABLE, cv, DBConstants.MSISDN + " IN " + msisdnsString, null);
+
+		if (rows > 0){
+			Utils.sendUSUPacket(msisdns);
+		}
+	}
+
+	/**
+	 * Reset all the privacy values to the default statue
+	 */
+	public void flushOldPrivacyValues(boolean lastSeenFlush, boolean statusUpdateFlush)
+	{
+		if ((!lastSeenFlush) && (!statusUpdateFlush))
+		{
+			return;
+		}
+
+		ContentValues values = new ContentValues();
+		if (lastSeenFlush)
+			values.put(DBConstants.LAST_SEEN_SETTINGS, 0);
+
+		if (statusUpdateFlush)
+			values.put(DBConstants.STATUS_UPDATE_SETTINGS, 1);
+
+		mDb.update(DBConstants.USERS_TABLE, values, null, null);
+	}
+
+	void setLastSeenForMsisdns(String msisdns, int newValue) {
+		if (TextUtils.isEmpty(msisdns)) {
+			return;
+		}
+
+		List<String> msisdnList = new ArrayList<>(1);
+		msisdnList.add(msisdns);
+		setLastSeenForMsisdns(msisdnList, newValue);
+	}
+
+	void setSUSettingForMsisdns(String msisdns, int newValue) {
+		if (TextUtils.isEmpty(msisdns)) {
+			return;
+		}
+
+		List<String> msisdnList = new ArrayList<>(1);
+		msisdnList.add(msisdns);
+		setSUSettingForMsisdns(msisdnList, newValue);
+	}
+
+	void setAllLastSeenPrivacyValues(boolean newValue) {
+		ContentValues values = new ContentValues();
+		values.put(DBConstants.LAST_SEEN_SETTINGS, newValue ? 1 : 0);
+		mDb.update(DBConstants.USERS_TABLE, values, null, null);
+	}
+
 }

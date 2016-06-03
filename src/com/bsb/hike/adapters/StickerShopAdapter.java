@@ -55,7 +55,7 @@ public class StickerShopAdapter extends CursorAdapter
 		this.stickerCategoriesMap = stickerCategoriesMap;
         this.stickerOtherIconLoader = new StickerOtherIconLoader(context, true);
 		this.shownPackPreviewFtue = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_PACK_PREVIEW_FTUE, false);
-		this.packPreviewFtueAnimation = shownPackPreviewFtue ? null : HikeAnimationFactory.getStickerPreviewFtueAnimation(mContext);
+		this.packPreviewFtueAnimation = shownPackPreviewFtue ? null : HikeAnimationFactory.getZoomInZoomOutAnimation(mContext);
         this.stickerShopBaseAdapter = new StickerShopBaseAdapter(context);
 	}
 

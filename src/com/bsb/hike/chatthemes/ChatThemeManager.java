@@ -113,7 +113,9 @@ public class ChatThemeManager {
     }
 
     public void clearThemes() {
-        mChatThemesMap.clear();
+        if(mChatThemesMap != null) {
+            mChatThemesMap.clear();
+        }
     }
 
     /**
@@ -364,7 +366,7 @@ public class ChatThemeManager {
         // Automatically enabling the Chatthemes for the receiver, though the packet is not enabled from server. This will help to organically grow chat themes
         // https://hikeapp.atlassian.net/browse/CE-764
         if(isCustom && !ChatThreadUtils.isCustomChatThemeEnabled()){
-            HikeAnalyticsEvent.recordAnalyticOrganicCTPacket(themeId, toUser, groupId);
+            HikeAnalyticsEvent.recordCTAnalyticEvents(ChatAnalyticConstants.CUSTOM_THEME_ENABLE, AnalyticsConstants.NON_UI_EVENT, null, toUser, themeId, groupId);
             HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CUSTOM_CHATTHEME_ENABLED, true);
         }
 
@@ -449,5 +451,4 @@ public class ChatThemeManager {
         }
         mChatThemesMap.put(theme.getThemeId(), theme);
     }
-
 }
