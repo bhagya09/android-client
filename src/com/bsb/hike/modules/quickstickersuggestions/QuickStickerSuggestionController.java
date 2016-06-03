@@ -146,8 +146,18 @@ public class QuickStickerSuggestionController
 
     public void loadQuickStickerSuggestions(QuickSuggestionStickerCategory quickSuggestionCategory)
     {
+        if(qsLoaded) {
+            return;
+        }
+
         FetchQuickStickerSuggestionTask fetchQuickStickerSuggestionTask = new FetchQuickStickerSuggestionTask(quickSuggestionCategory);
         HikeHandlerUtil.getInstance().postRunnable(fetchQuickStickerSuggestionTask);
+        qsLoaded = true;
+    }
+
+    public void clearLoadedState()
+    {
+        qsLoaded = false;
     }
 
     public StickerCategory getQuickSuggestionCategory(ConvMessage convMessage)

@@ -1554,6 +1554,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	private void openOrRefreshStickerPalette(ConvMessage convMessage)
 	{
+		QuickStickerSuggestionController.getInstance().clearLoadedState();
+		
 		initStickerPicker();
 		mStickerPicker.showQuickSuggestionCategory(QuickStickerSuggestionController.getInstance().getQuickSuggestionCategory(convMessage));
 
