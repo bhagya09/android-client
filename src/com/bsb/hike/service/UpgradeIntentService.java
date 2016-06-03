@@ -164,7 +164,7 @@ public class UpgradeIntentService extends IntentService
 				Logger.e(TAG, "Exception in Migrating Tables ...");
 			}
 		}
-			if (!HikeSharedPreferenceUtil.getInstance().getData(HikeChatThemeConstants.MIGRATE_CHAT_THEMES_DATA_TO_DB, false)) {
+			if (!HikeSharedPreferenceUtil.getInstance().getData(HikeChatThemeConstants.MIGRATED_CHAT_THEMES_DATA_TO_DB, false)) {
 				ChatThemeManager.getInstance().migrateChatThemesToDB();
 			}
 
