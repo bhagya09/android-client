@@ -392,6 +392,21 @@ public class HikeAnalyticsEvent
 		}
 	}
 
+	public static void recordAnalyticsForExternalShare(String source) {
+		try {
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.EXTSHARE_DONE);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_PLAT);
+			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.EXTSHARE_DONE);
+			json.put(AnalyticsConstants.V2.SOURCE, source);
+			json.put(AnalyticsConstants.V2.NETWORK, Utils.getNetworkTypeAsString(HikeMessengerApp.getInstance().getApplicationContext()));
+			HAManager.getInstance().recordV2(json);
+		} catch (JSONException e)
+
+		{
+			e.printStackTrace();
+		}
+	}
 	public static JSONObject getFriendsPrivacyanalyticsJson()
 	{
 		try

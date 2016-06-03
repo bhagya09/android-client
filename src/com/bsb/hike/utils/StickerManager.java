@@ -2582,7 +2582,7 @@ public class StickerManager
 		sendEmoticonUsageAnalytics();
 		sendStickerPackAndOrderListForAnalytics();
 		CategorySearchManager.sendSearchedCategoryDailyReport();
-		StickerSearchManager.getInstance().sendStickerRecommendationAccuracyAnalytics();
+		StickerSearchManager.getInstance().sendStickerSearchDailyAnalytics();
 	}
 
 	/**

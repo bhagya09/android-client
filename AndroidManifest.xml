@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1760"
-    android:versionName="4.2.7.81.109" >
+    android:versionCode="1762"
+    android:versionName="4.2.7.82.21" >
 
    <uses-sdk
         android:minSdkVersion="14"
@@ -434,7 +434,24 @@
                     android:pathPrefix="/"
                     android:scheme="https" />
                  <data
+                     android:host="www.hike.in"
+                     android:pathPrefix="/"
+                     android:scheme="http" />
+                 <!-- Accepts URIs that begin with "https://hike.in/” -->
+                 <data
+                     android:host="www.hike.in"
+                     android:pathPrefix="/"
+                     android:scheme="https" />
+                 <data
                      android:host="bots"
+                     android:pathPrefix="/"
+                     android:scheme="hike" />
+                 <data
+                     android:host="channel"
+                     android:pathPrefix="/"
+                     android:scheme="hike" />
+                 <data
+                     android:host="send"
                      android:pathPrefix="/"
                      android:scheme="hike" />
             </intent-filter>

@@ -1675,4 +1675,6 @@
     <string name="qs_sent_second_tip_text">By tapping on stickers that you sent</string>
     <string name="qs_sent_third_tip_text">Awesome, you got it!</string>
     <string name="qs_empty_page_text">No Suggestions for this sticker</string>
+    <string name="download_image_before_sharing">You need to download image before sharing.</string>
+    <string name="native_card_file_transfer_of_type">Native card file transfer of type</string>
 </resources>

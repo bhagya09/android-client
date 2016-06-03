@@ -238,6 +238,8 @@ public class AnalyticsConstants
 	public static String PLATFORM_RICH_NOTIF = "platform_rich_notif";
 	public static String TTL_EXPIRED = "ttlExpired";
 	public static String NATIVE_CARD_FORWARD = "nativeCardForward";
+	public static String ACT_PLAT = "act_plat";
+	public static String EXTSHARE_DONE = "extshr_done";
 
 	//Constants for v2 (Normalized Taxonomy)
 	public static final class V2

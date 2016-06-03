@@ -799,6 +799,10 @@ public class HikeConstants
 
 	public static final String CALL_TYPE = "call_type";
 	public static String CONTENT_RANGE = "Content-Range";
+	public static String TIMELINE = "timeline";
+	public static String SEND ="send";
+
+	public static String TEXT_SHARE ="text";
 
 	public class Shortcut
 	{
@@ -2389,6 +2393,12 @@ public class HikeConstants
 		public static final String STICKER_RECOMMENDATION_ACCURACY_INDEX_KEY = "srAI";
 
 		public static final String STICKER_RECOMMENDATION_REBALANCING_SUMMERIZATION = "srRS";
+
+		public static final String STICKER_RECOMMENDATION = "sr_rec";
+
+		public static final String STICKER_RECOMMENDATION_REPORT = "sr_rec_rep";
+
+		public static final String STICKER_RECOMMENDATION_COUNT_REPORT = "sr_rec_cnt_rep";
 
 		public static final String STICKER_FOLDER_ERROR = "stFEr";
 
