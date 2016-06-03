@@ -250,12 +250,13 @@ public class ViewHolderFactory
 		@Override
 		public void processViewHolder(final View view)
 		{
-			String foregraoundColor = convMessage.platformMessageMetadata.cards.get(0).backgroundColor != null ? convMessage.platformMessageMetadata.cards.get(0).backgroundColor
+			//Using hardcoded color code for transparent color in case the foregroundcolor is not present.
+			String foregroundColor = convMessage.platformMessageMetadata.cards.get(0).backgroundColor != null ? convMessage.platformMessageMetadata.cards.get(0).backgroundColor
 					: "#ffffffff";
 			Drawable backgroundDrawable;
-			if (!TextUtils.isEmpty(foregraoundColor))
+			if (!TextUtils.isEmpty(foregroundColor))
 			{
-				ColorDrawable colorDrawable = new ColorDrawable(Color.parseColor(foregraoundColor));
+				ColorDrawable colorDrawable = new ColorDrawable(Color.parseColor(foregroundColor));
 				backgroundDrawable = new LayerDrawable(new Drawable[] { colorDrawable });
 			}
 			else

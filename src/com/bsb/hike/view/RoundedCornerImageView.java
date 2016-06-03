@@ -1,6 +1,7 @@
 package com.bsb.hike.view;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -49,11 +50,10 @@ public class RoundedCornerImageView extends RecyclingImageView
 
 	private void init(Context context)
 	{
-        cornerRadius = context.getResources().getDimension(R.dimen.native_cardview_radius);
+		cornerRadius = (int)context.getResources().getDimension(R.dimen.native_cardview_radius);
 		paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		maskPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
 		maskPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
-
 		setWillNotDraw(false);
 	}
 

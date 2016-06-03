@@ -72,7 +72,9 @@ public class PlatformMessageMetadata implements HikePlatformConstants {
             jsonObject.put(NOTIF_TEXT, notifText);
             jsonObject.put(CONTENT_UID, contentId);
             jsonObject.put(WIDE,isWide);
-            jsonObject.put(HikeConstants.FILES, getJSONArrayFromFileList(hikeFileList));
+            if(hikeFileList != null && hikeFileList.size()>0){
+                jsonObject.put(HikeConstants.FILES, getJSONArrayFromFileList(hikeFileList));
+            }
             jsonObject.put(CARDS, getCardsArray(cards));
         } catch (JSONException e) {
             e.printStackTrace();

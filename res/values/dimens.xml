@@ -166,5 +166,5 @@
 	<dimen name="messageinfo_empty_view">400dp</dimen>
 
 	<!--dimen-->
-	<dimen name="native_cardview_radius">3dp</dimen>
+	<dimen name="native_cardview_radius">2dp</dimen>
 </resources>
