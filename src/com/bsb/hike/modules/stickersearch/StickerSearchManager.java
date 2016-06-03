@@ -817,15 +817,15 @@ public class StickerSearchManager
 				String searchReport = HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.STICKER_SERACH_DAILY_REPORT, "");
 
 				int searchCount = HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.STICKER_SEARCH_COUNT, 0);
-				HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.STICKER_SEARCH_COUNT, ++searchCount);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeStickerSearchBaseConstants.STICKER_SEARCH_COUNT, ++searchCount);
 
 				if (isSuccess)
 				{
 					int searchSuccessCount = HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.STICKER_SEARCH_SUCCESS_COUNT, 0);
-					HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.STICKER_SEARCH_SUCCESS_COUNT, ++searchSuccessCount);
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeStickerSearchBaseConstants.STICKER_SEARCH_SUCCESS_COUNT, ++searchSuccessCount);
 
 					int selectedStickerIndexSum = HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.SELECTED_STICKER_INDEX, 0);
-					HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.SELECTED_STICKER_INDEX, selectedStickerIndexSum + selectedStickerIndex);
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeStickerSearchBaseConstants.SELECTED_STICKER_INDEX, selectedStickerIndexSum + selectedStickerIndex);
 				}
 
 				int searchLimitCount = HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.STICKER_SEARCH_RECORD_COUNT_LIMIT,
@@ -974,13 +974,13 @@ public class StickerSearchManager
 			metadata.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
 
 			int searchCount = HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.STICKER_SEARCH_COUNT, 0);
-			HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.STICKER_SEARCH_COUNT, 0);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeStickerSearchBaseConstants.STICKER_SEARCH_COUNT, 0);
 
 			int searchSuccessCount = HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.STICKER_SEARCH_SUCCESS_COUNT, 0);
-			HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.STICKER_SEARCH_SUCCESS_COUNT, 0);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeStickerSearchBaseConstants.STICKER_SEARCH_SUCCESS_COUNT, 0);
 
 			int selectedStickerIndexSum = HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.SELECTED_STICKER_INDEX, 0);
-			HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.SELECTED_STICKER_INDEX, 0);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeStickerSearchBaseConstants.SELECTED_STICKER_INDEX, 0);
 
 			metadata.put(AnalyticsConstants.V2.VAL_INT, searchCount);
 			metadata.put(AnalyticsConstants.V2.USER_STATE, searchSuccessCount);
