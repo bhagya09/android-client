@@ -812,7 +812,7 @@ public class StickerSearchManager
 					return;
 				}
 
-				boolean isSuccess = (selectedSticker == null);
+				boolean isSuccess = (selectedSticker != null);
 
 				String searchReport = HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.STICKER_SERACH_DAILY_REPORT, "");
 
