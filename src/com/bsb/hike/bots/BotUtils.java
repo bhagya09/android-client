@@ -779,7 +779,9 @@ public class BotUtils
 		 */
 		if (!HikeConstants.OFF.equals(notifType))
 		{
-			ToastListener.getInstance().showBotDownloadNotification(msisdn, botInfo.getLastMessageText(),notifType.equals(HikeConstants.SILENT));
+			if (!TextUtils.isEmpty(botInfo.getLastMessageText())) {
+				ToastListener.getInstance().showBotDownloadNotification(msisdn, botInfo.getLastMessageText(), notifType.equals(HikeConstants.SILENT));
+			}
 		}
 	}
 	
