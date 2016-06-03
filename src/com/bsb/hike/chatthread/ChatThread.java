@@ -3078,14 +3078,16 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 					else if(msgExtrasJson.optInt(HikeConstants.MESSAGE_TYPE.MESSAGE_TYPE) == HikeConstants.MESSAGE_TYPE.CONTENT){
 						JSONObject metadata = msgExtrasJson.optJSONObject(HikeConstants.METADATA);
 						if(metadata != null){
-							if(metadata.optJSONArray(HikeConstants.FILES) != null){
-								handleFileTypeMessage(intent,metadata,msgExtrasJson.optString(HikeConstants.HIKE_MESSAGE));
+
+							if(metadata.optJSONArray(HikeConstants.FILES) != null && metadata.optJSONArray(HikeConstants.FILES).length()>0){
+								HikeFile hikeFile = new HikeFile(metadata.optJSONArray(HikeConstants.FILES).getJSONObject(0), true);
+								if(hikeFile.getFile() != null && hikeFile.getFile().exists()){
+									handleFileTypeMessage(intent,metadata,msgExtrasJson.optString(HikeConstants.HIKE_MESSAGE));
+								}else{
+									sendNativeCardMessage(msgExtrasJson);
+								}
 							}else{
-								ConvMessage convMessage = Utils.makeConvMessage(msisdn, mConversation.isOnHike());
-								convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.CONTENT);
-								convMessage.platformMessageMetadata = new PlatformMessageMetadata(metadata);
-								convMessage.setMessage(msgExtrasJson.optString(HikeConstants.HIKE_MESSAGE));
-								sendMessage(convMessage);
+								sendNativeCardMessage(msgExtrasJson);
 							}
 						}
 
@@ -3252,9 +3254,16 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			SmileyParser.getInstance().addSmileyToEditable(mComposeView.getText(), false);
 		}
 	}
-
+    private void sendNativeCardMessage(JSONObject msgExtrasJson){
+		JSONObject metadata = msgExtrasJson.optJSONObject(HikeConstants.METADATA);
+		ConvMessage convMessage = Utils.makeConvMessage(msisdn, mConversation.isOnHike());
+		convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.CONTENT);
+		convMessage.platformMessageMetadata = new PlatformMessageMetadata(metadata);
+		convMessage.setMessage(msgExtrasJson.optString(HikeConstants.HIKE_MESSAGE));
+		sendMessage(convMessage);
+	}
 	private void handleFileTypeMessage(Intent intent, JSONObject nativeCardMetadata, String hikeMessage) throws JSONException{
-
+        //TODO: parse from HikeFile
 		JSONArray filesArray = nativeCardMetadata.optJSONArray(HikeConstants.FILES);
 		JSONObject msg = filesArray.getJSONObject(0);
 		String fileKey = null;
@@ -5762,14 +5771,13 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 						else if (message.getMessageType() == HikeConstants.MESSAGE_TYPE.CONTENT)
 						{
 							File fileUri = null;
-							if (selectedMsgIds.size() == 1 && message.platformMessageMetadata.getHikeFiles() != null && message.platformMessageMetadata.getHikeFiles().size() > 0) {
+							boolean showTimeLine = false;
+							if (selectedMsgIds.size() == 1 && NativeCardUtils.isNativeCardFTMessage(message)) {
 								fileUri = message.platformMessageMetadata.getHikeFiles().get(0).getFile();
-								if (fileUri == null || !fileUri.exists()) {
-									Toast.makeText(activity, R.string.download_image_before_sharing, Toast.LENGTH_SHORT).show();
-									continue;
+								if (fileUri == null || fileUri.exists()) {
+									showTimeLine = true;
 								}
 							}
-							boolean showTimeLine = fileUri!=null && fileUri.exists();
 							intent.putExtra(AnalyticsConstants.NATIVE_CARD_FORWARD, message.platformMessageMetadata.contentId);
 							if(showTimeLine){
 								intent.putExtra(HikeConstants.Extras.SHOW_TIMELINE, true);
