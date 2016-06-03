@@ -305,10 +305,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	protected static final int CUSTOM_CT_COMPATABILITY_ERROR_MESSAGE = 43;
 
-	protected static final int SHOW_INPUT_BOX = 46;
-
-	protected static final int REMOVE_INPUT_BOX = 47;
-
 	protected static final int SHOW_QUICK_SUGGESTIONS_TIP = 44;
 
 	protected static final int SPAM_UNSPAM_USER = 45;
@@ -316,6 +312,10 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	protected static final int SET_CUSTOM_THEME_BACKGROUND = 46;
 
 	protected static final int GENERAL_EVENT_STATE_CHANGE = 47;
+
+	protected static final int SHOW_INPUT_BOX = 48;
+
+	protected static final int REMOVE_INPUT_BOX = 49;
 
 	protected static final int REMOVE_CHAT_BACKGROUND = 0;
 
