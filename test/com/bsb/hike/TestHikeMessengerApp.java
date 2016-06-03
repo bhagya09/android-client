@@ -1,4 +1,4 @@
-package com.bsb.hike.roboClasses;
+package com.bsb.hike;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -14,8 +14,6 @@ import org.robolectric.annotation.Config;
 import org.robolectric.annotation.Implementation;
 import org.robolectric.annotation.Implements;
 import org.robolectric.shadows.ShadowLog;
-
-import static junit.framework.Assert.assertTrue;
 
 /**
  * Created by ashishagarwal on 23/05/16.
