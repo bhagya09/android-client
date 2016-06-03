@@ -825,7 +825,7 @@ public class StickerSearchManager
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeStickerSearchBaseConstants.STICKER_SEARCH_SUCCESS_COUNT, ++searchSuccessCount);
 
 					int selectedStickerIndexSum = HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.SELECTED_STICKER_INDEX, 0);
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeStickerSearchBaseConstants.SELECTED_STICKER_INDEX, selectedStickerIndexSum + selectedStickerIndex);
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeStickerSearchBaseConstants.SELECTED_STICKER_INDEX, selectedStickerIndexSum + selectedStickerIndex + 1);
 				}
 
 				int searchLimitCount = HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.STICKER_SEARCH_RECORD_COUNT_LIMIT,
