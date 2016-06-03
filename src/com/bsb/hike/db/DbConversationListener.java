@@ -28,6 +28,7 @@ import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.HikeSDKMessageFilter;
+import com.bsb.hike.platform.nativecards.NativeCardUtils;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.service.SmsMessageStatusReceiver;
 import com.bsb.hike.timeline.model.StatusMessage;
@@ -111,7 +112,7 @@ public class DbConversationListener implements Listener
 		{
 			ConvMessage convMessage = (ConvMessage) object;
 			boolean shouldSendMessage = convMessage.isFileTransferMessage() && !TextUtils.isEmpty(convMessage.getMetadata().getHikeFiles().get(0).getFileKey());
-			boolean shouldSendNativeCardMessage = convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.CONTENT && !TextUtils.isEmpty(convMessage.platformMessageMetadata.getHikeFiles().get(0).getFileKey());
+			boolean shouldSendNativeCardMessage = convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.CONTENT && NativeCardUtils.isNativeCardFTMessage(convMessage) && !TextUtils.isEmpty(convMessage.platformMessageMetadata.getHikeFiles().get(0).getFileKey());
 			if (shouldSendMessage)
 			{
 				mConversationDb.updateMessageMetadata(convMessage.getMsgID(), convMessage.getMetadata());
@@ -125,7 +126,7 @@ public class DbConversationListener implements Listener
 			}
 			else
 			{
-				if (!convMessage.isFileTransferMessage() && convMessage.getMessageType() != HikeConstants.MESSAGE_TYPE.CONTENT)
+				if (!convMessage.isFileTransferMessage() && !NativeCardUtils.isNativeCardFTMessage(convMessage))
 				{
 					mConversationDb.addConversationMessages(convMessage,true);
 				
@@ -148,7 +149,7 @@ public class DbConversationListener implements Listener
 			}
 
 			if ((convMessage.getParticipantInfoState() == ParticipantInfoState.NO_INFO || convMessage.getParticipantInfoState() == ParticipantInfoState.CHAT_BACKGROUND)
-					&& (!convMessage.isFileTransferMessage() || shouldSendMessage) && (convMessage.getMessageType() !=HikeConstants.MESSAGE_TYPE.CONTENT || shouldSendNativeCardMessage ))
+					&& (!convMessage.isFileTransferMessage() || shouldSendMessage) && (!NativeCardUtils.isNativeCardFTMessage(convMessage) || shouldSendNativeCardMessage ))
 			{
 				Logger.d("DBCONVERSATION LISTENER", "Sending Message : " + convMessage.getMessage() + "	;	to : " + convMessage.getMsisdn());
 				if (!convMessage.isSMS() || !Utils.getSendSmsPref(context) || convMessage.getParticipantInfoState() == ParticipantInfoState.CHAT_BACKGROUND)

@@ -260,7 +260,7 @@ public class NativeCardUtils
 				return;
 			}
 			Intent intent = IntentFactory.shareIntent("image/jpeg", file.getAbsolutePath(), null, HikeConstants.Extras.ShareTypes.IMAGE_SHARE, null,
-					false);
+					true);
 			context.startActivity(intent);
 		} else {
 			file = NativeCardUtils.getFileForView(view, HikeMessengerApp.getInstance());

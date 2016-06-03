@@ -286,7 +286,6 @@ public class NativeCardRenderer implements View.OnLongClickListener, View.OnClic
 			thumbnail = hikeFile.getThumbnail();
 		}
 
-		// Logger.d("OfflineThreadManager","Actual Thumbanil is  "+thumbnail.toString());
 		if (showThumbnail)
 		{
 			ftViewHolder.fileThumb.setImageDrawable(thumbnail);
@@ -362,8 +361,7 @@ public class NativeCardRenderer implements View.OnLongClickListener, View.OnClic
 			return;
 		}
 		Logger.d(getClass().getSimpleName(), "OnCLICK" + convMessage.getMsgID());
-		// if (convMessage.isFileTransferMessage())
-		// {
+
 
 		// @GM
 
@@ -377,28 +375,6 @@ public class NativeCardRenderer implements View.OnLongClickListener, View.OnClic
 				Logger.d(getClass().getSimpleName(), "Hike File name: " + hikeFile.getFileName() + " File key: " + hikeFile.getFileKey());
 
 				FileSavedState fileState;
-//				if (convMessage.isOfflineMessage())
-//				{
-//					fileState = OfflineController.getInstance().getFileState(convMessage, hikeFile.getFile());
-//					if (fileState.getFTState() == FileTransferBase.FTState.ERROR)
-//					{
-//						if (OfflineUtils.isConnectedToSameMsisdn(conversation.getMsisdn()))
-//						{
-//							OfflineController.getInstance().handleRetryButton(convMessage);
-//							return;
-//						}
-//						else
-//						{
-//							updateOriginTypeForConvMessage(convMessage, ConvMessage.OriginType.NORMAL);
-//						}
-//					}
-//					else if (fileState.getFTState() == FileTransferBase.FTState.IN_PROGRESS)
-//					{
-//						return;
-//					}
-//				}
-//				else
-//				{
 					fileState = FileTransferManager.getInstance(context).getUploadFileState(convMessage.getMsgID(), hikeFile.getFile());
 					if (fileState.getFTState() == FileTransferBase.FTState.ERROR || fileState.getFTState() == FileTransferBase.FTState.NOT_STARTED)
 					{
@@ -409,7 +385,6 @@ public class NativeCardRenderer implements View.OnLongClickListener, View.OnClic
 							return;
 						}
 					}
-//				}
 
 				if (!TextUtils.isEmpty(hikeFile.getFileKey()))
 				{
