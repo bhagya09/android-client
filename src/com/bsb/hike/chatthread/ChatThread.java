@@ -11,9 +11,12 @@ import android.content.SharedPreferences.Editor;
 import android.content.pm.ApplicationInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.TransitionDrawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -298,17 +301,21 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	protected static final int FILE_OPENED = 41;
 
-    protected static final int SHOW_INPUT_BOX = 45;
-
-    protected static final int REMOVE_INPUT_BOX = 46;
-
 	protected static final int SEND_CUSTOM_THEME_MESSAGE = 42;
 
-	protected static final int GENERAL_EVENT_STATE_CHANGE = 43;
+	protected static final int CUSTOM_CT_COMPATABILITY_ERROR_MESSAGE = 43;
 
 	protected static final int SHOW_QUICK_SUGGESTIONS_TIP = 44;
 
 	protected static final int SPAM_UNSPAM_USER = 45;
+
+	protected static final int SET_CUSTOM_THEME_BACKGROUND = 46;
+
+	protected static final int GENERAL_EVENT_STATE_CHANGE = 47;
+
+	protected static final int SHOW_INPUT_BOX = 48;
+
+	protected static final int REMOVE_INPUT_BOX = 49;
 
 	protected static final int REMOVE_CHAT_BACKGROUND = 0;
 
@@ -586,6 +593,12 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				break;
 			case GENERAL_EVENT_STATE_CHANGE:
 				onGeneralEventStateChange(msg.obj);
+				break;
+			case CUSTOM_CT_COMPATABILITY_ERROR_MESSAGE:
+				customThemeErrorNotifier((String) msg.obj);
+				break;
+			case SET_CUSTOM_THEME_BACKGROUND:
+				updateUIAsPerTheme(HikeChatThemeConstants.THEME_ID_CUSTOM_THEME);
 				break;
 			case SHOW_QUICK_SUGGESTIONS_TIP:
 				showQuickSuggestionTip((ConvMessage) msg.obj);
@@ -1139,20 +1152,30 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				mAdapter.onActivityResult(requestCode, resultCode, data);
 				break;
 			case HikeConstants.ResultCodes.CHATTHEME_GALLERY_REQUEST_CODE:
-				if(resultCode == Activity.RESULT_OK)
-				{
-					if (themePicker != null && themePicker.isShowing()) {
-						themePicker.dismiss();
-					}
-					if(ChatThemeManager.getInstance().customThemeTempUploadImagePath != null) {
-						if(Utils.isUserOnline(activity)) {
-							FileTransferManager.getInstance(activity).uploadCustomThemeBackgroundImage(ChatThemeManager.getInstance().customThemeTempUploadImagePath);
-						} else {
-							Toast.makeText(activity, R.string.admin_task_error, Toast.LENGTH_LONG).show();
-						}
-					}
+				if(resultCode == Activity.RESULT_OK) {
+					//TO CHATTHEME , this is intentionally commented for now. will do few user interviews around it and add it back.
+//					if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_CT_CONFIRMATIN_DIALOG, false)) {
+//						this.dialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.CT_CONFIRMATION_DIALOG, this);
+//					} else {
+//						initializeCTBackground();
+//					}
+					initializeCTBackground();
 				}
 				break;
+		}
+	}
+
+	private void initializeCTBackground() {
+		if(Utils.isUserOnline(activity)) {
+			if(ChatThemeManager.getInstance().customThemeTempUploadImagePath != null) {
+				FileTransferManager.getInstance(activity).uploadCustomThemeBackgroundImage(ChatThemeManager.getInstance().customThemeTempUploadImagePath);
+			}
+			uiHandler.sendEmptyMessageDelayed(SET_CUSTOM_THEME_BACKGROUND, 100);
+			if (themePicker != null && themePicker.isShowing()) {
+				themePicker.dismiss();
+			}
+		} else {
+			Toast.makeText(activity, R.string.admin_task_error, Toast.LENGTH_LONG).show();
 		}
 	}
 
@@ -1776,7 +1799,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	@Override
 	public void themeClicked(String themeId)
 	{
-		if (themeId.equalsIgnoreCase(HikeChatThemeConstants.THEME_PALETTE_CAMERA_ICON)) {
+		if (HikeChatThemeConstants.THEME_ID_CUSTOM_THEME.equalsIgnoreCase(themeId)) {
 			ChatThemeManager.getInstance().customThemeTempUploadImagePath = ChatThemeManager.getInstance().getCCTTempUploadPath();
 			int galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS | GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
 			int height = DrawUtils.displayMetrics.heightPixels;
@@ -1784,10 +1807,11 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			CropCompression compression = new CropCompression().maxWidth(width).maxHeight(height).quality(100);
 			Intent imageChooserIntent = IntentFactory.getImageChooserIntent(activity, galleryFlags, ChatThemeManager.getInstance().customThemeTempUploadImagePath, compression, true, width, height);
 			activity.startActivityForResult(imageChooserIntent, HikeConstants.ResultCodes.CHATTHEME_GALLERY_REQUEST_CODE);
+			HikeAnalyticsEvent.recordCTAnalyticEvents(ChatAnalyticConstants.CUSTOM_THEME_CAMERA_UK, AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, msisdn, null, null);
 			if (themePicker != null && themePicker.isShowing()) {
 				themePicker.dismiss();
 			}
-		}else {
+		} else {
 			postTrialsAnalytic(themeId);
 			updateUIAsPerTheme(themeId);
 		}
@@ -1806,7 +1830,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		/**
 		 * Save current theme and send chat theme message
 		 */
-		if (chatThemeId.equalsIgnoreCase(HikeChatThemeConstants.THEME_PALETTE_CAMERA_ICON)) {
+		if (HikeChatThemeConstants.THEME_ID_CUSTOM_THEME.equalsIgnoreCase(chatThemeId)) {
 			return;
 		}
 		if (!currentThemeId.equals(chatThemeId))
@@ -1882,6 +1906,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		{
 			setChatBackground(REMOVE_CHAT_BACKGROUND);
 			Drawable drawable = Utils.getChatTheme(themeId, activity);
+
 			setThemeBackground(backgroundImage, drawable, ChatThemeManager.getInstance().getTheme(themeId).isTiled(), ChatThemeManager.getInstance().getTheme(themeId).isCustomTheme());
 		}
 	}
@@ -1893,8 +1918,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		if(isTiled){
 			backgroundImage.setScaleType(ScaleType.FIT_XY);
 		} else {
-			int orientation = getResources().getConfiguration().orientation;
-			if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+			if(getResources().getConfiguration().orientation == getResources().getConfiguration().ORIENTATION_LANDSCAPE) {
 				backgroundImage.setScaleType(ScaleType.CENTER_CROP);
 			} else {
 				backgroundImage.setScaleType(ScaleType.MATRIX);
@@ -1905,7 +1929,22 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		if(isCustom && !ChatThreadUtils.disableOverlayEffectForCCT()) {
 			backgroundImage.setOverLay(true);
 		}
+
 		backgroundImage.setImageDrawable(drawable);
+	}
+
+	private void setCustomThemeBackground() {
+		if(ChatThemeManager.getInstance().customThemeTempUploadImagePath == null) {
+			return;
+		}
+		CustomBGRecyclingImageView backgroundImage = (CustomBGRecyclingImageView) activity.findViewById(R.id.background);
+		backgroundImage.setOverLay(false);
+		int height = DrawUtils.displayMetrics.heightPixels;
+		int width = DrawUtils.displayMetrics.widthPixels;
+		Bitmap bmp = HikeBitmapFactory.decodeSampledBitmapFromFile(ChatThemeManager.getInstance().customThemeTempUploadImagePath, width, height);
+		Drawable drawable = new BitmapDrawable(getResources(), bmp);
+
+		setThemeBackground(backgroundImage, drawable, false, true);
 	}
 
 	@Override
@@ -2422,6 +2461,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			case HikeDialogFactory.DELETE_MESSAGES_DIALOG:
 			case HikeDialogFactory.CONTACT_SEND_DIALOG:
 			case HikeDialogFactory.CLEAR_CONVERSATION_DIALOG:
+			case HikeDialogFactory.CT_CONFIRMATION_DIALOG:
 				dialog.dismiss();
 				this.dialog = null;
 				break;
@@ -2463,6 +2503,11 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				dialog.dismiss();
 				mActionMode.finish();
 				break;
+			case HikeDialogFactory.CT_CONFIRMATION_DIALOG:
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_CT_CONFIRMATIN_DIALOG, true);
+				initializeCTBackground();
+				dialog.dismiss();
+				break;
 
 		case HikeDialogFactory.MUTE_CHAT_DIALOG:
 			Utils.toggleMuteChat(activity.getApplicationContext(), mConversation.getMute());
@@ -2495,11 +2540,18 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 			ColorDrawable statusBarColor = (ColorDrawable) ChatThemeManager.getInstance().getDrawableForTheme(themeId, HikeChatThemeConstants.ASSET_INDEX_STATUS_BAR_BG);
 			setStatusBarColorValue(statusBarColor.getColor());
+
 		}
+		setChatThemeBackground(themeId);
+	}
 
-
+	public void setChatThemeBackground(String themeId) {
 		// background image
-		setBackground(themeId);
+		if(HikeChatThemeConstants.THEME_ID_CUSTOM_THEME.equalsIgnoreCase(themeId)) {
+			setCustomThemeBackground();
+		} else {
+			setBackground(themeId);
+		}
 	}
 
 	@Override
@@ -4113,6 +4165,9 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				break;
 			case HikePubSub.CHATTHEME_CUSTOM_IMAGE_UPLOAD_FAILED:
 				break;
+			case HikePubSub.CHATTHEME_CUSTOM_COMPATABILITY_ERROR:
+				sendUIMessage(CUSTOM_CT_COMPATABILITY_ERROR_MESSAGE, object);
+				break;
 			case HikePubSub.SHOW_INPUT_BOX:
 				Logger.i(TAG, "General Event: Show Custom Keyboard PubSub");
 				createInputBox(object);
@@ -4349,7 +4404,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				HikePubSub.CHAT_BACKGROUND_CHANGED, HikePubSub.CLOSE_CURRENT_STEALTH_CHAT, HikePubSub.ClOSE_PHOTO_VIEWER_FRAGMENT, HikePubSub.STICKER_CATEGORY_MAP_UPDATED,
 				HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.MULTI_MESSAGE_DB_INSERTED, HikePubSub.BLOCK_USER, HikePubSub.UNBLOCK_USER, HikePubSub.MUTE_CONVERSATION_TOGGLED, HikePubSub.SHARED_WHATSAPP,
 				HikePubSub.STEALTH_CONVERSATION_MARKED, HikePubSub.STEALTH_CONVERSATION_UNMARKED, HikePubSub.BULK_MESSAGE_DELIVERED_READ, HikePubSub.STICKER_RECOMMEND_PREFERENCE_CHANGED, HikePubSub.ENTER_TO_SEND_SETTINGS_CHANGED, HikePubSub.NUDGE_SETTINGS_CHANGED,
-				HikePubSub.UPDATE_THREAD,HikePubSub.GENERAL_EVENT_STATE_CHANGE, HikePubSub.FILE_OPENED, HikePubSub.CLEAR_CONVERSATION, HikePubSub.CHATTHEME_DOWNLOAD_SUCCESS, HikePubSub.CHATTHEME_CUSTOM_IMAGE_UPLOAD_SUCCESS, HikePubSub.CHATTHEME_CUSTOM_IMAGE_UPLOAD_FAILED,HikePubSub.SHOW_INPUT_BOX};
+				HikePubSub.UPDATE_THREAD,HikePubSub.GENERAL_EVENT_STATE_CHANGE, HikePubSub.FILE_OPENED, HikePubSub.CLEAR_CONVERSATION, HikePubSub.CHATTHEME_DOWNLOAD_SUCCESS, HikePubSub.CHATTHEME_CUSTOM_IMAGE_UPLOAD_SUCCESS, HikePubSub.CHATTHEME_CUSTOM_IMAGE_UPLOAD_FAILED, HikePubSub.CHATTHEME_CUSTOM_COMPATABILITY_ERROR, HikePubSub.SHOW_INPUT_BOX};
 
 		/**
 		 * Array of pubSub listeners we get from {@link OneToOneChatThread} or {@link GroupChatThread}
@@ -4850,8 +4905,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			return;
 		}
 
-		if (msisdn.equals(typingNotification.getId()))
-		{
+		if (msisdn.equals(typingNotification.getId())) {
 			sendUIMessage(TYPING_CONVERSATION, typingNotification);
 		}
 	}
@@ -4864,8 +4918,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	 */
 	protected void setTypingText(boolean direction, TypingNotification typingNotification)
 	{
-		if (messages.isEmpty() || messages.get(messages.size() - 1).getTypingNotification() == null)
-		{
+		if (messages.isEmpty() || messages.get(messages.size() - 1).getTypingNotification() == null) {
 			addMessage(new ConvMessage(typingNotification));
 		}
 		else if (messages.get(messages.size() - 1).getTypingNotification() != null)
@@ -4991,8 +5044,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		if(mConversation.isStealth())
 		{
 			hiddenBadge.setVisibility(View.VISIBLE);
-		}
-		else
+		} else
 		{
 			hiddenBadge.setVisibility(View.GONE);
 		}
@@ -5929,7 +5981,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		 */
 		if (getCurrentlThemeId() != null && !getCurrentlThemeId().equals(ChatThemeManager.getInstance().defaultChatThemeId))
 		{
-			setBackground(getCurrentlThemeId());
+			setChatThemeBackground(getCurrentlThemeId());
 			ColorDrawable statusBarColor = (ColorDrawable) ChatThemeManager.getInstance().
 					getDrawableForTheme(getCurrentlThemeId(), HikeChatThemeConstants.ASSET_INDEX_STATUS_BAR_BG);
 			setStatusBarColorValue(statusBarColor.getColor());
@@ -6399,8 +6451,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			 */
 			uiHandler.sendEmptyMessage(DISABLE_TRANSCRIPT_MODE);
 		}
-		else
-		{
+		else {
 			mConversationsView.setSelectionFromTop(position,offSet);
 		}
 	}
@@ -6541,7 +6592,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	private void onGeneralEventStateChange(Object object)
 	{
 		final ConvMessage eventMessage=(ConvMessage)object;
-		if(eventMessage!=null&&this.msisdn.equals(eventMessage.getMsisdn()))
+		if (eventMessage != null&&this.msisdn.equals(eventMessage.getMsisdn()))
 		{
 			if(!mAdapter.onGeneralEventStateChange(eventMessage))
 			{
@@ -6835,9 +6886,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
         ConvMessage convMessage = Utils.makeConvMessage(msisdn, message, mConversation.isOnHike());
 
         mComposeView.setText("");
-        if (mComposeViewWatcher != null)
-        {
-            mComposeViewWatcher.onMessageSent();
+        if (mComposeViewWatcher != null) {
+			mComposeViewWatcher.onMessageSent();
         }
         return convMessage;
     }
@@ -6859,7 +6909,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
         else
         {
             setComposeViewCustomKeyboardState();
-        }
+		}
 
 		mShareablePopupLayout.togglePopup(CustomKeyboardManager.getInstance(), activity.getResources().getConfiguration().orientation, true);
 	}
@@ -6941,8 +6991,15 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	public void updateCustomChatTheme(Object data)
 	{
 		String themeId = (String) data;
+		HikeAnalyticsEvent.recordCTAnalyticEvents(ChatAnalyticConstants.CUSTOM_THEME_DONE, AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, msisdn, themeId, null);
 		sendUIMessage(CHAT_THEME, themeId);
 		sendUIMessage(SEND_CUSTOM_THEME_MESSAGE, null);
+	}
+
+	public void customThemeErrorNotifier(String errorType) {
+		if(HikeConstants.CUSTOM_ERROR_DEVICE_NOT_SUPPORTED.equalsIgnoreCase(errorType)){
+			Toast.makeText(activity.getApplicationContext(), activity.getResources().getString(R.string.custom_chattheme_device_not_supported), Toast.LENGTH_LONG).show();
+		}
 	}
 
 	private void setupCustomTabHelper(){

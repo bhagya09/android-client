@@ -497,6 +497,8 @@ public class HikeConstants
 
 	public static final String CUSTOM = "custom";
 
+	public static final String CUSTOM_ERROR_DEVICE_NOT_SUPPORTED = "ce1";
+
 	public static final String SOUND_PREF = "soundPref";
 
 	public static final String VIBRATE_PREF = "vibratePref";
@@ -1170,6 +1172,8 @@ public class HikeConstants
 	public static final String VOIP_CALL_FAILED_FRAGMENT_TAG = "voipCallFailedFragmentTag";
 
 	public static final String VOIP_CALL_DECLINE_MESSAGE_FRAGMENT_TAG = "voipCallDeclineMessageFragTag";
+
+	public static final String SHOW_CT_CONFIRMATIN_DIALOG = "showCTConfirmationDialog";
 	/*
 	 * Contact Type
 	 */
@@ -2871,6 +2875,8 @@ public class HikeConstants
 		public static final String MULTI_INVITE = "mi";
 
 		public static final String CHAT_BACKGROUD = "cbg";
+
+		public static final String CHAT_BACKGROUD_V2 = "cbgv2";
 
 		public static final String GROUP_OWNER_CHANGE = "goc";
 

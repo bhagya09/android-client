@@ -340,6 +340,36 @@ public class HikeAnalyticsEvent
 		}
 	}
 
+	public static void recordCTAnalyticEvents(String uniqueKey, String phylum, String eventType, String msisdn, String themeId, String groupId) {
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(AnalyticsConstants.V2.KINGDOM, ChatAnalyticConstants.ACT_CORE_LOGS);
+			metadata.put(AnalyticsConstants.V2.UNIQUE_KEY, uniqueKey);
+			metadata.put(AnalyticsConstants.V2.PHYLUM, phylum);
+			if(!TextUtils.isEmpty(eventType)) {
+				metadata.put(AnalyticsConstants.V2.CLASS, eventType);
+			}
+			metadata.put(AnalyticsConstants.V2.ORDER, uniqueKey);
+			metadata.put(AnalyticsConstants.V2.SPECIES, ChatThreadUtils.getChatThreadType(msisdn));
+			metadata.put(AnalyticsConstants.TO_USER, msisdn);
+			if(StealthModeManager.getInstance().isStealthMsisdn(msisdn)) {
+				metadata.put(AnalyticsConstants.V2.VARIETY, ChatAnalyticConstants.STEALTH_CHAT_THREAD);
+			}
+			if(!TextUtils.isEmpty(themeId)) {
+				metadata.put(AnalyticsConstants.V2.VAL_STR, themeId);
+			}
+			if(!TextUtils.isEmpty(groupId)) {
+				metadata.put(AnalyticsConstants.V2.REC_ID, groupId);
+			}
+			HAManager.getInstance().recordV2(metadata);
+		} catch (JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+		}
+	}
+
+
 	public static void recordAnalyticsForMuteCancel(String msisdn)
 	{
 		try
