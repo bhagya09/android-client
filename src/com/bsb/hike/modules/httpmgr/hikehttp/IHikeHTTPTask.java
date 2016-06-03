@@ -1,5 +1,7 @@
 package com.bsb.hike.modules.httpmgr.hikehttp;
 
+import android.os.Bundle;
+
 /**
  * This interface is used by classes that have to execute a http task
  * 
@@ -17,4 +19,8 @@ public interface IHikeHTTPTask
 	 * Cancels the request
 	 */
 	public void cancel();
+
+    public Bundle getRequestBundle();
+
+    public String getRequestId();
 }

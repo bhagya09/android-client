@@ -167,21 +167,31 @@ public class HttpRequests
 		return requestToken;
 	}
 	
-	public static RequestToken singleStickerDownloadRequest(String requestId, String stickerId, String categoryId, IRequestListener requestListener, String keyboardList)
-	{
+    public static RequestToken singleStickerDownloadRequest(String requestId, String stickerId, String categoryId, IRequestListener requestListener, String keyboardList, boolean miniStk, Bundle extras)
+    {
+        Config config = new Config.Builder()
+                .setExecutionWindow(0, 1)
+                .setPersisted(true)
+                .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
+                .setTag(GcmTaskConstants.SINGLE_STICKER_GCM_TASK + HikeConstants.DELIMETER + requestId)
+                .setService(GcmNwMgrService.class)
+                .setExtras(extras)
+                .build();
 
 		String parameterUrl = Utils.getParameterUrlForHttpApi(HttpRequestConstants.BASE_STICKER_V3);
 
-		RequestToken requestToken = new JSONObjectRequest.Builder()
-				.setUrl(singleStickerDownloadBase() + "?catId=" + categoryId + "&stId=" + stickerId + "&resId=" + Utils.getResolutionId() + "&kbd=" + keyboardList + parameterUrl)
-				.setId(requestId)
-				.setRequestListener(requestListener)
-				.setRequestType(REQUEST_TYPE_SHORT)
-				.setPriority(PRIORITY_HIGH)
-				.setAnalyticsParam(HttpAnalyticsConstants.HTTP_SINGLE_STICKER_DOWNLOAD_ANALYTICS_PARAM)
-				.build();
-		return requestToken;
-	}
+        RequestToken requestToken = new JSONObjectRequest.Builder()
+                .setUrl(singleStickerDownloadBase() + "?catId=" + categoryId + "&stId=" + stickerId + "&resId=" + Utils.getResolutionId() + "&kbd=" + keyboardList + "&mini_stk=" + miniStk + parameterUrl)
+                .setId(requestId)
+                .setRequestListener(requestListener)
+                .setRequestType(REQUEST_TYPE_SHORT)
+                .setPriority(PRIORITY_HIGH)
+                .setAnalyticsParam(HttpAnalyticsConstants.HTTP_SINGLE_STICKER_DOWNLOAD_ANALYTICS_PARAM)
+                .setGcmTaskConfig(config)
+                .build();
+
+        return requestToken;
+    }
 
 	public static RequestToken fetchUIDForMissingMsisdn(IRequestListener requestListener,JSONObject d) {
 		RequestToken requestToken = new JSONObjectRequest.Builder().setUrl(fetchUIDForMissingMsisdnUrl()).setRequestListener(requestListener)
@@ -190,93 +200,130 @@ public class HttpRequests
 		return requestToken;
 	}
 
-	public static RequestToken singleStickerImageDownloadRequest(String requestId, String stickerId, String categoryId, boolean miniStk, IRequestListener requestListener, Bundle extras)
-	{
+    public static RequestToken singleStickerImageDownloadRequest(String requestId, String stickerId, String categoryId, boolean miniStk, IRequestListener requestListener, Bundle extras)
+    {
+        Config config = new Config.Builder()
+                .setExecutionWindow(0, 1)
+                .setPersisted(true)
+                .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
+                .setTag(GcmTaskConstants.SINGLE_STICKER_GCM_TASK + HikeConstants.DELIMETER + requestId)
+                .setService(GcmNwMgrService.class)
+                .setExtras(extras)
+                .build();
 
 		String parameterUrl = Utils.getParameterUrlForHttpApi(HttpRequestConstants.BASE_STICKER_V4);
+        miniStk = miniStk & StickerManager.getInstance().isMiniStickersEnabled();
+        String url = singleStickerImageDownloadBase() + "?catId=" + categoryId + "&stId=" + stickerId + "&resId=" + Utils.getResolutionId() + "&mini_stk=" + miniStk + parameterUrl;
+        RequestToken requestToken = new JSONObjectRequest.Builder()
+                .setUrl(url)
+                .setId(requestId)
+                .setRequestListener(requestListener)
+                .setRequestType(REQUEST_TYPE_SHORT)
+                .setPriority(PRIORITY_HIGH)
+                .setGcmTaskConfig(config)
+                .build();
+        return requestToken;
+    }
 
-		Config config = new Config.Builder()
-				.setExecutionWindow(0, 1)
-				.setPersisted(true)
-				.setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
-				.setTag(GcmTaskConstants.SINGLE_STICKER_GCM_TASK + HikeConstants.DELIMETER + stickerId + HikeConstants.DELIMETER + categoryId)
-				.setService(GcmNwMgrService.class)
-				.setExtras(extras)
-				.build();
+    public static RequestToken multiStickerDownloadRequest(String requestId, IRequestInterceptor interceptor, IRequestListener requestListener, Bundle extras)
+    {
+        Config config = new Config.Builder()
+                .setExecutionWindow(0, 1)
+                .setPersisted(true)
+                .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
+                .setTag(GcmTaskConstants.MULTI_STICKER_GCM_TASK + HikeConstants.DELIMETER + requestId)
+                .setService(GcmNwMgrService.class)
+                .setExtras(extras)
+                .build();
 
-		miniStk = miniStk & StickerManager.getInstance().isMiniStickersEnabled();
-		String url = singleStickerImageDownloadBase() + "?catId=" + categoryId + "&stId=" + stickerId + "&resId=" + Utils.getResolutionId() + "&mini_stk=" + miniStk + parameterUrl;
-		RequestToken requestToken = new JSONObjectRequest.Builder()
-				.setUrl(url)
-				.setId(requestId)
-				.setRequestListener(requestListener)
-				.setRequestType(REQUEST_TYPE_SHORT)
-				.setPriority(PRIORITY_HIGH)
-				.setGcmTaskConfig(config)
-				.build();
-		return requestToken;
-	}
+        RequestToken requestToken = new JSONObjectRequest.Builder()
+                .setUrl(multiStickerDownloadUrl())
+                .setId(requestId)
+                .post(null) // will set it in interceptor method using request facade
+                .setRequestListener(requestListener)
+                .setRequestType(REQUEST_TYPE_LONG)
+                .setPriority(PRIORITY_HIGH)
+                .setAnalyticsParam(HttpAnalyticsConstants.HTTP_MULTI_STICKER_DOWNLOAD_ANALYTICS_PARAM)
+                .setGcmTaskConfig(config)
+                .build();
+        requestToken.getRequestInterceptors().addFirst("sticker", interceptor);
+        requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
+        return requestToken;
+    }
 
-	public static RequestToken multiStickerDownloadRequest(String requestId, IRequestInterceptor interceptor, IRequestListener requestListener)
-	{
-		RequestToken requestToken = new JSONObjectRequest.Builder()
-				.setUrl(multiStickerDownloadUrl())
-				.setId(requestId)
-				.post(null) // will set it in interceptor method using request facade
-				.setRequestListener(requestListener)
-				.setRequestType(REQUEST_TYPE_LONG)
-				.setPriority(PRIORITY_HIGH)
-				.setAnalyticsParam(HttpAnalyticsConstants.HTTP_MULTI_STICKER_DOWNLOAD_ANALYTICS_PARAM)
-				.build();
-		requestToken.getRequestInterceptors().addFirst("sticker", interceptor);
-		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
-		return requestToken;
-	}
+    public static RequestToken multiStickerImageDownloadRequest(String requestId, IRequestInterceptor interceptor, IRequestListener requestListener, Bundle extras)
+    {
+        Config config = new Config.Builder()
+                .setExecutionWindow(0, 1)
+                .setPersisted(true)
+                .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
+                .setTag(GcmTaskConstants.MULTI_STICKER_IMAGE_GCM_TASK + HikeConstants.DELIMETER + requestId)
+                .setService(GcmNwMgrService.class)
+                .setExtras(extras)
+                .build();
 
-	public static RequestToken multiStickerImageDownloadRequest(String requestId, IRequestInterceptor interceptor, IRequestListener requestListener)
-	{
-		RequestToken requestToken = new JSONObjectRequest.Builder()
-				.setUrl(multiStickerImageDownloadUrl())
-				.setId(requestId)
-				.post(null) // will set it in interceptor method using request facade
-				.setRequestListener(requestListener)
-				.setRequestType(REQUEST_TYPE_LONG)
-				.setPriority(PRIORITY_HIGH)
-				.setAnalyticsParam(HttpAnalyticsConstants.HTTP_MULTI_STICKER_DOWNLOAD_ANALYTICS_PARAM)
-				.build();
-		requestToken.getRequestInterceptors().addFirst("sticker", interceptor);
-		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
-		return requestToken;
-	}
+        RequestToken requestToken = new JSONObjectRequest.Builder()
+                .setUrl(multiStickerImageDownloadUrl())
+                .setId(requestId)
+                .post(null) // will set it in interceptor method using request facade
+                .setRequestListener(requestListener)
+                .setRequestType(REQUEST_TYPE_LONG)
+                .setPriority(PRIORITY_HIGH)
+                .setAnalyticsParam(HttpAnalyticsConstants.HTTP_MULTI_STICKER_DOWNLOAD_ANALYTICS_PARAM)
+                .setGcmTaskConfig(config)
+                .build();
+        requestToken.getRequestInterceptors().addFirst("sticker", interceptor);
+        requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
+        return requestToken;
+    }
 
-	public static RequestToken StickerPalleteImageDownloadRequest(String requestId, String categoryId, IRequestInterceptor interceptor, IRequestListener requestListener)
-	{
+    public static RequestToken StickerPalleteImageDownloadRequest(String requestId, String categoryId, IRequestInterceptor interceptor, IRequestListener requestListener, Bundle extras)
+    {
+        Config config = new Config.Builder()
+                .setExecutionWindow(0, 1)
+                .setPersisted(true)
+                .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
+                .setTag(GcmTaskConstants.CATEGORY_PALLETE_IMAGE_GCM_TASK + HikeConstants.DELIMETER + requestId)
+                .setService(GcmNwMgrService.class)
+                .setExtras(extras)
+                .build();
+
+
 		String parameterUrl = Utils.getParameterUrlForHttpApi(HttpRequestConstants.BASE_PALETTE_IMAGE);
-
 		RequestToken requestToken = new JSONObjectRequest.Builder()
-				.setUrl(stickerPalleteImageDownloadUrl() + "?catId=" + categoryId + "&resId=" + Utils.getResolutionId() + parameterUrl)
-				.setId(requestId)
-				.setRequestListener(requestListener)
-				.setRequestType(REQUEST_TYPE_LONG)
-				.setPriority(10) // Setting priority between sticker shop task and enable_disable icon task
-				.build();
-		requestToken.getRequestInterceptors().addLast("sticker", interceptor);
-		return requestToken;
-	}
+                .setUrl(stickerPalleteImageDownloadUrl() + "?catId=" + categoryId + "&resId=" + Utils.getResolutionId() + parameterUrl)
+                .setId(requestId)
+                .setRequestListener(requestListener)
+                .setRequestType(REQUEST_TYPE_LONG)
+                .setPriority(10) // Setting priority between sticker shop task and enable_disable icon task
+                .setGcmTaskConfig(config)
+                .build();
+        requestToken.getRequestInterceptors().addLast("sticker", interceptor);
+        return requestToken;
+    }
 
-	public static RequestToken StickerPreviewImageDownloadRequest(String requestId, String categoryId, IRequestInterceptor interceptor, IRequestListener requestListener)
-	{
+    public static RequestToken StickerPreviewImageDownloadRequest(String requestId, String categoryId, IRequestInterceptor interceptor, IRequestListener requestListener, Bundle extras)
+    {
+        Config config = new Config.Builder()
+                .setExecutionWindow(0, 1)
+                .setPersisted(true)
+                .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
+                .setTag(GcmTaskConstants.STICKER_PREVIEW_IMAGE_GCM_TASK + HikeConstants.DELIMETER + requestId)
+                .setService(GcmNwMgrService.class)
+                .setExtras(extras)
+                .build();
+
 		String parameterUrl = Utils.getParameterUrlForHttpApi(HttpRequestConstants.BASE_PREVIEW_IMAGE);
-
-		RequestToken requestToken = new JSONObjectRequest.Builder()
-				.setUrl(stickerPreviewImageDownloadUrl() + "?catId=" + categoryId + "&resId=" + Utils.getResolutionId() + parameterUrl)
-				.setId(requestId)
-				.setRequestListener(requestListener)
-				.setRequestType(REQUEST_TYPE_SHORT)
-				.build();
-		requestToken.getRequestInterceptors().addLast("sticker", interceptor);
-		return requestToken;
-	}
+        RequestToken requestToken = new JSONObjectRequest.Builder()
+                .setUrl(stickerPreviewImageDownloadUrl() + "?catId=" + categoryId + "&resId=" + Utils.getResolutionId() + parameterUrl)
+                .setId(requestId)
+                .setRequestListener(requestListener)
+                .setRequestType(REQUEST_TYPE_SHORT)
+                .setGcmTaskConfig(config)
+                .build();
+        requestToken.getRequestInterceptors().addLast("sticker", interceptor);
+        return requestToken;
+    }
 
 	public static RequestToken fetchCategoryData(String requestId, JSONObject json, IRequestListener requestListener)
 	{
@@ -306,7 +353,7 @@ public class HttpRequests
         return requestToken;
     }
 
-	public static RequestToken getPrefOrderForCategories(String requestId, IRequestListener requestListener, int catSize, int offset)
+	public static RequestToken fetchCategoryRanks(String requestId, IRequestListener requestListener, int catSize, int offset)
 	{
 		String parameterUrl = Utils.getParameterUrlForHttpApi(HttpRequestConstants.BASE_CATEGORY_FETCH_ORDER);
 
@@ -335,22 +382,33 @@ public class HttpRequests
 		return requestToken;
 	}
 
-	public static RequestToken stickerCategoryDetailsDownloadRequest(String requestId, String categoryId, IRequestListener requestListener)
-	{
+    public static RequestToken stickerCategoryDetailsDownloadRequest(String requestId, String categoryId, IRequestListener requestListener, Bundle extras)
+    {
+        Config config = new Config.Builder()
+                .setExecutionWindow(0, 1)
+                .setPersisted(true)
+                .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
+                .setTag(GcmTaskConstants.CATEGORY_DETAILS_GCM_TASK + HikeConstants.DELIMETER + requestId)
+                .setService(GcmNwMgrService.class)
+                .setExtras(extras)
+                .build();
+
+
 		String parameterUrl = Utils.getParameterUrlForHttpApi(BASE_CATEGORY_DETAIL);
-		List<String> unsupportedLanguages = StickerLanguagesManager.getInstance().getUnsupportedLanguagesCollection();
-		String url = stickerCategoryDetailsUrl() + "?catId=" + categoryId + "&resId=" + Utils.getResolutionId() + "&lang=" + StickerSearchUtils.getCurrentLanguageISOCode() + parameterUrl;
-		url = Utils.isEmpty(unsupportedLanguages) ? url : (url + "&unknown_langs=" + StickerLanguagesManager.getInstance().listToString(unsupportedLanguages));
-		RequestToken requestToken = new JSONObjectRequest.Builder()
-				.setUrl(url)
-				.setId(requestId)
-				.setRequestListener(requestListener)
-				.setRequestType(REQUEST_TYPE_SHORT)
-				.build();
-		requestToken.getRequestInterceptors().addFirst("gzip", new GzipRequestInterceptor());
-		return requestToken;
-	}
-	
+        List<String> unsupportedLanguages = StickerLanguagesManager.getInstance().getUnsupportedLanguagesCollection();
+        String url = stickerCategoryDetailsUrl() + "?catId=" + categoryId + "&resId=" + Utils.getResolutionId() + "&lang=" + StickerSearchUtils.getCurrentLanguageISOCode() + parameterUrl;
+        url = Utils.isEmpty(unsupportedLanguages) ? url : (url + "&unknown_langs=" + StickerLanguagesManager.getInstance().listToString(unsupportedLanguages));
+        RequestToken requestToken = new JSONObjectRequest.Builder()
+                .setUrl(url)
+                .setId(requestId)
+                .setRequestListener(requestListener)
+                .setRequestType(REQUEST_TYPE_SHORT)
+                .setGcmTaskConfig(config)
+                .build();
+        requestToken.getRequestInterceptors().addFirst("gzip", new GzipRequestInterceptor());
+        return requestToken;
+    }
+
 	public static RequestToken LastSeenRequest(String msisdn, IRequestListener requestListener, BasicRetryPolicy retryPolicy)
 	{
 		RequestToken requestToken = new JSONObjectRequest.Builder()
@@ -683,52 +741,80 @@ public class HttpRequests
 		return requestToken;
 	}
 
-	public static RequestToken tagsForSingleStickerRequest(String requestId, String stickerId, String categoryId, String keyboardList,  IRequestListener requestListener)
-	{
+    public static RequestToken tagsForSingleStickerRequest(String requestId, String stickerId, String categoryId, String keyboardList,  IRequestListener requestListener, Bundle extras)
+    {
+        Config config = new Config.Builder()
+                .setExecutionWindow(0, 1)
+                .setPersisted(true)
+                .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
+                .setTag(GcmTaskConstants.SINGLE_STICKER_TAG_GCM_TASK + HikeConstants.DELIMETER + requestId)
+                .setService(GcmNwMgrService.class)
+                .setExtras(extras)
+                .build();
 
 		String parameterUrl = Utils.getParameterUrlForHttpApi(HttpRequestConstants.BASE_TAG_V4);
-		RequestToken requestToken = new JSONObjectRequest.Builder()
-				.setId(requestId)
-				.setUrl((singleStickerTagsUrl() + "?catId=" + categoryId + "&stId=" + stickerId + "&resId=" + Utils.getResolutionId() + "&kbd=" + keyboardList + parameterUrl))
-				.setRequestListener(requestListener)
-				.setRequestType(REQUEST_TYPE_SHORT)
-				.setPriority(PRIORITY_HIGH)
-				.build();
-		return requestToken;
-	}
+        RequestToken requestToken = new JSONObjectRequest.Builder()
+                .setId(requestId)
+                .setUrl((singleStickerTagsUrl() + "?catId=" + categoryId + "&stId=" + stickerId + "&resId=" + Utils.getResolutionId() + "&kbd=" + keyboardList + parameterUrl))
+                .setRequestListener(requestListener)
+                .setRequestType(REQUEST_TYPE_SHORT)
+                .setPriority(PRIORITY_HIGH)
+                .setGcmTaskConfig(config)
+                .build();
+        return requestToken;
+    }
 
-	public static RequestToken tagsForMultiStickerRequest(String requestId, JSONObject json, IRequestListener requestListener)
-	{
-		JsonBody body = new JsonBody(json);
+    public static RequestToken tagsForMultiStickerRequest(String requestId, JSONObject json, IRequestListener requestListener, Bundle extras)
+    {
+        Config config = new Config.Builder()
+                .setExecutionWindow(0, 1)
+                .setPersisted(true)
+                .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
+                .setTag(GcmTaskConstants.MULTI_STICKER_TAG_GCM_TASK + HikeConstants.DELIMETER + requestId)
+                .setService(GcmNwMgrService.class)
+                .setExtras(extras)
+                .build();
 
-		RequestToken requestToken = new JSONObjectRequest.Builder()
-				.setId(requestId)
-				.setUrl(getStickerTagsUrl())
-				.setRequestListener(requestListener)
-				.setRequestType(REQUEST_TYPE_LONG)
-				.post(body)
-				.setPriority(PRIORITY_HIGH)
-				.build();
+        JsonBody body = new JsonBody(json);
 
-		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
-		return requestToken;
-	}
+        RequestToken requestToken = new JSONObjectRequest.Builder()
+                .setId(requestId)
+                .setUrl(getStickerTagsUrl())
+                .setRequestListener(requestListener)
+                .setRequestType(REQUEST_TYPE_LONG)
+                .post(body)
+                .setPriority(PRIORITY_HIGH)
+                .setGcmTaskConfig(config)
+                .build();
 
-	public static RequestToken defaultTagsRequest(String requestId, boolean isSignUp, long lastSuccessfulTagDownloadTime, IRequestListener requestListener, String languages)
-	{
+        requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
+        return requestToken;
+    }
+
+    public static RequestToken defaultTagsRequest(String requestId, boolean isSignUp, long lastSuccessfulTagDownloadTime, IRequestListener requestListener, String languages, Bundle extras)
+    {
+        Config config = new Config.Builder()
+                .setExecutionWindow(0, 1)
+                .setPersisted(true)
+                .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
+                .setTag(GcmTaskConstants.DEFAULT_TAGS_GCM_TASK + HikeConstants.DELIMETER + requestId)
+                .setService(GcmNwMgrService.class)
+                .setExtras(extras)
+                .build();
+
 		String parameterUrl = Utils.getParameterUrlForHttpApi(HttpRequestConstants.BASE_TAGS_V3);
+        RequestToken requestToken = new JSONObjectRequest.Builder()
+                .setId(requestId)
+                .setUrl(getStickerTagsUrl() + "?signup_stickers=" + isSignUp + "&timestamp=" + lastSuccessfulTagDownloadTime + "&kbd=" + languages + parameterUrl)
+                .setRequestListener(requestListener)
+                .setRequestType(REQUEST_TYPE_SHORT)
+                .setPriority(PRIORITY_HIGH)
+                .setGcmTaskConfig(config)
+                .build();
 
-		RequestToken requestToken = new JSONObjectRequest.Builder()
-				.setId(requestId)
-				.setUrl(getStickerTagsUrl() + "?signup_stickers=" + isSignUp + "&timestamp=" + lastSuccessfulTagDownloadTime + "&kbd=" + languages + parameterUrl)
-				.setRequestListener(requestListener)
-				.setRequestType(REQUEST_TYPE_SHORT)
-				.setPriority(PRIORITY_HIGH)
-				.build();
-
-		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
-		return requestToken;
-	}
+        requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
+        return requestToken;
+    }
 
 	public static RequestToken quickSuggestionsForSingleStickerRequest(String requestId, Sticker sticker, String langList, int setId, IRequestListener requestListener)
 	{
@@ -1600,6 +1686,51 @@ public class HttpRequests
 				.setId(downloadSettingsID)
 				.setRetryPolicy(new BasicRetryPolicy(retryCount, delayBeforeRetry, BasicRetryPolicy.DEFAULT_BACKOFF_MULTIPLIER))
 				.build();
+		return requestToken;
+	}
+
+	public static RequestToken toggleChatSpamUser(JSONObject json, IRequestListener requestListener, int noOfRetry, int retryDelay, float backOffMultiplier)
+	{
+		JsonBody body = null;
+		if (json != null)
+		{
+			body = new JsonBody(json);
+		}
+
+		RequestToken requestToken = null;
+
+		if (body != null)
+		{
+			requestToken = new JSONObjectRequest.Builder()
+					.setUrl(HttpRequestConstants.getUrlForMarkingUserAsSpam())
+					.setRetryPolicy(new BasicRetryPolicy(noOfRetry, retryDelay, backOffMultiplier))
+					.setRequestListener(requestListener).setRequestType(REQUEST_TYPE_SHORT)
+					.post(body).build();
+		}
+
+		return requestToken;
+	}
+
+	//http://private-9fd63-chatspam.apiary-mock.com/v1/userinfo?msisdn=%2B918011284664&spaminfo=1
+	public static RequestToken fetchUnknownChatUserInfo(String msisdn, boolean newRow, IRequestListener requestListener, int noOfRetry, int retryDelay, float backOffMultiplier) {
+		RequestToken requestToken = null;
+
+		if (!TextUtils.isEmpty(msisdn)) {
+			if (msisdn.contains("+")) {
+				msisdn = msisdn.substring(1);
+			}
+
+			String url = HttpRequestConstants.getUrlForFetchingUnknownChatUserInfo() + "?msisdn=" + msisdn;
+			if (!newRow)// we need info only about spam count
+			{
+				int spaminfo = newRow == true ? 1 : 0;
+				url = url + "&spaminfo=" + spaminfo;
+			}
+
+			Logger.d("c_spam", "The url is --------> " + url);
+			requestToken = new JSONObjectRequest.Builder().setUrl(url).setRetryPolicy(new BasicRetryPolicy(noOfRetry, retryDelay, backOffMultiplier))
+					.setRequestListener(requestListener).setRequestType(REQUEST_TYPE_SHORT).get().build();
+		}
 		return requestToken;
 	}
 

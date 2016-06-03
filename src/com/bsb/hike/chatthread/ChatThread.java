@@ -308,6 +308,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	protected static final int SHOW_QUICK_SUGGESTIONS_TIP = 44;
 
+	protected static final int SPAM_UNSPAM_USER = 45;
+
 	protected static final int REMOVE_CHAT_BACKGROUND = 0;
 
     private final NudgeManager nudgeManager;
@@ -1211,7 +1213,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			default:
 				break;
 		}
-		recordOverflowItemClicked(item);
+		if(item.id != AttachmentPicker.GALLERY) recordOverflowItemClicked(item);
 	}
 
 	/*
@@ -2423,7 +2425,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				dialog.dismiss();
 				this.dialog = null;
 				break;
-
 			case HikeDialogFactory.MUTE_CHAT_DIALOG:
 				HikeAnalyticsEvent.recordAnalyticsForMuteCancel(msisdn);
 				dialog.dismiss();

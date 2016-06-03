@@ -1,5 +1,6 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
+import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Pair;
 
@@ -93,8 +94,14 @@ public class UserParameterDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
         }
     }
 
-    private String getRequestId() {
+    @Override
+    public String getRequestId() {
         return StickerRequestType.USER_PARAMETERS.getLabel();
+    }
+
+    @Override
+    public Bundle getRequestBundle() {
+        return null;
     }
 
     @Override
