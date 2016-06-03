@@ -11117,24 +11117,21 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 			// Unsupported
 		} else if (storyCategory == StoryItem.CATEGORY_RECENT) {
 			//Recent stories
-			selection = DBConstants.SHOW_IN_TIMELINE + " = 1 AND " //2 way friends
-					+DBConstants.TIMESTAMP+" > " + storyTimeRange+" AND " //time range
+			selection = DBConstants.TIMESTAMP+" > " + storyTimeRange+" AND " //time range
 					+DBConstants.IS_READ+" = 0" + " AND " // not read
 					+DBConstants.STATUS_TYPE+" IN (" + StatusMessageType.PROFILE_PIC.ordinal() //profile pic
 													+","+StatusMessageType.IMAGE.ordinal() // photo post
 													+","+StatusMessageType.TEXT_IMAGE.ordinal()+" )"; // photo post with caption
 		} else if (storyCategory == StoryItem.CATEGORY_ALL) {
 			//All photo posts
-			selection = DBConstants.SHOW_IN_TIMELINE + " = 1 AND " //2 way friends
-					+DBConstants.TIMESTAMP+" > " + storyTimeRange+" AND " //time range
+			selection = DBConstants.TIMESTAMP+" > " + storyTimeRange+" AND " //time range
 					+DBConstants.IS_READ+" = 1" + " AND " // not read
 					+DBConstants.STATUS_TYPE+" IN (" + StatusMessageType.PROFILE_PIC.ordinal() //profile pic
 													+","+StatusMessageType.IMAGE.ordinal() // photo post
 													+","+StatusMessageType.TEXT_IMAGE.ordinal()+" )"; // photo post with caption
 		} else if (storyCategory == StoryItem.CATEGORY_DEFAULT) {
 			//Camera shy
-			selection = DBConstants.SHOW_IN_TIMELINE + " = 1 AND " //2 way friends
-					+DBConstants.TIMESTAMP+" > " + storyTimeRange; //time range
+			selection = DBConstants.TIMESTAMP+" > " + storyTimeRange; //time range
 		}
 
 		if (selection != null) {
