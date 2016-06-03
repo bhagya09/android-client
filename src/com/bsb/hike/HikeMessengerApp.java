@@ -692,7 +692,9 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	private static InternalCache diskCache;
 
-	public static final String UPGRADE_FOR_STICKER_TABLE = "upgradeForStickerTable";;
+	public static final String UPGRADE_FOR_STICKER_TABLE = "upgradeForStickerTable";
+
+	public static final String PRIVACY_SETTINGS_LAST_SEEN_UPGRADE = "privacy_sttng_upgrade";
 
 	static
 	{
@@ -920,6 +922,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 				|| settings.getBoolean(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, false) == false
 				|| settings.getInt(HikeConstants.UPGRADE_FOR_CHAT_PROPERTIES, 0) == 0
 				|| settings.getInt(MIGRATE_TABLE_TO_USER, 0) == 1
+				|| settings.getBoolean(PRIVACY_SETTINGS_LAST_SEEN_UPGRADE, false) == false
 				|| TEST)
 		{
 			startUpdgradeIntent();

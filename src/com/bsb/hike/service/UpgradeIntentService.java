@@ -5,20 +5,26 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.preference.PreferenceManager;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.R;
 import com.bsb.hike.chatthemes.ChatThemeManager;
 import com.bsb.hike.chatthemes.HikeChatThemeConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.localisation.LocalLanguageUtils;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.tasks.MigrateTablesForHikeUID;
+import com.bsb.hike.ui.HikePreferences;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONException;
 
 import java.io.File;
 
@@ -168,6 +174,15 @@ public class UpgradeIntentService extends IntentService
 				ChatThemeManager.getInstance().migrateChatThemesToDB();
 			}
 
+		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PRIVACY_SETTINGS_LAST_SEEN_UPGRADE, false))
+		{
+			if (Utils.isFavToFriendsMigrationAllowed()) {
+				upgradeForLastSeenPrivacySettingsChange();
+			}
+			HikeSharedPreferenceUtil.getInstance()
+					.saveData(HikeMessengerApp.PRIVACY_SETTINGS_LAST_SEEN_UPGRADE, true);
+		}
+
 		if (prefs.getInt(HikeConstants.UPGRADE_FOR_CHAT_PROPERTIES, 0) == 0) {
 			upgradeForChatProperties();
 			Editor editor = prefs.edit();
@@ -249,6 +264,33 @@ public class UpgradeIntentService extends IntentService
 	private boolean upgradeForStickerTable()
 	{
 		return HikeConversationsDatabase.getInstance().upgradeForStickerTable();
+	}
+
+	private void upgradeForLastSeenPrivacySettingsChange() {
+		Context context = HikeMessengerApp.getInstance().getApplicationContext();
+		// Change last seen pref to friends if its is not already set to friends or noone.
+		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+		String currentValue = settings.getString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_favorites));
+		int slectedPrivacyId;
+		Editor settingEditor = settings.edit();
+
+		if (currentValue.equals(context.getString(R.string.privacy_nobody))) {
+			settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, currentValue);
+			slectedPrivacyId = Integer.parseInt(currentValue);
+			ContactManager.getInstance().setAllLastSeenValues(false); //Hidden from everyone
+		} else {
+			settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_favorites));
+			slectedPrivacyId = Integer.parseInt(context.getString(R.string.privacy_favorites));
+			ContactManager.getInstance().setAllLastSeenValues(true); //Visible to all friends
+		}
+
+		try {
+			HikePreferences.sendULSToServer(slectedPrivacyId, true);
+			settingEditor.apply();
+		} catch (JSONException e) {
+			Logger.e("FavToFriends", "Got error while sending uls packet " + e.toString());
+			e.printStackTrace();
+		}
 	}
 
 }

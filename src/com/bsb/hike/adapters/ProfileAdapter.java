@@ -1,12 +1,10 @@
 package com.bsb.hike.adapters;
 
-import java.util.List;
-
-import org.json.JSONException;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.preference.PreferenceManager;
+import android.support.v7.widget.SwitchCompat;
 import android.text.TextUtils;
 import android.text.util.Linkify;
 import android.view.LayoutInflater;
@@ -14,27 +12,37 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
+import android.widget.ListView;
 import android.widget.TextView;
 
+import com.bsb.hike.BitmapModule.BitmapUtils;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.view.ExplandingCells.ExpandableListItem;
+import com.bsb.hike.view.ExplandingCells.ExpandingLayout;
+import com.bsb.hike.view.ExplandingCells.ExpandingListView;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.Conversation.BroadcastConversation;
+import com.bsb.hike.models.Conversation.OneToNConversation;
+import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeSharedFile;
 import com.bsb.hike.models.ImageViewerInfo;
+import com.bsb.hike.models.PrivacyPreferences;
 import com.bsb.hike.models.ProfileItem;
 import com.bsb.hike.models.ProfileItem.ProfileGroupItem;
 import com.bsb.hike.models.ProfileItem.ProfileSharedContent;
 import com.bsb.hike.models.ProfileItem.ProfileSharedMedia;
 import com.bsb.hike.models.ProfileItem.ProfileStatusItem;
-import com.bsb.hike.models.Conversation.BroadcastConversation;
-import com.bsb.hike.models.Conversation.OneToNConversation;
-import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineUtils;
@@ -50,15 +58,20 @@ import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
 
-public class ProfileAdapter extends ArrayAdapter<ProfileItem>
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.List;
+
+public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.OnClickListener, CompoundButton.OnCheckedChangeListener
 {		
 	public static final String OPEN_GALLERY = "OpenGallery";
 	
 	public static final String IMAGE_TAG = "image";
-	
+
 	private static enum ViewType
 	{
-		HEADER, SHARED_MEDIA, SHARED_CONTENT, STATUS, PROFILE_PIC_UPDATE, GROUP_PARTICIPANT, EMPTY_STATUS, REQUEST, MEMBERS, ADD_MEMBERS, PHONE_NUMBER, GROUP_SETTINGS, GROUP_RIGHTS_INFO, IMAGE_POST, TEXT_IMAGE_POST
+		HEADER, SHARED_MEDIA, SHARED_CONTENT, STATUS, PROFILE_PIC_UPDATE, GROUP_PARTICIPANT, EMPTY_STATUS, REQUEST, MEMBERS, ADD_MEMBERS, PHONE_NUMBER, GROUP_SETTINGS, GROUP_RIGHTS_INFO, IMAGE_POST, TEXT_IMAGE_POST, PRIVACY_SECTION
 	}
 
 	private Context context;
@@ -90,6 +103,8 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 	private boolean hasCustomPhoto;
 	
 	private int sizeOfThumbnail;
+
+	public ListView listView;
 
 	public ProfileAdapter(ProfileActivity profileActivity, List<ProfileItem> itemList, OneToNConversation groupConversation, ContactInfo contactInfo, boolean myProfile)
 	{
@@ -177,6 +192,12 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 		{
 			viewType = ViewType.PHONE_NUMBER;
 		}
+
+		else if (ProfileItem.PRIVACY_SECTION == itemId)
+		{
+			viewType = ViewType.PRIVACY_SECTION;
+		}
+
 		else
 		{
 			StatusMessage statusMessage = ((ProfileStatusItem) profileItem).getStatusMessage();
@@ -230,7 +251,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 
 		ViewType viewType = ViewType.values()[getItemViewType(position)];
 
-		ProfileItem profileItem = getItem(position);
+		final ProfileItem profileItem = getItem(position);
 
 		View v = convertView;
 		
@@ -371,6 +392,16 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 				viewHolder.subText = (TextView) v.findViewById(R.id.main_info);
 				viewHolder.phoneIcon = (ImageView) v.findViewById(R.id.call);
 				break;
+
+				case PRIVACY_SECTION:
+					v = inflater.inflate(R.layout.profile_privacy_section, null);
+					viewHolder.parent = v.findViewById(R.id.privacy_parent_layout);
+					viewHolder.expandingLayout = (ExpandingLayout) v.findViewById(R.id.expanding_layout);
+					viewHolder.lastSeenSwitch = (SwitchCompat) viewHolder.expandingLayout.findViewById(R.id.last_seen_switch);
+					viewHolder.statusUpdateSwitch = (SwitchCompat) viewHolder.expandingLayout.findViewById(R.id.status_update_switch);
+					viewHolder.lastSeenSetting = viewHolder.expandingLayout.findViewById(R.id.last_seen_section);
+					viewHolder.statusUpdateSetting = viewHolder.expandingLayout.findViewById(R.id.status_update_section);
+					break;
 			}
 
 			v.setTag(viewHolder);
@@ -816,6 +847,47 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			viewHolder.infoContainer.setOnLongClickListener(profileActivity);
 			break;
 
+			case PRIVACY_SECTION:
+
+				viewHolder.expandingLayout.setExpandedHeight(Utils.dpToPx(115));
+				viewHolder.expandingLayout.setSizeChangedListener(profileItem);
+
+				if (!profileItem.isExpanded()) {
+					viewHolder.expandingLayout.setVisibility(View.GONE);
+				} else {
+					viewHolder.expandingLayout.setVisibility(View.VISIBLE);
+				}
+
+				PrivacyPreferences prefs = mContactInfo.getPrivacyPrefs();
+				viewHolder.statusUpdateSwitch.setChecked(prefs.shouldShowStatusUpdate());
+				viewHolder.lastSeenSwitch.setChecked(prefs.shouldShowLastSeen());
+
+				viewHolder.parent.setTag(position);
+				viewHolder.parent.setOnClickListener(this);
+				viewHolder.statusUpdateSetting.setOnClickListener(this);
+				viewHolder.lastSeenSetting.setOnClickListener(this);
+				viewHolder.lastSeenSwitch.setOnCheckedChangeListener(this);
+				viewHolder.statusUpdateSwitch.setOnCheckedChangeListener(this);
+
+				if (((ProfileItem.ProfilePrivacyItem) profileItem).getFtueShown()) {
+
+					if (!profileItem.isExpanded()) {
+						final ViewHolder tempViewHolder = viewHolder;
+						listView.postDelayed(new Runnable() {
+							@Override
+							public void run() {
+								if (!profileItem.isExpanded()) {
+									((ExpandingListView) listView).expandView((View) tempViewHolder.parent.getParent());
+									((ProfileItem.ProfilePrivacyItem) profileItem).setFtueShown(false);
+									HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FRIENDS_PRIVACY_PROFILE_VIEW_SHOWN, true);
+								}
+							}
+						}, 500); // Small delay to show the animation smoothly
+
+					}
+				}
+
+				break;
 		}
 
 		if (viewHolder.parent != null)
@@ -832,6 +904,10 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 			}
 
 			viewHolder.parent.setPadding(0, 0, 0, bottomPadding);
+		}
+
+		if (!profileItem.isExpanded()) {
+			profileItem.setCollapsedHeight(v.getHeight());
 		}
 
 		return v;
@@ -929,6 +1005,12 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 		View mediaLayout;
 		
 		CheckBox checkbox;
+
+		ExpandingLayout expandingLayout;
+
+		SwitchCompat lastSeenSwitch, statusUpdateSwitch;
+
+		View lastSeenSetting, statusUpdateSetting;
 	}
 	
 	public void setProfilePreview(Bitmap preview)
@@ -1011,4 +1093,118 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem>
 	{
 		this.hasCustomPhoto = getHasCustomPhoto();
 	}
+
+	/**
+	 * Called when a view has been clicked.
+	 *
+	 * @param v The view that was clicked.
+	 */
+	@Override
+	public void onClick(View v) {
+
+		switch (v.getId()) {
+			case R.id.privacy_parent_layout:
+				int position = (int) v.getTag();
+				ExpandableListItem item = getItem(position);
+
+				if (!item.isExpanded()) {
+					((ExpandingListView) listView).expandView((View) v.getParent());
+					((ProfileItem.ProfilePrivacyItem) item).setFtueShown(false);
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FRIENDS_PRIVACY_PROFILE_VIEW_SHOWN, true);
+				} else {
+					((ExpandingListView) listView).collapseView((View) v.getParent());
+				}
+
+				recordTapOnPrivacySection();
+				break;
+
+			case R.id.last_seen_section:
+				toggleLastSeenPrivacyForUser(v);
+				break;
+
+			case R.id.status_update_section:
+				toggleStatusUpdatePrivacyForUser(v);
+				break;
+		}
+	}
+
+	/**
+	 * Called when the checked state of a compound button has changed.
+	 *
+	 * @param buttonView The compound button view whose state has changed.
+	 * @param isChecked  The new checked state of buttonView.
+	 */
+	@Override
+	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+		switch (buttonView.getId()) {
+			case R.id.last_seen_switch:
+				ContactManager.getInstance().toggleLastSeenSetting(mContactInfo, isChecked);
+				mContactInfo.getPrivacyPrefs().toggleLastSeen();
+				recordLastSeenSettingToggle();
+				break;
+
+			case R.id.status_update_switch:
+				ContactManager.getInstance().toggleStatusUpdateSetting(mContactInfo, isChecked);
+				mContactInfo.getPrivacyPrefs().toggleStatusUpdate();
+				recordStatusUpdateSettingToggle();
+				break;
+		}
+
+	}
+
+	private void toggleLastSeenPrivacyForUser(View v) {
+		SwitchCompat switchCompat = (SwitchCompat) v.findViewById(R.id.last_seen_switch);
+		switchCompat.setChecked(!switchCompat.isChecked());
+		// This will invoke onCheckedChanged, where the business logic resides for sending MQTT Packet
+	}
+
+	private void toggleStatusUpdatePrivacyForUser(View v) {
+		SwitchCompat switchCompat = (SwitchCompat) v.findViewById(R.id.status_update_switch);
+		switchCompat.setChecked(!switchCompat.isChecked());
+		// This will invoke onCheckedChanged, where the business logic resides for sending MQTT Packet
+	}
+
+	private void recordTapOnPrivacySection() {
+
+		try {
+			JSONObject json = HikeAnalyticsEvent.getFriendsPrivacyanalyticsJson();
+
+			if (json != null) {
+				json.put(AnalyticsConstants.V2.UNIQUE_KEY, "hs_privacy_options");
+				json.put(AnalyticsConstants.V2.ORDER, "hs_privacy_options");
+				json.put(AnalyticsConstants.V2.FAMILY, mContactInfo.isMyOneWayFriend() ? "friend" : "not_friend");
+				HAManager.getInstance().recordV2(json);
+			}
+		} catch (JSONException e) {
+			e.toString();
+		}
+	}
+
+	private void recordStatusUpdateSettingToggle() {
+		recordPrivacyAnalytics("su", mContactInfo.getPrivacyPrefs().shouldShowStatusUpdate() ? "on" : "off", null);
+	}
+
+	private void recordLastSeenSettingToggle() {
+		recordPrivacyAnalytics("last_seen", mContactInfo.getPrivacyPrefs().shouldShowLastSeen() ? "on" : "off", PreferenceManager.getDefaultSharedPreferences(profileActivity).getString(HikeConstants.LAST_SEEN_PREF_LIST, profileActivity.getString(R.string.privacy_favorites)));
+	}
+
+	private void recordPrivacyAnalytics(String family, String species, String variety) {
+		try {
+			JSONObject json = HikeAnalyticsEvent.getFriendsPrivacyanalyticsJson();
+
+			if (json != null) {
+				json.put(AnalyticsConstants.V2.FAMILY, family);
+				json.put(AnalyticsConstants.V2.GENUS, "profile");
+				if (!TextUtils.isEmpty(species))
+					json.put(AnalyticsConstants.V2.SPECIES, species);
+				if (!TextUtils.isEmpty(variety))
+					json.put(AnalyticsConstants.V2.VARIETY, variety);
+				HAManager.getInstance().recordV2(json);
+			}
+		} catch (JSONException e) {
+			e.toString();
+		}
+	}
+
 }

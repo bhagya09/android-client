@@ -105,6 +105,7 @@ import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.service.HikeMqttManagerNew;
+import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.fragments.OfflineAnimationFragment;
 import com.bsb.hike.ui.fragments.OfflineDisconnectFragment;
 import com.bsb.hike.ui.fragments.OfflineDisconnectFragment.OfflineConnectionRequestListener;
@@ -242,6 +243,8 @@ import com.bsb.hike.voip.VoIPUtils;
 
 	boolean friendsFtueAnimationShown = false;
 
+	boolean wasFriendsPrivacyRedDotShown = false;
+	
 	private CallerContentModel callerContentModel;
 
 	protected View unknownContactInfoView;
@@ -261,8 +264,9 @@ import com.bsb.hike.voip.VoIPUtils;
 	{
 		super.onResume();
 		checkOfflineConnectionStatus();
+		showRedDotNotificationForPrivacyFtue();
 		activity.recordActivityEndTime();
-	};
+	}
 	
 	@Override
 	protected void init()
@@ -417,6 +421,9 @@ import com.bsb.hike.voip.VoIPUtils;
 			{
 				menu.findItem(R.id.voip_call).setVisible(true);
 			}
+
+			showRedDotNotificationForPrivacyFtue();
+
 			return super.onCreateOptionsMenu(menu);
 		}
 
@@ -490,6 +497,8 @@ import com.bsb.hike.voip.VoIPUtils;
 	{
 		mContactInfo = ContactManager.getInstance().getContact(msisdn, true, true);
 
+		mContactInfo.setPrivacyPrefs(ContactManager.getInstance().getPrivacyPrefsForAGivenMsisdn(msisdn));
+
 		boolean fetchMetadata = isMetadataRequired();
 
 		mConversation = HikeConversationsDatabase.getInstance().getConversation(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, fetchMetadata);
@@ -550,7 +559,7 @@ import com.bsb.hike.voip.VoIPUtils;
 			FetchHikeUser.fetchHikeUser(activity.getApplicationContext(), msisdn);
 		}
 
-		if (ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
+		if (ChatThreadUtils.shouldShowLastSeen(mContactInfo, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
 		{
 			checkAndStartLastSeenTask();
 		}
@@ -575,6 +584,8 @@ import com.bsb.hike.voip.VoIPUtils;
 		{
 			doSetupForAddFriend();
 		}
+
+		showRedDotNotificationForPrivacyFtue();
 	}
 
 	private void showTips()
@@ -1207,7 +1218,7 @@ import com.bsb.hike.voip.VoIPUtils;
 		/**
 		 * Proceeding only if the current chat thread is open and we should show the last seen
 		 */
-		if (msisdn.equals(contMsisdn) && ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
+		if (msisdn.equals(contMsisdn) && ChatThreadUtils.shouldShowLastSeen(mContactInfo, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
 		{
 			/**
 			 * Fix for case where server and client values are out of sync
@@ -2030,7 +2041,10 @@ import com.bsb.hike.voip.VoIPUtils;
 		if (!mConversation.isBlocked())
 		{
 			Intent profileIntent = IntentFactory.getSingleProfileIntent(activity.getApplicationContext(), mConversation.isOnHike(), msisdn);
-
+			if (wasFriendsPrivacyRedDotShown) {
+				setFriendsPrivacyFtueShown();
+				profileIntent.putExtra(ProfileActivity.EXPAND_PRIVACY_VIEW, true);
+			}
 			activity.startActivity(profileIntent);
 		}
 		else
@@ -2038,6 +2052,7 @@ import com.bsb.hike.voip.VoIPUtils;
 			Toast.makeText(activity.getApplicationContext(), activity.getString(R.string.block_overlay_message, mConversation.getLabel()), Toast.LENGTH_SHORT).show();
 		}
 	}
+
 	@Override
 	protected void openMessageInfoScreen(ConvMessage convMessage){
 		Intent intent=IntentFactory.messageInfoIntent(activity,convMessage.getMsgID());
@@ -2347,7 +2362,7 @@ import com.bsb.hike.voip.VoIPUtils;
 			return;
 		}
 
-		if (!ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
+		if (!ChatThreadUtils.shouldShowLastSeen(mContactInfo, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
 		{
 			return;
 		}
@@ -3698,7 +3713,7 @@ import com.bsb.hike.voip.VoIPUtils;
 
 		else
 		{
-			if (ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
+			if (ChatThreadUtils.shouldShowLastSeen(mContactInfo, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
 			{
 				checkAndStartLastSeenTask();
 			}
@@ -3714,7 +3729,7 @@ import com.bsb.hike.voip.VoIPUtils;
 	 */
 	private void fetchLastSeen()
 	{
-		if (!ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
+		if (!ChatThreadUtils.shouldShowLastSeen(mContactInfo, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
 		{
 			return;
 		}
@@ -4087,7 +4102,7 @@ import com.bsb.hike.voip.VoIPUtils;
 		addFavorite(viewResId == R.id.add_friend_ftue_button);
 
 		//If now we can show the last seen, we should
-		if (ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
+		if (ChatThreadUtils.shouldShowLastSeen(mContactInfo, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
 		{
 			checkAndStartLastSeenTask();
 		}
@@ -4095,6 +4110,8 @@ import com.bsb.hike.voip.VoIPUtils;
 		removeAddFriendViews(viewResId == R.id.add_friend_ftue_button);
 
 		setMessagesRead(); //If any previous messages were marked as unread, now is a good time to send MR
+
+		showRedDotNotificationForPrivacyFtue();
 	}
 
 	@Override
@@ -4161,7 +4178,7 @@ import com.bsb.hike.voip.VoIPUtils;
 		else
 		{
 			//If now we can show the last seen, we should
-			if (ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
+			if (ChatThreadUtils.shouldShowLastSeen(mContactInfo, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
 			{
 				checkAndStartLastSeenTask();
 			}
@@ -4517,6 +4534,29 @@ import com.bsb.hike.voip.VoIPUtils;
 		if (mComposeView != null)
 		{
 			mComposeView.setText(getString(R.string.composeview_bday));
+		}
+	}
+
+	private void showRedDotNotificationForPrivacyFtue() {
+
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FRIENDS_PRIVACY_RED_DOT_SHOWN, false)) {
+			return;
+		}
+
+		if (Utils.isFavToFriendsMigrationAllowed() && mContactInfo != null && mContactInfo.isMyOneWayFriend()) {
+			mActionBar.updateOverflowMenuIndicatorCount(1);
+			mActionBar.updateOverflowMenuItemCount(R.string.view_profile, 1);
+			wasFriendsPrivacyRedDotShown = true;
+		}
+	}
+
+	private void setFriendsPrivacyFtueShown() {
+
+		if (wasFriendsPrivacyRedDotShown) {
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FRIENDS_PRIVACY_RED_DOT_SHOWN, true);
+			mActionBar.updateOverflowMenuIndicatorCount(0);
+			mActionBar.updateOverflowMenuItemCount(R.string.view_profile, 0);
+			wasFriendsPrivacyRedDotShown = false;
 		}
 	}
 
