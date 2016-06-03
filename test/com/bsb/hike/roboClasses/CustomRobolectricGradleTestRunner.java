@@ -33,7 +33,9 @@ public class CustomRobolectricGradleTestRunner extends RobolectricGradleTestRunn
 
 		final String type = getType(config);
 		final String flavor = getFlavor(config);
-		final String applicationId = getApplicationId(config);
+	//  because com.bsb.hike.black working with applicationId as only with com.bsb.hike
+	//	final String applicationId = getApplicationId(config);
+		final String applicationId = "com.bsb.hike";
 
 		final FileFsFile res;
 		if (FileFsFile.from(BUILD_OUTPUT, "res", flavor, type).exists())
