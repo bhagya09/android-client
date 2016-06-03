@@ -3396,8 +3396,8 @@ public class MqttMessagesManager
 
 		if (data.has(HikeConstants.MULTIPLE_BDAY_NOTIF_TITLE))
 		{
-			String multipleBdayNotifTitle = data.getString(HikeConstants.SINGLE_BDAY_NOTIF_TITLE);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SINGLE_BDAY_NOTIF_TITLE, multipleBdayNotifTitle);
+			String multipleBdayNotifTitle = data.getString(HikeConstants.MULTIPLE_BDAY_NOTIF_TITLE);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MULTIPLE_BDAY_NOTIF_TITLE, multipleBdayNotifTitle);
 		}
 
 		if (data.has(HikeConstants.MULTIPLE_BDAY_NOTIF_SUBTEXT))
