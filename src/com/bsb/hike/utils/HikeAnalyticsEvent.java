@@ -353,7 +353,9 @@ public class HikeAnalyticsEvent
 			metadata.put(AnalyticsConstants.V2.ORDER, uniqueKey);
 			metadata.put(AnalyticsConstants.V2.SPECIES, ChatThreadUtils.getChatThreadType(msisdn));
 			metadata.put(AnalyticsConstants.TO_USER, msisdn);
-			metadata.put(AnalyticsConstants.V2.VARIETY, StealthModeManager.getInstance().isStealthMsisdn(msisdn) ? ChatAnalyticConstants.STEALTH_CHAT_THREAD : "");
+			if(StealthModeManager.getInstance().isStealthMsisdn(msisdn)) {
+				metadata.put(AnalyticsConstants.V2.VARIETY, ChatAnalyticConstants.STEALTH_CHAT_THREAD);
+			}
 			if(!TextUtils.isEmpty(themeId)) {
 				metadata.put(AnalyticsConstants.V2.VAL_STR, themeId);
 			}
