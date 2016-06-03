@@ -71,10 +71,7 @@ public class UserLogInfo {
     }
 
     private static void requestUserLogs(final int flags) {
-        if (!isDeviceSafeToLog(true)) {
-            Logger.d(TAG, "Unsafe to log... Abort collection!!!");
-            return;
-        }
+       
         for (int counter = 0; counter < Integer.SIZE; counter++) {
             try {
                 sendLogs((1 << counter) & flags);
