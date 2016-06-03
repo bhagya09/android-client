@@ -35,17 +35,24 @@ import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
 public class StickerSearchManager
 {
+	private static final String TAG = StickerSearchManager.class.getSimpleName();
+
 	private static int WAIT_TIME_SINGLE_CHARACTER_RECOMMENDATION;
 
 	private static volatile StickerSearchManager _instance;

@@ -522,4 +522,24 @@ public class HikeStickerSearchBaseConstants
 		}
 	}
 	// =======================================================States used for day time division]]
+
+	public static String STICKER_SERACH_DAILY_REPORT = "ss_dl_rpt";
+
+	public static String STICKER_SEARCH_COUNT = "ss_cnt";
+
+	public static String STICKER_SEARCH_RECORD_COUNT_LIMIT = "ss_cnt_lm";
+
+	public static String STICKER_SEARCH_SUCCESS_COUNT_LIMIT = "ss_s_cnt_lm";
+
+	public static String STICKER_SEARCH_FAIL_COUNT_LIMIT = "ss_f_cnt_lm";
+
+	public static int DEFAULT_STICKER_SEARCH_COUNT_LIMIT = 100;
+
+	public static int DEFAULT_STICKER_SEARCH_SUCCESS_COUNT_LIMIT = 50;
+
+	public static int DEFAULT_STICKER_SEARCH_FAIL_COUNT_LIMIT = 50;
+
+	public static String STICKER_SEARCH_SUCCESS_COUNT = "ss_suc_cnt";
+
+	public static String SELECTED_STICKER_INDEX = "ss_idx";
 }
