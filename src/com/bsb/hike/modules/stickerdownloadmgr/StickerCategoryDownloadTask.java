@@ -1,6 +1,7 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
 import android.support.annotation.Nullable;
+import android.os.Bundle;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -40,7 +41,7 @@ public class StickerCategoryDownloadTask implements IHikeHTTPTask, IHikeHttpTask
 	{
 		String requestId = getRequestId(); // for duplicate check
 
-		token = stickerCategoryDetailsDownloadRequest(requestId, categoryId, getRequestListener());
+		token = stickerCategoryDetailsDownloadRequest(requestId, categoryId, getRequestListener(), getRequestBundle());
 
 		if (token.isRequestRunning()) // return if request is running
 		{
@@ -132,9 +133,18 @@ public class StickerCategoryDownloadTask implements IHikeHTTPTask, IHikeHttpTask
 	{
 		HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_CATEGORY_DETAILS_DOWNLOAD_FAILURE, exception);
 	}
-	
-	private String getRequestId()
+
+    @Override
+    public String getRequestId()
 	{
 		return (StickerRequestType.CATEGORY_DETAIL.getLabel() + "\\" + categoryId);
+	}
+
+    @Override
+	public Bundle getRequestBundle()
+	{
+		Bundle extras = new Bundle();
+		extras.putString(HikeConstants.CATEGORY_ID, categoryId);
+		return extras;
 	}
 }

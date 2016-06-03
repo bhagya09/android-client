@@ -2,6 +2,8 @@ package com.bsb.hike.modules.stickerdownloadmgr;
 
 import android.support.annotation.Nullable;
 
+import android.os.Bundle;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -23,7 +25,7 @@ import org.json.JSONObject;
 
 import java.util.Calendar;
 
-import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.getPrefOrderForCategories;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.fetchCategoryRanks;
 
 /**
  * Created by ashishagarwal on 15/04/16.
@@ -117,7 +119,8 @@ public class FetchCategoryRanksTask implements IHikeHTTPTask, IHikeHttpTaskResul
 
 	}
 
-	private String getRequestId()
+    @Override
+    public String getRequestId()
 	{
 		return StickerConstants.StickerRequestType.UPDATE_ORDER.getLabel();
 	}
@@ -125,8 +128,8 @@ public class FetchCategoryRanksTask implements IHikeHTTPTask, IHikeHttpTaskResul
 	@Override
 	public void execute()
 	{
-		token = getPrefOrderForCategories(getRequestId(), getRequestListener(),
-				HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NUMBER_OF_ROWS_FOR_ORDER, StickerConstants.DEFAULT_NUMBER_OF_ROWS_FOR_ORDER), offset);
+		token = fetchCategoryRanks(getRequestId(), getRequestListener(),
+                HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NUMBER_OF_ROWS_FOR_ORDER, StickerConstants.DEFAULT_NUMBER_OF_ROWS_FOR_ORDER), offset);
 		if (!token.isRequestRunning())
 		{
 			token.execute();
@@ -165,4 +168,10 @@ public class FetchCategoryRanksTask implements IHikeHTTPTask, IHikeHttpTaskResul
 		Logger.e(TAG, "Exception", exception);
 		setAlarmForFetchOrder();
 	}
+
+    @Override
+    public Bundle getRequestBundle()
+    {
+        return null;
+    }
 }

@@ -159,6 +159,8 @@ public class HikeDialogFactory
 
 	public static final int STICKER_RESTORE_DIFF_DPI_DIALOG = 54;
 
+	public static final int BLOCK_CHAT_CONFIRMATION_DIALOG = 55;
+
 	public static HikeDialog showDialog(Context context, int whichDialog, Object... data)
 	{
 		return showDialog(context, whichDialog, null, data);
@@ -251,9 +253,10 @@ public class HikeDialogFactory
 		case CALLER_BLOCK_CONTACT_DIALOG:
 		case CALLER_UNBLOCK_CONTACT_DIALOG:
 			return showBlockContactDialog(context, dialogId, listener, data);
-
 		case DB_CORRUPT_RESTORE_DIALOG:
 			return showDBCorruptDialog(context, dialogId, listener, data);
+		case BLOCK_CHAT_CONFIRMATION_DIALOG:
+			return showBlockChatConfirmationDialog(context, dialogId, listener, data);
 		case MUTE_CHAT_DIALOG:
 			return showChatMuteDialog(context, dialogId, listener, data);
 		case STICKER_RESTORE_DIFF_DPI_DIALOG:
@@ -1320,6 +1323,31 @@ public class HikeDialogFactory
 		dialog.setPositiveButton(R.string.RESTORE_CAP, listener);
 		dialog.setNegativeButton(R.string.SKIP_RESTORE, listener);
 
+		dialog.show();
+		return dialog;
+	}
+
+	private static HikeDialog showBlockChatConfirmationDialog(Context context, int dialogId, HikeDialogListener listener, Object... data)
+	{
+		final CustomAlertDialog dialog = new CustomAlertDialog(context, dialogId);
+
+		dialog.setTitle(context.getString(R.string.block_dialog_title));
+		dialog.setMessage(context.getString(R.string.block_dialog_body));
+		dialog.setCancelable(true);
+
+		boolean toShowSpamCheckBox = true;
+		if(data != null)
+		{
+			toShowSpamCheckBox = (Boolean)data[0];
+		}
+
+		if(toShowSpamCheckBox)
+		{
+			dialog.setCheckBox(context.getString(R.string.spam_info_in_dialog), null, false);
+		}
+
+		dialog.setPositiveButton(R.string.YES, listener);
+		dialog.setNegativeButton(R.string.CANCEL, listener);
 		dialog.show();
 		return dialog;
 	}
