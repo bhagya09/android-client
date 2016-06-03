@@ -5843,11 +5843,6 @@ public class Utils
 		return createTimelinePostForDPChange(response, true);
 	}
 
-//	public static boolean isDeviceRooted()
-//	{
-//		return RootUtil.isDeviceRooted();
-//	}
-
 	public static boolean isPhotosEditEnabled()
 	{
 		if (!Utils.isUserSignedUp(HikeMessengerApp.getInstance().getApplicationContext(), false))

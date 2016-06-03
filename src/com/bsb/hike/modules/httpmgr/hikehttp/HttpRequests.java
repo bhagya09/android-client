@@ -1900,7 +1900,7 @@ public class HttpRequests
 				.setId(requestId)
 				.setRequestListener(requestListener)
 				.setRequestType(REQUEST_TYPE_SHORT)
-				.setPriority(PRIORITY_HIGH)
+				.setPriority(PRIORITY_LOW)
 				.setRetryPolicy(new BasicRetryPolicy(Integer.MAX_VALUE, BasicRetryPolicy.DEFAULT_RETRY_DELAY, 4f))
 				.setGcmTaskConfig(config)
 				.post(jsonBody)
