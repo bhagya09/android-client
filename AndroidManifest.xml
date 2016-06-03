@@ -434,7 +434,24 @@
                     android:pathPrefix="/"
                     android:scheme="https" />
                  <data
+                     android:host="www.hike.in"
+                     android:pathPrefix="/"
+                     android:scheme="http" />
+                 <!-- Accepts URIs that begin with "https://hike.in/” -->
+                 <data
+                     android:host="www.hike.in"
+                     android:pathPrefix="/"
+                     android:scheme="https" />
+                 <data
                      android:host="bots"
+                     android:pathPrefix="/"
+                     android:scheme="hike" />
+                 <data
+                     android:host="channel"
+                     android:pathPrefix="/"
+                     android:scheme="hike" />
+                 <data
+                     android:host="send"
                      android:pathPrefix="/"
                      android:scheme="hike" />
             </intent-filter>

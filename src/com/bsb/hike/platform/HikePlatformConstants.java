@@ -120,6 +120,7 @@ public interface HikePlatformConstants
 	public static final String NEW_AUTH_ENABLE="newAuthEnable";
 	String TAG_TYPE = "tag_type";
 	String TAG_ID = "tag_id";
+	String ENABLE_HELP= "enable_help";
 
 	public static final class AuthConstants
 	{
@@ -331,9 +332,9 @@ public interface HikePlatformConstants
     public static final String BOT_MSISDN = "botMsisdn";
 	
 	public static final String BOT_NAME = "name";
-	
+	public static final String HIKE_VIRAL_MSISDN = "+hikeviral+";
 	public static final String BOTS = "bots";
-	
+	public static final String CHANNELS = "channel";
 	public static final String ALL_REQUIRED = "all_required";
 	
 	public static final String BOT_DP = "dp";

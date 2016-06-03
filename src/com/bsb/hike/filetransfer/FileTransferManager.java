@@ -739,7 +739,12 @@ public class FileTransferManager
 		}
 		else
 		{
-			hikefile = ((ConvMessage) userContext).getMetadata().getHikeFiles().get(0);
+			ConvMessage convMessage = (ConvMessage)userContext;
+			if(convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.CONTENT){
+				hikefile = ((ConvMessage) userContext).platformMessageMetadata.getHikeFiles().get(0);
+			}else{
+				hikefile = ((ConvMessage) userContext).getMetadata().getHikeFiles().get(0);
+			}
 		}
 		FTAnalyticEvents analyticEvent = FTAnalyticEvents.getAnalyticEvents(getAnalyticFile(hikefile.getFile(), msgId));
 		String network = FTUtils.getNetworkTypeString(context);
