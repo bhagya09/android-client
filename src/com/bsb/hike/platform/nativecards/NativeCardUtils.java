@@ -5,21 +5,26 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.view.View;
+import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.CardComponent;
 import com.bsb.hike.platform.CustomTabFallBackImpl;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 /**
@@ -110,9 +115,9 @@ public class NativeCardUtils
 		}
 		else if (actionComponent.getAction().equals(ActionType.POST_TIMELINE.getAction()))
 		{
-			postToTimeLine(context, shareView);
+			postToTimeLine(context, shareView, convMessage);
 		}else if(actionComponent.getAction().equals(ActionType.SHARE.getAction())){
-			shareCard(context,shareView);
+			shareCard(context,shareView, convMessage);
 		}else if(actionComponent.getAction().equals(ActionType.OPEN_URL.getAction())){
 			CustomTabFallBackImpl fallBack = new CustomTabFallBackImpl(context);
 			PlatformUtils.openCustomTab(actionComponent.getActionUrl().getString(HikeConstants.URL), actionComponent.getActionUrl().optString(HikeConstants.TITLE),context, fallBack);
@@ -179,24 +184,96 @@ public class NativeCardUtils
 
 	public static void forwardCard(Context context, View view, ConvMessage convMessage)
 	{
-		File fileUri = NativeCardUtils.getFileForView(view, HikeMessengerApp.getInstance());
-		Intent intent = IntentFactory.getForwardIntentForCards(context, convMessage, fileUri);
+
+		File fileUri = null;
+		if (convMessage.platformMessageMetadata.getHikeFiles() != null && convMessage.platformMessageMetadata.getHikeFiles().size() > 0) {
+			fileUri = convMessage.platformMessageMetadata.getHikeFiles().get(0).getFile();
+			if (fileUri == null || !fileUri.exists()) {
+				Toast.makeText(context, R.string.download_image_before_sharing, Toast.LENGTH_SHORT).show();
+				return;
+			}
+		} else {
+			fileUri = NativeCardUtils.getFileForView(view, HikeMessengerApp.getInstance());
+		}
+		boolean showTimeLine = fileUri!=null && fileUri.exists();
+		JSONArray multipleMsgArray = new JSONArray();
+		JSONObject multipleMsgObject = getNativeCardForwardJSON(context, convMessage, fileUri);
+		multipleMsgArray.put(multipleMsgObject);
+		Intent intent = IntentFactory.getForwardIntentForCards(context, convMessage);
+		intent.putExtra(AnalyticsConstants.NATIVE_CARD_FORWARD, convMessage.platformMessageMetadata.contentId);
+		if(showTimeLine){
+			intent.putExtra(HikeConstants.Extras.SHOW_TIMELINE, true);
+		}
+		intent.putExtra(HikeConstants.Extras.MULTIPLE_MSG_OBJECT, multipleMsgArray.toString());
 		context.startActivity(intent);
 	}
+    public static JSONObject getNativeCardForwardJSON(Context context, ConvMessage convMessage, File file){
+		JSONObject multiMsgFwdObject = new JSONObject();
+		JSONObject metadata = convMessage.platformMessageMetadata.getJsonFromObj();
+		try
+		{
+			multiMsgFwdObject.put(HikeConstants.MESSAGE_TYPE.MESSAGE_TYPE, convMessage.getMessageType());
+			if (metadata != null)
+			{
+				multiMsgFwdObject.put(HikeConstants.METADATA, metadata);
+			}
 
-	public static void postToTimeLine(Context context, View view)
+			multiMsgFwdObject.put(HikeConstants.HIKE_MESSAGE, convMessage.getMessage());
+			if (file != null)
+			{
+				// intent.putExtra((Intent.EXTRA_STREAM),fileUri);
+				multiMsgFwdObject.put(HikeConstants.Extras.FILE_PATH, file.getPath());
+				multiMsgFwdObject.put(HikeConstants.Extras.FILE_TYPE, "image/jpeg");
+
+			}
+
+		}
+		catch (JSONException e)
+		{
+			Logger.e(context.getClass().getSimpleName(), "Invalid JSON", e);
+		}
+		return multiMsgFwdObject;
+	}
+	public static void postToTimeLine(Context context, View view, ConvMessage convMessage)
 	{
-		File fileUri = NativeCardUtils.getFileForView(view, HikeMessengerApp.getInstance());
-		Intent intent = IntentFactory.getPostStatusUpdateIntent(context, null, fileUri.getPath(), true);
+		File file;
+		if (convMessage.platformMessageMetadata.getHikeFiles() != null && convMessage.platformMessageMetadata.getHikeFiles().size() > 0) {
+			file = convMessage.platformMessageMetadata.getHikeFiles().get(0).getFile();
+			if (file == null || !file.exists()) {
+				Toast.makeText(context, R.string.download_image_before_sharing, Toast.LENGTH_SHORT).show();
+				return;
+			}
+		} else {
+			file = NativeCardUtils.getFileForView(view, HikeMessengerApp.getInstance());
+		}
+		Intent intent = IntentFactory.getPostStatusUpdateIntent(context, null, file.getPath(), true);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		context.startActivity(intent);
 	}
 
-	public static void shareCard(Context context, View view)
-	{
-		File file = NativeCardUtils.getFileForView(view, HikeMessengerApp.getInstance());
-		Intent intent = IntentFactory.shareIntentWithFileProviderPath(context, "image/jpg", file);
-		context.startActivity(intent);
+	public static void shareCard(Context context, View view, ConvMessage convMessage) {
+		File file;
+		if (convMessage.platformMessageMetadata.getHikeFiles() != null && convMessage.platformMessageMetadata.getHikeFiles().size() > 0) {
+			file = convMessage.platformMessageMetadata.getHikeFiles().get(0).getFile();
+			if (file == null || !file.exists()) {
+				Toast.makeText(context, R.string.download_image_before_sharing, Toast.LENGTH_SHORT).show();
+				return;
+			}
+			Intent intent = IntentFactory.shareIntent("image/jpeg", file.getAbsolutePath(), null, HikeConstants.Extras.ShareTypes.IMAGE_SHARE, null,
+					false);
+			context.startActivity(intent);
+		} else {
+			file = NativeCardUtils.getFileForView(view, HikeMessengerApp.getInstance());
+			Intent intent = IntentFactory.shareIntentWithFileProviderPath(context, "image/jpeg", file);
+			context.startActivity(intent);
+		}
+
 	}
 
+	public static boolean isNativeCardFTMessage(ConvMessage convMessage){
+		if(convMessage != null && convMessage.platformMessageMetadata != null && convMessage.platformMessageMetadata.getHikeFiles() != null && convMessage.platformMessageMetadata.getHikeFiles().size()>0){
+			return true;
+		}
+		return false;
+	}
 }

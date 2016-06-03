@@ -36,7 +36,8 @@
             android:tag="@string/content_card_tag"
             app:cardElevation="2dp"
             app:cardPreventCornerOverlap="false"
-            app:cardUseCompatPadding="true">
+            app:cardUseCompatPadding="true"
+            app:cardCornerRadius="@dimen/native_cardview_radius">
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -57,12 +58,11 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content">
 
-                        <com.bsb.hike.view.RoundedCornerImageView
+                        <com.bsb.hike.ui.utils.RecyclingImageView
                             android:id="@+id/file_thumb"
                             android:layout_width="150dp"
                             android:layout_height="150dp"
                             android:layout_gravity="center" />
-
 
                         <RelativeLayout
                             android:id="@+id/circular_bg"

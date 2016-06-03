@@ -111,6 +111,7 @@ public class DbConversationListener implements Listener
 		{
 			ConvMessage convMessage = (ConvMessage) object;
 			boolean shouldSendMessage = convMessage.isFileTransferMessage() && !TextUtils.isEmpty(convMessage.getMetadata().getHikeFiles().get(0).getFileKey());
+			boolean shouldSendNativeCardMessage = convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.CONTENT && !TextUtils.isEmpty(convMessage.platformMessageMetadata.getHikeFiles().get(0).getFileKey());
 			if (shouldSendMessage)
 			{
 				mConversationDb.updateMessageMetadata(convMessage.getMsgID(), convMessage.getMetadata());
@@ -118,9 +119,13 @@ public class DbConversationListener implements Listener
 				// Adding Logs for Message Reliability
 				MsgRelLogManager.logMsgRelEvent(convMessage, MsgRelEventType.DB_UPDATE_TRANSACTION_COMPLETED);
 			}
+			else if(shouldSendNativeCardMessage){
+				mConversationDb.updateMessageMetadata(convMessage.getMsgID(), convMessage.platformMessageMetadata.getJSON());
+				MsgRelLogManager.logMsgRelEvent(convMessage, MsgRelEventType.DB_UPDATE_TRANSACTION_COMPLETED);
+			}
 			else
 			{
-				if (!convMessage.isFileTransferMessage())
+				if (!convMessage.isFileTransferMessage() && convMessage.getMessageType() != HikeConstants.MESSAGE_TYPE.CONTENT)
 				{
 					mConversationDb.addConversationMessages(convMessage,true);
 				
@@ -143,7 +148,7 @@ public class DbConversationListener implements Listener
 			}
 
 			if ((convMessage.getParticipantInfoState() == ParticipantInfoState.NO_INFO || convMessage.getParticipantInfoState() == ParticipantInfoState.CHAT_BACKGROUND)
-					&& (!convMessage.isFileTransferMessage() || shouldSendMessage))
+					&& (!convMessage.isFileTransferMessage() || shouldSendMessage) && (convMessage.getMessageType() !=HikeConstants.MESSAGE_TYPE.CONTENT || shouldSendNativeCardMessage ))
 			{
 				Logger.d("DBCONVERSATION LISTENER", "Sending Message : " + convMessage.getMessage() + "	;	to : " + convMessage.getMsisdn());
 				if (!convMessage.isSMS() || !Utils.getSendSmsPref(context) || convMessage.getParticipantInfoState() == ParticipantInfoState.CHAT_BACKGROUND)

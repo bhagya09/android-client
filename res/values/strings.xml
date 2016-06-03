@@ -1648,4 +1648,7 @@
     <string name="uj_default_pretype_text">Hi</string>
     <string name="uj_default_cta_say_hi">Say Hi</string>
     <string name="uj_default_cta_add_friend">Add Friend</string>
+
+    <string name="download_image_before_sharing">You need to download image before sharing.</string>
+    <string name="native_card_file_transfer_of_type">Native card file transfer of type</string>
 </resources>

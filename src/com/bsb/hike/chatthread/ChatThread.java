@@ -135,6 +135,7 @@ import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.GalleryItem;
+import com.bsb.hike.models.HikeChatTheme;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.MovingList;
@@ -162,6 +163,7 @@ import com.bsb.hike.platform.PlatformMessageMetadata;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.WebMetadata;
 import com.bsb.hike.platform.content.PlatformContent;
+import com.bsb.hike.platform.nativecards.NativeCardUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.tasks.EmailConversationsAsyncTask;
 import com.bsb.hike.ui.ComposeViewWatcher;
@@ -1820,7 +1822,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		{
 			setChatBackground(REMOVE_CHAT_BACKGROUND);
 			Drawable drawable = Utils.getChatTheme(themeId, activity);
-			setThemeBackground(backgroundImage, drawable, ChatThemeManager.getInstance().getTheme(themeId).isTiled(), ChatThemeManager.getInstance().getTheme(themeId).isCustomTheme());
+			HikeChatTheme chatTheme = ChatThemeManager.getInstance().getTheme(themeId);
+			setThemeBackground(backgroundImage, drawable, chatTheme==null?false:chatTheme.isTiled(), chatTheme==null?false:chatTheme.isCustomTheme());
 		}
 	}
 
@@ -3071,13 +3074,19 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 						sendNudge();
 					}
 					else if(msgExtrasJson.optInt(HikeConstants.MESSAGE_TYPE.MESSAGE_TYPE) == HikeConstants.MESSAGE_TYPE.CONTENT){
-						// as we will be changing msisdn and hike status while inserting in DB
-						ConvMessage convMessage = Utils.makeConvMessage(msisdn, mConversation.isOnHike());
-						convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.CONTENT);
-						convMessage.platformMessageMetadata = new PlatformMessageMetadata(msgExtrasJson.optString(HikeConstants.METADATA), activity.getApplicationContext());
-//						convMessage.platformMessageMetadata.addThumbnailsToMetadata();
-						convMessage.setMessage(msgExtrasJson.optString(HikeConstants.HIKE_MESSAGE));
-						sendMessage(convMessage);
+						JSONObject metadata = msgExtrasJson.optJSONObject(HikeConstants.METADATA);
+						if(metadata != null){
+							if(metadata.optJSONArray(HikeConstants.FILES) != null){
+								handleFileTypeMessage(intent,metadata,msgExtrasJson.optString(HikeConstants.HIKE_MESSAGE));
+							}else{
+								ConvMessage convMessage = Utils.makeConvMessage(msisdn, mConversation.isOnHike());
+								convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.CONTENT);
+								convMessage.platformMessageMetadata = new PlatformMessageMetadata(metadata);
+								convMessage.setMessage(msgExtrasJson.optString(HikeConstants.HIKE_MESSAGE));
+								sendMessage(convMessage);
+							}
+						}
+
 					}
 					else if(msgExtrasJson.optInt(HikeConstants.MESSAGE_TYPE.MESSAGE_TYPE) == HikeConstants.MESSAGE_TYPE.WEB_CONTENT || msgExtrasJson.optInt(
 							HikeConstants.MESSAGE_TYPE.MESSAGE_TYPE) == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT){
@@ -3133,8 +3142,10 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 						HikeFileType hikeFileType = HikeFileType.fromString(fileType, isRecording);
 
 						Logger.d("ChatThread", "isCloudMediaUri" + Utils.isPicasaUri(filePath));
-						channelSelector.sendFile(activity.getApplicationContext(), msisdn, filePath, fileKey, hikeFileType, fileType, isRecording,
-								recordingDuration, true, mConversation.isOnHike(), attachmentType, caption);
+
+							channelSelector.sendFile(activity.getApplicationContext(), msisdn, filePath, fileKey, hikeFileType, fileType, isRecording,
+									recordingDuration, true, mConversation.isOnHike(), attachmentType, caption);
+
 					}
 					else if (msgExtrasJson.has(HikeConstants.Extras.LATITUDE) && msgExtrasJson.has(HikeConstants.Extras.LONGITUDE)
 							&& msgExtrasJson.has(HikeConstants.Extras.ZOOM_LEVEL))
@@ -3168,20 +3179,28 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 						 */
 						intent.removeExtra(StickerManager.FWD_CATEGORY_ID);
 					}
-
-
-					else if(msgExtrasJson.optInt(HikeConstants.MESSAGE_TYPE.MESSAGE_TYPE) == HikeConstants.MESSAGE_TYPE.CONTENT){
+					else if(msgExtrasJson.optInt(HikeConstants.MESSAGE_TYPE.MESSAGE_TYPE) == HikeConstants.MESSAGE_TYPE.WEB_CONTENT || msgExtrasJson.optInt(
+							HikeConstants.MESSAGE_TYPE.MESSAGE_TYPE) == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT){
 						// as we will be changing msisdn and hike status while inserting in DB
-						ConvMessage convMessage = Utils.makeConvMessage(msisdn, mConversation.isOnHike());
-						convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.CONTENT);
-						convMessage.platformMessageMetadata = new PlatformMessageMetadata(msgExtrasJson.optString(HikeConstants.METADATA), activity.getApplicationContext());
-						//convMessage.platformMessageMetadata.addThumbnailsToMetadata();
-						convMessage.setMessage(convMessage.platformMessageMetadata.notifText);
-
+						ConvMessage convMessage = Utils.makeConvMessage(msisdn,msgExtrasJson.getString(HikeConstants.HIKE_MESSAGE), mConversation.isOnHike());
+						convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT);
+						convMessage.setPlatformData(msgExtrasJson.optJSONObject(HikeConstants.PLATFORM_PACKET));
+						convMessage.webMetadata = new WebMetadata(msgExtrasJson.optString(HikeConstants.METADATA));
+						JSONObject json = new JSONObject();
+						try
+						{
+							json.put(HikePlatformConstants.CARD_TYPE, convMessage.webMetadata.getAppName());
+							json.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.CARD_FORWARD);
+							json.put(AnalyticsConstants.TO, msisdn);
+							HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
+						}
+						catch (JSONException | NullPointerException e)
+						{
+							e.printStackTrace();
+						}
 						sendMessage(convMessage);
 
 					}
-
 
 
 				}
@@ -3232,6 +3251,37 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		}
 	}
 
+	private void handleFileTypeMessage(Intent intent, JSONObject nativeCardMetadata, String hikeMessage) throws JSONException{
+
+		JSONArray filesArray = nativeCardMetadata.optJSONArray(HikeConstants.FILES);
+		JSONObject msg = filesArray.getJSONObject(0);
+		String fileKey = null;
+		if (msg.has(HikeConstants.FILE_KEY))
+		{
+			fileKey = msg.getString(HikeConstants.FILE_KEY);
+		}
+		String filePath = msg.getString(HikeConstants.FILE_PATH);
+		String fileType = msg.getString(HikeConstants.CONTENT_TYPE);
+		String caption = msg.optString(HikeConstants.CAPTION);
+
+		int attachmentType = FTAnalyticEvents.OTHER_ATTACHEMENT;
+						/*
+						 * Added to know the attachment type when selected from file.
+						 */
+		if (intent.hasExtra(FTAnalyticEvents.FT_ATTACHEMENT_TYPE))
+		{
+			attachmentType = FTAnalyticEvents.FILE_ATTACHEMENT;
+
+		}
+
+		HikeFileType hikeFileType = HikeFileType.fromString(fileType);
+
+		Logger.d("ChatThread", "isCloudMediaUri" + Utils.isPicasaUri(filePath));
+
+		ChatThreadUtils.initialiseFileTransferForNativeCards(activity.getApplicationContext(), msisdn, filePath, fileKey, hikeFileType, fileType, false,
+					0, true, mConversation.isOnHike(), attachmentType, caption, nativeCardMetadata, hikeMessage);
+
+	}
 	/*
 	 * This function is called in UI thread when conversation fetch is failed from DB, By default we finish activity, override in case you want to do something else
 	 */
@@ -5709,14 +5759,20 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 						else if (message.getMessageType() == HikeConstants.MESSAGE_TYPE.CONTENT)
 						{
-							multiMsgFwdObject.put(HikeConstants.MESSAGE_TYPE.MESSAGE_TYPE, HikeConstants.MESSAGE_TYPE.CONTENT);
-							if (message.platformMessageMetadata != null)
-							{
-								multiMsgFwdObject.put(HikeConstants.METADATA, message.platformMessageMetadata.JSONtoString());
-								multiMsgFwdObject.put(HikeConstants.HIKE_MESSAGE, message.getMessage());
-								intent.putExtra(HikeConstants.Extras.BYPASS_GALLERY, true);
-								intent.putExtra(AnalyticsConstants.NATIVE_CARD_FORWARD, message.platformMessageMetadata.contentId);
+							File fileUri = null;
+							if (selectedMsgIds.size() == 1 && message.platformMessageMetadata.getHikeFiles() != null && message.platformMessageMetadata.getHikeFiles().size() > 0) {
+								fileUri = message.platformMessageMetadata.getHikeFiles().get(0).getFile();
+								if (fileUri == null || !fileUri.exists()) {
+									Toast.makeText(activity, R.string.download_image_before_sharing, Toast.LENGTH_SHORT).show();
+									continue;
+								}
 							}
+							boolean showTimeLine = fileUri!=null && fileUri.exists();
+							intent.putExtra(AnalyticsConstants.NATIVE_CARD_FORWARD, message.platformMessageMetadata.contentId);
+							if(showTimeLine){
+								intent.putExtra(HikeConstants.Extras.SHOW_TIMELINE, true);
+							}
+							multiMsgFwdObject = NativeCardUtils.getNativeCardForwardJSON(activity, message, fileUri);
 						}
 
 						else if (message.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT || message.getMessageType() == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT)

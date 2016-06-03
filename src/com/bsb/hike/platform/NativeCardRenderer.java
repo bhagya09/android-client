@@ -35,6 +35,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthread.ChatThreadActivity;
+import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FTUtils;
 import com.bsb.hike.filetransfer.FileSavedState;
 import com.bsb.hike.filetransfer.FileTransferBase;
@@ -225,7 +226,6 @@ public class NativeCardRenderer implements View.OnLongClickListener, View.OnClic
 
 		NativeCardImageLoader nativeCardImageLoader = new NativeCardImageLoader((int) context.getResources().getDimension(R.dimen.native_card_message_container_wide_width),
 				(int) context.getResources().getDimension(R.dimen.native_card_image_height));
-//		nativeCardImageLoader.setResource(context);
 		nativeCardImageLoader.setImageFadeIn(false);
 		nativeCardImageLoader.setDefaultDrawableNull(true);
 		nativeCardImageLoader.setImageLoaderListener(new ImageWorker.ImageLoaderListener()
@@ -371,53 +371,145 @@ public class NativeCardRenderer implements View.OnLongClickListener, View.OnClic
 		{
 			HikeFile hikeFile = convMessage.platformMessageMetadata.getHikeFiles().get(0);
 			// HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
-			if (Utils.getExternalStorageState() == Utils.ExternalStorageState.NONE && hikeFile.getHikeFileType() != HikeFile.HikeFileType.CONTACT
-					&& hikeFile.getHikeFileType() != HikeFile.HikeFileType.LOCATION)
-			{
-				Toast.makeText(context, R.string.no_external_storage, Toast.LENGTH_SHORT).show();
-				return;
-			}
-			File receivedFile = hikeFile.getFile();
 
-			FileSavedState fss = FileTransferManager.getInstance(context).getDownloadFileState(convMessage.getMsgID(), hikeFile);
+			if (convMessage.isSent())
+			{
+				Logger.d(getClass().getSimpleName(), "Hike File name: " + hikeFile.getFileName() + " File key: " + hikeFile.getFileKey());
 
-			Logger.d(getClass().getSimpleName(), fss.getFTState().toString());
+				FileSavedState fileState;
+//				if (convMessage.isOfflineMessage())
+//				{
+//					fileState = OfflineController.getInstance().getFileState(convMessage, hikeFile.getFile());
+//					if (fileState.getFTState() == FileTransferBase.FTState.ERROR)
+//					{
+//						if (OfflineUtils.isConnectedToSameMsisdn(conversation.getMsisdn()))
+//						{
+//							OfflineController.getInstance().handleRetryButton(convMessage);
+//							return;
+//						}
+//						else
+//						{
+//							updateOriginTypeForConvMessage(convMessage, ConvMessage.OriginType.NORMAL);
+//						}
+//					}
+//					else if (fileState.getFTState() == FileTransferBase.FTState.IN_PROGRESS)
+//					{
+//						return;
+//					}
+//				}
+//				else
+//				{
+					fileState = FileTransferManager.getInstance(context).getUploadFileState(convMessage.getMsgID(), hikeFile.getFile());
+					if (fileState.getFTState() == FileTransferBase.FTState.ERROR || fileState.getFTState() == FileTransferBase.FTState.NOT_STARTED)
+					{
+						if (OfflineUtils.isConnectedToSameMsisdn(conversation.getMsisdn()))
+						{
+							updateOriginTypeForConvMessage(convMessage, ConvMessage.OriginType.OFFLINE);
+							OfflineController.getInstance().handleRetryButton(convMessage);
+							return;
+						}
+					}
+//				}
 
-			if (fss.getFTState() == FileTransferBase.FTState.COMPLETED)
-			{
-				openFile(hikeFile, convMessage, v);
-			}
-			else if (fss.getFTState() == FileTransferBase.FTState.IN_PROGRESS)
-			{
-				FileTransferManager.getInstance(context).pauseTask(convMessage.getMsgID());
-			}
-			else if (fss.getFTState() != FileTransferBase.FTState.INITIALIZED)
-			{
-				if (hikeFile.getHikeFileType() == HikeFile.HikeFileType.VIDEO)
+				if (!TextUtils.isEmpty(hikeFile.getFileKey()))
 				{
-					if (fss.getFTState() == FileTransferBase.FTState.NOT_STARTED)
-					{
-						sendImageVideoRelatedAnalytic(ChatAnalyticConstants.VIDEO_RECEIVER_DOWNLOAD_MANUALLY);
-					}
-					else if (fss.getFTState() == FileTransferBase.FTState.ERROR)
-					{
-						sendImageVideoRelatedAnalytic(ChatAnalyticConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.VEDIO, ChatAnalyticConstants.DOWNLOAD_MEDIA);
-					}
+					openFile(hikeFile, convMessage, v);
 				}
-				else if (hikeFile.getHikeFileType() == HikeFile.HikeFileType.IMAGE)
+				else
 				{
-					if (fss.getFTState() == FileTransferBase.FTState.ERROR)
+					if ((hikeFile.getHikeFileType() == HikeFile.HikeFileType.LOCATION) || (hikeFile.getHikeFileType() == HikeFile.HikeFileType.CONTACT))
 					{
-						sendImageVideoRelatedAnalytic(ChatAnalyticConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.IMAGE, ChatAnalyticConstants.DOWNLOAD_MEDIA);
+						FileTransferManager.getInstance(context).uploadContactOrLocation(convMessage, (hikeFile.getHikeFileType() == HikeFile.HikeFileType.CONTACT));
 					}
+					else
+					{
+						File sentFile = hikeFile.getFile();
+						FileSavedState fss = FileTransferManager.getInstance(context).getUploadFileState(convMessage.getMsgID(), sentFile);
+						if (fss.getFTState() == FileTransferBase.FTState.IN_PROGRESS)
+						{
+							if (hikeFile.getHikeFileType() == HikeFile.HikeFileType.VIDEO)
+							{
+								sendImageVideoRelatedAnalytic(ChatAnalyticConstants.VIDEO_UPLOAD_PAUSE_MANUALLY);
+							}
+							FileTransferManager.getInstance(context).pauseTask(convMessage.getMsgID());
+						}
+						else if (fss.getFTState() != FileTransferBase.FTState.INITIALIZED)
+						{
+							if (hikeFile.getHikeFileType() == HikeFile.HikeFileType.VIDEO)
+							{
+								sendImageVideoRelatedAnalytic(ChatAnalyticConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.VEDIO,
+										ChatAnalyticConstants.UPLOAD_MEDIA);
+							}
+							else if (hikeFile.getHikeFileType() == HikeFile.HikeFileType.IMAGE)
+							{
+								sendImageVideoRelatedAnalytic(ChatAnalyticConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.IMAGE,
+										ChatAnalyticConstants.UPLOAD_MEDIA);
+							}
+							FileTransferManager.getInstance(context).uploadFile(convMessage, null, true);
+						}
+					}
+					mBaseAdapter.notifyDataSetChanged();
 				}
-				FileTransferManager.getInstance(context).downloadFile(receivedFile, hikeFile.getFileKey(), convMessage.getMsgID(), hikeFile.getHikeFileType(), convMessage, true,
-						hikeFile);
 			}
-			mBaseAdapter.notifyDataSetChanged();
+			else
+			{
+				if (Utils.getExternalStorageState() == Utils.ExternalStorageState.NONE && hikeFile.getHikeFileType() != HikeFile.HikeFileType.CONTACT
+						&& hikeFile.getHikeFileType() != HikeFile.HikeFileType.LOCATION)
+				{
+					Toast.makeText(context, R.string.no_external_storage, Toast.LENGTH_SHORT).show();
+					return;
+				}
+				File receivedFile = hikeFile.getFile();
+
+				FileSavedState fss = FileTransferManager.getInstance(context).getDownloadFileState(convMessage.getMsgID(), hikeFile);
+
+				Logger.d(getClass().getSimpleName(), fss.getFTState().toString());
+
+				if (fss.getFTState() == FileTransferBase.FTState.COMPLETED)
+				{
+					openFile(hikeFile, convMessage, v);
+				}
+				else if (fss.getFTState() == FileTransferBase.FTState.IN_PROGRESS)
+				{
+					FileTransferManager.getInstance(context).pauseTask(convMessage.getMsgID());
+				}
+				else if (fss.getFTState() != FileTransferBase.FTState.INITIALIZED)
+				{
+					if (hikeFile.getHikeFileType() == HikeFile.HikeFileType.VIDEO)
+					{
+						if (fss.getFTState() == FileTransferBase.FTState.NOT_STARTED)
+						{
+							sendImageVideoRelatedAnalytic(ChatAnalyticConstants.VIDEO_RECEIVER_DOWNLOAD_MANUALLY);
+						}
+						else if (fss.getFTState() == FileTransferBase.FTState.ERROR)
+						{
+							sendImageVideoRelatedAnalytic(ChatAnalyticConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.VEDIO,
+									ChatAnalyticConstants.DOWNLOAD_MEDIA);
+						}
+					}
+					else if (hikeFile.getHikeFileType() == HikeFile.HikeFileType.IMAGE)
+					{
+						if (fss.getFTState() == FileTransferBase.FTState.ERROR)
+						{
+							sendImageVideoRelatedAnalytic(ChatAnalyticConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.IMAGE,
+									ChatAnalyticConstants.DOWNLOAD_MEDIA);
+						}
+					}
+					FileTransferManager.getInstance(context).downloadFile(receivedFile, hikeFile.getFileKey(), convMessage.getMsgID(), hikeFile.getHikeFileType(), convMessage,
+							true, hikeFile);
+				}
+				mBaseAdapter.notifyDataSetChanged();
+			}
 		}
 
 	}
+
+	private void updateOriginTypeForConvMessage(ConvMessage convMessage,ConvMessage.OriginType originType)
+	{
+		convMessage.setMessageOriginType(originType);
+		HikeConversationsDatabase.getInstance().updateMessageOriginType(convMessage.getMsgID(), originType.ordinal());
+	}
+
     private void performCardAction(ConvMessage convMessage, View v){
 		if (convMessage.platformMessageMetadata.cards.get(0).cardAction != null)
 		{

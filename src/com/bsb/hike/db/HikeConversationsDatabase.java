@@ -156,6 +156,7 @@ import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformMessageMetadata;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.WebMetadata;
+import com.bsb.hike.platform.nativecards.NativeCardUtils;
 import com.bsb.hike.service.GeneralEventMessagesManager;
 import com.bsb.hike.service.UpgradeIntentService;
 import com.bsb.hike.timeline.model.ActionsDataModel;
@@ -2411,7 +2412,44 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		}
 	}
 
+	private String extractThumbnailFromMetadata(JSONObject metadata)
+	{
 
+		JSONArray fileArray = metadata.optJSONArray(HikeConstants.FILES);
+		JSONObject fileJson;
+		if (metadata == null || fileArray == null)
+		{
+			return null;
+		}
+		try
+		{
+			HikeFile hikeFile = new HikeFile(fileArray.getJSONObject(0), true);
+			if (TextUtils.isEmpty(hikeFile.getFileKey()))
+			{
+				return null;
+			}
+
+
+
+			fileJson = fileArray.getJSONObject(0);
+			fileJson.remove(HikeConstants.THUMBNAIL);
+
+			String thumbnailString = hikeFile.getThumbnailString();
+
+			if (TextUtils.isEmpty(thumbnailString))
+			{
+				return null;
+			}
+			addFileThumbnail(hikeFile.getFileKey(), Base64.decode(thumbnailString, Base64.DEFAULT));
+
+			return thumbnailString;
+		}
+		catch (JSONException e)
+		{
+			Logger.w(getClass().getSimpleName(), "Invalid json");
+			return null;
+		}
+	}
 	private String getActionsTableCreateQuery()
 	{
 
@@ -2498,7 +2536,25 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 			Logger.w(getClass().getSimpleName(), "Invalid json");
 		}
 	}
+	private void addThumbnailStringToMetadata(JSONObject metadataJson, String thumbnailString)
+	{
+		if (TextUtils.isEmpty(thumbnailString))
+		{
+			return;
+		}
+		try
+		{
+			JSONArray fileArray = metadataJson.optJSONArray(HikeConstants.FILES);
+			JSONObject fileJson;
 
+			fileJson = fileArray.getJSONObject(0);
+			fileJson.put(HikeConstants.THUMBNAIL, thumbnailString);
+		}
+		catch (JSONException e)
+		{
+			Logger.w(getClass().getSimpleName(), "Invalid json");
+		}
+	}
 	public void updateMessageMetadata(long serverID, MessageMetadata metadata)
 	{
 		String thumbnailString = extractThumbnailFromMetadata(metadata);
@@ -2524,7 +2580,31 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		}
 		addThumbnailStringToMetadata(metadata, thumbnailString);
 	}
+	public void updateMessageMetadata(long serverID, JSONObject metadata)
+	{
+		String thumbnailString = extractThumbnailFromMetadata(metadata);
 
+		ContentValues contentValues = new ContentValues(1);
+		contentValues.put(DBConstants.MESSAGE_METADATA, metadata.toString());
+		try
+		{
+			mDb.beginTransaction();
+			mDb.update(DBConstants.MESSAGES_TABLE, contentValues, DBConstants.SERVER_ID + "=?", new String[] { String.valueOf(serverID) });
+			mDb.update(DBConstants.CONVERSATIONS_TABLE, contentValues, DBConstants.SERVER_ID + "=? AND " + DBConstants.IS_STATUS_MSG + " = 0", new String[] { String.valueOf(serverID) });
+			updateSharedMediaTableMetadata(serverID, metadata);
+			mDb.setTransactionSuccessful();
+		}
+		catch (Exception e)
+		{
+			Logger.e(getClass().getSimpleName(), "Exception in updateMessageMetadata: ", e);
+			e.printStackTrace();
+		}
+		finally
+		{
+			mDb.endTransaction();
+		}
+		addThumbnailStringToMetadata(metadata, thumbnailString);
+	}
 	private void updateSharedMediaTableMetadata(long serverId, MessageMetadata metadata)
 	{
 		ContentValues contentValues = new ContentValues(1);
@@ -2535,7 +2615,16 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		}
 		mDb.update(DBConstants.SHARED_MEDIA_TABLE, contentValues, DBConstants.SERVER_ID + "=?", new String[]{String.valueOf(serverId)});
 	}
-
+	private void updateSharedMediaTableMetadata(long serverId, JSONObject metadata)
+	{
+		ContentValues contentValues = new ContentValues(1);
+		putMetadataAccordingToFileType(contentValues, metadata, false);
+		if(!contentValues.containsKey(DBConstants.MESSAGE_METADATA))
+		{
+			return;
+		}
+		mDb.update(DBConstants.SHARED_MEDIA_TABLE, contentValues, DBConstants.SERVER_ID + "=?", new String[]{String.valueOf(serverId)});
+	}
 	public void updateConversationMetadata(String msisdn, com.bsb.hike.models.Conversation.ConversationMetadata metadata)
 	{
 		ContentValues contentValues = new ContentValues(1);
@@ -2773,7 +2862,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 					/*
 					 * msdId > 0 means that the conversation exists.
 					 */
-					if (conv.isFileTransferMessage() && msgId > 0)
+					if (msgId > 0 && (conv.isFileTransferMessage() || NativeCardUtils.isNativeCardFTMessage(conv)) )
 					{
 						addSharedMedia(conv);
 					}
@@ -2930,7 +3019,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				/*
 				 * msdId > 0 means that the conversation exists.
 				 */
-					if (conv.isFileTransferMessage() && msgId > 0) {
+					if (msgId > 0 && (conv.isFileTransferMessage() || NativeCardUtils.isNativeCardFTMessage(conv)) )
+					{
 						addSharedMedia(conv);
 					}
 
@@ -6572,10 +6662,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		contentValues.put(DBConstants.GROUP_PARTICIPANT, convMessage.getGroupParticipantMsisdn() != null ? convMessage.getGroupParticipantMsisdn() : "");
 		contentValues.put(DBConstants.TIMESTAMP, convMessage.getTimestamp());
 		contentValues.put(DBConstants.IS_SENT, isSent);
-		contentValues.put(DBConstants.HIKE_FILE_TYPE, convMessage.getMetadata().getHikeFiles().get(0).getHikeFileType().ordinal());
-
-		putMetadataAccordingToFileType(contentValues, convMessage.getMetadata(), true);
-
+		if (NativeCardUtils.isNativeCardFTMessage(convMessage)) {
+			contentValues.put(DBConstants.HIKE_FILE_TYPE, convMessage.platformMessageMetadata.getHikeFiles().get(0).getHikeFileType().ordinal());
+			putMetadataAccordingToFileType(contentValues, convMessage.platformMessageMetadata.getJSON(), true);
+		} else {
+			contentValues.put(DBConstants.HIKE_FILE_TYPE, convMessage.getMetadata().getHikeFiles().get(0).getHikeFileType().ordinal());
+			putMetadataAccordingToFileType(contentValues, convMessage.getMetadata(), true);
+		}
 		return contentValues;
 	}
 
@@ -6622,7 +6715,49 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 			}
 		}
 	}
+	private void putMetadataAccordingToFileType(ContentValues contentValues, JSONObject metadata, boolean removeThumbnail)
+	{
+		if (HikeConstants.LOCATION_CONTENT_TYPE.equals(metadata.optString(HikeConstants.CONTENT_TYPE)))
+		{
+			contentValues.put(DBConstants.MESSAGE_METADATA, metadata.toString());
+		}
+		else if (metadata.has(HikeConstants.FILES))
+		{
+			String thumbnailString = null;
+			if(removeThumbnail)
+			{
+				/*
+				 * We need to remove thumbnail from json object before saving in sharedMediaTable
+				 */
+				thumbnailString = metadata.optJSONArray(HikeConstants.FILES).optJSONObject(0).optString(HikeConstants.THUMBNAIL);
+				if (!TextUtils.isEmpty(thumbnailString))
+				{
+					metadata.optJSONArray(HikeConstants.FILES).optJSONObject(0).remove(HikeConstants.THUMBNAIL);
+				}
+			}
+			JSONObject jsonObj = metadata.optJSONArray(HikeConstants.FILES).optJSONObject(0);
 
+			String caption = metadata.optString(HikeConstants.CAPTION);
+			if(!TextUtils.isEmpty(caption))
+			{
+				try
+				{
+					jsonObj.put(HikeConstants.CAPTION, caption);
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+				}
+			}
+
+			contentValues.put(DBConstants.MESSAGE_METADATA, jsonObj.toString());
+
+			if (thumbnailString != null && !TextUtils.isEmpty(thumbnailString))
+			{
+				addThumbnailStringToMetadata(metadata, thumbnailString);
+			}
+		}
+	}
 	public void addFileThumbnail(String fileKey, byte[] imageBytes)
 	{
         ContentValues fileThumbnailValues = new ContentValues();
@@ -7569,7 +7704,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 			try
 			{
                 if(message.getMessageType() == com.bsb.hike.HikeConstants.MESSAGE_TYPE.CONTENT){
-                    message.platformMessageMetadata = new PlatformMessageMetadata(metadata, mContext, message.isSent());
+                    message.platformMessageMetadata = new PlatformMessageMetadata(metadata, message.isSent());
                 }else if(message.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT || message.getMessageType() == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT){
 					message.webMetadata = new WebMetadata(metadata);
 				}else{
@@ -10189,7 +10324,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				try
 				{
 					if(message.getMessageType() == com.bsb.hike.HikeConstants.MESSAGE_TYPE.CONTENT){
-						message.platformMessageMetadata = new PlatformMessageMetadata(metadata, mContext);
+						message.platformMessageMetadata = new PlatformMessageMetadata(metadata);
 					}else if(message.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT || message.getMessageType() == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT){
 						message.webMetadata = new WebMetadata(metadata);
 					}else{
