@@ -1,10 +1,12 @@
 package com.bsb.hike.modules.quickstickersuggestions.model;
 
 import android.os.Bundle;
+import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.models.CustomStickerCategory;
 import com.bsb.hike.models.Sticker;
+import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.quickstickersuggestions.QuickStickerSuggestionController;
 import com.bsb.hike.utils.Logger;
 
@@ -51,6 +53,10 @@ public class QuickSuggestionStickerCategory extends CustomStickerCategory
 	public void setSentStickers(Set<Sticker> sentStickers)
 	{
 		this.sentStickers = sentStickers;
+	}
+
+	public boolean isShowReplyStickers() {
+		return showReplyStickers;
 	}
 
 	private QuickSuggestionStickerCategory(Init<?> builder)
@@ -147,6 +153,12 @@ public class QuickSuggestionStickerCategory extends CustomStickerCategory
 	}
 
 	@Override
+	public Set<Sticker> getStickerSet()
+	{
+		return showReplyStickers ? replyStickers : sentStickers;
+	}
+
+	@Override
 	public List<Sticker> getStickerList()
 	{
 		if (showReplyStickers)
@@ -165,6 +177,14 @@ public class QuickSuggestionStickerCategory extends CustomStickerCategory
 		}
 
 		return showReplyStickers ? getReplyStickerList() : getSentStickerList();
+	}
+
+	@Override
+	public void addSticker(Sticker st) {
+	}
+
+	@Override
+	public void removeSticker(Sticker st) {
 	}
 
 	private ArrayList getReplyStickerList()
@@ -235,7 +255,7 @@ public class QuickSuggestionStickerCategory extends CustomStickerCategory
 
 	public static Set<Sticker> replyStickerSetFromString(String jsonString)
 	{
-		Set<Sticker> replyStickers = new LinkedHashSet<>(8); // got this number through rigorous research
+		Set<Sticker> replyStickers = TextUtils.isEmpty(jsonString) ? null : new LinkedHashSet<Sticker>(8); // got this number through rigorous research
 		try
 		{
 			JSONArray jsonArray = new JSONArray(jsonString);
@@ -257,7 +277,7 @@ public class QuickSuggestionStickerCategory extends CustomStickerCategory
 
 	public static Set<Sticker> sentStickerSetFromSting(String jsonString)
 	{
-		Set<Sticker> sentStickers = new LinkedHashSet<>(0);
+		Set<Sticker> sentStickers = TextUtils.isEmpty(jsonString) ? null : new LinkedHashSet<Sticker>(8);
 		try
 		{
 			JSONArray jsonArray = new JSONArray(jsonString);
@@ -307,5 +327,10 @@ public class QuickSuggestionStickerCategory extends CustomStickerCategory
 			return false;
 		}
 		return true;
+	}
+
+	@Override
+	public int compareTo(StickerCategory another) {
+		return -1;
 	}
 }

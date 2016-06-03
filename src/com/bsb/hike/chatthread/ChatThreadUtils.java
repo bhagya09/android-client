@@ -31,7 +31,6 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.bots.BotUtils;
-import com.bsb.hike.chatthemes.HikeChatThemeConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.filetransfer.FTMessageBuilder;
@@ -408,6 +407,12 @@ public class ChatThreadUtils
 			if (!source.equalsIgnoreCase(StickerManager.FROM_OTHER))
 			{
 				metadata.put(StickerManager.SEND_SOURCE, source);
+			}
+			if(source.contains(StickerManager.FROM_QF) || source.contains(StickerManager.FROM_QR))
+			{
+				String[] split = source.split(HikeConstants.SEPARATOR);
+				metadata.put(StickerManager.SEND_SOURCE, split[0]);
+				metadata.put(AnalyticsConstants.ACT_MSG, split[1]);
 			}
 
 			metadata.put(StickerManager.STICKER_TYPE, sticker.getStickerType().ordinal());

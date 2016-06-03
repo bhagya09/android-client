@@ -2337,6 +2337,8 @@ public class HikeConstants
 
         public static final String SEARCHED_CATEGORY_RESPONSE = "shpSrchRept";
 
+        public static final String STICKER_CLICKED = "stickerClick";
+
         public static final String SHOP_SEARCH = "shpSrch";
 
         public static final String SEARCHED_CATEGORY_RESPONSE_DATA = "scRepD";
@@ -4395,6 +4397,12 @@ public class HikeConstants
 
 	public static final String VISIBLE_COUNT = "visible_count";
 
+	public static final int LONG_TAP = 2;
+
+	public static final int SINGLE_TAP = 1;
+
+	public static final String SCROLL_COUNT = "scroll_count";
+
 	public static final String ENABLE_BDAY_IN_CCA = "e_bd_cca";
 
 	public static final String BDAYS_LIST = "bday_list";
@@ -4406,6 +4414,8 @@ public class HikeConstants
 	public static final String BIRTHDAY_DATA = "bdata";
 
 	public static final String DISABLE_QUICK_UPLOAD = "disable_md5";
+
+	public static final String SET_ID = "setId";
 
 	public static final String TRIGGER_BIRTHDAY_ID = "t_b_id";
 
@@ -4420,6 +4430,28 @@ public class HikeConstants
 	public static final String CTAS = "ctas";
 
 	public static final String ACTION = "action";
+
+	public static final String QS_RECEIVE_FTUE_SESSION_COUNT = "qsrcvftuesncnt";
+
+	public static final String QS_SENT_FTUE_SESSION_COUNT = "qssntftuesncnt";
+
+	public static final String QUICK_SUGGESTION_RECEIVED_FIRST_TIP_TEXT = "qsrftt";
+
+	public static final String QUICK_SUGGESTION_RECEIVED_SECOND_TIP_TEXT = "qsrstt";
+
+	public static final String QUICK_SUGGESTION_RECEIVED_THIRD_TIP_TEXT = "qsrttt";
+
+	public static final String QUICK_SUGGESTION_SENT_FIRST_TIP_TEXT = "qssftt";
+
+	public static final String QUICK_SUGGESTION_SENT_SECOND_TIP_TEXT = "qssstt";
+
+	public static final String QUICK_SUGGESTION_SENT_THIRD_TIP_TEXT = "qssttt";
+
+	public static final String MAX_FETCH_COUNT = "maxFetchCount";
+
+	public static final String MIN_SEEN_COUNT = "minSeenCount";
+
+	public static final String USER_PARAMTER_REFRESH_PERIOD = "usPrRfPd";
 
 	public static final String HIKE_CES_ENABLE = "ces_enable";
 

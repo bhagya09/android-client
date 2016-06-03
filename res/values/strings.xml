@@ -1650,6 +1650,9 @@
     <string name="composeview_bday">Happy Birthday!</string>
     <string name="forward_to_single_timeline">Send message to %1$s and on Timeline?</string>
     <string name="forward_to_singular">Send message to %1$s?</string>
+    <string name="qs_error_view_heading">Oops! something went wrong</string>
+    <string name="qs_error_view_sub_text">Tap on the sticker to try again</string>
+    <string name="qs_ftue_page_tap_text">Tap on any of the stickers to send</string>
     <string name="single_bday_notif_text">%1$s has his birthday today!</string>
     <string name="multiple_bday_notif_text">%1$s and %2$s others has his birthday today!</string>
     <string name="single_bday_notif_subtext"> Tap here to wish your friend a Happy Birthday!</string>
@@ -1658,4 +1661,11 @@
     <string name="uj_default_pretype_text">Hi</string>
     <string name="uj_default_cta_say_hi">Say Hi</string>
     <string name="uj_default_cta_add_friend">Add Friend</string>
+    <string name="qs_received_first_tip_text">Hey, you just received this sticker</string>
+    <string name="qs_received_second_tip_text">Tap on it to reply with a sticker</string>
+    <string name="qs_received_third_tip_text">Awesome, you got it!</string>
+    <string name="qs_sent_first_tip_text">Now you can send similar stickers</string>
+    <string name="qs_sent_second_tip_text">By tapping on stickers that you sent</string>
+    <string name="qs_sent_third_tip_text">Awesome, you got it!</string>
+    <string name="qs_empty_page_text">No Suggestions for this sticker</string>
 </resources>
