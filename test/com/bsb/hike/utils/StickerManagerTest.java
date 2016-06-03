@@ -1,15 +1,16 @@
-package com.bsb.hike;
+package com.bsb.hike.utils;
 
 import android.util.Log;
 
+import com.bsb.hike.BuildConfig;
+import com.bsb.hike.roboClasses.CustomRobolectricGradleTestRunner;
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.roboClasses.MultiDexShadowClass;
 import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.StickerManager;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowLog;
 

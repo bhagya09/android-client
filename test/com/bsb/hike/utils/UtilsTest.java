@@ -1,14 +1,10 @@
-package com.bsb.hike;
+package com.bsb.hike.utils;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.util.Log;
 
-import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchDatabase;
-import com.bsb.hike.utils.StickerManager;
-import com.bsb.hike.utils.Utils;
+import com.bsb.hike.BuildConfig;
+import com.bsb.hike.roboClasses.CustomRobolectricGradleTestRunner;
+import com.bsb.hike.roboClasses.MultiDexShadowClass;
 
 import static org.junit.Assert.*;
 
@@ -16,13 +12,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.powermock.api.mockito.PowerMockito;
-import org.robolectric.RobolectricGradleTestRunner;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowLog;
-
-import java.lang.reflect.Field;
 
 import static org.powermock.api.mockito.PowerMockito.when;
 
@@ -57,7 +48,7 @@ public class UtilsTest
 		assertEquals(Utils.getFileExtension(null), null);
 	}
 
-	@Test
+/*	@Test
 	public void validateBotMsisdnTest()
 	{
 		assertFalse(Utils.validateBotMsisdn(""));
@@ -67,7 +58,7 @@ public class UtilsTest
 		assertTrue(Utils.validateBotMsisdn("+asdfg"));
 		assertFalse(Utils.validateBotMsisdn("oiuytre"));
 	}
-
+*/
 /*  Tested this function after making it public and left here as sample
 	@Test
 	public void isUserUpgradingTest()

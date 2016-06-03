@@ -1,4 +1,4 @@
-package com.bsb.hike;
+package com.bsb.hike.roboClasses;
 
 import android.app.Application;
 import android.content.Context;

@@ -1,32 +1,19 @@
-package com.bsb.hike;
+package com.bsb.hike.roboClasses;
 
-import android.app.Application;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.SharedPreferences;
-import android.support.multidex.MultiDex;
-import android.support.multidex.MultiDexApplication;
 import android.util.Log;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.roboClasses.MultiDexShadowClass;
 
 import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
-import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
-import org.robolectric.TestLifecycleApplication;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.Implementation;
 import org.robolectric.annotation.Implements;
-import org.robolectric.shadows.ShadowApplication;
-import org.robolectric.shadows.ShadowContextWrapper;
 import org.robolectric.shadows.ShadowLog;
-
-import java.lang.reflect.Method;
 
 import static junit.framework.Assert.assertTrue;
 

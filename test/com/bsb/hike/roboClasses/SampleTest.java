@@ -1,9 +1,10 @@
-package com.bsb.hike;
+package com.bsb.hike.roboClasses;
 
 import android.util.Log;
 
-import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchDatabase;
-import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.BuildConfig;
+import com.bsb.hike.roboClasses.CustomRobolectricGradleTestRunner;
+import com.bsb.hike.roboClasses.MultiDexShadowClass;
 
 import junit.framework.Assert;
 
@@ -11,11 +12,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowLog;
-
-import java.lang.reflect.Field;
 
 import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.assertFalse;

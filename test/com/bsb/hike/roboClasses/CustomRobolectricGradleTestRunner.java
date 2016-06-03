@@ -1,4 +1,4 @@
-package com.bsb.hike;
+package com.bsb.hike.roboClasses;
 
 import org.junit.runners.model.InitializationError;
 import org.robolectric.RobolectricGradleTestRunner;
@@ -35,7 +35,7 @@ public class CustomRobolectricGradleTestRunner extends RobolectricGradleTestRunn
 		final String flavor = getFlavor(config);
 		final String applicationId = getApplicationId(config);
 
-		final FileFsFile res = FileFsFile.from(BUILD_OUTPUT, "res/merged", flavor, type);
+		final FileFsFile res = FileFsFile.from(BUILD_OUTPUT, "res", flavor, type);
 		final FileFsFile assets = FileFsFile.from(BUILD_OUTPUT, "assets", flavor, type);
 
 		final FileFsFile manifest;
