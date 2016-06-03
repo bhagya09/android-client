@@ -1201,7 +1201,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			default:
 				break;
 		}
-		recordOverflowItemClicked(item);
+		if(item.id != AttachmentPicker.GALLERY) recordOverflowItemClicked(item);
 	}
 
 	/*
