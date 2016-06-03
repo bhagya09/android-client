@@ -4554,6 +4554,7 @@ import com.bsb.hike.voip.VoIPUtils;
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FRIENDS_PRIVACY_RED_DOT_SHOWN, true);
 			mActionBar.updateOverflowMenuIndicatorCount(0);
 			mActionBar.updateOverflowMenuItemCount(R.string.view_profile, 0);
+			wasFriendsPrivacyRedDotShown = false;
 		}
 	}
 
