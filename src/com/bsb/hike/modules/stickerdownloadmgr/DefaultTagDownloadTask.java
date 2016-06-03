@@ -1,6 +1,7 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
 import android.support.annotation.Nullable;
+import android.os.Bundle;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -21,6 +22,7 @@ import com.bsb.hike.utils.Utils;
 
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.defaultTagsRequest;
@@ -55,7 +57,7 @@ public class DefaultTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResul
 
 		long lastSuccessfulTagDownloadTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.LAST_SUCESSFULL_TAGS_DOWNLOAD_TIME, 0L);
 		requestToken = defaultTagsRequest(getRequestId(), isSignUp, lastSuccessfulTagDownloadTime, getResponseListener(),
-				StickerLanguagesManager.getInstance().listToString(languages));
+				StickerLanguagesManager.getInstance().listToString(languages), getRequestBundle());
 
 		if (requestToken.isRequestRunning())
 		{
@@ -118,7 +120,8 @@ public class DefaultTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResul
 		}
 	}
 
-	private String getRequestId()
+    @Override
+    public String getRequestId()
 	{
 		return StickerRequestType.TAGS.getLabel();
 	}
@@ -142,5 +145,14 @@ public class DefaultTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResul
 	public void doOnFailure(HttpException exception)
 	{
 		Logger.d(TAG, "response failed.");
+	}
+
+    @Override
+	public Bundle getRequestBundle()
+	{
+		Bundle extras = new Bundle();
+		extras.putBoolean(HikeConstants.IS_NEW_USER, isSignUp);
+		extras.putStringArrayList(HikeConstants.LANGUAGES, new ArrayList<String>(languages));
+		return extras;
 	}
 }

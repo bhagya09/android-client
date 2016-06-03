@@ -22,6 +22,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.CallerContentModel;
+import com.bsb.hike.chatHead.CallerMetadata;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.db.DBConstants;
@@ -83,7 +84,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 	}
 
 	private void initPubSubListeners() {
-		HikeMessengerApp.getPubSub().addListeners(this,pubSubEvents);
+		HikeMessengerApp.getPubSub().addListeners(this, pubSubEvents);
 	}
 
 	public static HikeUserDatabase getInstance()
@@ -354,18 +355,22 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 			}
 			// Need to migrate the DBs in upgradeIntentService
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.MIGRATE_TABLE_TO_USER, 1);
+
+			String alter1 = "ALTER TABLE " + DBConstants.HIKE_USER.HIKE_CALLER_TABLE + " ADD COLUMN " + DBConstants.HIKE_USER.CALLER_METADATA + " TEXT";
+			db.execSQL(alter1);
+
+			String alter2 = "ALTER TABLE " + DBConstants.HIKE_USER.HIKE_CALLER_TABLE + " ADD COLUMN " + DBConstants.HIKE_USER.EXPIRY_TIME + " INTEGER DEFAULT 0";
+			db.execSQL(alter2);
 		}
 
-		if (oldVersion < 20)
-		{
-			if (!Utils.isColumnExistsInTable(mDb, DBConstants.USERS_TABLE, DBConstants.LAST_SEEN_SETTINGS))
-			{
+
+		if (oldVersion < 20) {
+			if (!Utils.isColumnExistsInTable(mDb, DBConstants.USERS_TABLE, DBConstants.LAST_SEEN_SETTINGS)) {
 				String alter = "ALTER TABLE " + DBConstants.USERS_TABLE + " ADD COLUMN " + DBConstants.LAST_SEEN_SETTINGS + " INTEGER DEFAULT 0";
 				db.execSQL(alter);
 			}
 
-			if (!Utils.isColumnExistsInTable(mDb, DBConstants.USERS_TABLE, DBConstants.STATUS_UPDATE_SETTINGS))
-			{
+			if (!Utils.isColumnExistsInTable(mDb, DBConstants.USERS_TABLE, DBConstants.STATUS_UPDATE_SETTINGS)) {
 				String alter = "ALTER TABLE " + DBConstants.USERS_TABLE + " ADD COLUMN " + DBConstants.STATUS_UPDATE_SETTINGS + " INTEGER DEFAULT 1"; // By default SU will be shown to friends
 				db.execSQL(alter);
 			}
@@ -381,9 +386,23 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 	private String getHikeCallerTable()
 	{
 
-		String hikeCallerTable = DBConstants.CREATE_TABLE + DBConstants.HIKE_USER.HIKE_CALLER_TABLE + " (" + BaseColumns._ID + " INTEGER , " + DBConstants.MSISDN + " TEXT PRIMARY KEY , " + DBConstants.NAME
-				+ " TEXT NOT NULL, " + DBConstants.HIKE_USER.LOCATION + " TEXT, " + DBConstants.HIKE_USER.IS_ON_HIKE + " INTEGER DEFAULT 0, " + DBConstants.HIKE_USER.IS_SPAM + " INTEGER DEFAULT 0, "
-				+ DBConstants.HIKE_USER.IS_BLOCK + " INTEGER DEFAULT 0," + DBConstants.HIKE_USER.SPAM_COUNT + " INTEGER DEFAULT 0," + DBConstants.HIKE_USER.CREATION_TIME + " INTEGER, " + DBConstants.HIKE_USER.ON_HIKE_TIME + " INTEGER, " + DBConstants.HIKE_USER.IS_SYNCED + " INTEGER DEFAULT 1 "+ ")";
+		String hikeCallerTable = DBConstants.CREATE_TABLE
+				+ DBConstants.HIKE_USER.HIKE_CALLER_TABLE
+				+ " ("
+				+ BaseColumns._ID + " INTEGER , "
+				+ DBConstants.MSISDN + " TEXT PRIMARY KEY , "
+				+ DBConstants.NAME + " TEXT NOT NULL, "
+				+ DBConstants.HIKE_USER.LOCATION + " TEXT, "
+				+ DBConstants.HIKE_USER.IS_ON_HIKE + " INTEGER DEFAULT 0, "
+				+ DBConstants.HIKE_USER.IS_SPAM + " INTEGER DEFAULT 0, "
+				+ DBConstants.HIKE_USER.IS_BLOCK + " INTEGER DEFAULT 0,"
+				+ DBConstants.HIKE_USER.SPAM_COUNT + " INTEGER DEFAULT 0,"
+				+ DBConstants.HIKE_USER.CREATION_TIME + " INTEGER, "
+				+ DBConstants.HIKE_USER.ON_HIKE_TIME + " INTEGER, "
+				+ DBConstants.HIKE_USER.IS_SYNCED + " INTEGER DEFAULT 1, "
+				+ DBConstants.HIKE_USER.EXPIRY_TIME + " INTEGER DEFAULT 0, "
+				+ DBConstants.HIKE_USER.CALLER_METADATA + " TEXT "
+				+ ")";
 
 		return hikeCallerTable;
 	}
@@ -412,7 +431,9 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 					!cursor.isNull(cursor.getColumnIndex(DBConstants.HIKE_USER.CREATION_TIME)) ? cursor.getLong(cursor.getColumnIndex(DBConstants.HIKE_USER.CREATION_TIME)) : 0);
 			callerContentModel.setUpdationTime(
 					!cursor.isNull(cursor.getColumnIndex(DBConstants.HIKE_USER.ON_HIKE_TIME)) ? cursor.getLong(cursor.getColumnIndex(DBConstants.HIKE_USER.ON_HIKE_TIME)) : 0);
-
+			callerContentModel.setCallerMetadata(cursor.getString(cursor.getColumnIndex(DBConstants.HIKE_USER.CALLER_METADATA)));
+			callerContentModel.setExpiryTime(
+					!cursor.isNull(cursor.getColumnIndex(DBConstants.HIKE_USER.EXPIRY_TIME)) ? cursor.getLong(cursor.getColumnIndex(DBConstants.HIKE_USER.EXPIRY_TIME)) : 0);
 			return callerContentModel;
 		}
 		catch (Exception e)
@@ -598,7 +619,17 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		}
 	}
 
-
+	public void updateMdIntoCallerTable(CallerContentModel callerContentModel)
+	{
+		if (callerContentModel != null && callerContentModel.getMsisdn() != null && callerContentModel.getFullName() != null)
+		{
+			ContentValues contentValues = new ContentValues();
+			contentValues.put(DBConstants.HIKE_USER.CALLER_METADATA, callerContentModel.getCallerMetadata().toString());
+			contentValues.put(DBConstants.HIKE_USER.EXPIRY_TIME, System.currentTimeMillis());
+			mDb.update(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, contentValues, DBConstants.MSISDN + "=? ", new String[]{callerContentModel.getMsisdn()});
+			Logger.d("c_spam", "HTTP res SUCCESS :- successfully updated old row in in DB " + contentValues);
+		}
+	}
 
 	public void insertIntoCallerTable(CallerContentModel callerContentModel, boolean isCompleteData, boolean setIsBlock)
 	{
@@ -608,6 +639,22 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 			contentValues.put(DBConstants.NAME, callerContentModel.getFullName());
 			contentValues.put(DBConstants.MSISDN, callerContentModel.getMsisdn());
 			contentValues.put(DBConstants.HIKE_USER.CREATION_TIME, System.currentTimeMillis());
+			Logger.d("c_spam", "HTTP res SUCCESS :- Successfully insert new row in in DB via CALLER" + contentValues);
+			mDb.insertWithOnConflict(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
+		}
+	}
+
+	public void insertIntoCallerTable(CallerContentModel callerContentModel, boolean isCompleteData, boolean setIsBlock, long creationTime)
+	{
+		if (callerContentModel != null && callerContentModel.getMsisdn() != null && callerContentModel.getFullName() != null)
+		{
+			ContentValues contentValues = getBasicCallerContentValues(callerContentModel, isCompleteData, setIsBlock);
+			contentValues.put(DBConstants.NAME, callerContentModel.getFullName());
+			contentValues.put(DBConstants.MSISDN, callerContentModel.getMsisdn());
+			contentValues.put(DBConstants.HIKE_USER.CREATION_TIME, creationTime);
+			contentValues.put(DBConstants.HIKE_USER.EXPIRY_TIME, System.currentTimeMillis());
+			contentValues.put(DBConstants.HIKE_USER.CALLER_METADATA, callerContentModel.getCallerMetadata().toString());
+			Logger.d("c_spam", "HTTP res SUCCESS :- Successfully insert new row in in DB via CHATSPAM" + contentValues);
 			mDb.insertWithOnConflict(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
 		}
 	}
@@ -912,7 +959,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		{
 			c = mReadDb.rawQuery("SELECT max(" + DBConstants.ID + ") AS " + DBConstants.ID + ", " + DBConstants.NAME + ", " + DBConstants.MSISDN + ", " + DBConstants.PHONE + ", "
 					+ DBConstants.LAST_MESSAGED + ", " + DBConstants.MSISDN_TYPE + ", " + DBConstants.ONHIKE + ", " + DBConstants.HAS_CUSTOM_PHOTO + ", "
-					+ DBConstants.HIKE_JOIN_TIME + ", " + DBConstants.LAST_SEEN + ", " + DBConstants.IS_OFFLINE + ", " + DBConstants.INVITE_TIMESTAMP +  ", " + DBConstants.PLATFORM_USER_ID +  ", "+ DBConstants.FAVORITE_TYPE +" , " + DBConstants.HIKE_UID + " , "+ DBConstants.BLOCK_STATUS +  " from "
+					+ DBConstants.HIKE_JOIN_TIME + ", " + DBConstants.LAST_SEEN + ", " + DBConstants.IS_OFFLINE + ", " + DBConstants.INVITE_TIMESTAMP + ", " + DBConstants.PLATFORM_USER_ID + ", " + DBConstants.FAVORITE_TYPE + " , " + DBConstants.HIKE_UID + " , " + DBConstants.BLOCK_STATUS + " from "
 					+ DBConstants.USERS_TABLE + " GROUP BY " + DBConstants.MSISDN + " ORDER BY " + DBConstants.NAME + " COLLATE NOCASE ", null);
 
 			int msisdnIdx = c.getColumnIndex(DBConstants.MSISDN);
@@ -1756,9 +1803,9 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 			return;
 		}
 		ContentValues cv=new ContentValues();
-		cv.put(DBConstants.BLOCK_STATUS,DBConstants.STATUS_UNBLOCKED);
+		cv.put(DBConstants.BLOCK_STATUS, DBConstants.STATUS_UNBLOCKED);
 		long value=mDb.update(DBConstants.USERS_TABLE,cv,DBConstants.HIKE_UID + "=?", new String[] { hikeUID});
-		Logger.d(TAG,"Unblocked UID= "+hikeUID+"And the Value in DB is "+value);
+		Logger.d(TAG, "Unblocked UID= " + hikeUID + "And the Value in DB is " + value);
 		//mDb.delete(DBConstants.BLOCK_TABLE, DBConstants.MSISDN + "=?", new String[] { hikeUID });
 	}
 
@@ -2588,6 +2635,36 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		}
 
 		return HikePlatformConstants.FILE_DESCRIPTOR + imageFile.getAbsolutePath();
+	}
+
+	public void toggleChatSpamUser(String msisdn, int markSpam) {
+		if (msisdn != null) {
+			Cursor c = null;
+			CallerMetadata callerMetadata = null;
+			try {
+
+				c = mReadDb.rawQuery("select " + DBConstants.HIKE_USER.CALLER_METADATA + " from " + DBConstants.HIKE_USER.HIKE_CALLER_TABLE + " where " + DBConstants.MSISDN + "=" + msisdn, null);
+
+
+				while (c.moveToNext()) {
+					String metadata = c.getString(c.getColumnIndex(DBConstants.HIKE_USER.HIKE_CALLER_TABLE));
+					callerMetadata = new CallerMetadata(metadata);
+				}
+
+				if (callerMetadata != null) {
+					callerMetadata.setIsUserSpammedByYou(markSpam);
+					ContentValues contentValues = new ContentValues();
+					contentValues.put(DBConstants.HIKE_USER.CALLER_METADATA, callerMetadata.toString());
+					int noOfRow = mDb.update(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, contentValues, DBConstants.MSISDN + "=? ", new String[]{msisdn});
+				}
+			} catch (JSONException ex) {
+				ex.printStackTrace();
+			} finally {
+				if (c != null) {
+					c.close();
+				}
+			}
+		}
 	}
 
 	public List<String> getBlockedMsisdnFromBlockTable() {

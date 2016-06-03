@@ -2,6 +2,7 @@ package com.bsb.hike.chatthemes;
 
 
 import android.support.annotation.Nullable;
+import android.os.Bundle;
 import android.util.Log;
 
 import com.bsb.hike.HikeMessengerApp;
@@ -47,6 +48,16 @@ public class UploadCustomChatThemeBackgroundTask implements IHikeHTTPTask {
         if (token != null) {
             token.cancel();
         }
+    }
+
+    @Override
+    public Bundle getRequestBundle() {
+        return null;
+    }
+
+    @Override
+    public String getRequestId() {
+        return null;
     }
 
     private IRequestListener getRequestListener() {

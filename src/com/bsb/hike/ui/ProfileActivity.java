@@ -2306,8 +2306,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		switch (hikeDialog.getId())
 		{
 			case HikeDialogFactory.DELETE_STATUS_DIALOG:
-			case HikeDialogFactory.DELETE_FROM_BROADCAST:
-			case HikeDialogFactory.DELETE_FROM_GROUP:
 				hikeDialog.dismiss();
 				this.hikeDialog = null;
 				break;
@@ -2361,32 +2359,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 					}
 				}
 				OneToNConversationUtils.leaveGCAnalyticEvent(hikeDialog, true,HikeConstants.LogEvent.LEAVE_GROUP_VIA_PROFILE);
-				hikeDialog.dismiss();
-				break;
-
-			case HikeDialogFactory.DELETE_FROM_BROADCAST:
-			case HikeDialogFactory.DELETE_FROM_GROUP:
-				JSONObject object = new JSONObject();
-				try
-				{
-					object.put(HikeConstants.TO, oneToNConversation.getMsisdn());
-					object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.GROUP_CHAT_KICK);
-
-					JSONObject data = new JSONObject();
-
-					JSONArray msisdns = new JSONArray();
-					msisdns.put(contactInfo.getMsisdn());
-
-					data.put(HikeConstants.MSISDNS, msisdns);
-					data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis()));
-
-					object.put(HikeConstants.DATA, data);
-				}
-				catch (JSONException e)
-				{
-					Logger.e(getClass().getSimpleName(), "Invalid JSON", e);
-				}
-				HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
 				hikeDialog.dismiss();
 				break;
 
@@ -3302,7 +3274,43 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	private void removeFromGroup(final ContactInfo contactInfo)
 	{
 		int dialogId = oneToNConversation instanceof BroadcastConversation? HikeDialogFactory.DELETE_FROM_BROADCAST : HikeDialogFactory.DELETE_FROM_GROUP;
-		this.hikeDialog = HikeDialogFactory.showDialog(this, dialogId, this, contactInfo.getFirstName());
+		HikeDialogFactory.showDialog(this, dialogId, new HikeDialogListener() {
+			@Override
+			public void negativeClicked(HikeDialog hikeDialog) {
+				hikeDialog.dismiss();
+			}
+
+			@Override
+			public void positiveClicked(HikeDialog hikeDialog) {
+
+				JSONObject object = new JSONObject();
+				try
+				{
+					object.put(HikeConstants.TO, oneToNConversation.getMsisdn());
+					object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.GROUP_CHAT_KICK);
+
+					JSONObject data = new JSONObject();
+
+					JSONArray msisdns = new JSONArray();
+					msisdns.put(contactInfo.getUserIdentifer());
+
+					data.put(HikeConstants.MSISDNS, msisdns);
+					data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis()));
+
+					object.put(HikeConstants.DATA, data);
+
+				} catch (JSONException e) {
+					Logger.e(getClass().getSimpleName(), "Invalid JSON", e);
+				}
+				HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
+				hikeDialog.dismiss();
+			}
+
+			@Override
+			public void neutralClicked(HikeDialog hikeDialog) {
+
+			}
+		}, contactInfo.getFirstName());
 		
 	}
 

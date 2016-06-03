@@ -1,5 +1,7 @@
 package com.bsb.hike.tasks;
 
+import android.os.Bundle;
+
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
@@ -92,5 +94,17 @@ public class PlatformUidFetchTask implements IHikeHTTPTask
 	public void cancel()
 	{
 
+	}
+
+	@Override
+	public Bundle getRequestBundle()
+	{
+		return null;
+	}
+
+	@Override
+	public String getRequestId()
+	{
+		return null;
 	}
 }
