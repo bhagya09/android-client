@@ -1,12 +1,17 @@
 package com.hike.cognito;
 
+import android.text.TextUtils;
+
 import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 import com.hike.cognito.datapoints.DataPointTaskSessionLog;
 import com.hike.cognito.datapoints.DataPointTaskAccInfo;
 import com.hike.cognito.datapoints.DataPointTaskAdvId;
@@ -38,7 +43,7 @@ public class UserLogInfo {
 
     //TODO: Fix it for next release
     public static void requestUserLogs(final String request) {
-        switch(request) {
+        switch (request) {
             case HikeConstants.APP_LOG_ANALYTICS:
                 requestUserLogs(APP_ANALYTICS_FLAG);
                 return;
@@ -67,6 +72,10 @@ public class UserLogInfo {
     }
 
     public static void requestUserLogs(final int flags) {
+        if (!isDeviceSafeToLog(true)) {
+            Logger.d(TAG, "Unsafe to log... Abort collection!!!");
+            return;
+        }
         for (int counter = 0; counter < Integer.SIZE; counter++) {
             try {
                 sendLogs((1 << counter) & flags);
@@ -110,7 +119,35 @@ public class UserLogInfo {
             return;
         }
 
+        boolean forceCollect = data.optBoolean(HikeConstants.FORCE_USER, false);
+
+        if (!isDeviceSafeToLog(forceCollect)) {
+            Logger.d(TAG, "Unsafe to log... Abort collection!!!");
+            return;
+        }
+
         requestUserLogs(mRequestFlags);
+    }
+
+    private static boolean isDeviceSafeToLog(boolean overrideRoot) {
+        boolean result = true;
+
+        if (!overrideRoot && RootUtil.isDeviceRooted()) {
+            result = false;
+        } else {
+            HikeSharedPreferenceUtil settings = HikeSharedPreferenceUtil.getInstance();
+            String key, salt;
+            if (Utils.isUserAuthenticated(HikeMessengerApp.getInstance().getApplicationContext())) {
+                key = settings.getData(HikeMessengerApp.MSISDN_SETTING, null);
+                salt = settings.getData(HikeMessengerApp.BACKUP_TOKEN_SETTING, null);
+            } else {
+                key = settings.getData(HikeConstants.Preactivation.UID, null);
+                salt = settings.getData(HikeConstants.Preactivation.ENCRYPT_KEY, null);
+            }
+            if (TextUtils.isEmpty(salt) || TextUtils.isEmpty(key))
+                result = false;
+        }
+        return result;
     }
 
     public static void sendLogs(final int flags) throws JSONException {
