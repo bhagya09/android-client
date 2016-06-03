@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.support.annotation.Nullable;
+import android.os.Bundle;
 import android.util.Pair;
 
 import com.bsb.hike.HikeConstants;
@@ -52,7 +53,17 @@ public class GetHikeJoinTimeTask implements IHikeHTTPTask
 		requestToken.cancel();
 	}
 
-	public IRequestListener getRequestListener()
+    @Override
+    public Bundle getRequestBundle() {
+        return null;
+    }
+
+    @Override
+    public String getRequestId() {
+        return null;
+    }
+
+    public IRequestListener getRequestListener()
 	{
 		return new IRequestListener()
 		{

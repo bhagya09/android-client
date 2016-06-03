@@ -1,6 +1,7 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
 import android.support.annotation.Nullable;
+import android.os.Bundle;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -156,6 +157,18 @@ public class FetchCategoryMetadataTask implements IHikeHTTPTask, IHikeHttpTaskRe
 	}
 
 	@Override
+	public Bundle getRequestBundle()
+	{
+		return null;
+	}
+
+	@Override
+	public String getRequestId()
+	{
+		return null;
+	}
+
+    @Override
 	public void doOnSuccess(Object result)
 	{
 

@@ -2572,6 +2572,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		else if (viewType == ViewType.UNKNOWN_BLOCK_ADD)
 		{
 			Logger.i("chatthread", "getview of unknown header");
+			Logger.i("c_spam", "getview of unknown header");
 			if (convertView == null)
 			{
 				convertView = inflater.inflate(R.layout.block_add_unknown_contact_mute_bot, parent, false);
@@ -2584,12 +2585,13 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				}
 				else
 				{
-					addButton.setTag(R.string.add);
+					addButton.setTag(R.string.save_unknown_contact);
 				}
+
 				addButton.setOnClickListener(mOnClickListener);
 				convertView.findViewById(R.id.block_unknown_contact).setOnClickListener(mOnClickListener);
-
 			}
+
 			return convertView;
 
 		}
@@ -3866,7 +3868,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		contact.name = name;
 		contact.items = items;
 
-		this.dialog =HikeDialogFactory.showDialog(context, HikeDialogFactory.CONTACT_SAVE_DIALOG, new HikeDialogListener()
+		this.dialog = HikeDialogFactory.showDialog(context, HikeDialogFactory.CONTACT_SAVE_DIALOG, new HikeDialogListener()
 		{
 
 			@Override
@@ -4607,7 +4609,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			{
 				continue;
 			}
-			Object object = mListView.getItemAtPosition(i);
+
+			//As In case of unknown contact, header is shown for unknonw user info
+			Object object = mListView.getItemAtPosition(i + mListView.getHeaderViewsCount());
 			if (object instanceof ConvMessage)
 			{
 				ConvMessage convMessage = (ConvMessage) object;
