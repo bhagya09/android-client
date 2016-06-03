@@ -4,8 +4,7 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 
 public class DBConstants
 {
-
-	public static final int CONVERSATIONS_DATABASE_VERSION = 57;
+	public static final int CONVERSATIONS_DATABASE_VERSION = 58;
 
 	public static final int USERS_DATABASE_VERSION = 20;
 
@@ -740,4 +739,16 @@ public class DBConstants
 	public static final String LAST_SEEN_SETTINGS = "ls_settings";
 
 	public static final String STATUS_UPDATE_SETTINGS = "su_settings";
+
+	public static final String USER_PARAMETER_TABLE = "user_parameter_table";
+
+	public static final String PARAMETER_MAPPING_TABLE = "parameter_mapping_table";
+
+	public static final String PARAMETER_KEY = "parameter_key";
+
+	public static final String PARAMETER_VALUE = "parameter_value";
+
+	public static final String PARAMETER_LIST = "parameter_list";
+
+	public static final String METHOD = "method";
 }

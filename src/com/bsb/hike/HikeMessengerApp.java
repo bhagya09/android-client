@@ -602,6 +602,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
     public static final String EMOTICONS_CLICKED_LIST = "emoticonClickedIndex";
 
+    public static final String VIEWED_IN_PALLETE_CATEGORY_LIST = "viewedInPalletCatList";
+
 	public static final String LAST_STICKER_PACK_AND_ORDERING_SENT_TIME = "lastPackAndOrderingSentTime";
 
 	public static final String LAST_STICKER_TAG_REFRESH_TIME = "lastStickerTagRefreshTime";
@@ -639,6 +641,10 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	public static final String MIGRATE_RECENT_STICKER_TO_DB = "migrateRecentStickersToDb";
 
 	public static final String QUICK_SUGGESTION_RETRY_SET = "quickSuggestionRetrySet";
+
+	public static final String LAST_USER_PARAMETER_FETCH_TIME = "lastUserParameterFetchTime";
+
+	public static final String LAST_PARAMETER_MAPPING_FETCH_TIME = "lastParameterMappingFetchTime";
 
 	// =========================================================================================Constants for sticker search]]
 

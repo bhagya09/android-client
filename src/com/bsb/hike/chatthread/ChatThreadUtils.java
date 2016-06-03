@@ -410,6 +410,12 @@ public class ChatThreadUtils
 			{
 				metadata.put(StickerManager.SEND_SOURCE, source);
 			}
+			if(source.contains(StickerManager.FROM_QF) || source.contains(StickerManager.FROM_QR))
+			{
+				String[] split = source.split(HikeConstants.SEPARATOR);
+				metadata.put(StickerManager.SEND_SOURCE, split[0]);
+				metadata.put(AnalyticsConstants.ACT_MSG, split[1]);
+			}
 
 			metadata.put(StickerManager.STICKER_TYPE, sticker.getStickerType().ordinal());
 
