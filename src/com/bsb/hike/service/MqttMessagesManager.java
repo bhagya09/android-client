@@ -610,7 +610,7 @@ public class MqttMessagesManager
 					{
 						//throw new IllegalArgumentException();
 						//putting request to download the asset ids for the theme
-						ChatThemeManager.getInstance().downloadThemeAssetsMetadata(bgId, true);
+						ChatThemeManager.getInstance().downloadThemeAssetsMetadata(bgId, groupId, groupId, true);
 					}
 
 					String chatThemeId = bgId;
@@ -3396,14 +3396,19 @@ public class MqttMessagesManager
 
 		if (data.has(HikeConstants.MULTIPLE_BDAY_NOTIF_TITLE))
 		{
-			String multipleBdayNotifTitle = data.getString(HikeConstants.SINGLE_BDAY_NOTIF_TITLE);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SINGLE_BDAY_NOTIF_TITLE, multipleBdayNotifTitle);
+			String multipleBdayNotifTitle = data.getString(HikeConstants.MULTIPLE_BDAY_NOTIF_TITLE);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MULTIPLE_BDAY_NOTIF_TITLE, multipleBdayNotifTitle);
 		}
 
 		if (data.has(HikeConstants.MULTIPLE_BDAY_NOTIF_SUBTEXT))
 		{
 			String multipleBdayNotifSubtext = data.getString(HikeConstants.MULTIPLE_BDAY_NOTIF_SUBTEXT);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MULTIPLE_BDAY_NOTIF_SUBTEXT, multipleBdayNotifSubtext);
+		}
+		if (data.has(HikePlatformConstants.ENABLE_HELP))
+		{
+			boolean enable = data.getBoolean(HikePlatformConstants.ENABLE_HELP);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikePlatformConstants.ENABLE_HELP, enable);
 		}
 
 		if(data.has(HikeConstants.QS_RECEIVE_FTUE_SESSION_COUNT))
@@ -4234,7 +4239,7 @@ public class MqttMessagesManager
 			if (data.optBoolean(HikeConstants.CUSTOM)) {
 				//throw new IllegalArgumentException();
 				//putting a request to downlaod the asset ids for the theme
-				ChatThemeManager.getInstance().downloadThemeAssetsMetadata(bgId, true);
+				ChatThemeManager.getInstance().downloadThemeAssetsMetadata(bgId, id, null, true);
 			}else {
 				String chatThemeId = bgId;
 				this.pubSub.publish(HikePubSub.CHAT_BACKGROUND_CHANGED, new Pair<String, String>(id, bgId));
@@ -5029,6 +5034,15 @@ public class MqttMessagesManager
 		else if (HikeConstants.MqttMessageTypes.CHAT_BACKGROUD.equals(type))
 		{
 			saveChatBackground(jsonObj);
+		}
+		else if (HikeConstants.MqttMessageTypes.CHAT_BACKGROUD_V2.equals(type))
+		{
+			if(jsonObj.has(HikeConstants.SUB_TYPE)) {
+				String errorType = jsonObj.getString(HikeConstants.SUB_TYPE);
+				if(!TextUtils.isEmpty(errorType)) {
+					HikeMessengerApp.getPubSub().publish(HikePubSub.CHATTHEME_CUSTOM_COMPATABILITY_ERROR, errorType);
+				}
+			}
 		}
 		else if (HikeConstants.MqttMessageTypes.GROUP_OWNER_CHANGE.equals(type))
 		{

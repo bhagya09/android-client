@@ -112,7 +112,15 @@ public class PlatformContent
                     {
                         return "zero_byte_zip_download";
                     }
-		        };
+		        },
+		INVALID_PACKET_VERSION
+				{
+					@Override
+					public String toString()
+					{
+						return "inv_packet_version";
+					}
+				};
 		int errorCode;
 		public void setErrorCode(int errorCode)
 		{

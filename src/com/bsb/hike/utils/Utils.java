@@ -2662,6 +2662,11 @@ public class Utils
 		return !TextUtils.isEmpty(context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.NAME_SETTING, null));
 	}
 
+	public static boolean isMsisdnVerified(Context context)
+	{
+		return !TextUtils.isEmpty(context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, null));
+	}
+
 	public static void appStateChanged(Context context)
 	{
 		appStateChanged(context, true, false);
@@ -5843,11 +5848,6 @@ public class Utils
 		return createTimelinePostForDPChange(response, true);
 	}
 
-//	public static boolean isDeviceRooted()
-//	{
-//		return RootUtil.isDeviceRooted();
-//	}
-
 	public static boolean isPhotosEditEnabled()
 	{
 		if (!Utils.isUserSignedUp(HikeMessengerApp.getInstance().getApplicationContext(), false))
@@ -8172,6 +8172,20 @@ public class Utils
 			return 0;
 		}
 
+	}
+
+	public static void clearNoMediaAndRescan(File dir, boolean rescan) {
+		File file = new File(dir.getPath(), ".nomedia");
+		if (file.exists()) {
+			file.delete();
+		}
+		if (rescan) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+				HikeMessengerApp.getInstance().getApplicationContext().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + dir)));
+			} else {
+				HikeMessengerApp.getInstance().getApplicationContext().sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED, Uri.parse("file://" + dir)));
+			}
+		}
 	}
 
 	public static List<String> jsonArrayToList(JSONArray jsonArray) {

@@ -1,6 +1,7 @@
 package com.bsb.hike.adapters;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -132,12 +133,15 @@ public class CustomKeyboardInputBoxAdapter implements OnClickListener
 	 *            the custom keyboard sticker keys
 	 * @return the view
 	 */
-	public View initStickerKeyboardView(List<Sk> customKeyboardStickerKeys)
+	public View initStickerKeyboardView(List<Sk> customKeyboardStickerKeys,int screenOrientation)
 	{
 		View stickerViewToDisplay = inflater.inflate(R.layout.custom_keyboard_sticker_page, null);
 		GridView stickerGridView = (GridView) stickerViewToDisplay.findViewById(R.id.emoticon_grid);
 
-		int stickerGridNumCols = HikePlatformConstants.stickerGridNoOfCols;
+		int stickerGridNumCols = HikePlatformConstants.stickerGridNoOfColsPortrait;
+
+        if(screenOrientation ==  Configuration.ORIENTATION_LANDSCAPE)
+            stickerGridNumCols = HikePlatformConstants.stickerGridNoOfColsLandscape;
 
 		stickerGridView.setNumColumns(stickerGridNumCols);
 		List<Sticker> stickersList = new CopyOnWriteArrayList<>();

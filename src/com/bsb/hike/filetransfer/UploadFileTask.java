@@ -38,6 +38,7 @@ import com.bsb.hike.modules.httpmgr.interceptor.IRequestInterceptor;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.request.requestbody.FileTransferChunkSizePolicy;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.platform.PlatformMessageMetadata;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.FileTransferCancelledException;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -98,7 +99,12 @@ public class UploadFileTask extends FileTransferBase
 		if (userContext != null)
 		{
 			this.msgId = userContext.getMsgID();
-			HikeFile hikeFile = userContext.getMetadata().getHikeFiles().get(0);
+			HikeFile hikeFile;
+			if(convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.CONTENT){
+				hikeFile = userContext.platformMessageMetadata.getHikeFiles().get(0);
+			}else{
+				hikeFile = userContext.getMetadata().getHikeFiles().get(0);
+			}
 			if (!TextUtils.isEmpty(hikeFile.getSourceFilePath()))
 			{
 				if (hikeFile.getSourceFilePath().startsWith(HikeConstants.PICASA_PREFIX))
@@ -247,7 +253,12 @@ public class UploadFileTask extends FileTransferBase
 
 		if (TextUtils.isEmpty(fileKey))
 		{
-			HikeFile hikeFile = userContext.getMetadata().getHikeFiles().get(0);
+			HikeFile hikeFile;
+			if(userContext.getMessageType() == HikeConstants.MESSAGE_TYPE.CONTENT){
+				hikeFile = userContext.platformMessageMetadata.getHikeFiles().get(0);
+			}else{
+				hikeFile = userContext.getMetadata().getHikeFiles().get(0);
+			}
 			FileSavedState fst = FileTransferManager.getInstance(context).getUploadFileState(msgId, hikeFile.getFile());
 			if (fst != null && !TextUtils.isEmpty(fst.getFileKey()))
 			{
@@ -276,7 +287,13 @@ public class UploadFileTask extends FileTransferBase
 	 */
 	private void initFileUpload(boolean isFileKeyValid) throws FileTransferCancelledException, Exception
 	{
-		HikeFile hikeFile = userContext.getMetadata().getHikeFiles().get(0);
+		HikeFile hikeFile;
+		boolean isContentTypeMessage = userContext.getMessageType() == HikeConstants.MESSAGE_TYPE.CONTENT;
+		if(isContentTypeMessage){
+			hikeFile = userContext.platformMessageMetadata.getHikeFiles().get(0);
+		}else{
+			hikeFile = userContext.getMetadata().getHikeFiles().get(0);
+		}
 		hikeFileType = hikeFile.getHikeFileType();
 		this.mAttachementType = hikeFile.getAttachementType();
 
@@ -394,25 +411,46 @@ public class UploadFileTask extends FileTransferBase
 					hikeFile.setFile(selectedFile);
 				}
 				hikeFile.removeSourceFile();
-				JSONObject metadata = new JSONObject();
+				JSONObject metadata;
+				if(isContentTypeMessage){
+					metadata = userContext.platformMessageMetadata.getJSON();
+				}else{
+					metadata = new JSONObject();
+				}
+
 				JSONArray filesArray = new JSONArray();
 				filesArray.put(hikeFile.serialize());
 				metadata.put(HikeConstants.FILES, filesArray);
-				metadata.put(HikeConstants.CAPTION, ((ConvMessage) userContext).getMetadata().getCaption());
-				((ConvMessage) userContext).setMetadata(metadata);
-				userContext.setMetadata(metadata);
+
+				if(!isContentTypeMessage){
+					metadata.put(HikeConstants.CAPTION, ((ConvMessage) userContext).getMetadata().getCaption());
+					userContext.setMetadata(metadata);
+				}else{
+					PlatformMessageMetadata platformMessageMetadata = new PlatformMessageMetadata(metadata, true);
+					userContext.platformMessageMetadata = platformMessageMetadata;
+				}
 			}
 		}
 		if (isMultiMsg)
 		{
 			for (ConvMessage msg : messageList)
 			{
-				HikeConversationsDatabase.getInstance().updateMessageMetadata(msg.getMsgID(), msg.getMetadata());
+				if(isContentTypeMessage){
+					HikeConversationsDatabase.getInstance().updateMessageMetadata(msg.getMsgID(), msg.platformMessageMetadata.getJSON());
+				}else{
+					HikeConversationsDatabase.getInstance().updateMessageMetadata(msg.getMsgID(), msg.getMetadata());
+				}
+
 			}
 		}
 		else
 		{
-			HikeConversationsDatabase.getInstance().updateMessageMetadata(userContext.getMsgID(), userContext.getMetadata());
+			if(isContentTypeMessage){
+				HikeConversationsDatabase.getInstance().updateMessageMetadata(userContext.getMsgID(), userContext.platformMessageMetadata.getJSON());
+			}else{
+				HikeConversationsDatabase.getInstance().updateMessageMetadata(userContext.getMsgID(), userContext.getMetadata());
+			}
+
 		}
 		fileName = hikeFile.getFileName();
 		fileType = hikeFile.getFileTypeString();
@@ -458,7 +496,13 @@ public class UploadFileTask extends FileTransferBase
 			public void intercept(Chain chain) throws Exception
 			{
 				initFileUpload(isFileKeyValid);
-				if (userContext.getMetadata().getHikeFiles().get(0).getFileSize() > HikeConstants.MAX_FILE_SIZE)
+				HikeFile hikeFile;
+				if(userContext.getMessageType() == HikeConstants.MESSAGE_TYPE.CONTENT){
+					hikeFile = userContext.platformMessageMetadata.getHikeFiles().get(0);
+				}else{
+					hikeFile = userContext.getMetadata().getHikeFiles().get(0);
+				}
+				if (hikeFile.getFileSize() > HikeConstants.MAX_FILE_SIZE)
 				{
 					removeTaskAndShowToast(HikeConstants.FTResult.FILE_SIZE_EXCEEDING);
 					return;
@@ -874,29 +918,50 @@ public class UploadFileTask extends FileTransferBase
 		 */
 
 		// this.analyticEvents.saveAnalyticEvent(FileTransferManager.getInstance(context).getAnalyticFile(selectedFile, msgId));
+        boolean isContentTypeMessage = userContext.getMessageType() == HikeConstants.MESSAGE_TYPE.CONTENT;
 
-		JSONObject metadata = new JSONObject();
 		JSONArray filesArray = new JSONArray();
-
-		HikeFile hikeFile = userContext.getMetadata().getHikeFiles().get(0);
+        HikeFile hikeFile;
+		if(isContentTypeMessage){
+			hikeFile = userContext.platformMessageMetadata.getHikeFiles().get(0);
+		}else{
+			hikeFile = userContext.getMetadata().getHikeFiles().get(0);
+		}
 		hikeFile.setFileKey(fileKey);
 		hikeFile.setFileSize(fileSize);
 		hikeFile.setFileTypeString(fileType);
 
 		filesArray.put(hikeFile.serialize());
+		JSONObject metadata = null;
+		if(isContentTypeMessage){
+            metadata = userContext.platformMessageMetadata.getJSON();
+		}
+		else{
+			metadata = new JSONObject();
+			metadata.put(HikeConstants.CAPTION, ((ConvMessage) userContext).getMetadata().getCaption());
+		}
 		metadata.put(HikeConstants.FILES, filesArray);
-		metadata.put(HikeConstants.CAPTION, ((ConvMessage) userContext).getMetadata().getCaption());
 
 		if (isMultiMsg)
 		{
-			long ts = System.currentTimeMillis() / 1000;
 
-			MessageMetadata messageMetadata = new MessageMetadata(metadata, true);
+			long ts = System.currentTimeMillis() / 1000;
+			MessageMetadata messageMetadata = null;
+            PlatformMessageMetadata platformMessageMetadata = null;
+            if(!isContentTypeMessage){
+				messageMetadata = new MessageMetadata(metadata, true);
+			}else{
+				platformMessageMetadata = new PlatformMessageMetadata(metadata,true);
+			}
 			for (ConvMessage msg : messageList)
 			{
-				msg.setMetadata(messageMetadata);
 				msg.setTimestamp(ts);
-				HikeConversationsDatabase.getInstance().updateMessageMetadata(msg.getMsgID(), msg.getMetadata());
+				if(!isContentTypeMessage){
+					msg.setMetadata(messageMetadata);
+				}else{
+					msg.platformMessageMetadata = platformMessageMetadata;
+				}
+				HikeConversationsDatabase.getInstance().updateMessageMetadata(msg.getMsgID(), metadata);
 			}
 			ArrayList<ConvMessage> pubsubMsgList = new ArrayList<ConvMessage>();
 			pubsubMsgList.add(userContext);
@@ -905,7 +970,9 @@ public class UploadFileTask extends FileTransferBase
 		else
 		{
 			ConvMessage convMessageObject = userContext;
-			convMessageObject.setMetadata(metadata);
+			if(!isContentTypeMessage){
+				convMessageObject.setMetadata(metadata);
+			}
 
 			// The file was just uploaded to the servers, we want to publish
 			// this event

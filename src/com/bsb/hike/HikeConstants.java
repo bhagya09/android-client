@@ -497,6 +497,8 @@ public class HikeConstants
 
 	public static final String CUSTOM = "custom";
 
+	public static final String CUSTOM_ERROR_DEVICE_NOT_SUPPORTED = "ce1";
+
 	public static final String SOUND_PREF = "soundPref";
 
 	public static final String VIBRATE_PREF = "vibratePref";
@@ -797,6 +799,10 @@ public class HikeConstants
 
 	public static final String CALL_TYPE = "call_type";
 	public static String CONTENT_RANGE = "Content-Range";
+	public static String TIMELINE = "timeline";
+	public static String SEND ="send";
+
+	public static String TEXT_SHARE ="text";
 
 	public class Shortcut
 	{
@@ -853,11 +859,20 @@ public class HikeConstants
 	/* how often to ping after a failure */
 	public static final int RECONNECT_TIME = 10; /* 10 seconds */
 
+	/* reconnect after PAUID call */
+	public static final int PA_RECONNECT_TIME = 1; /* 1 second */
+
 	/* how often to ping after a server unavailable failure */
 	public static final int SERVER_UNAVAILABLE_MAX_CONNECT_TIME = 9; /* 9 minutes */
 
 	/* the max amount (in seconds) the reconnect time can be */
 	public static final int MAX_RECONNECT_TIME = 120;
+
+	/* the max amount (in seconds) the reconnect time can be */
+	public static final int PA_MAX_RECONNECT_TIME = 21600;
+
+	/* the max amount (in seconds) the reconnect time can be */
+	public static final int PA_BACKOFF_MULTIPLIER = 4;
 
 	/* the max amount of time we allow the service to run in case of no activity */
 	public static final int DISCONNECT_TIME = 10 * 60;
@@ -1170,6 +1185,8 @@ public class HikeConstants
 	public static final String VOIP_CALL_FAILED_FRAGMENT_TAG = "voipCallFailedFragmentTag";
 
 	public static final String VOIP_CALL_DECLINE_MESSAGE_FRAGMENT_TAG = "voipCallDeclineMessageFragTag";
+
+	public static final String SHOW_CT_CONFIRMATIN_DIALOG = "showCTConfirmationDialog";
 	/*
 	 * Contact Type
 	 */
@@ -1427,11 +1444,13 @@ public class HikeConstants
 
 		public static final String LOGS_SCHEDULE="logs_schdl";
 
-		public static final String INTERVAL = "inv";
+		public static final String INTERVAL = "intv";
 
 		public static final String FREQUENCY = "frq";
 
 		public static final String TYPE = "typ";
+
+		public static final String CONFIG = "signup_config";
 	}
 
 	public static final class ChatHead
@@ -2877,6 +2896,8 @@ public class HikeConstants
 		public static final String MULTI_INVITE = "mi";
 
 		public static final String CHAT_BACKGROUD = "cbg";
+
+		public static final String CHAT_BACKGROUD_V2 = "cbgv2";
 
 		public static final String GROUP_OWNER_CHANGE = "goc";
 
