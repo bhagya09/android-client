@@ -632,6 +632,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		this.msisdn = msisdn;
 		useWTRevamped = ChatThreadUtils.isWT1RevampEnabled(activity.getApplicationContext());
         nudgeManager = new NudgeManager(activity);
+		//CD-787 Bug fix
+		scrollToEnd();
     }
 
 	public HikeActionBar mActionBar;
