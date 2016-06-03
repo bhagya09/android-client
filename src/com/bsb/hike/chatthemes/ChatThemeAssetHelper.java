@@ -38,7 +38,9 @@ public class ChatThemeAssetHelper implements HikePubSub.Listener {
     }
 
     public void clearAssets() {
-        mAssets.clear();
+        if(mAssets != null) {
+            mAssets.clear();
+        }
     }
 
     /**

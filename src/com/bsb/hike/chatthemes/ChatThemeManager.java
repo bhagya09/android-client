@@ -112,7 +112,9 @@ public class ChatThemeManager {
     }
 
     public void clearThemes() {
-        mChatThemesMap.clear();
+        if(mChatThemesMap != null) {
+            mChatThemesMap.clear();
+        }
     }
 
     /**
@@ -425,6 +427,7 @@ public class ChatThemeManager {
         HikeSharedPreferenceUtil.getInstance().saveData(HikeChatThemeConstants.MIGRATED_CHAT_THEMES_DATA_TO_DB, false);
         clearThemes();
         mAssetHelper.clearAssets();
+<<<<<<< HEAD
         addTempCustomThemeToMap();
     }
 
@@ -449,4 +452,7 @@ public class ChatThemeManager {
         mChatThemesMap.put(theme.getThemeId(), theme);
     }
 
+=======
+    }
+>>>>>>> 21c15ab1ea9d920a1cb61289f1f3eb559d7a9103
 }
