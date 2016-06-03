@@ -6,6 +6,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHTTPTask;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHttpTaskResult;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
@@ -120,7 +121,7 @@ public class MultiStickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTask
 			}
             Logger.d(TAG, "language list for download : " + languagesList);
 			json.put(HikeConstants.KEYBOARD_LIST, new JSONArray(languagesList));
-
+			json = Utils.getParameterPostBodyForHttpApi(HttpRequestConstants.BASE_TAGS_V3, json);
 
 			RequestToken requestToken = tagsForMultiStickerRequest(getRequestId(), json, getResponseListener());
 

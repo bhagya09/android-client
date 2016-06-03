@@ -8,6 +8,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHTTPTask;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHttpTaskResult;
@@ -211,6 +212,7 @@ public class StickersForcedDownloadTask implements IHikeHTTPTask, IHikeHttpTaskR
 			Logger.d(TAG, "language list for download : " + languagesSet);
 
 			json.put(HikeConstants.KEYBOARD_LIST, new JSONArray(languagesSet));
+			json = Utils.getParameterPostBodyForHttpApi(HttpRequestConstants.BASE_FORCED_STICKERS, json);
 		}
 		catch (JSONException e)
 		{

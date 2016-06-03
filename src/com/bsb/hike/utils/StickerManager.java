@@ -4068,7 +4068,7 @@ public class StickerManager
 	{
 		long lastUserParametersFetchTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.LAST_USER_PARAMETER_FETCH_TIME, 0L);
 		long lastParameterMappingFetchTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.LAST_PARAMETER_MAPPING_FETCH_TIME, 0L);
-		long refreshPeriod = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.USER_PARAMTER_REFRESH_PERIOD, 0L /*7 * HikeConstants.ONE_DAY_MILLS*/);
+		long refreshPeriod = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.USER_PARAMTER_REFRESH_PERIOD, 7 * HikeConstants.ONE_DAY_MILLS);
 
 		if((System.currentTimeMillis() - lastUserParametersFetchTime) >= refreshPeriod)
 		{

@@ -8,6 +8,7 @@ import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHTTPTask;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHttpTaskResult;
 import com.bsb.hike.modules.httpmgr.interceptor.IRequestInterceptor;
@@ -152,6 +153,7 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 				bodyJson.put(HikeConstants.NUMBER_OF_STICKERS, getStickerDownloadSize());
 				bodyJson.put(HikeConstants.OFFSET, offset);
 
+				bodyJson = Utils.getParameterPostBodyForHttpApi(HttpRequestConstants.BASE_STICKER_V4, bodyJson);
 				Logger.d(TAG, "intercept(), Sticker Download Task Request: " + bodyJson.toString());
 
 				IRequestBody body = new JsonBody(bodyJson);

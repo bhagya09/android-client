@@ -222,6 +222,7 @@ import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.RequestConstants;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.notifications.HikeNotification;
@@ -8149,46 +8150,50 @@ public class Utils
 		return list;
 	}
 
-	public String getParameterUrlForHttpApi(String url, String method) {
-		List<String> parameterList = HikeConversationsDatabase.getInstance().getParameterListForUrl(url, method);
+	public static String getParameterUrlForHttpApi(String url) {
+
+		String parameterUrl = "";
+
+		List<String> parameterList = HikeConversationsDatabase.getInstance().getParameterListForUrl(url, RequestConstants.GET);
 
 		if (Utils.isEmpty(parameterList)) {
-			return null;
+			return parameterUrl;
 		}
 
 		String parameters = Utils.valuesToCommaSepratedString(parameterList);
 		List<Pair<String, String>> parameterMapping = HikeConversationsDatabase.getInstance().getParameterMapping(parameters);
 
 		if (Utils.isEmpty(parameterMapping)) {
-			return null;
+			return parameterUrl;
 		}
 
-		StringBuilder stringBuilder = new StringBuilder();
+		StringBuilder stringBuilder = new StringBuilder(parameterUrl);
 		for (Pair<String, String> parameterPair : parameterMapping) {
 			stringBuilder.append("&");
 			stringBuilder.append(parameterPair.first);
 			stringBuilder.append("=");
 			stringBuilder.append(parameterPair.second);
 		}
-
-		return stringBuilder.toString();
+		return parameterUrl;
 	}
 
-	public JSONObject getParameterPostBodyForHttpApi(String url, String method) {
-		List<String> parameterList = HikeConversationsDatabase.getInstance().getParameterListForUrl(url, method);
+	public static JSONObject getParameterPostBodyForHttpApi(String url, JSONObject postBody) {
+
+		postBody = postBody == null ? new JSONObject() : postBody;
+
+		List<String> parameterList = HikeConversationsDatabase.getInstance().getParameterListForUrl(url, RequestConstants.POST);
 
 		if (Utils.isEmpty(parameterList)) {
-			return null;
+			return postBody;
 		}
 
 		String parameters = Utils.valuesToCommaSepratedString(parameterList);
 		List<Pair<String, String>> parameterMapping = HikeConversationsDatabase.getInstance().getParameterMapping(parameters);
 
 		if (Utils.isEmpty(parameterMapping)) {
-			return null;
+			return postBody;
 		}
 
-		JSONObject postBody = new JSONObject();
 		for (Pair<String, String> parameterPair : parameterMapping) {
 			try {
 				postBody.put(parameterPair.first, parameterPair.second);
