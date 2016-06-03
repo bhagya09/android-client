@@ -889,8 +889,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		try
 		{
-			UserLogInfo.requestUserLogs(255);
-
 			JSONObject metadata = new JSONObject();
 			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.HOME_SEARCH);
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
@@ -2868,7 +2866,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
 			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
 			json.put(AnalyticsConstants.V2.ORDER, HomeAnalyticsConstants.HIDDEN_UK);
-
 			HAManager.getInstance().recordV2(json);
 		}
 
@@ -2880,7 +2877,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	private void handleSendLink(Uri intentUri) {
 		String sendText ="";
 		try {
-			sendText = intentUri.getQueryParameter(HikeConstants.TEXT);
+			sendText = intentUri.getQueryParameter(HikeConstants.TEXT_SHARE);
 		}
 		catch(UnsupportedOperationException e)
 		{
@@ -2890,6 +2887,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		Intent intent =IntentFactory.getComposeChatActivityIntent(this);
 		intent.putExtra(HikeConstants.SEND,sendText);
 		intent.putExtra(HikeConstants.Extras.IS_GROUP_FIRST,true);
+		HikeAnalyticsEvent.recordAnalyticsForExternalShare(sendText);
 		startActivity(intent);
 		finish();
 

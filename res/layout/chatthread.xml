@@ -86,6 +86,14 @@
                         android:fadingEdge="none"
                         android:listSelector="@android:color/transparent"></ListView>
 
+
+                    <ViewStub
+                        android:id="@+id/quick_suggestion_tip_view_stub"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout="@layout/quick_sticker_suggestion_tip_view"
+                        android:layout_below="@+id/impMessageContainer"/>
+
                     <LinearLayout
                         android:id="@+id/impMessageContainer"
                         android:layout_width="match_parent"

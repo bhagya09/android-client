@@ -124,6 +124,49 @@ public class ShareablePopupLayout
     }
 
 
+    /**
+     * This method dismisses a popup if already showing, else it displays it
+     *
+     * @param popup
+     */
+
+    public boolean toggleCustomKeyboardPopup(ShareablePopup popup, int screenOrientation, int customKeyboardHeight)
+    {
+        View popupView = popup.getView(screenOrientation);
+
+        /** Exit condition
+         *  We simply return here.
+         */
+        if (popupView == null)
+        {
+            return false;
+        }
+
+        /**
+         * If we're already showing a view, let's say stickers and sticker icon was tapped again, then we should dismiss the view.
+         */
+        if (prevVisibleView != popupView || !mKeyboardPopupLayout.isShowing())
+        {
+            return showPopup(popup,screenOrientation,customKeyboardHeight);
+        }
+
+        else
+        {
+            if (mKeyboardPopupLayout.isShowing())
+            {
+                if (mKeyboardPopupLayout instanceof KeyboardPopupLayout21)
+                {
+                    ((KeyboardPopupLayout21) mKeyboardPopupLayout).showKeyboardAfterPopupDismiss();
+                }
+                dismiss();
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
 	/**
 	 * Utility method used for displaying the Popups using the Keyboard Popup layout. Appropriate comments have been added in the code flow for easily readability
 	 * 
@@ -273,6 +316,34 @@ public class ShareablePopupLayout
 		{
 			mKeyboardPopupLayout.onConfigChanged();
 		}
+	}
+
+	public boolean isPopupShowing(ShareablePopup popup, int screenOrientation)
+	{
+		if(!isShowing())
+		{
+			return false;
+		}
+
+		View popupView = popup.getView(screenOrientation);
+
+		/** Exit condition
+		 *  We simply return here.
+		 */
+		if (popupView == null)
+		{
+			return false;
+		}
+
+		/**
+		 * If we're already showing a view, let's say stickers and sticker was tapped again, we return true
+		 */
+		if (prevVisibleView == popupView)
+		{
+			return true;
+		}
+
+		return false;
 	}
 
 }

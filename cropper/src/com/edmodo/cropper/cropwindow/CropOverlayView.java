@@ -411,18 +411,6 @@ public class CropOverlayView extends View {
                                                                                 Edge.BOTTOM.getCoordinate(),
                                                                                 mTargetAspectRatio));
 
-                // Create new TargetAspectRatio if the original one does not fit
-                // the screen
-                if (cropWidth == Edge.MIN_CROP_LENGTH_PX)
-                {
-                    mTargetAspectRatio = (Edge.MIN_CROP_LENGTH_PX) / (Edge.BOTTOM.getCoordinate() - Edge.TOP.getCoordinate());
-                    //Defensive check. Happens in 4.0.4. Reason not known yet.
-                    if(mTargetAspectRatio <= 0f)
-                    {
-                        mTargetAspectRatio = 1f;
-                    }
-                }
-
                 final float halfCropWidth = cropWidth / 2f;
                 Edge.LEFT.setCoordinate(centerX - halfCropWidth);
                 Edge.RIGHT.setCoordinate(centerX + halfCropWidth);
@@ -439,18 +427,6 @@ public class CropOverlayView extends View {
                                                   AspectRatioUtil.calculateHeight(Edge.LEFT.getCoordinate(),
                                                                                   Edge.RIGHT.getCoordinate(),
                                                                                   mTargetAspectRatio));
-
-                // Create new TargetAspectRatio if the original one does not fit
-                // the screen
-                if (cropHeight == Edge.MIN_CROP_LENGTH_PX)
-                {
-                    mTargetAspectRatio = (Edge.RIGHT.getCoordinate() - Edge.LEFT.getCoordinate()) / Edge.MIN_CROP_LENGTH_PX;
-                    //Defensive check. Happens in 4.0.4. Reason not known yet.
-                    if (mTargetAspectRatio <= 0f)
-                    {
-                        mTargetAspectRatio = 1f;
-                    }
-                }
 
                 final float halfCropHeight = cropHeight / 2f;
                 Edge.TOP.setCoordinate(centerY - halfCropHeight);

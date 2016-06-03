@@ -1252,7 +1252,7 @@
     <string name="pers_notif_title">Update Hike</string>
     <string name="pers_notif_message">Update Hike for exciting new features!</string>
     <string name="close_gps">You can now turn off your location to save battery. Your Hike Direct connection will not get affected.</string>
-    <string name="gps_not_on">Sorry hike direct wont work if gps not on</string>
+    <string name="gps_not_on">Sorry hike direct won\'t work if GPS is not on</string>
     <string name="switch_on_gps">Please enable location to use Hike Direct.</string>
     <string name="gps_settings">SETTING</string>
     <string name="user_gps_off">Hike Direct cannot work till your location is enabled.</string>
@@ -1468,7 +1468,7 @@
     <string name="unsupported_langs_toast">Your Phone does not support %1$s</string>
     <string name="unsupported_language_toast_msg">Your phone does not support this language</string>
     <string name="error_message_upgrade_peer">Sorry could not connect. Your friend is not on the latest Hike version with Hike Direct.</string>
-    <string name="error_message_unsupported_peer">Sorry could not connect. Hike Directly currently works only with Android phones.</string>
+    <string name="error_message_unsupported_peer">Sorry could not connect. Hike Direct currently works only with Android phones.</string>
     <string name="bengali">Bengali</string>
     <string name="gujarati">Gujarati</string>
     <string name="hindi">Hindi</string>
@@ -1561,6 +1561,13 @@
     <string name="db_corrupt_notif_msg">You have a new notification</string>
     <string name="recording_help_text">Tap and hold to record, release to send</string>
     <string name="restore_version_error">Your backup was taken on a newer version of hike. Update your app to the latest version and try again.</string>
+    <string name="custom_quick_reply">WRITE YOUR OWN</string>
+    <string name="save_unknown_contact">SAVE</string>
+    <string name="spam_call_fail">Could not mark user as spam</string>
+    <string name="block_dialog_title">Block User</string>
+    <string name="block_dialog_body">Are you sure you want to block this user ?</string>
+    <string name="spam_info_in_dialog">Mark as spam and block</string>
+    <string name="unknown_user_spam_info"><![CDATA[ <font color="#ff5f5f"> Marked as Spam by %1$d people</font> ]]></string>
     <string name="restore_failed">Restore failed</string>
     <string name="ADD_FRIEND">ADD FRIEND</string>
     <string name="ACCEPT_REQUEST">ACCEPT REQUEST</string>
@@ -1625,6 +1632,9 @@
     <string name="sticker_restore_diffdpi_message">Looks like you have upgraded your phone. You will need to upgrade your sticker packs to support your new phone</string>
     <string name="GOT_IT">GOT IT</string>
     <string name="file_size_invalid_error">The file size which you are trying to share is invalid</string>
+    <string name="overlay_block_title">BLOCK | SPAM</string>
+    <string name="bot_overlay_block_title">BLOCK</string>
+    <string name="overlay_add_title">ADD CONTACT</string>
     <string name="my_location">My Location</string>
     <string name="custom_location">Custom Location</string>
     <string name="birthday_privacy_header">Birthday visible to </string>
@@ -1640,6 +1650,10 @@
     <string name="composeview_bday">Happy Birthday!</string>
     <string name="forward_to_single_timeline">Send message to %1$s and on Timeline?</string>
     <string name="forward_to_singular">Send message to %1$s?</string>
+    <string name="custom_chattheme_device_not_supported">Unable to set Custom Chat Theme</string>
+    <string name="qs_error_view_heading">Oops! something went wrong</string>
+    <string name="qs_error_view_sub_text">Tap on the sticker to try again</string>
+    <string name="qs_ftue_page_tap_text">Tap on any of the stickers to send</string>
     <string name="single_bday_notif_text">%1$s has his birthday today!</string>
     <string name="multiple_bday_notif_text">%1$s and %2$s others has his birthday today!</string>
     <string name="single_bday_notif_subtext"> Tap here to wish your friend a Happy Birthday!</string>
@@ -1648,7 +1662,19 @@
     <string name="uj_default_pretype_text">Hi</string>
     <string name="uj_default_cta_say_hi">Say Hi</string>
     <string name="uj_default_cta_add_friend">Add Friend</string>
-
+    <string name="ct_confirmation_dialog">This will apply the Chat theme on your friends device too.</string>
+    <string name="manage_privacy">Manage Privacy</string>
+    <string name="last_seen">Last Seen</string>
+    <string name="status_update">Status Update</string>
+    <string name="ls_privacy_subtext">You also won’t be able to see last seen if you turn it off</string>
+    <string name="su_privacy_subtext">You also won’t receive status updates if you turn if off</string>
+    <string name="qs_received_first_tip_text">Hey, you just received this sticker</string>
+    <string name="qs_received_second_tip_text">Tap on it to reply with a sticker</string>
+    <string name="qs_received_third_tip_text">Awesome, you got it!</string>
+    <string name="qs_sent_first_tip_text">Now you can send similar stickers</string>
+    <string name="qs_sent_second_tip_text">By tapping on stickers that you sent</string>
+    <string name="qs_sent_third_tip_text">Awesome, you got it!</string>
+    <string name="qs_empty_page_text">No Suggestions for this sticker</string>
     <string name="download_image_before_sharing">You need to download image before sharing.</string>
     <string name="native_card_file_transfer_of_type">Native card file transfer of type</string>
 </resources>

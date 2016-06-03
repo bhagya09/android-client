@@ -253,18 +253,14 @@ public class ViewHolderFactory
 			//Using hardcoded color code for transparent color in case the foregroundcolor is not present.
 			String foregroundColor = convMessage.platformMessageMetadata.cards.get(0).backgroundColor != null ? convMessage.platformMessageMetadata.cards.get(0).backgroundColor
 					: "#ffffffff";
-			Drawable backgroundDrawable;
+			Drawable backgroundDrawable = null;
+			ImageView background_image = (ImageView) view.findViewById(R.id.bg_image);
 			if (!TextUtils.isEmpty(foregroundColor))
 			{
 				ColorDrawable colorDrawable = new ColorDrawable(Color.parseColor(foregroundColor));
 				backgroundDrawable = new LayerDrawable(new Drawable[] { colorDrawable });
+				background_image.setImageDrawable(backgroundDrawable);
 			}
-			else
-			{
-				backgroundDrawable = ContextCompat.getDrawable(mContext, R.drawable.hike_daily_bg);
-			}
-			ImageView background_image = (ImageView) view.findViewById(R.id.bg_image);
-			background_image.setImageDrawable(backgroundDrawable);
 			if (convMessage.platformMessageMetadata.cards.get(0).background != null)
 			{
 				hikeDailyCardImageLoader = new HikeDailyCardImageLoader();

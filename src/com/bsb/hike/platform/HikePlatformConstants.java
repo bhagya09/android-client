@@ -461,7 +461,9 @@ public interface HikePlatformConstants
         String LARGE = "l";
     }
 
-    int stickerGridNoOfCols = 3;
+    int stickerGridNoOfColsPortrait = 3;
+
+    int stickerGridNoOfColsLandscape = 5;
 
     String BOT_CUSTOM_KEYBOARD_TYPE_STICKER = "s";
 
