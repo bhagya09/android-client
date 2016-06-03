@@ -275,4 +275,32 @@ public class ShareablePopupLayout
 		}
 	}
 
+	public boolean isPopupShowing(ShareablePopup popup, int screenOrientation)
+	{
+		if(!isShowing())
+		{
+			return false;
+		}
+
+		View popupView = popup.getView(screenOrientation);
+
+		/** Exit condition
+		 *  We simply return here.
+		 */
+		if (popupView == null)
+		{
+			return false;
+		}
+
+		/**
+		 * If we're already showing a view, let's say stickers and sticker was tapped again, we return true
+		 */
+		if (prevVisibleView == popupView)
+		{
+			return true;
+		}
+
+		return false;
+	}
+
 }

@@ -10,6 +10,7 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHTTPTask;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHttpTaskResult;
@@ -60,6 +61,7 @@ public class FetchCategoryMetadataTask implements IHikeHTTPTask, IHikeHttpTaskRe
 				array.put(jsonObject);
 			}
 			requestJsonBody.put(HikeConstants.UCIDS, array);
+			requestJsonBody = Utils.getParameterPostBodyForHttpApi(HttpRequestConstants.BASE_SHOP_METADATA, requestJsonBody);
         }
         catch (Exception e)
         {

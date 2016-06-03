@@ -26,7 +26,22 @@ public class FetchQuickStickerSuggestionTask implements Runnable
     public void run()
     {
         quickSuggestionCategory = HikeConversationsDatabase.getInstance().getQuickStickerSuggestionsForSticker(quickSuggestionCategory);
-        QuickStickerSuggestionController.getInstance().checkIfNeedsRefresh(quickSuggestionCategory);
-        LocalBroadcastManager.getInstance(HikeMessengerApp.getInstance()).sendBroadcast(new Intent(StickerManager.QUICK_STICKER_SUGGESTION_FETCHED).putExtra(HikeConstants.BUNDLE, quickSuggestionCategory.toBundle()));
+        if(quickSuggestionCategory.getStickerSet() == null)
+        {
+            downloadQuickSuggestions(quickSuggestionCategory);
+        }
+        else
+        {
+            LocalBroadcastManager.getInstance(HikeMessengerApp.getInstance()).sendBroadcast(new Intent(StickerManager.QUICK_STICKER_SUGGESTION_FETCH_SUCCESS).putExtra(HikeConstants.BUNDLE, quickSuggestionCategory.toBundle()));
+        }
+        if(QuickStickerSuggestionController.getInstance().needsRefresh(quickSuggestionCategory))
+        {
+            downloadQuickSuggestions(quickSuggestionCategory);
+        }
+    }
+
+    public void downloadQuickSuggestions(QuickSuggestionStickerCategory quickSuggestionStickerCategory)
+    {
+        StickerManager.getInstance().initiateSingleStickerQuickSuggestionDownloadTask(quickSuggestionStickerCategory.getQuickSuggestSticker());
     }
 }

@@ -1,10 +1,6 @@
 package com.bsb.hike.modules.quickstickersuggestions.tasks;
 
-import android.content.Intent;
-import android.support.v4.content.LocalBroadcastManager;
-
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.modules.quickstickersuggestions.model.QuickSuggestionSticker;
 import com.bsb.hike.modules.quickstickersuggestions.model.QuickSuggestionStickerCategory;
@@ -66,20 +62,11 @@ public class InsertQuickSuggestionTask implements Runnable
 
             HikeConversationsDatabase.getInstance().insertQuickSuggestionData(quickSuggestionCategoryList);
 			QuickStickerSuggestionController.getInstance().removeFromRetrySet(quickSuggestionStickerSet);
-			sendSignalToUi(quickSuggestionCategoryList);
+			QuickStickerSuggestionController.getInstance().sendFetchSuccessSignalToUi(quickSuggestionCategoryList);
 		}
 		catch (JSONException e)
 		{
 			Logger.e(TAG, "exception in inserting quick suggestions ", e);
-		}
-	}
-
-	private void sendSignalToUi(List<StickerCategory> quicStickerCategoryList)
-	{
-		for(StickerCategory category : quicStickerCategoryList)
-		{
-			QuickSuggestionStickerCategory quickSuggestionCategory = (QuickSuggestionStickerCategory) category;
-			LocalBroadcastManager.getInstance(HikeMessengerApp.getInstance()).sendBroadcast(new Intent(StickerManager.QUICK_STICKER_SUGGESTION_FETCHED).putExtra(HikeConstants.BUNDLE, quickSuggestionCategory.toBundle()));
 		}
 	}
 
