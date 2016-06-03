@@ -250,20 +250,17 @@ public class ViewHolderFactory
 		@Override
 		public void processViewHolder(final View view)
 		{
-			String foregraoundColor = convMessage.platformMessageMetadata.cards.get(0).backgroundColor != null ? convMessage.platformMessageMetadata.cards.get(0).backgroundColor
+			//Using hardcoded color code for transparent color in case the foregroundcolor is not present.
+			String foregroundColor = convMessage.platformMessageMetadata.cards.get(0).backgroundColor != null ? convMessage.platformMessageMetadata.cards.get(0).backgroundColor
 					: "#ffffffff";
-			Drawable backgroundDrawable;
-			if (!TextUtils.isEmpty(foregraoundColor))
-			{
-				ColorDrawable colorDrawable = new ColorDrawable(Color.parseColor(foregraoundColor));
-				backgroundDrawable = new LayerDrawable(new Drawable[] { colorDrawable });
-			}
-			else
-			{
-				backgroundDrawable = ContextCompat.getDrawable(mContext, R.drawable.hike_daily_bg);
-			}
+			Drawable backgroundDrawable = null;
 			ImageView background_image = (ImageView) view.findViewById(R.id.bg_image);
-			background_image.setImageDrawable(backgroundDrawable);
+			if (!TextUtils.isEmpty(foregroundColor))
+			{
+				ColorDrawable colorDrawable = new ColorDrawable(Color.parseColor(foregroundColor));
+				backgroundDrawable = new LayerDrawable(new Drawable[] { colorDrawable });
+				background_image.setImageDrawable(backgroundDrawable);
+			}
 			if (convMessage.platformMessageMetadata.cards.get(0).background != null)
 			{
 				hikeDailyCardImageLoader = new HikeDailyCardImageLoader();

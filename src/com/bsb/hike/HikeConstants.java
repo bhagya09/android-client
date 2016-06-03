@@ -802,7 +802,7 @@ public class HikeConstants
 	public static String TIMELINE = "timeline";
 	public static String SEND ="send";
 
-	public static String TEXT ="text";
+	public static String TEXT_SHARE ="text";
 
 	public class Shortcut
 	{

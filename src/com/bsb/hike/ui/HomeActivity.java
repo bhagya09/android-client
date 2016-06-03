@@ -2877,7 +2877,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	private void handleSendLink(Uri intentUri) {
 		String sendText ="";
 		try {
-			sendText = intentUri.getQueryParameter(HikeConstants.TEXT);
+			sendText = intentUri.getQueryParameter(HikeConstants.TEXT_SHARE);
 		}
 		catch(UnsupportedOperationException e)
 		{
