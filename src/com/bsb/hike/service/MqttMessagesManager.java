@@ -3406,6 +3406,53 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MULTIPLE_BDAY_NOTIF_SUBTEXT, multipleBdayNotifSubtext);
 		}
 
+		if(data.has(HikeConstants.QS_RECEIVE_FTUE_SESSION_COUNT))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.QS_RECEIVE_FTUE_SESSION_COUNT, data.getInt(HikeConstants.QS_RECEIVE_FTUE_SESSION_COUNT));
+			QuickStickerSuggestionController.getInstance().initFtueConditions();
+		}
+
+		if(data.has(HikeConstants.QS_SENT_FTUE_SESSION_COUNT))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.QS_SENT_FTUE_SESSION_COUNT, data.getInt(HikeConstants.QS_SENT_FTUE_SESSION_COUNT));
+			QuickStickerSuggestionController.getInstance().initFtueConditions();
+		}
+
+		if(data.has(HikeConstants.QUICK_SUGGESTION_RECEIVED_FIRST_TIP_TEXT))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.QUICK_SUGGESTION_RECEIVED_FIRST_TIP_TEXT, data.getString(HikeConstants.QUICK_SUGGESTION_RECEIVED_FIRST_TIP_TEXT));
+		}
+
+		if(data.has(HikeConstants.QUICK_SUGGESTION_RECEIVED_SECOND_TIP_TEXT))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.QUICK_SUGGESTION_RECEIVED_SECOND_TIP_TEXT, data.getString(HikeConstants.QUICK_SUGGESTION_RECEIVED_SECOND_TIP_TEXT));
+		}
+
+		if(data.has(HikeConstants.QUICK_SUGGESTION_RECEIVED_THIRD_TIP_TEXT))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.QUICK_SUGGESTION_RECEIVED_THIRD_TIP_TEXT, data.getString(HikeConstants.QUICK_SUGGESTION_RECEIVED_THIRD_TIP_TEXT));
+		}
+
+		if(data.has(HikeConstants.QUICK_SUGGESTION_SENT_FIRST_TIP_TEXT))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.QUICK_SUGGESTION_SENT_FIRST_TIP_TEXT, data.getString(HikeConstants.QUICK_SUGGESTION_SENT_FIRST_TIP_TEXT));
+		}
+
+		if(data.has(HikeConstants.QUICK_SUGGESTION_SENT_SECOND_TIP_TEXT))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.QUICK_SUGGESTION_SENT_SECOND_TIP_TEXT, data.getString(HikeConstants.QUICK_SUGGESTION_SENT_SECOND_TIP_TEXT));
+		}
+
+		if(data.has(HikeConstants.QUICK_SUGGESTION_SENT_THIRD_TIP_TEXT))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.QUICK_SUGGESTION_SENT_THIRD_TIP_TEXT, data.getString(HikeConstants.QUICK_SUGGESTION_SENT_THIRD_TIP_TEXT));
+		}
+
+		if(data.has(HikeConstants.USER_PARAMTER_REFRESH_PERIOD))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.USER_PARAMTER_REFRESH_PERIOD, data.getLong(HikeConstants.USER_PARAMTER_REFRESH_PERIOD));
+		}
+
 		if (data.has(HikeConstants.HIKE_CES_ENABLE))
 		{
 			boolean enableCes = data.getBoolean(HikeConstants.HIKE_CES_ENABLE);
@@ -3613,10 +3660,16 @@ public class MqttMessagesManager
 		 * Ignore if user is not two way friend. This is just for 2 way friends A/B testing.
 		 */
 		if (statusMessage.getStatusMessageType() == null
-				|| conMgr.isBlocked(statusMessage.getMsisdn())
-				|| (Utils.isFavToFriendsMigrationAllowed() && !conMgr.isTwoWayFriend(statusMessage.getMsisdn()))
-				)
+				|| conMgr.isBlocked(statusMessage.getMsisdn()))
 		{
+			return;
+		}
+
+
+		// User is 2 way friend && we still have to hide the SUs... // Purely defensive check or user is not 2way friend
+		if (Utils.isFavToFriendsMigrationAllowed()) {
+
+			if (!conMgr.isTwoWayFriend(statusMessage.getMsisdn()) || (conMgr.isTwoWayFriend(statusMessage.getMsisdn()) && !conMgr.shouldShowStatusUpdateForGivenMsisdn(statusMessage.getMsisdn())))
 			return;
 		}
 		/*

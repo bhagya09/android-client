@@ -68,7 +68,6 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotUtils;
-import com.bsb.hike.chatthread.ChatThread;
 import com.bsb.hike.chatthemes.ChatThemeManager;
 import com.bsb.hike.chatthemes.HikeChatThemeConstants;
 import com.bsb.hike.chatthread.ChatThreadActivity;
@@ -99,6 +98,7 @@ import com.bsb.hike.models.MovingList;
 import com.bsb.hike.models.PhonebookContact;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.quickstickersuggestions.QuickStickerSuggestionController;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineController;
@@ -944,6 +944,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			displayMessageIndicator(convMessage, stickerHolder.broadcastIndicator, false);
 			setTimeNStatus(position, stickerHolder, true, stickerHolder.placeHolder);
 			setSelection(convMessage, stickerHolder.selectedStateOverlay);
+			QuickStickerSuggestionController.getInstance().animateForQsFtue(convMessage, stickerHolder.placeHolder);
 		}
 		else if (viewType == ViewType.NUDGE_SENT || viewType == ViewType.NUDGE_RECEIVE)
 		{
@@ -3909,9 +3910,25 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	@Override
 	public boolean onLongClick(View view)
 	{
+		switch (view.getId())
+		{
+		case R.id.placeholder:
+			ConvMessage convMessage = (ConvMessage) view.getTag();
+
+			if (convMessage.isStickerMessage())
+			{
+				if (convMessage.getMetadata() != null && convMessage.getMetadata().getSticker() != null)
+				{
+					StickerManager.getInstance().sendStickerClickedLogs(convMessage, HikeConstants.LONG_TAP);
+				}
+			}
+			break;
+		}
+
 		/*
 		 * here returning false will pass this event to onItemLongClick method of listview.
 		 */
+
 		return false;
 	}
 

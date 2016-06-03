@@ -1,6 +1,7 @@
 package com.bsb.hike.modules.animationModule;
 
 import android.content.Context;
+import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
@@ -111,9 +112,9 @@ public class HikeAnimationFactory
 		return animSet;
 	}
 
-	public static Animation getStickerPreviewFtueAnimation(Context context)
+	public static Animation getZoomInZoomOutAnimation(Context context)
 	{
-		final AnimationSet animSet = (AnimationSet) AnimationUtils.loadAnimation(context, R.anim.pack_preview_shop_ftue_anim);
+		final AnimationSet animSet = (AnimationSet) AnimationUtils.loadAnimation(context, R.anim.zoom_in_zoom_out);
 		return animSet;
 	}
 
@@ -123,5 +124,54 @@ public class HikeAnimationFactory
 		pulse.setRepeatCount(Animation.INFINITE);
 		pulse.setAnimationListener(listener);
 		return pulse;
+	}
+
+	public static AnimationSet getQuickSuggestionStickerAnimation(Context context)
+	{
+		final AnimationSet animSet = (AnimationSet) AnimationUtils.loadAnimation(context, R.anim.quick_suggestion_sticker_animation);
+
+		animSet.setAnimationListener(new AnimationListener() {
+
+			@Override
+			public void onAnimationStart(Animation animation) {
+			}
+
+			@Override
+			public void onAnimationRepeat(Animation animation) {
+			}
+
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				animation.reset();
+				animation.start();
+			}
+		});
+		return animSet;
+	}
+
+	public static Animation getUpUpPartAnimation(Context context, final View container)
+	{
+		Animation am = AnimationUtils.loadAnimation(context, R.anim.down_up_up_part);
+		am.setAnimationListener(new Animation.AnimationListener()
+		{
+
+			@Override
+			public void onAnimationStart(Animation animation)
+			{
+			}
+
+			@Override
+			public void onAnimationRepeat(Animation animation)
+			{
+			}
+
+			@Override
+			public void onAnimationEnd(Animation animation)
+			{
+				container.setVisibility(View.GONE);
+			}
+		});
+
+		return am;
 	}
 }
