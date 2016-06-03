@@ -267,7 +267,6 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 					((StickerRecommendationFtueFragment) fragmentFtue).setAndNotify(word, phrase, result.second);
 				}
 				else
-				// show only available stickers
 				{
 					hideFragment(fragmentFtue);
 					showFragment(fragment);
@@ -366,12 +365,14 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	}
 
 	@Override
-	public void stickerSelected(String word, String phrase, Sticker sticker, int selectedIndex, int recommendedListSize, String source, boolean dismissAndClear)
+	public void stickerSelected(String word, String phrase, Sticker sticker, int selectedIndex, List<Sticker> recommendedList, String source, boolean dismissAndClear)
 	{
-		Logger.v(TAG, "stickerSelected(" + word + ", " + phrase + ", " + sticker + ", " + selectedIndex + "," + recommendedListSize + "," + source + "," + dismissAndClear + ")");
+		Logger.v(TAG, "stickerSelected(" + word + ", " + phrase + ", " + sticker + ", " + selectedIndex + "," + recommendedList.size() + "," + source + "," + dismissAndClear + ")");
 
-        StickerManager.getInstance().sendRecommendationSelectionAnalytics(source, sticker, (selectedIndex + 1), recommendedListSize,
+        StickerManager.getInstance().sendRecommendationSelectionAnalytics(source, sticker, (selectedIndex + 1), recommendedList.size(),
                 StickerSearchManager.getInstance().getNumStickersVisibleAtOneTime(), word, phrase);
+
+		StickerSearchManager.getInstance().logStickerSearchReport(phrase, recommendedList, sticker, selectedIndex);
 
 		sendSticker(sticker, source, dismissAndClear);
 

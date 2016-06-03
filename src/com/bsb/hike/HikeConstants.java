@@ -2394,6 +2394,12 @@ public class HikeConstants
 
 		public static final String STICKER_RECOMMENDATION_REBALANCING_SUMMERIZATION = "srRS";
 
+		public static final String STICKER_RECOMMENDATION = "sr_rec";
+
+		public static final String STICKER_RECOMMENDATION_REPORT = "sr_rec_rep";
+
+		public static final String STICKER_RECOMMENDATION_COUNT_REPORT = "sr_rec_cnt_rep";
+
 		public static final String STICKER_FOLDER_ERROR = "stFEr";
 
 		public static final String STICKER_ERROR = "stEr";

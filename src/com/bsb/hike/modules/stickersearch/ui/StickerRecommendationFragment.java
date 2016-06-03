@@ -188,7 +188,7 @@ public class StickerRecommendationFragment extends Fragment implements Listener
 		String source = (StickerSearchManager.getInstance().isFromAutoRecommendation() ? StickerManager.FROM_AUTO_RECOMMENDATION_PANEL
 				: StickerManager.FROM_BLUE_TAP_RECOMMENDATION_PANEL);
 
-		listener.stickerSelected(word, phrase, sticker, position, stickerList.size(), source, true);
+		listener.stickerSelected(word, phrase, sticker, position, stickerList, source, true);
 	}
 	
 	private void refreshStickerList()
