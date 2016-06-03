@@ -8380,4 +8380,10 @@ public class Utils
 		}
 		return false;
 	}
+
+	public static boolean isUnknownUserInfoViewEnabled()
+	{
+		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
+		return prefs.getData(HikeConstants.ENABLE_UNKNOWN_USER_INFO_IN_CHAT, false);
+	}
 }
