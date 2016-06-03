@@ -2,6 +2,7 @@ package com.bsb.hike.service;
 
 import java.net.HttpURLConnection;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -76,8 +77,8 @@ public class SendGCMIdToServerTrigger extends BroadcastReceiver
 
 		int lastBackOffTime = mprefs.getData(lastBackOffTimePref, 0);
 
-		lastBackOffTime = lastBackOffTime == 0 ? HikeConstants.RECONNECT_TIME : (lastBackOffTime * 2);
-		lastBackOffTime = Math.min(HikeConstants.MAX_RECONNECT_TIME, lastBackOffTime);
+		lastBackOffTime = lastBackOffTime == 0 ? HikeConstants.PA_RECONNECT_TIME : (lastBackOffTime * HikeConstants.PA_BACKOFF_MULTIPLIER);
+		lastBackOffTime = Math.min(HikeConstants.PA_MAX_RECONNECT_TIME, lastBackOffTime);
 
 		Logger.d(getClass().getSimpleName(), "Scheduling the next disconnect");
 
@@ -201,6 +202,7 @@ public class SendGCMIdToServerTrigger extends BroadcastReceiver
 
 					if (response != null)
 					{
+						Logger.d(getClass().getSimpleName(),response.toString());
 						mprefs.saveData(HikeMessengerApp.GCM_ID_SENT_PRELOAD, true);
 
 						/**
@@ -223,19 +225,27 @@ public class SendGCMIdToServerTrigger extends BroadcastReceiver
 							String paUid = response.getString(HikeConstants.Preactivation.UID);
 							String paToken = response.getString(HikeConstants.Preactivation.TOKEN);
 
-							Logger.d("pa","paEncryptKey : " + paEncryptKey);
-							mprefs.saveData(HikeConstants.Preactivation.ENCRYPT_KEY, paEncryptKey);
-							Logger.d("pa","paUid : " + paUid);
-							mprefs.saveData(HikeConstants.Preactivation.UID, paUid);
-							Logger.d("pa","paToken : " + paToken);
-							mprefs.saveData(HikeConstants.Preactivation.TOKEN, paToken);
+							Logger.d(getClass().getSimpleName(),"paUid : " + paUid + ", paToken : " + paToken + ", paEncryptKey : " + paEncryptKey);
+
+							if(!TextUtils.isEmpty(paUid) && !TextUtils.isEmpty(paEncryptKey) &&  !TextUtils.isEmpty(paToken))
+							{
+								mprefs.saveData(HikeConstants.Preactivation.ENCRYPT_KEY, paEncryptKey);
+								mprefs.saveData(HikeConstants.Preactivation.UID, paUid);
+								mprefs.saveData(HikeConstants.Preactivation.TOKEN, paToken);
+
+								if(!Utils.isMsisdnVerified(HikeMessengerApp.getInstance().getApplicationContext()))
+								{
+									parseLogsSchedule(response);
+								}
+							}
+
 
 						} catch (JSONException e) {
-							e.printStackTrace();
+							Logger.d(getClass().getSimpleName(), "while reading pre-activation json : " + e.getMessage());
 						}
 						//Utils.disableNetworkListner(HikeMessengerApp.getInstance().getApplicationContext());
 					}
-					UserLogInfo.requestUserLogs(UserLogInfo.ALL_LOGS);
+
 					break;
 				case HikeConstants.REGISTEM_GCM_AFTER_SIGNUP:
 
@@ -262,11 +272,29 @@ public class SendGCMIdToServerTrigger extends BroadcastReceiver
 						byte[] bytes = ((JsonBody) requestBody).getBytes();
 						recordSendDeviceDetailsFailException(new String(bytes));
 					}
+
 				}
-				scheduleNextSendToServerAction(HikeMessengerApp.LAST_BACK_OFF_TIME, mGcmIdToServer);
+				else
+				{
+					scheduleNextSendToServerAction(HikeMessengerApp.LAST_BACK_OFF_TIME, mGcmIdToServer);
+				}
 			}
 		};
 	};
+
+	private void parseLogsSchedule(JSONObject response) throws JSONException
+	{
+		if(response.has(HikeConstants.Preactivation.CONFIG))
+		{
+			JSONObject logsData = response.getJSONObject(HikeConstants.Preactivation.CONFIG);
+
+			if (logsData != null)
+			{
+				Logger.d(getClass().getSimpleName(), "signup_config message: " + logsData);
+				UserLogInfo.requestUserLogs(logsData);
+			}
+		}
+	}
 
 	private void recordSendDeviceDetailsFailException(String jsonString)
 	{

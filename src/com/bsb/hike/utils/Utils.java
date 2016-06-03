@@ -2662,6 +2662,11 @@ public class Utils
 		return !TextUtils.isEmpty(context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.NAME_SETTING, null));
 	}
 
+	public static boolean isMsisdnVerified(Context context)
+	{
+		return !TextUtils.isEmpty(context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, null));
+	}
+
 	public static void appStateChanged(Context context)
 	{
 		appStateChanged(context, true, false);

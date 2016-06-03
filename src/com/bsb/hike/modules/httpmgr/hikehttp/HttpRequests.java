@@ -984,7 +984,7 @@ public class HttpRequests
 
 	private static  JSONObjectRequest.Builder addPreActivationHeaders(JSONObjectRequest.Builder jsonRequestBuilder )
 	{
-		if (!Utils.isUserAuthenticated(HikeMessengerApp.getInstance().getApplicationContext()))
+		if (!Utils.isMsisdnVerified(HikeMessengerApp.getInstance().getApplicationContext()))
 		{
 			Header customHeader;
 			String paUid = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Preactivation.UID, "");
@@ -1895,7 +1895,7 @@ public class HttpRequests
 
 		JsonBody jsonBody = new JsonBody(payload);
 
-		RequestToken requestToken = new JSONObjectRequest.Builder()
+		JSONObjectRequest.Builder jsonReqBuilder  = new JSONObjectRequest.Builder()
 				.setUrl(url)
 				.setId(requestId)
 				.setRequestListener(requestListener)
@@ -1903,8 +1903,9 @@ public class HttpRequests
 				.setPriority(PRIORITY_LOW)
 				.setRetryPolicy(new BasicRetryPolicy(Integer.MAX_VALUE, BasicRetryPolicy.DEFAULT_RETRY_DELAY, 4f))
 				.setGcmTaskConfig(config)
-				.post(jsonBody)
-				.build();
+				.post(jsonBody);
+		jsonReqBuilder = addPreActivationHeaders(jsonReqBuilder);
+		RequestToken requestToken = jsonReqBuilder.build();
 		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
 		return requestToken;
 	}

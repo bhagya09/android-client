@@ -855,11 +855,20 @@ public class HikeConstants
 	/* how often to ping after a failure */
 	public static final int RECONNECT_TIME = 10; /* 10 seconds */
 
+	/* reconnect after PAUID call */
+	public static final int PA_RECONNECT_TIME = 1; /* 1 second */
+
 	/* how often to ping after a server unavailable failure */
 	public static final int SERVER_UNAVAILABLE_MAX_CONNECT_TIME = 9; /* 9 minutes */
 
 	/* the max amount (in seconds) the reconnect time can be */
 	public static final int MAX_RECONNECT_TIME = 120;
+
+	/* the max amount (in seconds) the reconnect time can be */
+	public static final int PA_MAX_RECONNECT_TIME = 21600;
+
+	/* the max amount (in seconds) the reconnect time can be */
+	public static final int PA_BACKOFF_MULTIPLIER = 4;
 
 	/* the max amount of time we allow the service to run in case of no activity */
 	public static final int DISCONNECT_TIME = 10 * 60;
@@ -1431,11 +1440,13 @@ public class HikeConstants
 
 		public static final String LOGS_SCHEDULE="logs_schdl";
 
-		public static final String INTERVAL = "inv";
+		public static final String INTERVAL = "intv";
 
 		public static final String FREQUENCY = "frq";
 
 		public static final String TYPE = "typ";
+
+		public static final String CONFIG = "signup_config";
 	}
 
 	public static final class ChatHead

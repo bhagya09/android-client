@@ -882,8 +882,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		try
 		{
-			UserLogInfo.requestUserLogs(255);
-
 			JSONObject metadata = new JSONObject();
 			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.HOME_SEARCH);
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
