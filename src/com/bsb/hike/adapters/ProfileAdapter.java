@@ -3,6 +3,7 @@ package com.bsb.hike.adapters;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.preference.PreferenceManager;
 import android.support.v7.widget.SwitchCompat;
 import android.text.TextUtils;
 import android.text.util.Linkify;
@@ -19,6 +20,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bsb.hike.BitmapModule.BitmapUtils;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.view.ExplandingCells.ExpandableListItem;
 import com.bsb.hike.view.ExplandingCells.ExpandingLayout;
 import com.bsb.hike.view.ExplandingCells.ExpandingListView;
@@ -54,6 +59,7 @@ import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.List;
 
@@ -245,7 +251,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.On
 
 		ViewType viewType = ViewType.values()[getItemViewType(position)];
 
-		ProfileItem profileItem = getItem(position);
+		final ProfileItem profileItem = getItem(position);
 
 		View v = convertView;
 		
@@ -863,6 +869,24 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.On
 				viewHolder.lastSeenSwitch.setOnCheckedChangeListener(this);
 				viewHolder.statusUpdateSwitch.setOnCheckedChangeListener(this);
 
+				if (((ProfileItem.ProfilePrivacyItem) profileItem).getFtueShown()) {
+
+					if (!profileItem.isExpanded()) {
+						final ViewHolder tempViewHolder = viewHolder;
+						listView.postDelayed(new Runnable() {
+							@Override
+							public void run() {
+								if (!profileItem.isExpanded()) {
+									((ExpandingListView) listView).expandView((View) tempViewHolder.parent.getParent());
+									((ProfileItem.ProfilePrivacyItem) profileItem).setFtueShown(false);
+									HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FRIENDS_PRIVACY_PROFILE_VIEW_SHOWN, true);
+								}
+							}
+						}, 500); // Small delay to show the animation smoothly
+
+					}
+				}
+
 				break;
 		}
 
@@ -1085,9 +1109,13 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.On
 
 				if (!item.isExpanded()) {
 					((ExpandingListView) listView).expandView((View) v.getParent());
+					((ProfileItem.ProfilePrivacyItem) item).setFtueShown(false);
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FRIENDS_PRIVACY_PROFILE_VIEW_SHOWN, true);
 				} else {
 					((ExpandingListView) listView).collapseView((View) v.getParent());
 				}
+
+				recordTapOnPrivacySection();
 				break;
 
 			case R.id.last_seen_section:
@@ -1112,10 +1140,14 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.On
 		switch (buttonView.getId()) {
 			case R.id.last_seen_switch:
 				ContactManager.getInstance().toggleLastSeenSetting(mContactInfo, isChecked);
+				mContactInfo.getPrivacyPrefs().toggleLastSeen();
+				recordLastSeenSettingToggle();
 				break;
 
 			case R.id.status_update_switch:
 				ContactManager.getInstance().toggleStatusUpdateSetting(mContactInfo, isChecked);
+				mContactInfo.getPrivacyPrefs().toggleStatusUpdate();
+				recordStatusUpdateSettingToggle();
 				break;
 		}
 
@@ -1131,6 +1163,48 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.On
 		SwitchCompat switchCompat = (SwitchCompat) v.findViewById(R.id.status_update_switch);
 		switchCompat.setChecked(!switchCompat.isChecked());
 		// This will invoke onCheckedChanged, where the business logic resides for sending MQTT Packet
+	}
+
+	private void recordTapOnPrivacySection() {
+
+		try {
+			JSONObject json = HikeAnalyticsEvent.getFriendsPrivacyanalyticsJson();
+
+			if (json != null) {
+				json.put(AnalyticsConstants.V2.UNIQUE_KEY, "hs_privacy_options");
+				json.put(AnalyticsConstants.V2.ORDER, "hs_privacy_options");
+				json.put(AnalyticsConstants.V2.FAMILY, mContactInfo.isMyOneWayFriend() ? "friend" : "not_friend");
+				HAManager.getInstance().recordV2(json);
+			}
+		} catch (JSONException e) {
+			e.toString();
+		}
+	}
+
+	private void recordStatusUpdateSettingToggle() {
+		recordPrivacyAnalytics("su", mContactInfo.getPrivacyPrefs().shouldShowStatusUpdate() ? "on" : "off", null);
+	}
+
+	private void recordLastSeenSettingToggle() {
+		recordPrivacyAnalytics("last_seen", mContactInfo.getPrivacyPrefs().shouldShowLastSeen() ? "on" : "off", PreferenceManager.getDefaultSharedPreferences(profileActivity).getString(HikeConstants.LAST_SEEN_PREF_LIST, profileActivity.getString(R.string.privacy_favorites)));
+	}
+
+	private void recordPrivacyAnalytics(String family, String species, String variety) {
+		try {
+			JSONObject json = HikeAnalyticsEvent.getFriendsPrivacyanalyticsJson();
+
+			if (json != null) {
+				json.put(AnalyticsConstants.V2.FAMILY, family);
+				json.put(AnalyticsConstants.V2.GENUS, "profile");
+				if (!TextUtils.isEmpty(species))
+					json.put(AnalyticsConstants.V2.SPECIES, species);
+				if (!TextUtils.isEmpty(variety))
+					json.put(AnalyticsConstants.V2.VARIETY, variety);
+				HAManager.getInstance().recordV2(json);
+			}
+		} catch (JSONException e) {
+			e.toString();
+		}
 	}
 
 }

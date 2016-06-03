@@ -33,7 +33,11 @@ public abstract class ProfileItem extends ExpandableListItem
 	public static final int PRIVACY_SECTION = -14;
 
 	private int itemId;
-	
+
+	public void setText(Object text) {
+		this.text = text;
+	}
+
 	private Object text;
 
 	public ProfileItem(int itemId, Object text)
@@ -53,6 +57,8 @@ public abstract class ProfileItem extends ExpandableListItem
 	{
 		return text;
 	}
+
+
 
 	public static class ProfileStatusItem extends ProfileItem
 	{
@@ -269,9 +275,17 @@ public abstract class ProfileItem extends ExpandableListItem
 
 	public static class ProfilePrivacyItem extends ProfileItem
 	{
-		public ProfilePrivacyItem(int itemId)
+		public ProfilePrivacyItem(int itemId, Object data)
 		{
-			super(itemId, null);
+			super(itemId, data);
+		}
+
+		public void setFtueShown(boolean data) {
+			super.setText(data);
+		}
+
+		public boolean getFtueShown() {
+			return (boolean)super.getText();
 		}
 	}
 	
