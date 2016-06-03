@@ -1661,6 +1661,8 @@
     <string name="manage_privacy">Manage Privacy</string>
     <string name="last_seen">Last Seen</string>
     <string name="status_update">Status Update</string>
+    <string name="ls_privacy_subtext">You also won’t be able to see last seen if you turn it off</string>
+    <string name="su_privacy_subtext">You also won’t receive status updates if you turn if off</string>
 
 
 </resources>

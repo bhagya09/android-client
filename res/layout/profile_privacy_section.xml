@@ -51,14 +51,29 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <com.bsb.hike.view.CustomFontTextView
-                android:id="@+id/last_seen_tv"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/last_seen"
-                android:textColor="#000000"
-                android:textSize="14sp"/>
+                android:orientation="vertical">
+
+                <com.bsb.hike.view.CustomFontTextView
+                    android:id="@+id/last_seen_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/last_seen"
+                    android:textColor="#000000"
+                    android:textSize="14sp"/>
+
+                <com.bsb.hike.view.CustomFontTextView
+                    android:id="@+id/status_update_subtext"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/ls_privacy_subtext"
+                    android:textColor="@color/settings_text_subheader_color"
+                    android:textSize="12sp"/>
+            </LinearLayout>
 
             <android.support.v7.widget.SwitchCompat
                 android:id="@+id/last_seen_switch"
@@ -85,14 +100,29 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <com.bsb.hike.view.CustomFontTextView
-                android:id="@+id/status_update_tv"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/status_update"
-                android:textColor="#000000"
-                android:textSize="14sp"/>
+                android:orientation="vertical">
+
+                <com.bsb.hike.view.CustomFontTextView
+                    android:id="@+id/status_update_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/status_update"
+                    android:textColor="#000000"
+                    android:textSize="14sp"/>
+
+                <com.bsb.hike.view.CustomFontTextView
+                    android:id="@+id/status_update_subtext"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/su_privacy_subtext"
+                    android:textColor="@color/settings_text_subheader_color"
+                    android:textSize="12sp"/>
+            </LinearLayout>
 
             <android.support.v7.widget.SwitchCompat
                 android:id="@+id/status_update_switch"
