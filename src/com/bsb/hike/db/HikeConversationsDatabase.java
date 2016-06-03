@@ -7627,7 +7627,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 					try
 					{
 						if(message.getMessageType() == com.bsb.hike.HikeConstants.MESSAGE_TYPE.CONTENT){
-							message.platformMessageMetadata = new PlatformMessageMetadata(metadata, mContext);
+							message.platformMessageMetadata = new PlatformMessageMetadata(metadata);
 						}else if(message.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT || message.getMessageType() == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT){
 							message.webMetadata = new WebMetadata(metadata);
 						}else{
