@@ -1,6 +1,7 @@
 package com.bsb.hike.bots;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.support.annotation.Nullable;
 import android.net.Uri;
@@ -1203,7 +1204,7 @@ public class BotUtils
      *            the custom keyboard object
      * @return the custom key board height
      */
-    public static int getCustomKeyBoardHeight(CustomKeyboard customKeyboard,int screenWidth,int stickerPadding,int stickerGridPadding)
+    public static int getCustomKeyBoardHeight(CustomKeyboard customKeyboard,int screenWidth,int stickerPadding,int stickerGridPadding,int screenOrientation)
     {
         // Precautionary null check
         if (customKeyboard == null)
@@ -1213,12 +1214,15 @@ public class BotUtils
             return Utils.dpToPx(customKeyboard.getTk().size() * 48 + (customKeyboard.getTk().size() + 1) * 16);
         else if (customKeyboard != null && customKeyboard.getT() != null && customKeyboard.getT().equals(HikePlatformConstants.BOT_CUSTOM_KEYBOARD_TYPE_STICKER))
         {
+            int stickerGridNoOfCols = HikePlatformConstants.stickerGridNoOfColsPortrait;
+            if(screenOrientation == Configuration.ORIENTATION_LANDSCAPE)
+                stickerGridNoOfCols = HikePlatformConstants.stickerGridNoOfColsLandscape;
 
-            int horizontalSpacing = (HikePlatformConstants.stickerGridNoOfCols - 1) * stickerGridPadding;
+            int horizontalSpacing = (stickerGridNoOfCols - 1) * stickerGridPadding;
 
             int actualSpace = (screenWidth - horizontalSpacing - stickerPadding);
 
-            return (int) Math.ceil( (double) customKeyboard.getSk().size() / HikePlatformConstants.stickerGridNoOfCols) * actualSpace/HikePlatformConstants.stickerGridNoOfCols + Utils.dpToPx(((int) Math.ceil( (double) customKeyboard.getSk().size() / HikePlatformConstants.stickerGridNoOfCols) + 0) * 10);
+            return (int) Math.ceil( (double) customKeyboard.getSk().size() / stickerGridNoOfCols) * actualSpace/stickerGridNoOfCols + Utils.dpToPx(((int) Math.ceil( (double) customKeyboard.getSk().size() / stickerGridNoOfCols) + 0) * 10) + Utils.dpToPx(8);
         }
         return 0;
     }

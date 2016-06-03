@@ -2917,7 +2917,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
         if(CustomKeyboardManager.getInstance().shouldShowInputBox(mConversation.getMsisdn()))
         {
-            CustomKeyboardManager.getInstance().initInputBox(activity.getApplicationContext(),this,this,mConversation.getMsisdn());
+            CustomKeyboardManager.getInstance().initInputBox(activity.getApplicationContext(),this,this,mConversation.getMsisdn(),activity.getResources().getConfiguration().orientation);
             sendUIMessage(SHOW_INPUT_BOX, mConversation.getMsisdn());
         }
 
@@ -4296,22 +4296,22 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 			sendUIMessage(MESSAGE_RECEIVED, message);
 
-            if(CustomKeyboardManager.getInstance().isInputBoxButtonShowing(senderMsisdn) && CustomKeyboardManager.getInstance().getCustomKeyboardObject(senderMsisdn) != null && CustomKeyboardManager.getInstance().getCustomKeyboardObject(senderMsisdn).getKeep())
-            {
-                // Ignore this msg for keyboard operation since bot custom keyboard is already in persistent state and is in display
-            }
-            else if(CustomKeyboardManager.getInstance().shouldShowInputBox(senderMsisdn))
-            {
-                CustomKeyboardManager.getInstance().initInputBox(activity.getApplicationContext(),this,this,senderMsisdn);
-                sendUIMessage(SHOW_INPUT_BOX, senderMsisdn);
-            }
-            else if(CustomKeyboardManager.getInstance().isInputBoxButtonShowing(senderMsisdn))
-            {
-                sendUIMessage(REMOVE_INPUT_BOX, null);
-            }
-
+            displayBotsCustomKeyboardForRcvdMsg(senderMsisdn);
 		}
 	}
+
+    private void displayBotsCustomKeyboardForRcvdMsg(String senderMsisdn) {
+
+        if (CustomKeyboardManager.getInstance().isInputBoxButtonShowing(senderMsisdn) && CustomKeyboardManager.getInstance().getCustomKeyboardObject(senderMsisdn) != null && CustomKeyboardManager.getInstance().getCustomKeyboardObject(senderMsisdn).getKeep()) {
+            // Ignore this msg for keyboard operation since bot custom keyboard is already in persistent state and is in display
+        } else if (CustomKeyboardManager.getInstance().shouldShowInputBox(senderMsisdn)) {
+            CustomKeyboardManager.getInstance().initInputBox(activity.getApplicationContext(), this, this, senderMsisdn,activity.getResources().getConfiguration().orientation);
+            sendUIMessage(SHOW_INPUT_BOX, senderMsisdn);
+        } else if (CustomKeyboardManager.getInstance().isInputBoxButtonShowing(senderMsisdn)) {
+            sendUIMessage(REMOVE_INPUT_BOX, null);
+        }
+
+    }
 
 	protected boolean onMessageDelivered(Object object)
 	{
@@ -6759,7 +6759,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
     private void createInputBox(Object object)
     {
-        CustomKeyboardManager.getInstance().initInputBox(activity.getApplicationContext(),this,this,msisdn);
+        CustomKeyboardManager.getInstance().initInputBox(activity.getApplicationContext(),this,this,msisdn,activity.getResources().getConfiguration().orientation);
         sendUIMessage(SHOW_INPUT_BOX, object);
     }
 
@@ -6776,7 +6776,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
         int screenWidth = activity.getResources().getDisplayMetrics().widthPixels;
         int stickerPadding = 2 * activity.getResources().getDimensionPixelSize(R.dimen.sticker_padding);
         int stickerGridPadding = activity.getResources().getDimensionPixelSize(R.dimen.sticker_grid_horizontal_padding);
-		final int customKeyBoardHeight = BotUtils.getCustomKeyBoardHeight(customKeyboard,screenWidth,stickerPadding,stickerGridPadding);
+		final int customKeyBoardHeight = BotUtils.getCustomKeyBoardHeight(customKeyboard,screenWidth,stickerPadding,stickerGridPadding,activity.getResources().getConfiguration().orientation);
 
         // Added show popup method on post delayed so that main view gets inflated till now and so that mainView window token not get null  in keyboard popup layout code.
         uiHandler.postDelayed(new Runnable() {
@@ -6789,7 +6789,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
                 {
                     setComposeViewDefaultState();
                     Utils.showSoftKeyboard(activity,mComposeView);
-                    mShareablePopupLayout.togglePopup(CustomKeyboardManager.getInstance(), activity.getResources().getConfiguration().orientation, true);
+                    mShareablePopupLayout.toggleCustomKeyboardPopup(CustomKeyboardManager.getInstance(), activity.getResources().getConfiguration().orientation,customKeyBoardHeight);
 
                     if(useWTRevamped)
                     {
@@ -6811,6 +6811,11 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
                     customKeyboard.setHidden(false);
                 }
                 scrollToEnd();
+
+                if (mConversation.getConvInfo().isBlocked()) {
+                    dismissInputBox();
+                }
+
             }
         },100);
     }
@@ -6911,7 +6916,13 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
             setComposeViewCustomKeyboardState();
 		}
 
-		mShareablePopupLayout.togglePopup(CustomKeyboardManager.getInstance(), activity.getResources().getConfiguration().orientation, true);
+        CustomKeyboard customKeyboard = CustomKeyboardManager.getInstance().getCustomKeyboardObject(msisdn);
+        int screenWidth = activity.getResources().getDisplayMetrics().widthPixels;
+        int stickerPadding = 2 * activity.getResources().getDimensionPixelSize(R.dimen.sticker_padding);
+        int stickerGridPadding = activity.getResources().getDimensionPixelSize(R.dimen.sticker_grid_horizontal_padding);
+        int customKeyBoardHeight = BotUtils.getCustomKeyBoardHeight(customKeyboard,screenWidth,stickerPadding,stickerGridPadding,activity.getResources().getConfiguration().orientation);
+
+        mShareablePopupLayout.toggleCustomKeyboardPopup(CustomKeyboardManager.getInstance(), activity.getResources().getConfiguration().orientation ,customKeyBoardHeight);
 	}
 
 
