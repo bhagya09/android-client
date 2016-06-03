@@ -123,6 +123,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	public static final String OPEN_FRIENDS_TAB = "openFriendsTab";
 
+	public static final String OPEN_CONV_TAB = "openConvTab";
+
+	public static final String OPEN_ME_TAB = "openMeTab";
+
 	public static FtueContactsData ftueContactsData = new FtueContactsData();
 
 	private OverflowAdapter overflowAdapter;
@@ -590,7 +594,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
 		mPager.setOffscreenPageLimit(2);
 		mPager.setAdapter(mPagerAdapter);
-		mPager.setCurrentItem(DEAFULT_FRAGMENT_POSITION);
 		mPager.setOnPageChangeListener(pageChangeListener);
 	}
 
@@ -599,7 +602,25 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		tabsBar.addTab(tabsBar.newTab(FRIENDS_FRAGMENT_POSITION).setIcon(R.drawable.ic_tab_friend_selector).setCustomTabListener(tabsListener));
 		tabsBar.addTab(tabsBar.newTab(CONV_FRAGMENT_POSITION).setIcon(R.drawable.ic_tab_chat_selector).setCustomTabListener(tabsListener));
 		tabsBar.addTab(tabsBar.newTab(MY_FRAGMENT_POSITION).setIcon(R.drawable.ic_tab_me_selector).setCustomTabListener(tabsListener));
-		tabsBar.selectTab(DEAFULT_FRAGMENT_POSITION);
+		tabsBar.selectTab(getToBeSelectedTabPosition(getIntent(), true));
+	}
+
+	private int getToBeSelectedTabPosition(Intent intent, boolean selectDefaultIfMissing) {
+		if (intent != null)
+		{
+			if (intent.hasExtra(OPEN_FRIENDS_TAB))
+				return FRIENDS_FRAGMENT_POSITION;
+			else if (intent.hasExtra(OPEN_CONV_TAB))
+				return CONV_FRAGMENT_POSITION;
+			else if (intent.hasExtra(OPEN_ME_TAB))
+				return MY_FRAGMENT_POSITION;
+		}
+		if (selectDefaultIfMissing) {
+			return DEAFULT_FRAGMENT_POSITION;
+		}
+		else {
+			return -1;
+		}
 	}
 
 	CustomTabsBar.CustomTabBadgeCounterListener suFragCounterListener = new CustomTabsBar.CustomTabBadgeCounterListener() {
@@ -757,10 +778,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
 
-		if (intent.hasExtra(OPEN_DEFAULT_TAB))
-			mPager.setCurrentItem(DEAFULT_FRAGMENT_POSITION);
-		else if (intent.hasExtra(OPEN_FRIENDS_TAB))
-			mPager.setCurrentItem(FRIENDS_FRAGMENT_POSITION);
+		tabsBar.selectTab(getToBeSelectedTabPosition(intent, false));
+
 	}
 
 	private void showSmsOrFreeInvitePopup()
