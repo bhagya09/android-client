@@ -777,7 +777,7 @@ public class AtomicTipManager
 
             if (activityName.equals(ProductPopupsConstants.HIKESCREEN.MULTI_FWD_STICKERS.toString()))
             {
-                actionMultiFwdSticker(metadata);
+                actionMultiFwdSticker(context, metadata);
             }
             else if (activityName.equals(ProductPopupsConstants.HIKESCREEN.OPEN_WEB_VIEW.toString()))
             {
@@ -805,9 +805,10 @@ public class AtomicTipManager
 
     /**
      * Method to handle cta of multi forward stickers
+     * @param activity
      * @param stickerData
      */
-    public void actionMultiFwdSticker(String stickerData)
+    public void actionMultiFwdSticker(Activity activity, String stickerData)
     {
         Logger.d(TAG, "processing multi forward sticker action");
         try
@@ -826,7 +827,7 @@ public class AtomicTipManager
                     return;
                 }
 
-                PlatformUtils.multiFwdStickers(HikeMessengerApp.getInstance().getApplicationContext(), stickerId, categoryId, selectAll);
+                PlatformUtils.multiFwdStickers(activity, stickerId, categoryId, selectAll);
             }
 
         }
