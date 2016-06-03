@@ -1,5 +1,22 @@
 package com.bsb.hike.service;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -593,7 +610,7 @@ public class MqttMessagesManager
 					{
 						//throw new IllegalArgumentException();
 						//putting request to download the asset ids for the theme
-						ChatThemeManager.getInstance().downloadThemeAssetsMetadata(bgId, true);
+						ChatThemeManager.getInstance().downloadThemeAssetsMetadata(bgId, groupId, groupId, true);
 					}
 
 					String chatThemeId = bgId;
@@ -916,8 +933,10 @@ public class MqttMessagesManager
                 // Delete previous keyboard data from shared pref is the remove previous keyboard is set as true
                 if(customKeyboard != null && customKeyboard.getRemove())
                     CustomKeyboardManager.getInstance().removeFromSharedPreferences(convMessage.getMsisdn());
-                else
+                else {
                     CustomKeyboardManager.getInstance().saveToSharedPreferences(convMessage.getMsisdn(), convMessage.getPlatformData());
+                    CustomKeyboardManager.getInstance().setInputBoxButtonShowing(convMessage.getMsisdn(),false);
+                }
             }
         }
         else
@@ -3152,6 +3171,17 @@ public class MqttMessagesManager
 			int journalModeIndex = data.getInt(HikeConstants.JOURNAL_MODE_INDEX);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.JOURNAL_MODE_INDEX, journalModeIndex);
 		}
+
+		if (data.has(HikeConstants.CALLER_QUICK_REPLY_SET))
+		{
+			String quickReplyString = data.getString(HikeConstants.CALLER_QUICK_REPLY_SET);
+			if(!TextUtils.isEmpty(quickReplyString))
+			{
+				Set<String> replySet = new HashSet<String>(Arrays.asList(quickReplyString.split(",")));
+				HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeConstants.CALLER_QUICK_REPLY_SET, replySet);
+			}
+		}
+
 		if (data.has(HikeConstants.WT_1_REVAMP_ENABLED))
 		{
 			boolean enabled = data.getBoolean(HikeConstants.WT_1_REVAMP_ENABLED);
@@ -3366,8 +3396,8 @@ public class MqttMessagesManager
 
 		if (data.has(HikeConstants.MULTIPLE_BDAY_NOTIF_TITLE))
 		{
-			String multipleBdayNotifTitle = data.getString(HikeConstants.SINGLE_BDAY_NOTIF_TITLE);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SINGLE_BDAY_NOTIF_TITLE, multipleBdayNotifTitle);
+			String multipleBdayNotifTitle = data.getString(HikeConstants.MULTIPLE_BDAY_NOTIF_TITLE);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MULTIPLE_BDAY_NOTIF_TITLE, multipleBdayNotifTitle);
 		}
 
 		if (data.has(HikeConstants.MULTIPLE_BDAY_NOTIF_SUBTEXT))
@@ -3379,6 +3409,53 @@ public class MqttMessagesManager
 		{
 			boolean enable = data.getBoolean(HikePlatformConstants.ENABLE_HELP);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikePlatformConstants.ENABLE_HELP, enable);
+		}
+
+		if(data.has(HikeConstants.QS_RECEIVE_FTUE_SESSION_COUNT))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.QS_RECEIVE_FTUE_SESSION_COUNT, data.getInt(HikeConstants.QS_RECEIVE_FTUE_SESSION_COUNT));
+			QuickStickerSuggestionController.getInstance().initFtueConditions();
+		}
+
+		if(data.has(HikeConstants.QS_SENT_FTUE_SESSION_COUNT))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.QS_SENT_FTUE_SESSION_COUNT, data.getInt(HikeConstants.QS_SENT_FTUE_SESSION_COUNT));
+			QuickStickerSuggestionController.getInstance().initFtueConditions();
+		}
+
+		if(data.has(HikeConstants.QUICK_SUGGESTION_RECEIVED_FIRST_TIP_TEXT))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.QUICK_SUGGESTION_RECEIVED_FIRST_TIP_TEXT, data.getString(HikeConstants.QUICK_SUGGESTION_RECEIVED_FIRST_TIP_TEXT));
+		}
+
+		if(data.has(HikeConstants.QUICK_SUGGESTION_RECEIVED_SECOND_TIP_TEXT))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.QUICK_SUGGESTION_RECEIVED_SECOND_TIP_TEXT, data.getString(HikeConstants.QUICK_SUGGESTION_RECEIVED_SECOND_TIP_TEXT));
+		}
+
+		if(data.has(HikeConstants.QUICK_SUGGESTION_RECEIVED_THIRD_TIP_TEXT))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.QUICK_SUGGESTION_RECEIVED_THIRD_TIP_TEXT, data.getString(HikeConstants.QUICK_SUGGESTION_RECEIVED_THIRD_TIP_TEXT));
+		}
+
+		if(data.has(HikeConstants.QUICK_SUGGESTION_SENT_FIRST_TIP_TEXT))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.QUICK_SUGGESTION_SENT_FIRST_TIP_TEXT, data.getString(HikeConstants.QUICK_SUGGESTION_SENT_FIRST_TIP_TEXT));
+		}
+
+		if(data.has(HikeConstants.QUICK_SUGGESTION_SENT_SECOND_TIP_TEXT))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.QUICK_SUGGESTION_SENT_SECOND_TIP_TEXT, data.getString(HikeConstants.QUICK_SUGGESTION_SENT_SECOND_TIP_TEXT));
+		}
+
+		if(data.has(HikeConstants.QUICK_SUGGESTION_SENT_THIRD_TIP_TEXT))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.QUICK_SUGGESTION_SENT_THIRD_TIP_TEXT, data.getString(HikeConstants.QUICK_SUGGESTION_SENT_THIRD_TIP_TEXT));
+		}
+
+		if(data.has(HikeConstants.USER_PARAMTER_REFRESH_PERIOD))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.USER_PARAMTER_REFRESH_PERIOD, data.getLong(HikeConstants.USER_PARAMTER_REFRESH_PERIOD));
 		}
 
 		if (data.has(HikeConstants.HIKE_CES_ENABLE))
@@ -3588,10 +3665,16 @@ public class MqttMessagesManager
 		 * Ignore if user is not two way friend. This is just for 2 way friends A/B testing.
 		 */
 		if (statusMessage.getStatusMessageType() == null
-				|| conMgr.isBlocked(statusMessage.getMsisdn())
-				|| (Utils.isFavToFriendsMigrationAllowed() && !conMgr.isTwoWayFriend(statusMessage.getMsisdn()))
-				)
+				|| conMgr.isBlocked(statusMessage.getMsisdn()))
 		{
+			return;
+		}
+
+
+		// User is 2 way friend && we still have to hide the SUs... // Purely defensive check or user is not 2way friend
+		if (Utils.isFavToFriendsMigrationAllowed()) {
+
+			if (!conMgr.isTwoWayFriend(statusMessage.getMsisdn()) || (conMgr.isTwoWayFriend(statusMessage.getMsisdn()) && !conMgr.shouldShowStatusUpdateForGivenMsisdn(statusMessage.getMsisdn())))
 			return;
 		}
 		/*
@@ -4140,7 +4223,7 @@ public class MqttMessagesManager
 			if (data.optBoolean(HikeConstants.CUSTOM)) {
 				//throw new IllegalArgumentException();
 				//putting a request to downlaod the asset ids for the theme
-				ChatThemeManager.getInstance().downloadThemeAssetsMetadata(bgId, true);
+				ChatThemeManager.getInstance().downloadThemeAssetsMetadata(bgId, id, null, true);
 			}else {
 				String chatThemeId = bgId;
 				this.pubSub.publish(HikePubSub.CHAT_BACKGROUND_CHANGED, new Pair<String, String>(id, bgId));
@@ -4935,6 +5018,15 @@ public class MqttMessagesManager
 		else if (HikeConstants.MqttMessageTypes.CHAT_BACKGROUD.equals(type))
 		{
 			saveChatBackground(jsonObj);
+		}
+		else if (HikeConstants.MqttMessageTypes.CHAT_BACKGROUD_V2.equals(type))
+		{
+			if(jsonObj.has(HikeConstants.SUB_TYPE)) {
+				String errorType = jsonObj.getString(HikeConstants.SUB_TYPE);
+				if(!TextUtils.isEmpty(errorType)) {
+					HikeMessengerApp.getPubSub().publish(HikePubSub.CHATTHEME_CUSTOM_COMPATABILITY_ERROR, errorType);
+				}
+			}
 		}
 		else if (HikeConstants.MqttMessageTypes.GROUP_OWNER_CHANGE.equals(type))
 		{

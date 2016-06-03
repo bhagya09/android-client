@@ -24,7 +24,7 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.Utils;
+import com.bsb.hike.utils.PhoneUtils;
 
 public class SyncOldSMSTask extends AsyncTask<Void, Void, SMSSyncState>
 {
@@ -146,7 +146,7 @@ public class SyncOldSMSTask extends AsyncTask<Void, Void, SMSSyncState>
 			/*
 			 * Normalizing the number
 			 */
-			number = Utils.normalizeNumber(number,
+			number = PhoneUtils.normalizeNumber(number,
 					context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.COUNTRY_CODE, HikeConstants.INDIA_COUNTRY_CODE));
 			/*
 			 * If this number has not been added to the map, we should check whether the contact exists first.

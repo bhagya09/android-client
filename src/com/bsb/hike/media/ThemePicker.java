@@ -139,7 +139,7 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 
 		availableThemes = ChatThemeManager.getInstance().getAvailableThemeIds();
 		if(ChatThreadUtils.isCustomChatThemeEnabled()) {
-			availableThemes.add(0, HikeChatThemeConstants.THEME_PALETTE_CAMERA_ICON);
+			availableThemes.add(0, HikeChatThemeConstants.THEME_ID_CUSTOM_THEME);
 		}
 
 		gridAdapter = new ArrayAdapter<String>(appCompatActivity.getApplicationContext(), -1, availableThemes)
@@ -160,8 +160,9 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 				animatedThemeIndicator.setVisibility(View.GONE);
 				animatedBackground.setVisibility(View.GONE);
 
-				if(getItem(position).equalsIgnoreCase(HikeChatThemeConstants.THEME_PALETTE_CAMERA_ICON)) {
+				if(getItem(position).equalsIgnoreCase(HikeChatThemeConstants.THEME_ID_CUSTOM_THEME)) {
 					theme.setBackgroundResource(R.drawable.ic_ct_camera);
+					theme.setEnabled(false);
 
 					if (HikeSharedPreferenceUtil.getInstance().getData(HikeChatThemeConstants.SHARED_PREF_CT_SHOW_FTUE_ANIMATION, true)){
 						animatedBackground.setVisibility(View.VISIBLE);
@@ -183,7 +184,7 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 		attachmentsGridView.setAdapter(gridAdapter);
 
 		//BugFix CE-763, Making the userSelection defaulted to Camera icon in Theme Palette
-		if(gridAdapter.getItem(0).equalsIgnoreCase(HikeChatThemeConstants.THEME_PALETTE_CAMERA_ICON))
+		if(gridAdapter.getItem(0).equalsIgnoreCase(HikeChatThemeConstants.THEME_ID_CUSTOM_THEME))
 		{
 			attachmentsGridView.setSelection(0);
 		}
@@ -207,7 +208,7 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 					listener.themeClicked(availableThemes.get(position));
 				}
 				userSelection = availableThemes.get(position);
-				if(gridAdapter.getItem(position).equalsIgnoreCase(HikeChatThemeConstants.THEME_PALETTE_CAMERA_ICON)) {
+				if(gridAdapter.getItem(position).equalsIgnoreCase(HikeChatThemeConstants.THEME_ID_CUSTOM_THEME)) {
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeChatThemeConstants.SHARED_PREF_CT_SHOW_FTUE_ANIMATION, false);
 				}
 			}
@@ -375,7 +376,7 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 
 		availableThemes = ChatThemeManager.getInstance().getAvailableThemeIds();
 		if(ChatThreadUtils.isCustomChatThemeEnabled()) {
-			availableThemes.add(0, HikeChatThemeConstants.THEME_PALETTE_CAMERA_ICON);
+			availableThemes.add(0, HikeChatThemeConstants.THEME_ID_CUSTOM_THEME);
 		}
 		if(gridAdapter != null) {
 			gridAdapter.clear();

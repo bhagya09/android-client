@@ -360,7 +360,7 @@ public class HikeNotificationUtils
 		return new NotificationCompat.Action(icon, label, actionPI);
 	}
 
-    public static void recordUJNotifAnalytics(String uk, String cls, String order, String family, String genus, String variety, String race, String division, String section, String val_int, String to_user)
+    public static void recordUJNotifAnalytics(String uk, String cls, String order, String family, String genus, String variety, String race, String division, String section, String val_int, String to_msisdn)
     {
         try
         {
@@ -377,7 +377,7 @@ public class HikeNotificationUtils
             json.put(AnalyticsConstants.V2.DIVISION, division);
             json.put(AnalyticsConstants.V2.SECTION, section);
             json.put(AnalyticsConstants.V2.VAL_INT, val_int);
-            json.put(AnalyticsConstants.V2.TO_USER, to_user);
+            json.put(AnalyticsConstants.V2.TO_MISISDN, to_msisdn);
 
             HAManager.getInstance().recordV2(json);
         }
@@ -392,7 +392,7 @@ public class HikeNotificationUtils
         int pushType = ujJSON.optInt(HikeConstants.UserJoinMsg.PUSH_SETTING, HikeConstants.PushType.silent);
         boolean isRich = ujJSON.optBoolean(HikeConstants.UserJoinMsg.RICH_NOTIF, false);
         String msisdn = ujJSON.optString(HikeConstants.MSISDN);
-        String race = isRich ? RICH : (pushType == 0 ? SILENT : NORMAL);
+        String race = pushType == 0 ? SILENT : (isRich ? RICH : NORMAL);
         String variety = pushType == HikeConstants.PushType.loud ? LOUD : SILENT;
         String family = String.valueOf(msisdn.hashCode());
         String genus = ujJSON.optString(AnalyticsConstants.EXP_ANALYTICS_TAG);

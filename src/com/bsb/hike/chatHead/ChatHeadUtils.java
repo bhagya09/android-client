@@ -28,19 +28,21 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.db.DBConstants;
-import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.PhoneSpecUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.PhoneUtils;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPUtils.CallSource;
 import com.google.gson.Gson;
@@ -54,8 +56,8 @@ import org.json.JSONObject;
 import java.lang.reflect.Field;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -84,7 +86,9 @@ public class ChatHeadUtils
 	private static OutgoingCallReceiver outgoingCallReceiver;
 	
 	private static ClipboardListener clipboardListener;
-	
+
+	public static final int NO_OF_HTTP_CALL_RETRY = 3;
+
 	public static final int HTTP_CALL_RETRY_DELAY = 2000;
 	
 	public static final int HTTP_CALL_RETRY_MULTIPLIER = 1;
@@ -754,7 +758,7 @@ public class ChatHeadUtils
 		String number = null;
 		if (!TextUtils.isEmpty(searchNumber))
 		{
-			 number = getValidNumber(Utils.normalizeNumber(searchNumber, HikeMessengerApp.getInstance().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0)
+			 number = getValidNumber(PhoneUtils.normalizeNumber(searchNumber, HikeMessengerApp.getInstance().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0)
 					.getString(HikeMessengerApp.COUNTRY_CODE, HikeConstants.INDIA_COUNTRY_CODE)));
 
 		if (!TextUtils.isEmpty(number))
@@ -1067,4 +1071,115 @@ public class ChatHeadUtils
 			}
 		});
 	}
+
+	public static void makeHttpCallToSpamUnspamChatUser(final Context context, final String msisdn, final int markSpam)
+	{
+		JSONObject spamUserJSONObject = new JSONObject();
+		try
+		{
+			spamUserJSONObject.put(HikeConstants.MSISDN, msisdn);
+			spamUserJSONObject.put(HikeConstants.SPAM, markSpam);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
+		IRequestListener spamUserRequestListener = new IRequestListener() {
+
+			@Override
+			public void onRequestFailure(Response response, HttpException httpException) {
+				Toast.makeText(context, R.string.spam_call_fail, Toast.LENGTH_SHORT).show();
+			}
+
+			@Override
+			public void onRequestSuccess(Response result)
+			{
+				ContactManager.getInstance().toggleChatSpam(msisdn, markSpam);
+			}
+
+			@Override
+			public void onRequestProgressUpdate(float progress) {
+
+			}
+		};
+
+		RequestToken token = HttpRequests.toggleChatSpamUser(spamUserJSONObject, spamUserRequestListener, StickyCaller.ONE_RETRY,
+				HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER);
+		if(token != null && !token.isRequestRunning())
+		{
+			token.execute();
+		}
+		else
+		{
+			Logger.d(TAG, "As mark as spam task already running, so not starting new one");
+		}
+	}
+
+	public static CallerContentModel getCallerContentModelFormIntent(Intent intent)
+	{
+		CallerContentModel callerContentModel = null;
+		if(intent != null)
+		{
+			callerContentModel = intent.getParcelableExtra(HikeConstants.Extras.CALLER_CONTENT_MODEL);
+		}
+		return callerContentModel;
+	}
+
+	public static CallerContentModel getUpdatedCallerContentModelFromResponse(CallerContentModel callerContentModel, JSONObject result, String msisdn)
+	{
+		try
+		{
+			if(result != null)
+			{
+				if(callerContentModel == null)
+				{
+					callerContentModel = new CallerContentModel();
+					callerContentModel.setMsisdn(msisdn);
+				}
+
+				if(result.has(HikeConstants.NAME))
+				{
+					callerContentModel.setFullName(result.optString(HikeConstants.NAME));
+				}
+
+				if(result.has(HikeConstants.LOCATION))
+				{
+					callerContentModel.setLocation(result.optString(HikeConstants.LOCATION));
+				}
+
+				CallerMetadata md = new CallerMetadata(null);
+				md.setIsUserSpammedByYou(result.optBoolean(HikeConstants.IS_USER_CHAT_SPAMMED_BY_YOU) == true ? 1 : 0);
+				md.setChatSpamCount(result.optInt(HikeConstants.CHAT_SPAM_COUNT));
+				callerContentModel.setCallerMetadata(md);
+				callerContentModel.setExpiryTime(System.currentTimeMillis());
+			}
+
+		}
+		catch (JSONException ex)
+		{
+			ex.printStackTrace();
+		}
+		return callerContentModel;
+	}
+
+	/**
+	 * Checks String is NOt valid
+	 * 1. Empty/Null
+	 * 2. String is msisdn or not
+	 *
+	 * @param fullName
+	 * @return
+	 */
+	public static boolean isFullNameValid(String fullName)
+	{
+		boolean valid = true;
+
+		if(TextUtils.isEmpty(fullName) || fullName.trim().matches(HikeConstants.VALID_MSISDN_REGEX))
+		{
+			valid = false;
+		}
+		return valid;
+	}
+
 }

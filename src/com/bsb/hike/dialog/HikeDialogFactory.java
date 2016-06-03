@@ -159,6 +159,10 @@ public class HikeDialogFactory
 
 	public static final int STICKER_RESTORE_DIFF_DPI_DIALOG = 54;
 
+	public static final int BLOCK_CHAT_CONFIRMATION_DIALOG = 55;
+
+	public static final int CT_CONFIRMATION_DIALOG = 56;
+
 	public static HikeDialog showDialog(Context context, int whichDialog, Object... data)
 	{
 		return showDialog(context, whichDialog, null, data);
@@ -251,13 +255,17 @@ public class HikeDialogFactory
 		case CALLER_BLOCK_CONTACT_DIALOG:
 		case CALLER_UNBLOCK_CONTACT_DIALOG:
 			return showBlockContactDialog(context, dialogId, listener, data);
-
 		case DB_CORRUPT_RESTORE_DIALOG:
 			return showDBCorruptDialog(context, dialogId, listener, data);
+		case BLOCK_CHAT_CONFIRMATION_DIALOG:
+			return showBlockChatConfirmationDialog(context, dialogId, listener, data);
 		case MUTE_CHAT_DIALOG:
 			return showChatMuteDialog(context, dialogId, listener, data);
 		case STICKER_RESTORE_DIFF_DPI_DIALOG:
 			return showStickerRestoreDiffDpiDialog(context, dialogId, listener, data);
+
+		case CT_CONFIRMATION_DIALOG:
+			return showCTConfirmationDialog(context, dialogId, listener, data);
 		}
 		return null;
 	}
@@ -527,7 +535,7 @@ public class HikeDialogFactory
 					callOnSucess(listener, hikeDialog);
 			}
 		};
-		
+
 		hikeDialog.buttonPositive.setOnClickListener(imageQualityDialogOnClickListener);
 
 		hikeDialog.show();
@@ -1070,22 +1078,18 @@ public class HikeDialogFactory
 			// Disable Free Hike SMS field and enable the native SMS one
 		}
 
-		dialog.buttonPositive.setOnClickListener(new OnClickListener()
-		{
+		dialog.buttonPositive.setOnClickListener(new OnClickListener() {
 			@Override
-			public void onClick(View v)
-			{
+			public void onClick(View v) {
 				HAManager.getInstance().record(HikeConstants.LogEvent.SMS_POPUP_ALWAYS_CLICKED, AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT);
 				Utils.setSendUndeliveredAlwaysAsSmsSetting(context, true, !dialog.isHikeSMSChecked());
 				listener.positiveClicked(dialog);
 			}
 		});
 
-		dialog.buttonNegative.setOnClickListener(new OnClickListener()
-		{
+		dialog.buttonNegative.setOnClickListener(new OnClickListener() {
 			@Override
-			public void onClick(View v)
-			{
+			public void onClick(View v) {
 				HAManager.getInstance().record(HikeConstants.LogEvent.SMS_POPUP_JUST_ONCE_CLICKED, AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT);
 				listener.positiveClicked(dialog);
 			}
@@ -1109,12 +1113,10 @@ public class HikeDialogFactory
 
 		DialogUtils.setupSyncDialogLayout(syncConfirmation, dialog);
 
-		dialog.buttonPositive.setOnClickListener(new OnClickListener()
-		{
+		dialog.buttonPositive.setOnClickListener(new OnClickListener() {
 
 			@Override
-			public void onClick(View v)
-			{
+			public void onClick(View v) {
 				HikeMessengerApp.getPubSub().publish(HikePubSub.SMS_SYNC_START, null);
 
 				DialogUtils.executeSMSSyncStateResultTask(new SyncOldSMSTask(context));
@@ -1137,12 +1139,10 @@ public class HikeDialogFactory
 			}
 		});
 
-		dialog.setOnDismissListener(new OnDismissListener()
-		{
+		dialog.setOnDismissListener(new OnDismissListener() {
 
 			@Override
-			public void onDismiss(DialogInterface dialog)
-			{
+			public void onDismiss(DialogInterface dialog) {
 				Editor editor = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).edit();
 				editor.putBoolean(HikeMessengerApp.SHOWN_SMS_SYNC_POPUP, true);
 				editor.commit();
@@ -1226,22 +1226,17 @@ public class HikeDialogFactory
 		ListView listContacts = (ListView) dialog.findViewById(R.id.listContacts);
 		final DisplayContactsAdapter contactsAdapter = new DisplayContactsAdapter(msisdns, statusMsisdn);
 		listContacts.setAdapter(contactsAdapter);
-		listContacts.setOnItemClickListener(new AdapterView.OnItemClickListener()
-		{
+		listContacts.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3)
-			{
+			public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
 				// We are changing DataSet(msisdns) sent to Adapter inside DisplayContactsAdapter,
 				// So we are fetching msisdn for item clicked from Adapter only
 				String currentMsisdn = contactsAdapter.getMsisdnAsPerPostion(position);
-				if (Utils.isSelfMsisdn(currentMsisdn))
-				{
+				if (Utils.isSelfMsisdn(currentMsisdn)) {
 					Intent intent2 = new Intent(context, ProfileActivity.class);
 					intent2.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
 					context.startActivity(intent2);
-				}
-				else
-				{
+				} else {
 
 					Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(context, ContactManager.getInstance().getContact(currentMsisdn, true, true), false, false, ChatThreadActivity.ChatThreadOpenSources.LIKES_DIALOG);
 					// Add anything else to the intent
@@ -1324,6 +1319,31 @@ public class HikeDialogFactory
 		return dialog;
 	}
 
+	private static HikeDialog showBlockChatConfirmationDialog(Context context, int dialogId, HikeDialogListener listener, Object... data)
+	{
+		final CustomAlertDialog dialog = new CustomAlertDialog(context, dialogId);
+
+		dialog.setTitle(context.getString(R.string.block_dialog_title));
+		dialog.setMessage(context.getString(R.string.block_dialog_body));
+		dialog.setCancelable(true);
+
+		boolean toShowSpamCheckBox = true;
+		if(data != null)
+		{
+			toShowSpamCheckBox = (Boolean)data[0];
+		}
+
+		if(toShowSpamCheckBox)
+		{
+			dialog.setCheckBox(context.getString(R.string.spam_info_in_dialog), null, false);
+		}
+
+		dialog.setPositiveButton(R.string.YES, listener);
+		dialog.setNegativeButton(R.string.CANCEL, listener);
+		dialog.show();
+		return dialog;
+	}
+
 	private static HikeDialog showStickerRestoreDiffDpiDialog(Context context, int dialogId, HikeDialogListener listener, Object[] data)
 	{
 		CustomAlertDialog dialog = new CustomAlertDialog(context, dialogId);
@@ -1331,6 +1351,20 @@ public class HikeDialogFactory
 		dialog.setTitle(context.getString(R.string.sticker_restore_diffdpi_title));
 		dialog.setCancelable(false);
 		dialog.setPositiveButton(R.string.OK, listener);
+		dialog.show();
+		return dialog;
+	}
+
+	private static HikeDialog showCTConfirmationDialog(Context context, int dialogId, HikeDialogListener listener, Object... data)
+	{
+		final CustomAlertDialog dialog = new CustomAlertDialog(context, dialogId, R.layout.db_corrupt_dialog);
+
+		dialog.setTitle(context.getString(R.string.chat_theme));
+		dialog.setMessage(context.getString(R.string.ct_confirmation_dialog));
+		dialog.setCancelable(false);
+		dialog.setPositiveButton(R.string.OK, listener);
+		dialog.setNegativeButton(R.string.CANCEL, listener);
+
 		dialog.show();
 		return dialog;
 	}

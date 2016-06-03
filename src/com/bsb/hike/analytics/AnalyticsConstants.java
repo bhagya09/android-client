@@ -305,6 +305,8 @@ public class AnalyticsConstants
 		public static final String POPULATION = "pop";
 
 		public static final String DIVISION = "d";
+
+		public static final String TO_MISISDN = "to_msisdn";
 	}
 
 	// Edit picture flags and events
@@ -674,7 +676,17 @@ public class AnalyticsConstants
 
 		public static final String UNBLOCK_DIALOG = "unblkDlg";
 
+		public static final String STATIC_QUICK_REPLY_BUTTON = "sqrep";
 
+		public static final String CUSTOM_QUICK_REPLY_BUTTON = "cqrep";
+
+		public static final String QUICK_REPLY_CLOSE_BUTTON = "qrcb";
+
+		public static final String QUICK_REPLY = "qrep";
+
+		public static final String CHAT_THREAD_SPAM_BUTTON = "ctsbutton";
+
+		public static final String TEXT = "txt";
 	}
 	
 	public static String EVENT_SOURCE = "sr";
@@ -877,6 +889,30 @@ public class AnalyticsConstants
 
 	public static final String BLOCK_LIST_BACK = "bckBlck";
 
+	public static final String CALLER_FREE_SMS_CROSS= "frSms_cross";
+
+	public static final String CALLER_FREE_SMS_QUICK_REPLY_MSG= "frSms_msg";
+
+	public static final String ACT_LOG = "act_log";
+
+	public static final String STICKY_CALLER = "stkyClr";
+
+	public static final String CALLER_CARD = "crd";
+
+	public static final String CALLER_FREE_SMS = "frSms";
+
+	public static final String CROSS = "cross";
+
+	public static final String CHAT_THREAD = "chat_thread";
+
+	public static final String CHAT_THREAD_SAVE = "chat_thread_save";
+
+	public static final String CHAT_THREAD_BLOCK = "chat_thread_block";
+
+	public static final String CHAT_THREAD_FLAG = "chat_thread_flag";
+
+	public static final String CHAT_THREAD_CROSS = "chat_thread_cross";
+
 	public static final class AtomicTipsAnalyticsConstants
 	{
 		public static final String TIPS = "tips";
@@ -902,13 +938,13 @@ public class AnalyticsConstants
 	}
 	public static final String VIDEO_MAX_SIZE_TOAST_SHOWN = "maxLimToast";
 
-	public static final String SHARE_IMAGES = "imgShare";
+	public static final String YES = "yes";
 
-	public static final String IMAGE_SOURCE_GALLERY = "atchGal";
+	public static final String NO = "no";
 
-	public static final String IMAGE_SOURCE_CAMERA = "atchCam";
+	public static final String BLOCK = "block";
 
-	public static final String OVERFLOW_MENU_CLICKED = "ctOvrFlw";
+	public static final String SAVE = "save";
 
 	public static final class JoinGroupViaLinkSharingAnalyticsConstants
 	{
@@ -928,6 +964,8 @@ public class AnalyticsConstants
 
 		public static final String GROUP_CREATE = "create";
 	}
+
+	public static final String ACT_MSG = "act_msg";
 
 	public static final class BirthdayEvents
 	{
@@ -997,5 +1035,4 @@ public class AnalyticsConstants
 
 		public static final String SILENT = "silent";
 	}
-
 }

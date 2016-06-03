@@ -527,9 +527,13 @@ public class HikePubSub extends Handler implements Runnable
 
 	public static final String CHATTHEME_CONTENT_DOWNLOAD_FAILURE = "chatThemeContentDownloadFailure";
 
+	public static final String CHATTHEME_CUSTOM_COMPATABILITY_ERROR = "chatThemeCompatError";
+
 	public static final String FILE_OPENED = "fileOpened";
 
 	public static final String DB_CORRUPT = "db_corrupt";
+
+	public static final String UPDATE_UNKNOWN_USER_INFO_VIEW = "updateUnknownUserInfoView";
 
 	public static final String CLOUD_SETTINGS_BACKUP_SUCESS = "cldSetBackupDone";
 
