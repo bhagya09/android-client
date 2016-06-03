@@ -112,7 +112,9 @@ public class ChatThemeManager {
     }
 
     public void clearThemes() {
-        mChatThemesMap.clear();
+        if(mChatThemesMap != null) {
+            mChatThemesMap.clear();
+        }
     }
 
     /**
@@ -448,5 +450,4 @@ public class ChatThemeManager {
         }
         mChatThemesMap.put(theme.getThemeId(), theme);
     }
-
 }
