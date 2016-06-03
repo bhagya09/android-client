@@ -2889,6 +2889,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		Intent intent =IntentFactory.getComposeChatActivityIntent(this);
 		intent.putExtra(HikeConstants.SEND,sendText);
+		intent.putExtra(HikeConstants.Extras.IS_GROUP_FIRST,true);
 		startActivity(intent);
 		finish();
 

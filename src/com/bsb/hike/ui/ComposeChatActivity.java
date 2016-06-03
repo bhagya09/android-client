@@ -830,7 +830,12 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent), isContactChooserFilter, isShowTimeline(), false);
 			break;
 		case START_CHAT_MODE:
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId,
+			boolean showGroups =false;
+			if(getIntent().hasExtra(HikeConstants.Extras.IS_GROUP_FIRST))
+			{
+				showGroups =getIntent().getBooleanExtra(HikeConstants.Extras.IS_GROUP_FIRST,false);
+			}
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage || showGroups, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId,
 					sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent), isContactChooserFilter, isShowTimeline(),
 					showBdaySection);
 			break;
