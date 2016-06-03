@@ -316,6 +316,8 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 
 		if(showBdaySection)
 		{
+			hikeBdayContactList.clear();
+			filteredHikeBdayContactList.clear();
             hikeBdayContactList.addAll(BirthdayUtils.getSortedBdayContactListFromSharedPref());
 			BirthdayUtils.removeHiddenMsisdnFromContactInfoList(hikeBdayContactList);
 			filteredHikeBdayContactList.addAll(hikeBdayContactList);

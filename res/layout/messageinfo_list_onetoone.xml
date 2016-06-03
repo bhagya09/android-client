@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="36.5dp"
+              android:orientation="vertical"
+              android:background="@color/white" >
+
+
+
+    <RelativeLayout
+        android:id="@+id/section_view"
+        style="@style/ListSectionHeaderMargins"
+        android:layout_marginTop="18dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/headerTextView"
+            style="@style/ListSectionTextView"
+            android:text="@string/friends"
+            android:textSize="14sp"/>
+
+        <ImageView
+            android:id="@+id/headerImageView"
+            android:contentDescription="@string/content_des_message_send_rec_read_status"
+            android:layout_width="24.5dp"
+            android:layout_height="10dp"
+            android:src="@drawable/ic_tick"
+            android:layout_marginBottom="3dp"
+            android:layout_marginLeft="3dp"
+            android:layout_alignParentRight="true"
+            />
+    </RelativeLayout>
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/timestamp"
+            android:layout_marginLeft="16dp"
+            android:text="@string/friends"
+            style="@style/ListItemSubText"/>
+
+
+</LinearLayout>

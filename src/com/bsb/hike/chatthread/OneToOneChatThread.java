@@ -330,7 +330,7 @@ import java.util.Map;
 
 		if(arr.length>0)
 		{
-			Logger.d("IntentHashData",offlineIntentHashData+"");
+			Logger.d("IntentHashData", offlineIntentHashData + "");
 			outState.putIntArray(OfflineConstants.DIRECT_REQUEST_DATA, arr);
 		}
 		super.onSaveInstanceState(outState);
@@ -434,7 +434,7 @@ import java.util.Map;
 		}
 
 		list.add(new OverFlowMenuItem(mConversation.isBlocked() ? getString(R.string.unblock_title) : getString(R.string.block_title), 0, 0, !isNotMyOneWayFriend(), R.string.block_title));
-		if (BotUtils.isBot(HikePlatformConstants.CUSTOMER_SUPPORT_BOT_MSISDN))
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikePlatformConstants.ENABLE_HELP, false) && BotUtils.isBot(HikePlatformConstants.CUSTOMER_SUPPORT_BOT_MSISDN))
 		{
 			list.add(new OverFlowMenuItem(getString(R.string.help), 0, 0, R.string.help));
 		}
@@ -445,7 +445,7 @@ import java.util.Map;
 	protected Conversation fetchConversation()
 	{
 		mConversation = HikeConversationsDatabase.getInstance().getConversation(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, false);
-
+		Logger.d("MessageInfo","msisdn is "+msisdn);
 		mContactInfo = ContactManager.getInstance().getContact(msisdn, true, true);
 
 		if (mConversation == null)
@@ -1881,7 +1881,14 @@ import java.util.Map;
 			Toast.makeText(activity.getApplicationContext(), activity.getString(R.string.block_overlay_message, mConversation.getLabel()), Toast.LENGTH_SHORT).show();
 		}
 	}
-
+	@Override
+	protected void openMessageInfoScreen(ConvMessage convMessage){
+		Intent intent=IntentFactory.messageInfoIntent(activity,convMessage.getMsgID());
+		intent.putExtra(HikeConstants.MESSAGE_INFO.MESSAGE_INFO_TYPE,HikeConstants.MESSAGE_INFO.ONE_TO_ONE);
+		intent.putExtra(HikeConstants.MSISDN,msisdn);
+		intent.putExtra(HikeConstants.SMS_MESSAGE,convMessage.isSMS());
+		activity.startActivity(intent);
+	}
 	/**
 	 * On Call button clicked
 	 */

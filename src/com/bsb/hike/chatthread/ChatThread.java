@@ -310,7 +310,13 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
     private final NudgeManager nudgeManager;
 
-    protected ChatThreadActivity activity;
+	private int AUDIO_PLAYING=0;
+
+	private int NUDGE_TOAST_OCCURENCE = 2;
+
+	private int currentNudgeCount = 0;
+
+	protected ChatThreadActivity activity;
 
 	protected ThemePicker themePicker;
 
@@ -3082,6 +3088,28 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 						}
 
 					}
+					else if(msgExtrasJson.optInt(HikeConstants.MESSAGE_TYPE.MESSAGE_TYPE) == HikeConstants.MESSAGE_TYPE.WEB_CONTENT || msgExtrasJson.optInt(
+							HikeConstants.MESSAGE_TYPE.MESSAGE_TYPE) == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT){
+						// as we will be changing msisdn and hike status while inserting in DB
+						ConvMessage convMessage = Utils.makeConvMessage(msisdn,msgExtrasJson.getString(HikeConstants.HIKE_MESSAGE), mConversation.isOnHike());
+						convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT);
+						convMessage.setPlatformData(msgExtrasJson.optJSONObject(HikeConstants.PLATFORM_PACKET));
+						convMessage.webMetadata = new WebMetadata(msgExtrasJson.optString(HikeConstants.METADATA));
+						JSONObject json = new JSONObject();
+						try
+						{
+							json.put(HikePlatformConstants.CARD_TYPE, convMessage.webMetadata.getAppName());
+							json.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.CARD_FORWARD);
+							json.put(AnalyticsConstants.TO, msisdn);
+							HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
+						}
+						catch (JSONException | NullPointerException e)
+						{
+							e.printStackTrace();
+						}
+						sendMessage(convMessage);
+
+					}
 					else if (msgExtrasJson.has(HikeConstants.Extras.FILE_PATH))
 					{
 						String fileKey = null;
@@ -3592,8 +3620,46 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		mActionMode.showHideMenuItem(R.id.share_msgs, shareableMessagesCount == 1 && mAdapter.getSelectedCount() == 1);
 
 		mActionMode.showHideMenuItem(R.id.forward_msgs, !(selectedNonForwadableMsgs > 0));
+
+		mActionMode.showHideMenuItem(R.id.message_info, shouldShowMessageInfo());
+
+
 	}
 
+	public boolean shouldShowMessageInfo(){
+
+		if(!ChatThreadUtils.isMessageInfoEnabled()){
+			return false;
+		}
+		if(mAdapter.getSelectedCount()==1){
+			HashMap<Long, ConvMessage> selectedMessagesMap = mAdapter.getSelectedMessagesMap();
+			ConvMessage convMessage = selectedMessagesMap.values().iterator().next();
+			if (convMessage.isSent())
+			{
+				//When we are selecting a message which is already playing we disable the mesage Info Icon
+				if (convMessage.isFileTransferMessage() && convMessage.getMetadata() != null)
+				{
+
+					List<HikeFile> fileList = convMessage.getMetadata().getHikeFiles();
+
+					if (fileList != null && !fileList.isEmpty())
+					{
+						String key = fileList.get(0).getFileKey();
+						if (mAdapter.getVoiceMessagePlayerState() == AUDIO_PLAYING && key != null && key.equals(mAdapter.getVoiceMessagePlayerFileKey()))
+						{
+							return false;
+						}
+
+					}
+
+				}
+				return true;
+			}
+
+		}
+		return false;
+
+	}
 	protected void destroyActionMode()
 	{
 		resetSelectedMessageCounters();
@@ -4054,11 +4120,9 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
     private void onEnterToSendSettingsChanged()
 	{
-		activity.runOnUiThread(new Runnable()
-		{
+		activity.runOnUiThread(new Runnable() {
 			@Override
-			public void run()
-			{
+			public void run() {
 				defineEnterAction();
 			}
 		});
@@ -4199,7 +4263,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			// Adding file key for file transfer message in offline mode
 			if (msg.isOfflineMessage() && OfflineUtils.isFileTransferMessage(msg.serialize()))
 			{
-				Logger.d("BugRef","UPDATING FILE KEY FOR   .. msg id is "+ msgID);
+				Logger.d("BugRef", "UPDATING FILE KEY FOR   .. msg id is " + msgID);
 				if (TextUtils.isEmpty(msg.getMetadata().getHikeFiles().get(0).getFileKey()))
 				{
 					msg.getMetadata().getHikeFiles().get(0).setFileKey("OfflineFileKey" + System.currentTimeMillis() / 1000);
@@ -5225,6 +5289,10 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	protected void openProfileScreen()
 	{
 	}
+	protected void openMessageInfoScreen(ConvMessage convMessage){
+
+		return ;
+	}
 
 	protected String getCurrentlThemeId()
 	{
@@ -5634,6 +5702,20 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		ArrayList<Long> selectedMsgIds;
 		switch (menuItem.getItemId())
 		{
+
+			case R.id.message_info:
+				if(selectedMessagesMap.size()==1){
+					ConvMessage convMessage=selectedMessagesMap.values().iterator().next();
+					if(convMessage.isSent()){
+					openMessageInfoScreen(convMessage);
+					String species = activity.getIntent().getStringExtra(HikeConstants.Extras.WHICH_CHAT_THREAD);
+					Utils.recordCoreAnalyticsForShare(ChatAnalyticConstants.MessageInfoEvents.MESSAGE_INFO_EVENT, species, msisdn, mConversation.isStealth(),
+							ChatThreadUtils.getMessageType(convMessage), null, ChatAnalyticConstants.MessageInfoEvents.MESSAGE_INFO_TAP);
+					}
+					mActionMode.finish();
+				}
+				return true;
+
 			case R.id.delete_msgs:
 				ArrayList<Long> selectedMsgIdsToDelete = new ArrayList<Long>(mAdapter.getSelectedMessageIds());
 				this.dialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.DELETE_MESSAGES_DIALOG, this, mAdapter.getSelectedCount(),

@@ -783,6 +783,10 @@ public class HikeConstants
 
 	public static final String CALL_TYPE = "call_type";
 	public static String CONTENT_RANGE = "Content-Range";
+	public static String TIMELINE = "timeline";
+	public static String SEND ="send";
+
+	public static String TEXT ="text";
 
 	public class Shortcut
 	{
@@ -1394,6 +1398,8 @@ public class HikeConstants
 	public static final String VOIP_RATINGS_LEFT = "vrl";
 
 	public static final String WT_1_REVAMP_ENABLED = "wt_1";
+
+	public static final String MESSAGE_INFO_ENABLED = "mi";
 
 	public static final String CUSTOM_CHATTHEME_ENABLED = "ct_1";
 
@@ -4247,7 +4253,14 @@ public class HikeConstants
 
 		public static final String DIRECTORY_TYPE = "dir_t";
 	}
+	public static final class MESSAGE_INFO{
+		public static final String MESSAGE_INFO_TYPE="mi_t";
+		public static final  int ONE_TO_ONE=1;
+		public static final int GROUP=2;
+		public static final int BROADCAST=3;
 
+
+	}
 	public static final String NUM_ROWS_INITIALLY_VISIBLE = "num_rows_iv";
 
 	public static final String DISK_CACHE_SIZE = "disk_cache_size";

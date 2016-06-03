@@ -165,7 +165,7 @@ public class GroupChatThread extends OneToNChatThread
 		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CHAT_SEARCH_ENABLED, true))
 			list.add(new OverFlowMenuItem(getString(R.string.search), 0, 0, R.string.search));
 		list.add(new OverFlowMenuItem(isMuted() ? getString(R.string.unmute_group) : getString(R.string.mute_group), 0, 0, R.string.mute_group));
-		if (BotUtils.isBot(HikePlatformConstants.CUSTOMER_SUPPORT_BOT_MSISDN))
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikePlatformConstants.ENABLE_HELP, false) && BotUtils.isBot(HikePlatformConstants.CUSTOMER_SUPPORT_BOT_MSISDN))
 		{
 			list.add(new OverFlowMenuItem(getString(R.string.help), 0, 0, R.string.help));
 		}
@@ -288,11 +288,9 @@ public class GroupChatThread extends OneToNChatThread
 				uiHandler.sendEmptyMessage(GROUP_END);
 			break;
 		case HikePubSub.UPDATE_MEMBER_COUNT:
-			activity.runOnUiThread(new Runnable()
-			{
+			activity.runOnUiThread(new Runnable() {
 				@Override
-				public void run()
-				{
+				public void run() {
 					showActiveConversationMemberCount();
 				}
 			});
@@ -377,7 +375,15 @@ public class GroupChatThread extends OneToNChatThread
 			Toast.makeText(activity.getApplicationContext(), getString(R.string.group_chat_end), Toast.LENGTH_SHORT).show();
 		}
 	}
+	@Override
+	protected void openMessageInfoScreen(ConvMessage convMessage){
+		Intent intent=IntentFactory.messageInfoIntent(activity,convMessage.getMsgID());
+		intent.putExtra(HikeConstants.MESSAGE_INFO.MESSAGE_INFO_TYPE,HikeConstants.MESSAGE_INFO.GROUP);
+		Logger.d("MessageInfo","Msisdn is "+msisdn);
+		intent.putExtra(HikeConstants.MSISDN,msisdn);
+		activity.startActivity(intent);
 
+	}
 	@Override
 	public boolean onBackPressed()
 	{

@@ -69,6 +69,7 @@ import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HikePreferences;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.HomeFtueActivity;
+import com.bsb.hike.ui.MessageInfoActivity;
 import com.bsb.hike.ui.NUXInviteActivity;
 import com.bsb.hike.ui.NuxSendCustomMessageActivity;
 import com.bsb.hike.ui.PeopleActivity;
@@ -111,6 +112,13 @@ public class IntentFactory
 		intent.putExtra(HikeConstants.Extras.PREF, R.xml.notification_preferences);
 		intent.putExtra(HikeConstants.Extras.TITLE, R.string.notifications);
 		context.startActivity(intent);
+	}
+	public static Intent messageInfoIntent(Context context,long messageID){
+		Intent intent=new Intent(context, MessageInfoActivity.class);
+		intent.putExtra(HikeConstants.MESSAGE_ID,messageID);
+		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		return intent;
+
 	}
 	public static Intent shareFunctionality(Intent intent, ConvMessage message, MessagesAdapter mAdapter, int shareableMessagesCount,Context context)
 	{   
@@ -1114,7 +1122,7 @@ public class IntentFactory
 
 		return intent;
 	}
-	public static Intent getForwardIntentForConvMessage(Context context, ConvMessage convMessage, String metadata, boolean includeAllUsers )
+	public static Intent getForwardIntentForConvMessage(Context context, ConvMessage convMessage, String metadata, boolean includeAllUsers,File fileUri)
 	{
 		Intent intent = new Intent(context, ComposeChatActivity.class);
 		intent.putExtra(HikeConstants.Extras.FORWARD_MESSAGE, includeAllUsers);
@@ -1126,6 +1134,13 @@ public class IntentFactory
 			if (metadata != null)
 			{
 				multiMsgFwdObject.put(HikeConstants.METADATA, metadata);
+			}
+			if(fileUri !=null)
+			{
+				multiMsgFwdObject.put(HikeConstants.Extras.FILE_PATH, fileUri.getPath());
+				multiMsgFwdObject.put(HikeConstants.Extras.FILE_TYPE, "img/jpg");
+				intent.putExtra(HikeConstants.Extras.SHOW_TIMELINE, true);
+				intent.putExtra(HikeConstants.Extras.BYPASS_GALLERY, true);
 			}
 			multiMsgFwdObject.put(HikeConstants.PLATFORM_PACKET, convMessage.getPlatformData());
 			multiMsgFwdObject.put(HikeConstants.HIKE_MESSAGE, convMessage.getMessage());

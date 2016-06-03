@@ -99,6 +99,7 @@ import com.bsb.hike.tasks.InitiateMultiFileTransferTask;
 import com.bsb.hike.tasks.MultipleStatusUpdateTask;
 import com.bsb.hike.tasks.StatusUpdateTask;
 import com.bsb.hike.timeline.view.TimelineActivity;
+import com.bsb.hike.utils.BirthdayUtils;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -830,7 +831,12 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent), isContactChooserFilter, isShowTimeline(), false);
 			break;
 		case START_CHAT_MODE:
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId,
+			boolean showGroups =false;
+			if(getIntent().hasExtra(HikeConstants.Extras.IS_GROUP_FIRST))
+			{
+				showGroups =getIntent().getBooleanExtra(HikeConstants.Extras.IS_GROUP_FIRST,false);
+			}
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage || showGroups, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId,
 					sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent), isContactChooserFilter, isShowTimeline(),
 					showBdaySection);
 			break;
@@ -1139,11 +1145,22 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					in.putExtra(HikeConstants.Extras.HIKE_DIRECT_MODE, true);
 					startActivity(in);
 				}
+				else if (getIntent().hasExtra(HikeConstants.SEND))
+				{
+					Intent in = IntentFactory.createChatThreadIntentFromContactInfo(this, contactInfo, false, false, ChatThreadActivity.ChatThreadOpenSources.NEW_COMPOSE);
+					in.putExtra(HikeConstants.Extras.MSG, getIntent().getStringExtra(HikeConstants.SEND));
+					startActivity(in);
+				}
 				else if (adapter.isBirthdayContact(contactInfo))
 				{
 					Intent in = IntentFactory.createChatThreadIntentFromContactInfo(this, contactInfo, false, false, ChatThreadActivity.ChatThreadOpenSources.NEW_COMPOSE);
 					in.putExtra(HikeConstants.Extras.MSG, getString(R.string.composeview_bday));
 					startActivity(in);
+					BirthdayUtils.recordBirthdayAnalytics(
+							AnalyticsConstants.BirthdayEvents.BIRTHDAY_SELCT_FRIEND,
+							AnalyticsConstants.BirthdayEvents.BIRTHDAY_WISH,
+							AnalyticsConstants.BirthdayEvents.BIRTHDAY_SELCT_FRIEND,
+							null, null, getString(R.string.composeview_bday), null, null, null, null, contactInfo.getMsisdn());
 				}
 				else
 				{
@@ -2499,6 +2516,28 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 							}
 						}
 					}
+					else if(msgExtrasJson.optInt(MESSAGE_TYPE.MESSAGE_TYPE) == MESSAGE_TYPE.WEB_CONTENT || msgExtrasJson.optInt(MESSAGE_TYPE.MESSAGE_TYPE) == MESSAGE_TYPE.FORWARD_WEB_CONTENT){
+						ConvMessage convMessage = getConvMessageForForwardedWebContent(msgExtrasJson);
+						try
+						{
+
+							platformCards.append( TextUtils.isEmpty(platformCards) ? convMessage.webMetadata.getAppName() : "," + convMessage.webMetadata.getAppName());
+						}
+						catch (NullPointerException e)
+						{
+							e.printStackTrace();
+						}
+
+						convMessage.setMessage(msgExtrasJson.getString(HikeConstants.HIKE_MESSAGE));
+						if(offlineContact!=null)
+						{
+							ConvMessage offlineConvMessage =  new ConvMessage(convMessage);
+							offlineConvMessage.setMessageOriginType(OriginType.OFFLINE);
+							offlineMessageList.add(offlineConvMessage);
+						}
+
+						multipleMessageList.add(convMessage);
+					}
 					else if (msgExtrasJson.has(HikeConstants.Extras.FILE_PATH))
 					{
 						String fileKey = null;
@@ -2593,28 +2632,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 							offlineConvMessage.setMessageOriginType(OriginType.OFFLINE);
 							offlineMessageList.add(offlineConvMessage);
 						}
-					} else if(msgExtrasJson.optInt(MESSAGE_TYPE.MESSAGE_TYPE) == MESSAGE_TYPE.WEB_CONTENT || msgExtrasJson.optInt(MESSAGE_TYPE.MESSAGE_TYPE) == MESSAGE_TYPE.FORWARD_WEB_CONTENT){
-
-						ConvMessage convMessage = getConvMessageForForwardedWebContent(msgExtrasJson);
-						try
-						{
-
-							platformCards.append( TextUtils.isEmpty(platformCards) ? convMessage.webMetadata.getAppName() : "," + convMessage.webMetadata.getAppName());
-						}
-						catch (NullPointerException e)
-						{
-							e.printStackTrace();
-						}
-
-						convMessage.setMessage(msgExtrasJson.getString(HikeConstants.HIKE_MESSAGE));
-						if(offlineContact!=null)
-						{
-							ConvMessage offlineConvMessage =  new ConvMessage(convMessage);
-							offlineConvMessage.setMessageOriginType(OriginType.OFFLINE);
-                        	offlineMessageList.add(offlineConvMessage);
-						}
-						
-						multipleMessageList.add(convMessage);
 					}
 					/*
 					 * Since the message was not forwarded, we check if we have any drafts saved for this conversation, if we do we enter it in the compose box.
