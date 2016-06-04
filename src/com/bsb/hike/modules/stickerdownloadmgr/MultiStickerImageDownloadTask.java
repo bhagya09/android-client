@@ -389,7 +389,7 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 	{
 		Bundle extras = new Bundle();
         extras.putString(HikeConstants.CATEGORY_ID, category.getCategoryId());
-        extras.putSerializable(HikeConstants.DOWNLOAD_TYPE, downloadType);
+        extras.putInt(HikeConstants.DOWNLOAD_TYPE, downloadType.ordinal());
 		extras.putString(HikeConstants.MINI_STICKER_IMAGE, bodyJson.toString());
 		return extras;
 	}
