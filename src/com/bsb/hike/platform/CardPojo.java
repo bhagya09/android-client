@@ -28,10 +28,10 @@ public class CardPojo implements HikePlatformConstants{
     public String background;
     public CardComponent.ActionComponent cardAction;
     private List<HikeFile> hikeFileList;
-    private Context context;
-    public CardPojo(JSONObject metadata, Context context, List<HikeFile> hikeFileList) {
+    private JSONObject cardJSON;
+    public CardPojo(JSONObject metadata, List<HikeFile> hikeFileList) {
+        cardJSON = metadata;
         this.hikeFileList = hikeFileList;
-        this.context = context;
         backgroundColor = PlatformUtils.getString(metadata, BACKGROUND_COLOR);
         background = PlatformUtils.getString(metadata, BACKGROUND);
         try {
@@ -138,5 +138,9 @@ public class CardPojo implements HikePlatformConstants{
             }
 
         }
+    }
+
+    public JSONObject getCardJSON(){
+        return cardJSON;
     }
 }

@@ -1,6 +1,7 @@
 package com.bsb.hike.view;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -8,19 +9,21 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
+import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 
+import com.bsb.hike.R;
 import com.bsb.hike.ui.utils.RecyclingImageView;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 /**
  * This class is an ImageView implementation to round the top two corners of imageview.
  */
 public class RoundedCornerImageView extends RecyclingImageView
 {
-	private final static float CORNER_RADIUS = 2.0f;
-
 	private Bitmap maskBitmap;
 
 	private Paint paint, maskPaint;
@@ -47,14 +50,10 @@ public class RoundedCornerImageView extends RecyclingImageView
 
 	private void init(Context context)
 	{
-		DisplayMetrics metrics = context.getResources().getDisplayMetrics();
-		cornerRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, CORNER_RADIUS, metrics);
-
+		cornerRadius = (int)context.getResources().getDimension(R.dimen.native_cardview_radius);
 		paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-
 		maskPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
 		maskPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
-
 		setWillNotDraw(false);
 	}
 
