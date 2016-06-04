@@ -628,13 +628,21 @@ import com.bsb.hike.voip.VoIPUtils;
 			unknownContactInfoView.findViewById(R.id.block_unknown_contact).setOnClickListener(this);
 			checkAndAddListViewHeader(unknownContactInfoView);
 		}
-		showUknownUserInfoView();
+
+		if(Utils.isUnknownUserInfoViewEnabled())
+		{
+			showUnknownUserInfoView();
+		}
+		else
+		{
+			unknownContactInfoView.findViewById(R.id.unknown_user_info_view).setVisibility(View.GONE);
+		}
 	}
 
 	/**
 	 * This shows Unknown User (Name, location)
 	 */
-	protected void showUknownUserInfoView()
+	protected void showUnknownUserInfoView()
 	{
 		try
 		{
