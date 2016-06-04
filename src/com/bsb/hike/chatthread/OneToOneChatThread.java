@@ -631,7 +631,7 @@ import com.bsb.hike.voip.VoIPUtils;
 
 		if(Utils.isUnknownUserInfoViewEnabled())
 		{
-			showUknownUserInfoView();
+			showUnknownUserInfoView();
 		}
 		else
 		{
@@ -642,7 +642,7 @@ import com.bsb.hike.voip.VoIPUtils;
 	/**
 	 * This shows Unknown User (Name, location)
 	 */
-	protected void showUknownUserInfoView()
+	protected void showUnknownUserInfoView()
 	{
 		try
 		{
