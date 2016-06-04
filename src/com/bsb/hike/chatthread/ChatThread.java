@@ -16,7 +16,6 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.TransitionDrawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -138,7 +137,6 @@ import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.GalleryItem;
-import com.bsb.hike.models.HikeChatTheme;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.MovingList;
@@ -6848,6 +6846,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
             @Override
             public void run() {
                 if(mShareablePopupLayout != null)
+                    dismissInputBox();
                     mShareablePopupLayout.showPopup(CustomKeyboardManager.getInstance(), activity.getResources().getConfiguration().orientation, customKeyBoardHeight);
 
                 if(!TextUtils.isEmpty(mComposeView.getText()))
