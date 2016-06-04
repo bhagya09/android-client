@@ -881,6 +881,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 				|| settings.getBoolean(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, false) == false
 				|| TEST)
 		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE, System.currentTimeMillis());
 			startUpdgradeIntent();
 		}
 		else
