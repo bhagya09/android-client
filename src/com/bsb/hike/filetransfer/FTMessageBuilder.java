@@ -30,6 +30,7 @@ import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.MultipleConvMessage;
 import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.platform.PlatformMessageMetadata;
 import com.bsb.hike.smartImageLoader.GalleryImageLoader;
 import com.bsb.hike.smartImageLoader.ImageWorker;
 import com.bsb.hike.smartcache.HikeLruCache;
@@ -125,7 +126,7 @@ public class FTMessageBuilder {
 	 */
 	private static List<ConvMessage> createMediaOrFileConvMessage(Init<?> builder)
 	{
-		List<ConvMessage> ftMessages = new ArrayList<ConvMessage>();
+		List<ConvMessage> ftMessages = new ArrayList<>();
 		try
 		{
 			System.gc();
@@ -172,6 +173,7 @@ public class FTMessageBuilder {
 				for (ContactInfo contact : builder.contactList)
 				{
 					ConvMessage msg = createConvMessage(fileName, metadata, builder, contact.getMsisdn(), contact.isOnhike());
+
 					ftMessages.add(msg);
 				}
 				ConvMessage ftMessage = ftMessages.get(0);
@@ -261,7 +263,14 @@ public class FTMessageBuilder {
 	{
 		long time = System.currentTimeMillis() / 1000;
 		ConvMessage convMessage = new ConvMessage(hikeMessage, msisdn, time, ConvMessage.State.SENT_UNCONFIRMED);
-		convMessage.setMetadata(metadata);
+		if(builder.isNativeCardFT){
+			convMessage.platformMessageMetadata = new PlatformMessageMetadata(metadata, true);
+			convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.CONTENT);
+			convMessage.setMessage(builder.message);
+		}else{
+			convMessage.setMetadata(metadata);
+		}
+
 		convMessage.setSMS(!isOnhike);
 		if(builder.hikeFileType == HikeFileType.LOCATION || builder.hikeFileType == HikeFileType.CONTACT)
 		{
@@ -315,9 +324,13 @@ public class FTMessageBuilder {
 		String fileType = TextUtils.isEmpty(builder.fileType) ? HikeFileType.toString(builder.hikeFileType) : builder.fileType;
 		files.put(new HikeFile(fileName, fileType, thumbnailString, thumbnail, builder.recordingDuration, builder.sourceFile.getPath(),
 				(int)(builder.sourceFile.length()), true, FTUtils.getImageQuality(), builder.attachement).serialize());
-		JSONObject metadata = new JSONObject();
+		JSONObject metadata;
+		if(builder.isNativeCardFT){
+            metadata = builder.nativeCardMetadata;
+		}else{
+			metadata = new JSONObject();
+		}
 		metadata.put(HikeConstants.FILES, files);
-
 		if(!TextUtils.isEmpty(builder.caption))
 		{
 			metadata.put(HikeConstants.CAPTION, builder.caption);
@@ -335,6 +348,9 @@ public class FTMessageBuilder {
 		private HikeFileType hikeFileType;
 		private boolean isRec;
 		private boolean isForwardMsg;
+		private boolean isNativeCardFT;
+		private JSONObject nativeCardMetadata;
+		private String message;
 		private boolean isRecipientOnHike;
 		private long recordingDuration;
 		private int attachement;
@@ -564,7 +580,18 @@ public class FTMessageBuilder {
 			this.isOffline = mOffline;
 			return self();
 		}
-
+		public S setNativeCardFT(boolean isNativeCardFT) {
+			this.isNativeCardFT = isNativeCardFT;
+			return self();
+		}
+		public S setNativeCardMetadata(JSONObject nativeCardMetadata) {
+			this.nativeCardMetadata = nativeCardMetadata;
+			return self();
+		}
+		public S setHikeMessage(String message) {
+			this.message = message;
+			return self();
+		}
 		public abstract void build();
 	}
 

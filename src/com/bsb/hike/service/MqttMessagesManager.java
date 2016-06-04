@@ -3405,6 +3405,11 @@ public class MqttMessagesManager
 			String multipleBdayNotifSubtext = data.getString(HikeConstants.MULTIPLE_BDAY_NOTIF_SUBTEXT);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MULTIPLE_BDAY_NOTIF_SUBTEXT, multipleBdayNotifSubtext);
 		}
+		if (data.has(HikePlatformConstants.ENABLE_HELP))
+		{
+			boolean enable = data.getBoolean(HikePlatformConstants.ENABLE_HELP);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikePlatformConstants.ENABLE_HELP, enable);
+		}
 
 		if(data.has(HikeConstants.QS_RECEIVE_FTUE_SESSION_COUNT))
 		{
@@ -3973,6 +3978,22 @@ public class MqttMessagesManager
             int limit = data.optInt(HikeConstants.LIMIT_KEY, CategorySearchManager.DEFAULT_SEARCH_RESULTS_LOG_LIMIT);
             HikeSharedPreferenceUtil.getInstance().saveData(CategorySearchManager.SEARCH_RESULTS_LOG_LIMIT, limit);
         }
+        else if(HikeStickerSearchBaseConstants.STICKER_SEARCH_RECORD_COUNT_LIMIT.equals(subType))
+        {
+            int limit = data.optInt(HikeConstants.LIMIT_KEY, HikeStickerSearchBaseConstants.DEFAULT_STICKER_SEARCH_COUNT_LIMIT);
+            HikeSharedPreferenceUtil.getInstance().saveData(HikeStickerSearchBaseConstants.STICKER_SEARCH_RECORD_COUNT_LIMIT, limit);
+        }
+        else if(HikeStickerSearchBaseConstants.STICKER_SEARCH_SUCCESS_COUNT_LIMIT.equals(subType))
+        {
+            int limit = data.optInt(HikeConstants.LIMIT_KEY, HikeStickerSearchBaseConstants.DEFAULT_STICKER_SEARCH_SUCCESS_COUNT_LIMIT);
+            HikeSharedPreferenceUtil.getInstance().saveData(HikeStickerSearchBaseConstants.STICKER_SEARCH_SUCCESS_COUNT_LIMIT, limit);
+        }
+        else if(HikeStickerSearchBaseConstants.STICKER_SEARCH_FAIL_COUNT_LIMIT.equals(subType))
+        {
+            int limit = data.optInt(HikeConstants.LIMIT_KEY, HikeStickerSearchBaseConstants.DEFAULT_STICKER_SEARCH_FAIL_COUNT_LIMIT);
+            HikeSharedPreferenceUtil.getInstance().saveData(HikeStickerSearchBaseConstants.STICKER_SEARCH_FAIL_COUNT_LIMIT, limit);
+        }
+
 	}
 
 	private void saveBulkLastSeen(JSONObject jsonObj) throws JSONException

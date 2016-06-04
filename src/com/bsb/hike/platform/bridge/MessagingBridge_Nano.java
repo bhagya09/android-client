@@ -215,7 +215,7 @@ public class MessagingBridge_Nano extends JavascriptBridge
 				}
 			}
 
-			PlatformHelper.startComPoseChatActivity(message,weakActivity.get());
+			PlatformHelper.startComPoseChatActivity(message,weakActivity.get(),null);
 		}
 		catch (JSONException e)
 		{
