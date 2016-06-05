@@ -7,6 +7,7 @@ import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.util.Log;
 
+import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.ui.utils.RecyclingImageView;
 
 /**
@@ -16,14 +17,17 @@ import com.bsb.hike.ui.utils.RecyclingImageView;
 public class CustomBGRecyclingImageView extends RecyclingImageView {
     private Paint mPaint;
     private boolean mShowOverlay = false;
+    private Context context;
 
     public CustomBGRecyclingImageView(Context context) {
         super(context);
+        this.context = context;
         initialize();
     }
 
     public CustomBGRecyclingImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        this.context = context;
         initialize();
     }
 
@@ -43,5 +47,12 @@ public class CustomBGRecyclingImageView extends RecyclingImageView {
             mPaint.setStyle(Paint.Style.FILL);
             canvas.drawPaint(mPaint);
         }
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        int parentWidth = MeasureSpec.getSize(widthMeasureSpec);
+        int parentHeight = MeasureSpec.getSize(heightMeasureSpec) - ChatThreadUtils.getStatusBarHeight(context);
+        this.setMeasuredDimension(parentWidth, parentHeight);
     }
 }
