@@ -207,6 +207,7 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 			{
 				if(fetchSuccess)
 				{
+					StickerManager.getInstance().sendQsErrorAnalytics(stickerPageObject.getStickerCategory(), QuickStickerSuggestionController.EMPTY_STATE_ERROR);
 					setUpQsEmptyPage(stickerPageObject);
 				}
 				else
@@ -216,6 +217,7 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 			}
 			else
 			{
+				StickerManager.getInstance().sendQsShownAnalytics(stickerPageObject.getStickerCategory());
 				setQsFtuePage(stickerPageObject);
 			}
 		}
@@ -225,6 +227,7 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 			{
 				if(fetchSuccess)
 				{
+					StickerManager.getInstance().sendQsErrorAnalytics(stickerPageObject.getStickerCategory(), QuickStickerSuggestionController.EMPTY_STATE_ERROR);
 					setUpNormalPage(stickerPageObject);
 					stickerPageObject.getContainerView().removeAllViews();
 					stickerPageObject.getStickerGridView().setEmptyView(inflateQuickSuggestionEmptyView(stickerPageObject.getContainerView()));
@@ -238,6 +241,7 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 			}
 			else
 			{
+				StickerManager.getInstance().sendQsShownAnalytics(stickerPageObject.getStickerCategory());
 				setUpNormalPage(stickerPageObject);
 			}
 		}
@@ -576,7 +580,7 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 				{
 					if(action.equals(StickerManager.QUICK_STICKER_SUGGESTION_FETCH_SUCCESS))
 					{
-						updateQuickSuggestionCategoryInList((QuickSuggestionStickerCategory) category);
+						updateQuickSuggestionCategoryInList(stickerPageObject, (QuickSuggestionStickerCategory) category);
 						setupStickerPage(stickerPageObject.getParentView(), stickerPageObject.getStickerCategory(), true);
 					}
 					else
@@ -584,6 +588,7 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 						if (Utils.isEmpty(((QuickSuggestionStickerCategory) stickerCategoryList.get(0)).getStickerSet()))
 						{
 							setQsErrorPage(stickerPageObject);
+							StickerManager.getInstance().sendQsErrorAnalytics(stickerPageObject.getStickerCategory(), QuickStickerSuggestionController.EMPTY_STATE_ERROR);
 						}
 					}
 				}
@@ -786,8 +791,9 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 		}
 	}
 
-	private void updateQuickSuggestionCategoryInList(QuickSuggestionStickerCategory newCategory)
+	private void updateQuickSuggestionCategoryInList(StickerPageObject stickerPageObject, QuickSuggestionStickerCategory newCategory)
 	{
+		stickerPageObject.setStickerCategory(newCategory);
 		QuickSuggestionStickerCategory presentCategory = (QuickSuggestionStickerCategory) stickerCategoryList.get(0);
 		presentCategory.setSentStickers(newCategory.getSentStickers());
 		presentCategory.setReplyStickers(newCategory.getReplyStickers());

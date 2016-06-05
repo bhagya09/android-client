@@ -1369,6 +1369,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			}
 
 			QuickStickerSuggestionController.getInstance().seenQuickSuggestions();
+			QuickStickerSuggestionController.getInstance().setCurrentQSConvMessage(convMessage);
 			openOrRefreshStickerPalette(convMessage);
 
 			if (QuickStickerSuggestionController.getInstance().isFtueSessionRunning(convMessage.isSent()))
@@ -4578,7 +4579,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			tipVisibilityAnimator = null;
 		}
 
-		QuickStickerSuggestionController.getInstance().completeFtueSession();
+		QuickStickerSuggestionController.getInstance().releaseResources();
 
 		if(mCustomTabActivityHelper != null && Utils.isJellybeanOrHigher()) {
 			mCustomTabActivityHelper.unbindCustomTabsService(activity);
