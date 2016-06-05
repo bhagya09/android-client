@@ -1954,7 +1954,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	public void themeCancelled()
 	{
 		Logger.i(TAG, "theme cancelled, resetting the default theme if needed.");
-		if (!currentThemeId.equals(mAdapter.getChatThemeId())) {
+		if (!HikeChatThemeConstants.THEME_ID_CUSTOM_THEME.equalsIgnoreCase(mAdapter.getChatThemeId()) && !currentThemeId.equals(mAdapter.getChatThemeId())) {
 			setConversationTheme(currentThemeId);
 		}
 	}
