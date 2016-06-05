@@ -56,12 +56,10 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.analytics.HomeAnalyticsConstants;
 import com.bsb.hike.backup.AccountBackupRestore;
-import com.bsb.hike.backup.HikeCloudSettingsManager;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.AccountRestoreAsyncTask;
@@ -1480,6 +1478,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		else if (type.equals(HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE))
 		{
+			long upgradeDialogueSt = HikeSharedPreferenceUtil.getInstance().getData(HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE, 0L);
+			Utils.recordUpgradeTaskCompletion(HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE, (System.currentTimeMillis() - upgradeDialogueSt));
+
 			runOnUiThread(new Runnable()
 			{
 				@SuppressLint("NewApi")
