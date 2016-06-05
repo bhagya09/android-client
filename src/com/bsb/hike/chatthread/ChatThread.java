@@ -604,7 +604,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				showQuickSuggestionTip((ConvMessage) msg.obj);
 				break;
             case SHOW_INPUT_BOX:
-                showInputBox();
+                if(!mConversation.isBlocked())
+                    showInputBox();
                 break;
             case REMOVE_INPUT_BOX:
                 dismissInputBox();
@@ -6472,6 +6473,9 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		{
 			mComposeView.setEnabled(true);
 			hideOverlay();
+            // Case is being added for checking if custom keyboard needs to be displayed for user
+            if(CustomKeyboardManager.getInstance().shouldShowInputBox(msisdn))
+                sendUIMessage(SHOW_INPUT_BOX, null);
 		}
 	}
 
@@ -6875,10 +6879,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
                     customKeyboard.setHidden(false);
                 }
                 scrollToEnd();
-
-                if (mConversation.getConvInfo().isBlocked()) {
-                    dismissInputBox();
-                }
 
             }
         },100);
