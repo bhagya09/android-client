@@ -508,6 +508,10 @@ public class Utils
 
 	public static String getFileExtension(String fileName)
 	{
+		if (fileName == null)
+		{
+			return null;
+		}
 		int lastDotIndex = fileName.lastIndexOf(".");
 
 		String extension = "";
