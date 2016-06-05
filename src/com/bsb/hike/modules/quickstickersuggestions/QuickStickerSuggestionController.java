@@ -387,7 +387,6 @@ public class QuickStickerSuggestionController
 
     public void setFtueTipSeen(int whichTip)
     {
-        StickerManager.getInstance().sendQsFTUEAnalytics(getTiptext(whichTip));
         ftueTipSeenArray.put(whichTip, true);
     }
 

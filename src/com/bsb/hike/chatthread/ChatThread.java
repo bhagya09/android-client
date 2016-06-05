@@ -1700,6 +1700,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			int whichTip = convMessage.isSent() ? ChatThreadTips.QUICK_SUGGESTION_SENT_FIRST_TIP : ChatThreadTips.QUICK_SUGGESTION_RECEIVED_FIRST_TIP;
 			if (canStartFtue)
 			{
+				QuickStickerSuggestionController.getInstance().setCurrentQSConvMessage(convMessage);
 				QuickStickerSuggestionController.getInstance().startFtueSession(convMessage.isSent());
 				mTips.showQuickStickerSuggestionsTip(whichTip);
 				uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
