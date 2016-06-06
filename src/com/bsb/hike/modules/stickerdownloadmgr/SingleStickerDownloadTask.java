@@ -30,7 +30,6 @@ import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHTTPTask;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHttpTaskResult;
-import com.bsb.hike.modules.httpmgr.request.RequestConstants;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.quickstickersuggestions.QuickStickerSuggestionController;
@@ -95,9 +94,9 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 		}
 		else
 		{
-			String languageSet = StickerLanguagesManager.getInstance().listToString(
-					StickerLanguagesManager.getInstance().getAccumulatedSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE,
-							StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE));
+			String languageSet = Utils.listToString(
+                    StickerLanguagesManager.getInstance().getAccumulatedSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE,
+                            StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE));
 
 			token = singleStickerDownloadRequest(requestId, stickerId, categoryId, getRequestListener(), languageSet, downloadMini, getRequestBundle());
 		}

@@ -297,23 +297,6 @@ public class StickerLanguagesManager {
 		}
 	}
 
-	public String listToString(Collection<String> languages)
-	{
-		String result = "";
-
-		if (Utils.isEmpty(languages))
-		{
-			return result;
-		}
-
-		for (String lang : languages)
-		{
-			result += lang + ",";
-		}
-
-		return result.substring(0, result.length() - 1); // remove last comma
-	}
-
     public Set<String> getAccumulatedSet(int... types)
     {
         Set<String> accumulatedSet = new HashSet<>();

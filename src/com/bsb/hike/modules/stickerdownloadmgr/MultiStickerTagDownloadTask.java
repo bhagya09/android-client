@@ -221,7 +221,7 @@ public class MultiStickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTask
 		Bundle extras = new Bundle();
 		extras.putString(HikeConstants.STICKERS, StickerLanguagesManager.getInstance().listToString(stickerCategoryList));
 		extras.putInt(HikeConstants.STATE, state);
-		extras.putString(HikeConstants.LANGUAGES, StickerLanguagesManager.getInstance().listToString(languagesList));
+		extras.putString(HikeConstants.LANGUAGES, Utils.listToString(languagesList));
 		return extras;
 	}
 }

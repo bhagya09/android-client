@@ -22,7 +22,6 @@ import com.bsb.hike.utils.Utils;
 
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.defaultTagsRequest;
@@ -57,7 +56,7 @@ public class DefaultTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResul
 			return;
 		}
 
-		languagesListString = StickerLanguagesManager.getInstance().listToString(languages);
+		languagesListString = Utils.listToString(languages);
 
 		long lastSuccessfulTagDownloadTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.LAST_SUCESSFULL_TAGS_DOWNLOAD_TIME, 0L);
 
