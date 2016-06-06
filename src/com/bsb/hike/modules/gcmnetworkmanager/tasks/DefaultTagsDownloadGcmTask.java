@@ -8,6 +8,7 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.utils.StickerManager;
 import com.google.android.gms.gcm.TaskParams;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -21,7 +22,9 @@ public class DefaultTagsDownloadGcmTask implements IGcmTask
 	{
 		Bundle extra = taskParams.getExtras();
 
-		Set<String> languages = new HashSet<String>(extra.getStringArrayList(HikeConstants.LANGUAGES));
+		String languageListString = extra.getString(HikeConstants.LANGUAGES);
+
+		Set<String> languages = new HashSet<String>(Arrays.asList(languageListString.split(",")));
 		boolean isSignUp = extra.getBoolean(HikeConstants.IS_NEW_USER);
 
 		StickerManager.getInstance().downloadDefaultTags(isSignUp, languages);

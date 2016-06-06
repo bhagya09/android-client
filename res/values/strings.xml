@@ -1665,9 +1665,9 @@
     <string name="ct_confirmation_dialog">This will apply the Chat theme on your friends device too.</string>
     <string name="manage_privacy">Manage Privacy</string>
     <string name="last_seen">Last Seen</string>
-    <string name="status_update">Status Update</string>
+    <string name="status_update">Timeline Update</string>
     <string name="ls_privacy_subtext">You also won’t be able to see last seen if you turn it off</string>
-    <string name="su_privacy_subtext">You also won’t receive status updates if you turn if off</string>
+    <string name="su_privacy_subtext">You also won’t receive timeline updates if you turn if off</string>
     <string name="qs_received_first_tip_text">Hey, you just received this sticker</string>
     <string name="qs_received_second_tip_text">Tap on it to reply with a sticker</string>
     <string name="qs_received_third_tip_text">Awesome, you got it!</string>

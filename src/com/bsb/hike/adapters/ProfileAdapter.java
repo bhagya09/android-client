@@ -1174,6 +1174,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.On
 				json.put(AnalyticsConstants.V2.UNIQUE_KEY, "hs_privacy_options");
 				json.put(AnalyticsConstants.V2.ORDER, "hs_privacy_options");
 				json.put(AnalyticsConstants.V2.FAMILY, mContactInfo.isMyOneWayFriend() ? "friend" : "not_friend");
+				json.put(AnalyticsConstants.V2.TO_MISISDN, mContactInfo.getMsisdn());
 				HAManager.getInstance().recordV2(json);
 			}
 		} catch (JSONException e) {
@@ -1182,11 +1183,13 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.On
 	}
 
 	private void recordStatusUpdateSettingToggle() {
-		recordPrivacyAnalytics("su", mContactInfo.getPrivacyPrefs().shouldShowStatusUpdate() ? "on" : "off", null);
+		recordPrivacyAnalytics("su", mContactInfo.getPrivacyPrefs().shouldShowStatusUpdate() ? "true" : "false", null);
 	}
 
 	private void recordLastSeenSettingToggle() {
-		recordPrivacyAnalytics("last_seen", mContactInfo.getPrivacyPrefs().shouldShowLastSeen() ? "on" : "off", PreferenceManager.getDefaultSharedPreferences(profileActivity).getString(HikeConstants.LAST_SEEN_PREF_LIST, profileActivity.getString(R.string.privacy_favorites)));
+		String ls_setting = PreferenceManager.getDefaultSharedPreferences(profileActivity).getString(HikeConstants.LAST_SEEN_PREF_LIST, profileActivity.getString(R.string.privacy_favorites));
+		String variety = profileActivity.getString(R.string.privacy_favorites).equals(ls_setting) ? "friends" : "nobody";
+		recordPrivacyAnalytics("last_seen", mContactInfo.getPrivacyPrefs().shouldShowLastSeen() ? "true" : "false", variety);
 	}
 
 	private void recordPrivacyAnalytics(String family, String species, String variety) {
@@ -1200,6 +1203,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.On
 					json.put(AnalyticsConstants.V2.SPECIES, species);
 				if (!TextUtils.isEmpty(variety))
 					json.put(AnalyticsConstants.V2.VARIETY, variety);
+				json.put(AnalyticsConstants.V2.TO_MISISDN, mContactInfo.getMsisdn());
 				HAManager.getInstance().recordV2(json);
 			}
 		} catch (JSONException e) {

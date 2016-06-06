@@ -1573,6 +1573,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		else if (type.equals(HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE))
 		{
+			long upgradeDialogueSt = HikeSharedPreferenceUtil.getInstance().getData(HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE, 0L);
+			Utils.recordUpgradeTaskCompletion(HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE, (System.currentTimeMillis() - upgradeDialogueSt));
+
 			runOnUiThread(new Runnable()
 			{
 				@SuppressLint("NewApi")
