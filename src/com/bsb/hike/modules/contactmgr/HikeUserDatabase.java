@@ -335,17 +335,17 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		if(oldVersion < 19) {
 			//TODO : Handle migration
 
-			if (!Utils.isColumnExistsInTable(mDb, DBConstants.USERS_TABLE, DBConstants.HIKE_UID)) {
+			if (!Utils.isColumnExistsInTable(db, DBConstants.USERS_TABLE, DBConstants.HIKE_UID)) {
 				String alter = "ALTER TABLE " + DBConstants.USERS_TABLE + " ADD COLUMN " + DBConstants.HIKE_UID + " TEXT";
 				db.execSQL(alter);
 			}
 
-			if (!Utils.isColumnExistsInTable(mDb, DBConstants.USERS_TABLE, DBConstants.BLOCK_STATUS)) {
+			if (!Utils.isColumnExistsInTable(db, DBConstants.USERS_TABLE, DBConstants.BLOCK_STATUS)) {
 				String alter = "ALTER TABLE " + DBConstants.USERS_TABLE + " ADD COLUMN " + DBConstants.BLOCK_STATUS + " TEXT DEFAULT 0";
 				db.execSQL(alter);
 			}
 
-			if (!Utils.isColumnExistsInTable(mDb, DBConstants.USERS_TABLE, DBConstants.FAVORITE_TYPE)) {
+			if (!Utils.isColumnExistsInTable(db, DBConstants.USERS_TABLE, DBConstants.FAVORITE_TYPE)) {
 				String alter = "ALTER TABLE " + DBConstants.USERS_TABLE + " ADD COLUMN " + DBConstants.FAVORITE_TYPE + " TEXT DEFAULT 0";
 				db.execSQL(alter);
 			}
@@ -356,21 +356,25 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 			// Need to migrate the DBs in upgradeIntentService
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.MIGRATE_TABLE_TO_USER, 1);
 
-			String alter1 = "ALTER TABLE " + DBConstants.HIKE_USER.HIKE_CALLER_TABLE + " ADD COLUMN " + DBConstants.HIKE_USER.CALLER_METADATA + " TEXT";
-			db.execSQL(alter1);
+			if (!Utils.isColumnExistsInTable(db, DBConstants.HIKE_USER.HIKE_CALLER_TABLE, DBConstants.HIKE_USER.CALLER_METADATA)) {
+				String alter = "ALTER TABLE " + DBConstants.HIKE_USER.HIKE_CALLER_TABLE + " ADD COLUMN " + DBConstants.HIKE_USER.CALLER_METADATA + " TEXT";
+				db.execSQL(alter);
+			}
 
-			String alter2 = "ALTER TABLE " + DBConstants.HIKE_USER.HIKE_CALLER_TABLE + " ADD COLUMN " + DBConstants.HIKE_USER.EXPIRY_TIME + " INTEGER DEFAULT 0";
-			db.execSQL(alter2);
+			if (!Utils.isColumnExistsInTable(db, DBConstants.HIKE_USER.HIKE_CALLER_TABLE, DBConstants.HIKE_USER.EXPIRY_TIME)) {
+				String alter = "ALTER TABLE " + DBConstants.HIKE_USER.HIKE_CALLER_TABLE + " ADD COLUMN " + DBConstants.HIKE_USER.EXPIRY_TIME + " INTEGER DEFAULT 0";
+				db.execSQL(alter);
+			}
 		}
 
 
 		if (oldVersion < 20) {
-			if (!Utils.isColumnExistsInTable(mDb, DBConstants.USERS_TABLE, DBConstants.LAST_SEEN_SETTINGS)) {
+			if (!Utils.isColumnExistsInTable(db, DBConstants.USERS_TABLE, DBConstants.LAST_SEEN_SETTINGS)) {
 				String alter = "ALTER TABLE " + DBConstants.USERS_TABLE + " ADD COLUMN " + DBConstants.LAST_SEEN_SETTINGS + " INTEGER DEFAULT 0";
 				db.execSQL(alter);
 			}
 
-			if (!Utils.isColumnExistsInTable(mDb, DBConstants.USERS_TABLE, DBConstants.STATUS_UPDATE_SETTINGS)) {
+			if (!Utils.isColumnExistsInTable(db, DBConstants.USERS_TABLE, DBConstants.STATUS_UPDATE_SETTINGS)) {
 				String alter = "ALTER TABLE " + DBConstants.USERS_TABLE + " ADD COLUMN " + DBConstants.STATUS_UPDATE_SETTINGS + " INTEGER DEFAULT 1"; // By default SU will be shown to friends
 				db.execSQL(alter);
 			}
