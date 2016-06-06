@@ -421,7 +421,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	private CustomTabActivityHelper mCustomTabActivityHelper;
 
-	private String mThemeIdBGRendered = null;
+	private String mLastThemeIdBGRendered = null;
 
 	private class ChatThreadBroadcasts extends BroadcastReceiver
 	{
@@ -1910,7 +1910,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			Drawable drawable = Utils.getChatTheme(themeId, activity);
 
 			setThemeBackground(backgroundImage, drawable, ChatThemeManager.getInstance().getTheme(themeId).isTiled(), ChatThemeManager.getInstance().getTheme(themeId).isCustomTheme());
-			mThemeIdBGRendered = themeId;
+			mLastThemeIdBGRendered = themeId;
 		}
 	}
 
@@ -1929,11 +1929,11 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		}
 
 		boolean showTransistionEffect = true;
-		if(TextUtils.isEmpty(mThemeIdBGRendered) || HikeChatThemeConstants.THEME_ID_CUSTOM_THEME.equalsIgnoreCase(mThemeIdBGRendered)){
+		if(TextUtils.isEmpty(mLastThemeIdBGRendered) || HikeChatThemeConstants.THEME_ID_CUSTOM_THEME.equalsIgnoreCase(mLastThemeIdBGRendered)){
 			showTransistionEffect = false;
 		}
 		if(showTransistionEffect) {
-			Drawable srcDrawable = ChatThemeManager.getInstance().getDrawableForTheme(mThemeIdBGRendered, HikeChatThemeConstants.ASSET_INDEX_BG_PORTRAIT);
+			Drawable srcDrawable = ChatThemeManager.getInstance().getDrawableForTheme(mLastThemeIdBGRendered, HikeChatThemeConstants.ASSET_INDEX_BG_PORTRAIT);
 			Drawable[] layers = new Drawable[2];
 
 			layers[0] = srcDrawable;
@@ -1959,7 +1959,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		Drawable drawable = new BitmapDrawable(getResources(), bmp);
 
 		setThemeBackground(backgroundImage, drawable, false, true);
-		mThemeIdBGRendered = HikeChatThemeConstants.THEME_ID_CUSTOM_THEME;
+		mLastThemeIdBGRendered = HikeChatThemeConstants.THEME_ID_CUSTOM_THEME;
 	}
 
 	@Override
