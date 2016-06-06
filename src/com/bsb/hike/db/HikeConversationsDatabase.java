@@ -11980,13 +11980,21 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 
 				if (storyCategory == StoryItem.CATEGORY_DEFAULT) {
 					for (ContactInfo friendInfo : friendsList) {
-						if (!friendInfo.getMsisdn().equals(ContactManager.getInstance().getSelfMsisdn())) {
-							StoryItem<StatusMessage, ContactInfo> storyItem = new StoryItem<>(StoryItem.TYPE_FRIEND, friendInfo.getNameOrMsisdn());
-							storyItem.setSubText(StoryShyTextGenerator.getInstance().getCameraShySubText());
-							storyItem.setTypeInfo(friendInfo);
-							storyItem.setCategory(storyCategory);
-							storyList.add(storyItem);
+						String friendMsisdn = friendInfo.getMsisdn();
+
+						// Exclude self msisnd
+						if (friendMsisdn.equals(ContactManager.getInstance().getSelfMsisdn())) {
+							continue;
 						}
+						// If ^ is a stealth msisdn and stealth mode is off, move to next msisdn
+						if (StealthModeManager.getInstance().isStealthMsisdn(friendMsisdn) && !StealthModeManager.getInstance().isActive()) {
+							continue;
+						}
+						StoryItem<StatusMessage, ContactInfo> storyItem = new StoryItem<>(StoryItem.TYPE_FRIEND, friendInfo.getNameOrMsisdn());
+						storyItem.setSubText(StoryShyTextGenerator.getInstance().getCameraShySubText());
+						storyItem.setTypeInfo(friendInfo);
+						storyItem.setCategory(storyCategory);
+						storyList.add(storyItem);
 					}
 				}
 			} finally {

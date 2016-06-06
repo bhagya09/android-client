@@ -55,7 +55,17 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
 
     private View btnAddFriends;
 
-    private final String[] pubsubEvents = new String[]{HikePubSub.UNSEEN_STATUS_COUNT_CHANGED, HikePubSub.TIMELINE_UPDATE_RECIEVED, HikePubSub.ICON_CHANGED, HikePubSub.ACTIVITY_UPDATE, HikePubSub.STATUS_MARKED_READ, HikePubSub.STEALTH_MODE_TOGGLED, HikePubSub.DELETE_STATUS, HikePubSub.FAVORITE_TOGGLED};
+    private final String[] pubsubEvents = new String[]{
+            HikePubSub.UNSEEN_STATUS_COUNT_CHANGED,
+            HikePubSub.TIMELINE_UPDATE_RECIEVED,
+            HikePubSub.ICON_CHANGED,
+            HikePubSub.ACTIVITY_UPDATE,
+            HikePubSub.STATUS_MARKED_READ,
+            HikePubSub.STEALTH_MODE_TOGGLED,
+            HikePubSub.DELETE_STATUS,
+            HikePubSub.FAVORITE_TOGGLED,
+            HikePubSub.STEALTH_CONVERSATION_MARKED,
+            HikePubSub.STEALTH_CONVERSATION_UNMARKED};
 
     public static StoryFragment newInstance(@Nullable Bundle argBundle) {
         StoryFragment fragmentInstance = new StoryFragment();
@@ -203,6 +213,8 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
                 || type.equals(HikePubSub.STATUS_MARKED_READ)
                 || type.equals(HikePubSub.STEALTH_MODE_TOGGLED)
                 || type.equals(HikePubSub.DELETE_STATUS)
+                || type.equals(HikePubSub.STEALTH_CONVERSATION_MARKED)
+                || type.equals(HikePubSub.STEALTH_CONVERSATION_UNMARKED)
                 || type.equals(HikePubSub.FAVORITE_TOGGLED)) {
             if (isAdded() && getActivity() != null) {
                 HikeHandlerUtil.getInstance().postRunnable(new Runnable() {
