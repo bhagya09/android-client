@@ -12,20 +12,13 @@
         android:layout_centerInParent="true"
         android:background="@color/black" />
 
-    <RelativeLayout
-        android:id="@+id/content_container"
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/story_photo_pager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_centerInParent="true"
-        android:background="@color/transparent">
+        android:layout_height="match_parent">
 
-        <android.support.v4.view.ViewPager
-            android:id="@+id/story_photo_pager"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-        </android.support.v4.view.ViewPager>
-    </RelativeLayout>
+    </android.support.v4.view.ViewPager>
 
     <View
         android:id="@+id/fg_screen"
@@ -93,7 +86,7 @@
                 android:gravity="center_vertical"
                 android:text="@string/photo_like_def_text"
                 android:textColor="#B3FFFFFF"
-                android:textSize="14dp"
+                android:textSize="14sp"
                 android:textStyle="normal" />
         </LinearLayout>
     </LinearLayout>

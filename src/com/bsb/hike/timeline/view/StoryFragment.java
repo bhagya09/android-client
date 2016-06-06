@@ -252,10 +252,7 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
         if (storyItem.getType() == StoryItem.TYPE_INTENT) {
             getActivity().startActivity(storyItem.getIntent());
         } else if (storyItem.getType() == StoryItem.TYPE_FRIEND && storyItem.getTypeInfo() != null) {
-//            getActivity().startActivity(IntentFactory.getContactTimelineIntent(getActivity(), (ContactInfo) storyItem.getTypeInfo()));
-            Intent storyPhotosActivity = new Intent(getActivity(), StoryPhotosActivity.class);
-            storyPhotosActivity.putExtra(StoryPhotosActivity.STORY_MSISDN_INTENT_KEY, ((ContactInfo) storyItem.getTypeInfo()).getMsisdn());
-            getActivity().startActivity(storyPhotosActivity);
+            getActivity().startActivity(IntentFactory.getStoryPhotosActivityIntent(getActivity(), ((ContactInfo) storyItem.getTypeInfo()).getMsisdn()));
         } else if (storyItem.getType() == StoryItem.TYPE_BRAND) {
             // TODO
         }

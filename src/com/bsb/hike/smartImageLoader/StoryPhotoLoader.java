@@ -63,6 +63,7 @@ public class StoryPhotoLoader extends ImageWorker {
                     return getFromCache(id, loadingProfilePic, statusMessage);
                 }
             } catch (Exception e1) {
+                Logger.e(TAG, "exception occured while loading photo", e1);
                 e1.printStackTrace();
             }
         }

@@ -62,8 +62,6 @@ public class StoryPhotosActivity extends HikeAppStateBaseFragmentActivity implem
 
     private ViewPager pagerStory;
 
-    private View contentContainer;
-
     private View viewBlackBGScreen;
 
     private View viewTranslucentFGScreen;
@@ -163,7 +161,6 @@ public class StoryPhotosActivity extends HikeAppStateBaseFragmentActivity implem
 
     private void initReferences() {
         pagerStory = (ViewPager) findViewById(R.id.story_photo_pager); // pager which shows story photos
-        contentContainer = findViewById(R.id.content_container); // contains view pager
         viewBlackBGScreen = findViewById(R.id.bg_screen); // activity background
         viewTranslucentFGScreen = findViewById(R.id.fg_screen); // layer on photo on which captions/loves are displayed
         infoContainer = findViewById(R.id.image_info_container); // contains loves, captions
@@ -233,13 +230,9 @@ public class StoryPhotosActivity extends HikeAppStateBaseFragmentActivity implem
 
         checkBoxLove.setOnCheckedChangeListener(null);
 
-        if (isLikedByMe) {
-            checkBoxLove.setChecked(true);
-        } else {
-            checkBoxLove.setChecked(false);
-        }
+        checkBoxLove.setChecked(isLikedByMe);
 
-        if (msisdns != null && !msisdns.isEmpty()) {
+        if (!Utils.isEmpty(msisdns)) {
             // Set count
             if (msisdns.size() == 1) {
                 textViewCounts.setText(String.format(getString(R.string.num_like), msisdns.size()));
@@ -278,7 +271,7 @@ public class StoryPhotosActivity extends HikeAppStateBaseFragmentActivity implem
             msisdns = actionsData.getAllMsisdn();
         }
 
-        if (msisdns != null && !msisdns.isEmpty()) {
+        if (!Utils.isEmpty(msisdns)) {
             HikeDialog contactsListDialog = HikeDialogFactory.showDialog(StoryPhotosActivity.this, HikeDialogFactory.LIKE_CONTACTS_DIALOG, currentStatusMessage.getMsisdn(), null, msisdns);
 
             contactsListDialog.show();
