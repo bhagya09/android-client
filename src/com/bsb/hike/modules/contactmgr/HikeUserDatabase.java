@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.preference.PreferenceManager;
 import android.provider.BaseColumns;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.text.TextUtils;
@@ -20,6 +21,7 @@ import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.R;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.CallerContentModel;
 import com.bsb.hike.chatHead.CallerMetadata;
@@ -2081,6 +2083,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		Logger.d(TAG, "Adding msisdb to favourite" + msisdn);
 		cv.put(DBConstants.MSISDN, msisdn);
 		cv.put(DBConstants.FAVORITE_TYPE, favoriteType.ordinal());
+		cv.put(DBConstants.LAST_SEEN_SETTINGS, getLastSeenSettingsForMsisdn());
 		long value = mDb.update(DBConstants.USERS_TABLE, cv, DBConstants.MSISDN + "=?", new String[]{msisdn});
 		if (value == -1 || value == 0) {
 			value = mDb.insertWithOnConflict(DBConstants.USERS_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
@@ -2089,6 +2092,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 			Logger.d(TAG, "MSISDN FAVOURITE" + msisdn + "result -->" + value + "UPDATE EXECUTED");
 		}
 	}
+
 
 	public List<ContactInfo> getNonHikeMostContactedContactsFromListOfNumbers(String selectionNumbers, final Map<String, Integer> mostContactedValues, int limit)
 	{
@@ -3046,6 +3050,14 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		ContentValues values = new ContentValues();
 		values.put(DBConstants.LAST_SEEN_SETTINGS, newValue ? 1 : 0);
 		mDb.update(DBConstants.USERS_TABLE, values, null, null);
+	}
+
+	private int getLastSeenSettingsForMsisdn() {
+		String ls_setting = PreferenceManager.getDefaultSharedPreferences(HikeMessengerApp.getInstance()).getString(HikeConstants.LAST_SEEN_PREF_LIST, HikeMessengerApp.getInstance().getString(R.string.privacy_favorites));
+		if (HikeMessengerApp.getInstance().getString(R.string.privacy_favorites).equals(ls_setting)) {
+			return 1;
+		}
+		return 0;
 	}
 
 }
