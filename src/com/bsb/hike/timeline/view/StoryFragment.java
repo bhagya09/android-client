@@ -31,6 +31,7 @@ import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Utils;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -194,7 +195,7 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
                 HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable() {
                     @Override
                     public void run() {
-                        StoriesDataManager.getInstance().updateDefaultData();
+                        StoriesDataManager.getInstance().updateDefaultData(new WeakReference<StoriesDataManager.StoriesDataListener>(StoryFragment.this));
                     }
                 }, 2000); // This is to avoid changing of subtext right when timeline is tapped since it takes time for timeline activity to show up
             }
@@ -251,7 +252,10 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
         if (storyItem.getType() == StoryItem.TYPE_INTENT) {
             getActivity().startActivity(storyItem.getIntent());
         } else if (storyItem.getType() == StoryItem.TYPE_FRIEND && storyItem.getTypeInfo() != null) {
-            getActivity().startActivity(IntentFactory.getContactTimelineIntent(getActivity(), (ContactInfo) storyItem.getTypeInfo()));
+//            getActivity().startActivity(IntentFactory.getContactTimelineIntent(getActivity(), (ContactInfo) storyItem.getTypeInfo()));
+            Intent storyPhotosActivity = new Intent(getActivity(), StoryPhotosActivity.class);
+            storyPhotosActivity.putExtra(StoryPhotosActivity.STORY_MSISDN_INTENT_KEY, ((ContactInfo) storyItem.getTypeInfo()).getMsisdn());
+            getActivity().startActivity(storyPhotosActivity);
         } else if (storyItem.getType() == StoryItem.TYPE_BRAND) {
             // TODO
         }

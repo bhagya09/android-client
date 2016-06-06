@@ -44,8 +44,6 @@ public class StoriesDataManager {
 
     private final Context mContext;
 
-    private WeakReference<StoriesDataListener> mListenerRef;
-
     private StoriesDataManager() {
         mContext = HikeMessengerApp.getInstance().getApplicationContext();
     }
@@ -64,22 +62,26 @@ public class StoriesDataManager {
 
     public void getAllStoryData(@NonNull StoriesDataListener argListener) {
 
-        mListenerRef = new WeakReference<StoriesDataListener>(argListener);
+        final WeakReference<StoriesDataListener> listenerRef = new WeakReference<StoriesDataListener>(argListener);
 
-        updateDefaultData();
+        updateDefaultData(listenerRef);
 
         HikeHandlerUtil.getInstance().postAtFront(new Runnable() {
             @Override
             public void run() {
-                updateRecentStories();
-                updateAllPhotosStories();
-                updateCameraShyStories();
+                updateRecentStories(listenerRef);
+                updateAllPhotosStories(listenerRef);
+                updateCameraShyStories(listenerRef);
             }
         });
     }
 
-    private void notifyDataUpdate() {
-        Object weakObjectListener = mListenerRef.get();
+    private void notifyDataUpdate(WeakReference<StoriesDataListener> argListenerRef) {
+        if (argListenerRef == null) {
+            return;
+        }
+
+        Object weakObjectListener = argListenerRef.get();
         if (weakObjectListener == null) {
             return;
         }
@@ -111,7 +113,7 @@ public class StoriesDataManager {
         return storyItemList;
     }
 
-    public void updateDefaultData() {
+    public void updateDefaultData(WeakReference<StoriesDataListener> argListenerRef) {
         defaultList = new ArrayList<>();
 
         //Space header
@@ -124,10 +126,10 @@ public class StoriesDataManager {
         timelineItem.setSubText(TimelineUtils.getTimelineSubText());
         defaultList.add(timelineItem);
 
-        notifyDataUpdate();
+        notifyDataUpdate(argListenerRef);
     }
 
-    public void updateRecentStories() {
+    public void updateRecentStories(WeakReference<StoriesDataListener> argListenerRef) {
         // Get recents
         recentsList = HikeConversationsDatabase.getInstance().getAllStories(StoryItem.CATEGORY_RECENT);
         if (!Utils.isEmpty(recentsList)) {
@@ -136,29 +138,29 @@ public class StoriesDataManager {
             recentsHeader.setSubText(String.valueOf(recentsList.size()));
             recentsList.add(0, recentsHeader);
 
-            notifyDataUpdate();
+            notifyDataUpdate(argListenerRef);
         }
     }
 
-    public void updateAllPhotosStories() {
+    public void updateAllPhotosStories(WeakReference<StoriesDataListener> argListenerRef) {
         // Get all photos
         allPhotosList = HikeConversationsDatabase.getInstance().getAllStories(StoryItem.CATEGORY_ALL);
-        removeSimilarElements(recentsList,allPhotosList);
+        removeSimilarElements(recentsList, allPhotosList);
         if (!Utils.isEmpty(allPhotosList)) {
             // Make a header
             StoryItem allPhotosHeader = new StoryItem(StoryItem.TYPE_HEADER, mContext.getString(R.string.story_category_allphotos));
             allPhotosHeader.setSubText(String.valueOf(allPhotosList.size()));
             allPhotosList.add(0, allPhotosHeader);
 
-            notifyDataUpdate();
+            notifyDataUpdate(argListenerRef);
         }
     }
 
-    public void updateCameraShyStories() {
+    public void updateCameraShyStories(WeakReference<StoriesDataListener> argListenerRef) {
         // Get camera shy
         cameraShyList = HikeConversationsDatabase.getInstance().getAllStories(StoryItem.CATEGORY_DEFAULT);
-        removeSimilarElements(recentsList,cameraShyList);
-        removeSimilarElements(allPhotosList,cameraShyList);
+        removeSimilarElements(recentsList, cameraShyList);
+        removeSimilarElements(allPhotosList, cameraShyList);
         if (!Utils.isEmpty(cameraShyList)) {
             Collections.sort(cameraShyList, cameraShyFriendsComparator);
 
@@ -167,16 +169,13 @@ public class StoriesDataManager {
             defaultHeader.setSubText(String.valueOf(cameraShyList.size()));
             cameraShyList.add(0, defaultHeader);
 
-            notifyDataUpdate();
+            notifyDataUpdate(argListenerRef);
         }
     }
 
-    private void removeSimilarElements(List referenceList, List workingList)
-    {
-        for(int i = workingList.size() - 1; i >= 0 ; i--)
-        {
-            if(referenceList.contains(workingList.get(i)))
-            {
+    private void removeSimilarElements(List referenceList, List workingList) {
+        for (int i = workingList.size() - 1; i >= 0; i--) {
+            if (referenceList.contains(workingList.get(i))) {
                 workingList.remove(i);
             }
         }
@@ -204,4 +203,50 @@ public class StoriesDataManager {
         }
     };
 
+    public void getStoryForFriend(final String friendMsisdn, final WeakReference<StoriesDataListener> argListenerRef) {
+        if (argListenerRef == null) {
+            return;
+        }
+
+        HikeHandlerUtil.getInstance().postAtFront(new Runnable() {
+            @Override
+            public void run() {
+
+                Object weakRefListener = argListenerRef.get();
+                if (weakRefListener == null) {
+                    return;
+                }
+
+                StoriesDataListener storyListener = (StoriesDataListener) weakRefListener;
+
+                updateRecentStories(null);
+                updateAllPhotosStories(null);
+
+                StoryItem friendStory = null;
+
+                for (StoryItem<StatusMessage, ContactInfo> recentStory : recentsList) {
+                    ContactInfo cInfo = recentStory.getTypeInfo();
+                    if (cInfo != null && friendMsisdn.equals(cInfo.getMsisdn())) {
+                        friendStory = recentStory;
+                    }
+                }
+
+                if (friendStory == null) {
+                    for (StoryItem<StatusMessage, ContactInfo> allPhotoStory : allPhotosList) {
+                        ContactInfo cInfo = allPhotoStory.getTypeInfo();
+                        if (cInfo != null && friendMsisdn.equals(cInfo.getMsisdn())) {
+                            friendStory = allPhotoStory;
+                        }
+                    }
+                }
+
+                List<StoryItem> storyItemList = new ArrayList<StoryItem>();
+                if (friendStory != null) {
+                    storyItemList.add(friendStory);
+                }
+
+                storyListener.onDataUpdated(storyItemList);
+            }
+        });
+    }
 }
