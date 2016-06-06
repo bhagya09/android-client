@@ -58,4 +58,10 @@ public abstract class SpaceManagerItem
 	{
 		return type;
 	}
+
+	public interface SpaceManagerDeleteListener
+	{
+		void onDelete();
+	}
+
 }

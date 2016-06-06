@@ -5,15 +5,13 @@ import com.google.gson.Gson;
 /**
  * @author paramshah
  */
-public abstract class SpaceManagerSubCategory extends SpaceManagerItem
+public abstract class SpaceManagerSubCategory extends SpaceManagerItem implements SpaceManagerItem.SpaceManagerDeleteListener
 {
     public SpaceManagerSubCategory(String header)
     {
         setHeader(header);
         setType(SUBCATEGORY);
     }
-
-    public abstract void onDelete();
 
     @Override
     public String toString()
