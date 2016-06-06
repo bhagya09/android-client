@@ -55,7 +55,7 @@ public class FetchCategoryDetailsTask extends AsyncTask<Void, Void, StickerCateg
 	@Override
 	public void doOnFailure(HttpException exception)
 	{
-		HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_CATEGORY_DETAILS_DOWNLOAD_FAILURE, exception);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_CATEGORY_DETAILS_DOWNLOAD_FAILURE, catId);
 	}
 	
 }

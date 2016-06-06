@@ -584,11 +584,16 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 				@Override
 				public void run()
 				{
-					stickerCategory = (StickerCategory) object;
-					setDetails();
-					updateButtonState();
-					loadingView.setVisibility(View.GONE);
-					loadingFailed.setVisibility(View.GONE);
+
+					StickerCategory category = (StickerCategory) object;
+					if (category.getCategoryId().equalsIgnoreCase(catId))
+					{
+						stickerCategory = category;
+						setDetails();
+						updateButtonState();
+						loadingView.setVisibility(View.GONE);
+						loadingFailed.setVisibility(View.GONE);
+					}
 				}
 			});
 			break;
@@ -603,8 +608,11 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 				@Override
 				public void run()
 				{
-					loadingView.setVisibility(View.GONE);
-					loadingFailed.setVisibility(View.VISIBLE);
+					String categoryId = (String) object;
+					if (categoryId.equalsIgnoreCase(catId)) {
+						loadingView.setVisibility(View.GONE);
+						loadingFailed.setVisibility(View.VISIBLE);
+					}
 				}
 			});
 			break;
