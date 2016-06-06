@@ -3055,14 +3055,9 @@ public class Utils
 		{
 			return false;
 		}
-
-		if (file.isDirectory())
+        File listFiles[] = file.listFiles();
+		if (file.isDirectory()  && listFiles != null)
 		{
-			File listFiles[] = file.listFiles();
-			if(listFiles == null)
-			{
-				return false;
-			}
 			for (File f : listFiles)
 			{
 				result = result && deleteFile(f);
@@ -8148,14 +8143,15 @@ public class Utils
 
 		try
 		{
-			if (!file.exists() || file.listFiles() == null)
+			File[] listFiles = file.listFiles();
+			if (!file.exists() || listFiles == null)
 			{
 				return 0;
 			}
 
 			int count = 0;
 
-			for (File newFile : file.listFiles())
+			for (File newFile : listFiles)
 			{
 				if (newFile.isDirectory())
 				{
@@ -8383,5 +8379,29 @@ public class Utils
 			}
 		}
 		return false;
+	}
+
+	public static boolean isUnknownUserInfoViewEnabled()
+	{
+		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
+		return prefs.getData(HikeConstants.ENABLE_UNKNOWN_USER_INFO_IN_CHAT, false);
+	}
+
+	public static void recordUpgradeTaskCompletion(String taskKey, long duration)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, "db_update");
+			json.put(AnalyticsConstants.V2.KINGDOM, "act_hs");
+			json.put(AnalyticsConstants.V2.ORDER, "db_update");
+			json.put(AnalyticsConstants.V2.FAMILY, taskKey);
+			json.put(AnalyticsConstants.V2.GENUS, duration);
+			HAManager.getInstance().recordV2(json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
 	}
 }

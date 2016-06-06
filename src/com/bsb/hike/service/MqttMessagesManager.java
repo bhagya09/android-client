@@ -3464,6 +3464,12 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.HIKE_CES_ENABLE, enableCes);
 		}
 
+		if (data.has(HikeConstants.ENABLE_UNKNOWN_USER_INFO_IN_CHAT))
+		{
+			boolean enableUnknownUserInfoView = data.getBoolean(HikeConstants.ENABLE_UNKNOWN_USER_INFO_IN_CHAT);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_UNKNOWN_USER_INFO_IN_CHAT, enableUnknownUserInfoView);
+		}
+
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 

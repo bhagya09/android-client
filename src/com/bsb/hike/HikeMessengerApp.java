@@ -925,6 +925,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 				|| settings.getBoolean(PRIVACY_SETTINGS_LAST_SEEN_UPGRADE, false) == false
 				|| TEST)
 		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE, System.currentTimeMillis());
 			startUpdgradeIntent();
 		}
 		else

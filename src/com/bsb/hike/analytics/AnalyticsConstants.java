@@ -1035,4 +1035,10 @@ public class AnalyticsConstants
 
 		public static final String SILENT = "silent";
 	}
+
+	public static final String PPOPUP = "ppopup";
+
+	public static final String DUPLICATE = "duplicate";
+
+	public static final String POPUP_DUPLICATE = "popup_duplicate";
 }
