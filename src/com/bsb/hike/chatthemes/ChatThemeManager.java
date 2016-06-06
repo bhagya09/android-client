@@ -109,7 +109,13 @@ public class ChatThemeManager {
     }
 
     public HikeChatTheme getTheme(String themeId) {
-        return mChatThemesMap.get(themeId);
+        HikeChatTheme theme = mChatThemesMap.get(themeId);
+        if(theme == null) {
+            theme = mChatThemesMap.get(defaultChatThemeId);
+            //looks like theme data is missing downloading theme content
+            downloadThemeContent(themeId, true);
+        }
+        return theme;
     }
 
     public void clearThemes() {
@@ -370,6 +376,10 @@ public class ChatThemeManager {
             HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CUSTOM_CHATTHEME_ENABLED, true);
         }
 
+        downloadThemeContent(themeId, isCustom);
+    }
+
+    public void downloadThemeContent(String themeId, boolean isCustom) {
         if (!mChatThemesMap.containsKey(themeId)) {
             DownloadThemeContentTask downloadAssetIds = new DownloadThemeContentTask(themeId, isCustom);
             downloadAssetIds.execute();
