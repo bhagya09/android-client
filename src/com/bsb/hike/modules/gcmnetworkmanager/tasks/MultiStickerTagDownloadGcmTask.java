@@ -26,12 +26,9 @@ public class MultiStickerTagDownloadGcmTask implements IGcmTask
 		String languageListString = extra.getString(HikeConstants.LANGUAGES);
 		Set<String> languages = new HashSet<String>(Arrays.asList(languageListString.split(",")));
 
-		String categoriesListString = extra.getString(HikeConstants.STICKERS);
-		Set<String> stickerList = new HashSet<String>(Arrays.asList(categoriesListString.split(HikeConstants.DELIMETER)));
-
 		int state = extra.getInt(HikeConstants.STATE);
 
-		StickerSearchManager.getInstance().downloadStickerTags(false, state, stickerList, languages);
+		StickerSearchManager.getInstance().downloadStickerTags(false, state, null, languages);
 		return null;
 	}
 }
