@@ -29,7 +29,7 @@ public class DataParser {
         //TODO: check implement
         try {
             JSONObject jsonObject = new JSONObject(requestPayload);
-            if(jsonObject.has(ProtoMapper.REQUEST_TYPE)) {
+            if (jsonObject.has(ProtoMapper.REQUEST_TYPE)) {
                 notificationType = jsonObject.getString("type");
             } else {
                 throw new ParserException("Error parsing request, no request type",
@@ -45,7 +45,7 @@ public class DataParser {
     }
 
     public ExperimentInit getExperimentInit(String notificationPayload) throws ParserException {
-        switch(requestFormat) {
+        switch (requestFormat) {
             case REQUEST_FORMAT_JSON:
                 return new ExperimentInitJson(notificationPayload);
             default:
@@ -54,7 +54,7 @@ public class DataParser {
     }
 
     public ExperimentAbort getExperimentAbort(String notificationPayload) throws ParserException {
-        switch(requestFormat) {
+        switch (requestFormat) {
             case REQUEST_FORMAT_JSON:
                 return new ExperimentAbortJson(notificationPayload);
             default:
@@ -63,7 +63,7 @@ public class DataParser {
     }
 
     public ExperimentInit getRollout(String notificationPayload) throws ParserException {
-        switch(requestFormat) {
+        switch (requestFormat) {
             case REQUEST_FORMAT_JSON:
                 return new ExperimentRolloutJson(notificationPayload);
             default:
@@ -72,7 +72,7 @@ public class DataParser {
     }
 
     public ExperimentsLoader getExperimentLoader(Map<String, ?> experiments) throws ParserException {
-        switch(requestFormat) {
+        switch (requestFormat) {
             case REQUEST_FORMAT_JSON:
                 return new ExperimentsLoaderJson(experiments);
             default:
@@ -82,7 +82,7 @@ public class DataParser {
 
     public static boolean isABTestMessage(String requestType) {
         boolean result = false;
-        switch(requestType) {
+        switch (requestType) {
             case REQUEST_TYPE_EXPERIMENT_INIT:
             case REQUEST_TYPE_EXPERIMENT_ROLL_OUT:
             case REQUEST_TYPE_EXPERIMENT_ABORT:
@@ -92,4 +92,5 @@ public class DataParser {
                 result = false;
         }
         return result;
-    }}
+    }
+}

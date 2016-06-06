@@ -9,6 +9,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.Pair;
 import android.view.View;
 import android.view.animation.Animation;
@@ -30,17 +31,19 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.bots.BotUtils;
-import com.bsb.hike.chatthemes.HikeChatThemeConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.filetransfer.FTMessageBuilder;
 import com.bsb.hike.filetransfer.FileTransferManager;
+import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
+import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.MovingList;
+import com.bsb.hike.models.Mute;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.OfflineController;
@@ -71,6 +74,11 @@ public class ChatThreadUtils
 		return wtRevamp;
 	}
 
+	public static boolean isMessageInfoEnabled() {
+		boolean enabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MESSAGE_INFO_ENABLED, false);
+
+		return enabled;
+	}
 	public static boolean isCustomChatThemeEnabled()
 	{
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CUSTOM_CHATTHEME_ENABLED, false);
@@ -79,6 +87,7 @@ public class ChatThreadUtils
 	public static boolean disableOverlayEffectForCCT()
 	{
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CUSTOM_CHATTHEME_DISABLE_OVERLAY, false);
+
 	}
 
 	protected static void playUpDownAnimation(Context context, final View view)
@@ -212,13 +221,13 @@ public class ChatThreadUtils
 	
 	protected static void uploadFile(Context context, String msisdn, String filePath, HikeFileType fileType, boolean isConvOnHike, int attachmentType)
 	{
-		uploadFile(context, msisdn, filePath, fileType, isConvOnHike, attachmentType,null);
+		uploadFile(context, msisdn, filePath, fileType, isConvOnHike, attachmentType, null);
 	}
 
 	protected static void uploadFile(Context context, String msisdn, String filePath, HikeFileType fileType, boolean isConvOnHike, int attachmentType, String caption)
 	{
 		Logger.i(TAG, "upload file , filepath " + filePath + " filetype " + fileType);
-		initialiseFileTransfer(context, msisdn, filePath, null, fileType, null, false, -1, false, isConvOnHike, attachmentType,caption);
+		initialiseFileTransfer(context, msisdn, filePath, null, fileType, null, false, -1, false, isConvOnHike, attachmentType, caption);
 	}
 	
 	protected static void initiateFileTransferFromIntentData(Context context, String msisdn, String fileType, String filePath, boolean convOnHike, int attachmentType)
@@ -292,7 +301,45 @@ public class ChatThreadUtils
 		mBuilder.build();
 				
 	}
+	protected static void initialiseFileTransferForNativeCards(Context context, String msisdn, String filePath, String fileKey, HikeFileType hikeFileType, String fileType, boolean isRecording,
+												 long recordingDuration, boolean isForwardingFile, boolean convOnHike, int attachmentType, String caption, JSONObject nativeCardMetadata, String hikeMessage)
+	{
+		clearTempData(context);
 
+		if (filePath == null)
+		{
+			FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_2_3, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "InitialiseFileTransfer - File Path is null");
+			return;
+		}
+		File file = new File(filePath);
+		Logger.d(TAG, "File size: " + file.length() + " File name: " + file.getName());
+
+		boolean skipMaxSizeCheck = isMaxSizeUploadableFile(hikeFileType,context);
+
+		if (!skipMaxSizeCheck && HikeConstants.MAX_FILE_SIZE < file.length())
+		{
+			Toast.makeText(context, R.string.max_file_size, Toast.LENGTH_SHORT).show();
+			if (hikeFileType == HikeFileType.VIDEO) {
+				Utils.recordEventMaxSizeToastShown(ChatAnalyticConstants.VIDEO_MAX_SIZE_TOAST_SHOWN, getChatThreadType(msisdn), msisdn, file.length());
+			}
+			FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_1_3, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "InitialiseFileTransfer - Max size limit reached.");
+			return;
+		}
+		FTMessageBuilder.Builder mBuilder = new FTMessageBuilder.Builder()
+				.setMsisdn(msisdn)
+				.setSourceFile(file)
+				.setFileKey(fileKey)
+				.setFileType(fileType)
+				.setHikeFileType(hikeFileType)
+				.setRec(isRecording)
+				.setForwardMsg(isForwardingFile)
+				.setRecipientOnHike(convOnHike)
+				.setRecordingDuration(recordingDuration)
+				.setAttachement(attachmentType)
+				.setCaption(caption).setNativeCardFT(true).setNativeCardMetadata(nativeCardMetadata).setHikeMessage(hikeMessage);
+		mBuilder.build();
+
+	}
 	protected static void onShareFile(Context context, String msisdn, Intent intent, boolean isConvOnHike)
 	{
 		String fileKey = null;
@@ -328,15 +375,16 @@ public class ChatThreadUtils
 		}
 	}
 
-	protected static boolean shouldShowLastSeen(String msisdn, Context context, boolean convOnHike, boolean isBlocked)
-	{
-		if (!ContactManager.getInstance().isTwoWayFriend(msisdn))
-		{
-			return false; // We do not want to show the last seen in this case if the user is not 2way friend
+	protected static boolean shouldShowLastSeen(ContactInfo contactInfo, Context context, boolean convOnHike, boolean isBlocked) {
+		if (Utils.isFavToFriendsMigrationAllowed()) {
+			if (!ContactManager.getInstance().isTwoWayFriend(contactInfo.getMsisdn()))
+				return false; // We do not want to show the last seen in this case if the user is not 2way friend
+
+			else
+				return contactInfo.getPrivacyPrefs().shouldShowLastSeen(); // LS is set as Friends/NONE --> user is a 2 way friend --> user's last seen could be hidden/shown
 		}
 
-		if (convOnHike && !isBlocked && !BotUtils.isBot(msisdn) && !OfflineUtils.isConnectedToSameMsisdn(msisdn))
-		{
+		if (convOnHike && !isBlocked && !BotUtils.isBot(contactInfo.getMsisdn()) && !OfflineUtils.isConnectedToSameMsisdn(contactInfo.getMsisdn())) {
 			return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.LAST_SEEN_PREF, true);
 		}
 		return false;
@@ -399,6 +447,12 @@ public class ChatThreadUtils
 			if (!source.equalsIgnoreCase(StickerManager.FROM_OTHER))
 			{
 				metadata.put(StickerManager.SEND_SOURCE, source);
+			}
+			if(source.contains(StickerManager.FROM_QF) || source.contains(StickerManager.FROM_QR))
+			{
+				String[] split = source.split(HikeConstants.SEPARATOR);
+				metadata.put(StickerManager.SEND_SOURCE, split[0]);
+				metadata.put(AnalyticsConstants.ACT_MSG, split[1]);
 			}
 
 			metadata.put(StickerManager.STICKER_TYPE, sticker.getStickerType().ordinal());
@@ -709,7 +763,9 @@ public class ChatThreadUtils
 				object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.MESSAGE_READ);
 				object.put(HikeConstants.TO, msisdn);
 				object.put(HikeConstants.DATA, ids);
-
+				if(channelSelector instanceof OfflineChannel){
+					object.put(HikeConstants.TIMESTAMP,System.currentTimeMillis()/1000);
+				}
 				channelSelector.postMR(object);
 			}
 
@@ -761,10 +817,92 @@ public class ChatThreadUtils
 		return null;
 	}
 
+	public static void processTasks(final Intent intent)
+	{
+		String msisdn = intent.getStringExtra(HikeConstants.MSISDN);
+		boolean showNotification = intent.getBooleanExtra(HikeConstants.MUTE_NOTIF, true);
+		if (TextUtils.isEmpty(msisdn))
+		{
+			return;
+		}
+		//CE-765: If notification were choosen not be shown, then we reset it
+		if (!showNotification) showNotification = true;
+		Mute mute = new Mute.InitBuilder(msisdn).setIsMute(false).setShowNotifInMute(showNotification).setMuteDuration(0).build();
+		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, mute);
+	}
+
 	public static boolean isBigVideoSharingEnabled()
 	{
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.LARGE_VIDEO_SHARING_ENABLED, false);
 	}
+	/**
+	 * @param convMessage
+	 */
+	public static  String getMessageType(ConvMessage convMessage)
+	{
+		if (convMessage == null)
+		{
+			return null;
+		}
+
+		if (convMessage.isStickerMessage())
+		{
+			return AnalyticsConstants.MessageType.STICKER;
+		}
+		/**
+		 * If NO Metadata ===> It was a "Text" Msg in 1-1 Conv
+		 */
+		else if (convMessage.getMetadata() != null)
+		{
+			if (convMessage.getMetadata().isPokeMessage())
+			{
+				return AnalyticsConstants.MessageType.NUDGE;
+			}
+
+			List<HikeFile> list = convMessage.getMetadata().getHikeFiles();
+			/**
+			 * If No HikeFile List ====> It was a "Text" Msg in gc
+			 */
+			if (list != null)
+			{
+				final HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
+				HikeFileType fileType = hikeFile.getHikeFileType();
+				switch (fileType)
+				{
+					case CONTACT:
+						return AnalyticsConstants.MessageType.CONTACT;
+
+					case LOCATION:
+						return AnalyticsConstants.MessageType.LOCATION;
+
+					case AUDIO:
+					case AUDIO_RECORDING:
+						return hikeFile.getAttachmentSharedAs();
+
+					case VIDEO:
+						return AnalyticsConstants.MessageType.VEDIO;
+
+					case IMAGE:
+						return AnalyticsConstants.MessageType.IMAGE;
+
+					case APK:
+						return ChatAnalyticConstants.MessageInfoEvents.APK;
+
+					default:
+						return ChatAnalyticConstants.MessageInfoEvents.MESSAGE_INFO_FILE_TYPE_OTHER;
+
+				}
+			}
+			else
+			{
+				return AnalyticsConstants.MessageType.TEXT;
+			}
+		}
+
+		return AnalyticsConstants.MessageType.TEXT;
+
+	}
+
 
 	public static boolean isMaxSizeUploadableFile(HikeFileType hikeFileType, Context context){
 		boolean skipMaxSizeCheck = (isBigVideoSharingEnabled() && hikeFileType == HikeFileType.VIDEO);

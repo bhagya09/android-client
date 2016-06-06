@@ -4,7 +4,9 @@ import android.content.Context;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Build;
 import android.provider.Settings.Secure;
+import android.support.annotation.Nullable;
 import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -126,7 +128,7 @@ public class RegisterAccountTask
 			}
 
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 				resultAccountInfo = null;
 			}
@@ -153,7 +155,12 @@ public class RegisterAccountTask
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
+
 			String paUid = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Preactivation.UID, "");
+			if(!TextUtils.isEmpty(paUid))
+			{
+				data.put(HikeConstants.Preactivation.UID, paUid);
+			}
 
 			String os = HikeConstants.ANDROID;
 			String carrier = manager.getNetworkOperatorName();
@@ -177,7 +184,6 @@ public class RegisterAccountTask
 			data.put("deviceid", deviceId);
 			data.put("devicetoken", deviceId);
 			data.put("deviceversion", device);
-			data.put(HikeConstants.Preactivation.UID, paUid);
 			data.put(HikeConstants.DEVICE_KEY, deviceKey);
 			data.put("appversion", appVersion);
 			data.put("invite_token", context.getSharedPreferences(HikeMessengerApp.REFERRAL, Context.MODE_PRIVATE).getString("utm_source", ""));

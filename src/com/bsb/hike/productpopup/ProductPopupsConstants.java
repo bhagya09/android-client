@@ -67,8 +67,6 @@ public class ProductPopupsConstants
 
 	public static final String RECEIVED = "rec";
 
-	public static final String RECEIVED_NOT_SHOWN = "recv_not_shown";
-	
 	public static enum PopupStateEnum
 	{
 		NOT_DOWNLOADED(0), DOWNLOADED(1), UNKNOWN(3);

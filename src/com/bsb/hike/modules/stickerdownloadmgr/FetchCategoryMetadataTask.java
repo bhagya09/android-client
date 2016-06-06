@@ -1,10 +1,16 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
+import android.support.annotation.Nullable;
+import android.os.Bundle;
+
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHTTPTask;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHttpTaskResult;
@@ -34,15 +40,14 @@ public class FetchCategoryMetadataTask implements IHikeHTTPTask, IHikeHttpTaskRe
 
 	private String ucids = "";
 
-    public FetchCategoryMetadataTask(List<StickerCategory> list)
-    {
-        this.list = list;
-        createRequestJsonBody();
-    }
+	public FetchCategoryMetadataTask(List<StickerCategory> list)
+	{
+		this.list = list;
+		createRequestJsonBody();
+	}
 
-
-    private void createRequestJsonBody()
-    {
+	private void createRequestJsonBody()
+	{
 		requestJsonBody = new JSONObject();
 		JSONObject jsonObject;
 		JSONArray array = new JSONArray();
@@ -56,6 +61,7 @@ public class FetchCategoryMetadataTask implements IHikeHTTPTask, IHikeHttpTaskRe
 				array.put(jsonObject);
 			}
 			requestJsonBody.put(HikeConstants.UCIDS, array);
+			requestJsonBody = Utils.getParameterPostBodyForHttpApi(HttpRequestConstants.BASE_SHOP_METADATA, requestJsonBody);
         }
         catch (Exception e)
         {
@@ -65,7 +71,7 @@ public class FetchCategoryMetadataTask implements IHikeHTTPTask, IHikeHttpTaskRe
 
 	public String getCategoryFetchRequestId()
 	{
-		return StickerConstants.StickerRequestType.FETCH_CATEGORY.getLabel() + ucids;
+		return StickerConstants.StickerRequestType.FETCH_CATEGORY.getLabel() + Utils.StringToMD5(ucids);
 	}
 
 	private IRequestListener getRequestListener()
@@ -73,9 +79,10 @@ public class FetchCategoryMetadataTask implements IHikeHTTPTask, IHikeHttpTaskRe
 		return new IRequestListener()
 		{
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 				doOnFailure(httpException);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_SHOP_DOWNLOAD_FAILURE, httpException);
 			}
 
 			@Override
@@ -84,6 +91,11 @@ public class FetchCategoryMetadataTask implements IHikeHTTPTask, IHikeHttpTaskRe
 				try
 				{
 					JSONObject response = (JSONObject) result.getBody().getContent();
+
+					if (response != null)
+					{
+						Logger.d(TAG, "ucids:" + ucids + "response:" + response.toString());
+					}
 
 					if (!Utils.isResponseValid(response))
 					{
@@ -100,8 +112,12 @@ public class FetchCategoryMetadataTask implements IHikeHTTPTask, IHikeHttpTaskRe
 						return;
 					}
 					JSONArray jsonArray = resultData.optJSONArray(HikeConstants.PACKS);
-					HikeConversationsDatabase.getInstance().updateStickerCategoriesInDb(jsonArray, false);
-					HikeConversationsDatabase.getInstance().updateIsPackMetadataUpdated(list);
+					boolean isUpdated =HikeConversationsDatabase.getInstance().updateStickerCategoriesInDb(jsonArray, false);
+					if (isUpdated)
+					{
+						HikeConversationsDatabase.getInstance().updateIsPackMetadataUpdated(list);
+					}
+					HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_SHOP_DOWNLOAD_SUCCESS, null);
 				}
 				catch (Exception e)
 				{
@@ -143,6 +159,18 @@ public class FetchCategoryMetadataTask implements IHikeHTTPTask, IHikeHttpTaskRe
 	}
 
 	@Override
+	public Bundle getRequestBundle()
+	{
+		return null;
+	}
+
+	@Override
+	public String getRequestId()
+	{
+		return null;
+	}
+
+    @Override
 	public void doOnSuccess(Object result)
 	{
 

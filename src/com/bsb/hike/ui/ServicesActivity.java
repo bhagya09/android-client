@@ -297,10 +297,12 @@ public class ServicesActivity extends HikeAppStateBaseFragmentActivity {
             }
 
             @Override
-            public void onRequestFailure(HttpException httpException) {
-                Logger.v(TAG_BOT_DISCOVERY, "Bot download request failure for " + msisdn);
+            public void onRequestFailure(Response response, HttpException httpException)
+            {
+                com.hike.transporter.utils.Logger.v(ServicesActivity.class.getSimpleName(), "Bot download request failure for " + msisdn);
                 Toast.makeText(mContext, "" + mContext.getResources().getString(R.string.error_sharing), Toast.LENGTH_SHORT).show();
-                if (dialog != null) {
+                if (dialog != null)
+                {
                     dialog.dismiss();
                 }
             }

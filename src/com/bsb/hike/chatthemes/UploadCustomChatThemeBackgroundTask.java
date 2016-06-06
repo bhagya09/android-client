@@ -1,6 +1,8 @@
 package com.bsb.hike.chatthemes;
 
 
+import android.support.annotation.Nullable;
+import android.os.Bundle;
 import android.util.Log;
 
 import com.bsb.hike.HikeMessengerApp;
@@ -48,10 +50,20 @@ public class UploadCustomChatThemeBackgroundTask implements IHikeHTTPTask {
         }
     }
 
+    @Override
+    public Bundle getRequestBundle() {
+        return null;
+    }
+
+    @Override
+    public String getRequestId() {
+        return null;
+    }
+
     private IRequestListener getRequestListener() {
         return new IRequestListener() {
             @Override
-            public void onRequestFailure(HttpException httpException) {
+            public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException) {
                 Log.v(TAG, "Custom Chattheme Image Upload Failed :::::::::::::::::");
                 HikeMessengerApp.getPubSub().publish(HikePubSub.CHATTHEME_CUSTOM_IMAGE_UPLOAD_FAILED, null);
             }

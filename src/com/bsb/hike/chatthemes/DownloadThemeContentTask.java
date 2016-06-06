@@ -1,5 +1,8 @@
 package com.bsb.hike.chatthemes;
 
+import android.support.annotation.Nullable;
+import android.os.Bundle;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -67,11 +70,21 @@ public class DownloadThemeContentTask implements IHikeHTTPTask, IHikeHttpTaskRes
         Logger.d(TAG, "chat theme asset id download failed");
     }
 
+    @Override
+    public Bundle getRequestBundle() {
+        return null;
+    }
+
+    @Override
+    public String getRequestId() {
+        return null;
+    }
+
     private IRequestListener getRequestListener() {
         return new IRequestListener() {
 
             @Override
-            public void onRequestFailure(HttpException httpException) {
+            public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException) {
                 doOnFailure(httpException);
             }
 

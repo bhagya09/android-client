@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class MovingList<T extends Unique> implements Collection<T>
 {
@@ -15,9 +16,16 @@ public class MovingList<T extends Unique> implements Collection<T>
 
 	OnItemsFinishedListener mOnItemsFinishedListener;
 
-	ArrayList<Unique> items;
+	/*
+	CopyOnWriteArrayList has performance hit over ArrayList. But its the right choice for the current use case.
+	Moving list was created to handle large number(more than a few lacks) of message items in the chat thread.
+	This case is never a regular user case(where u can barely scroll to a thousand messages). It can happen if and only if u search your messages.
+	Hence CopyOnWriteArrayList will give a performance hit but only in this search use case, not in regular use.
+	Also refer https://hikeapp.atlassian.net/browse/CE-585.
+	 */
+	CopyOnWriteArrayList<Unique> items;
 
-	ArrayList<Long> uniqueIds;
+	CopyOnWriteArrayList<Long> uniqueIds;
 
 	int LoadBufferSize = 1;
 
@@ -34,7 +42,7 @@ public class MovingList<T extends Unique> implements Collection<T>
 	 */
 	public MovingList(Collection<? extends Unique> collection, Collection<Long> ids, OnItemsFinishedListener onItemsFinishedListener)
 	{
-		items = new ArrayList<Unique>(collection);
+		items = new CopyOnWriteArrayList<Unique>(collection);
 		this.mOnItemsFinishedListener = onItemsFinishedListener;
 		if (ids == null)
 		{
@@ -42,13 +50,13 @@ public class MovingList<T extends Unique> implements Collection<T>
 		}
 		else
 		{
-			uniqueIds = new ArrayList<Long>(ids);
+			uniqueIds = new CopyOnWriteArrayList<Long>(ids);
 		}
 	}
 
-	public static ArrayList<Long> getIds(List<? extends Unique> list)
+	public static CopyOnWriteArrayList<Long> getIds(List<? extends Unique> list)
 	{
-		ArrayList<Long> uniqueIdList = new ArrayList<Long>();
+		CopyOnWriteArrayList<Long> uniqueIdList = new CopyOnWriteArrayList<Long>();
 		for (int i = 0; i < list.size(); i++)
 		{
 			uniqueIdList.add(list.get(i).getUniqueId());

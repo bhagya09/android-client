@@ -1,4 +1,4 @@
-package com.bsb.hike.userlogs;
+package com.bsb.hike.utils;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -78,7 +78,6 @@ public class PhoneSpecUtils
 
 	private static final String ROAMING = "isRoaming";
 
-	
 	/**
 	 * retuns the phonespec at the current instance of time
 	 */
@@ -209,7 +208,6 @@ public class PhoneSpecUtils
 		{
 			return null;
 		}
-	
 	}
 
 	/**
@@ -245,7 +243,7 @@ public class PhoneSpecUtils
 	}
 
 	/**
-	 * 
+	 *
 	 * returns the jsonObj of the freeMem, freeMem, busyMem of the statFs provided
 	 */
 	private static Map<String, Long> getMemory(StatFs statFs)
@@ -258,7 +256,7 @@ public class PhoneSpecUtils
 	}
 
 	/**
-	 * 
+	 *
 	 * returns the busy memory in bytes of the statfs provided
 	 */
 	private static long getBusyMem(StatFs statFs)
@@ -303,7 +301,7 @@ public class PhoneSpecUtils
 	}
 
 	/**
-	 * 
+	 *
 	 * returns whether the automatic date and time is set or not
 	 */
 	private static boolean isAutomaticDateAndTimeSet(Context context)
@@ -319,9 +317,8 @@ public class PhoneSpecUtils
 		}
 		return (isSet == 1) ? true : false;
 	}
-	
-	
-	/** 
+
+	/**
 	 * getting the int after setting the particular bit according to arguments provided
 	 */
 	public static int getNumberAfterSettingBit(int oldNumber, byte bit,boolean toSet)
@@ -335,8 +332,8 @@ public class PhoneSpecUtils
 			return (oldNumber & ~(1 << bit));
 		}
 	}
-	
-	/** 
+
+	/**
 	 * getting the package name from process by removing after : part
 	 */
     public static String getPackageFromProcess(String process)

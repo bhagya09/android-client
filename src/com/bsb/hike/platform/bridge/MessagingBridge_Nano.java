@@ -11,15 +11,23 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.Mute;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformHelper;
 import com.bsb.hike.platform.WebMetadata;
-import com.bsb.hike.utils.*;
+import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.CustomAnnotation.DoNotObfuscate;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * API bridge that connects the javascript to the Native environment. Make the instance of this class and add it as the JavaScript interface of the Card WebView.
@@ -36,7 +44,8 @@ public class MessagingBridge_Nano extends JavascriptBridge
 	
 	
 	protected SparseArray<WebMetadata> metadataMap = new SparseArray<WebMetadata>();
-	
+	protected Map<String, Boolean> downloadProgressForContentIdMap = new HashMap<String, Boolean>();
+
 	public static interface WebviewEventsListener{
 		public void loadFinished(ConvMessage message);
 		
@@ -136,8 +145,8 @@ public class MessagingBridge_Nano extends JavascriptBridge
 	@JavascriptInterface
 	public void muteChatThread()
 	{
-
-		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_BOT, message.getMsisdn());
+		Mute mute = new Mute.InitBuilder(message.getMsisdn()).build();
+		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, mute);
 
 	}
 
@@ -206,7 +215,7 @@ public class MessagingBridge_Nano extends JavascriptBridge
 				}
 			}
 
-			PlatformHelper.startComPoseChatActivity(message,weakActivity.get());
+			PlatformHelper.startComPoseChatActivity(message,weakActivity.get(),null);
 		}
 		catch (JSONException e)
 		{
@@ -253,7 +262,7 @@ public class MessagingBridge_Nano extends JavascriptBridge
 	public void setData()
 	{
 		mWebView.loadUrl("javascript:setData('" + message.getMsisdn() + "','" + message.webMetadata.getHelperData().toString() + "','" + message.isSent() + "','" +
-				HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING,null) + "','" + AccountUtils.getAppVersion() + "')");
+				HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null) + "','" + AccountUtils.getAppVersion() + "')");
 	}
 
 	public void init()
@@ -346,7 +355,7 @@ public class MessagingBridge_Nano extends JavascriptBridge
 	@JavascriptInterface
 	public void deleteAlarm()
 	{
-		MessagingBotBridgeHelper.deleteAlarm((int)message.getMsgID());
+		MessagingBotBridgeHelper.deleteAlarm((int) message.getMsgID());
 	}
 
 	
@@ -363,12 +372,51 @@ public class MessagingBridge_Nano extends JavascriptBridge
 	public void updateMetadata(String json, String notifyScreen)
 	{
 		Logger.i(tag, "update metadata called " + json + " , message id=" + message.getMsgID() + " notifyScren is " + notifyScreen);
-		updateMetadata(MessagingBotBridgeHelper.updateMetadata((int)message.getMsgID(), json), notifyScreen);
+		updateMetadata(MessagingBotBridgeHelper.updateMetadata((int) message.getMsgID(), json), notifyScreen);
 	}
 
 	public void eventReceived(String event)
 	{
 		mWebView.loadUrl("javascript:eventReceived(" + "'" + getEncodedDataForJS(event) + "')");
+	}
+
+	public boolean isDownloadProgressSubsribe(String platformContentId)
+	{
+		if(downloadProgressForContentIdMap == null)
+		{
+			downloadProgressForContentIdMap = new HashMap<String, Boolean>();
+		}
+		if(downloadProgressForContentIdMap.containsKey(platformContentId)) {
+			return downloadProgressForContentIdMap.get(platformContentId);
+		}
+		return false;
+	}
+
+	/**
+	 * Platform Bridge Version 12
+	 * This method subscribes a card to get the download progress of a given platform request.
+	 *
+	 * @param platformContentId the platformContentId whose downloadProgress is being subscribed for
+	 * @param isSubscribe : if true, the adapter will be notified of the download progress, else it won't.
+	 */
+	@JavascriptInterface
+	public void downloadStatusSubscribe(String platformContentId, String isSubscribe)
+	{
+		if(TextUtils.isEmpty(platformContentId) || TextUtils.isEmpty(isSubscribe))
+		{
+			Logger.e(tag, "downloadStatusSubscribe() : platformContentId or isSubscribe is empty");
+			return;
+		}
+		if(downloadProgressForContentIdMap == null)
+		{
+			downloadProgressForContentIdMap = new HashMap<String, Boolean>();
+		}
+		downloadProgressForContentIdMap.put(platformContentId, Boolean.valueOf(isSubscribe));
+	}
+
+	public void downloadStatus(final String id, final String progress)
+	{
+		mWebView.loadUrl("javascript:downloadStatus" + "('" + id + "','" + progress + "')");
 	}
 
 }

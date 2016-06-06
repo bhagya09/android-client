@@ -19,6 +19,7 @@ import android.os.CountDownTimer;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.content.Loader;
+import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.telephony.TelephonyManager;
@@ -68,6 +69,7 @@ import com.bsb.hike.tasks.SignupTask.StateValue;
 import com.bsb.hike.utils.*;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 import com.bsb.hike.view.CustomFontEditText;
+import com.hike.abtest.ABTest;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -535,7 +537,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		@Override
 		public void run()
 		{
-			openHomeActivity();
+			onOnBoardingComplete();
 		}
 	};
 
@@ -553,7 +555,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		}
 
 		@Override
-		public void onRequestFailure(HttpException httpException)
+		public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 		{
 			Toast.makeText(SignupActivity.this, R.string.call_me_fail, Toast.LENGTH_LONG).show();
 			onFinish(false);
@@ -2588,7 +2590,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 					{
 						hikeDialog.dismiss();
 						recordStickerRestoreDialogOkClick();
-						openHomeActivity();
+						onOnBoardingComplete();
 					}
 
 					@Override
@@ -2597,6 +2599,12 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 					}
 				}, null);
+	}
+
+	private void onOnBoardingComplete() {
+		//Apply New User ABTest experiments if received from servers
+		ABTest.applyNewUserExperiments();
+		openHomeActivity();
 	}
 
 	private void openHomeActivity()

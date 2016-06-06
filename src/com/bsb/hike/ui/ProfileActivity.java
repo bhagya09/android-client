@@ -16,6 +16,7 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.WindowCompat;
 import android.support.v7.app.ActionBar;
@@ -87,9 +88,11 @@ import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
+import com.bsb.hike.models.Conversation.OneToOneConversation;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeSharedFile;
 import com.bsb.hike.models.ImageViewerInfo;
+import com.bsb.hike.models.Mute;
 import com.bsb.hike.models.ProfileItem;
 import com.bsb.hike.models.ProfileItem.ProfileStatusItem;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -113,10 +116,11 @@ import com.bsb.hike.timeline.view.UpdatesFragment;
 import com.bsb.hike.ui.fragments.ImageViewerFragment;
 import com.bsb.hike.ui.fragments.PhotoViewerFragment;
 import com.bsb.hike.ui.utils.StatusBarColorChanger;
+import com.bsb.hike.utils.BirthdayUtils;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.EmoticonConstants;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
@@ -143,12 +147,16 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 public class ProfileActivity extends ChangeProfileImageBaseActivity implements FinishableEvent, Listener, OnLongClickListener, OnItemLongClickListener, OnScrollListener,
-		View.OnClickListener
+		View.OnClickListener, HikeDialogListener
 {
+
+	public static final String EXPAND_PRIVACY_VIEW = "exp_privacy_view";
 
 	private ImageView mAvatarEdit;
 
 	private int defAvBgColor;
+
+	private HikeDialog hikeDialog;
 
 	class ProfileActivityState extends ChangeProfileImageActivityState
 	{
@@ -805,6 +813,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		case CONTACT_INFO:
 			MenuItem friendItem = menu.findItem(R.id.unfriend);
 			MenuItem overflow = menu.findItem(R.id.overflow_menu);
+			MenuItem chatMuteItem = menu.findItem(R.id.mute_chat);
 
 			if (friendItem != null)
 			{
@@ -813,7 +822,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 							&& !OfflineUtils.isConnectedToSameMsisdn(contactInfo.getMsisdn()))
 					{
 						friendItem.setVisible(true);
-						friendItem.setTitle(R.string.remove_from_friends);
+						friendItem.setTitle(Utils.isFavToFriendsMigrationAllowed() ? R.string.remove_from_friends : R.string.remove_from_favorites);
 					}
 					else
 					{
@@ -825,12 +834,18 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			{
 				overflow.setVisible(false);
 			}
+
+			if (chatMuteItem != null)
+			{
+				chatMuteItem.setTitle(ContactManager.getInstance().isChatMuted(mLocalMSISDN) ? R.string.unmute_chat : R.string.mute_chat);
+			}
+
 			return true;
 		case GROUP_INFO:
 			MenuItem muteItem = menu.findItem(R.id.mute_group);
 			if (muteItem != null)
 			{
-				muteItem.setTitle(oneToNConversation.isMuted() ? R.string.unmute_group : R.string.mute_group);
+				muteItem.setTitle(ContactManager.getInstance().isChatMuted(mLocalMSISDN) ? R.string.unmute_group : R.string.mute_group);
 			}
 			return true;
 		}
@@ -854,8 +869,9 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		case R.id.leave_group:
 			onProfileLargeBtnClick(null);
 			break;
+		case R.id.mute_chat:
 		case R.id.mute_group:
-			onProfileSmallRightBtnClick(null);
+			onProfileSmallRightBtnClick(item.getTitle().toString());
 			break;
 		case R.id.new_update:
 			onProfileLargeBtnClick(null);
@@ -881,6 +897,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	{
 		setLocalMsisdn(getIntent().getStringExtra(HikeConstants.Extras.CONTACT_INFO));
 		contactInfo = ContactManager.getInstance().getContact(mLocalMSISDN, true, true);
+		contactInfo.setPrivacyPrefs(ContactManager.getInstance().getPrivacyPrefsForAGivenMsisdn(contactInfo.getMsisdn()));
 		sharedMediaCount = HikeConversationsDatabase.getInstance().getSharedMediaCount(mLocalMSISDN, true);
 		sharedPinCount = 0;  //Add a query here to get shared groups count. sharedPincount is to be treated as shared group count here.
 		unreadPinCount = 0;
@@ -979,7 +996,14 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			dualText = (TextView) headerView.findViewById(R.id.add_fav_tv_2);
 
 			String infoSubText = getString(Utils.isLastSeenSetToFavorite() ? R.string.both_ls_status_update : R.string.status_updates_proper_casing);
-			((TextView) headerView.findViewById(R.id.update_text)).setText(getString(R.string.sent_you_friend_req));
+			if (Utils.isFavToFriendsMigrationAllowed())
+			{
+				((TextView) headerView.findViewById(R.id.update_text)).setText(getString(R.string.sent_you_friend_req));
+			}
+			else
+			{
+				((TextView) headerView.findViewById(R.id.update_text)).setText(getString(R.string.add_fav_msg, infoSubText));
+			}
 			msisdn = contactInfo.getMsisdn();
 			name = TextUtils.isEmpty(contactInfo.getName()) ? contactInfo.getMsisdn() : contactInfo.getName();
 			text.setText(name);
@@ -1004,16 +1028,23 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				{	
 					// Show add/not now screen.
 					req_layout.setVisibility(View.VISIBLE);
-					req_layout.findViewById(R.id.no).setVisibility(View.GONE);
-					((Button)req_layout.findViewById(R.id.yes)).setText(R.string.ACCEPT);
+					if (Utils.isFavToFriendsMigrationAllowed())
+					{
+						req_layout.findViewById(R.id.no).setVisibility(View.GONE);
+						((Button)req_layout.findViewById(R.id.yes)).setText(R.string.ACCEPT);
+					}
+					else
+					{
+						req_layout.findViewById(R.id.no).setVisibility(View.VISIBLE);
+					}
 				}
 				
 				else if(contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED_REJECTED && !contactInfo.isUnknownContact())
 				{	
 					fav_layout.setVisibility(View.VISIBLE);  //Simply show add to fav view if contact is unsaved
-					extraInfo.setTextColor(getResources().getColor(R.color.blue_color_span));
-					extraInfo.setText(getResources().getString(R.string.add_frn));
-					smallIcon.setImageResource(R.drawable.ic_add_friend);
+					extraInfo.setTextColor(getResources().getColor(Utils.isFavToFriendsMigrationAllowed() ? R.color.blue_color_span : R.color.add_fav));
+					extraInfo.setText(getResources().getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.add_frn : R.string.add_fav));
+					smallIcon.setImageResource(Utils.isFavToFriendsMigrationAllowed() ? R.drawable.ic_add_friend : R.drawable.ic_add_favourite);
 				}
 				
 				if (contactInfo.isUnknownContact())
@@ -1021,9 +1052,9 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 						if(contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED_REJECTED)
 						{
 							dual_layout.setVisibility(View.VISIBLE);
-							dualText.setTextColor(getResources().getColor(R.color.blue_color_span));
-							dualText.setText(getString(R.string.add_frn));
-							smallIconFrame.setImageResource(R.drawable.ic_add_friend);
+							dualText.setTextColor(getResources().getColor(Utils.isFavToFriendsMigrationAllowed() ? R.color.blue_color_span : R.color.add_fav));
+							dualText.setText(getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.add_frn : R.string.add_fav));
+							smallIconFrame.setImageResource(Utils.isFavToFriendsMigrationAllowed() ? R.drawable.ic_add_friend : R.drawable.ic_add_favourite);
 						}
 						else
 						{
@@ -1045,17 +1076,17 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 						{
 							// Show dual layout
 							dual_layout.setVisibility(View.VISIBLE);
-							dualText.setTextColor(getResources().getColor(R.color.blue_color_span));
-							dualText.setText(getString(R.string.add_frn));
-							smallIconFrame.setImageResource(R.drawable.ic_add_friend);
+							dualText.setTextColor(getResources().getColor(Utils.isFavToFriendsMigrationAllowed() ? R.color.blue_color_span : R.color.add_fav));
+							dualText.setText(getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.add_frn : R.string.add_fav));
+							smallIconFrame.setImageResource(Utils.isFavToFriendsMigrationAllowed() ? R.drawable.ic_add_friend : R.drawable.ic_add_favourite);
 						}
 						else
 						{
 							dual_layout.setVisibility(View.GONE);
 							fav_layout.setVisibility(View.VISIBLE);
-							extraInfo.setTextColor(getResources().getColor(R.color.blue_color_span));
-							extraInfo.setText(getResources().getString(R.string.add_frn));
-							smallIcon.setImageResource(R.drawable.ic_add_friend);
+							extraInfo.setTextColor(getResources().getColor(Utils.isFavToFriendsMigrationAllowed() ? R.color.blue_color_span : R.color.add_fav));
+							extraInfo.setText(getResources().getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.add_frn : R.string.add_fav));
+							smallIcon.setImageResource(Utils.isFavToFriendsMigrationAllowed() ? R.drawable.ic_add_friend : R.drawable.ic_add_favourite);
 						}
 					}
 					else if (contactInfo.getFavoriteType() == FavoriteType.REQUEST_SENT || contactInfo.getFavoriteType() == FavoriteType.REQUEST_SENT_REJECTED)
@@ -1166,7 +1197,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	{
 		StatusMessageType[] statusMessagesTypesToFetch = {StatusMessageType.TEXT};
 		StatusMessage status = HikeConversationsDatabase.getInstance().getLastStatusMessage(statusMessagesTypesToFetch, contactInfo);
-		if((contactInfo.getFavoriteType() != FavoriteType.FRIEND) || status == null)
+		if((Utils.isFavToFriendsMigrationAllowed() && contactInfo.getFavoriteType() != FavoriteType.FRIEND)
+			|| status == null)
 		{
 			status = StatusMessage.getJoinedHikeStatus(contactInfo);
 			setStatusText(status, subText, name);
@@ -1213,17 +1245,19 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		}
 	}
 
-	private void setupContactProfileList()
-	{
+	private void setupContactProfileList() {
 		profileItems.clear();
-		if(!HikeMessengerApp.hikeBotInfoMap.containsKey(contactInfo.getMsisdn()))  //The HikeBot's numbers wont be shown
-		profileItems.add(new ProfileItem.ProfilePhoneNumberItem(ProfileItem.PHONE_NUMBER, getResources().getString(R.string.phone_pa)));
-		if(contactInfo.isOnhike())
-		{	shouldAddSharedMedia();
+		if (!contactInfo.isBot()) {  //The HikeBot's numbers wont be shown
+			checkAndAddPrivacySection();
+			profileItems.add(new ProfileItem.ProfilePhoneNumberItem(ProfileItem.PHONE_NUMBER, getResources().getString(R.string.phone_pa)));
+		}
+
+		if (contactInfo.isOnhike()) {
+			shouldAddSharedMedia();
 			profileItems.add(new ProfileItem.ProfileSharedContent(ProfileItem.SHARED_CONTENT, getResources().getString(R.string.shared_cont_pa), sharedFileCount, sharedPinCount, unreadPinCount, null));
 		}
 	}
-	
+
 	private void setupContactTimelineList()
 	{
 		profileItems.clear();
@@ -1334,6 +1368,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			profileItems = new ArrayList<ProfileItem>();
 			setupContactProfileList();
 			profileAdapter = new ProfileAdapter(this, profileItems, null, contactInfo, false, ContactManager.getInstance().isBlocked(mLocalMSISDN), sizeOfImage);
+			profileAdapter.listView = profileContent;
 			addProfileHeaderView();
 			break;
 		case BROADCAST_INFO:
@@ -1452,6 +1487,11 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			dobTxt = dobEntered.toJsonString();
 			savedDOB.setText(Utils.formatDOB(dobTxt));
 			dobEdited = true;
+			BirthdayUtils.recordBirthdayAnalytics(
+					AnalyticsConstants.BirthdayEvents.BIRTHDAY_OK,
+					AnalyticsConstants.BirthdayEvents.BIRTHDAY_STORE,
+					AnalyticsConstants.BirthdayEvents.BIRTHDAY_OK,
+					null, null, null, null, null, null, null, null);
 		}
 	};
 
@@ -1484,11 +1524,22 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 					Logger.d(TAG, "cancelling date picker dialog");
 					dialog.dismiss();
 					dobEdited = false;
+					BirthdayUtils.recordBirthdayAnalytics(
+							AnalyticsConstants.BirthdayEvents.BIRTHDAY_CANCEL,
+							AnalyticsConstants.BirthdayEvents.BIRTHDAY_STORE,
+							AnalyticsConstants.BirthdayEvents.BIRTHDAY_CANCEL,
+							null, null, null, null, null, null, null, null);
 				}
 			}
 		});
 		Logger.d(getClass().getSimpleName(), "calling show on date picker dialog");
 		dialog.show();
+
+		BirthdayUtils.recordBirthdayAnalytics(
+				AnalyticsConstants.BirthdayEvents.BIRTHDAY_DIALOG_OPEN,
+				AnalyticsConstants.BirthdayEvents.BIRTHDAY_STORE,
+				AnalyticsConstants.BirthdayEvents.BIRTHDAY_DIALOG_OPEN,
+				null, null, null, null, null, null, null, null);
 	}
 
 	private void setupEditScreen()
@@ -2249,12 +2300,133 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	}
 
-	public void onProfileSmallRightBtnClick(View v)
+	@Override
+	public void negativeClicked(HikeDialog hikeDialog)
 	{
-		oneToNConversation.setIsMute(!oneToNConversation.isMuted());
+		switch (hikeDialog.getId())
+		{
+			case HikeDialogFactory.DELETE_STATUS_DIALOG:
+				hikeDialog.dismiss();
+				this.hikeDialog = null;
+				break;
 
-		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, new Pair<String, Boolean>(oneToNConversation.getMsisdn(), oneToNConversation.isMuted()));
-		invalidateOptionsMenu();
+			case HikeDialogFactory.DELETE_GROUP_DIALOG:
+				hikeDialog.dismiss();
+				OneToNConversationUtils.leaveGCAnalyticEvent(hikeDialog, false,HikeConstants.LogEvent.LEAVE_GROUP_VIA_PROFILE);
+				break;
+
+			case HikeDialogFactory.MUTE_CHAT_DIALOG:
+				HikeAnalyticsEvent.recordAnalyticsForMuteCancel(mLocalMSISDN);
+				hikeDialog.dismiss();
+				this.hikeDialog = null;
+				break;
+
+		}
+	}
+
+	@Override
+	public void positiveClicked(HikeDialog hikeDialog)
+	{
+		switch (hikeDialog.getId())
+		{
+			case HikeDialogFactory.MUTE_CHAT_DIALOG:
+				final Mute mute = (ContactManager.getInstance().getMute(mLocalMSISDN) == null ? new Mute.InitBuilder(mLocalMSISDN).build() : ContactManager.getInstance().getMute(mLocalMSISDN));
+				Utils.toggleMuteChat(getApplicationContext(), mute);
+				invalidateOptionsMenu();
+				hikeDialog.dismiss();
+				break;
+
+			case HikeDialogFactory.DELETE_GROUP_DIALOG:
+				Utils.logEvent(ProfileActivity.this, HikeConstants.LogEvent.DELETE_CONVERSATION);
+				HikeMqttManagerNew.getInstance().sendMessage(oneToNConversation.serialize(HikeConstants.MqttMessageTypes.GROUP_CHAT_LEAVE), MqttConstants.MQTT_QOS_ONE);
+
+				if (((CustomAlertDialog) hikeDialog).isChecked())
+				{
+					HikeMessengerApp.getPubSub().publish(HikePubSub.GROUP_LEFT, oneToNConversation.getConvInfo());
+					Intent intent = IntentFactory.getHomeActivityIntent(this);
+					intent.putExtra(HikeConstants.Extras.GROUP_LEFT, mLocalMSISDN);
+					startActivity(intent);
+					finish();
+				}
+				else
+				{
+
+					if (HikeConversationsDatabase.getInstance().toggleGroupDeadOrAlive(oneToNConversation.getMsisdn(), false) > 0)
+					{
+
+						OneToNConversationUtils.saveStatusMesg(oneToNConversation.getConvInfo(), getApplicationContext());
+						HikeMessengerApp.getPubSub().publish(HikePubSub.GROUP_END, oneToNConversation.serialize(HikeConstants.MqttMessageTypes.GROUP_CHAT_END));
+					}
+				}
+				OneToNConversationUtils.leaveGCAnalyticEvent(hikeDialog, true,HikeConstants.LogEvent.LEAVE_GROUP_VIA_PROFILE);
+				hikeDialog.dismiss();
+				break;
+
+			case HikeDialogFactory.DELETE_STATUS_DIALOG:
+				deleteStatus();
+				hikeDialog.dismiss();
+				break;
+		}
+	}
+
+	@Override
+	public void neutralClicked(HikeDialog hikeDialog)
+	{
+
+	}
+
+	public void onProfileSmallRightBtnClick(String text)
+	{
+		Mute mute = (ContactManager.getInstance().getMute(mLocalMSISDN) == null ? new Mute.InitBuilder(mLocalMSISDN).build() : ContactManager.getInstance().getMute(mLocalMSISDN));
+
+		if (OneToNConversationUtils.isOneToNConversation(mLocalMSISDN))
+		{
+			oneToNConversation.setMute(mute);
+
+			if ((getString(R.string.mute_group)).equals(text))
+			{
+				boolean muteGCApproach = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MUTE_GC_SERVER_SWITCH, true);
+				if (muteGCApproach)
+				{
+					this.hikeDialog = HikeDialogFactory.showDialog(this, HikeDialogFactory.MUTE_CHAT_DIALOG, this, oneToNConversation.getMute());
+				}
+				else
+				{
+					Utils.toggleMuteChat(getApplicationContext(), oneToNConversation.getMute());
+					invalidateOptionsMenu();
+				}
+			}
+			else
+			{
+				Utils.toggleMuteChat(getApplicationContext(), oneToNConversation.getMute());
+				invalidateOptionsMenu();
+			}
+		}
+		else
+		{
+			Conversation mConversation = new OneToOneConversation.ConversationBuilder(mLocalMSISDN).build();
+			mConversation.setMute(mute);
+
+			if ((getString(R.string.mute_chat)).equals(text))
+			{
+				boolean muteApproach = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MUTE_ONE_TO_ONE_SERVER_SWITCH, true);
+				if (muteApproach)
+				{
+					this.hikeDialog = HikeDialogFactory.showDialog(this, HikeDialogFactory.MUTE_CHAT_DIALOG, this, mute);
+				}
+				else
+				{
+					Utils.toggleMuteChat(getApplicationContext(), mute);
+					invalidateOptionsMenu();
+				}
+			}
+			else
+			{
+				Utils.toggleMuteChat(getApplicationContext(), mute);
+				invalidateOptionsMenu();
+			}
+		}
+
 	}
 
 	public void onProfileBtn1Click(View v)
@@ -2353,52 +2525,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	
 	public void leaveGroup()
 	{
-		HikeDialogFactory.showDialog(ProfileActivity.this, HikeDialogFactory.DELETE_GROUP_DIALOG, new HikeDialogListener()
-		{
-
-			@Override
-			public void positiveClicked(HikeDialog hikeDialog)
-			{
-				Utils.logEvent(ProfileActivity.this, HikeConstants.LogEvent.DELETE_CONVERSATION);
-				HikeMqttManagerNew.getInstance().sendMessage(oneToNConversation.serialize(HikeConstants.MqttMessageTypes.GROUP_CHAT_LEAVE), MqttConstants.MQTT_QOS_ONE);
-
-				if (((CustomAlertDialog) hikeDialog).isChecked())
-				{
-					HikeMessengerApp.getPubSub().publish(HikePubSub.GROUP_LEFT, oneToNConversation.getConvInfo());
-					Intent intent = new Intent(ProfileActivity.this, HomeActivity.class);
-					intent.putExtra(HikeConstants.Extras.GROUP_LEFT, mLocalMSISDN);
-					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-					startActivity(intent);
-					finish();
-				}
-				else
-				{
-
-					if (HikeConversationsDatabase.getInstance().toggleGroupDeadOrAlive(oneToNConversation.getMsisdn(), false) > 0)
-					{
-
-						OneToNConversationUtils.saveStatusMesg(oneToNConversation.getConvInfo(), getApplicationContext());
-						HikeMessengerApp.getPubSub().publish(HikePubSub.GROUP_END, oneToNConversation.serialize(HikeConstants.MqttMessageTypes.GROUP_CHAT_END));
-					}
-				}
-				OneToNConversationUtils.leaveGCAnalyticEvent(hikeDialog, true,HikeConstants.LogEvent.LEAVE_GROUP_VIA_PROFILE);
-				hikeDialog.dismiss();
-			}
-
-		
-			@Override
-			public void neutralClicked(HikeDialog hikeDialog)
-			{
-			}
-
-			@Override
-			public void negativeClicked(HikeDialog hikeDialog)
-			{
-				hikeDialog.dismiss();
-				OneToNConversationUtils.leaveGCAnalyticEvent(hikeDialog, false,HikeConstants.LogEvent.LEAVE_GROUP_VIA_PROFILE);
-
-			}
-		}, oneToNConversation.getLabel());
+		this.hikeDialog = HikeDialogFactory.showDialog(ProfileActivity.this, HikeDialogFactory.DELETE_GROUP_DIALOG, this, oneToNConversation.getLabel());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -2701,7 +2828,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		{
 			final Pair<ContactInfo, FavoriteType> favoriteToggle = (Pair<ContactInfo, FavoriteType>) object;
 
-			ContactInfo contactInfo = favoriteToggle.first;
+			final ContactInfo contactInfo = favoriteToggle.first;
 			FavoriteType favoriteType = favoriteToggle.second;
 
 			if (!mLocalMSISDN.equals(contactInfo.getMsisdn()))
@@ -2722,6 +2849,17 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 					if(profileType == ProfileType.CONTACT_INFO)
 					{
 						updateProfileHeaderView();
+						// Also setup the the privacy view again
+						if (Utils.isFavToFriendsMigrationAllowed() && contactInfo.isMyOneWayFriend()) {
+							setupContactProfileList();
+							profileAdapter.notifyDataSetChanged();
+						}
+
+						else if (profileItems.get(0) instanceof ProfileItem.ProfilePrivacyItem) {
+							setupContactProfileList(); // Need to remove privacy item
+							profileAdapter.notifyDataSetChanged();
+						}
+
 					}
 					else if (profileType == ProfileType.CONTACT_INFO_TIMELINE || profileType == ProfileType.USER_PROFILE)
 					{
@@ -3136,11 +3274,15 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	private void removeFromGroup(final ContactInfo contactInfo)
 	{
 		int dialogId = oneToNConversation instanceof BroadcastConversation? HikeDialogFactory.DELETE_FROM_BROADCAST : HikeDialogFactory.DELETE_FROM_GROUP;
-		HikeDialogFactory.showDialog(this, dialogId, new HikeDialogListener()
-		{	
+		HikeDialogFactory.showDialog(this, dialogId, new HikeDialogListener() {
 			@Override
-			public void positiveClicked(HikeDialog hikeDialog)
-			{
+			public void negativeClicked(HikeDialog hikeDialog) {
+				hikeDialog.dismiss();
+			}
+
+			@Override
+			public void positiveClicked(HikeDialog hikeDialog) {
+
 				JSONObject object = new JSONObject();
 				try
 				{
@@ -3150,32 +3292,25 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 					JSONObject data = new JSONObject();
 
 					JSONArray msisdns = new JSONArray();
-					msisdns.put(contactInfo.getMsisdn());
+					msisdns.put(contactInfo.getUserIdentifer());
 
 					data.put(HikeConstants.MSISDNS, msisdns);
 					data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis()));
 
 					object.put(HikeConstants.DATA, data);
-				}
-				catch (JSONException e)
-				{
+
+				} catch (JSONException e) {
 					Logger.e(getClass().getSimpleName(), "Invalid JSON", e);
 				}
 				HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
 				hikeDialog.dismiss();
 			}
-			
+
 			@Override
-			public void neutralClicked(HikeDialog hikeDialog)
-			{
+			public void neutralClicked(HikeDialog hikeDialog) {
+
 			}
-			
-			@Override
-			public void negativeClicked(HikeDialog hikeDialog)
-			{
-				hikeDialog.dismiss();
-			}
-		}, contactInfo.getFirstName());	
+		}, contactInfo.getFirstName());
 		
 	}
 
@@ -3228,28 +3363,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	private void showDeleteStatusConfirmationDialog()
 	{
-		HikeDialogFactory.showDialog(this, HikeDialogFactory.DELETE_STATUS_DIALOG, new HikeDialogListener()
-		{
-			
-			@Override
-			public void positiveClicked(HikeDialog hikeDialog)
-			{
-				deleteStatus();
-				hikeDialog.dismiss();
-			}
-			
-			@Override
-			public void neutralClicked(HikeDialog hikeDialog)
-			{
-				//Do nothing
-			}
-			
-			@Override
-			public void negativeClicked(HikeDialog hikeDialog)
-			{
-				hikeDialog.dismiss();
-			}
-		});
+		this.hikeDialog = HikeDialogFactory.showDialog(this, HikeDialogFactory.DELETE_STATUS_DIALOG, this);
 	}
 
 	private IRequestListener getDeleteStatusRequestListener()
@@ -3283,7 +3397,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			}
 			
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 				mActivityState.deleteStatusToken = null;
 				mActivityState.deleteStatusId = null;
@@ -3360,7 +3474,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			}
 			
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 		//		onRequestSuccess(null);
 				dismissLoadingDialog();
@@ -3411,7 +3525,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			}
 			
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 				checkBox.setChecked(!checkBox.isChecked());
 				dismissLoadingDialog();
@@ -3769,7 +3883,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	
 	public void callBtnClicked(View v)
 	{
-		if (!contactInfo.isMyOneWayFriend()) //If Not one way friend, no need to initiate Voip
+		if (Utils.isNotMyOneWayFriend(contactInfo)) //If Not one way friend, no need to initiate Voip
 		{
 			String messageToDisplay = getString(R.string.voip_friend_error, contactInfo.getFirstNameAndSurname());
 			Toast.makeText(this, messageToDisplay, Toast.LENGTH_LONG).show();
@@ -3893,6 +4007,18 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	{
 		this.mLocalMSISDN = msisdn;
 		super.setLocalMsisdn(mLocalMSISDN);
+	}
+
+	private void checkAndAddPrivacySection() {
+		if (Utils.isFavToFriendsMigrationAllowed() && contactInfo.isMyOneWayFriend()) {
+			boolean shouldShowFTUE = false;
+			if (getIntent() != null) {
+				if (getIntent().getBooleanExtra(EXPAND_PRIVACY_VIEW, false) || !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FRIENDS_PRIVACY_PROFILE_VIEW_SHOWN, false))
+					shouldShowFTUE = true;
+			}
+
+			profileItems.add(new ProfileItem.ProfilePrivacyItem(ProfileItem.PRIVACY_SECTION, shouldShowFTUE));
+		}
 	}
 
 }

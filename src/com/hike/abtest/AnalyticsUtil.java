@@ -46,7 +46,7 @@ public class AnalyticsUtil {
         }
 
         //Send request status via MQTT
-        if(requestStatus!=null) {
+        if (requestStatus != null) {
             Logger.d(TAG, "Request status:" + requestStatus);
             HikeMqttManagerNew.getInstance().sendMessage(requestStatus, MqttConstants.MQTT_QOS_ONE);
         }

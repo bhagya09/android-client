@@ -1,5 +1,8 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
+import android.support.annotation.Nullable;
+import android.os.Bundle;
+
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -79,7 +82,7 @@ public class SingleStickerQuickSuggestionDownloadTask implements IHikeHTTPTask, 
 			}
 
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 				doOnFailure(httpException);
 			}
@@ -95,7 +98,8 @@ public class SingleStickerQuickSuggestionDownloadTask implements IHikeHTTPTask, 
 		}
 	}
 
-	private String getRequestId()
+    @Override
+    public String getRequestId()
 	{
 		return StickerConstants.StickerRequestType.SINGLE_QUICK_SUGGESTION.getLabel() + "\\" + sticker.getCategoryId() + "\\" + sticker.getStickerId();
 	}
@@ -111,5 +115,12 @@ public class SingleStickerQuickSuggestionDownloadTask implements IHikeHTTPTask, 
 	public void doOnFailure(HttpException exception)
 	{
 		Logger.e(TAG, "response failed for single sticker quick suggestions", exception);
+		QuickStickerSuggestionController.getInstance().sendFetchFailedSignalToUi(sticker);
 	}
+
+    @Override
+    public Bundle getRequestBundle()
+    {
+        return null;
+    }
 }

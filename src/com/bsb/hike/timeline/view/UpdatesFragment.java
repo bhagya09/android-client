@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Message;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -475,7 +476,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				RequestToken sendViewsToken = HttpRequests.sendViewsLink(viewsPayload, new IRequestListener()
 				{
 					@Override
-					public void onRequestFailure(HttpException httpException)
+					public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 					{
 						Logger.d("SendViewsAPI", "Failed");
 					}
@@ -1152,7 +1153,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		}
 
 		@Override
-		public void onRequestFailure(HttpException httpException)
+		public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 		{
 			// Do nothing
 			Logger.d(HikeConstants.TIMELINE_LOGS, "responce from http call failed "+ httpException.toString());

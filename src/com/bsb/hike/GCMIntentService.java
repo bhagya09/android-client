@@ -18,7 +18,7 @@ import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.service.HikeService;
 import com.bsb.hike.service.MqttMessagesManager;
 import com.bsb.hike.service.PreloadNotificationSchedular;
-import com.bsb.hike.userlogs.UserLogInfo;
+import com.hike.cognito.UserLogInfo;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -73,27 +73,10 @@ public class GCMIntentService extends GCMBaseIntentService
 				prefs.saveData(PreloadNotificationSchedular.NOTIFICATION_TIMELINE, notification);
 				PreloadNotificationSchedular.scheduleNextAlarm(context);
 			}
+
+			parseUserLogs(intent);
+
 			sendAnalyticsEvent(intent, intent.getStringExtra("msg"), reconnectVal, false);
-			JSONObject logType = null;
-			try
-			{
-
-				String logtypeString = intent.getStringExtra("user_logs");
-
-				Logger.d(getClass().getSimpleName(), "user_logs message: " + logtypeString);
-
-				if(!TextUtils.isEmpty(logtypeString)) {
-					logType = new JSONObject(logtypeString);
-					if (logType != null) {
-						UserLogInfo.requestUserLogs(logType);
-					}
-				}
-			}
-			catch (JSONException e)
-			{
-				e.printStackTrace();
-			}
-
 			return;
 		}
 
@@ -134,6 +117,28 @@ public class GCMIntentService extends GCMBaseIntentService
 
 	}
 	
+	private void parseUserLogs(Intent intent)
+	{
+		try
+		{
+			String logTypeString = intent.getStringExtra(HikeConstants.Preactivation.CONFIG);
+
+			if(!TextUtils.isEmpty(logTypeString))
+			{
+				Logger.d(getClass().getSimpleName(), "signup_config message: " + logTypeString);
+
+				JSONObject logType = new JSONObject(logTypeString);
+				if (logType != null)
+				{
+					UserLogInfo.requestUserLogs(logType);
+				}
+			}
+		}
+		catch (JSONException e)
+		{
+			Logger.d("UserLogInfo", "UserLogs parse error : " + e.getMessage());
+		}
+	}
 
 	private void sendAnalyticsEvent( Intent intent, String message, String reconnectVal, boolean userAuthenticated)
 	{

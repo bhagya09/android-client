@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.SystemClock;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.LoaderManager;
@@ -803,8 +804,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			setAvatar(contact.getMsisdn(), viewHolder.avatar);
 			viewHolder.ftueShow.setTag(viewType);
 			viewHolder.ftueShow.setOnClickListener(ftueListItemClickListener);
-			viewHolder.ftueBottomText.setText(R.string.timeline_add_as_frn);
-			viewHolder.favIcon.setImageResource(R.drawable.ic_84_addfriend);
+			viewHolder.ftueBottomText.setText(Utils.isFavToFriendsMigrationAllowed() ? R.string.timeline_add_as_frn : R.string.timeline_add_as_fav);
+			viewHolder.favIcon.setImageResource(Utils.isFavToFriendsMigrationAllowed() ? R.drawable.ic_84_addfriend : R.drawable.icon_favorites);
 			int imageSize = mContext.getResources().getDimensionPixelSize(R.dimen.timeine_big_picture_size);
 			profileLoader = new ProfileImageLoader(mContext, contact.getMsisdn(), viewHolder.largeProfilePic, imageSize, false, true);
 			profileLoader.setLoaderListener(new ProfileImageLoader.LoaderListener()
@@ -1283,7 +1284,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 					}
 
 					@Override
-					public void onRequestFailure(HttpException httpException)
+					public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 					{
 						Toast.makeText(mContext, R.string.delete_status_error, Toast.LENGTH_LONG).show();
 						if (hikeDialog != null && hikeDialog.isShowing())

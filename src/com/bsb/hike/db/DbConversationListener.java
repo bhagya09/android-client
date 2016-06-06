@@ -14,6 +14,7 @@ import com.bsb.hike.*;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
+import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.bots.BotInfo;
@@ -27,12 +28,14 @@ import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.HikeSDKMessageFilter;
+import com.bsb.hike.platform.nativecards.NativeCardUtils;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.service.SmsMessageStatusReceiver;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 
 import org.json.JSONArray;
@@ -89,7 +92,6 @@ public class DbConversationListener implements Listener
 		mPubSub.addListener(HikePubSub.MULTI_FILE_UPLOADED, this);
 		mPubSub.addListener(HikePubSub.HIKE_SDK_MESSAGE, this);
 		mPubSub.addListener(HikePubSub.CONVERSATION_TS_UPDATED, this);	
-		mPubSub.addListener(HikePubSub.MUTE_BOT, this);
 		mPubSub.addListener(HikePubSub.GROUP_LEFT, this);
 		mPubSub.addListener(HikePubSub.DELETE_THIS_CONVERSATION, this);
 		mPubSub.addListener(HikePubSub.UPDATE_LAST_MSG_STATE, this);
@@ -110,6 +112,7 @@ public class DbConversationListener implements Listener
 		{
 			ConvMessage convMessage = (ConvMessage) object;
 			boolean shouldSendMessage = convMessage.isFileTransferMessage() && !TextUtils.isEmpty(convMessage.getMetadata().getHikeFiles().get(0).getFileKey());
+			boolean shouldSendNativeCardMessage = convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.CONTENT && NativeCardUtils.isNativeCardFTMessage(convMessage) && !TextUtils.isEmpty(convMessage.platformMessageMetadata.getHikeFiles().get(0).getFileKey());
 			if (shouldSendMessage)
 			{
 				mConversationDb.updateMessageMetadata(convMessage.getMsgID(), convMessage.getMetadata());
@@ -117,9 +120,13 @@ public class DbConversationListener implements Listener
 				// Adding Logs for Message Reliability
 				MsgRelLogManager.logMsgRelEvent(convMessage, MsgRelEventType.DB_UPDATE_TRANSACTION_COMPLETED);
 			}
+			else if(shouldSendNativeCardMessage){
+				mConversationDb.updateMessageMetadata(convMessage.getMsgID(), convMessage.platformMessageMetadata.getJSON());
+				MsgRelLogManager.logMsgRelEvent(convMessage, MsgRelEventType.DB_UPDATE_TRANSACTION_COMPLETED);
+			}
 			else
 			{
-				if (!convMessage.isFileTransferMessage())
+				if (!convMessage.isFileTransferMessage() && !NativeCardUtils.isNativeCardFTMessage(convMessage))
 				{
 					mConversationDb.addConversationMessages(convMessage,true);
 				
@@ -142,7 +149,7 @@ public class DbConversationListener implements Listener
 			}
 
 			if ((convMessage.getParticipantInfoState() == ParticipantInfoState.NO_INFO || convMessage.getParticipantInfoState() == ParticipantInfoState.CHAT_BACKGROUND)
-					&& (!convMessage.isFileTransferMessage() || shouldSendMessage))
+					&& (!convMessage.isFileTransferMessage() || shouldSendMessage) && (!NativeCardUtils.isNativeCardFTMessage(convMessage) || shouldSendNativeCardMessage ))
 			{
 				Logger.d("DBCONVERSATION LISTENER", "Sending Message : " + convMessage.getMessage() + "	;	to : " + convMessage.getMsisdn());
 				if (!convMessage.isSMS() || !Utils.getSendSmsPref(context) || convMessage.getParticipantInfoState() == ParticipantInfoState.CHAT_BACKGROUND)
@@ -289,20 +296,28 @@ public class DbConversationListener implements Listener
 		}
 		else if (HikePubSub.MUTE_CONVERSATION_TOGGLED.equals(type))
 		{
-			Pair<String, Boolean> groupMute = (Pair<String, Boolean>) object;
+			Mute mute = (Mute) object;
 
-			String id = groupMute.first;
-			boolean mute = groupMute.second;
+			String id = mute.getMsisdn();
+			boolean isMute = mute.isMute();
+
+			mConversationDb.toggleChatMute(mute);
 
 			if (BotUtils.isBot(id))
 			{
 				// TODO Do we have to do MQTT PUBLISH here?
+				mConversationDb.toggleMuteBot(id, isMute);
 			}
 			else
 			{
-				mConversationDb.toggleGroupMute(id, mute);
-				HikeMqttManagerNew.getInstance().sendMessage(serializeMsg(mute ? HikeConstants.MqttMessageTypes.MUTE : HikeConstants.MqttMessageTypes.UNMUTE, id),
-						MqttConstants.MQTT_QOS_ONE);
+				mConversationDb.toggleGroupMute(id, isMute);
+				if(isMute) {
+					HikeMqttManagerNew.getInstance().sendMessage(serializeMsg(HikeConstants.MqttMessageTypes.MUTE, id, mute.shouldShowNotifInMute(), mute.getMuteDurationString()),
+							MqttConstants.MQTT_QOS_ONE);
+				} else {
+					HikeMqttManagerNew.getInstance().sendMessage(serializeMsg(HikeConstants.MqttMessageTypes.UNMUTE, id),
+							MqttConstants.MQTT_QOS_ONE);
+				}
 			}
 
 		}
@@ -446,12 +461,6 @@ public class DbConversationListener implements Listener
 			boolean isUpdated = mConversationDb.updateSortingTimestamp(msisdn, timestamp);
 		}
 		
-		else if (HikePubSub.MUTE_BOT.equals(type))
-		{
-			String botMsisdn = (String) object;
-			mConversationDb.toggleMuteBot(botMsisdn, BotUtils.getBotInfoForBotMsisdn(botMsisdn).isMute());
-		}
-		
 		else if(HikePubSub.GROUP_LEFT.equals(type) || HikePubSub.DELETE_THIS_CONVERSATION.equals(type))
 		{
 			ConvInfo convInfo = (ConvInfo) object;
@@ -497,7 +506,15 @@ public class DbConversationListener implements Listener
 
 			long eventId = HikeConversationsDatabase.getInstance().insertMessageEvent(messageEvent);
 
-			if (eventId < 0 || (HikeConversationsDatabase.getInstance().updateMessageForGeneralEvent(messageEvent.getMessageHash(), State.SENT_UNCONFIRMED, hm,null) == null))
+			boolean isGroup = false;
+			String fromUserMsisdn = null;
+			if(!TextUtils.isEmpty(messageEvent.getMsisdn()) && OneToNConversationUtils.isGroupConversation(messageEvent.getMsisdn()))
+			{
+				isGroup = true;
+				fromUserMsisdn = messageEvent.getFromUserMsisdn();
+			}
+
+			if (eventId < 0 || (HikeConversationsDatabase.getInstance().updateMessageForGeneralEvent(messageEvent.getMessageHash(), State.SENT_UNCONFIRMED, hm,null, isGroup, fromUserMsisdn) == null))
 			{
 				Logger.e(HikePlatformConstants.TAG, "Error inserting message event");
 			}
@@ -623,7 +640,7 @@ public class DbConversationListener implements Listener
                 listOfContacts.add(new ContactInfo(msisdn, msisdn, null, null,!convMessage.isSMS()));
             }
             convMessage.platformMessageMetadata.thumbnailMap.clear();
-            convMessage.platformMessageMetadata.addThumbnailsToMetadata();
+//            convMessage.platformMessageMetadata.addThumbnailsToMetadata();
             long timeStamp = System.currentTimeMillis()/1000;
 			String source = jsonObject.optString(HikePlatformConstants.SOURCE);
             MultipleConvMessage multipleConvMessage = new MultipleConvMessage(listOfMessages, listOfContacts, timeStamp, true, source);
@@ -719,6 +736,40 @@ public class DbConversationListener implements Listener
 			editor.putInt(HikeMessengerApp.DAY_RECORDED, dayRecorded);
 			editor.commit();
 		}
+	}
+
+	private JSONObject serializeMsg(String type, String id, boolean showNotif, String duration) {
+		JSONObject obj = new JSONObject();
+		JSONObject data = new JSONObject();
+		try
+		{
+			if (HikeConstants.MqttMessageTypes.ADD_FAVORITE.equals(type))
+			{
+				obj.put(HikeConstants.TO, id);
+			}
+			obj.put(HikeConstants.TYPE, type);
+			data.put(HikeConstants.ID, id);
+			data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis()/1000));
+
+			String isStealth = "";
+			if(StealthModeManager.getInstance().isStealthMsisdn(id)) {
+				isStealth = ChatAnalyticConstants.STEALTH_CHAT_THREAD;
+			}
+			data.put(HikeConstants.VARIETY, isStealth);
+
+			data.put(HikeConstants.VALUE_STR, duration);
+			int notifOn = 0;
+			if(showNotif) notifOn = 1;
+			data.put(HikeConstants.VALUE_INT, notifOn);
+
+			obj.put(HikeConstants.DATA, data);
+			Logger.d(getClass().getSimpleName(), "Sending add friends packet, Object: "+obj.toString());
+		}
+		catch (JSONException e)
+		{
+			Logger.e(getClass().getSimpleName(), "Invalid json", e);
+		}
+		return obj;
 	}
 
 	private JSONObject serializeMsg(String type, String id)

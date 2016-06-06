@@ -12,6 +12,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
@@ -169,7 +170,7 @@ public abstract class ChangeProfileImageBaseActivity extends HikeAppStateBaseFra
 		else
 		{
 			CropCompression compression = new CropCompression().maxWidth(640).maxHeight(640).quality(80);
-			Intent imageChooserIntent = IntentFactory.getImageChooserIntent(ChangeProfileImageBaseActivity.this, galleryFlags, getNewProfileImagePath(true),compression, true);
+			Intent imageChooserIntent = IntentFactory.getImageChooserIntent(ChangeProfileImageBaseActivity.this, galleryFlags, getNewProfileImagePath(useTimestamp),compression, true);
 			startActivityForResult(imageChooserIntent, HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE);
 		}
 	}
@@ -526,7 +527,7 @@ public abstract class ChangeProfileImageBaseActivity extends HikeAppStateBaseFra
 			}
 
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 				Logger.d("ProfileActivity", "delete dp request failed!");
 				dismissDialog();

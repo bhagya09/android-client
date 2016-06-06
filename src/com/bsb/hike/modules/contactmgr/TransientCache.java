@@ -12,6 +12,7 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.PairModified;
+import com.bsb.hike.utils.PhoneUtils;
 import com.bsb.hike.utils.Utils;
 
 import java.util.ArrayList;
@@ -738,8 +739,8 @@ public class TransientCache extends ContactsCache
 		}
 		else
 		{
-			String msisdnsInStatement = Utils.getMsisdnStatement(msisdnsIn);
-			String msisdnsNotInStatement = Utils.getMsisdnStatement(msisdnsNotIn);
+			String msisdnsInStatement = PhoneUtils.getMsisdnStatement(msisdnsIn);
+			String msisdnsNotInStatement = PhoneUtils.getMsisdnStatement(msisdnsNotIn);
 			contacts = hDb.getHikeContacts(limit, msisdnsInStatement, msisdnsNotInStatement, myMsisdn);
 			insertContact(contacts);
 		}

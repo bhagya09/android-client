@@ -707,6 +707,10 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
             recorderImg.setVisibility(View.VISIBLE);
             rectBgrnd.setVisibility(View.INVISIBLE);
             recordingState.setVisibility(View.VISIBLE);
+            ImageView innerView = (ImageView) inflatedLayoutView.findViewById(R.id.delete_inner);
+            innerView.setVisibility(View.INVISIBLE);
+            ImageView outerView = (ImageView) inflatedLayoutView.findViewById(R.id.delete_outer);
+            outerView.setVisibility(View.INVISIBLE);
             clearRingAnim();
         }
     }

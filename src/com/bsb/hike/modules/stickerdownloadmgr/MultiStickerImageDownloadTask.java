@@ -1,12 +1,14 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHTTPTask;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHttpTaskResult;
 import com.bsb.hike.modules.httpmgr.interceptor.IRequestInterceptor;
@@ -14,6 +16,7 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
 import com.bsb.hike.modules.httpmgr.request.requestbody.JsonBody;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.quickstickersuggestions.QuickStickerSuggestionController;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerRequestType;
 import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
@@ -97,7 +100,7 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 			call ++;
 			offset ++;
 			RequestListener requestListener = new RequestListener();
-			RequestToken requestToken = multiStickerImageDownloadRequest(getRequestId(offset), new RequestInterceptor(offset, requestListener), requestListener);
+			RequestToken requestToken = multiStickerImageDownloadRequest(getRequestId(offset), new RequestInterceptor(offset, requestListener), requestListener, getRequestBundle());
 			requestListener.setRequestToken(requestToken);
 			requestTokenList.add(requestToken);
 			if (requestToken.isRequestRunning()) // duplicate check
@@ -128,7 +131,7 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 			if (directoryPath == null)
 			{
 				Logger.e(TAG, "intercept(), Sticker download failed directory does not exist");
-				requestListener.onRequestFailure(null);
+				requestListener.onRequestFailure(null, null);
 				return;
 			}
 
@@ -150,6 +153,7 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 				bodyJson.put(HikeConstants.NUMBER_OF_STICKERS, getStickerDownloadSize());
 				bodyJson.put(HikeConstants.OFFSET, offset);
 
+				bodyJson = Utils.getParameterPostBodyForHttpApi(HttpRequestConstants.BASE_STICKER_V4, bodyJson);
 				Logger.d(TAG, "intercept(), Sticker Download Task Request: " + bodyJson.toString());
 
 				IRequestBody body = new JsonBody(bodyJson);
@@ -159,7 +163,7 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 			catch (JSONException e)
 			{
 				Logger.e(TAG, "intercept(), Json exception during creation of request body", e);
-				requestListener.onRequestFailure(new HttpException("json exception", e));
+				requestListener.onRequestFailure(null, new HttpException("json exception", e));
 				return;
 			}
 		}
@@ -186,7 +190,7 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 				if (!Utils.isResponseValid(response))
 				{
 					Logger.e(TAG, "Sticker download failed null or invalid response");
-					onRequestFailure(null);
+					onRequestFailure(null, null);
 					return;
 				}
 				Logger.d(TAG, "Got response for download task " + response.toString());
@@ -195,14 +199,14 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 				if (null == data)
 				{
 					Logger.e(TAG, "Sticker download failed null data");
-					onRequestFailure(null);
+					onRequestFailure(null, null);
 					return;
 				}
 
 				if (!data.has(HikeConstants.PACKS))
 				{
 					Logger.e(TAG, "Sticker download failed null pack data");
-					onRequestFailure(null);
+					onRequestFailure(null, null);
 					return;
 				}
 
@@ -212,7 +216,7 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 				if (!packs.has(categoryId))
 				{
 					Logger.e(TAG, "Sticker download failed null category data");
-					onRequestFailure(null);
+					onRequestFailure(null, null);
 					return;
 				}
 
@@ -236,6 +240,7 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 							byte[] byteArray = StickerManager.getInstance().saveLargeStickers(largeStickerDir.getAbsolutePath(), stickerId, stickerImage);
 							StickerManager.getInstance().saveSmallStickers(smallStickerDir.getAbsolutePath(), stickerId, byteArray);
                             StickerManager.getInstance().saveInStickerTagSet(sticker);
+							QuickStickerSuggestionController.getInstance().saveInRetrySet(sticker);
                             StickerManager.getInstance().saveInTableStickerSet(sticker);
 							stickerSet.add(sticker.getStickerCode());
 						}
@@ -258,7 +263,7 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 			}
 			catch (Exception e)
 			{
-				onRequestFailure(new HttpException(HttpException.REASON_CODE_UNEXPECTED_ERROR, e));
+				onRequestFailure(null, new HttpException(HttpException.REASON_CODE_UNEXPECTED_ERROR, e));
 				return;
 			}
 
@@ -271,7 +276,7 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 		}
 
 		@Override
-		public void onRequestFailure(HttpException httpException)
+		public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 		{
 			Logger.e(TAG, "on failure, exception ", httpException);
 			requestCompleted(requestToken, true);
@@ -303,7 +308,9 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 		{
 			Logger.d(TAG, "sticker set for get tags : " + stickerSet);
 			StickerSearchManager.getInstance().downloadStickerTags(false, StickerSearchConstants.STATE_STICKER_DATA_FRESH_INSERT, stickerSet, StickerLanguagesManager.getInstance().getAccumulatedSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE, StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE));
-			StickerManager.getInstance().initiateMultiStickerQuickSuggestionDownloadTask(StickerManager.getInstance().getStickerSetFromStickerStringSet(stickerSet));
+			if(QuickStickerSuggestionController.getInstance().shouldFetchQuickSuggestions()) {
+				StickerManager.getInstance().initiateMultiStickerQuickSuggestionDownloadTask(StickerManager.getInstance().getStickerSetFromStickerStringSet(stickerSet));
+			}
 
 			if(isFailed)
 			{
@@ -375,5 +382,21 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 				requestToken.cancel();
 			}
 		}
+	}
+
+    @Override
+	public Bundle getRequestBundle()
+	{
+		Bundle extras = new Bundle();
+        extras.putString(HikeConstants.CATEGORY_ID, category.getCategoryId());
+        extras.putSerializable(HikeConstants.DOWNLOAD_TYPE, downloadType);
+		extras.putString(HikeConstants.MINI_STICKER_IMAGE, bodyJson.toString());
+		return extras;
+	}
+
+	@Override
+	public String getRequestId()
+	{
+		return getRequestId(0);
 	}
 }
