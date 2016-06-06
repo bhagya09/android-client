@@ -1368,6 +1368,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			}
 
 			QuickStickerSuggestionController.getInstance().seenQuickSuggestions();
+			QuickStickerSuggestionController.getInstance().setCurrentQSConvMessage(convMessage);
 			openOrRefreshStickerPalette(convMessage);
 
 			if (QuickStickerSuggestionController.getInstance().isFtueSessionRunning(convMessage.isSent()))
@@ -1379,6 +1380,11 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		}
 
 		StickerManager.getInstance().sendStickerClickedLogs(convMessage, HikeConstants.SINGLE_TAP);
+	}
+
+	private void stickerLongClicked(ConvMessage convMessage)
+	{
+		StickerManager.getInstance().sendStickerClickedLogs(convMessage, HikeConstants.LONG_TAP);
 	}
 
 	@Override
@@ -1462,6 +1468,19 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	}
 
+	@Override
+	public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id)
+	{
+		if(isWalkieTalkieShowing()) return true;
+
+		switch (view.getId())
+		{
+			case R.id.placeholder:
+				onPlaceHolderLongClick(view);
+				break;
+		}
+		return showMessageContextMenu(mAdapter.getItem(position - mConversationsView.getHeaderViewsCount()), view);
+	}
 
 	private void onPlaceHolderClick(View v)
 	{
@@ -1476,27 +1495,40 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		}
 	}
 
-    protected void sendButtonClicked()
-    {
-        // If bots custom keyboard is enabled for this chat, then on send button press toggle keyboard popup
-        if (TextUtils.isEmpty(mComposeView.getText()) && BotUtils.isBot(msisdn) && CustomKeyboardManager.getInstance().shouldShowInputBox(msisdn))
-        {
-            botsCustomKeyboardInputBoxClicked();
-            return;
-        }
+	private void onPlaceHolderLongClick(View v)
+	{
+		ConvMessage convMessage = (ConvMessage) v.getTag();
 
-        if (!useWTRevamped && TextUtils.isEmpty(mComposeView.getText()))
-        {
-            audioRecordClicked();
-        }
-        else
-        {
-            sendMessageForStickerRecommendLearning();
-            sendMessage();
-            dismissStickerRecommendationPopup();
-            dismissTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
-        }
-    }
+		if (convMessage.isStickerMessage())
+		{
+			if (convMessage.getMetadata() != null && convMessage.getMetadata().getSticker() != null)
+			{
+				stickerLongClicked(convMessage);
+			}
+		}
+	}
+
+	protected void sendButtonClicked()
+	{
+		// If bots custom keyboard is enabled for this chat, then on send button press toggle keyboard popup
+		if (TextUtils.isEmpty(mComposeView.getText()) && BotUtils.isBot(msisdn) && CustomKeyboardManager.getInstance().shouldShowInputBox(msisdn))
+		{
+			botsCustomKeyboardInputBoxClicked();
+			return;
+		}
+
+		if (!useWTRevamped && TextUtils.isEmpty(mComposeView.getText()))
+		{
+			audioRecordClicked();
+		}
+		else
+		{
+			sendMessageForStickerRecommendLearning();
+			sendMessage();
+			dismissStickerRecommendationPopup();
+			dismissTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
+		}
+	}
 
 
     /**
@@ -1667,6 +1699,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			int whichTip = convMessage.isSent() ? ChatThreadTips.QUICK_SUGGESTION_SENT_FIRST_TIP : ChatThreadTips.QUICK_SUGGESTION_RECEIVED_FIRST_TIP;
 			if (canStartFtue)
 			{
+				QuickStickerSuggestionController.getInstance().setCurrentQSConvMessage(convMessage);
 				QuickStickerSuggestionController.getInstance().startFtueSession(convMessage.isSent());
 				mTips.showQuickStickerSuggestionsTip(whichTip);
 				uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
@@ -3581,13 +3614,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	}
 
-	@Override
-	public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id)
-	{
-		if(isWalkieTalkieShowing()) return true;
-		return showMessageContextMenu(mAdapter.getItem(position - mConversationsView.getHeaderViewsCount()), view);
-	}
-
 	protected boolean showMessageContextMenu(ConvMessage message, View v)
 	{
 		if (shouldProcessMessagesOnTap(message))
@@ -4553,7 +4579,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			tipVisibilityAnimator = null;
 		}
 
-		QuickStickerSuggestionController.getInstance().completeFtueSession();
+		QuickStickerSuggestionController.getInstance().releaseResources();
 
 		if(mCustomTabActivityHelper != null && Utils.isJellybeanOrHigher()) {
 			mCustomTabActivityHelper.unbindCustomTabsService(activity);

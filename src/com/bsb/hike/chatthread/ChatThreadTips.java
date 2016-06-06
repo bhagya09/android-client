@@ -22,6 +22,7 @@ import com.bsb.hike.modules.quickstickersuggestions.QuickStickerSuggestionContro
 import com.bsb.hike.ui.utils.RecyclingImageView;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StickerManager;
 
 /**
  * This class is a helper class which contains exhaustive set of tips which can be shown in the chat thread. The tips include Atomic tips which are server triggered as well FTUE
@@ -416,7 +417,7 @@ public class ChatThreadTips implements OnClickListener, OnTouchListener
 				break;
 			case QUICK_SUGGESTION_RECEIVED_THIRD_TIP:
 			case QUICK_SUGGESTION_SENT_THIRD_TIP:
-				showQSThirdTip(container);
+				showQSThirdTip(container, whichTip);
 				break;
 		}
 
@@ -429,6 +430,8 @@ public class ChatThreadTips implements OnClickListener, OnTouchListener
 				setTipSeen(whichTip);
 			}
 		});
+
+		StickerManager.getInstance().sendQsFTUEAnalytics(QuickStickerSuggestionController.getInstance().getTiptext(whichTip));
 	}
 
 	private void showQSFirstTip(View container, final int whichTip)
@@ -454,6 +457,7 @@ public class ChatThreadTips implements OnClickListener, OnTouchListener
 				new Handler().postDelayed(new Runnable() {
 					@Override
 					public void run() {
+						QuickStickerSuggestionController.getInstance().setFtueTipSeen(whichTip);
 						showQuickStickerSuggestionsTip(whichTip == QUICK_SUGGESTION_RECEIVED_FIRST_TIP ? QUICK_SUGGESTION_RECEIVED_SECOND_TIP :QUICK_SUGGESTION_SENT_SECOND_TIP);
 					}
 				}, 2 * QuickStickerSuggestionController.QUICK_SUGGESTION_TIP_VISIBLE_TIME);
@@ -472,7 +476,7 @@ public class ChatThreadTips implements OnClickListener, OnTouchListener
 		closeButton.startAnimation(fadeIn);
 	}
 
-	private void showQSThirdTip(final View container)
+	private void showQSThirdTip(final View container, final int whichTip)
 	{
 		Animation am = AnimationUtils.loadAnimation(mainView.getContext(), R.anim.up_down_fade_in);
 		am.setAnimationListener(new Animation.AnimationListener()
@@ -495,6 +499,7 @@ public class ChatThreadTips implements OnClickListener, OnTouchListener
 				new Handler().postDelayed(new Runnable() {
 					@Override
 					public void run() {
+						QuickStickerSuggestionController.getInstance().setFtueTipSeen(whichTip);
 						Animation am = HikeAnimationFactory.getUpUpPartAnimation(mainView.getContext(), container);
 						container.startAnimation(am);
 					}
