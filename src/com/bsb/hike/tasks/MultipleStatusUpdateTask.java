@@ -5,6 +5,7 @@ import java.util.List;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.os.Bundle;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeMessengerApp;
@@ -126,7 +127,19 @@ public class MultipleStatusUpdateTask implements IHikeHTTPTask, HikePubSub.Liste
 		endTask(false);
 	}
 
-	private void endTask(boolean successful)
+	@Override
+	public Bundle getRequestBundle()
+	{
+		return null;
+	}
+
+	@Override
+	public String getRequestId()
+	{
+		return null;
+	}
+
+    private void endTask(boolean successful)
 	{
 		if (timeoutRunnable != null)
 		{

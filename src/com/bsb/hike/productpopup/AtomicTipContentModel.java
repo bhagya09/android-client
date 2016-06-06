@@ -1,15 +1,23 @@
 package com.bsb.hike.productpopup;
 
+import android.content.Context;
+import android.graphics.Color;
 import android.support.annotation.IntDef;
+import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 
 import org.json.JSONObject;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Comparator;
+import java.util.IllegalFormatException;
 
 /**
  * @author paramshah
@@ -58,6 +66,12 @@ public class AtomicTipContentModel
 
     private String analyticsTag;
 
+    private int headerTextColor;
+
+    private int bodyTextColor;
+
+    private boolean isCircularIcon;
+
     @Status private int tipStatus;
 
     private int hashCode = -1;
@@ -75,9 +89,12 @@ public class AtomicTipContentModel
     private AtomicTipContentModel(JSONObject tipContentJSON)
     {
         this.tipId = tipContentJSON.optString(HikeConstants.TIP_ID);
-        this.header = tipContentJSON.optString(HikeConstants.HEADER, "");
-        this.body = tipContentJSON.optString(HikeConstants.BODY, "");
+        this.header = processTipText(tipContentJSON.optJSONObject(HikeConstants.HEADER));
+        this.headerTextColor = processTipTextColor(tipContentJSON.optJSONObject(HikeConstants.HEADER), true);
+        this.body = processTipText(tipContentJSON.optJSONObject(HikeConstants.BODY));
+        this.bodyTextColor = processTipTextColor(tipContentJSON.optJSONObject(HikeConstants.BODY), false);
         this.icon = tipContentJSON.optString(HikeConstants.ICON, "");
+        this.isCircularIcon = tipContentJSON.optBoolean(AtomicTipManager.IS_CIRCULAR_ICON, false);
         this.priority = tipContentJSON.optInt(HikeConstants.TIP_PRIORITY);
         this.startTime = tipContentJSON.optLong(ProductPopupsConstants.START_TIME, 0L);
         this.endTime = tipContentJSON.optLong(ProductPopupsConstants.END_TIME, 0L);
@@ -90,6 +107,67 @@ public class AtomicTipContentModel
         this.hashCode();
         iconKey = String.format(hashCode + "icon");
         bgImgKey = String.format(hashCode + "bgimg");
+    }
+
+    private String processTipText(JSONObject tipTextData)
+    {
+        String text = "";
+        if(tipTextData == null)
+        {
+            return text;
+        }
+
+        text = tipTextData.optString(HikeConstants.TEXT, "");
+        String msisdn = tipTextData.optString(HikeConstants.MSISDN);
+        if(!TextUtils.isEmpty(msisdn) && !TextUtils.isEmpty(text))
+        {
+            try
+            {
+                ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, true, true);
+                if(tipTextData.optBoolean(AtomicTipManager.SHOW_LAST_NAME, false))
+                {
+                    text = String.format(text, contactInfo.getNameOrMsisdn());
+                }
+                else
+                {
+                    text = String.format(text, contactInfo.getFirstName());
+                }
+            }
+            catch (IllegalFormatException ife)
+            {
+                //Since there was a format error empty string will be shown
+                text = "";
+            }
+        }
+
+        return text;
+    }
+
+    private int processTipTextColor(JSONObject tipTextData, boolean isHeader)
+    {
+        Context hikeAppCtx = HikeMessengerApp.getInstance().getApplicationContext();
+        int color = isHeader ? hikeAppCtx.getResources().getColor(R.color.atomic_tip_header_text)
+                : hikeAppCtx.getResources().getColor(R.color.atomic_tip_body_text);
+
+        if(tipTextData == null)
+        {
+            return color;
+        }
+
+        String textColor = tipTextData.optString(HikeConstants.TEXT_COLOR, "");
+        if(!TextUtils.isEmpty(textColor))
+        {
+            try
+            {
+                color = Color.parseColor(textColor);
+            }
+            catch (IllegalArgumentException iae)
+            {
+                //Doing nothing here as already assigned default values above. this is just to avoid a crash.
+            }
+        }
+
+        return color;
     }
 
     private void prcessBackground(JSONObject tipBgData)
@@ -303,5 +381,20 @@ public class AtomicTipContentModel
     public String getAnalyticsTag()
     {
         return analyticsTag;
+    }
+
+    public int getHeaderTextColor()
+    {
+        return headerTextColor;
+    }
+
+    public int getBodyTextColor()
+    {
+        return bodyTextColor;
+    }
+
+    public boolean isCircularIcon()
+    {
+        return isCircularIcon;
     }
 }

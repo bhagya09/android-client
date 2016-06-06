@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.CallLog;
+import android.text.TextUtils;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.utils.Logger;
@@ -194,6 +195,10 @@ public class DataPointTaskCallLogs extends DataPointTask {
         try {
             for (CallLogPojo callLog : callLogList) {
                 JSONObject jsonObj = new JSONObject();
+                if(TextUtils.isEmpty(callLog.phoneNumber))
+                {
+                    continue;
+                }
                 jsonObj.putOpt(PHONE_NUMBER, callLog.phoneNumber);
                 jsonObj.putOpt(MISSED_CALL_COUNT, callLog.missedCallCount);
                 jsonObj.putOpt(SENT_CALL_COUNT, callLog.sentCallCount);

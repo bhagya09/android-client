@@ -20,14 +20,13 @@ import android.widget.TextView;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
-import com.bsb.hike.media.StickerPickerListener;
+import com.bsb.hike.bots.CustomKeyboardStickerPickerListener;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerPageAdapterItem;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.smartImageLoader.StickerLoader;
 import com.bsb.hike.ui.utils.RecyclingImageView;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
 import java.util.List;
@@ -61,7 +60,7 @@ public class BotsStickerAdapter extends BaseAdapter implements View.OnClickListe
 
 	private StickerLoader stickerLoader;
 
-	private StickerPickerListener mStickerPickerListener;
+	private CustomKeyboardStickerPickerListener customKeyboardStickerPickerListener;
 
 	private LayoutInflater inflater;
 
@@ -85,17 +84,17 @@ public class BotsStickerAdapter extends BaseAdapter implements View.OnClickListe
 	 *            the worker
 	 * @param absListView
 	 *            the abs list view
-	 * @param listener
+	 * @param customKeyboardStickerPickerListener
 	 *            the listener
 	 * @param numItemsRow
 	 *            the num items row
 	 */
-	public BotsStickerAdapter(Context context, List<StickerPageAdapterItem> itemList, StickerLoader worker, AbsListView absListView, StickerPickerListener listener,
+	public BotsStickerAdapter(Context context, List<StickerPageAdapterItem> itemList, StickerLoader worker, AbsListView absListView, CustomKeyboardStickerPickerListener customKeyboardStickerPickerListener,
 			 int numItemsRow)
 	{
 		this.mContext = context;
 		this.itemList = itemList;
-		this.mStickerPickerListener = listener;
+		this.customKeyboardStickerPickerListener = customKeyboardStickerPickerListener;
 		this.stickerLoader = worker;
 		this.absListView = absListView;
 		this.inflater = LayoutInflater.from(mContext);
@@ -180,19 +179,20 @@ public class BotsStickerAdapter extends BaseAdapter implements View.OnClickListe
 		{
 			viewHolder = new ViewHolder();
             // Adding padding around stickers in custom keyboard
-            int padding = (int) (5 * Utils.scaledDensityMultiplier);
+            int verticalPadding = (int) (3 * Utils.scaledDensityMultiplier);
+            int horizontalPadding = (int) (5 * Utils.scaledDensityMultiplier);
 			switch (viewType)
 			{
 			case STICKER:
 				convertView = new RecyclingImageView(mContext);
                 convertView.setLayoutParams(ll);
-                (convertView).setPadding(padding, padding, padding, padding);
+                (convertView).setPadding(horizontalPadding, verticalPadding, horizontalPadding, verticalPadding);
 				((ImageView) convertView).setScaleType(ImageView.ScaleType.CENTER_INSIDE);
 				break;
 			case DOWNLOADING:
 				convertView = inflater.inflate(R.layout.update_sticker_set, null);
                 convertView.setLayoutParams(ll);
-                (convertView).setPadding(padding, padding, padding, padding);
+                (convertView).setPadding(horizontalPadding, verticalPadding, horizontalPadding, verticalPadding);
 				viewHolder.text = (TextView) convertView.findViewById(R.id.new_number_stickers);
 				viewHolder.image = (ImageView) convertView.findViewById(R.id.update_btn);
 				viewHolder.progress = (ProgressBar) convertView.findViewById(R.id.download_progress);
@@ -234,9 +234,8 @@ public class BotsStickerAdapter extends BaseAdapter implements View.OnClickListe
 		{
 		case StickerPageAdapterItem.STICKER:
 			Sticker sticker = item.getSticker();
-			String source = StickerManager.FROM_OTHER;
             unregisterListeners();
-			mStickerPickerListener.stickerSelected(sticker, source);
+            customKeyboardStickerPickerListener.onCustomKeyboardStickerClicked(sticker);
 			break;
 		default:
 			break;

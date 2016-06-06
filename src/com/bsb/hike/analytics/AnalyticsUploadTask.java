@@ -2,6 +2,7 @@ package com.bsb.hike.analytics;
 
 import android.content.Context;
 import android.support.annotation.Nullable;
+import android.os.Bundle;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.modules.httpmgr.Header;
@@ -52,7 +53,8 @@ public class AnalyticsUploadTask implements IHikeHTTPTask, IHikeHttpTaskResult {
         if (!requestToken.isRequestRunning()) requestToken.execute();
     }
 
-    private String getRequestId() {
+    @Override
+    public String getRequestId() {
         String requestId = mFileToUpload.substring(mFileToUpload.lastIndexOf("/") + 1);
         Logger.d(AnalyticsConstants.ANALYTICS_TAG, "requestId: " + requestId);
         return requestId;
@@ -77,6 +79,11 @@ public class AnalyticsUploadTask implements IHikeHTTPTask, IHikeHttpTaskResult {
         if (!HAManager.getInstance().isSendAnalyticsDataWhenConnected()) {
             HAManager.getInstance().setIsSendAnalyticsDataWhenConnected(true);
         }
+    }
+
+    @Override
+    public Bundle getRequestBundle() {
+        return null;
     }
 
     private IRequestInterceptor getRequestInterceptor() {

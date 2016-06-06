@@ -4,15 +4,17 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 
 public class DBConstants
 {
-	public static final int CONVERSATIONS_DATABASE_VERSION = 56;
+	public static final int CONVERSATIONS_DATABASE_VERSION = 58;
 
-	public static final int USERS_DATABASE_VERSION = 19;
+	public static final int USERS_DATABASE_VERSION = 20;
 
 	public static final String HAS_CUSTOM_PHOTO = "hascustomphoto";
 
 	public static final String CONVERSATIONS_DATABASE_NAME = "chats";
 
 	public static final String CONVERSATIONS_TABLE = "conversations";
+
+	public static final String RECEIPTS_TABLE = "receipts";
 
 	public static final String MESSAGES_TABLE = "messages";
 
@@ -314,8 +316,16 @@ public class DBConstants
 
 	public static final int DEFAULT_INACTIVE_STATE = 0;
 
-	public static final String BLOCK_STATUS_INDEX = "blkindex";
+	//Receipts Table
+	public static final String READ_TIMESTAMP="read_timestamp";
 
+	public static final String DELIVERY_TIMESTAMP="delivery_timestamp";
+
+	public static final String PLAYED_TIMESTAMP="played_timestamp";
+
+	public static final String RECEIVER_MSISDN="rcv_msdn";
+
+	public static final String BLOCK_STATUS_INDEX = "blkindex";
 
 	public static final String QUICK_SUGGESTED_REPLY_STICKERS = "qck_sgstd_rply_stckrs";
 
@@ -605,6 +615,10 @@ public class DBConstants
 
 		public static final String IS_SYNCED = "is_synced";
 
+		public static final String CALLER_METADATA = "md";
+
+		public static final String EXPIRY_TIME = "expiry_time";
+
 		// hike caller detail table ends here
 
 	}
@@ -654,6 +668,9 @@ public class DBConstants
 	public static final String STICKER_SHOP_TABLE = "stickerShopTable";
 	
 	public static final String MESSAGE_TABLE_CONTENT_INDEX = "messageContentIndex";
+
+	public static final String RECEIPTS_TABLE_CONTENT_INDEX = "receiptsContentIndex";
+
 	public static final String SERVER_ID = "serverId";
 	
 	public static final String MESSAGE_ORIGIN_TYPE = "messageOriginType";
@@ -718,4 +735,20 @@ public class DBConstants
 	public static final String DROP_TABLE="DROP TABLE IF EXISTS  ";
 
 	public static final String RECENT_STICKERS_TABLE = "recent_stickers_table";
+
+	public static final String LAST_SEEN_SETTINGS = "ls_settings";
+
+	public static final String STATUS_UPDATE_SETTINGS = "su_settings";
+
+	public static final String USER_PARAMETER_TABLE = "user_parameter_table";
+
+	public static final String PARAMETER_MAPPING_TABLE = "parameter_mapping_table";
+
+	public static final String PARAMETER_KEY = "parameter_key";
+
+	public static final String PARAMETER_VALUE = "parameter_value";
+
+	public static final String PARAMETER_LIST = "parameter_list";
+
+	public static final String METHOD = "method";
 }

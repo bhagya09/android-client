@@ -68,7 +68,6 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotUtils;
-import com.bsb.hike.chatthread.ChatThread;
 import com.bsb.hike.chatthemes.ChatThemeManager;
 import com.bsb.hike.chatthemes.HikeChatThemeConstants;
 import com.bsb.hike.chatthread.ChatThreadActivity;
@@ -99,6 +98,7 @@ import com.bsb.hike.models.MovingList;
 import com.bsb.hike.models.PhonebookContact;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.quickstickersuggestions.QuickStickerSuggestionController;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineController;
@@ -944,6 +944,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			displayMessageIndicator(convMessage, stickerHolder.broadcastIndicator, false);
 			setTimeNStatus(position, stickerHolder, true, stickerHolder.placeHolder);
 			setSelection(convMessage, stickerHolder.selectedStateOverlay);
+			QuickStickerSuggestionController.getInstance().animateForQsFtue(convMessage, stickerHolder.placeHolder);
 		}
 		else if (viewType == ViewType.NUDGE_SENT || viewType == ViewType.NUDGE_RECEIVE)
 		{
@@ -997,7 +998,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			}
 			dayHolder = nudgeHolder;
 			setSenderDetails(convMessage, position, nudgeHolder, true);
-			if (!ChatThemeManager.getInstance().getTheme(chatThemeId).isAnimated())
+			if (ChatThemeManager.getInstance().getTheme(chatThemeId)== null || !ChatThemeManager.getInstance().getTheme(chatThemeId).isAnimated())
 			{
 				nudgeHolder.nudge.setVisibility(View.VISIBLE);
 				setNudgeImageResource(chatThemeId, nudgeHolder.nudge, convMessage.isSent());
@@ -2572,6 +2573,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		else if (viewType == ViewType.UNKNOWN_BLOCK_ADD)
 		{
 			Logger.i("chatthread", "getview of unknown header");
+			Logger.i("c_spam", "getview of unknown header");
 			if (convertView == null)
 			{
 				convertView = inflater.inflate(R.layout.block_add_unknown_contact_mute_bot, parent, false);
@@ -2584,12 +2586,13 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				}
 				else
 				{
-					addButton.setTag(R.string.add);
+					addButton.setTag(R.string.save_unknown_contact);
 				}
+
 				addButton.setOnClickListener(mOnClickListener);
 				convertView.findViewById(R.id.block_unknown_contact).setOnClickListener(mOnClickListener);
-
 			}
+
 			return convertView;
 
 		}
@@ -2606,6 +2609,11 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		if (convMessages == null || convMessages.size() == 0 || position == convMessages.size() - 1)
 		{
 			Logger.d(HikeConstants.CHAT_OPENING_BENCHMARK, " msisdn=" + conversation.getMsisdn() + " end=" + System.currentTimeMillis());
+		}
+		else
+		{
+			// Logging for automation suites - for unread msg chat opening cases
+			Logger.d(HikeConstants.CHAT_OPENING_BENCHMARK, " msisdn=" + conversation.getMsisdn() + " unreadend=" + System.currentTimeMillis());
 		}
 		return v;
 	}
@@ -3861,7 +3869,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		contact.name = name;
 		contact.items = items;
 
-		this.dialog =HikeDialogFactory.showDialog(context, HikeDialogFactory.CONTACT_SAVE_DIALOG, new HikeDialogListener()
+		this.dialog = HikeDialogFactory.showDialog(context, HikeDialogFactory.CONTACT_SAVE_DIALOG, new HikeDialogListener()
 		{
 
 			@Override
@@ -3902,9 +3910,25 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	@Override
 	public boolean onLongClick(View view)
 	{
+		switch (view.getId())
+		{
+		case R.id.placeholder:
+			ConvMessage convMessage = (ConvMessage) view.getTag();
+
+			if (convMessage.isStickerMessage())
+			{
+				if (convMessage.getMetadata() != null && convMessage.getMetadata().getSticker() != null)
+				{
+					StickerManager.getInstance().sendStickerClickedLogs(convMessage, HikeConstants.LONG_TAP);
+				}
+			}
+			break;
+		}
+
 		/*
 		 * here returning false will pass this event to onItemLongClick method of listview.
 		 */
+
 		return false;
 	}
 
@@ -4602,7 +4626,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			{
 				continue;
 			}
-			Object object = mListView.getItemAtPosition(i);
+
+			//As In case of unknown contact, header is shown for unknonw user info
+			Object object = mListView.getItemAtPosition(i + mListView.getHeaderViewsCount());
 			if (object instanceof ConvMessage)
 			{
 				ConvMessage convMessage = (ConvMessage) object;
@@ -4765,6 +4791,16 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		if(mActivity!=null && mActivity instanceof ChatThreadActivity) {
 			((ChatThreadActivity)mActivity).recordMediaShareEvent(uniqueKey_Order, genus, family);
 		}
+	}
+
+	public int getVoiceMessagePlayerState(){
+		if(voiceMessagePlayer.getPlayerState()!=null)
+		return voiceMessagePlayer.getPlayerState().ordinal();
+		else
+			return VoiceMessagePlayerState.STOPPED.ordinal();
+	}
+	public String getVoiceMessagePlayerFileKey() {
+		return voiceMessagePlayer.getFileKey();
 	}
 
 	public boolean onGeneralEventStateChange(ConvMessage convMessage)

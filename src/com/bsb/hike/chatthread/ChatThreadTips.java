@@ -8,6 +8,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewStub;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -16,8 +18,10 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.bots.CustomKeyboardManager;
 import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
+import com.bsb.hike.modules.quickstickersuggestions.QuickStickerSuggestionController;
 import com.bsb.hike.ui.utils.RecyclingImageView;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
 
 /**
  * This class is a helper class which contains exhaustive set of tips which can be shown in the chat thread. The tips include Atomic tips which are server triggered as well FTUE
@@ -49,6 +53,18 @@ public class ChatThreadTips implements OnClickListener, OnTouchListener
 	public static final int STICKER_RECOMMEND_AUTO_OFF_TIP = 7;
 
 	public static final int WT_RECOMMEND_TIP = 8;
+
+	public static final int QUICK_SUGGESTION_RECEIVED_FIRST_TIP = 9;
+
+	public static final int QUICK_SUGGESTION_RECEIVED_SECOND_TIP = 10;
+
+	public static final int QUICK_SUGGESTION_RECEIVED_THIRD_TIP = 11;
+
+	public static final int QUICK_SUGGESTION_SENT_FIRST_TIP = 12;
+
+	public static final int QUICK_SUGGESTION_SENT_SECOND_TIP = 13;
+
+	public static final int QUICK_SUGGESTION_SENT_THIRD_TIP = 14;
 
 	/**
 	 * Class members
@@ -195,6 +211,15 @@ public class ChatThreadTips implements OnClickListener, OnTouchListener
 		{
 			tipId = STICKER_RECOMMEND_AUTO_OFF_TIP;
 			setupStickerRecommendAutoPopupOffTip();
+		}
+	}
+
+	public void showQuickStickerSuggestionsTip(int whichTip)
+	{
+		if(!QuickStickerSuggestionController.getInstance().isTipSeen(whichTip) && filterTips(whichTip))
+		{
+			tipId = whichTip;
+			setupQuickStickerSuggestionsTip(whichTip);
 		}
 	}
 
@@ -350,6 +375,134 @@ public class ChatThreadTips implements OnClickListener, OnTouchListener
 				setTipSeen(STICKER_RECOMMEND_AUTO_OFF_TIP);
 			}
 		});
+	}
+
+	private void setupQuickStickerSuggestionsTip(int whichTip)
+	{
+		ViewStub quickStickerSuggestionsVs = (ViewStub) mainView.findViewById(R.id.quick_suggestion_tip_view_stub);
+
+		if(quickStickerSuggestionsVs != null)
+		{
+			quickStickerSuggestionsVs.inflate();
+			bindQuickStickerSuggestionsTip(whichTip);
+		}
+		else
+		{
+			bindQuickStickerSuggestionsTip(whichTip);
+		}
+	}
+
+	private void bindQuickStickerSuggestionsTip(final int whichTip)
+	{
+		String tipText = QuickStickerSuggestionController.getInstance().getTiptext(whichTip);
+
+		final View container = mainView.findViewById(R.id.container);
+		TextView tvTip = (TextView) mainView.findViewById(R.id.tip_text);
+		View close = mainView.findViewById(R.id.cross_button);
+		tvTip.setText(tipText);
+
+		container.setVisibility(View.VISIBLE);
+		close.setVisibility(View.GONE);
+
+		switch (whichTip)
+		{
+			case QUICK_SUGGESTION_RECEIVED_FIRST_TIP:
+			case QUICK_SUGGESTION_SENT_FIRST_TIP:
+				showQSFirstTip(container, whichTip);
+				break;
+			case QUICK_SUGGESTION_RECEIVED_SECOND_TIP:
+			case QUICK_SUGGESTION_SENT_SECOND_TIP:
+				showQSSecondTip(tvTip, close);
+				break;
+			case QUICK_SUGGESTION_RECEIVED_THIRD_TIP:
+			case QUICK_SUGGESTION_SENT_THIRD_TIP:
+				showQSThirdTip(container);
+				break;
+		}
+
+		close.setOnClickListener(new OnClickListener()
+		{
+
+			@Override
+			public void onClick(View v)
+			{
+				setTipSeen(whichTip);
+			}
+		});
+	}
+
+	private void showQSFirstTip(View container, final int whichTip)
+	{
+		Animation am = AnimationUtils.loadAnimation(mainView.getContext(), R.anim.up_down_fade_in);
+		am.setAnimationListener(new Animation.AnimationListener()
+		{
+
+			@Override
+			public void onAnimationStart(Animation animation)
+			{
+			}
+
+			@Override
+			public void onAnimationRepeat(Animation animation)
+			{
+
+			}
+
+			@Override
+			public void onAnimationEnd(Animation animation)
+			{
+				new Handler().postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						showQuickStickerSuggestionsTip(whichTip == QUICK_SUGGESTION_RECEIVED_FIRST_TIP ? QUICK_SUGGESTION_RECEIVED_SECOND_TIP :QUICK_SUGGESTION_SENT_SECOND_TIP);
+					}
+				}, 2 * QuickStickerSuggestionController.QUICK_SUGGESTION_TIP_VISIBLE_TIME);
+			}
+		});
+
+		container.startAnimation(am);
+	}
+
+	private void showQSSecondTip(TextView textView, View closeButton)
+	{
+		Animation fadeIn = AnimationUtils.loadAnimation(mainView.getContext(), R.anim.fade_in_animation);
+		textView.startAnimation(fadeIn);
+
+		closeButton.setVisibility(View.VISIBLE);
+		closeButton.startAnimation(fadeIn);
+	}
+
+	private void showQSThirdTip(final View container)
+	{
+		Animation am = AnimationUtils.loadAnimation(mainView.getContext(), R.anim.up_down_fade_in);
+		am.setAnimationListener(new Animation.AnimationListener()
+		{
+
+			@Override
+			public void onAnimationStart(Animation animation)
+			{
+			}
+
+			@Override
+			public void onAnimationRepeat(Animation animation)
+			{
+
+			}
+
+			@Override
+			public void onAnimationEnd(Animation animation)
+			{
+				new Handler().postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						Animation am = HikeAnimationFactory.getUpUpPartAnimation(mainView.getContext(), container);
+						container.startAnimation(am);
+					}
+				}, QuickStickerSuggestionController.QUICK_SUGGESTION_TIP_VISIBLE_TIME);
+			}
+		});
+
+		container.startAnimation(am);
 	}
 	
 	private boolean filterTips(int whichTip)
@@ -554,6 +707,21 @@ public class ChatThreadTips implements OnClickListener, OnTouchListener
 			{
 				mainView.findViewById(R.id.pulsatingDot).setVisibility(View.GONE);
 			}
+			break;
+		case QUICK_SUGGESTION_RECEIVED_FIRST_TIP:
+		case QUICK_SUGGESTION_RECEIVED_SECOND_TIP:
+		case QUICK_SUGGESTION_RECEIVED_THIRD_TIP:
+		case QUICK_SUGGESTION_SENT_FIRST_TIP:
+		case QUICK_SUGGESTION_SENT_SECOND_TIP:
+		case QUICK_SUGGESTION_SENT_THIRD_TIP:
+			if(QuickStickerSuggestionController.getInstance().isTipSeen(whichTip))
+			{
+				return;
+			}
+			View container = mainView.findViewById(R.id.container);
+			Animation am = HikeAnimationFactory.getUpUpPartAnimation(mainView.getContext(), container);
+			container.startAnimation(am);
+			QuickStickerSuggestionController.getInstance().setFtueTipSeen(whichTip);
 			break;
 		}
 	}

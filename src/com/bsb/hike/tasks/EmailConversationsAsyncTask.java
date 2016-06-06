@@ -35,6 +35,7 @@ import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.Conversation.OneToOneConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.platform.nativecards.NativeCardUtils;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.Utils;
@@ -168,6 +169,16 @@ public class EmailConversationsAsyncTask extends AsyncTask<ConvInfo, Void, Conve
 					// tweak the message here based on the file
 					messageMask = activity.getResources().getString(R.string.file_transfer_of_type) + " " + fileType;
 
+				}else if(NativeCardUtils.isNativeCardFTMessage(cMessage)){
+					HikeFile hikeFile = cMessage.platformMessageMetadata.getHikeFiles().get(0);
+					HikeFileType fileType = hikeFile.getHikeFileType();
+					if ((fileType == (HikeFileType.IMAGE) || fileType == (HikeFileType.AUDIO) || fileType == (HikeFileType.AUDIO_RECORDING) || fileType == (HikeFileType.VIDEO))
+							&& !TextUtils.isEmpty(hikeFile.getFilePath()) && new File(hikeFile.getFilePath()).exists())
+					{
+						listValues.add(hikeFile.getFilePath());
+					}
+					// tweak the message here based on the file
+					messageMask = activity.getResources().getString(R.string.native_card_file_transfer_of_type) + " " + fileType;
 				}
 
 				// finally construct the backup string here

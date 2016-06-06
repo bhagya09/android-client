@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.util.SparseArray;
@@ -34,10 +35,12 @@ import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.productpopup.ProductPopupsConstants.PopupStateEnum;
 import com.bsb.hike.productpopup.ProductPopupsConstants.PopupTriggerPoints;
+import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.END_TIME;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.PID;
 import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.POPUPDATA;
 import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.START_TIME;
 import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.TRIGGER_POINT;
@@ -202,6 +205,34 @@ public class ProductInfoManager
 		}
 	}
 
+	public static void recordPopupEventV2(String appName, String replacedPid, String replacingPid, boolean isFullScreen)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.POPUP_DUPLICATE);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_LOG);
+			json.put(AnalyticsConstants.V2.PHYLUM, replacedPid);
+			json.put(AnalyticsConstants.V2.RACE, replacingPid);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.PPOPUP);
+			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.DUPLICATE);
+			json.put(AnalyticsConstants.V2.SPECIES, isFullScreen);
+			json.put(AnalyticsConstants.V2.GENUS, appName);
+			json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
+			json.put(AnalyticsConstants.V2.VARIETY, AccountUtils.getAppVersion());
+			json.put(AnalyticsConstants.V2.VAL_STR, Build.VERSION.RELEASE);
+			json.put(AnalyticsConstants.V2.FORM, AnalyticsConstants.EVENT_TAG_MOB);
+			Logger.d("ProductPopupV2", json.toString());
+			HAManager.getInstance().recordV2(json);
+
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+
 	/**
 	 * 
 	 * @param productContentModel
@@ -340,6 +371,7 @@ public class ProductInfoManager
 		}
 		else
 		{
+			ProductInfoManager.recordPopupEventV2(productContentModel.getAppName(), productContentModel.getPid(), productContentModel.getPid(), productContentModel.isFullScreen());
 			Logger.d("ProductPopup", "Popup received is duplicate with pid :" + productContentModel.getPid());
 		}
 	}

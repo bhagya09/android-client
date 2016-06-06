@@ -141,6 +141,7 @@ import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.format.DateUtils;
+import android.text.format.Time;
 import android.text.style.StyleSpan;
 import android.util.Base64;
 import android.util.DisplayMetrics;
@@ -182,6 +183,7 @@ import com.bsb.hike.analytics.HomeAnalyticsConstants;
 import com.bsb.hike.analytics.TrafficsStatsFile;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatHead.CallerContentModel;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatthemes.ChatThemeManager;
 import com.bsb.hike.chatthemes.HikeChatThemeConstants;
@@ -221,6 +223,7 @@ import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.RequestConstants;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.notifications.HikeNotification;
@@ -248,7 +251,6 @@ import com.google.android.gms.maps.model.LatLng;
 public class Utils
 {
 	private static final String TAG = Utils.class.getSimpleName();
-
 
 	// Precision points definition for duration logging========================================[[
 	public static final class ExecutionDurationLogger
@@ -331,26 +333,6 @@ public class Utils
 		}
 		Logger.d("Utils", "Joined string is: " + builder.toString());
 		return builder.toString();
-	}
-
-	public static boolean isIndianMobileNumber(String number)
-	{
-		// 13 is the number of chars in the phone msisdn
-		if (number != null && (number.startsWith("+919") || number.startsWith("+918") || number.startsWith("+917")) && number.length() == 13)
-		{
-			return true;
-		}
-		return false;
-	}
-
-	public static boolean isIndianNumber(String number)
-	{
-		// 13 is the number of chars in the phone msisdn
-		if (number != null && number.startsWith("+91"))
-		{
-			return true;
-		}
-		return false;
 	}
 
 	public static long gettingMidnightTimeinMilliseconds()
@@ -526,6 +508,10 @@ public class Utils
 
 	public static String getFileExtension(String fileName)
 	{
+		if (fileName == null)
+		{
+			return null;
+		}
 		int lastDotIndex = fileName.lastIndexOf(".");
 
 		String extension = "";
@@ -763,21 +749,6 @@ public class Utils
 		Editor editor = prefs.edit();
 		editor.putLong(event, currentVal);
 		editor.commit();
-	}
-
-	public static boolean validateBotMsisdn(String msisdn)
-	{
-		if (TextUtils.isEmpty(msisdn))
-		{
-			Logger.wtf(HikePlatformConstants.TAG, "msisdn is ---->" + msisdn);
-			return false;
-		}
-		if (!msisdn.startsWith("+"))
-		{
-			Logger.wtf(HikePlatformConstants.TAG, "msisdn does not start with +. It is ---->" + msisdn);
-			return false;
-		}
-		return true;
 	}
 
 	public static String getConversationJoinHighlightText(JSONArray participantInfoArray, OneToNConvInfo convInfo, boolean newGrp, Context context)
@@ -1160,7 +1131,14 @@ public class Utils
 			data.put(HikeConstants.SENDBOT, sendbot);
 			data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis() / 1000));
 			data.put(HikeConstants.RESOLUTION_ID, Utils.getResolutionId());
-			data.put(HikeConstants.NEW_LAST_SEEN_SETTING, true);
+			if (Utils.isFavToFriendsMigrationAllowed())
+			{
+				data.put(HikeConstants.UPDATED_LAST_SEEN_SETTING, true);
+			}
+			else
+			{
+				data.put(HikeConstants.NEW_LAST_SEEN_SETTING, true);
+			}
 			data.put(HikeConstants.FAVS_RAI,false);
 			requestAccountInfo.put(HikeConstants.DATA, data);
 			HikeMqttManagerNew.getInstance().sendMessage(requestAccountInfo, MqttConstants.MQTT_QOS_ONE);
@@ -2056,29 +2034,6 @@ public class Utils
 		return currentFiles;
 	}
 
-	public static String normalizeNumber(String inputNumber, String countryCode)
-	{
-		if (inputNumber.startsWith("+"))
-		{
-			return inputNumber;
-		}
-		else if (inputNumber.startsWith("00"))
-		{
-			/*
-			 * Doing for US numbers
-			 */
-			return inputNumber.replaceFirst("00", "+");
-		}
-		else if (inputNumber.startsWith("0"))
-		{
-			return inputNumber.replaceFirst("0", countryCode);
-		}
-		else
-		{
-			return countryCode + inputNumber;
-		}
-	}
-
 	public static File getCloudFile(Context context, Uri uri) throws IOException, SecurityException
 	{
 		long timeStamp = System.currentTimeMillis();
@@ -2711,6 +2666,11 @@ public class Utils
 		return !TextUtils.isEmpty(context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.NAME_SETTING, null));
 	}
 
+	public static boolean isMsisdnVerified(Context context)
+	{
+		return !TextUtils.isEmpty(context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, null));
+	}
+
 	public static void appStateChanged(Context context)
 	{
 		appStateChanged(context, true, false);
@@ -3095,14 +3055,9 @@ public class Utils
 		{
 			return false;
 		}
-
-		if (file.isDirectory())
+        File listFiles[] = file.listFiles();
+		if (file.isDirectory()  && listFiles != null)
 		{
-			File listFiles[] = file.listFiles();
-			if(listFiles == null)
-			{
-				return false;
-			}
 			for (File f : listFiles)
 			{
 				result = result && deleteFile(f);
@@ -3334,7 +3289,11 @@ public class Utils
 		activity.sendBroadcast(intent);
 		if (showToast)
 		{
-			Toast.makeText(activity, activity.getString(R.string.shortcut_created) + " for " + conv.getConversationName(), Toast.LENGTH_SHORT).show();
+			String name = conv.getConversationName();
+			if (TextUtils.isEmpty(name))
+				Toast.makeText(activity, activity.getString(R.string.shortcut_created), Toast.LENGTH_SHORT).show();
+			else
+				Toast.makeText(activity, activity.getString(R.string.shortcut_created) + " for " + name, Toast.LENGTH_SHORT).show();
 		}
 	}
 
@@ -4632,34 +4591,6 @@ public class Utils
 		return !TextUtils.isEmpty(countryCode);
 	}
 
-	// added for db query
-	public static String getMsisdnStatement(Collection<String> msisdnList)
-	{
-		if (null == msisdnList)
-		{
-			return null;
-		}
-		else
-		{
-			if (msisdnList.isEmpty())
-			{
-				return null;
-			}
-			StringBuilder sb = new StringBuilder("(");
-			for (String msisdn : msisdnList)
-			{
-				sb.append(DatabaseUtils.sqlEscapeString(msisdn));
-				sb.append(",");
-			}
-			int idx = sb.lastIndexOf(",");
-			if (idx >= 0)
-				sb.replace(idx, sb.length(), ")");
-			else
-				sb.append(")");
-			return sb.toString();
-		}
-	}
-
 	public static void startWebViewActivity(Context context, String url, String title)
 	{
 		Intent intent = new Intent(context, WebViewActivity.class);
@@ -4849,6 +4780,68 @@ public class Utils
 		{
 			return getFallBackPrettyTime(context, timestampInSeconds);
 		}
+
+	}
+
+	public static String getFormattedTimeinMessageInfo(long timestampInSeconds){
+
+		Context context=HikeMessengerApp.getInstance().getApplicationContext();
+		try{
+		long givenTimeStampInMillis = timestampInSeconds * 1000;
+		Calendar givenCalendar = Calendar.getInstance();
+		givenCalendar.setTimeInMillis(givenTimeStampInMillis);
+		long currentTime = System.currentTimeMillis();
+		Calendar currentCalendar = Calendar.getInstance();
+
+		//Checking if today
+			Time startTime = new Time();
+			startTime.set(givenTimeStampInMillis);
+			int startDay = Time.getJulianDay(givenTimeStampInMillis, startTime.gmtoff);
+
+			Time currentTime1 = new Time();
+			currentTime1.set(currentTime);
+			int currentDay = Time.getJulianDay(currentTime, currentTime1.gmtoff);
+
+			int days = Math.abs(currentDay - startDay);
+			String daySuffix;
+			String time=getFormattedTime(context, givenTimeStampInMillis);
+			// TODO: some locales name other days too, such as de_DE's "Vorgestern" (today - 2).
+			if (days == 1) {
+				daySuffix=context.getString(R.string.yesterday);
+				return time+", "+daySuffix;
+			} else if (days == 0) {
+				daySuffix= context.getString(R.string.today);
+				return time+", "+daySuffix;
+			}
+
+		else
+		{
+			if (givenCalendar.get(Calendar.YEAR) == currentCalendar.get(Calendar.YEAR))
+			{
+				if (givenCalendar.get(Calendar.DAY_OF_YEAR) == currentCalendar.get(Calendar.DAY_OF_YEAR))
+				{
+					// Show time in non relate default time format
+					return getFormattedTime(context, givenTimeStampInMillis);
+				}
+				else
+				{
+					// Show date in MMM dd format eg. Apr 21, May 13 etc.
+					return time+", "+HikeDateUtils.getRelativeTimeSpanString(context, givenTimeStampInMillis, currentTime, DateUtils.YEAR_IN_MILLIS,
+						DateUtils.FORMAT_ABBREV_MONTH | DateUtils.FORMAT_SHOW_DATE).toString();
+				}
+			}
+			else
+			{
+				// Show date in abbreviated  format with year
+				return time+", "+HikeDateUtils.getRelativeTimeSpanString(context, givenTimeStampInMillis, currentTime, DateUtils.YEAR_IN_MILLIS, DateUtils.FORMAT_ABBREV_ALL)
+					.toString();
+			}
+		}
+	}
+	catch (Exception e)
+	{
+		return getFallBackPrettyTime(context, timestampInSeconds);
+	}
 
 	}
 
@@ -5854,11 +5847,6 @@ public class Utils
 		return createTimelinePostForDPChange(response, true);
 	}
 
-//	public static boolean isDeviceRooted()
-//	{
-//		return RootUtil.isDeviceRooted();
-//	}
-
 	public static boolean isPhotosEditEnabled()
 	{
 		if (!Utils.isUserSignedUp(HikeMessengerApp.getInstance().getApplicationContext(), false))
@@ -6783,11 +6771,19 @@ public class Utils
 		return directory + File.separator + Utils.getUniqueFilename(HikeFileType.IMAGE);
 	}
 
-	public static void sendFreeSms(String number)
+	public static void openChatThreadViaFreeSmsButton(CallerContentModel callerContentModel, String msg)
 	{
-		Intent intent = IntentFactory
-				.createChatThreadIntentFromMsisdn(HikeMessengerApp.getInstance(), number, true, false, ChatThreadActivity.ChatThreadOpenSources.STICKEY_CALLER);
+		Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(HikeMessengerApp.getInstance().getApplicationContext(), callerContentModel.getMsisdn(), true, false, ChatThreadActivity.ChatThreadOpenSources.STICKEY_CALLER);
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+		intent.putExtra(HikeConstants.SRC_CALLER_QUICK_REPLY_CARD, true);
+		intent.putExtra(HikeConstants.Extras.CALLER_CONTENT_MODEL, callerContentModel);
+
+		if(!TextUtils.isEmpty(msg))
+		{
+			intent.putExtra(HikeConstants.Extras.CALLER_QUICK_REPLY_MSG, msg);
+		}
+
 		HikeMessengerApp.getInstance().startActivity(intent);
 	}
 
@@ -7417,30 +7413,34 @@ public class Utils
 		}
 	}
 
-	public static void changeFavToFriends()
-	{
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 0) != 1)
-		{
+	public static void changeFavToFriends() {
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 0) != 1) {
 			Context context = HikeMessengerApp.getInstance().getApplicationContext();
 			// Change last seen pref to friends if its is not already set to friends or noone.
 			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
 			String currentValue = settings.getString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_favorites));
-			if (!currentValue.equals(context.getString(R.string.privacy_favorites)) && !currentValue.equals(context.getString(R.string.privacy_nobody)))
-			{
-				Editor settingEditor = settings.edit();
+			Editor settingEditor = settings.edit();
+
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LAST_SEEN_TEMP_PREF, currentValue);
+			int slectedPrivacyId;
+
+			if (currentValue.equals(context.getString(R.string.privacy_nobody))) {
+				settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, currentValue);
+				slectedPrivacyId = Integer.parseInt(currentValue);
+				ContactManager.getInstance().setAllLastSeenValues(false); //Hidden from everyone
+			} else {
 				settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_favorites));
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LAST_SEEN_TEMP_PREF, currentValue);
-				int slectedPrivacyId = Integer.parseInt(context.getString(R.string.privacy_favorites));
-				try
-				{
-					HikePreferences.sendNLSToServer(slectedPrivacyId, true);
-					settingEditor.commit();
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 1);
-				}
-				catch (JSONException e)
-				{
-					e.printStackTrace();
-				}
+				slectedPrivacyId = Integer.parseInt(context.getString(R.string.privacy_favorites));
+				ContactManager.getInstance().setAllLastSeenValues(true); //Visible to all friends
+			}
+
+			try {
+				HikePreferences.sendULSToServer(slectedPrivacyId, true);
+				settingEditor.apply();
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 1);
+			} catch (JSONException e) {
+				Logger.e("FavToFriends", "Got error while sending uls packet " + e.toString());
+				e.printStackTrace();
 			}
 		}
 	}
@@ -7452,25 +7452,21 @@ public class Utils
 			Context context = HikeMessengerApp.getInstance().getApplicationContext();
 			// Change last seen pref to friends if its is not already set to friends or noone.
 			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
-			String currentValue = settings.getString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_favorites));
-			if (!currentValue.equals(context.getString(R.string.privacy_my_contacts)) && !currentValue.equals(context.getString(R.string.privacy_everyone)))
+			String oldLsValue = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.LAST_SEEN_TEMP_PREF, context.getString(R.string.privacy_my_contacts));
+			Editor settingEditor = settings.edit();
+			settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, oldLsValue);
+			int slectedPrivacyId = Integer.parseInt(oldLsValue);
+			try
 			{
-
-				String oldLsValue = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.LAST_SEEN_TEMP_PREF, context.getString(R.string.privacy_my_contacts));
-				Editor settingEditor = settings.edit();
-				settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, oldLsValue);
-				int slectedPrivacyId = Integer.parseInt(oldLsValue);
-				try
-				{
-					HikePreferences.sendNLSToServer(slectedPrivacyId, true);
-					settingEditor.commit();
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 0); // Resetting the flag, so that when the packet might
-					// be sent again, it is able to alter the prefs
-				}
-				catch (JSONException e)
-				{
-					e.printStackTrace();
-				}
+				HikePreferences.sendNLSToServer(slectedPrivacyId, true);
+				ContactManager.getInstance().flushOldPrivacyValues(true, true);
+				settingEditor.apply();
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 0); // Resetting the flag, so that when the packet might
+				// be sent again, it is able to alter the prefs
+			}
+			catch (JSONException e)
+			{
+				e.printStackTrace();
 			}
 		}
 	}
@@ -7843,8 +7839,12 @@ public class Utils
 
 		return result;
 	}
+	public static void recordCoreAnalyticsForShare(String uniqueKey_order, String species, String toUser_msisdn, boolean isStealth, String genus, String family) {
+		recordCoreAnalyticsForShare(uniqueKey_order, species, toUser_msisdn, isStealth, genus, family, null);
+	}
 
-	public static void recordCoreAnalyticsForShare(String uniqueKey_order, String species, String toUser_msisdn, boolean isStealth, String genus, String family)
+
+	public static void recordCoreAnalyticsForShare(String uniqueKey_order, String species, String toUser_msisdn, boolean isStealth, String genus, String family, String form)
 	{
 		try
 		{
@@ -7863,7 +7863,8 @@ public class Utils
 				json.put(AnalyticsConstants.V2.GENUS, genus);
 			if (!TextUtils.isEmpty(family))
 				json.put(AnalyticsConstants.V2.FAMILY, family);
-
+			if (!TextUtils.isEmpty(form))
+				json.put(AnalyticsConstants.V2.FORM, form);
 			HAManager.getInstance().recordV2(json);
 		}
 		catch (JSONException e)
@@ -7871,6 +7872,7 @@ public class Utils
 			e.printStackTrace();
 		}
 	}
+
 
 	public static void recordEventMaxSizeToastShown(String uniqueKey_order, String species, String toUser_msisdn, long fileSize)
 	{
@@ -7988,6 +7990,7 @@ public class Utils
 		Birthday dob = new Birthday(dobString);
 		return String.format("%d/%d/%d", dob.day, dob.month, dob.year);
 	}
+
 
 	public static void setGenus(@HomeAnalyticsConstants.StatusUpdateSpecies String argGenus, Intent argIntent)
 	{
@@ -8140,14 +8143,15 @@ public class Utils
 
 		try
 		{
-			if (!file.exists() || file.listFiles() == null)
+			File[] listFiles = file.listFiles();
+			if (!file.exists() || listFiles == null)
 			{
 				return 0;
 			}
 
 			int count = 0;
 
-			for (File newFile : file.listFiles())
+			for (File newFile : listFiles)
 			{
 				if (newFile.isDirectory())
 				{
@@ -8168,6 +8172,94 @@ public class Utils
 			return 0;
 		}
 
+	}
+
+	public static void clearNoMediaAndRescan(File dir, boolean rescan) {
+		File file = new File(dir.getPath(), ".nomedia");
+		if (file.exists()) {
+			file.delete();
+		}
+		if (rescan) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+				HikeMessengerApp.getInstance().getApplicationContext().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + dir)));
+			} else {
+				HikeMessengerApp.getInstance().getApplicationContext().sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED, Uri.parse("file://" + dir)));
+			}
+		}
+	}
+
+	public static List<String> jsonArrayToList(JSONArray jsonArray) {
+
+		List<String> list = null;
+		try {
+			if (!Utils.isEmpty(jsonArray)) {
+
+				int length = jsonArray.length();
+				list = new ArrayList<>(length);
+
+				for (int i = 0; i < length; i++) {
+					list.add(jsonArray.get(i).toString());
+				}
+			}
+		} catch (JSONException e) {
+			Logger.e(TAG, "exception in converting list to json array", e);
+		}
+		return list;
+	}
+
+	public static String getParameterUrlForHttpApi(String url) {
+
+		String parameterUrl = "";
+
+		List<String> parameterList = HikeConversationsDatabase.getInstance().getParameterListForUrl(url, RequestConstants.GET);
+
+		if (Utils.isEmpty(parameterList)) {
+			return parameterUrl;
+		}
+
+		String parameters = Utils.valuesToCommaSepratedString(parameterList);
+		List<Pair<String, String>> parameterMapping = HikeConversationsDatabase.getInstance().getParameterMapping(parameters);
+
+		if (Utils.isEmpty(parameterMapping)) {
+			return parameterUrl;
+		}
+
+		StringBuilder stringBuilder = new StringBuilder(parameterUrl);
+		for (Pair<String, String> parameterPair : parameterMapping) {
+			stringBuilder.append("&");
+			stringBuilder.append(parameterPair.first);
+			stringBuilder.append("=");
+			stringBuilder.append(parameterPair.second);
+		}
+		return parameterUrl;
+	}
+
+	public static JSONObject getParameterPostBodyForHttpApi(String url, JSONObject postBody) {
+
+		postBody = postBody == null ? new JSONObject() : postBody;
+
+		List<String> parameterList = HikeConversationsDatabase.getInstance().getParameterListForUrl(url, RequestConstants.POST);
+
+		if (Utils.isEmpty(parameterList)) {
+			return postBody;
+		}
+
+		String parameters = Utils.valuesToCommaSepratedString(parameterList);
+		List<Pair<String, String>> parameterMapping = HikeConversationsDatabase.getInstance().getParameterMapping(parameters);
+
+		if (Utils.isEmpty(parameterMapping)) {
+			return postBody;
+		}
+
+		for (Pair<String, String> parameterPair : parameterMapping) {
+			try {
+				postBody.put(parameterPair.first, parameterPair.second);
+			} catch (JSONException e) {
+				Logger.e(HikeConversationsDatabase.class.getName(), " exception in adding parameters to body", e);
+			}
+		}
+
+		return postBody;
 	}
 
 	/**
@@ -8200,5 +8292,116 @@ public class Utils
 		result = prime * result + msisdn.hashCode();
 
 		return result;
+	}
+
+	/**
+	 * Sends the updated ls settings to the server :
+	 * Sample packet : {"t":"ac" ,"d": {"uls":2, “ls_ex”:[“+918788564326”]}}
+	 *
+	 * @param msisdns
+	 */
+	public static void sendULSPacket(List<String> msisdns) {
+
+		if (!Utils.isFavToFriendsMigrationAllowed()) {
+			return;
+		}
+
+		Context context = HikeMessengerApp.getInstance().getApplicationContext();
+		// Change last seen pref to friends if its is not already set to friends or noone.
+		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+
+		try {
+			String currentValue = settings.getString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_favorites));
+			int selectedPrivacyId = Integer.parseInt(currentValue);
+
+			JSONArray lsExclusionArray = new JSONArray();
+			for (String msisdn : msisdns) {
+				lsExclusionArray.put(msisdn);
+			}
+
+
+			JSONObject object = new JSONObject();
+			object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.ACCOUNT_CONFIG);
+
+			JSONObject data = new JSONObject();
+			data.put(HikeConstants.UPDATED_LAST_SEEN_SETTING, selectedPrivacyId);
+			// Inclusion/exclusion based on setting of none or friends
+			data.put(selectedPrivacyId == 0 ? HikeConstants.LS_INCLUSION : HikeConstants.LS_EXCLUSION, lsExclusionArray);
+			data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis()));
+			object.put(HikeConstants.DATA, data);
+
+			HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
+
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	/**
+	 * Sends the updated su settings to the server :
+	 * Sample packet : {"t":"ac" ,"d": {"sus":2, “su_ex”:[“+918788564326”]}}
+	 *
+	 * @param msisdns
+	 */
+	public static void sendUSUPacket(List<String> msisdns) {
+
+		if (!Utils.isFavToFriendsMigrationAllowed()) {
+			return;
+		}
+
+		try {
+			JSONObject object = new JSONObject();
+			object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.ACCOUNT_CONFIG);
+
+			JSONArray suExclusionArray = new JSONArray();
+			for (String msisdn : msisdns) {
+				suExclusionArray.put(msisdn);
+			}
+
+			JSONObject data = new JSONObject();
+			data.put(HikeConstants.UPDATED_STATUS_UPDATE_SETTING, 2);
+			data.put(HikeConstants.STATUS_UPDATE_EXCLUSION, suExclusionArray);
+			data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis()));
+			object.put(HikeConstants.DATA, data);
+
+			HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static boolean isPowerSavingModeRunning(Context context) {
+		if (Utils.isLollipopOrHigher()) {
+			PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+			if (powerManager != null && powerManager.isPowerSaveMode()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static boolean isUnknownUserInfoViewEnabled()
+	{
+		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
+		return prefs.getData(HikeConstants.ENABLE_UNKNOWN_USER_INFO_IN_CHAT, false);
+	}
+
+	public static void recordUpgradeTaskCompletion(String taskKey, long duration)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, "db_update");
+			json.put(AnalyticsConstants.V2.KINGDOM, "act_hs");
+			json.put(AnalyticsConstants.V2.ORDER, "db_update");
+			json.put(AnalyticsConstants.V2.FAMILY, taskKey);
+			json.put(AnalyticsConstants.V2.GENUS, duration);
+			HAManager.getInstance().recordV2(json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
 	}
 }

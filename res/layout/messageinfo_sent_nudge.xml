@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:descendantFocusability="blocksDescendants"
+                android:gravity="center_vertical"
+                android:minHeight="30dp"
+                android:paddingBottom="5dp" >
+
+    <ViewStub
+        android:id="@+id/day_stub"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout="@layout/message_day_container" />
+
+    <RelativeLayout
+        android:id="@+id/overlay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/day_container"
+        android:paddingBottom="2.5dp" >
+
+        <ImageView
+            android:id="@+id/nudge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="@dimen/chat_bubble_nudge_edge_spacing"
+            android:layout_marginTop="2.5dp"
+            android:gravity="center_vertical|right"
+            android:src="@drawable/ic_nudge_hike_sent" />
+
+        <include
+            android:id="@+id/time_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/nudge"
+            android:layout_marginRight="@dimen/chat_bubble_time_edge_spacing"
+            android:layout_marginTop="4dp"
+            layout="@layout/message_time_status_ext" />
+    </RelativeLayout>
+
+    <View
+        android:id="@+id/selected_state_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/overlay"
+        android:layout_alignTop="@id/overlay" />
+
+
+</RelativeLayout>

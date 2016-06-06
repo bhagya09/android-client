@@ -497,6 +497,8 @@ public class HikeConstants
 
 	public static final String CUSTOM = "custom";
 
+	public static final String CUSTOM_ERROR_DEVICE_NOT_SUPPORTED = "ce1";
+
 	public static final String SOUND_PREF = "soundPref";
 
 	public static final String VIBRATE_PREF = "vibratePref";
@@ -781,8 +783,26 @@ public class HikeConstants
 
 	public static final String CALLER_BLOKED_LIST_PREF = "callerBlockedList";
 
+	public static final String CALLER_QUICK_REPLY_SET = "c_q_r_s";
+
+	public static final String SRC_CALLER_QUICK_REPLY_CARD = "src_quick_reply";
+
+	public static final String IS_USER_CHAT_SPAMMED_BY_YOU = "marked_spam";
+
+	public static final String CHAT_SPAM_COUNT = "spam_count";
+
+	public static final String SPAM = "spam";
+
+	public static final String SHOW_UNKNOWN_USER_INFO_INSIDE_ONE_TO_ONE_CHAT = "showUnknownUserInfo";
+
+	public static long NO_OF_MILISECONDS_IN_1_DAY = 24 * 60 * 60 * 1000;
+
 	public static final String CALL_TYPE = "call_type";
 	public static String CONTENT_RANGE = "Content-Range";
+	public static String TIMELINE = "timeline";
+	public static String SEND ="send";
+
+	public static String TEXT_SHARE ="text";
 
 	public class Shortcut
 	{
@@ -839,11 +859,20 @@ public class HikeConstants
 	/* how often to ping after a failure */
 	public static final int RECONNECT_TIME = 10; /* 10 seconds */
 
+	/* reconnect after PAUID call */
+	public static final int PA_RECONNECT_TIME = 1; /* 1 second */
+
 	/* how often to ping after a server unavailable failure */
 	public static final int SERVER_UNAVAILABLE_MAX_CONNECT_TIME = 9; /* 9 minutes */
 
 	/* the max amount (in seconds) the reconnect time can be */
 	public static final int MAX_RECONNECT_TIME = 120;
+
+	/* the max amount (in seconds) the reconnect time can be */
+	public static final int PA_MAX_RECONNECT_TIME = 21600;
+
+	/* the max amount (in seconds) the reconnect time can be */
+	public static final int PA_BACKOFF_MULTIPLIER = 4;
 
 	/* the max amount of time we allow the service to run in case of no activity */
 	public static final int DISCONNECT_TIME = 10 * 60;
@@ -1156,6 +1185,8 @@ public class HikeConstants
 	public static final String VOIP_CALL_FAILED_FRAGMENT_TAG = "voipCallFailedFragmentTag";
 
 	public static final String VOIP_CALL_DECLINE_MESSAGE_FRAGMENT_TAG = "voipCallDeclineMessageFragTag";
+
+	public static final String SHOW_CT_CONFIRMATIN_DIALOG = "showCTConfirmationDialog";
 	/*
 	 * Contact Type
 	 */
@@ -1395,6 +1426,8 @@ public class HikeConstants
 
 	public static final String WT_1_REVAMP_ENABLED = "wt_1";
 
+	public static final String MESSAGE_INFO_ENABLED = "mi";
+
 	public static final String CUSTOM_CHATTHEME_ENABLED = "ct_1";
 
 	public static final String CUSTOM_CHATTHEME_DISABLE_OVERLAY = "cct_disable_overlay";
@@ -1411,11 +1444,13 @@ public class HikeConstants
 
 		public static final String LOGS_SCHEDULE="logs_schdl";
 
-		public static final String INTERVAL = "inv";
+		public static final String INTERVAL = "intv";
 
 		public static final String FREQUENCY = "frq";
 
 		public static final String TYPE = "typ";
+
+		public static final String CONFIG = "signup_config";
 	}
 
 	public static final class ChatHead
@@ -1870,8 +1905,15 @@ public class HikeConstants
 		public static final String CLEARED_OUT = "extrasClearedOut";
 
 		public static final String HIKE_DIRECT_MODE="hikedirectmode";
+
 		public static final String SHOW_TIMELINE = "showTimeline";
 		public static final String BYPASS_GALLERY = "bypassGallery";
+
+		public static final String CALLER_QUICK_REPLY_MSG = "caller_quick_reply_msg";
+
+		public static final String CALLER_CONTENT_MODEL = "caller_content_model";
+
+		public static final String HIKE_BDAY_MODE = "hikeBdayMode";
 
 		// constants related to sharing Functioanlity
 		public static final class ShareTypes
@@ -2314,6 +2356,8 @@ public class HikeConstants
 
         public static final String SEARCHED_CATEGORY_RESPONSE = "shpSrchRept";
 
+        public static final String STICKER_CLICKED = "stickerClick";
+
         public static final String SHOP_SEARCH = "shpSrch";
 
         public static final String SEARCHED_CATEGORY_RESPONSE_DATA = "scRepD";
@@ -2349,6 +2393,12 @@ public class HikeConstants
 		public static final String STICKER_RECOMMENDATION_ACCURACY_INDEX_KEY = "srAI";
 
 		public static final String STICKER_RECOMMENDATION_REBALANCING_SUMMERIZATION = "srRS";
+
+		public static final String STICKER_RECOMMENDATION = "sr_rec";
+
+		public static final String STICKER_RECOMMENDATION_REPORT = "sr_rec_rep";
+
+		public static final String STICKER_RECOMMENDATION_COUNT_REPORT = "sr_rec_cnt_rep";
 
 		public static final String STICKER_FOLDER_ERROR = "stFEr";
 
@@ -2846,6 +2896,8 @@ public class HikeConstants
 		public static final String MULTI_INVITE = "mi";
 
 		public static final String CHAT_BACKGROUD = "cbg";
+
+		public static final String CHAT_BACKGROUD_V2 = "cbgv2";
 
 		public static final String GROUP_OWNER_CHANGE = "goc";
 
@@ -4196,6 +4248,8 @@ public class HikeConstants
 
 	public static final String LOG_SQLITE_PROPERTIES = "log_sqlite_props";
 
+	public static final String LOCATION = "location";
+
 	public static class BackupRestore
 	{
 		public static final String OS = "os";
@@ -4247,7 +4301,14 @@ public class HikeConstants
 
 		public static final String DIRECTORY_TYPE = "dir_t";
 	}
+	public static final class MESSAGE_INFO{
+		public static final String MESSAGE_INFO_TYPE="mi_t";
+		public static final  int ONE_TO_ONE=1;
+		public static final int GROUP=2;
+		public static final int BROADCAST=3;
 
+
+	}
 	public static final String NUM_ROWS_INITIALLY_VISIBLE = "num_rows_iv";
 
 	public static final String DISK_CACHE_SIZE = "disk_cache_size";
@@ -4321,7 +4382,7 @@ public class HikeConstants
 
     public static final int DEFAULT_SEARCH_FTUE_LIMIT = 2;
 
-	public static final String CHAT_BG_TABLE_MIGRATION = "chatBgTableMigration";
+	public static final String UPGRADE_FOR_CHAT_PROPERTIES = "chatBgTableMigration";
 
 	public static final String MUTE_NOTIF = "muteNotif";
 
@@ -4334,6 +4395,8 @@ public class HikeConstants
 	public static final String ADD_HEADER = "addHeader";
 
 	public static final String IS_ATOMIC_TIP = "isAtomicTip";
+
+	public static final String SHOW_USER_INFO_VIEW = "showUserInfoView";
 
 	public static final String VALUE_INT = "vi";
 
@@ -4361,6 +4424,12 @@ public class HikeConstants
 
 	public static final String VISIBLE_COUNT = "visible_count";
 
+	public static final int LONG_TAP = 2;
+
+	public static final int SINGLE_TAP = 1;
+
+	public static final String SCROLL_COUNT = "scroll_count";
+
 	public static final String ENABLE_BDAY_IN_CCA = "e_bd_cca";
 
 	public static final String BDAYS_LIST = "bday_list";
@@ -4373,6 +4442,8 @@ public class HikeConstants
 
 	public static final String DISABLE_QUICK_UPLOAD = "disable_md5";
 
+	public static final String SET_ID = "setId";
+
 	public static final String TRIGGER_BIRTHDAY_ID = "t_b_id";
 
 	public static final String SINGLE_BDAY_NOTIF_TITLE = "s_b_n_t";
@@ -4383,9 +4454,54 @@ public class HikeConstants
 
 	public static final String MULTIPLE_BDAY_NOTIF_SUBTEXT = "m_b_n_st";
 
+	public static final String UPDATED_LAST_SEEN_SETTING = "uls";
+
 	public static final String CTAS = "ctas";
 
 	public static final String ACTION = "action";
 
+	public static final String UPDATED_STATUS_UPDATE_SETTING = "sus";
+
+	public static final String STATUS_UPDATE_EXCLUSION = "su_ex";
+
+	public static final String LS_EXCLUSION = "ls_ex";
+
+	public static final String LS_INCLUSION = "ls_in";
+
+	public static final String QS_RECEIVE_FTUE_SESSION_COUNT = "qsrcvftuesncnt";
+
+	public static final String QS_SENT_FTUE_SESSION_COUNT = "qssntftuesncnt";
+
+	public static final String QUICK_SUGGESTION_RECEIVED_FIRST_TIP_TEXT = "qsrftt";
+
+	public static final String QUICK_SUGGESTION_RECEIVED_SECOND_TIP_TEXT = "qsrstt";
+
+	public static final String QUICK_SUGGESTION_RECEIVED_THIRD_TIP_TEXT = "qsrttt";
+
+	public static final String QUICK_SUGGESTION_SENT_FIRST_TIP_TEXT = "qssftt";
+
+	public static final String QUICK_SUGGESTION_SENT_SECOND_TIP_TEXT = "qssstt";
+
+	public static final String QUICK_SUGGESTION_SENT_THIRD_TIP_TEXT = "qssttt";
+
+	public static final String MAX_FETCH_COUNT = "maxFetchCount";
+
+	public static final String MIN_SEEN_COUNT = "minSeenCount";
+
+	public static final String USER_PARAMTER_REFRESH_PERIOD = "usPrRfPd";
+
 	public static final String HIKE_CES_ENABLE = "ces_enable";
+
+	public static final String TEXT = "txt";
+
+	public static final String TEXT_COLOR = "txtc";
+
+	public static final String FRIENDS_PRIVACY_RED_DOT_SHOWN = "fr_privacy_ftue";
+
+	public static final String FRIENDS_PRIVACY_PROFILE_VIEW_SHOWN = "fr_privacy_profile_ftue";
+
+    public static final String DOWNLOAD_TYPE = "t_dwnld";
+
+	public static final String ENABLE_UNKNOWN_USER_INFO_IN_CHAT = "en_uu_info";
+
 }

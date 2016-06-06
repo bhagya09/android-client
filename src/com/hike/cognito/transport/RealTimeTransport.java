@@ -1,6 +1,7 @@
 package com.hike.cognito.transport;
 
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
@@ -32,13 +33,16 @@ public class RealTimeTransport extends Transport {
     @Override
     public void sendJsonData(JSONObject logData) {
         logData = secureData(logData);
+        if(logData == null) return;
 
         HttpRequests.cognitoUploadRequest(getUrl(), mDataType, logData, getRequestListener(mDataType)).execute();
     }
 
     @Override
     public void sendJsonArrayData(JSONArray logData) {
+        if(logData == null) return;
         JSONObject logJsonData = secureData(logData.toString());
+        if(logJsonData == null) return;
 
         HttpRequests.cognitoUploadRequest(getUrl(), mDataType, logJsonData, getRequestListener(mDataType)).execute();
     }
@@ -51,9 +55,10 @@ public class RealTimeTransport extends Transport {
                 return jsonLogObj;
             } catch (JSONException e) {
                 e.printStackTrace();
+                return null;
             }
         }
-        return data;
+        return null;
     }
 
     private JSONObject secureData(String data) {
@@ -67,8 +72,8 @@ public class RealTimeTransport extends Transport {
             }
         } catch (JSONException e) {
             e.printStackTrace();
+            return null;
         }
-        return null;
     }
 
     public IRequestListener getRequestListener(final String dataToUpload) {

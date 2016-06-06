@@ -48,10 +48,16 @@ public class ChatAnalyticConstants {
 
     public static final String OVERFLOW_MENU_CLICKED = "ctOvrFlw";
 
+    public static final String CUSTOM_THEME_CAMERA_UK = "ctCam";
+
+    public static final String CUSTOM_THEME_ENABLE = "ctEnable";
+
+    public static final String CUSTOM_THEME_DONE = "ctDone";
+
     public static final String MUTE_CANCEL_UK = "muteCncl";
 
-    public static final class GCEvents {
-
+    public static final class GCEvents
+    {
         public static final String GC_PIN_CANCEL = "pinCncl";
 
         public static final String GC_PIN_CROSS = "pinCross";
@@ -79,6 +85,25 @@ public class ChatAnalyticConstants {
         public static final String CANCEL_SRC_CROSS = "cross";
 
         public static final String CANCEL_SRC_OTHERS = "others";
+
+    }
+    public static final class MessageInfoEvents{
+
+        public static final String MESSAGE_INFO_EVENT = "msgInfo";
+
+        public static final String MESSAGE_INFO_TAP = "tap";
+
+        public static final String APK="apk";
+
+        public static final String MESSAGE_INFO_REMAINING_EVENT="miRem";
+
+        public static final String READ_REMAINING_ANALYTICS="read";
+
+        public static final String DELIVERED_REMAINING_ANALYTICS="delivered";
+
+        public static final String MESSAGE_INFO_READ_TAP_EVENT="miReadUsr";
+
+        public static final String MESSAGE_INFO_FILE_TYPE_OTHER="other";
 
     }
 }
