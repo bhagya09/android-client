@@ -54,11 +54,7 @@ public class CategorySearchManager
 
 	public static final String SEARCH_RESULTS_LOG_LIMIT = "s_s_l_limit"; //  Server Controlled Limit on the number of top results full search data to send to analytics
 
-	public static final String AUTO_SEARCH_TIME = "a_s_tm"; //  Server Controlled Auto search Wait Time threshold in milliseconds. The auto search for packs is triggered only after this given time
-
 	public static final String CATEGORIES_SEARCHED_DAILY_REPORT = "cat_srch_report"; // Pref key that stores categories wise search report in a JSON string
-
-	public static final long DEFAULT_AUTO_SEARCH_TIME = 1250L; // in milliseconds
 
 	public static final String DEFAULT_WEIGHTS_INPUT = "0:1:0:2"; //Default Weight Strings [ genderMatchScoreWeight : packStateScoreWeight : stickerCountScoreWeight : nameMatchScoreWeight ]
 
