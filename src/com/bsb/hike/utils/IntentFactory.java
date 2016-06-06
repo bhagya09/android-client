@@ -47,6 +47,7 @@ import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.service.UpgradeIntentService;
 import com.bsb.hike.spaceManager.StorageSpecIntentService;
 import com.bsb.hike.timeline.view.StatusUpdate;
+import com.bsb.hike.timeline.view.StoryPhotosActivity;
 import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.ui.ApkSelectionActivity;
 import com.bsb.hike.ui.ComposeChatActivity;
@@ -1676,5 +1677,12 @@ public class IntentFactory
 		Intent intent = new Intent(context, FriendRequestActivity.class);
 		intent.putExtra(FriendRequestActivity.ADDED_ME, "");
 		return intent;
+	}
+
+	public static Intent getStoryPhotosActivityIntent(Context context, String msisdn)
+	{
+		Intent storyPhotosActivity = new Intent(context, StoryPhotosActivity.class);
+		storyPhotosActivity.putExtra(StoryPhotosActivity.STORY_MSISDN_INTENT_KEY, msisdn);
+		return storyPhotosActivity;
 	}
 }
