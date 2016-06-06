@@ -810,11 +810,11 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 
 	private void updateQuickSuggestionCategoryInList(StickerPageObject stickerPageObject, QuickSuggestionStickerCategory newCategory)
 	{
-		stickerPageObject.setStickerCategory(newCategory);
 		QuickSuggestionStickerCategory presentCategory = (QuickSuggestionStickerCategory) stickerCategoryList.get(0);
 		presentCategory.setSentStickers(newCategory.getSentStickers());
 		presentCategory.setReplyStickers(newCategory.getReplyStickers());
 		presentCategory.setLastRefreshTime(newCategory.getLastRefreshTime());
+		stickerPageObject.setStickerCategory(presentCategory);
 	}
 
 	public void addQuickSuggestionCategory(StickerCategory quickSuggestionCategory)
