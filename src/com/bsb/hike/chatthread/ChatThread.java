@@ -410,6 +410,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	public static final int RESULT_CODE_STICKER_SHOP_ACTIVITY = 100;
 
+	private String mCTTempBgPath = null;
+
 	private final Callable<Conversation> callable=new Callable<Conversation>() {
 		@Override
 		public Conversation call() throws Exception {
@@ -1167,8 +1169,9 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	private void initializeCTBackground() {
 		if(Utils.isUserOnline(activity)) {
-			if(ChatThemeManager.getInstance().customThemeTempUploadImagePath != null) {
-				FileTransferManager.getInstance(activity).uploadCustomThemeBackgroundImage(ChatThemeManager.getInstance().customThemeTempUploadImagePath);
+			if(mCTTempBgPath != null) {
+				ChatThemeManager.getInstance().customThemeTempUploadImagePath = mCTTempBgPath;
+				FileTransferManager.getInstance(activity).uploadCustomThemeBackgroundImage(mCTTempBgPath);
 			}
 			uiHandler.sendEmptyMessageDelayed(SET_CUSTOM_THEME_BACKGROUND, 100);
 			if (themePicker != null && themePicker.isShowing()) {
@@ -1800,12 +1803,12 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	public void themeClicked(String themeId)
 	{
 		if (HikeChatThemeConstants.THEME_ID_CUSTOM_THEME.equalsIgnoreCase(themeId)) {
-			ChatThemeManager.getInstance().customThemeTempUploadImagePath = ChatThemeManager.getInstance().getCCTTempUploadPath();
+			mCTTempBgPath = ChatThemeManager.getInstance().getCCTTempUploadPath();
 			int galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS | GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
 			int height = DrawUtils.displayMetrics.heightPixels;
 			int width = DrawUtils.displayMetrics.widthPixels;
 			CropCompression compression = new CropCompression().maxWidth(width).maxHeight(height).quality(100);
-			Intent imageChooserIntent = IntentFactory.getImageChooserIntent(activity, galleryFlags, ChatThemeManager.getInstance().customThemeTempUploadImagePath, compression, true, width, height);
+			Intent imageChooserIntent = IntentFactory.getImageChooserIntent(activity, galleryFlags, mCTTempBgPath, compression, true, width, height);
 			activity.startActivityForResult(imageChooserIntent, HikeConstants.ResultCodes.CHATTHEME_GALLERY_REQUEST_CODE);
 			HikeAnalyticsEvent.recordCTAnalyticEvents(ChatAnalyticConstants.CUSTOM_THEME_CAMERA_UK, AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, msisdn, null, null);
 			if (themePicker != null && themePicker.isShowing()) {
@@ -1951,7 +1954,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	public void themeCancelled()
 	{
 		Logger.i(TAG, "theme cancelled, resetting the default theme if needed.");
-		if (!currentThemeId.equals(mAdapter.getChatThemeId())) {
+		if (!HikeChatThemeConstants.THEME_ID_CUSTOM_THEME.equalsIgnoreCase(mAdapter.getChatThemeId()) && !currentThemeId.equals(mAdapter.getChatThemeId())) {
 			setConversationTheme(currentThemeId);
 		}
 	}

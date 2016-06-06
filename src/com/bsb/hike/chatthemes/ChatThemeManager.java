@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.media.ThumbnailUtils;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.bsb.hike.HikeConstants;
@@ -341,7 +342,7 @@ public class ChatThemeManager {
             getAllHikeThemesForDisplay();
         }
         availableThemes.addAll(defaultHikeThemes);
-        if (recentCustomTheme != null && ChatThreadUtils.isCustomChatThemeEnabled()) {
+        if (!TextUtils.isEmpty(recentCustomTheme) && isThemeAvailable(recentCustomTheme) && ChatThreadUtils.isCustomChatThemeEnabled()) {
             availableThemes.add(0, recentCustomTheme);
         }
         return availableThemes;
