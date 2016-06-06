@@ -9,9 +9,9 @@ import com.bsb.hike.utils.customClasses.HikeIntentService;
 /**
  * IntentService class to trigger & compute directory sizes as per received packet
  */
-public class StorageSpecIntentService extends HikeIntentService
+public class SpaceManagerIntentService extends HikeIntentService
 {
-    private static final String TAG = "StorageSpecIntentService";
+    private static final String TAG = "SpaceManagerIntentService";
 
     public static final String ACTION_GET_CUSTOM_DIRECTORY_ANALYTICS = "com.bsb.hike.CUSTOM_DIRECTORY_ANALYTICS";
 
@@ -23,7 +23,7 @@ public class StorageSpecIntentService extends HikeIntentService
 
     public static final String ACTION_FETCH_SPACE_MANAGER_ITEMS = "com.bsb.hike.FETCH_SPC_MGR_ITEMS";
 
-    public StorageSpecIntentService()
+    public SpaceManagerIntentService()
     {
         super(TAG);
     }

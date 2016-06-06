@@ -8,7 +8,6 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.utils.IntentFactory;
-import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 import org.json.JSONArray;
@@ -256,7 +255,7 @@ public class SpaceManagerUtils
     }
 
     /**
-     * Methhod to trigger {@link StorageSpecIntentService} with appropriate action
+     * Methhod to trigger {@link SpaceManagerIntentService} with appropriate action
      * @param dirPath
      * @param shouldMapContainedFiles
      */
@@ -265,22 +264,22 @@ public class SpaceManagerUtils
         switch (dirPath)
         {
             case HIKE_STORAGE_INTERNAL:
-                IntentFactory.startStorageSpecIntent(StorageSpecIntentService.ACTION_GET_INTERNAL_STORAGE_ANALYTICS,
+                IntentFactory.startStorageSpecIntent(SpaceManagerIntentService.ACTION_GET_INTERNAL_STORAGE_ANALYTICS,
                         null, shouldMapContainedFiles);
                 break;
 
             case HIKE_STORAGE_EXTERNAL:
-                IntentFactory.startStorageSpecIntent(StorageSpecIntentService.ACTION_GET_EXTERNAL_STORAGE_ANALYTICS,
+                IntentFactory.startStorageSpecIntent(SpaceManagerIntentService.ACTION_GET_EXTERNAL_STORAGE_ANALYTICS,
                         null, shouldMapContainedFiles);
                 break;
 
             case HIKE_STORAGE_SHARED:
-                IntentFactory.startStorageSpecIntent(StorageSpecIntentService.ACTION_GET_SHARED_STORAGE_ANALYTICS,
+                IntentFactory.startStorageSpecIntent(SpaceManagerIntentService.ACTION_GET_SHARED_STORAGE_ANALYTICS,
                         null, shouldMapContainedFiles);
                 break;
 
             default:
-                IntentFactory.startStorageSpecIntent(StorageSpecIntentService.ACTION_GET_CUSTOM_DIRECTORY_ANALYTICS,
+                IntentFactory.startStorageSpecIntent(SpaceManagerIntentService.ACTION_GET_CUSTOM_DIRECTORY_ANALYTICS,
                         dirPath, shouldMapContainedFiles);
         }
     }

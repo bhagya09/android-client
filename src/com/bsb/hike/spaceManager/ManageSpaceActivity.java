@@ -6,7 +6,6 @@ import android.os.Bundle;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
-import com.bsb.hike.spaceManager.models.SpaceManagerCategory;
 import com.bsb.hike.spaceManager.models.SpaceManagerItem;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Logger;
@@ -38,8 +37,8 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
 
     private void fetchItems()
     {
-        Intent fetchItemsIntent = new Intent(this, StorageSpecIntentService.class);
-        fetchItemsIntent.setAction(StorageSpecIntentService.ACTION_FETCH_SPACE_MANAGER_ITEMS);
+        Intent fetchItemsIntent = new Intent(this, SpaceManagerIntentService.class);
+        fetchItemsIntent.setAction(SpaceManagerIntentService.ACTION_FETCH_SPACE_MANAGER_ITEMS);
         this.startService(fetchItemsIntent);
     }
 

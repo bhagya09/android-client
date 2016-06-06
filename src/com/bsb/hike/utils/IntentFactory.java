@@ -53,7 +53,7 @@ import com.bsb.hike.platform.CocosGamingActivity;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.service.UpgradeIntentService;
 import com.bsb.hike.spaceManager.ManageSpaceActivity;
-import com.bsb.hike.spaceManager.StorageSpecIntentService;
+import com.bsb.hike.spaceManager.SpaceManagerIntentService;
 import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.ui.ApkSelectionActivity;
@@ -1677,7 +1677,7 @@ public class IntentFactory
 	}
 
 	/**
-	 * Method creates an intent with provided action and extras to launch {@link StorageSpecIntentService}
+	 * Method creates an intent with provided action and extras to launch {@link SpaceManagerIntentService}
 	 * @param action
 	 * @param dirPath
 	 * @param shouldMapContainedFiles
@@ -1685,7 +1685,7 @@ public class IntentFactory
 	public static void startStorageSpecIntent(String action, String dirPath, boolean shouldMapContainedFiles)
 	{
 		Context hikeAppContext = HikeMessengerApp.getInstance().getApplicationContext();
-		Intent storageSpecIntent = new Intent(hikeAppContext, StorageSpecIntentService.class);
+		Intent storageSpecIntent = new Intent(hikeAppContext, SpaceManagerIntentService.class);
 		storageSpecIntent.setAction(action);
 		storageSpecIntent.putExtra(HikeConstants.SPACE_MANAGER.MAP_DIRECTORY, shouldMapContainedFiles);
 		if(!TextUtils.isEmpty(dirPath))
