@@ -43,6 +43,7 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.google.android.gcm.GCMRegistrar;
+import com.hike.abtest.ABTest;
 
 import org.json.JSONObject;
 
@@ -214,6 +215,7 @@ public class DeleteAccountTask implements ActivityCallableTask
                 HAManager.EventPriority.HIGH);
 		if (delete)
 		{
+			ABTest.onAccountDeleted();
 			AccountBackupRestore.getInstance(ctx).deleteAllFiles();
 		}
 
