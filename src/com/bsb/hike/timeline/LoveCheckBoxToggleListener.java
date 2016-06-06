@@ -27,7 +27,7 @@ import android.widget.CompoundButton;
 import android.widget.Toast;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 
-public abstract class LoveCheckBoxToggleListener implements OnCheckedChangeListener
+public class LoveCheckBoxToggleListener implements OnCheckedChangeListener
 {
 
 	@Override
