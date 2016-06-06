@@ -1529,7 +1529,7 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 	
 	public boolean isNormalMessageSilent()
 	{
-		return getPlatformData().optString(HikeConstants.PLAY_NOTIFICATION).equals(HikeConstants.SILENT);
+		return getPlatformData().optString(HikeConstants.PLAY_NOTIFICATION).equals(HikeConstants.SILENT) || ContactManager.getInstance().isChatMuted(mMsisdn);
 	}
 
 	@Override
