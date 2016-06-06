@@ -15,7 +15,7 @@ public abstract class SpaceManagerCategory extends SpaceManagerItem
     public SpaceManagerCategory(String header, ArrayList<SpaceManagerSubCategory> subCategories)
     {
         setHeader(header);
-        setType(1);
+        setType(CATEGORY);
         this.subCategoryList = subCategories;
     }
 
