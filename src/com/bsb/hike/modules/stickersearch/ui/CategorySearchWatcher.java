@@ -25,8 +25,6 @@ public class CategorySearchWatcher implements CategorySearchListener, SearchView
 
 	private CategorySearchListener mListener;
 
-    private String currentQueryState;
-
 	public CategorySearchWatcher(CategorySearchListener listener)
 	{
 		Logger.i(TAG, "Initialising Category tag watcher...");
@@ -36,7 +34,6 @@ public class CategorySearchWatcher implements CategorySearchListener, SearchView
 	public void releaseResources()
 	{
 		CategorySearchManager.getInstance().clearTransientResources();
-        currentQueryState = null;
 		mListener = null;
 	}
 
@@ -99,47 +96,12 @@ public class CategorySearchWatcher implements CategorySearchListener, SearchView
     @Override
 	public boolean onQueryTextSubmit(String query)
 	{
-		currentQueryState = null;
 		return CategorySearchManager.getInstance().onQueryTextSubmit(query, this);
 	}
 
-    /**
-     * Starts a timer to see if there is a possibility to trigger auto search
-     * The timer is of time period defined in the AUTO_SEARCH_TIME pref [Server Controlled] [in milliseconds]
-     * After the time period it checks if the user query has changed in the given time period. If not then the auto search for packs is triggered
-     *
-     * @param query
-     */
 	@Override
 	public boolean onQueryTextChange(final String query)
 	{
-		currentQueryState = new String(query);
-
-		CategorySearchManager.getInstance().getSearchEngine().runOnSearchThread(new Runnable()
-		{
-			private String capturedQueryState = query;
-
-			@Override
-			public void run()
-			{
-				if (TextUtils.isEmpty(capturedQueryState) || TextUtils.isEmpty(currentQueryState))
-				{
-					Logger.e(TAG, "onQueryTextChange() : ignoring : empty query");
-					return;
-				}
-                
-				if (capturedQueryState.equals(currentQueryState))
-				{
-					Logger.i(TAG, "onQueryTextChange(): going to search oq= " + capturedQueryState + " <> nq=" + currentQueryState);
-					CategorySearchManager.getInstance().onQueryTextChange(currentQueryState, CategorySearchWatcher.this);
-				}
-				else
-				{
-					Logger.i(TAG, "onQueryTextChange(): ignoring since changed oq= " + capturedQueryState + " <> nq=" + currentQueryState);
-				}
-			}
-		}, HikeSharedPreferenceUtil.getInstance().getData(CategorySearchManager.AUTO_SEARCH_TIME, CategorySearchManager.DEFAULT_AUTO_SEARCH_TIME));
-
-		return true;
+        return CategorySearchManager.getInstance().onQueryTextChange(query, CategorySearchWatcher.this);
 	}
 }
