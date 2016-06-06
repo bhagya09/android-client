@@ -229,6 +229,15 @@ public class ABTest {
     }
 
     /**
+     * Clear ABExperiments when the account is deleted.
+     *  @return
+     */
+    public static void onAccountDeleted() {
+        Logger.d(TAG, "On Account delete, clearing experiments...");
+        getInstance().getDataManager().clearExperiments();
+    }
+
+    /**
      * Apply new user ABExperiments, if available
      */
     public static void applyNewUserExperiments() {
