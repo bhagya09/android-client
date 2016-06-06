@@ -8386,4 +8386,8 @@ public class Utils
 		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
 		return prefs.getData(HikeConstants.ENABLE_UNKNOWN_USER_INFO_IN_CHAT, false);
 	}
+
+	public static String getEmojiByUnicode(int unicode){
+		return new String(Character.toChars(unicode));
+	}
 }
