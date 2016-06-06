@@ -11106,7 +11106,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		return getStories(storyCategory, null);
 	}
 
-	public List<StoryItem<StatusMessage, ContactInfo>> getStories(@StoryItem.StoryCategory int storyCategory, List<String> msisdns) {
+	public List<StoryItem<StatusMessage, ContactInfo>> getStories(@StoryItem.StoryCategory int storyCategory, List<String> msisdnsSelectionList) {
 		List<StoryItem<StatusMessage, ContactInfo>> storyList = new ArrayList<>(); // Atleast return empty list obj
 
 		String selection = null;
@@ -11142,9 +11142,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 			StringBuilder selectionBuilder = new StringBuilder(selection);
 			//If msisdns are present, add them to selection
 			StringBuilder msisdnSelection = null;
-			if (!Utils.isEmpty(msisdns)) {
+			if (!Utils.isEmpty(msisdnsSelectionList)) {
 				msisdnSelection = new StringBuilder("(");
-				for (String msisdn : msisdns) {
+				for (String msisdn : msisdnsSelectionList) {
 					msisdnSelection.append(DatabaseUtils.sqlEscapeString(msisdn) + ",");
 				}
 				msisdnSelection.replace(msisdnSelection.lastIndexOf(","), msisdnSelection.length(), ")");
