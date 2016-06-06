@@ -214,6 +214,7 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout
     {
 
         setCustomKeyboardPopup(true);
+        showKeyboardAfterPopupDismiss = false;
         if(customKeyboardHeight > 0)
             this.customKeyboardHeight = customKeyboardHeight;
 
