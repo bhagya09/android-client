@@ -99,7 +99,6 @@ import org.json.JSONObject;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -11103,7 +11102,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		return asset;
 	}
 
-	public List<StoryItem<StatusMessage, ContactInfo>> getStories(@StoryItem.StoryCategory int storyCategory) {
+	public List<StoryItem<StatusMessage, ContactInfo>> getAllStories(@StoryItem.StoryCategory int storyCategory) {
+		return getStories(storyCategory, null);
+	}
+
+	public List<StoryItem<StatusMessage, ContactInfo>> getStories(@StoryItem.StoryCategory int storyCategory, List<String> msisdns) {
 		List<StoryItem<StatusMessage, ContactInfo>> storyList = new ArrayList<>(); // Atleast return empty list obj
 
 		String selection = null;
@@ -11135,6 +11138,22 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		}
 
 		if (selection != null) {
+
+			StringBuilder selectionBuilder = new StringBuilder(selection);
+			//If msisdns are present, add them to selection
+			StringBuilder msisdnSelection = null;
+			if (!Utils.isEmpty(msisdns)) {
+				msisdnSelection = new StringBuilder("(");
+				for (String msisdn : msisdns) {
+					msisdnSelection.append(DatabaseUtils.sqlEscapeString(msisdn) + ",");
+				}
+				msisdnSelection.replace(msisdnSelection.lastIndexOf(","), msisdnSelection.length(), ")");
+			}
+
+			if (!TextUtils.isEmpty(msisdnSelection)) {
+				selectionBuilder.append(" AND "+DBConstants.MSISDN + " IN " + msisdnSelection.toString());
+				selection = selectionBuilder.toString();
+			}
 
 			// Need all columns to make StatusMessage model object
 			String[] columns = new String[]{DBConstants.STATUS_ID, DBConstants.STATUS_MAPPED_ID, DBConstants.MSISDN, DBConstants.STATUS_TEXT, DBConstants.STATUS_TYPE,

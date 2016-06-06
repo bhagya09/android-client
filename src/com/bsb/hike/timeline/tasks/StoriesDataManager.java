@@ -129,7 +129,7 @@ public class StoriesDataManager {
 
     public void updateRecentStories() {
         // Get recents
-        recentsList = HikeConversationsDatabase.getInstance().getStories(StoryItem.CATEGORY_RECENT);
+        recentsList = HikeConversationsDatabase.getInstance().getAllStories(StoryItem.CATEGORY_RECENT);
         if (!Utils.isEmpty(recentsList)) {
             // Make a header
             StoryItem recentsHeader = new StoryItem(StoryItem.TYPE_HEADER, mContext.getString(R.string.story_category_recent));
@@ -142,7 +142,7 @@ public class StoriesDataManager {
 
     public void updateAllPhotosStories() {
         // Get all photos
-        allPhotosList = HikeConversationsDatabase.getInstance().getStories(StoryItem.CATEGORY_ALL);
+        allPhotosList = HikeConversationsDatabase.getInstance().getAllStories(StoryItem.CATEGORY_ALL);
         removeSimilarElements(recentsList,allPhotosList);
         if (!Utils.isEmpty(allPhotosList)) {
             // Make a header
@@ -156,7 +156,7 @@ public class StoriesDataManager {
 
     public void updateCameraShyStories() {
         // Get camera shy
-        cameraShyList = HikeConversationsDatabase.getInstance().getStories(StoryItem.CATEGORY_DEFAULT);
+        cameraShyList = HikeConversationsDatabase.getInstance().getAllStories(StoryItem.CATEGORY_DEFAULT);
         removeSimilarElements(recentsList,cameraShyList);
         removeSimilarElements(allPhotosList,cameraShyList);
         if (!Utils.isEmpty(cameraShyList)) {
