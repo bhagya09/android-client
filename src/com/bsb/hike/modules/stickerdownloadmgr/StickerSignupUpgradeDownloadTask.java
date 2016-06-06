@@ -1,8 +1,12 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
+import android.support.annotation.Nullable;
+import android.os.Bundle;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHTTPTask;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHttpTaskResult;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
@@ -73,8 +77,9 @@ public class StickerSignupUpgradeDownloadTask implements IHikeHTTPTask, IHikeHtt
 			token.cancel();
 		}
 	}
-	
-	private String getRequestId()
+
+    @Override
+    public String getRequestId()
 	{
 		return StickerRequestType.SIGNUP_UPGRADE.getLabel();
 	}
@@ -97,6 +102,7 @@ public class StickerSignupUpgradeDownloadTask implements IHikeHTTPTask, IHikeHtt
 				{
 					postObject.put("unknown_langs", new JSONArray(unSupportedLanguages));
 				}
+				postObject = Utils.getParameterPostBodyForHttpApi(HttpRequestConstants.BASE_CATEGORY_DETAIL, postObject);
 				return postObject;
 			}
 			Logger.e(TAG, "Sticker download failed null or empty category list");
@@ -152,7 +158,7 @@ public class StickerSignupUpgradeDownloadTask implements IHikeHTTPTask, IHikeHtt
 			}
 			
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 				doOnFailure(httpException);
 			}
@@ -171,5 +177,11 @@ public class StickerSignupUpgradeDownloadTask implements IHikeHTTPTask, IHikeHtt
 	public void doOnFailure(HttpException e)
 	{
 		Logger.e(TAG, "on failure, exception ", e);
+	}
+
+	@Override
+	public Bundle getRequestBundle()
+	{
+		return null;
 	}
 }

@@ -1,9 +1,13 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
+import android.support.annotation.Nullable;
+import android.os.Bundle;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHTTPTask;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHttpTaskResult;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
@@ -118,9 +122,9 @@ public class MultiStickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTask
 			}
             Logger.d(TAG, "language list for download : " + languagesList);
 			json.put(HikeConstants.KEYBOARD_LIST, new JSONArray(languagesList));
+			json = Utils.getParameterPostBodyForHttpApi(HttpRequestConstants.BASE_TAGS_V3, json);
 
-
-			RequestToken requestToken = tagsForMultiStickerRequest(getRequestId(), json, getResponseListener());
+			RequestToken requestToken = tagsForMultiStickerRequest(getRequestId(), json, getResponseListener(), getRequestBundle());
 
 			if (requestToken.isRequestRunning())
 			{
@@ -172,7 +176,7 @@ public class MultiStickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTask
 			}
 
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 				Logger.d(TAG, "response failed.");
 			}
@@ -190,7 +194,8 @@ public class MultiStickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTask
 
 	}
 
-	private String getRequestId()
+    @Override
+    public String getRequestId()
 	{
 		return StickerRequestType.TAGS.getLabel() + "\\" + requestStep;
 	}
@@ -208,5 +213,15 @@ public class MultiStickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTask
 	public void doOnFailure(HttpException exception)
 	{
 		Logger.d(TAG, "response failed.");
+	}
+
+    @Override
+	public Bundle getRequestBundle()
+	{
+		Bundle extras = new Bundle();
+		extras.putStringArrayList(HikeConstants.STICKERS, stickerCategoryList);
+		extras.putInt(HikeConstants.STATE, state);
+		extras.putStringArrayList(HikeConstants.LANGUAGES, languagesList);
+		return extras;
 	}
 }

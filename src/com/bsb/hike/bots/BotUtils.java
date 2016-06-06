@@ -1,9 +1,19 @@
 package com.bsb.hike.bots;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.support.annotation.Nullable;
+import android.net.Uri;
+import android.graphics.drawable.BitmapDrawable;
 import android.text.TextUtils;
 import android.util.Pair;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
@@ -14,6 +24,9 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
@@ -23,6 +36,7 @@ import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
@@ -30,9 +44,12 @@ import com.bsb.hike.notifications.ToastListener;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContentConstants;
+import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.PhoneUtils;
 import com.bsb.hike.utils.Utils;
 
 import org.json.JSONArray;
@@ -69,7 +86,7 @@ public class BotUtils
 	private static final String TAG = "BotUtils";
 	
 	public static boolean fetchBotThumbnails = true;
-
+	private static HikeDialog dialog;
 	/**
 	 * adding default bots to bot hashmap. The config is set using {@link com.bsb.hike.bots.MessagingBotConfiguration}, where every bit is set according to the requirement
 	 * https://docs.google.com/spreadsheets/d/1hTrC9GdGRXrpAt9gnFnZACiTz2Th8aUIzVB5hrlD_4Y/edit#gid=0
@@ -267,7 +284,7 @@ public class BotUtils
 
 	public static void deleteBot(String msisdn)
 	{
-		if (!Utils.validateBotMsisdn(msisdn))
+		if (!PhoneUtils.validateBotMsisdn(msisdn))
 		{
 			return;
 		}
@@ -423,7 +440,7 @@ public class BotUtils
 		}
 
 		String msisdn = jsonObj.optString(HikeConstants.MSISDN);
-		if (!Utils.validateBotMsisdn(msisdn))
+		if (!PhoneUtils.validateBotMsisdn(msisdn))
 		{
 			return;
 		}
@@ -487,7 +504,7 @@ public class BotUtils
 				// Ignore the packet and send invalid bot analytics if packet does not contain mAppVersionCode field
                 if(mAppVersionCode == -1)
                 {
-                    PlatformUtils.invalidDataBotAnalytics(botInfo);
+                    PlatformUtils.invalidPacketAnalytics(botInfo);
                     return;
                 }
                 else if (currentBotInfo != null && (mAppVersionCode < currentBotInfoMAppVersionCode || botVersionCode < currentBotVersionCode
@@ -505,7 +522,7 @@ public class BotUtils
                         ToastListener.getInstance().showBotDownloadNotification(msisdn, currentBotInfo.getLastMessageText(),notifType.equals(HikeConstants.SILENT));
                     }
 
-                    PlatformUtils.invalidDataBotAnalytics(botInfo);
+                    PlatformUtils.invalidPacketAnalytics(botInfo);
                     Pair<BotInfo,Boolean> botInfoCreatedSuccessfullyPair = new Pair(botInfo,true);
                     HikeMessengerApp.getPubSub().publish(HikePubSub.BOT_CREATED, botInfoCreatedSuccessfullyPair);
                     return;
@@ -682,7 +699,7 @@ public class BotUtils
 
 	}
 
-	private static BotInfo getBotInfoFormessagingBots(JSONObject jsonObj, String msisdn)
+	public static BotInfo getBotInfoFormessagingBots(JSONObject jsonObj, String msisdn)
 	{
 		BotInfo existingBotInfo = getBotInfoForBotMsisdn(msisdn);
 		BotInfo botInfo = null;
@@ -764,7 +781,9 @@ public class BotUtils
 		 */
 		if (!HikeConstants.OFF.equals(notifType))
 		{
-			ToastListener.getInstance().showBotDownloadNotification(msisdn, botInfo.getLastMessageText(),notifType.equals(HikeConstants.SILENT));
+			if (!TextUtils.isEmpty(botInfo.getLastMessageText())) {
+				ToastListener.getInstance().showBotDownloadNotification(msisdn, botInfo.getLastMessageText(), notifType.equals(HikeConstants.SILENT));
+			}
 		}
 	}
 	
@@ -877,7 +896,7 @@ public class BotUtils
 							}
 
 							@Override
-							public void onRequestFailure(HttpException httpException)
+							public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 							{
 								Logger.i(
 										TAG,
@@ -1127,5 +1146,308 @@ public class BotUtils
 		}
 		return true;
 	}
+
+    /**
+     * Is bot url boolean.
+     *
+     * @param uri
+     *            the uri
+     * @return the boolean
+     */
+    public static boolean isBotUrl(Uri uri)
+    {
+        if (HikeConstants.HIKE_SERVICE.equals(uri.getScheme()) && HikePlatformConstants.BOTS.equals(uri.getAuthority()) && !TextUtils.isEmpty(uri.getQueryParameter(HikeConstants.HANDLE)))
+        {
+            return true;
+        }
+        return false;
+    }
+
+	/**
+	 * Is channel url boolean.
+	 *
+	 * @param uri
+	 *            the uri
+	 * @return the boolean
+	 */
+	public static boolean isJFLUrl(Uri uri)
+	{
+		if (HikeConstants.HIKE_SERVICE.equals(uri.getScheme()) && HikePlatformConstants.CHANNELS.equals(uri.getAuthority()) && "jfl".equals(uri.getQueryParameter(HikeConstants.HANDLE)))
+		{
+			return true;
+		}
+		return false;
+	}
+	public static String getParentMsisdnFromBotMsisdn(String botMsisdn)
+	{
+		if(TextUtils.isEmpty(botMsisdn))
+		{
+			return null;
+		}
+		BotInfo botInfo = getBotInfoForBotMsisdn(botMsisdn);
+		if(botInfo == null)
+		{
+			return null;
+		}
+		NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
+		return nonMessagingBotMetadata.getParentMsisdn();
+	}
+
+	public static JSONObject getBotInfoAsString(BotInfo botInfo) throws JSONException, IOException
+	{
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put(HikePlatformConstants.BOT_DESCRIPTION, botInfo.getBotDescription());
+		jsonObject.put(HikePlatformConstants.BOT_TYPE, botInfo.getBotType());
+		jsonObject.put(HikePlatformConstants.HELPER_DATA, botInfo.getHelperData());
+		jsonObject.put(HikePlatformConstants.METADATA, botInfo.getMetadata());
+		jsonObject.put(HikePlatformConstants.NAMESPACE, botInfo.getNamespace());
+		jsonObject.put(HikePlatformConstants.MSISDN, botInfo.getMsisdn());
+		jsonObject.put(HikePlatformConstants.MAPP_VERSION_CODE, botInfo.getMAppVersionCode());
+		jsonObject.put(HikePlatformConstants.VERSION, botInfo.getVersion());
+		jsonObject.put(HikePlatformConstants.NAME, botInfo.getConversationName());
+		jsonObject.put(HikePlatformConstants.TYPE, botInfo.getType());
+		BitmapDrawable bitmap = HikeMessengerApp.getLruCache().getIconFromCache(botInfo.getMsisdn());
+		if(bitmap !=null)
+		{
+			String picture = Utils.drawableToString(bitmap);
+			File botPicFile = new File(HikeMessengerApp.getInstance().getExternalCacheDir(), "bot_"+ botInfo.getMsisdn() + ".jpg");
+			if(!botPicFile.exists())
+			{
+				botPicFile.createNewFile();
+				Utils.saveByteArrayToFile(botPicFile, picture.getBytes());
+			}
+			jsonObject.put("picture", botPicFile.getAbsolutePath());
+		}
+		else
+		{
+			jsonObject.put("picture" , "");
+		}
+		return jsonObject;
+	}
+
+	public static void openBot(Context mContext, BotInfo mBotInfo)
+	{
+		if (mContext != null)
+		{
+			Intent intent = IntentFactory.getIntentForBots(mBotInfo, mContext);
+
+			intent.putExtra(AnalyticsConstants.BOT_NOTIF_TRACKER, AnalyticsConstants.BOT_OPEN_SOURCE_DISC);
+
+			mContext.startActivity(intent);
+		}
+		else
+		{
+			com.hike.transporter.utils.Logger.e(TAG, "Context is null while trying to open the bot ");
+		}
+	}
+
+	/*
+	 * Method to make a post call to server with necessary params requesting for bot discovery cbot Sample Json to be sent in network call :: { "app": [{ "name": "+hikenews+",
+	 * "params": { "enable_bot": true, "notif": "off" } }], "platform_version": 10 }
+	 */
+	public static void initiateBotDownload(final Context mContext, final String msisdn)
+	{
+		// Json to send to install.json on server requesting for micro app download for bot discovery
+		JSONObject json  = getBotJson(msisdn);
+
+
+			RequestToken token = HttpRequests.microAppPostRequest(HttpRequestConstants.getBotDownloadUrlV2(), json, new IRequestListener()
+			{
+
+				@Override
+				public void onRequestSuccess(Response result)
+				{
+					com.hike.transporter.utils.Logger.v(TAG, "Bot download request success for " + msisdn);
+				}
+
+				@Override
+				public void onRequestProgressUpdate(float progress)
+				{
+				}
+
+				@Override
+				public void onRequestFailure(Response response, HttpException httpException)
+				{
+					com.hike.transporter.utils.Logger.v(TAG, "Bot download request failure for " + msisdn);
+					Toast.makeText(mContext, "" + mContext.getResources().getString(R.string.error_sharing), Toast.LENGTH_SHORT).show();
+					if (dialog != null)
+					{
+						dialog.dismiss();
+					}
+				}
+			});
+
+		if (!token.isRequestRunning())
+		{
+			token.execute();
+		}
+	}
+	public static JSONObject getBotJson(final String msisdn) {
+		// Json to send to install.json on server requesting for micro app download for bot discovery
+		JSONObject json = new JSONObject();
+
+		try {
+			// Json object to create adding params to micro app requesting json (In our scenario, we need to receive cbot only with enable bot as false for our scenario)
+			JSONObject paramsJsonObject = new JSONObject();
+			paramsJsonObject.put(HikePlatformConstants.ENABLE_BOT, true);
+			paramsJsonObject.put(HikePlatformConstants.NOTIF, HikePlatformConstants.SETTING_OFF);
+
+			// Json object containing all the information required for one micro app
+			JSONObject appsJsonObject = new JSONObject();
+			appsJsonObject.put(HikePlatformConstants.NAME, msisdn);
+			appsJsonObject.put(HikePlatformConstants.PARAMS, paramsJsonObject);
+
+			// Put apps JsonObject in the final json
+			json.put(HikePlatformConstants.APPS, appsJsonObject);
+			json.put(HikePlatformConstants.PLATFORM_VERSION, HikePlatformConstants.CURRENT_VERSION);
+			json.put(HikeConstants.SOURCE, HikePlatformConstants.BOT_DISCOVERY);
+		} catch (JSONException e) {
+			com.hike.transporter.utils.Logger.e("Json Exception :: ", e.toString());
+		}
+		return json;
+	}
+	public static void showDialog(final IconLoader iconLoader, final Context mContext, final BotInfo mBotInfo)
+	{
+		if (mContext instanceof Activity)
+		{
+			((Activity) mContext).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+		}
+		dialog = HikeDialogFactory.showDialog(mContext, HikeDialogFactory.MAPP_DOWNLOAD_DIALOG, new HikeDialogListener()
+		{
+			@Override
+			public void positiveClicked(HikeDialog hikeDialog)
+			{
+
+				if (BotUtils.isBot(mBotInfo.getMsisdn()))
+				{
+					BotUtils.unblockBotIfBlocked(BotUtils.getBotInfoForBotMsisdn(mBotInfo.getMsisdn()), AnalyticsConstants.BOT_DISCOVERY);
+				}
+				/**
+				 * On resetting account, a previously blocked microapp will remain blocked. So we're checking if that msisdn is blocked before we initiate the bot download.
+				 */
+				else if (ContactManager.getInstance().isBlocked(mBotInfo.getMsisdn()))
+				{
+					ContactManager.getInstance().unblock(mBotInfo.getMsisdn());
+				}
+
+				initiateBotDownload(mContext, mBotInfo.getMsisdn());
+
+				BotUtils.discoveryBotDownloadAnalytics(mBotInfo.getMsisdn(), mBotInfo.getConversationName());
+
+				hikeDialog.findViewById(R.id.bot_description).setVisibility(View.GONE);
+				hikeDialog.findViewById(R.id.progressbar).setVisibility(View.VISIBLE);
+				hikeDialog.findViewById(R.id.button_panel).setVisibility(View.INVISIBLE);
+			}
+
+			@Override
+			public void neutralClicked(HikeDialog hikeDialog)
+			{
+				hikeDialog.dismiss();
+			}
+
+			@Override
+			public void negativeClicked(HikeDialog hikeDialog)
+			{
+				hikeDialog.dismiss();
+			}
+		}, new Object[] { mBotInfo });
+
+		if (dialog != null)
+		{
+			dialog.data = mBotInfo.getMsisdn();
+			iconLoader.loadImage(mBotInfo.getMsisdn(), (ImageView) dialog.findViewById(R.id.bot_icon), false, false, true);
+		}
+
+	}
+
+	public static void releaseResources()
+	{
+		if (dialog != null)
+		{
+			dialog.dismiss();
+		}
+	}
+
+	public static void analyticsForDiscoveryBotTap(String botName)
+	{
+		JSONObject json = new JSONObject();
+		try
+		{
+			json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
+			json.put(AnalyticsConstants.EVENT, AnalyticsConstants.DISCOVERY_BOT_TAP);
+			json.put(AnalyticsConstants.LOG_FIELD_1, botName);
+		}
+		catch (JSONException e)
+		{
+			com.hike.transporter.utils.Logger.e(TAG, "JSON Exception in analyticsForDiscoveryBotTap " + e.getMessage());
+		}
+		HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.BOT_DISCOVERY, json);
+	}
+
+	public static void onBotCreated(Context mContext, Object data)
+	{
+		if (data == null || (!(data instanceof BotInfo)))
+		{
+			return;
+		}
+
+		BotInfo botInfo = (BotInfo) data;
+
+		String msisdn = botInfo.getMsisdn();
+		com.hike.transporter.utils.Logger.i(TAG, "Bot created : " + msisdn);
+		if (dialog != null)
+		{
+			dialog.dismiss();
+			if (dialog.data instanceof String && msisdn.equals((String) dialog.data))
+			{
+				openBot(mContext, botInfo);
+			}
+			dialog = null;
+		}
+	}
+	/**
+	 * Is send url boolean.
+	 *
+	 * @param uri
+	 *            the uri
+	 * @return the boolean
+	 */
+	public static boolean isSendUrl(Uri uri)
+	{
+		if (HikeConstants.HIKE_SERVICE.equals(uri.getScheme()) && HikeConstants.SEND.equals(uri.getAuthority()))
+		{
+			return true;
+		}
+		return false;
+	}
+    /**
+     * Gets custom key board height.
+     *
+     * @param customKeyboard
+     *            the custom keyboard object
+     * @return the custom key board height
+     */
+    public static int getCustomKeyBoardHeight(CustomKeyboard customKeyboard,int screenWidth,int stickerPadding,int stickerGridPadding,int screenOrientation)
+    {
+        // Precautionary null check
+        if (customKeyboard == null)
+            return 0;
+
+        if (customKeyboard != null && customKeyboard.getT() != null && customKeyboard.getT().equals(HikePlatformConstants.BOT_CUSTOM_KEYBOARD_TYPE_TEXT))
+            return Utils.dpToPx(customKeyboard.getTk().size() * 48 + (customKeyboard.getTk().size() + 1) * 16);
+        else if (customKeyboard != null && customKeyboard.getT() != null && customKeyboard.getT().equals(HikePlatformConstants.BOT_CUSTOM_KEYBOARD_TYPE_STICKER))
+        {
+            int stickerGridNoOfCols = HikePlatformConstants.stickerGridNoOfColsPortrait;
+            if(screenOrientation == Configuration.ORIENTATION_LANDSCAPE)
+                stickerGridNoOfCols = HikePlatformConstants.stickerGridNoOfColsLandscape;
+
+            int horizontalSpacing = (stickerGridNoOfCols - 1) * stickerGridPadding;
+
+            int actualSpace = (screenWidth - horizontalSpacing - stickerPadding);
+
+            return (int) Math.ceil( (double) customKeyboard.getSk().size() / stickerGridNoOfCols) * actualSpace/stickerGridNoOfCols + Utils.dpToPx(((int) Math.ceil( (double) customKeyboard.getSk().size() / stickerGridNoOfCols) + 0) * 10) + Utils.dpToPx(8);
+        }
+        return 0;
+    }
 	
 }

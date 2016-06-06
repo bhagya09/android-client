@@ -13,6 +13,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.PendingIntent;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -28,6 +29,7 @@ import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
@@ -128,6 +130,11 @@ public class OfflineUtils
 	public static int updateDB(long msgId, ConvMessage.State status, String msisdn)
 	{
 		return HikeConversationsDatabase.getInstance().updateMsgStatus(msgId, status.ordinal(), msisdn);
+	}
+
+	public static void saveDeliveryReceipt(long msgId,ConvMessage message){
+
+		HikeConversationsDatabase.getInstance().saveDeliveryReceipt(msgId,message.getMsisdn(),message.getTimestamp(),message.getMsisdn());
 	}
 
 	public static long getTotalChunks(long fileSize)

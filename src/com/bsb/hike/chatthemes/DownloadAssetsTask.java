@@ -1,5 +1,8 @@
 package com.bsb.hike.chatthemes;
 
+import android.support.annotation.Nullable;
+import android.os.Bundle;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -78,11 +81,21 @@ public class DownloadAssetsTask implements IHikeHTTPTask, IHikeHttpTaskResult {
         HikeMessengerApp.getPubSub().publish(HikePubSub.CHATTHEME_CONTENT_DOWNLOAD_FAILURE, exception);
     }
 
+    @Override
+    public Bundle getRequestBundle() {
+        return null;
+    }
+
+    @Override
+    public String getRequestId() {
+        return null;
+    }
+
     private IRequestListener getRequestListener() {
         return new IRequestListener() {
 
             @Override
-            public void onRequestFailure(HttpException httpException) {
+            public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException) {
                 doOnFailure(httpException);
             }
 

@@ -16,5 +16,4 @@ public class ExperimentRolloutJson extends ExperimentInitJson {
         experiment.put(ProtoMapper.EXPERIMENT_ROLL_OUT, true);
         return experiment.toString();
     }
-
 }

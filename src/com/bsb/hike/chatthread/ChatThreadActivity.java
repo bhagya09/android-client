@@ -77,6 +77,8 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		public static final int ADD_FRIEND_FRAG = 18;
 
 		public static final int ADDED_ME_FRAG = 19;
+
+        public static final int INITIATE_BOT = 19;
 	}
 
 	@Override
@@ -140,10 +142,15 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		
 		if (StealthModeManager.getInstance().isStealthMsisdn(msisdn) && !StealthModeManager.getInstance().isActive())
 		{
-			if (Utils.isBDayInNewChatEnabled() && intent.hasExtra(HikeConstants.Extras.BIRTHDAY_NOTIF));
+			/**
+			 * If Birthday feature is enabled, then for case
+			 * Hidden mode was off, Notification was generated for Birthday for Hidden contact
+			 * Then Hidden mode is on and chat is hidden and then on tapping notification
+			 * Bounce Hike logo + close 1-1 Chat + open Home Screen
+			 */
+			if (Utils.isBDayInNewChatEnabled() && intent.hasExtra(HikeConstants.Extras.BIRTHDAY_NOTIF))
 			{
-				if (StealthModeManager.getInstance().isStealthMsisdn(msisdn) && !StealthModeManager.getInstance().isActive()
-						&& PreferenceManager.getDefaultSharedPreferences(ChatThreadActivity.this).getBoolean(HikeConstants.STEALTH_INDICATOR_ENABLED, false))
+				if (PreferenceManager.getDefaultSharedPreferences(ChatThreadActivity.this).getBoolean(HikeConstants.STEALTH_INDICATOR_ENABLED, false))
 				{
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STEALTH_INDICATOR_SHOW_REPEATED, true);
 					HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_INDICATOR, null);

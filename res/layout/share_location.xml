@@ -61,6 +61,8 @@
             android:maxLines="4"
             android:minHeight="44dp"
             android:layout_marginLeft="8dp"
+            android:imeOptions="actionSearch"
+            android:inputType="text"
             android:background="@null"
             android:hint="@string/search" />
 

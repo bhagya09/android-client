@@ -18,6 +18,7 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformHelper;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.WebMetadata;
 import com.bsb.hike.utils.CustomAnnotation.DoNotObfuscate;
@@ -26,6 +27,8 @@ import com.bsb.hike.utils.Utils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.IOException;
 
 /**
  * This class was introduced to cater platform bridge Platform Bridge Version 1 onwards. We have introduced message id and platform Platform Bridge Version concept here.
@@ -666,6 +669,17 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 
 	}
 
+	@JavascriptInterface
+	public void getAllEventsForMessageHashFromUser(String functionId, String messageId ,String messageHash, String fromUser)
+	{
+		if(isCorrectMessage(messageId, "getAllEventsData"))
+		{
+			String eventData = HikeConversationsDatabase.getInstance().getEventsForMessageHashFromUser(messageHash, message.getNameSpace(), fromUser);
+			callbackToJS(functionId, eventData);
+		}
+
+	}
+
 	/**
 	 * Platform Version 6
 	 * Call this function to send a shared message to the contacts of the user. This function when forwards the data, returns with the contact details of
@@ -726,7 +740,9 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	@JavascriptInterface
 	public void sendNormalEvent(String messageHash, String namespace, String eventData)
 	{
-		PlatformUtils.sendPlatformMessageEvent(eventData, messageHash, namespace);
+		String botMsisdn = message.webMetadata.getParentMsisdn();
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(botMsisdn);
+		PlatformUtils.sendPlatformMessageEvent(eventData, messageHash, namespace, botInfo);
 	}
 
 	/**
@@ -805,7 +821,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	@JavascriptInterface
 	public void enableParentBot(String enable)
 	{
-		enableParentBot(enable,false);
+		enableParentBot(enable, false);
 
 	}
 
@@ -825,7 +841,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 
 		Boolean muteBot = Boolean.valueOf(mute);
 		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(message.webMetadata.getParentMsisdn());
-		botInfo.setMute(muteBot);
+		botInfo.setIsMute(muteBot);
 		HikeConversationsDatabase.getInstance().toggleMuteBot(botInfo.getMsisdn(), muteBot);
 	}
 
@@ -888,6 +904,71 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 		{
 			BotUtils.deleteBotConversation(botInfo.getMsisdn(), false);
 		}
+	}
+
+	/**
+	 * Platform Version 12
+	 * Method to get list of children bots
+	 */
+	@JavascriptInterface
+	public void getChildrenBots(String id)
+	{
+		BotInfo mBotInfo = BotUtils.getBotInfoForBotMsisdn(message.webMetadata.getParentMsisdn());
+		try {
+			if (!TextUtils.isEmpty(id) && mBotInfo !=null)
+			{
+				String childrenBotInformation = PlatformHelper.getChildrenBots(mBotInfo.getMsisdn());
+				callbackToJS(id, childrenBotInformation);
+				return;
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		callbackToJS(id, "[]");
+	}
+
+	/**
+	 * Platform Version 12
+	 * Method to get bot information as string
+	 */
+	@JavascriptInterface
+	public void getBotInfoAsString(String id)
+	{
+		BotInfo mBotInfo = BotUtils.getBotInfoForBotMsisdn(message.webMetadata.getParentMsisdn());
+		try
+		{
+			if (!TextUtils.isEmpty(id) && mBotInfo !=null)
+			{
+				String botInformation = BotUtils.getBotInfoAsString(mBotInfo).toString();
+				callbackToJS(id, botInformation);
+				return;
+			}
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+
+		callbackToJS(id, "{}");
+	}
+
+	/**
+	 * Platform Version 12
+	 * Method to get server time offset. It will return the difference in the client and server
+	 * @param id: the id of the function that native will call to call the js .
+	 */
+	@JavascriptInterface
+	public void getServerTimeOffset(String id)
+	{
+		long offset = Utils.getServerTimeOffsetInMsec(HikeMessengerApp.getInstance().getApplicationContext());
+		callbackToJS(id, String.valueOf(offset));
 	}
 
 }

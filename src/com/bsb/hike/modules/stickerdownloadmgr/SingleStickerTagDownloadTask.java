@@ -1,5 +1,8 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
+import android.support.annotation.Nullable;
+import android.os.Bundle;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -47,7 +50,9 @@ public class SingleStickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTas
                 StickerLanguagesManager.getInstance().listToString(
                         StickerLanguagesManager.getInstance().getAccumulatedSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE,
                                 StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE)),
-                getResponseListener());
+                getResponseListener(),
+                getRequestBundle());
+
         if (requestToken.isRequestRunning())
         {
             return;
@@ -93,7 +98,7 @@ public class SingleStickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTas
             }
 
             @Override
-            public void onRequestFailure(HttpException httpException)
+            public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
             {
                 Logger.d(TAG, "response failed.");
             }
@@ -108,7 +113,8 @@ public class SingleStickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTas
         }
     }
 
-    private String getRequestId()
+    @Override
+    public String getRequestId()
     {
         return StickerConstants.StickerRequestType.SINGLE_TAG.getLabel() +"\\" + categoryId + "\\" + stickerId;
     }
@@ -124,4 +130,13 @@ public class SingleStickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTas
     public void doOnFailure(HttpException exception) {
         Logger.d(TAG, "response failed.");
     }
+
+    @Override
+	public Bundle getRequestBundle()
+	{
+		Bundle extras = new Bundle();
+		extras.putString(HikeConstants.STICKER_ID, stickerId);
+		extras.putString(HikeConstants.CATEGORY_ID, categoryId);
+		return extras;
+	}
 }

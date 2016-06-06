@@ -16,6 +16,7 @@ import android.os.Looper;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.provider.ContactsContract;
+import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -629,7 +630,7 @@ public class HikeService extends Service
 				}
 
 				@Override
-				public void onRequestFailure(HttpException httpException)
+				public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 				{
 					Logger.e(getClass().getSimpleName(), "Post device details request unsuccessful");
 					scheduleNextSendToServerAction(HikeMessengerApp.LAST_BACK_OFF_TIME_DEV_DETAILS, sendDevDetailsToServer);	
@@ -788,7 +789,7 @@ public class HikeService extends Service
 				}
 				
 				@Override
-				public void onRequestFailure(HttpException httpException)
+				public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 				{
 					Logger.d("PostInfo", "info could not be sent");
 					scheduleNextSendToServerAction(HikeMessengerApp.LAST_BACK_OFF_TIME_GREENBLUE, sendGreenBlueDetailsToServer);

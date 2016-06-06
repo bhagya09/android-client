@@ -1,14 +1,14 @@
 package com.bsb.hike.models;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.bsb.hike.view.ExplandingCells.ExpandableListItem;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.utils.PairModified;
 
-public abstract class ProfileItem
-{
+import java.util.ArrayList;
+import java.util.List;
 
+public abstract class ProfileItem extends ExpandableListItem
+{
 	public static final int HEADER_ID = -1;
 
 	public static final int EMPTY_ID = -2;
@@ -30,12 +30,19 @@ public abstract class ProfileItem
 	
 	public static final int GROUP_RIGHTS_INFO = -13;
 
+	public static final int PRIVACY_SECTION = -14;
+
 	private int itemId;
-	
+
+	public void setText(Object text) {
+		this.text = text;
+	}
+
 	private Object text;
 
 	public ProfileItem(int itemId, Object text)
 	{
+		super(-1);
 		this.itemId = itemId;
 		if(text != null)
 			this.text = text;
@@ -50,6 +57,8 @@ public abstract class ProfileItem
 	{
 		return text;
 	}
+
+
 
 	public static class ProfileStatusItem extends ProfileItem
 	{
@@ -262,6 +271,22 @@ public abstract class ProfileItem
 		private int unreadPinCount; 
 		private String text;
 		private boolean shouldAnimatePin;
+	}
+
+	public static class ProfilePrivacyItem extends ProfileItem
+	{
+		public ProfilePrivacyItem(int itemId, Object data)
+		{
+			super(itemId, data);
+		}
+
+		public void setFtueShown(boolean data) {
+			super.setText(data);
+		}
+
+		public boolean getFtueShown() {
+			return (boolean)super.getText();
+		}
 	}
 	
 }

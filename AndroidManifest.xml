@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1718"
-    android:versionName="4.2.6.82.103.8.new_home" >
+    android:versionCode="1765"
+    android:versionName="4.2.7.83.100" >
 
    <uses-sdk
         android:minSdkVersion="14"
@@ -124,6 +124,15 @@
         android:logo="@drawable/hike_logo_top_bar"
         tools:replace="android:name,android:allowBackup"
         android:theme="@style/AppTheme" >
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="com.bsb.hike.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_provider_paths" />
+        </provider>
         <uses-library
             android:name="com.google.android.maps"
             android:required="false" />
@@ -245,6 +254,7 @@
         </activity>
         <activity
             android:name=".ui.ProfileActivity"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
             android:windowSoftInputMode="stateHidden"
             android:theme="@style/AppTheme.Overlay" >
             <intent-filter android:label="@string/set_profile_pic" >
@@ -393,6 +403,11 @@
             android:theme="@style/AppTheme.ChatThread" >
         </activity>
         <activity
+            android:name=".ui.MessageInfoActivity"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
+            android:theme="@style/AppTheme.ChatThread" >
+        </activity>
+        <activity
             android:name=".voip.view.CallRateActivity"
             android:launchMode="singleTop"
             android:theme="@style/TranslucentBlack" >
@@ -440,6 +455,27 @@
                     android:host="hike.in"
                     android:pathPrefix="/"
                     android:scheme="https" />
+                 <data
+                     android:host="www.hike.in"
+                     android:pathPrefix="/"
+                     android:scheme="http" />
+                 <!-- Accepts URIs that begin with "https://hike.in/” -->
+                 <data
+                     android:host="www.hike.in"
+                     android:pathPrefix="/"
+                     android:scheme="https" />
+                 <data
+                     android:host="bots"
+                     android:pathPrefix="/"
+                     android:scheme="hike" />
+                 <data
+                     android:host="channel"
+                     android:pathPrefix="/"
+                     android:scheme="hike" />
+                 <data
+                     android:host="send"
+                     android:pathPrefix="/"
+                     android:scheme="hike" />
             </intent-filter>
         </activity>
 
@@ -645,6 +681,13 @@
         <service
             android:name="com.hike.abtest.UpdateExperimentService"
             android:exported="false" />
+
+        <receiver
+            android:name=".notifications.UJNotifClickReceiver">
+            <intent-filter>
+                <action android:name="com.bsb.hike.UJ_NOTIF_ACTION_INTENT" />
+            </intent-filter>
+        </receiver>
 </application>
 
 </manifest>

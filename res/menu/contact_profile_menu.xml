@@ -13,6 +13,11 @@
                 app:showAsAction="never"
                 android:title="@string/unfriend"
                 android:visible="true"/>
+            <item
+                android:id="@+id/mute_chat"
+                android:showAsAction="always"
+                android:title="@string/mute_chat"
+                android:visible="true"/>
         </menu>
     </item>
 

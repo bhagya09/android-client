@@ -1,5 +1,8 @@
 package com.bsb.hike.tasks;
 
+import android.support.annotation.Nullable;
+import android.os.Bundle;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.bots.BotUtils;
@@ -113,6 +116,16 @@ public class FetchHikeUIDTaskForUpgrade implements IHikeHTTPTask, IHikeHttpTaskR
     }
 
     @Override
+    public Bundle getRequestBundle() {
+        return null;
+    }
+
+    @Override
+    public String getRequestId() {
+        return null;
+    }
+
+    @Override
     public void doOnSuccess(Object result) {
         Set<FetchUIDTaskPojo> addressBookContacts = null, botsContact = null, activeChats = null;
 
@@ -150,7 +163,7 @@ public class FetchHikeUIDTaskForUpgrade implements IHikeHTTPTask, IHikeHttpTaskR
     }
 
     @Override
-    public void onRequestFailure(HttpException httpException) {
+    public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException) {
         doOnFailure(httpException);
 
     }

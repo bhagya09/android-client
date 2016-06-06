@@ -5,6 +5,7 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.LastSeenRequest
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
@@ -108,7 +109,7 @@ public class FetchLastSeenTask
 			}
 
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 				Logger.e(TAG, "exception : ", httpException);
 			}

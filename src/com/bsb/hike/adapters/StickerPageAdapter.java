@@ -1,6 +1,8 @@
 package com.bsb.hike.adapters;
 
 import android.content.Context;
+import android.content.Intent;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -13,11 +15,13 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.media.StickerPickerListener;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.models.StickerPageAdapterItem;
+import com.bsb.hike.modules.quickstickersuggestions.model.QuickSuggestionStickerCategory;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
 import com.bsb.hike.smartImageLoader.StickerLoader;
@@ -55,6 +59,8 @@ public class StickerPageAdapter extends BaseAdapter implements OnClickListener
 	private StickerPickerListener mStickerPickerListener;
 	
 	AbsListView absListView;
+
+	private boolean qsFtueCategory;
 	
 	public StickerPageAdapter(Context context, List<StickerPageAdapterItem> itemList, StickerCategory category, StickerLoader worker, AbsListView absListView, StickerPickerListener listener )
 	{
@@ -293,7 +299,7 @@ public class StickerPageAdapter extends BaseAdapter implements OnClickListener
 		{
 		case StickerPageAdapterItem.STICKER:
 			Sticker sticker = item.getSticker();
-			String source = category.isCustom() ? StickerManager.FROM_RECENT : StickerManager.FROM_OTHER;
+			String source = getSourceOfSticker();
 			mStickerPickerListener.stickerSelected(sticker, source);
 
 			/* In case sticker is clicked on the recents screen, don't update the UI or recents list. Also if this sticker is disabled don't update the recents UI */
@@ -301,6 +307,7 @@ public class StickerPageAdapter extends BaseAdapter implements OnClickListener
 			{
 				StickerManager.getInstance().addRecentStickerToPallete(sticker);	
 			}
+			sendBroadcastIfQsFtue();
 			break;
 		case StickerPageAdapterItem.UPDATE:
 			initialiseDownloadStickerTask(DownloadSource.X_MORE);
@@ -352,5 +359,32 @@ public class StickerPageAdapter extends BaseAdapter implements OnClickListener
 		
 		ImageView tickImage;
 	}
-	
+
+	private String getSourceOfSticker()
+	{
+		switch (category.getCategoryId())
+		{
+			case StickerManager.RECENT:
+				return StickerManager.FROM_RECENT;
+			case StickerManager.QUICK_SUGGESTIONS:
+				QuickSuggestionStickerCategory quickSuggestionStickerCategory = (QuickSuggestionStickerCategory) category;
+				return (quickSuggestionStickerCategory.isShowReplyStickers() ? StickerManager.FROM_QR : StickerManager.FROM_QF) + HikeConstants.SEPARATOR +
+			quickSuggestionStickerCategory.getQuickSuggestSticker().getStickerCode();
+			default:
+				return StickerManager.FROM_OTHER;
+		}
+	}
+
+	public void setQsFtueCatgeory(boolean qsFtueCategory)
+	{
+		this.qsFtueCategory = qsFtueCategory;
+	}
+
+	private void sendBroadcastIfQsFtue()
+	{
+		if(qsFtueCategory)
+		{
+			LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(StickerManager.QUICK_STICKER_SUGGESTION_FTUE_STICKER_CLICKED));
+		}
+	}
 }

@@ -6,9 +6,7 @@ import java.net.URLDecoder;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URLEncodedUtils;
-import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,6 +21,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
@@ -484,7 +483,7 @@ public class HikeAuthActivity extends Activity
 					{
 						if (responseData.has("error"))
 						{
-							onRequestFailure(null);
+							onRequestFailure(null , null);
 							return;
 						}
 						String expiresIn = responseData.getString("expires_in");
@@ -505,14 +504,14 @@ public class HikeAuthActivity extends Activity
 					}
 					else
 					{
-						onRequestFailure(null);
+						onRequestFailure(null, null);
 						return;
 					}
 				}
 				catch (JSONException e)
 				{
 					e.printStackTrace();
-					onRequestFailure(null);
+					onRequestFailure(null, null);
 					return;
 				}
 				
@@ -525,7 +524,7 @@ public class HikeAuthActivity extends Activity
 			}
 			
 			@Override
-			public void onRequestFailure(HttpException httpException)
+			public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
 			{
 				Logger.d(HikeAuthActivity.class.getCanonicalName(), "on task failed");
 

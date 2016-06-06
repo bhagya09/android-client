@@ -1,19 +1,19 @@
 package com.bsb.hike.modules.httpmgr.engine;
 
-import static com.bsb.hike.modules.httpmgr.engine.HttpEngineConstants.CORE_POOL_SIZE;
-import static com.bsb.hike.modules.httpmgr.request.Request.REQUEST_TYPE_LONG;
-import static com.bsb.hike.modules.httpmgr.request.Request.REQUEST_TYPE_SHORT;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.PriorityQueue;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import android.util.Pair;
 
 import com.bsb.hike.modules.httpmgr.log.LogFull;
 import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.modules.httpmgr.request.RequestCall;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static com.bsb.hike.modules.httpmgr.engine.HttpEngineConstants.CORE_POOL_SIZE;
+import static com.bsb.hike.modules.httpmgr.request.Request.REQUEST_TYPE_LONG;
+import static com.bsb.hike.modules.httpmgr.request.Request.REQUEST_TYPE_SHORT;
 
 /**
  * This class is used to maintain to ordering of the requests in two queues one is short queue for short running requests and other is long queue for long running requests
@@ -23,9 +23,9 @@ import com.bsb.hike.modules.httpmgr.request.RequestCall;
  */
 public class HttpQueue
 {
-	private PriorityQueue<RequestCall> shortQueue;
+	private PriorityBlockingQueue<RequestCall> shortQueue;
 
-	private PriorityQueue<RequestCall> longQueue;
+	private PriorityBlockingQueue<RequestCall> longQueue;
 
 	private volatile AtomicInteger numShortRunningCalls = new AtomicInteger(0);
 
@@ -36,10 +36,10 @@ public class HttpQueue
 	HttpQueue()
 	{
 		// Priority Queue used for storing short requests submitted to the engine
-		shortQueue = new PriorityQueue<RequestCall>();
+		shortQueue = new PriorityBlockingQueue<>();
 
 		// Priority Queue used for storing long requests submitted to engine
-		longQueue = new PriorityQueue<RequestCall>();
+		longQueue = new PriorityBlockingQueue<>();
 	}
 
 	/**
@@ -125,9 +125,9 @@ public class HttpQueue
 			if (executerType == HttpEngine.SHORT_EXECUTER)
 			{
 				// short queue has some tasks, fetch and return it to engine to be executed on short executer
-				if (shortQueue.size() > 0)
+				call = shortQueue.poll();
+				if (call != null)
 				{
-					call = shortQueue.poll();
 					if (!call.isCancelled())
 					{
 						nextCall = call;
@@ -146,9 +146,9 @@ public class HttpQueue
 			else
 			{
 				// long queue has some tasks, fetch and return it to engine to be executed on long executer
-				if (longQueue.size() > 0)
+				call = longQueue.poll();
+				if (call != null)
 				{
-					call = longQueue.poll();
 					if (!call.isCancelled())
 					{
 						nextCall = call;
@@ -160,9 +160,9 @@ public class HttpQueue
 				{
 					// long queue is empty. poll short queue
 					// short queue has some tasks, fetch and return it to engine to be executed on long executer
-					if (shortQueue.size() > 0)
+					call = shortQueue.poll();
+					if (call != null)
 					{
-						call = shortQueue.poll();
 						if (!call.isCancelled())
 						{
 							nextCall = call;
@@ -242,7 +242,7 @@ public class HttpQueue
 		}
 	}
 
-	private void changePriority(PriorityQueue<RequestCall> queue, RequestCall call)
+	private void changePriority(PriorityBlockingQueue<RequestCall> queue, RequestCall call)
 	{
 		List<RequestCall> requestCallsList = new ArrayList<RequestCall>();
 

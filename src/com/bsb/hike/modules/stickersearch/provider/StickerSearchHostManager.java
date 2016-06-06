@@ -13,6 +13,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
+import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.datamodel.StickerAppositeDataContainer;
 import com.bsb.hike.modules.stickersearch.datamodel.Word;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility.TextMatchManager;
@@ -938,6 +939,8 @@ public class StickerSearchHostManager
 					clickedPhrase = results.first;
 					stickers = results.second;
 				}
+
+                StickerSearchManager.getInstance().logStickerSearchReport(currentString, stickers, null, -1);
 
 				Logger.d(TAG, "onClickToShowRecommendedStickers(), Fetched stickers (effective clicked word index = " + effectiveClickedWordIndex + "): " + stickers);
 				break;

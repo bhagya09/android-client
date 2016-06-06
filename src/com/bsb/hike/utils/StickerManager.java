@@ -7,6 +7,7 @@ import android.content.SharedPreferences.Editor;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
@@ -41,18 +42,23 @@ import com.bsb.hike.modules.stickerdownloadmgr.FetchCategoryRanksTask;
 import com.bsb.hike.modules.stickerdownloadmgr.DefaultTagDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.FetchCategoryMetadataTask;
 import com.bsb.hike.modules.stickerdownloadmgr.FetchCategoryTagDataTask;
+import com.bsb.hike.modules.stickerdownloadmgr.FetchShopPackDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.MultiStickerDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.MultiStickerImageDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.MultiStickerQuickSuggestionDownloadTask;
+import com.bsb.hike.modules.stickerdownloadmgr.ParameterMappingDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerQuickSuggestionDownloadTask;
+import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerTagDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerCategoryDataUpdateTask;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerCategoryDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerPreviewImageDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerSignupUpgradeDownloadTask;
+import com.bsb.hike.modules.stickerdownloadmgr.UserParameterDownloadTask;
 import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
@@ -140,7 +146,11 @@ public class StickerManager
 
 	public static final String STICKER_PREVIEW_DOWNLOADED = "stickerPreviewDownloaded";
 
-	public static final String QUICK_STICKER_SUGGESTION_FETCHED = "quickStickerSuggestionFetched";
+	public static final String QUICK_STICKER_SUGGESTION_FETCH_SUCCESS = "quickStickerSuggestionFetchSuccess";
+
+	public static final String QUICK_STICKER_SUGGESTION_FETCH_FAILED = "quickStickerSuggestionFetchFailed";
+
+	public static final String QUICK_STICKER_SUGGESTION_FTUE_STICKER_CLICKED = "quickStickerSuggestionFtueStickerClicked";
 
 	public static final String ADD_NO_MEDIA_FILE_FOR_STICKERS = "addNoMediaFileForStickers";
 
@@ -234,11 +244,9 @@ public class StickerManager
 
 	public static final String PERCENTAGE = "percentage";
 
-	public static final String LAST_STICKER_SHOP_UPDATE_TIME = "lastStickerShopUpdateTime";
-
 	public static final String STICKER_SHOP_DATA_FULLY_FETCHED = "stickerShopDataFullyFetched";
 
-	public static final long STICKER_SHOP_REFRESH_TIME = 24 * 60 * 60 * 1000;
+	public static final String STICKER_SHOP_RANK_FULLY_FETCHED = "stickerShopRankFullyFetched";
 
 	public static final String SEND_SOURCE = "source";
 
@@ -253,6 +261,10 @@ public class StickerManager
 	public static final String FROM_STICKER_RECOMMENDATION_FTUE = "ft";
 
 	public static final String FROM_OTHER = "o";
+
+	public static final String FROM_QR = "qr";
+
+	public static final String FROM_QF = "qf";
 
 	public static final String REJECT_FROM_CROSS = "crs";
 
@@ -288,7 +300,9 @@ public class StickerManager
 
 	public static final int INDEX_INFO_BOUND = 2;
 
-    public static final String STICKER_TYPE = "s_t";
+	public static final int SHOP_PAGE_SIZE = 100;
+
+	public static final String STICKER_TYPE = "s_t";
 
 	private final Map<String, StickerCategory> stickerCategoriesMap;
 
@@ -372,6 +386,13 @@ public class StickerManager
 			settings.edit().putBoolean(StickerManager.STICKER_FOLDER_NAMES_UPGRADE_DONE, true).commit();
 		}
 
+		if (!HikeSharedPreferenceUtil.getInstance().getData(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, false))
+		{
+			resetSignupUpgradeCallPreference();
+			HikeConversationsDatabase.getInstance().markAllCategoriesAsDownloaded();
+			HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, true);
+		}
+
 		setupStickerCategoryList();
 
 		if (!settings.getBoolean(StickerManager.ADD_NO_MEDIA_FILE_FOR_STICKERS, false))
@@ -416,6 +437,10 @@ public class StickerManager
 		doUpgradeTasks();
 
 		initiateFetchCategoryRanksAndDataTask();
+
+		QuickStickerSuggestionController.getInstance().retryFailedQuickSuggestions();
+
+		makeCallForUserParameters();
 }
 
 	public void fetchCategoryMetadataTask(List<StickerCategory> list)
@@ -429,21 +454,26 @@ public class StickerManager
 
 	public void initiateFetchCategoryRanksAndDataTask()
 	{
+		initiateFetchCategoryRanksAndDataTask(0, false);
+	}
+
+	public void initiateFetchCategoryRanksAndDataTask(final int offset, final boolean fetchRankForced)
+	{
 		if(!Utils.isUserSignedUp(HikeMessengerApp.getInstance(), false) || Utils.isUpgradeIntentServiceRunning())
 		{
 			Logger.d(TAG, "user not signed up or user is upgrading");
 			return;
 		}
-
 		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
 		{
 			@Override
 			public void run()
 			{
-				if ((System.currentTimeMillis() - HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_SHOP_RANK_TIMESTAMP, 0L)) > HikeConstants.ONE_DAY_MILLS)
+				boolean isMoreThanDay = (System.currentTimeMillis()
+						- HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_SHOP_RANK_TIMESTAMP, 0L)) > HikeConstants.ONE_DAY_MILLS;
+				if (isMoreThanDay || (fetchRankForced && !HikeSharedPreferenceUtil.getInstance().getData(StickerManager.STICKER_SHOP_RANK_FULLY_FETCHED, false)))
 				{
-					FetchCategoryRanksTask fetchCategoryRanksTask = new FetchCategoryRanksTask();
-					fetchCategoryRanksTask.execute();
+					executeFetchCategoryRankTask(isMoreThanDay, offset);
 				}
 				else
 				{
@@ -453,7 +483,22 @@ public class StickerManager
 		});
 	}
 
-    public void fetchCategoryTagdataTask(List<CategoryTagData> list)
+	private void executeFetchCategoryRankTask(boolean isMoreThanDay, int offset)
+	{
+		if (isMoreThanDay)
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ALREDAY_FETCHED_CATEGORIES_RANK_LIMIT, 0);
+		}
+		else
+		{
+			int alreadyFetchedCategoriesLimit = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ALREDAY_FETCHED_CATEGORIES_RANK_LIMIT, 0);
+			offset = alreadyFetchedCategoriesLimit > offset ? alreadyFetchedCategoriesLimit : offset;
+		}
+		FetchCategoryRanksTask fetchCategoryRanksTask = new FetchCategoryRanksTask(offset);
+		fetchCategoryRanksTask.execute();
+	}
+
+	public void fetchCategoryTagdataTask(List<CategoryTagData> list)
     {
         if (!Utils.isEmpty(list))
         {
@@ -581,7 +626,14 @@ public class StickerManager
 			}
 			else if (directory.isDirectory())
 			{
-				for (File file : directory.listFiles())
+				File[] files = directory.listFiles();
+
+				if(files == null)
+				{
+					return ;
+				}
+
+				for (File file : files)
 				{
 					addNoMedia(file);
 				}
@@ -1050,7 +1102,14 @@ public class StickerManager
 
 		Map<String, StickerCategory> stickerToCategoryMap = new HashMap<String, StickerCategory>();
 
-		for (File stickerCategoryDirectory : stickerRootDirectory.listFiles())
+		File[] stickerRootFiles = stickerRootDirectory.listFiles();
+
+		if (stickerRootFiles == null)
+		{
+			return null;
+		}
+
+		for (File stickerCategoryDirectory : stickerRootFiles)
 		{
 			/*
 			 * If this is not a directory we have no need for this file.
@@ -1074,7 +1133,14 @@ public class StickerManager
 			{
 				stickerCategory = new StickerCategory.Builder().setCategoryId(stickerCategoryDirectory.getName()).build();
 			}
-			for (File stickerFile : stickerCategorySmallDirectory.listFiles())
+			File[] smallDirFiles = stickerCategorySmallDirectory.listFiles();
+
+			if (smallDirFiles == null)
+			{
+				continue;
+			}
+
+			for (File stickerFile : smallDirFiles)
 			{
 				stickerToCategoryMap.put(stickerFile.getName(), stickerCategory);
 			}
@@ -1671,20 +1737,36 @@ public class StickerManager
 
 	public void initiateSingleStickerDownloadTask(String stickerId, String categoryId, ConvMessage convMessage)
 	{
-		SingleStickerDownloadTask singleStickerDownloadTask = new SingleStickerDownloadTask(stickerId, categoryId, convMessage, HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SINGLE_STICKER_CDN, true));
+		initiateSingleStickerDownloadTask(stickerId, categoryId, convMessage, false);
+	}
+
+	public void initiateSingleStickerDownloadTask(String stickerId, String categoryId, ConvMessage convMessage, boolean isMini)
+	{
+		SingleStickerDownloadTask singleStickerDownloadTask = new SingleStickerDownloadTask(stickerId, categoryId, convMessage, isMini);
 		singleStickerDownloadTask.execute();
 	}
 
-	public void initiateMiniStickerDownloadTask(String stickerId,String categoryId)
+	public void initiateMiniStickerDownloadTask(String stickerId, String categoryId)
 	{
-		SingleStickerDownloadTask singleStickerDownloadTask = new SingleStickerDownloadTask(stickerId, categoryId, null,true,true);
-		singleStickerDownloadTask.execute();
+		initiateSingleStickerDownloadTask(stickerId, categoryId, null, true);
+	}
+
+	public void initiateSingleStickerTagDownloadTask(String stickerId, String categoryId)
+	{
+		SingleStickerTagDownloadTask singleStickerTagDownloadTask = new SingleStickerTagDownloadTask(stickerId, categoryId);
+		singleStickerTagDownloadTask.execute();
 	}
 
 	public void initialiseDownloadStickerPackTask(StickerCategory category, JSONObject bodyJson)
 	{
 		DownloadType downloadType = category.isUpdateAvailable() ? DownloadType.UPDATE : DownloadType.MORE_STICKERS;
 		initialiseDownloadStickerPackTask(category, downloadType, bodyJson);
+	}
+
+	public void initialiseCategoryDetailsTask(String categoryId)
+	{
+		StickerCategoryDownloadTask stickerCategoryDownloadTask = new StickerCategoryDownloadTask(categoryId);
+		stickerCategoryDownloadTask.execute();
 	}
 
 	public void initialiseDownloadStickerPackTask(StickerCategory category, DownloadType downloadType, JSONObject bodyJson)
@@ -1838,21 +1920,9 @@ public class StickerManager
 		HikeConversationsDatabase.getInstance().insertInToStickerCategoriesTable(category);
 	}
 
-	public boolean stickerShopUpdateNeeded()
-	{
-		long lastUpdateTime = HikeSharedPreferenceUtil.getInstance().getData(LAST_STICKER_SHOP_UPDATE_TIME, 0L);
-		boolean updateNeeded = (lastUpdateTime + STICKER_SHOP_REFRESH_TIME) < System.currentTimeMillis();
-
-		if (updateNeeded && HikeSharedPreferenceUtil.getInstance().getData(STICKER_SHOP_DATA_FULLY_FETCHED, true))
-		{
-			HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.STICKER_SHOP_DATA_FULLY_FETCHED, false);
-		}
-		return lastUpdateTime + STICKER_SHOP_REFRESH_TIME < System.currentTimeMillis();
-	}
-
 	public boolean moreDataAvailableForStickerShop()
 	{
-		return !HikeSharedPreferenceUtil.getInstance().getData(STICKER_SHOP_DATA_FULLY_FETCHED, true);
+		return !HikeSharedPreferenceUtil.getInstance().getData(STICKER_SHOP_DATA_FULLY_FETCHED, false);
 	}
 
 	public boolean isMinimumMemoryAvailable()
@@ -2533,7 +2603,7 @@ public class StickerManager
 		sendEmoticonUsageAnalytics();
 		sendStickerPackAndOrderListForAnalytics();
 		CategorySearchManager.sendSearchedCategoryDailyReport();
-		StickerSearchManager.getInstance().sendStickerRecommendationAccuracyAnalytics();
+		StickerSearchManager.getInstance().sendStickerSearchDailyAnalytics();
 	}
 
 	/**
@@ -2546,46 +2616,55 @@ public class StickerManager
 			/*
 			 * TO DO Unification of all events, which needs to run only once in a day
 			 */
-			long lastPackAndOrderingSentTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.LAST_STICKER_PACK_AND_ORDERING_SENT_TIME, 0L);
 			long currentTime = System.currentTimeMillis();
 
-			if ((currentTime - lastPackAndOrderingSentTime) >= 24 * 60 * 60 * 1000) // greater than one day
+			String categoriesViewed = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.VIEWED_IN_PALLETE_CATEGORY_LIST, "");
+			JSONObject catList = (TextUtils.isEmpty(categoriesViewed)) ? new JSONObject() : new JSONObject(categoriesViewed);
+
+			List<StickerCategory> stickerCategories = getMyStickerCategoryList();
+
+			if (Utils.isEmpty(stickerCategories))
 			{
-				List<StickerCategory> stickerCategories = getMyStickerCategoryList();
-
-				if (Utils.isEmpty(stickerCategories))
-				{
-					return;
-				}
-
-				JSONArray stickerPackAndOrderList = new JSONArray();
-
-				for (StickerCategory stickerCategory : stickerCategories)
-				{
-					int index;
-					if (stickerCategory.isVisible())
-					{
-						index = stickerCategory.getCategoryIndex();
-					}
-					else
-					{
-						index = -1;
-					}
-					stickerPackAndOrderList.put(stickerCategory.getCategoryId() + STRING_DELIMETER + index);
-				}
-
-				JSONObject metadata = new JSONObject();
-				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.PACK_DATA_ANALYTIC_EVENT);
-				metadata.put(HikeConstants.NUMBER_OF_PACKS, stickerCategories.size());
-				metadata.put(HikeConstants.PACK_DATA, stickerPackAndOrderList);
-				metadata.put(
-						HikeConstants.KEYBOARD_LIST,
-						new JSONArray(StickerLanguagesManager.getInstance().getAccumulatedSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE,
-								StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE)));
-
-				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LAST_STICKER_PACK_AND_ORDERING_SENT_TIME, currentTime);
+				return;
 			}
+
+			JSONArray stickerPackAndOrderList = new JSONArray();
+
+			for (StickerCategory stickerCategory : stickerCategories)
+			{
+				int index;
+				if (stickerCategory.isVisible())
+				{
+					index = stickerCategory.getCategoryIndex();
+				}
+				else
+				{
+					index = -1;
+				}
+
+				int scrollVisibilityMagnitude = 0, tapVisibilityMagnitude = 0;
+				if (catList.has(stickerCategory.getCategoryId()))
+				{
+					JSONObject categoryVisibility = catList.getJSONObject(stickerCategory.getCategoryId());
+					scrollVisibilityMagnitude = categoryVisibility.optInt(HikeConstants.SCROLL_COUNT);
+					tapVisibilityMagnitude = categoryVisibility.optInt(HikeConstants.CLICK_COUNT);
+				}
+
+				stickerPackAndOrderList.put(stickerCategory.getCategoryId() + STRING_DELIMETER + index + STRING_DELIMETER + scrollVisibilityMagnitude + STRING_DELIMETER + tapVisibilityMagnitude);
+			}
+
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.PACK_DATA_ANALYTIC_EVENT);
+			metadata.put(HikeConstants.NUMBER_OF_PACKS, stickerCategories.size());
+			metadata.put(HikeConstants.PACK_DATA, stickerPackAndOrderList);
+			metadata.put(
+					HikeConstants.KEYBOARD_LIST,
+					new JSONArray(StickerLanguagesManager.getInstance().getAccumulatedSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE,
+							StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE)));
+
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LAST_STICKER_PACK_AND_ORDERING_SENT_TIME, currentTime);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.VIEWED_IN_PALLETE_CATEGORY_LIST, "");
 		}
 		catch (JSONException e)
 		{
@@ -3018,11 +3097,6 @@ public class StickerManager
 	{
 		Logger.d(TAG, "Toggling SR enable status to " + state);
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, state);
-	}
-
-	public void resetStickerShopLastUpdateTime()
-	{
-		HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.LAST_STICKER_SHOP_UPDATE_TIME, 0l);
 	}
 
 	public void resetSignupUpgradeCallPreference()
@@ -3862,6 +3936,12 @@ public class StickerManager
 		setupStickerCategoryList(); //Set up the sticker category list again
 	}
 
+	public void executeFetchShopPackTask(int limit)
+	{
+		FetchShopPackDownloadTask fetchShopPackDownloadTask = new FetchShopPackDownloadTask(limit);
+		fetchShopPackDownloadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+	}
+
 	public void recordStickerMigrationFailure(String errorString)
 	{
 		try
@@ -3891,9 +3971,106 @@ public class StickerManager
 		HikeHandlerUtil.getInstance().postRunnable(new FetchForAllStickerQuickSuggestionTask());
 	}
 
+	public boolean isRecentCategory(String categotyId)
+	{
+		return (TextUtils.isEmpty(categotyId) || !categotyId.equalsIgnoreCase(RECENT)) ? false : true;
+	}
+
 	public boolean isQuickSuggestionCategory(String categotyId)
 	{
 		return (TextUtils.isEmpty(categotyId) || !categotyId.equalsIgnoreCase(QUICK_SUGGESTIONS)) ? false : true;
+	}
+
+	public void sendStickerClickedLogs(final ConvMessage convMessage, final int type)
+	{
+        if(convMessage == null)
+        {
+            return;
+        }
+
+		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+                Sticker sticker = convMessage.getMetadata().getSticker();
+                boolean isSent = convMessage.isSent();
+
+
+                try
+				{
+					JSONObject metadata = new JSONObject();
+					metadata.put(AnalyticsConstants.V2.GENUS, sticker.getCategoryId());
+					metadata.put(AnalyticsConstants.V2.SPECIES, sticker.getStickerId());
+					metadata.put(AnalyticsConstants.V2.SOURCE, convMessage.isOneToNChat() ? HikeConstants.GROUP_CONVERSATION : HikeConstants.ONE_TO_ONE_CONVERSATION);
+					metadata.put(AnalyticsConstants.V2.FROM_USER, convMessage.getSenderMsisdn());
+					metadata.put(AnalyticsConstants.V2.TO_USER, convMessage.getMsisdn());
+					metadata.put(AnalyticsConstants.TYPE, type);
+					metadata.put(AnalyticsConstants.V2.FORM, isSent);
+					sendStickerClickedLogs(metadata);
+				}
+				catch (JSONException e)
+				{
+					Logger.e(TAG, "sendStickerClickedLogs() : Exception while parsing JSON");
+				}
+			}
+		});
+	}
+
+	public void sendStickerClickedLogs(final JSONObject clickedStickerMetadata)
+	{
+		if (clickedStickerMetadata == null)
+		{
+			return;
+		}
+
+		try
+		{
+			clickedStickerMetadata.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_STICKER_LOGS);
+			clickedStickerMetadata.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			clickedStickerMetadata.put(AnalyticsConstants.V2.UNIQUE_KEY, HikeConstants.LogEvent.STICKER_CLICKED);
+			clickedStickerMetadata.put(AnalyticsConstants.V2.ORDER, HikeConstants.LogEvent.STICKER_CLICKED);
+			clickedStickerMetadata.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
+			HAManager.getInstance().recordV2(clickedStickerMetadata);
+		}
+		catch (JSONException e)
+		{
+			Logger.e(TAG, "sendStickerClickedLogs() : Exception while parsing JSON");
+		}
+	}
+
+	public void logCategoryPalleteVisibilityAnalytics(final StickerCategory category, final boolean selectedByTap)
+	{
+		if (category == null)
+		{
+			return;
+		}
+
+		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				String categoriesViewed = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.VIEWED_IN_PALLETE_CATEGORY_LIST, "");
+
+				try
+				{
+					JSONObject catList = (TextUtils.isEmpty(categoriesViewed)) ? new JSONObject() : new JSONObject(categoriesViewed);
+					JSONObject categoryVisibility = catList.has(category.getCategoryId()) ? catList.getJSONObject(category.getCategoryId()) : new JSONObject();
+
+					String visibilitySrc = selectedByTap ? HikeConstants.CLICK_COUNT : HikeConstants.SCROLL_COUNT;
+
+					categoryVisibility.put(visibilitySrc, (categoryVisibility.optInt(visibilitySrc, 0) + 1));
+					catList.put(category.getCategoryId(), categoryVisibility);
+
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.VIEWED_IN_PALLETE_CATEGORY_LIST, catList.toString());
+				}
+				catch (JSONException e)
+				{
+					Logger.e(TAG, "sendStickerClickedLogs() : Exception while parsing JSON");
+				}
+			}
+		});
 	}
 
 	public void recordStickerMigrationSuccess(String successString)
@@ -3904,7 +4081,7 @@ public class StickerManager
 			json.put(AnalyticsConstants.V2.UNIQUE_KEY, "backup");
 			json.put(AnalyticsConstants.V2.KINGDOM, "act_hs");
 			json.put(AnalyticsConstants.V2.ORDER, "stk_rstr_success");
-			if(!TextUtils.isEmpty(successString))
+			if (!TextUtils.isEmpty(successString))
 			{
 				json.put(AnalyticsConstants.V2.GENUS, successString);
 			}
@@ -3914,5 +4091,44 @@ public class StickerManager
 		{
 			e.printStackTrace();
 		}
+	}
+
+	public void addQuickSuggestionCategoryToMap(StickerCategory stickerCategory)
+	{
+		stickerCategoriesMap.put(stickerCategory.getCategoryId(), stickerCategory);
+	}
+
+	public void removeQuickSuggestionCategoryFromMap(String catId)
+	{
+		stickerCategoriesMap.remove(catId);
+	}
+
+	public void makeCallForUserParameters()
+	{
+		long lastUserParametersFetchTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.LAST_USER_PARAMETER_FETCH_TIME, 0L);
+		long lastParameterMappingFetchTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.LAST_PARAMETER_MAPPING_FETCH_TIME, 0L);
+		long refreshPeriod = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.USER_PARAMTER_REFRESH_PERIOD, 7 * HikeConstants.ONE_DAY_MILLS);
+
+		if((System.currentTimeMillis() - lastUserParametersFetchTime) >= refreshPeriod)
+		{
+			initiateUserParameterDownloadTask();
+		}
+
+		if((System.currentTimeMillis() - lastParameterMappingFetchTime) >= refreshPeriod)
+		{
+			initiateParameterMappingDownloadTask();
+		}
+	}
+
+	public void initiateUserParameterDownloadTask()
+	{
+		UserParameterDownloadTask userParameterDownloadTask = new UserParameterDownloadTask();
+		userParameterDownloadTask.execute();
+	}
+
+	public void initiateParameterMappingDownloadTask()
+	{
+		ParameterMappingDownloadTask parameterMappingDownloadTask = new ParameterMappingDownloadTask();
+		parameterMappingDownloadTask.execute();
 	}
 }

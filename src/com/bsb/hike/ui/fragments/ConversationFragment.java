@@ -61,14 +61,13 @@ import com.bsb.hike.adapters.EmptyConversationsAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.backup.AccountBackupRestore;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.MessagingBotConfiguration;
 import com.bsb.hike.bots.MessagingBotMetadata;
 import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
-import com.bsb.hike.backup.AccountBackupRestore;
-import com.bsb.hike.chatthread.ChatThread;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.CustomAlertDialog;
@@ -88,6 +87,7 @@ import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.models.EmptyConversationContactItem;
 import com.bsb.hike.models.EmptyConversationFtueCardItem;
 import com.bsb.hike.models.EmptyConversationItem;
+import com.bsb.hike.models.Mute;
 import com.bsb.hike.models.NUXChatReward;
 import com.bsb.hike.models.NUXTaskDetails;
 import com.bsb.hike.models.NuxSelectFriends;
@@ -109,6 +109,7 @@ import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.fragments.OfflineDisconnectFragment.OfflineConnectionRequestListener;
+import com.bsb.hike.ui.utils.LockPattern;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
@@ -134,7 +135,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import com.bsb.hike.ui.utils.LockPattern;
 
 public class ConversationFragment extends ListFragment implements OnItemLongClickListener, Listener, OnScrollListener, HikeFragmentable, OnClickListener,
 		ConversationTipClickedListener, FilterListener
@@ -146,7 +146,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.ONETON_MESSAGE_DELIVERED_READ, HikePubSub.BULK_MESSAGE_DELIVERED_READ, HikePubSub.GROUP_END, HikePubSub.CONTACT_DELETED,
 			HikePubSub.MULTI_MESSAGE_DB_INSERTED, HikePubSub.SERVER_RECEIVED_MULTI_MSG, HikePubSub.MUTE_CONVERSATION_TOGGLED, HikePubSub.CONV_UNREAD_COUNT_MODIFIED,
 			HikePubSub.CONVERSATION_TS_UPDATED, HikePubSub.PARTICIPANT_JOINED_ONETONCONV, HikePubSub.PARTICIPANT_LEFT_ONETONCONV, HikePubSub.BLOCK_USER, HikePubSub.UNBLOCK_USER,
-			HikePubSub.MUTE_BOT, HikePubSub.CONVERSATION_DELETED, HikePubSub.DELETE_THIS_CONVERSATION, HikePubSub.ONETONCONV_NAME_CHANGED, HikePubSub.STEALTH_CONVERSATION_MARKED,
+			HikePubSub.CONVERSATION_DELETED, HikePubSub.DELETE_THIS_CONVERSATION, HikePubSub.ONETONCONV_NAME_CHANGED, HikePubSub.STEALTH_CONVERSATION_MARKED,
 			HikePubSub.STEALTH_CONVERSATION_UNMARKED, HikePubSub.UPDATE_LAST_MSG_STATE, HikePubSub.OFFLINE_MESSAGE_SENT, HikePubSub.ON_OFFLINE_REQUEST,HikePubSub.GENERAL_EVENT,HikePubSub.GENERAL_EVENT_STATE_CHANGE,HikePubSub.LASTMSG_UPDATED};
 
 	private ConversationsAdapter mAdapter;
@@ -1161,6 +1161,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			{
 				Intent intent = IntentFactory.createChatThreadIntentFromConversation(getActivity(), convInfo,
 						ChatThreadActivity.ChatThreadOpenSources.CONV_FRAGMENT);
+				intent.putExtra(AnalyticsConstants.BOT_NOTIF_TRACKER, "Conversation");
 				startActivity(intent);
 			}
 			else
@@ -1187,6 +1188,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 					Intent web = IntentFactory.getNonMessagingBotIntent(convInfo.getMsisdn(), getActivity());
 					if (web != null)
 					{
+						web.putExtra(AnalyticsConstants.BOT_NOTIF_TRACKER, "Conversation");
 						startActivity(web);
 					}
 				}
@@ -1880,6 +1882,12 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			{
 				((BotInfo) convInfo).setConvPresent(true);
 			}
+
+			if (convInfo.isMute())
+			{
+				updateViewForMuteToggle(convInfo);
+			}
+
 		}
 
 		stealthConversations = new HashSet<ConvInfo>();
@@ -2997,11 +3005,15 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				return;
 			}
 
-			Pair<String, Boolean> groupMute = (Pair<String, Boolean>) object;
-			String groupId = groupMute.first;
-			final Boolean isMuted = groupMute.second;
+			Mute mute = (Mute) object;
+			String msisdn = mute.getMsisdn();
+			final Boolean isMuted = mute.isMute();
 
-			final ConvInfo convInfo = mConversationsByMSISDN.get(groupId);
+			final ConvInfo convInfo = mConversationsByMSISDN.get(msisdn);
+			if (convInfo != null)
+			{
+				convInfo.setIsMute(ContactManager.getInstance().isChatMuted(convInfo.getMsisdn()));
+			}
 
 			if (convInfo == null)
 			{
@@ -3012,23 +3024,9 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				@Override
 				public void run()
 				{
-					if (convInfo instanceof OneToNConvInfo)
-					{
-						convInfo.setMute(isMuted);
-					}
-					else if (BotUtils.isBot(convInfo.getMsisdn()))
-					{
-						convInfo.setMute(isMuted);
-					}
+					convInfo.setIsMute(isMuted);
 
-					View parentView = getParenViewForConversation(convInfo);
-					if (parentView == null)
-					{
-						notifyDataSetChanged();
-						return;
-					}
-
-					notifyDataSetChanged();
+					updateViewForMuteToggle(convInfo);
 				}
 			});
 		}
@@ -3111,36 +3109,6 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			{
 				convInfo.setBlocked(HikePubSub.BLOCK_USER.equals(type) ? true : false);
 			}
-		}
-
-		else if (HikePubSub.MUTE_BOT.equals(type))
-		{
-			final String mMsisdn = (String) object;
-
-			getActivity().runOnUiThread(new Runnable()
-			{
-
-				@Override
-				public void run()
-				{
-					ConvInfo convInfo = mConversationsByMSISDN.get(mMsisdn);
-					// If this convInfo is coming from the memory map, then we do not need to set mute here, WebViewActivity has already taken care of that.
-					// If the source is not memory map, then we're in trouble.
-					BotInfo botinfo=BotUtils.getBotInfoForBotMsisdn(mMsisdn); // Taking out of trouble hopefully.
-					if (convInfo != null && botinfo !=null)
-					{
-						convInfo.setMute(botinfo.isMute());
-						View parentView = getParenViewForConversation(convInfo);
-						if (parentView == null)
-						{
-							notifyDataSetChanged();
-							return;
-						}
-
-						notifyDataSetChanged();
-					}
-				}
-			});
 		}
 
 		else if (HikePubSub.UPDATE_LAST_MSG_STATE.equals(type))
@@ -3597,6 +3565,24 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		}
 
 		mAdapter.updateViewsRelatedToName(parentView, convInfo);
+	}
+
+	private void updateViewForMuteToggle(ConvInfo convInfo)
+	{
+		if (!wasViewSetup())
+		{
+			return;
+		}
+
+		View parentView = getParenViewForConversation(convInfo);
+
+		if (parentView == null)
+		{
+			notifyDataSetChanged();
+			return;
+		}
+
+		mAdapter.updateViewsRelatedToMute(parentView, convInfo);
 	}
 
 	private void updateViewForAvatarChange(ConvInfo convInfo)

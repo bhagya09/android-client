@@ -8,8 +8,8 @@ public class ChatAnalyticConstants {
     public static final String ACT_CORE_LOGS = "act_core";
 
     public static final String CAMERA_ICON_CLICK = "camicon";
-    public static final String AUDIO_ICON_CLICK  = "audicon";
-    public static final String VIDEO_ICON_CLICK  = "vidicon";
+    public static final String AUDIO_ICON_CLICK = "audicon";
+    public static final String VIDEO_ICON_CLICK = "vidicon";
     public static final String LOCATION_ICON_CLICK = "locicon";
     public static final String FILE_ICON_CLICK = "fileicon";
     public static final String GALLERY_ICON_CLICK = "galicon";
@@ -22,7 +22,7 @@ public class ChatAnalyticConstants {
 
     public static final String WT_CLICKED_TOUCHED = "wticon";
 
-    public static final String LOCATION_SHARING_CANCELLED= "cnclLoc";
+    public static final String LOCATION_SHARING_CANCELLED = "cnclLoc";
 
     public static final String STEALTH_CHAT_THREAD = "stealth";
 
@@ -47,6 +47,14 @@ public class ChatAnalyticConstants {
     public static final String IMAGE_SOURCE_CAMERA = "atchCam";
 
     public static final String OVERFLOW_MENU_CLICKED = "ctOvrFlw";
+
+    public static final String CUSTOM_THEME_CAMERA_UK = "ctCam";
+
+    public static final String CUSTOM_THEME_ENABLE = "ctEnable";
+
+    public static final String CUSTOM_THEME_DONE = "ctDone";
+
+    public static final String MUTE_CANCEL_UK = "muteCncl";
 
     public static final class GCEvents
     {
@@ -77,6 +85,25 @@ public class ChatAnalyticConstants {
         public static final String CANCEL_SRC_CROSS = "cross";
 
         public static final String CANCEL_SRC_OTHERS = "others";
+
+    }
+    public static final class MessageInfoEvents{
+
+        public static final String MESSAGE_INFO_EVENT = "msgInfo";
+
+        public static final String MESSAGE_INFO_TAP = "tap";
+
+        public static final String APK="apk";
+
+        public static final String MESSAGE_INFO_REMAINING_EVENT="miRem";
+
+        public static final String READ_REMAINING_ANALYTICS="read";
+
+        public static final String DELIVERED_REMAINING_ANALYTICS="delivered";
+
+        public static final String MESSAGE_INFO_READ_TAP_EVENT="miReadUsr";
+
+        public static final String MESSAGE_INFO_FILE_TYPE_OTHER="other";
 
     }
 }

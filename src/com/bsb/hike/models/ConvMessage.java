@@ -69,7 +69,7 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 	private ParticipantInfoState participantInfoState;
 
 	private boolean isFileTransferMessage;
-
+    private boolean isNativeCardMessage;
 	private boolean isStickerMessage;
 
 	private TypingNotification typingNotification;
@@ -147,6 +147,19 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 
 	public WebMetadata webMetadata;
 
+	private JSONObject messageEventData;
+
+	public JSONObject getMessageEventData()
+	{
+		return messageEventData;
+	}
+
+	public void setMessageEventData(JSONObject messageEventData)
+	{
+		this.messageEventData = messageEventData;
+	}
+
+
 	/* Adding entries to the beginning of this list is not backwards compatible */
 	public enum OriginType
 	{
@@ -184,7 +197,10 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 	{
 		return isFileTransferMessage;
 	}
-
+	public boolean isNativeCardMessage()
+	{
+		return isNativeCardMessage;
+	}
 	public void setIsFileTranferMessage(boolean isFileTransferMessage)
 	{
 		this.isFileTransferMessage = isFileTransferMessage;
@@ -509,7 +525,7 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 			// TODO : We should parse metadata based on message type, so doing now for content, we should clean the else part sometime
 			if(HikeConstants.ConvMessagePacketKeys.CONTENT_TYPE.equals(obj.optString(HikeConstants.SUB_TYPE))){
 				this.messageType  = MESSAGE_TYPE.CONTENT;
-				platformMessageMetadata  = new PlatformMessageMetadata(data.optJSONObject(HikeConstants.METADATA), context);
+				platformMessageMetadata  = new PlatformMessageMetadata(data.optJSONObject(HikeConstants.METADATA), mIsSent);
                 platformMessageMetadata.addToThumbnailTable();
                 platformMessageMetadata.thumbnailMap.clear();
 			}
@@ -728,15 +744,21 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 
 	public void setMetadata(JSONObject metadata) throws JSONException
 	{
+
 		if (metadata != null)
 		{
-			this.metadata = new MessageMetadata(metadata, mIsSent);
+			if(metadata.has(HikePlatformConstants.CARDS)){
+				this.platformMessageMetadata = new PlatformMessageMetadata(metadata);
+				this.isNativeCardMessage = true;
+			}else{
+				this.metadata = new MessageMetadata(metadata, mIsSent);
 
-			isFileTransferMessage = this.metadata.getHikeFiles() != null  &&   this.metadata.getHikeFiles().size() > 0;
+				isFileTransferMessage = this.metadata.getHikeFiles() != null  &&   this.metadata.getHikeFiles().size() > 0;
 
-			participantInfoState = this.metadata.getParticipantInfoState();
+				participantInfoState = this.metadata.getParticipantInfoState();
 
-			isStickerMessage = this.metadata.getSticker() != null;
+				isStickerMessage = this.metadata.getSticker() != null;
+			}
 			
 		}
 	}
@@ -1087,6 +1109,9 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 				object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.MESSAGE_READ);
 				object.put(HikeConstants.DATA, ids);
 			}
+			if(OriginType.OFFLINE==messageOriginType){
+				object.put(HikeConstants.TIMESTAMP,getTimestamp());
+			}
 		}
 		catch (JSONException e)
 		{
@@ -1219,6 +1244,12 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 		{
 			return isNormalMessageSilent();
 		}
+
+		if (ContactManager.getInstance().isChatMuted(mMsisdn))
+		{
+			return true;
+		}
+
 		if (getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT && webMetadata != null)
 		{
 			return webMetadata.getPushType().equals(HikePlatformConstants.SILENT_PUSH);
@@ -1498,7 +1529,7 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 	
 	public boolean isNormalMessageSilent()
 	{
-		return getPlatformData().optString(HikeConstants.PLAY_NOTIFICATION).equals(HikeConstants.SILENT);
+		return getPlatformData().optString(HikeConstants.PLAY_NOTIFICATION).equals(HikeConstants.SILENT) || ContactManager.getInstance().isChatMuted(mMsisdn);
 	}
 
 	@Override

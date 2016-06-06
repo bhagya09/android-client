@@ -18,7 +18,7 @@ public class HikeSDKMessageFilter implements HikePlatformConstants{
         convMessage.setMessageType(HikeCardConstants.CARD_MSG_TYPE.equals(json.optString(MESSAGE_TYPE)) ? HikeConstants.MESSAGE_TYPE.CONTENT
                 : HikeConstants.MESSAGE_TYPE.PLAIN_TEXT);
         validateLayoutId(json);
-		convMessage.platformMessageMetadata = new PlatformMessageMetadata(json.optJSONObject(DATA), context);
+		convMessage.platformMessageMetadata = new PlatformMessageMetadata(json.optJSONObject(DATA));
         convMessage.setMessage(convMessage.platformMessageMetadata.notifText);
 		// fetch love here is present
 		return convMessage;

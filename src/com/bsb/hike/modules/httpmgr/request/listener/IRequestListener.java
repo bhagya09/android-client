@@ -1,5 +1,7 @@
 package com.bsb.hike.modules.httpmgr.request.listener;
 
+import android.support.annotation.Nullable;
+
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.response.Response;
 
@@ -12,10 +14,11 @@ public interface IRequestListener
 {
 	/**
 	 * In case of request failure caller will receive a {@link HttpException} according to which caller can take further action
-	 * 
-	 * @param spiceException
+	 *
+	 * @param errorResponse
+	 * @param httpException
 	 */
-	void onRequestFailure(HttpException httpException);
+	void onRequestFailure(@Nullable Response errorResponse, HttpException httpException);
 
 	/**
 	 * In case of successful request {@link Response} object will be returned to the caller

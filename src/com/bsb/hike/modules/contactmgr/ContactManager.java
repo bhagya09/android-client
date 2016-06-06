@@ -30,6 +30,9 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.models.GroupParticipant;
+import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.models.Mute;
+import com.bsb.hike.models.PrivacyPreferences;
 import com.bsb.hike.modules.iface.ITransientCache;
 import com.bsb.hike.tasks.UpdateAddressBookTask;
 import com.bsb.hike.utils.AccountUtils;
@@ -37,6 +40,7 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.PairModified;
+import com.bsb.hike.utils.PhoneUtils;
 import com.bsb.hike.utils.Utils;
 
 import org.json.JSONArray;
@@ -607,6 +611,17 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	{
 		persistenceCache.setGroupMute(groupId, mute);
 	}
+
+	/**
+	 * Sets the chat mute status in {@link #persistenceCache}
+	 *
+	 * @param msisdn
+	 * @param mute
+     */
+	public void setChatMute(String msisdn, Mute mute)
+	{
+		persistenceCache.setChatMute(msisdn, mute);
+	}
 	
 	/**
 	 * Gets the Name, alive and Mute status of Group
@@ -617,6 +632,47 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	public GroupDetails getGroupDetails(String msisdn)
 	{
 		return persistenceCache.getGroupDetails(msisdn);
+	}
+
+	/**
+	 * Fetches the Mute data for a conversation
+	 *
+	 * @param msisdn
+	 * @return
+     */
+	public Mute getMute(String msisdn)
+	{
+		return persistenceCache.getMute(msisdn);
+	}
+
+	/**
+	 *
+	 * @param msisdn
+	 * @return boolean stating whether to show notifications for a given chat
+     */
+	public boolean shouldShowNotifForMutedConversation(String msisdn)
+	{
+		Mute mute = persistenceCache.getMute(msisdn);
+		if (mute != null && mute.isMute())
+		{
+			return mute.shouldShowNotifInMute();
+		}
+		return true;
+	}
+
+	/**
+	 *
+	 * @param msisdn
+	 * @return boolean stating whether the given chat is muted or not
+     */
+	public boolean isChatMuted(String msisdn)
+	{
+		Mute mute = persistenceCache.getMute(msisdn);
+		if (mute != null)
+		{
+			return mute.isMute();
+		}
+		return false;
 	}
 	
 	/**
@@ -3016,7 +3072,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 
 	public ArrayList<String> getMsisdnFromId(ArrayList<String> selectionArgs)
 	{
-		String msisdnStatement = Utils.getMsisdnStatement(selectionArgs);
+		String msisdnStatement = PhoneUtils.getMsisdnStatement(selectionArgs);
 		if (TextUtils.isEmpty(msisdnStatement))
 		{
 			return new ArrayList<String>();
@@ -3136,6 +3192,16 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		HikeUserDatabase.getInstance().insertIntoCallerTable(callerContentModel, isCompleteData, setIsBlock);
 	}
 
+	public void insertIntoCallerTable(CallerContentModel callerContentModel, boolean isCompleteData, boolean setIsBlock, long creationTime)
+	{
+		HikeUserDatabase.getInstance().insertIntoCallerTable(callerContentModel, isCompleteData, setIsBlock, creationTime);
+	}
+
+	public void updateMdIntoCallerTable(CallerContentModel callerContentModel)
+	{
+		HikeUserDatabase.getInstance().updateMdIntoCallerTable(callerContentModel);
+	}
+
 	public CallerContentModel getCallerContentModelFromMsisdn(String msisdn)
 	{
 		return HikeUserDatabase.getInstance().getCallerContentModelFromMsisdn(msisdn);
@@ -3169,6 +3235,10 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		return selfMsisdn.equals(outsideMsisdn);
 	}
 
+	public void toggleChatSpam(String msisdn, int markSpam) {
+		HikeUserDatabase.getInstance().toggleChatSpamUser(msisdn, markSpam);
+	}
+
 	/**
 	 * From now on we classify a friend as :
 	 * 1. The person whom I have added as a friend. Irrespective of the status of the request at the other end
@@ -3192,5 +3262,52 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	{
 		return getFriendshipStatus(msisdn) == FavoriteType.FRIEND;
 	}
+
+	public void flushOldPrivacyValues(boolean lastSeenFlush, boolean statusUpdateFlush)
+	{
+		hDb.flushOldPrivacyValues(lastSeenFlush, statusUpdateFlush);
+	}
+
+	public void toggleLastSeenSetting(final ContactInfo mContactInfo, final boolean isChecked) {
+		HikeHandlerUtil.getInstance().postAtFront(new Runnable() {
+			@Override
+			public void run() {
+				hDb.setLastSeenForMsisdns(mContactInfo.getMsisdn(), isChecked ? 1 : 0);
+			}
+		});
+	}
+
+	public void toggleStatusUpdateSetting(final ContactInfo mContactInfo, final boolean isChecked) {
+
+		HikeHandlerUtil.getInstance().postAtFront(new Runnable() {
+			@Override
+			public void run() {
+				hDb.setSUSettingForMsisdns(mContactInfo.getMsisdn(), isChecked ? 1 : 0);
+			}
+		});
+	}
+
+	public PrivacyPreferences getPrivacyPrefsForAGivenMsisdn(String msisdn)
+	{
+		return hDb.getPrivacyPreferencesForAGivenMsisdn(msisdn);
+	}
+
+	public boolean shouldShowStatusUpdateForGivenMsisdn(String msisdn) {
+		PrivacyPreferences privacyPreferences = hDb.getPrivacyPreferencesForAGivenMsisdn(msisdn);
+		if (privacyPreferences != null) {
+			return privacyPreferences.shouldShowStatusUpdate();
+		} else
+			return false;
+	}
+
+	public void setAllLastSeenValues(final boolean newValue) {
+		HikeHandlerUtil.getInstance().postAtFront(new Runnable() {
+			@Override
+			public void run() {
+				hDb.setAllLastSeenPrivacyValues(newValue);
+			}
+		});
+	}
+
 }
 
