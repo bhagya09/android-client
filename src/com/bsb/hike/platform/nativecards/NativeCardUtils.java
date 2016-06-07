@@ -20,6 +20,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.platform.CardComponent;
 import com.bsb.hike.platform.CustomTabFallBackImpl;
 import com.bsb.hike.platform.PlatformUtils;
@@ -209,7 +210,7 @@ public class NativeCardUtils
 	}
     public static JSONObject getNativeCardForwardJSON(Context context, ConvMessage convMessage, File file){
 		JSONObject multiMsgFwdObject = new JSONObject();
-		JSONObject metadata = convMessage.platformMessageMetadata.getJsonFromObj();
+		JSONObject metadata = convMessage.platformMessageMetadata.getJSON();
 		try
 		{
 			multiMsgFwdObject.put(HikeConstants.MESSAGE_TYPE.MESSAGE_TYPE, convMessage.getMessageType());
@@ -224,6 +225,34 @@ public class NativeCardUtils
 				// intent.putExtra((Intent.EXTRA_STREAM),fileUri);
 				multiMsgFwdObject.put(HikeConstants.Extras.FILE_PATH, file.getPath());
 				multiMsgFwdObject.put(HikeConstants.Extras.FILE_TYPE, "image/jpeg");
+
+			}
+
+		}
+		catch (JSONException e)
+		{
+			Logger.e(context.getClass().getSimpleName(), "Invalid JSON", e);
+		}
+		return multiMsgFwdObject;
+	}
+
+	public static JSONObject getNativeCardForwardJSON(Context context, ConvMessage convMessage, HikeFile file){
+		JSONObject multiMsgFwdObject = new JSONObject();
+		JSONObject metadata = convMessage.platformMessageMetadata.getJSON();
+		try
+		{
+			multiMsgFwdObject.put(HikeConstants.MESSAGE_TYPE.MESSAGE_TYPE, convMessage.getMessageType());
+			if (metadata != null)
+			{
+				multiMsgFwdObject.put(HikeConstants.METADATA, metadata);
+			}
+
+			multiMsgFwdObject.put(HikeConstants.HIKE_MESSAGE, convMessage.getMessage());
+			if (file != null)
+			{
+				// intent.putExtra((Intent.EXTRA_STREAM),fileUri);
+				multiMsgFwdObject.put(HikeConstants.Extras.FILE_PATH, file.getFilePath());
+				multiMsgFwdObject.put(HikeConstants.Extras.FILE_TYPE, file.getFileTypeString());
 
 			}
 

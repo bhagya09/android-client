@@ -331,7 +331,7 @@ public class HikeFile
 			fileJSON.putOpt(HikeConstants.FILE_SIZE, fileSize);
 			fileJSON.putOpt(HikeConstants.THUMBNAIL, thumbnailString);
 			//Commenting isSent check as file path needs to be populated in case of native card received message.
-			if(/*isSent && */(getHikeFileType() != HikeFileType.CONTACT) && (getHikeFileType() != HikeFileType.LOCATION))
+			if(isSent && (getHikeFileType() != HikeFileType.CONTACT) && (getHikeFileType() != HikeFileType.LOCATION))
 			{
 				File file = getFile();
 				if (file != null)
