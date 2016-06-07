@@ -1,10 +1,13 @@
 package com.bsb.hike.bots;
 
+import com.bsb.hike.utils.CustomAnnotation.DoNotObfuscate;
+
 import java.util.ArrayList;
 
 /**
  * Created by konarkarora on 01/05/16.
  */
+@DoNotObfuscate
 public class CustomKeyboard
 {
 
