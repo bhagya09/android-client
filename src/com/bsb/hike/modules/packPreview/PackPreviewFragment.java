@@ -53,12 +53,14 @@ import java.util.List;
  * Created by anubhavgupta on 04/01/16.
  */
 public class PackPreviewFragment extends Fragment implements HikePubSub.Listener, PackPreviewFragmentScrollListener.OnVerticalScrollListener,
-		PackPreviewRecyclerView.TouchListener, View.OnClickListener, OnLongClickListener
+		PackPreviewRecyclerView.TouchListener, View.OnClickListener, OnLongClickListener, HikePubSub.UiListener
 {
 
 	private static final String TAG = PackPreviewFragment.class.getSimpleName();
 
-	private String[] pubSubListeners = { HikePubSub.STICKER_CATEGORY_DETAILS_DOWNLOAD_SUCCESS, HikePubSub.STICKER_CATEGORY_DETAILS_DOWNLOAD_FAILURE, HikePubSub.STICKER_DOWNLOADED };
+	private String[] pubSubListeners = { HikePubSub.STICKER_DOWNLOADED };
+
+	private String[] pubSubUiListeners = { HikePubSub.STICKER_CATEGORY_DETAILS_DOWNLOAD_SUCCESS, HikePubSub.STICKER_CATEGORY_DETAILS_DOWNLOAD_FAILURE };
 
 	private StickerOtherIconLoader stickerOtherIconLoader;
 
@@ -191,19 +193,21 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 	private void registerListener()
 	{
 		HikeMessengerApp.getPubSub().addListeners(this, pubSubListeners);
+		HikeMessengerApp.getPubSub().addUiListener(this, pubSubUiListeners);
 
 		IntentFilter filter = new IntentFilter(StickerManager.STICKER_PREVIEW_DOWNLOADED);
 		filter.addAction(StickerManager.MORE_STICKERS_DOWNLOADED);
 		filter.addAction(StickerManager.STICKERS_UPDATED);
 		filter.addAction(StickerManager.STICKERS_DOWNLOADED);
 		filter.addAction(StickerManager.STICKERS_FAILED);
-		LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMessageReceiver, filter);
+		LocalBroadcastManager.getInstance(HikeMessengerApp.getInstance()).registerReceiver(mMessageReceiver, filter);
 	}
 
 	private void deRegisterListeners()
 	{
 		HikeMessengerApp.getPubSub().removeListeners(this, pubSubListeners);
-		LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mMessageReceiver);
+		HikeMessengerApp.getPubSub().removeUiListener(this, pubSubUiListeners);
+		LocalBroadcastManager.getInstance(HikeMessengerApp.getInstance()).unregisterReceiver(mMessageReceiver);
 	}
 
 	private void setDetails()
@@ -218,7 +222,7 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 		if (stickerCategory.getTotalStickers() > 0)
 		{
 			categoryDetails.setVisibility(View.VISIBLE);
-			String detailsString = getActivity().getString(R.string.n_stickers, stickerCategory.getTotalStickers());
+			String detailsString = getResources().getString(R.string.n_stickers, stickerCategory.getTotalStickers());
 			if (stickerCategory.getCategorySize() > 0)
 			{
 				detailsString += ", " + Utils.getSizeForDisplay(stickerCategory.getCategorySize());
@@ -569,53 +573,41 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 	};
 
 	@Override
+	public void onUiEventReceived(String type, Object object) {
+		switch (type) {
+			case HikePubSub.STICKER_CATEGORY_DETAILS_DOWNLOAD_SUCCESS:
+				if (!isAdded()) {
+					return;
+				}
+
+				StickerCategory category = (StickerCategory) object;
+				if (category.getCategoryId().equalsIgnoreCase(catId)) {
+					stickerCategory = category;
+					setDetails();
+					updateButtonState();
+					loadingView.setVisibility(View.GONE);
+					loadingFailed.setVisibility(View.GONE);
+				}
+				break;
+
+			case HikePubSub.STICKER_CATEGORY_DETAILS_DOWNLOAD_FAILURE:
+				if (!isAdded()) {
+					return;
+				}
+				String categoryId = (String) object;
+				if (categoryId.equalsIgnoreCase(catId)) {
+					loadingView.setVisibility(View.GONE);
+					loadingFailed.setVisibility(View.VISIBLE);
+				}
+				break;
+		}
+	}
+
+	@Override
 	public void onEventReceived(String type, final Object object)
 	{
 		switch (type)
 		{
-		case HikePubSub.STICKER_CATEGORY_DETAILS_DOWNLOAD_SUCCESS:
-			if (!isAdded())
-			{
-				return;
-			}
-			getActivity().runOnUiThread(new Runnable()
-			{
-
-				@Override
-				public void run()
-				{
-
-					StickerCategory category = (StickerCategory) object;
-					if (category.getCategoryId().equalsIgnoreCase(catId))
-					{
-						stickerCategory = category;
-						setDetails();
-						updateButtonState();
-						loadingView.setVisibility(View.GONE);
-						loadingFailed.setVisibility(View.GONE);
-					}
-				}
-			});
-			break;
-		case HikePubSub.STICKER_CATEGORY_DETAILS_DOWNLOAD_FAILURE:
-			if (!isAdded())
-			{
-				return;
-			}
-			getActivity().runOnUiThread(new Runnable()
-			{
-
-				@Override
-				public void run()
-				{
-					String categoryId = (String) object;
-					if (categoryId.equalsIgnoreCase(catId)) {
-						loadingView.setVisibility(View.GONE);
-						loadingFailed.setVisibility(View.VISIBLE);
-					}
-				}
-			});
-			break;
 		case HikePubSub.STICKER_DOWNLOADED:
 			if (!isAdded())
 			{
