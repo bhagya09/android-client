@@ -403,7 +403,6 @@ public class HttpRequests
                 .setRequestType(REQUEST_TYPE_SHORT)
                 .setGcmTaskConfig(config)
                 .build();
-        requestToken.getRequestInterceptors().addFirst("gzip", new GzipRequestInterceptor());
         return requestToken;
     }
 
@@ -810,7 +809,6 @@ public class HttpRequests
                 .setGcmTaskConfig(config)
                 .build();
 
-        requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
         return requestToken;
     }
 
