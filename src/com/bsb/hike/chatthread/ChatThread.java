@@ -1899,19 +1899,12 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	{
 		CustomBGRecyclingImageView backgroundImage = (CustomBGRecyclingImageView) activity.findViewById(R.id.background);
 		backgroundImage.setOverLay(false);
-		if (themeId.equals(ChatThemeManager.getInstance().defaultChatThemeId))
-		{
-			backgroundImage.setImageDrawable(ChatThemeManager.getInstance().getDrawableForTheme(themeId, HikeChatThemeConstants.ASSET_INDEX_BG_PORTRAIT));
-			setChatBackground(R.color.chat_thread_default_bg);
-		}
-		else
-		{
-			setChatBackground(REMOVE_CHAT_BACKGROUND);
-			Drawable drawable = Utils.getChatTheme(themeId, activity);
 
-			setThemeBackground(backgroundImage, drawable, ChatThemeManager.getInstance().getTheme(themeId).isTiled(), ChatThemeManager.getInstance().getTheme(themeId).isCustomTheme());
-			mLastThemeIdBGRendered = themeId;
-		}
+		setChatBackground(REMOVE_CHAT_BACKGROUND);
+		Drawable drawable = Utils.getChatTheme(themeId, activity);
+
+		setThemeBackground(backgroundImage, drawable, ChatThemeManager.getInstance().getTheme(themeId).isTiled(), ChatThemeManager.getInstance().getTheme(themeId).isCustomTheme());
+		mLastThemeIdBGRendered = themeId;
 	}
 
 	private void setThemeBackground(CustomBGRecyclingImageView backgroundImage, Drawable drawable, boolean isTiled, boolean isCustom) {
