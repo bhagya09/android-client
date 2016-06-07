@@ -661,8 +661,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		Context context = activity.getApplicationContext();
 		useWTRevamped = ChatThreadUtils.isWT1RevampEnabled(context);
 		nudgeManager = new NudgeManager(context, HikeSharedPreferenceUtil.getInstance(), HAManager.getInstance());
-		//CD-787 Bug fix
-		scrollToEnd();
     }
 
 	public HikeActionBar mActionBar;
@@ -2956,8 +2954,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
             CustomKeyboardManager.getInstance().initInputBox(activity.getApplicationContext(),this,this,mConversation.getMsisdn(),activity.getResources().getConfiguration().orientation);
             sendUIMessage(SHOW_INPUT_BOX, mConversation.getMsisdn());
         }
-
-        recordChatThreadOpen();
+		recordChatThreadOpen();
 	}
 
 	protected OnItemsFinishedListener mOnItemsFinishedListener  = new OnItemsFinishedListener()
@@ -3210,14 +3207,9 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 						JSONObject metadata = msgExtrasJson.optJSONObject(HikeConstants.METADATA);
 						if(metadata != null){
 
-							if(metadata.optJSONArray(HikeConstants.FILES) != null && metadata.optJSONArray(HikeConstants.FILES).length()>0){
-								HikeFile hikeFile = new HikeFile(metadata.optJSONArray(HikeConstants.FILES).getJSONObject(0), true);
-								if(hikeFile.getFile() != null && hikeFile.getFile().exists()){
-									handleFileTypeMessage(intent,metadata,msgExtrasJson.optString(HikeConstants.HIKE_MESSAGE));
-								}else{
-									sendNativeCardMessage(msgExtrasJson);
-								}
-							}else{
+							if (metadata.optJSONArray(HikeConstants.FILES) != null && metadata.optJSONArray(HikeConstants.FILES).length() > 0) {
+									handleFileTypeMessage(intent, metadata, msgExtrasJson.optString(HikeConstants.HIKE_MESSAGE), msgExtrasJson.optString(HikeConstants.Extras.FILE_PATH));
+							} else {
 								sendNativeCardMessage(msgExtrasJson);
 							}
 						}
@@ -3389,11 +3381,11 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		JSONObject metadata = msgExtrasJson.optJSONObject(HikeConstants.METADATA);
 		ConvMessage convMessage = Utils.makeConvMessage(msisdn, mConversation.isOnHike());
 		convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.CONTENT);
-		convMessage.platformMessageMetadata = new PlatformMessageMetadata(metadata);
+		convMessage.platformMessageMetadata = new PlatformMessageMetadata(metadata, true);
 		convMessage.setMessage(msgExtrasJson.optString(HikeConstants.HIKE_MESSAGE));
 		sendMessage(convMessage);
 	}
-	private void handleFileTypeMessage(Intent intent, JSONObject nativeCardMetadata, String hikeMessage) throws JSONException{
+	private void handleFileTypeMessage(Intent intent, JSONObject nativeCardMetadata, String hikeMessage, String filePath) throws JSONException{
         //TODO: parse from HikeFile
 		JSONArray filesArray = nativeCardMetadata.optJSONArray(HikeConstants.FILES);
 		JSONObject msg = filesArray.getJSONObject(0);
@@ -3402,7 +3394,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		{
 			fileKey = msg.getString(HikeConstants.FILE_KEY);
 		}
-		String filePath = msg.getString(HikeConstants.FILE_PATH);
+
 		String fileType = msg.getString(HikeConstants.CONTENT_TYPE);
 		String caption = msg.optString(HikeConstants.CAPTION);
 

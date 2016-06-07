@@ -7661,7 +7661,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 					try
 					{
 						if(message.getMessageType() == com.bsb.hike.HikeConstants.MESSAGE_TYPE.CONTENT){
-							message.platformMessageMetadata = new PlatformMessageMetadata(metadata);
+							message.platformMessageMetadata = new PlatformMessageMetadata(metadata, message.isSent());
 						}else if(message.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT || message.getMessageType() == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT){
 							message.webMetadata = new WebMetadata(metadata);
 						}else{
@@ -10358,7 +10358,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				try
 				{
 					if(message.getMessageType() == com.bsb.hike.HikeConstants.MESSAGE_TYPE.CONTENT){
-						message.platformMessageMetadata = new PlatformMessageMetadata(metadata);
+						message.platformMessageMetadata = new PlatformMessageMetadata(metadata, message.isSent());
 					}else if(message.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT || message.getMessageType() == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT){
 						message.webMetadata = new WebMetadata(metadata);
 					}else{
