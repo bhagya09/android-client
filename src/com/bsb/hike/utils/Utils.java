@@ -8304,7 +8304,7 @@ public class Utils
 	 *
 	 * @param msisdns
 	 */
-	public static void sendULSPacket(List<String> msisdns) {
+	public static void sendULSPacket(List<String> msisdns, int newValue) {
 
 		if (!Utils.isFavToFriendsMigrationAllowed()) {
 			return;
@@ -8330,7 +8330,8 @@ public class Utils
 			JSONObject data = new JSONObject();
 			data.put(HikeConstants.UPDATED_LAST_SEEN_SETTING, selectedPrivacyId);
 			// Inclusion/exclusion based on setting of none or friends
-			data.put(selectedPrivacyId == 0 ? HikeConstants.LS_INCLUSION : HikeConstants.LS_EXCLUSION, lsExclusionArray);
+			data.put(newValue == 1 ? HikeConstants.LS_INCLUSION : HikeConstants.LS_EXCLUSION, lsExclusionArray);
+
 			data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis()));
 			object.put(HikeConstants.DATA, data);
 
@@ -8348,7 +8349,7 @@ public class Utils
 	 *
 	 * @param msisdns
 	 */
-	public static void sendUSUPacket(List<String> msisdns) {
+	public static void sendUSUPacket(List<String> msisdns, int newValue) {
 
 		if (!Utils.isFavToFriendsMigrationAllowed()) {
 			return;
@@ -8365,7 +8366,7 @@ public class Utils
 
 			JSONObject data = new JSONObject();
 			data.put(HikeConstants.UPDATED_STATUS_UPDATE_SETTING, 2);
-			data.put(HikeConstants.STATUS_UPDATE_EXCLUSION, suExclusionArray);
+			data.put(newValue == 1 ? HikeConstants.STATUS_UPDATE_INCLUSION : HikeConstants.STATUS_UPDATE_EXCLUSION, suExclusionArray);
 			data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis()));
 			object.put(HikeConstants.DATA, data);
 
