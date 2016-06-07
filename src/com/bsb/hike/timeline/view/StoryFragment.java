@@ -13,6 +13,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
@@ -54,6 +56,8 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
     private View emptyStateView;
 
     private View btnAddFriends;
+
+    private Animation shakeAnim;
 
     private final String[] pubsubEvents = new String[]{
             HikePubSub.UNSEEN_STATUS_COUNT_CHANGED,
@@ -109,6 +113,8 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
             //Show empty state
             bindEmptyStateView();
         }
+
+        shakeAnim = AnimationUtils.loadAnimation(getActivity(), R.anim.shake);
     }
 
     private void bindStoryFragmentList() {
@@ -264,7 +270,11 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
         if (storyItem.getType() == StoryItem.TYPE_INTENT) {
             getActivity().startActivity(storyItem.getIntent());
         } else if (storyItem.getType() == StoryItem.TYPE_FRIEND && storyItem.getTypeInfo() != null) {
-            getActivity().startActivity(IntentFactory.getStoryPhotosActivityIntent(getActivity(), ((ContactInfo) storyItem.getTypeInfo()).getMsisdn()));
+            if (storyItem.getCategory() == StoryItem.CATEGORY_DEFAULT) {
+                view.startAnimation(shakeAnim);
+            } else {
+                getActivity().startActivity(IntentFactory.getStoryPhotosActivityIntent(getActivity(), ((ContactInfo) storyItem.getTypeInfo()).getMsisdn()));
+            }
         } else if (storyItem.getType() == StoryItem.TYPE_BRAND) {
             // TODO
         }

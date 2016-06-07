@@ -1140,9 +1140,9 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 
 				notifyVisibleItems();
 
+				TimelineActionsManager.getInstance().updateActionsData(actionsData);
+
 				HikeConversationsDatabase.getInstance().updateActionsData(actionsData, ActivityObjectTypes.STATUS_UPDATE);
-				
-				TimelineActionsManager.getInstance().setActionsData(actionsData);
 			}
 		}
 

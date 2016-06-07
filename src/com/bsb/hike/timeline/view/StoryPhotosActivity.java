@@ -8,7 +8,9 @@ import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
 import android.text.util.Linkify;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -34,6 +36,7 @@ import com.bsb.hike.timeline.model.ActionsDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StoryItem;
 import com.bsb.hike.timeline.tasks.StoriesDataManager;
+import com.bsb.hike.ui.utils.CrossfadePageTransformer;
 import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Logger;
@@ -60,7 +63,7 @@ public class StoryPhotosActivity extends HikeAppStateBaseFragmentActivity implem
 
     private String mFriendMsisdn;
 
-    private ViewPager pagerStory;
+    private StoryPhotoViewPager pagerView;
 
     private View viewBlackBGScreen;
 
@@ -81,6 +84,8 @@ public class StoryPhotosActivity extends HikeAppStateBaseFragmentActivity implem
     private StoryItem<StatusMessage, ContactInfo> storyItem;
 
     private String[] pubSubListeners = {HikePubSub.ACTIVITY_UPDATE};
+
+    private GestureDetector gestureDetector;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -112,6 +117,11 @@ public class StoryPhotosActivity extends HikeAppStateBaseFragmentActivity implem
                 showLikesContactsDialog();
             }
         });
+
+        gestureDetector = new GestureDetector(getApplicationContext(), new GestureListener());
+        pagerView.setGestureDetector(gestureDetector);
+        pagerView.setScrollDurationFactor(4);
+        pagerView.setPageTransformer(false, new CrossfadePageTransformer());
 
         //Get data
         StoriesDataManager.getInstance().getStoryForFriend(mFriendMsisdn, new WeakReference<StoriesDataManager.StoriesDataListener>(this));
@@ -160,7 +170,7 @@ public class StoryPhotosActivity extends HikeAppStateBaseFragmentActivity implem
     }
 
     private void initReferences() {
-        pagerStory = (ViewPager) findViewById(R.id.story_photo_pager); // pager which shows story photos
+        pagerView = (StoryPhotoViewPager) findViewById(R.id.story_photo_pager); // pager which shows story photos
         viewBlackBGScreen = findViewById(R.id.bg_screen); // activity background
         viewTranslucentFGScreen = findViewById(R.id.fg_screen); // layer on photo on which captions/loves are displayed
         infoContainer = findViewById(R.id.image_info_container); // contains loves, captions
@@ -175,15 +185,28 @@ public class StoryPhotosActivity extends HikeAppStateBaseFragmentActivity implem
     public void onDataUpdated(List<StoryItem> storyItemList) {
         if (!Utils.isEmpty(storyItemList)) {
             storyItem = storyItemList.get(0);
-            pagerStory.setAdapter(pagerAdapter);
-            pagerStory.addOnPageChangeListener(pageChangeListener);
+            pagerView.setAdapter(pagerAdapter);
+            pagerView.addOnPageChangeListener(pageChangeListener);
             checkBoxLove.setTag(getCurrentStatusMessage());
             updateActionsData();
         }
     }
 
+    private class GestureListener extends GestureDetector.SimpleOnGestureListener {
+        @Override
+        public boolean onSingleTapConfirmed(MotionEvent e) {
+            Logger.d(TAG, "onSingleTapConfirmed pager");
+            if (pagerView.getCurrentItem() < (pagerAdapter.getCount() - 1)) {
+                pagerView.setCurrentItem(pagerView.getCurrentItem() + 1, true);
+            } else {
+                StoryPhotosActivity.this.finish();
+            }
+            return true;
+        }
+    }
+
     private StatusMessage getCurrentStatusMessage() {
-        return storyItem.getDataObjects().get(pagerStory.getCurrentItem());
+        return storyItem.getDataObjects().get(pagerView.getCurrentItem());
     }
 
     private ViewPager.OnPageChangeListener pageChangeListener = new ViewPager.OnPageChangeListener() {
@@ -196,6 +219,7 @@ public class StoryPhotosActivity extends HikeAppStateBaseFragmentActivity implem
         public void onPageSelected(int position) {
             Logger.d(TAG, "onPageSelected " + position);
             checkBoxLove.setTag(getCurrentStatusMessage());
+            updateActionsData();
         }
 
         @Override
