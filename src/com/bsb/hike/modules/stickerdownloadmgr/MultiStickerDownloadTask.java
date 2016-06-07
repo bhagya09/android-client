@@ -49,7 +49,7 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 
 	private StickerConstants.DownloadType downloadType;
 
-	private JSONObject bodyJson;
+	private JSONObject defaultBody;
 
 	private int existingStickerNumber = 0;
 
@@ -59,11 +59,11 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 
 	private RequestToken requestToken;
 
-	public MultiStickerDownloadTask(StickerCategory category, StickerConstants.DownloadType downloadType, JSONObject bodyJson)
+	public MultiStickerDownloadTask(StickerCategory category, StickerConstants.DownloadType downloadType, JSONObject defaultBody)
 	{
 		this.category = category;
 		this.downloadType = downloadType;
-		this.bodyJson = bodyJson;
+		this.defaultBody = defaultBody;
 	}
 
 	public void execute()
@@ -135,6 +135,8 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 
 				try
 				{
+					JSONObject bodyJson = new JSONObject(defaultBody.toString());
+
 					bodyJson.put(StickerManager.CATEGORY_ID, category.getCategoryId());
 					bodyJson.put(HikeConstants.STICKER_IDS, existingStickerIds);
 					bodyJson.put(HikeConstants.RESOLUTION_ID, Utils.getResolutionId());
@@ -372,7 +374,7 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 	{
 		Bundle b = new Bundle();
 		b.putSerializable(StickerManager.CATEGORY_ID, category.getCategoryId());
-		b.putSerializable(HikeConstants.DOWNLOAD_SOURCE, DownloadSource.fromValue(bodyJson.optInt(HikeConstants.DOWNLOAD_SOURCE)));
+		b.putSerializable(HikeConstants.DOWNLOAD_SOURCE, DownloadSource.fromValue(defaultBody.optInt(HikeConstants.DOWNLOAD_SOURCE)));
 		b.putSerializable(StickerManager.PERCENTAGE, percentage);
 		StickerManager.getInstance().onStickersDownloadProgress(b);
 	}
@@ -382,7 +384,7 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 	{
 		Bundle b = new Bundle();
 		b.putSerializable(StickerManager.CATEGORY_ID, category.getCategoryId());
-		b.putSerializable(HikeConstants.DOWNLOAD_SOURCE, DownloadSource.fromValue(bodyJson.optInt(HikeConstants.DOWNLOAD_SOURCE)));
+		b.putSerializable(HikeConstants.DOWNLOAD_SOURCE, DownloadSource.fromValue(defaultBody.optInt(HikeConstants.DOWNLOAD_SOURCE)));
 		b.putSerializable(StickerManager.STICKER_DOWNLOAD_TYPE, downloadType);
 		StickerManager.getInstance().sucessFullyDownloadedStickers(b);
 	}
@@ -393,7 +395,7 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 		Logger.e(TAG, "on failure, exception ", e);
 		Bundle b = new Bundle();
 		b.putSerializable(StickerManager.CATEGORY_ID, category.getCategoryId());
-		b.putSerializable(HikeConstants.DOWNLOAD_SOURCE, DownloadSource.fromValue(bodyJson.optInt(HikeConstants.DOWNLOAD_SOURCE)));
+		b.putSerializable(HikeConstants.DOWNLOAD_SOURCE, DownloadSource.fromValue(defaultBody.optInt(HikeConstants.DOWNLOAD_SOURCE)));
 		b.putSerializable(StickerManager.STICKER_DOWNLOAD_TYPE, downloadType);
 		if (e != null && e instanceof HttpException && ((HttpException) e).getErrorCode() == HttpException.REASON_CODE_OUT_OF_SPACE)
 		{
@@ -418,7 +420,7 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 		Bundle extras = new Bundle();
 		extras.putString(HikeConstants.CATEGORY_ID, category.getCategoryId());
 		extras.putInt(HikeConstants.DOWNLOAD_TYPE, downloadType.ordinal());
-		extras.putString(HikeConstants.BODY, bodyJson.toString());
+		extras.putString(HikeConstants.BODY, defaultBody.toString());
 		return extras;
 	}
 
