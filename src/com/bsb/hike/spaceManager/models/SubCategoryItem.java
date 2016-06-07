@@ -7,6 +7,8 @@ import com.google.gson.Gson;
  */
 public abstract class SubCategoryItem extends SpaceManagerItem implements SpaceManagerItem.SpaceManagerDeleteListener
 {
+    private boolean isSelected;
+
     public SubCategoryItem(String header)
     {
         setHeader(header);
@@ -19,4 +21,11 @@ public abstract class SubCategoryItem extends SpaceManagerItem implements SpaceM
         return new Gson().toJson(this);
     }
 
+    public boolean isSelected() {
+        return isSelected;
+    }
+
+    public void setIsSelected(boolean isSelected) {
+        this.isSelected = isSelected;
+    }
 }

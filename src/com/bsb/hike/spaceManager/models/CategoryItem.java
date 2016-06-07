@@ -19,6 +19,19 @@ public abstract class CategoryItem extends SpaceManagerItem
         this.subCategoryList = subCategories;
     }
 
+    public long computeSizeToDelete()
+    {
+        long size = 0;
+        for(SubCategoryItem subCategory : subCategoryList)
+        {
+            if(subCategory.isSelected())
+            {
+                size += subCategory.getSize();
+            }
+        }
+        return size;
+    }
+
     public long computeSize()
     {
         long size = 0;

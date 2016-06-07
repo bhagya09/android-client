@@ -325,4 +325,18 @@ public class SpaceManagerUtils
         return finalList;
     }
 
+    public static long getTotalSizeToDelete(List<SpaceManagerItem> spaceManagerItems)
+    {
+        long size = 0;
+        for(int i = 0; i < spaceManagerItems.size(); i++)
+        {
+            SpaceManagerItem item = spaceManagerItems.get(i);
+            if(item.getType() == SpaceManagerItem.CATEGORY)
+            {
+                size = size + item.getSize();
+            }
+        }
+        return size;
+    }
+
 }
