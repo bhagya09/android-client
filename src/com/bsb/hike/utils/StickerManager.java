@@ -4185,7 +4185,7 @@ public class StickerManager
 		int packRefreshDayFrequency = HikeSharedPreferenceUtil.getInstance().getData(PACK_METADATA_REFRESH_FREQUENCY, DEFAULT_PACK_METADATA_REFRESH_FREQUENCY);
 		long currentTime = System.currentTimeMillis();
 
-		if ((currentTime - lastRefreshTime) >= (HikeConstants.ONE_DAY_MILLS * packRefreshDayFrequency) || forceRun) // greater than n days
+		if ((currentTime - lastRefreshTime) > (HikeConstants.ONE_DAY_MILLS * packRefreshDayFrequency) || forceRun) // greater than n days
 		{
 			StickerCategoriesDetailsDownloadTask stickerCategoriesDetailsDownloadTask = new StickerCategoriesDetailsDownloadTask(getMyStickerCategoryList());
 			stickerCategoriesDetailsDownloadTask.execute();

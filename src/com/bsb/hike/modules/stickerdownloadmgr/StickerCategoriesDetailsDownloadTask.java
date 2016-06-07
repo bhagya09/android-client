@@ -9,6 +9,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -37,8 +38,6 @@ public class StickerCategoriesDetailsDownloadTask implements IHikeHTTPTask, IHik
 
 	private JSONObject requestJsonBody;
 
-	private String ucids = "";
-
 	public StickerCategoriesDetailsDownloadTask(Collection<StickerCategory> stickerCategoryList)
 	{
 		this.stickerCategoryList = stickerCategoryList;
@@ -58,7 +57,6 @@ public class StickerCategoriesDetailsDownloadTask implements IHikeHTTPTask, IHik
 		{
 			for (StickerCategory category : stickerCategoryList)
 			{
-				ucids += category.getUcid() + HikeConstants.DELIMETER;
 				catIdArray.put(category.getCategoryId());
 				tsArray.put(category.getPackUpdationTime());
 			}
@@ -146,10 +144,9 @@ public class StickerCategoriesDetailsDownloadTask implements IHikeHTTPTask, IHik
 
 			}
 
-			@Override
-			public void onRequestFailure(HttpException httpException)
-			{
-				doOnFailure(httpException);
+            @Override
+            public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException) {
+                doOnFailure(httpException);
 			}
 		};
 	}
@@ -170,7 +167,7 @@ public class StickerCategoriesDetailsDownloadTask implements IHikeHTTPTask, IHik
 	@Override
 	public String getRequestId()
 	{
-		return StickerRequestType.CATEGORY_DETAIL.getLabel() + Utils.StringToMD5(ucids);
+		return StickerRequestType.CATEGORY_DETAIL.getLabel() + Integer.toString(stickerCategoryList.size());
 	}
 
 	@Override
