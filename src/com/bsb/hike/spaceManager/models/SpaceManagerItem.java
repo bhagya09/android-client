@@ -14,13 +14,13 @@ public abstract class SpaceManagerItem
 	private String header;
 	@Type private int type;
 
+	public static final int HEADER = 0;
+
 	public static final int CATEGORY = 1;
 
 	public static final int SUBCATEGORY = 2;
 
-	public static final int CUSTOM = 3;
-
-	@IntDef({CATEGORY, SUBCATEGORY, CUSTOM})
+	@IntDef({CATEGORY, SUBCATEGORY, HEADER})
 	@Retention(RetentionPolicy.SOURCE)
 	public @interface Type{}
 
