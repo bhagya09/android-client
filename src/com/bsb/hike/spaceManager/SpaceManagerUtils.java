@@ -7,6 +7,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Utils;
 
@@ -283,4 +284,14 @@ public class SpaceManagerUtils
                         dirPath, shouldMapContainedFiles);
         }
     }
+
+    /**
+     * Method to check if Space Manager is enabled
+     * @return
+     */
+    public static boolean isSpaceManagerEnabled()
+    {
+        return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_SPACE_MANAGER, true);
+    }
+
 }

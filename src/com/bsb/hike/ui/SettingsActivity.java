@@ -41,6 +41,7 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ImageViewerInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
+import com.bsb.hike.spaceManager.SpaceManagerUtils;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.ui.fragments.ImageViewerFragment;
@@ -156,7 +157,10 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		{
 			items.add(new SettingsDisplayPojo(getString(R.string.sticky_caller_settings), R.string.sticky_caller_settings, R.drawable.sticky_caller_settings));
 		}
-		items.add(new SettingsDisplayPojo(getString(R.string.space_manager), R.string.space_manager, R.drawable.ic_settings_space));
+		if(SpaceManagerUtils.isSpaceManagerEnabled())
+		{
+			items.add(new SettingsDisplayPojo(getString(R.string.space_manager), R.string.space_manager, R.drawable.ic_settings_space));
+		}
     	items.add(new SettingsDisplayPojo(getString(R.string.help), R.string.help, R.drawable.ic_help_settings));
 		
 		//Last item is being added as null for the app version TextView

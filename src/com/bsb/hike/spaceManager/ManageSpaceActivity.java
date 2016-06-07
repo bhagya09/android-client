@@ -3,6 +3,7 @@ package com.bsb.hike.spaceManager;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
@@ -16,6 +17,7 @@ import java.util.List;
 public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implements HikePubSub.UiListener
 {
     private static final String TAG = "ManageSpaceActivity";
+
     private List<SpaceManagerItem> spaceManagerItems;
 
     private String[] uiPubSubTypes = {HikePubSub.SPACE_MANAGER_ITEMS_FETCH_SUCCESS, HikePubSub.SPACE_MANAGER_ITEMS_FETCH_FAIL};
@@ -24,9 +26,21 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.space_manager);
+        long start = System.currentTimeMillis();
+
+        if(SpaceManagerUtils.isSpaceManagerEnabled())
+        {
+            setContentView(R.layout.space_manager_main);
+            init();
+        }
+        else
+        {
+        }
+
         setupActionBar();
-        init();
+
+        Logger.d(TAG, "time taken: " + (System.currentTimeMillis() - start));
+    }
     }
 
     private void init()
