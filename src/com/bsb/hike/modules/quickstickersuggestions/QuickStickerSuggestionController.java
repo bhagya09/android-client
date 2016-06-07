@@ -2,6 +2,7 @@ package com.bsb.hike.modules.quickstickersuggestions;
 
 import android.content.Intent;
 import android.content.res.Resources;
+import android.support.annotation.IntDef;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.SparseArray;
 import android.view.View;
@@ -25,6 +26,8 @@ import org.apache.http.util.TextUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -52,6 +55,8 @@ public class QuickStickerSuggestionController
 
     private int sessionType;
 
+    private ConvMessage currentQsConvMessage;
+
     public static final int FTUE_RECEIVE_SESSION = 0;
 
     public static final int FTUE_SENT_SESSION = 1;
@@ -70,7 +75,15 @@ public class QuickStickerSuggestionController
 
     public static final int QUICK_SUGGESTION_STICKER_ANIMATION = 16;
 
+    public static final int EMPTY_STATE_ERROR = 1;
+
+    public static final int NETWORK_ERROR = 2;
+
     private boolean qsLoaded;
+
+    @IntDef({EMPTY_STATE_ERROR, NETWORK_ERROR})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ErrorType {}
 
     private QuickStickerSuggestionController()
     {
@@ -144,6 +157,8 @@ public class QuickStickerSuggestionController
 
     public void releaseResources()
     {
+        completeFtueSession();
+        currentQsConvMessage = null;
     }
 
     public void loadQuickStickerSuggestions(QuickSuggestionStickerCategory quickSuggestionCategory)
@@ -167,7 +182,8 @@ public class QuickStickerSuggestionController
         Sticker quickSuggestionSticker = convMessage.getMetadata().getSticker();
         boolean isSent = convMessage.isSent();
 
-        StickerCategory quickSuggestionCategory = new QuickSuggestionStickerCategory.Builder()
+
+        QuickSuggestionStickerCategory quickSuggestionCategory = new QuickSuggestionStickerCategory.Builder()
                 .setCategoryId(StickerManager.QUICK_SUGGESTIONS)
                 .setQuickSuggestSticker(quickSuggestionSticker)
                 .showReplyStickers(!isSent)
@@ -400,5 +416,15 @@ public class QuickStickerSuggestionController
         {
             HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MIN_SEEN_COUNT, seenCount);
         }
+    }
+
+    public void setCurrentQSConvMessage(ConvMessage currentQsConvMessage)
+    {
+        this.currentQsConvMessage = currentQsConvMessage;
+    }
+
+    public ConvMessage getCurrentQSConvMessage()
+    {
+        return currentQsConvMessage;
     }
 }

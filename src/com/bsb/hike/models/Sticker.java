@@ -376,7 +376,7 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 	@Override
 	public String toString()
 	{
-		return categoryId + ":" + stickerId;
+		return getStickerCode();
 	}
 
 	public void setMiniStickerPath(String miniStickerPath)
@@ -393,4 +393,9 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
     {
 		return isStickerAvailable() ? StickerConstants.StickerType.LARGE : StickerConstants.StickerType.MINI;
     }
+
+	public String getStickerTypeString()
+	{
+		return isStickerAvailable() ? HikeConstants.LARGE : HikeConstants.MINI;
+	}
 }

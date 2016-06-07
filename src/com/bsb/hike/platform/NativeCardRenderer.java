@@ -56,6 +56,7 @@ import com.bsb.hike.smartImageLoader.HighQualityThumbLoader;
 import com.bsb.hike.smartImageLoader.ImageWorker;
 import com.bsb.hike.smartImageLoader.NativeCardImageLoader;
 import com.bsb.hike.ui.fragments.PhotoViewerFragment;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
@@ -215,14 +216,14 @@ public class NativeCardRenderer implements View.OnLongClickListener, View.OnClic
 				});
 				if (imageComponent.getUrl() != null)
 				{
-					populateImageWithUrl(imageView, imageComponent);
+					populateImageWithUrl(imageView, imageComponent,convMessage.platformMessageMetadata.layoutId,convMessage.getContentId(),convMessage.getMsisdn());
 				}
 			}
 		}
 
 	}
 
-	private void populateImageWithUrl(ImageView imageView, CardComponent.ImageComponent imageComponent)
+	private void populateImageWithUrl(ImageView imageView, CardComponent.ImageComponent imageComponent, final int layoutId, final int contentId, final String msisdn)
 	{
 
 		NativeCardImageLoader nativeCardImageLoader = new NativeCardImageLoader((int) context.getResources().getDimension(R.dimen.native_card_message_container_wide_width),
@@ -235,6 +236,7 @@ public class NativeCardRenderer implements View.OnLongClickListener, View.OnClic
 			public void onImageWorkSuccess(ImageView imageView)
 			{
 				imageView.setVisibility(View.VISIBLE);
+				HikeAnalyticsEvent.nativeCardImageLoaded(layoutId,contentId,msisdn);
 			}
 
 			@Override

@@ -2394,6 +2394,12 @@ public class HikeConstants
 
 		public static final String STICKER_RECOMMENDATION_REBALANCING_SUMMERIZATION = "srRS";
 
+		public static final String STICKER_RECOMMENDATION = "sr_rec";
+
+		public static final String STICKER_RECOMMENDATION_REPORT = "sr_rec_rep";
+
+		public static final String STICKER_RECOMMENDATION_COUNT_REPORT = "sr_rec_cnt_rep";
+
 		public static final String STICKER_FOLDER_ERROR = "stFEr";
 
 		public static final String STICKER_ERROR = "stEr";
@@ -3258,6 +3264,8 @@ public class HikeConstants
 	public static final String FROM_CHAT_THREAD = "ct";
 
 	public static final String LARGE = "large";
+
+	public static final String MINI = "mini";
 
 	public static final int ATOMIC_APP_TIP_SETTINGS = 1;
 
@@ -4410,6 +4418,8 @@ public class HikeConstants
 
 	public static final String SENT = "sent";
 
+	public static final String RECEIVED = "recvd";
+
 	public static final String LANG = "lang";
 
 	public static final String QUICK_RESPONSE = "quickResponse";
@@ -4495,5 +4505,7 @@ public class HikeConstants
 	public static final String FRIENDS_PRIVACY_PROFILE_VIEW_SHOWN = "fr_privacy_profile_ftue";
 
     public static final String DOWNLOAD_TYPE = "t_dwnld";
+
+	public static final String ENABLE_UNKNOWN_USER_INFO_IN_CHAT = "en_uu_info";
 
 }

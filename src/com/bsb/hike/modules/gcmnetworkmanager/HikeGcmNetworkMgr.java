@@ -54,24 +54,27 @@ public class HikeGcmNetworkMgr implements IGcmNetworkMgr
     @Override
     public void schedule(Config config)
     {
-        if (!isGooglePlayServicesAvailable())
-        {
-            Logger.e(TAG, "google play services not available");
-            return;
+        try {
+            if (!isGooglePlayServicesAvailable()) {
+                Logger.e(TAG, "google play services not available");
+                return;
+            }
+
+            OneoffTask task = new OneoffTask.Builder()
+                    .setTag(config.getTag())
+                    .setService(config.getService())
+                    .setExecutionWindow(config.getWindowStart(), config.getWindowEnd())
+                    .setExtras(config.getExtras())
+                    .setPersisted(config.isPersisted())
+                    .setRequiredNetwork(config.getRequiredNetwork())
+                    .setUpdateCurrent(config.isUpdateCurrent())
+                    .setRequiresCharging(config.getRequiresCharging())
+                    .build();
+
+            GcmNetworkManager.getInstance(context).schedule(task);
+        } catch (Throwable e) {
+            Logger.wtf(TAG, "Error while scheduling", e);
         }
-
-        OneoffTask task = new OneoffTask.Builder()
-                .setTag(config.getTag())
-                .setService(config.getService())
-                .setExecutionWindow(config.getWindowStart(), config.getWindowEnd())
-                .setExtras(config.getExtras())
-                .setPersisted(config.isPersisted())
-                .setRequiredNetwork(config.getRequiredNetwork())
-                .setUpdateCurrent(config.isUpdateCurrent())
-                .setRequiresCharging(config.getRequiresCharging())
-                .build();
-
-        GcmNetworkManager.getInstance(context).schedule(task);
     }
 
     @Override

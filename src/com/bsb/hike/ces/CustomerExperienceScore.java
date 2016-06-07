@@ -47,7 +47,7 @@ public class CustomerExperienceScore {
 
 	private CustomerExperienceScore()
 	{
-		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HIKE_CES_ENABLE, true))
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HIKE_CES_ENABLE, false))
 		{
 			pool = null;
 			return;
@@ -118,7 +118,7 @@ public class CustomerExperienceScore {
 
 	public void recordCesData(int module, CesDataInfoFormatBuilder<?> cesData)
 	{
-		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HIKE_CES_ENABLE, true))
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HIKE_CES_ENABLE, false))
 		{
 			return;
 		}
@@ -139,7 +139,7 @@ public class CustomerExperienceScore {
 
 	public void processCesScoreAndL1Data()
 	{
-		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HIKE_CES_ENABLE, true))
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HIKE_CES_ENABLE, false))
 		{
 			return;
 		}
@@ -205,7 +205,7 @@ public class CustomerExperienceScore {
 
 	public void processCesL2Data(final String module, final String date)
 	{
-		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HIKE_CES_ENABLE, true))
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HIKE_CES_ENABLE, false))
 		{
 			return;
 		}
