@@ -13,10 +13,16 @@
         android:orientation="vertical">
 
         <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/emoji_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <com.bsb.hike.view.CustomFontTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:text="@string/qs_error_view_heading"
-            android:textColor="@color/gray"
+            android:textColor="#9b9b9b"
             android:textSize="20sp" />
 
         <com.bsb.hike.view.CustomFontTextView

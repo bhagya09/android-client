@@ -125,13 +125,13 @@ public class StickerCategoryDownloadTask implements IHikeHTTPTask, IHikeHttpTask
 		stickerCategory.setIsDownloaded(isDownloaded);
 		stickerCategory.setPreviewUpdationTime(System.currentTimeMillis());
 		HikeConversationsDatabase.getInstance().insertInToStickerCategoriesTable(stickerCategory);
-		HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_CATEGORY_DETAILS_DOWNLOAD_SUCCESS, stickerCategory);
+		HikeMessengerApp.getPubSub().publishOnUI(HikePubSub.STICKER_CATEGORY_DETAILS_DOWNLOAD_SUCCESS, stickerCategory);
 	}
 
 	@Override
 	public void doOnFailure(HttpException exception)
 	{
-		HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_CATEGORY_DETAILS_DOWNLOAD_FAILURE, exception);
+		HikeMessengerApp.getPubSub().publishOnUI(HikePubSub.STICKER_CATEGORY_DETAILS_DOWNLOAD_FAILURE, categoryId);
 	}
 
     @Override

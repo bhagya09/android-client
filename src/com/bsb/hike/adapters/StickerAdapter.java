@@ -11,6 +11,8 @@ import android.os.Looper;
 import android.os.Message;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.PagerAdapter;
+import android.text.SpannableStringBuilder;
+import android.text.style.ImageSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -306,7 +308,19 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 
 	private View inflateQuickSuggestionEmptyView(ViewGroup container)
 	{
-		return LayoutInflater.from(mContext).inflate(R.layout.quick_suggestions_empty_view, container);
+		View emptyView = LayoutInflater.from(mContext).inflate(R.layout.quick_suggestions_empty_view, container);
+		TextView tvEmoji = (TextView) emptyView.findViewById(R.id.emoji_container);
+		tvEmoji.setText(Utils.getEmojiByUnicode(0x1F648));
+		tvEmoji.setTextSize(Utils.spToPx(10));
+
+		TextView tvSubText = (TextView) emptyView.findViewById(R.id.empty_view_sub_text);
+		SpannableStringBuilder builder = new SpannableStringBuilder();
+		builder.append(mContext.getString(R.string.qs_empty_page_text_sub_text_part_one)).append("  ");
+		builder.setSpan(new ImageSpan(mContext, R.drawable.ic_recent_stickers),
+				builder.length() - 1, builder.length(), 0);
+		builder.append(" ").append(mContext.getString(R.string.qs_empty_page_text_sub_text_part_two));
+		tvSubText.setText(builder);
+		return emptyView;
 	}
 
 	public View inflateNormalEmptyView(ViewGroup container, final StickerCategory category)
@@ -367,6 +381,9 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 	{
 		stickerPageObject.getContainerView().removeAllViews();
 		View errorView = LayoutInflater.from(mContext).inflate(R.layout.quick_suggestion_error_view, stickerPageObject.getContainerView());
+		TextView tvEmoji = (TextView) errorView.findViewById(R.id.emoji_container);
+		tvEmoji.setText(Utils.getEmojiByUnicode(0x1F633));
+		tvEmoji.setTextSize(Utils.spToPx(10));
 		errorView.setOnClickListener(new View.OnClickListener()
 		{
 			@Override
@@ -793,11 +810,11 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 
 	private void updateQuickSuggestionCategoryInList(StickerPageObject stickerPageObject, QuickSuggestionStickerCategory newCategory)
 	{
-		stickerPageObject.setStickerCategory(newCategory);
 		QuickSuggestionStickerCategory presentCategory = (QuickSuggestionStickerCategory) stickerCategoryList.get(0);
 		presentCategory.setSentStickers(newCategory.getSentStickers());
 		presentCategory.setReplyStickers(newCategory.getReplyStickers());
 		presentCategory.setLastRefreshTime(newCategory.getLastRefreshTime());
+		stickerPageObject.setStickerCategory(presentCategory);
 	}
 
 	public void addQuickSuggestionCategory(StickerCategory quickSuggestionCategory)
