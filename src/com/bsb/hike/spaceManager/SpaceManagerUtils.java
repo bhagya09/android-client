@@ -7,6 +7,9 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.spaceManager.models.CategoryItem;
+import com.bsb.hike.spaceManager.models.SpaceManagerItem;
+import com.bsb.hike.spaceManager.models.SubCategoryItem;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Utils;
@@ -16,7 +19,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -292,6 +297,32 @@ public class SpaceManagerUtils
     public static boolean isSpaceManagerEnabled()
     {
         return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_SPACE_MANAGER, true);
+    }
+
+    public static List<SpaceManagerItem> getValidItemsList(List<CategoryItem> categoryList)
+    {
+        List<SpaceManagerItem> finalList = new ArrayList<>();
+        if(!categoryList.isEmpty())
+        {
+            for(CategoryItem category : categoryList)
+            {
+                if(category.getSize() > 0)
+                {
+                    finalList.add(category);
+                }
+
+                List<SubCategoryItem> subCategoryList = category.getSubCategoryList();
+                for(SubCategoryItem subCategory : subCategoryList)
+                {
+                    if(subCategory.getSize() > 0)
+                    {
+                        finalList.add(subCategory);
+                    }
+                }
+            }
+        }
+
+        return finalList;
     }
 
 }
