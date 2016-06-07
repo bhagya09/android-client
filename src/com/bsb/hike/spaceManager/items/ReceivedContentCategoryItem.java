@@ -13,9 +13,9 @@ import java.util.ArrayList;
  *
  * @author paramshah
  */
-public class ReceivedItemsCategory extends CategoryItem
+public class ReceivedContentCategoryItem extends CategoryItem
 {
-	public ReceivedItemsCategory(String header, ArrayList<SubCategoryItem> subCategories)
+	public ReceivedContentCategoryItem(String header, ArrayList<SubCategoryItem> subCategories)
 	{
 		super(header, subCategories);
 		Logger.d(CATEGORY_TAG, "creating category - received items");

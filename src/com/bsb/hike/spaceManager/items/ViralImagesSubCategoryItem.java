@@ -7,9 +7,9 @@ import static com.bsb.hike.spaceManager.SpaceManagerUtils.SUB_CATEGORY_TAG;
 /**
  * @author paramshah
  */
-public class ViralImagesSubCategory extends SubCategoryItem
+public class ViralImagesSubCategoryItem extends SubCategoryItem
 {
-	public ViralImagesSubCategory(String header)
+	public ViralImagesSubCategoryItem(String header)
 	{
 		super(header);
 		setSize(computeSize());
