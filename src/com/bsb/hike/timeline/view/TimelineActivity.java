@@ -30,12 +30,12 @@ import android.view.WindowManager.BadTokenException;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
+import com.bsb.hike.AppConfig;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -51,7 +51,7 @@ import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
-import com.bsb.hike.timeline.TimelineResourceCleaner;
+import com.bsb.hike.timeline.tasks.TimelineResourceCleaner;
 import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.utils.StatusBarColorChanger;
@@ -81,7 +81,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 
 	public static final int FETCH_FEED_FROM_DB = -2;
 
-	private String[] homePubSubListeners = { HikePubSub.FAVORITE_COUNT_CHANGED, HikePubSub.ACTIVITY_FEED_COUNT_CHANGED , HikePubSub.TIMELINE_WIPE};
+	private String[] homePubSubListeners = {HikePubSub.ACTIVITY_FEED_COUNT_CHANGED , HikePubSub.TIMELINE_WIPE};
 
 	private final String FRAGMENT_ACTIVITY_FEED_TAG = "fragmentActivityFeedTag";
 	
@@ -116,17 +116,6 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	public void onEventReceived(String type, Object object)
 	{
 		super.onEventReceived(type, object);
-		if (HikePubSub.FAVORITE_COUNT_CHANGED.equals(type))
-		{
-			runOnUiThread(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					updateFriendsNotification(accountPrefs.getInt(HikeMessengerApp.FRIEND_REQ_COUNT, 0), 0);
-				}
-			});
-		}
 		if (HikePubSub.ACTIVITY_FEED_COUNT_CHANGED.equals(type))
 		{
 			final int count = ((Integer) object).intValue();
@@ -267,7 +256,6 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		overflowIndicator = (TextView) overflowMenuItem.findViewById(R.id.top_bar_indicator_text);
 		activityFeedMenuItem = menu.findItem(R.id.activity_feed);
 		activityFeedMenuItem.setVisible(false);
-		updateFriendsNotification(accountPrefs.getInt(HikeMessengerApp.FRIEND_REQ_COUNT, 0), 0);
 		overflowMenuItem.setOnClickListener(new View.OnClickListener()
 		{
 			@Override
@@ -303,11 +291,14 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 
 		optionsList.add(new OverFlowMenuItem(getString(R.string.my_profile), 0, 0, R.string.my_profile));
 
+		if (AppConfig.TIMELINE_READ_DEBUG) {
+			optionsList.add(new OverFlowMenuItem(
+					getString(R.string.unread_all), 0, 0, R.string.unread_all));
+		}
+
 		overFlowWindow = new PopupWindow(this);
 
-		FrameLayout homeScreen = (FrameLayout) findViewById(R.id.home_screen);
-
-		View parentView = getLayoutInflater().inflate(R.layout.overflow_menu, homeScreen, false);
+		View parentView = getLayoutInflater().inflate(R.layout.overflow_menu, null, false);
 
 		overFlowWindow.setContentView(parentView);
 
@@ -375,40 +366,24 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 
 						}
 					});
-
 					break;
-				case R.string.favourites:
-					Intent intent = new Intent(TimelineActivity.this, PeopleActivity.class);
-					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-					startActivity(intent);
-					JSONObject metadataSU = new JSONObject();
-					try
-					{
-						metadataSU.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.TIMELINE_OVERFLOW_OPTIONS);
-						metadataSU.put(AnalyticsConstants.TIMELINE_OPTION_TYPE, HikeConstants.LogEvent.TIMELINE_OVERFLOW_OPTION_FAV);
-						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metadataSU);
-					}
-					catch (JSONException e)
-					{
-						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-					}
-					break;
-				case R.string.my_profile:
-					Intent intent2 = new Intent(TimelineActivity.this, ProfileActivity.class);
-					intent2.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
-					startActivity(intent2);
-					JSONObject metadataSU2 = new JSONObject();
-					try
-					{
-						metadataSU2.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.TIMELINE_OVERFLOW_OPTIONS);
-						metadataSU2.put(AnalyticsConstants.TIMELINE_OPTION_TYPE, HikeConstants.LogEvent.TIMELINE_OVERFLOW_OPTION_MY_PROFILE);
-						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metadataSU2);
-					}
-					catch (JSONException e)
-					{
-						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-					}
-					break;
+					case R.string.my_profile:
+						Intent intent2 = new Intent(TimelineActivity.this, ProfileActivity.class);
+						intent2.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
+						startActivity(intent2);
+						JSONObject metadataSU2 = new JSONObject();
+						try {
+							metadataSU2.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.TIMELINE_OVERFLOW_OPTIONS);
+							metadataSU2.put(AnalyticsConstants.TIMELINE_OPTION_TYPE, HikeConstants.LogEvent.TIMELINE_OVERFLOW_OPTION_MY_PROFILE);
+							HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metadataSU2);
+						} catch (JSONException e) {
+							Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+						}
+						break;
+					case R.string.unread_all:
+						HikeConversationsDatabase.getInstance().markAllStatusUnread();
+						TimelineActivity.this.finish();
+						break;
 				}
 			}
 		});
@@ -537,7 +512,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		// If none, open home activity
 		if (count == 0)
 		{
-			IntentFactory.openHomeActivity(TimelineActivity.this, true);
+			startActivity(IntentFactory.getHomeActivityFriendsTabIntent(TimelineActivity.this));
 		}
 		// Else, found a backstack record, fragmentactivity will pop it, do actionbar changes
 		else
@@ -567,11 +542,13 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	{
 		super.onResume();
 		
-		if(Utils.getNotificationCount(accountPrefs, true, false, true, false) > 0)
+		if(Utils.getNotificationCount(accountPrefs, true, true, true, false) > 0)
 		{
 			Utils.resetUnseenStatusCount(this);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.USER_TIMELINE_ACTIVITY_COUNT, 0);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.UNSEEN_STATUS_COUNT_CHANGED, null);
 		}
+
 		HikeMessengerApp.getPubSub().publish(HikePubSub.NEW_ACTIVITY, this);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.CANCEL_ALL_NOTIFICATIONS, null);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_TIMELINE_UPDATE_CHANGED, null);
@@ -603,41 +580,6 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		super.onDestroy();
 		HikeMessengerApp.getPubSub().removeListeners(this, homePubSubListeners);
 		HikeHandlerUtil.getInstance().postRunnable(TimelineResourceCleaner.getInstance());
-	}
-
-	public void updateFriendsNotification(int count, int delayTime)
-	{
-		if (count < 1)
-		{
-			overflowIndicator.setVisibility(View.GONE);
-		}
-		else
-		{
-			mHandler.postDelayed(new Runnable()
-			{
-
-				@Override
-				public void run()
-				{
-					if (overflowIndicator != null)
-					{
-						int count = accountPrefs.getInt(HikeMessengerApp.FRIEND_REQ_COUNT, 0);
-						if (count > 9)
-						{
-							overflowIndicator.setVisibility(View.VISIBLE);
-							overflowIndicator.setText("9+");
-							overflowIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
-						}
-						else if (count > 0)
-						{
-							overflowIndicator.setVisibility(View.VISIBLE);
-							overflowIndicator.setText(String.valueOf(count));
-							overflowIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
-						}
-					}
-				}
-			}, delayTime);
-		}
 	}
 
 	public void updateFeedsNotification(final int count)

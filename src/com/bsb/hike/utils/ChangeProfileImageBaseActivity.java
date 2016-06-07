@@ -1,10 +1,5 @@
 package com.bsb.hike.utils;
 
-import java.io.File;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -61,6 +56,11 @@ import com.bsb.hike.ui.fragments.ImageViewerFragment.DisplayPictureEditListener;
 import com.bsb.hike.ui.fragments.ShareLinkFragment;
 import com.bsb.hike.ui.fragments.ShareLinkFragment.ShareLinkFragmentListener;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
 
 public abstract class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActivity implements OnClickListener, DisplayPictureEditListener, HikeImageWorker.TaskCallbacks, ShareLinkFragmentListener
 {
@@ -316,7 +316,7 @@ public abstract class ChangeProfileImageBaseActivity extends HikeAppStateBaseFra
 		{
 			dialog.dismiss();
 		}
-		
+
 		switch (item)
 		{
 		case HikeConstants.NEW_PROFILE_PICTURE:
@@ -713,32 +713,42 @@ public abstract class ChangeProfileImageBaseActivity extends HikeAppStateBaseFra
 	}
 
 	@Override
-	public void onDisplayPictureEditClicked(int whichActivity)
+	public void onDisplayPictureChangeClicked(int whichActivity)
 	{
-		String imageRemovePath = null;
+		sendDPEditAnalytics(whichActivity);
+		// directly open gallery to allow user to select new image
+		selectNewProfilePicture(this, !OneToNConversationUtils.isOneToNConversation(mLocalMSISDN), true);
+	}
+
+	@Override
+	public void onDisplayPictureRemoveClicked(int whichActivity) {
+		if (whichActivity == ImageViewerFragment.FROM_PROFILE_ACTIVITY) {
+			mRemoveImagePath = ProfileImageActions.DP_EDIT_FROM_DISPLAY_IMAGE;
+		} else if (whichActivity == ImageViewerFragment.FROM_SETTINGS_ACTIVITY) {
+			mRemoveImagePath = ProfileImageActions.DP_EDIT_FROM_SETTINGS_PREVIEW_IMAGE;
+		} else if (whichActivity == ImageViewerFragment.FROM_EDIT_DP_ACTIVITY) {
+			mRemoveImagePath = ProfileImageActions.DP_EDIT_FROM_EDIT_DP_SCREEN;
+		}
+		sendDPEditAnalytics(whichActivity);
+		showRemovePhotoConfirmDialog();
+	}
+
+	private void sendDPEditAnalytics(int whichActivity) {
 		JSONObject md = new JSONObject();
 
-		try
-		{
+		try {
 			md.put(HikeConstants.EVENT_KEY, ProfileImageActions.DP_EDIT_EVENT);
 
-			if (whichActivity == ImageViewerFragment.FROM_PROFILE_ACTIVITY)
-			{
-				imageRemovePath = ProfileImageActions.DP_EDIT_FROM_DISPLAY_IMAGE;
+			if (whichActivity == ImageViewerFragment.FROM_PROFILE_ACTIVITY) {
 				md.put(ProfileImageActions.DP_EDIT_PATH, ProfileImageActions.DP_EDIT_FROM_DISPLAY_IMAGE);
-			}
-			else if (whichActivity == ImageViewerFragment.FROM_SETTINGS_ACTIVITY)
-			{
+			} else if (whichActivity == ImageViewerFragment.FROM_SETTINGS_ACTIVITY) {
 				md.put(ProfileImageActions.DP_EDIT_PATH, ProfileImageActions.DP_EDIT_FROM_SETTINGS_PREVIEW_IMAGE);
-				imageRemovePath = ProfileImageActions.DP_EDIT_FROM_SETTINGS_PREVIEW_IMAGE;
 			}
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, md);
-		}
-		catch (JSONException e)
-		{
+		} catch (JSONException e) {
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "json exception");
 		}
-		beginProfilePicChange(ChangeProfileImageBaseActivity.this, ChangeProfileImageBaseActivity.this, imageRemovePath, true);
+
 	}
 
 	/**

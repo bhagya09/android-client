@@ -1,6 +1,127 @@
 package com.bsb.hike.db;
 
 
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.SharedPreferences.Editor;
+import android.database.Cursor;
+import android.database.DatabaseUtils;
+import android.database.DatabaseUtils.InsertHelper;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.database.sqlite.SQLiteStatement;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
+import android.provider.BaseColumns;
+import android.text.TextUtils;
+import android.util.Base64;
+import android.util.Pair;
+import android.util.SparseArray;
+
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
+import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatthemes.ChatThemeManager;
+import com.bsb.hike.chatthread.ChatThreadUtils;
+import com.bsb.hike.db.DBConstants.HIKE_CONV_DB;
+import com.bsb.hike.db.DatabaseErrorHandlers.ConversationDatabaseErrorHandler;
+import com.bsb.hike.db.dbcommand.SetPragmaModeCommand;
+import com.bsb.hike.messageinfo.MessageInfo;
+import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.ConvMessage.ConvMessageComparator;
+import com.bsb.hike.models.ConvMessage.OriginType;
+import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
+import com.bsb.hike.models.ConvMessage.State;
+import com.bsb.hike.models.Conversation.BotConversation;
+import com.bsb.hike.models.Conversation.BroadcastConversation;
+import com.bsb.hike.models.Conversation.ConvInfo;
+import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.models.Conversation.ConversationMetadata;
+import com.bsb.hike.models.Conversation.GroupConversation;
+import com.bsb.hike.models.Conversation.OneToNConvInfo;
+import com.bsb.hike.models.Conversation.OneToNConversation;
+import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
+import com.bsb.hike.models.Conversation.OneToOneConversation;
+import com.bsb.hike.models.Conversation.OneToOneConversationMetadata;
+import com.bsb.hike.models.CustomStickerCategory;
+import com.bsb.hike.models.FetchUIDTaskPojo;
+import com.bsb.hike.models.FileListItem;
+import com.bsb.hike.models.GroupParticipant;
+import com.bsb.hike.models.HikeChatTheme;
+import com.bsb.hike.models.HikeChatThemeAsset;
+import com.bsb.hike.models.HikeFile;
+import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.HikeSharedFile;
+import com.bsb.hike.models.MessageEvent;
+import com.bsb.hike.models.MessageMetadata;
+import com.bsb.hike.models.Mute;
+import com.bsb.hike.models.Protip;
+import com.bsb.hike.models.Sticker;
+import com.bsb.hike.models.StickerCategory;
+import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.contactmgr.ConversationMsisdns;
+import com.bsb.hike.modules.contactmgr.GroupDetails;
+import com.bsb.hike.modules.quickstickersuggestions.model.QuickSuggestionStickerCategory;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
+import com.bsb.hike.modules.stickersearch.datamodel.CategoryTagData;
+import com.bsb.hike.offline.OfflineUtils;
+import com.bsb.hike.platform.ContentLove;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformMessageMetadata;
+import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.platform.WebMetadata;
+import com.bsb.hike.platform.nativecards.NativeCardUtils;
+import com.bsb.hike.service.GeneralEventMessagesManager;
+import com.bsb.hike.service.UpgradeIntentService;
+import com.bsb.hike.timeline.StoryShyTextGenerator;
+import com.bsb.hike.timeline.model.ActionsDataModel;
+import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
+import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
+import com.bsb.hike.timeline.model.FeedDataModel;
+import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
+import com.bsb.hike.timeline.model.StoryItem;
+import com.bsb.hike.timeline.model.TimelineActions;
+import com.bsb.hike.timeline.view.TimelineActivity;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
+import com.bsb.hike.utils.PairModified;
+import com.bsb.hike.utils.PhoneUtils;
+import com.bsb.hike.utils.StealthModeManager;
+import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.Utils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+
 import static com.bsb.hike.chatthemes.HikeChatThemeConstants.ASSET_INDEX_ACTION_BAR_BG;
 import static com.bsb.hike.chatthemes.HikeChatThemeConstants.ASSET_INDEX_BG_LANDSCAPE;
 import static com.bsb.hike.chatthemes.HikeChatThemeConstants.ASSET_INDEX_BG_PORTRAIT;
@@ -65,125 +186,6 @@ import static com.bsb.hike.db.DBConstants.STATUS_TABLE;
 import static com.bsb.hike.db.DBConstants.UNREAD_COUNT;
 import static com.bsb.hike.db.DBConstants.URL;
 import static com.bsb.hike.db.DBConstants.USER_PARAMETER_TABLE;
-
-import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import android.content.ContentValues;
-import android.content.Context;
-import android.content.SharedPreferences.Editor;
-import android.database.Cursor;
-import android.database.DatabaseUtils;
-import android.database.DatabaseUtils.InsertHelper;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
-import android.database.sqlite.SQLiteOpenHelper;
-import android.database.sqlite.SQLiteStatement;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
-import android.provider.BaseColumns;
-import android.text.TextUtils;
-import android.util.Base64;
-import android.util.Pair;
-import android.util.SparseArray;
-
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
-import com.bsb.hike.R;
-import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.bots.BotInfo;
-import com.bsb.hike.bots.BotUtils;
-import com.bsb.hike.chatthread.ChatThreadUtils;
-import com.bsb.hike.chatthemes.ChatThemeManager;
-import com.bsb.hike.db.DBConstants.HIKE_CONV_DB;
-import com.bsb.hike.db.DatabaseErrorHandlers.ConversationDatabaseErrorHandler;
-import com.bsb.hike.db.dbcommand.SetPragmaModeCommand;
-import com.bsb.hike.messageinfo.MessageInfo;
-import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.models.ConvMessage.ConvMessageComparator;
-import com.bsb.hike.models.ConvMessage.OriginType;
-import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
-import com.bsb.hike.models.ConvMessage.State;
-import com.bsb.hike.models.Conversation.BotConversation;
-import com.bsb.hike.models.Conversation.BroadcastConversation;
-import com.bsb.hike.models.Conversation.ConvInfo;
-import com.bsb.hike.models.Conversation.Conversation;
-import com.bsb.hike.models.Conversation.ConversationMetadata;
-import com.bsb.hike.models.Conversation.GroupConversation;
-import com.bsb.hike.models.Conversation.OneToNConvInfo;
-import com.bsb.hike.models.Conversation.OneToNConversation;
-import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
-import com.bsb.hike.models.Conversation.OneToOneConversation;
-import com.bsb.hike.models.Conversation.OneToOneConversationMetadata;
-import com.bsb.hike.models.CustomStickerCategory;
-import com.bsb.hike.models.FetchUIDTaskPojo;
-import com.bsb.hike.models.FileListItem;
-import com.bsb.hike.models.GroupParticipant;
-import com.bsb.hike.models.HikeChatTheme;
-import com.bsb.hike.models.HikeChatThemeAsset;
-import com.bsb.hike.models.HikeFile;
-import com.bsb.hike.models.HikeFile.HikeFileType;
-import com.bsb.hike.models.HikeSharedFile;
-import com.bsb.hike.models.MessageEvent;
-import com.bsb.hike.models.MessageMetadata;
-import com.bsb.hike.models.Mute;
-import com.bsb.hike.models.Protip;
-import com.bsb.hike.models.Sticker;
-import com.bsb.hike.models.StickerCategory;
-import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.modules.contactmgr.ConversationMsisdns;
-import com.bsb.hike.modules.contactmgr.GroupDetails;
-import com.bsb.hike.modules.quickstickersuggestions.model.QuickSuggestionStickerCategory;
-import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
-import com.bsb.hike.modules.stickersearch.datamodel.CategoryTagData;
-import com.bsb.hike.offline.OfflineUtils;
-import com.bsb.hike.platform.ContentLove;
-import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.platform.PlatformMessageMetadata;
-import com.bsb.hike.platform.PlatformUtils;
-import com.bsb.hike.platform.WebMetadata;
-import com.bsb.hike.platform.nativecards.NativeCardUtils;
-import com.bsb.hike.service.GeneralEventMessagesManager;
-import com.bsb.hike.service.UpgradeIntentService;
-import com.bsb.hike.timeline.model.ActionsDataModel;
-import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
-import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
-import com.bsb.hike.timeline.model.FeedDataModel;
-import com.bsb.hike.timeline.model.StatusMessage;
-import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
-import com.bsb.hike.timeline.model.TimelineActions;
-import com.bsb.hike.timeline.view.TimelineActivity;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.OneToNConversationUtils;
-import com.bsb.hike.utils.PairModified;
-import com.bsb.hike.utils.PhoneUtils;
-import com.bsb.hike.utils.StealthModeManager;
-import com.bsb.hike.utils.StickerManager;
-import com.bsb.hike.utils.Utils;
-
 public class HikeConversationsDatabase extends SQLiteOpenHelper
 {
 
@@ -1264,6 +1266,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 			sql = getParameterMappingTableCreateQuery();
 			db.execSQL(sql);
 		}
+
+		if(oldVersion < 59) {
+			if (!Utils.isColumnExistsInTable(db, DBConstants.STATUS_TABLE, DBConstants.IS_READ)) {
+				String sql = "ALTER TABLE " + DBConstants.STATUS_TABLE + " ADD COLUMN " + DBConstants.IS_READ + " INTEGER DEFAULT 0";
+				db.execSQL(sql);
+			}
+		}
 	}
 
 	public void reinitializeDB()
@@ -1301,7 +1310,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				+ DBConstants.SHOW_IN_TIMELINE + " INTEGER, " // Whether this status should be shown in the timeline or not.
 				+ DBConstants.MOOD_ID + " INTEGER, " // The mood id of the status
 				+ DBConstants.TIME_OF_DAY + " INTEGER, " // Deprecated.
-				+ DBConstants.FILE_KEY + " TEXT" // Text of the status
+				+ DBConstants.FILE_KEY + " TEXT, " // Text of the status
+				+ DBConstants.IS_READ + " INTEGER DEFAULT 0" // Text of the status
 				+ " )";
 	}
 
@@ -1331,6 +1341,30 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				c.close();
 			}
 		}
+	}
+
+	public int markStatusAsRead(List<String> suIDsList) {
+		if (Utils.isEmpty(suIDsList)) {
+			return -1;
+		}
+
+		String selection = DBConstants.STATUS_MAPPED_ID + " in "+ Utils.valuesToCommaSepratedString(suIDsList);
+
+		ContentValues newValues = new ContentValues();
+		newValues.put(DBConstants.IS_READ, 1);
+
+		return mDb.update(DBConstants.STATUS_TABLE, newValues, selection, null);
+	}
+
+	/**
+	 * TODO REMOVE THIS. JUST FOR TESTING PURPOSE.
+	 * @return
+     */
+	public int markAllStatusUnread() {
+		ContentValues newValues = new ContentValues();
+		newValues.put(DBConstants.IS_READ, 0);
+
+		return mDb.update(DBConstants.STATUS_TABLE, newValues, null, null);
 	}
 
 	private String getMessageEventTableCreateStatement()
@@ -5797,7 +5831,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		}
 
 		String[] columns = new String[] { DBConstants.STATUS_ID, DBConstants.STATUS_MAPPED_ID, DBConstants.MSISDN, DBConstants.STATUS_TEXT, DBConstants.STATUS_TYPE,
-				DBConstants.TIMESTAMP, DBConstants.MOOD_ID, DBConstants.TIME_OF_DAY, DBConstants.FILE_KEY };
+				DBConstants.TIMESTAMP, DBConstants.MOOD_ID, DBConstants.TIME_OF_DAY, DBConstants.FILE_KEY, DBConstants.IS_READ };
 
 		StringBuilder selection = new StringBuilder();
 
@@ -5839,6 +5873,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 			int moodIdIdx = c.getColumnIndex(DBConstants.MOOD_ID);
 			int timeOfDayIdx = c.getColumnIndex(DBConstants.TIME_OF_DAY);
 			int fileKeyIdx = c.getColumnIndex(DBConstants.FILE_KEY);
+			int isReadIdx = c.getColumnIndex(DBConstants.IS_READ);
 
 			List<String> msisdns = new ArrayList<String>();
 
@@ -5855,7 +5890,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				}
 
 				StatusMessage statusMessage = new StatusMessage(c.getLong(idIdx), c.getString(mappedIdIdx), msisdn, null, c.getString(textIdx),
-						StatusMessageType.values()[c.getInt(typeIdx)], c.getLong(tsIdx), c.getInt(moodIdIdx), c.getInt(timeOfDayIdx), c.getString(fileKeyIdx));
+						StatusMessageType.values()[c.getInt(typeIdx)], c.getLong(tsIdx), c.getInt(moodIdIdx), c.getInt(timeOfDayIdx), c.getString(fileKeyIdx), c.getInt(isReadIdx) == 1 ? true : false);
 				statusMessages.add(statusMessage);
 
 				List<StatusMessage> msisdnMessages = statusMessagesMap.get(msisdn);
@@ -5898,7 +5933,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 	public List<StatusMessage> getStatusMessages(boolean timelineUpdatesOnly, int limit, int lastStatusId, String... msisdnList)
 	{
 		String[] columns = new String[] { DBConstants.STATUS_ID, DBConstants.STATUS_MAPPED_ID, DBConstants.MSISDN, DBConstants.STATUS_TEXT, DBConstants.STATUS_TYPE,
-				DBConstants.TIMESTAMP, DBConstants.MOOD_ID, DBConstants.TIME_OF_DAY, DBConstants.FILE_KEY};
+				DBConstants.TIMESTAMP, DBConstants.MOOD_ID, DBConstants.TIME_OF_DAY, DBConstants.FILE_KEY, DBConstants.IS_READ};
 
 		StringBuilder selection = new StringBuilder();
 
@@ -5950,6 +5985,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 			int moodIdIdx = c.getColumnIndex(DBConstants.MOOD_ID);
 			int timeOfDayIdx = c.getColumnIndex(DBConstants.TIME_OF_DAY);
 			int fileKeyIdx = c.getColumnIndex(DBConstants.FILE_KEY);
+			int isReadIdx = c.getColumnIndex(DBConstants.IS_READ);
 
 			List<String> msisdns = new ArrayList<String>();
 
@@ -5958,7 +5994,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				String msisdn = c.getString(msisdnIdx);
 
 				StatusMessage statusMessage = new StatusMessage(c.getLong(idIdx), c.getString(mappedIdIdx), msisdn, null, c.getString(textIdx),
-						StatusMessageType.values()[c.getInt(typeIdx)], c.getLong(tsIdx), c.getInt(moodIdIdx), c.getInt(timeOfDayIdx),c.getString(fileKeyIdx));
+						StatusMessageType.values()[c.getInt(typeIdx)], c.getLong(tsIdx), c.getInt(moodIdIdx), c.getInt(timeOfDayIdx), c.getString(fileKeyIdx), c.getInt(isReadIdx) == 1 ? true : false);
 				statusMessages.add(statusMessage);
 
 				List<StatusMessage> msisdnMessages = statusMessagesMap.get(msisdn);
@@ -6015,7 +6051,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 			return statusMessagesMap;
 		}
 		String[] columns = new String[] { DBConstants.STATUS_ID, DBConstants.STATUS_MAPPED_ID, DBConstants.MSISDN, DBConstants.STATUS_TEXT, DBConstants.STATUS_TYPE,
-				DBConstants.TIMESTAMP, DBConstants.MOOD_ID, DBConstants.TIME_OF_DAY };
+				DBConstants.TIMESTAMP, DBConstants.MOOD_ID, DBConstants.TIME_OF_DAY, DBConstants.IS_READ };
 
 		StringBuilder selection = new StringBuilder();
 
@@ -6070,13 +6106,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 			int tsIdx = c.getColumnIndex(DBConstants.TIMESTAMP);
 			int moodIdIdx = c.getColumnIndex(DBConstants.MOOD_ID);
 			int timeOfDayIdx = c.getColumnIndex(DBConstants.TIME_OF_DAY);
+			int isReadIdx = c.getColumnIndex(DBConstants.IS_READ);
 
 			while (c.moveToNext())
 			{
 				String msisdn = c.getString(msisdnIdx);
 
 				StatusMessage statusMessage = new StatusMessage(c.getLong(idIdx), c.getString(mappedIdIdx), msisdn, null, c.getString(textIdx),
-						StatusMessageType.values()[c.getInt(typeIdx)], c.getLong(tsIdx), c.getInt(moodIdIdx), c.getInt(timeOfDayIdx));
+						StatusMessageType.values()[c.getInt(typeIdx)], c.getLong(tsIdx), c.getInt(moodIdIdx), c.getInt(timeOfDayIdx), null, c.getInt(isReadIdx) == 1? true: false);
 				statusMessagesMap.put(msisdn, statusMessage);
 
 			}
@@ -6096,7 +6133,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		StatusMessage statusMessage = null;
 
 		String[] columns = new String[] { DBConstants.STATUS_ID, DBConstants.STATUS_MAPPED_ID, DBConstants.MSISDN, DBConstants.STATUS_TEXT, DBConstants.STATUS_TYPE,
-				DBConstants.TIMESTAMP, DBConstants.MOOD_ID, DBConstants.TIME_OF_DAY };
+				DBConstants.TIMESTAMP, DBConstants.MOOD_ID, DBConstants.TIME_OF_DAY, DBConstants.IS_READ };
 
 		String selection = DBConstants.STATUS_MAPPED_ID + " = ?";
 		
@@ -6113,13 +6150,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 			int tsIdx = c.getColumnIndex(DBConstants.TIMESTAMP);
 			int moodIdIdx = c.getColumnIndex(DBConstants.MOOD_ID);
 			int timeOfDayIdx = c.getColumnIndex(DBConstants.TIME_OF_DAY);
+			int isReadIdx = c.getColumnIndex(DBConstants.IS_READ);
 
 			while (c.moveToNext())
 			{
 				String msisdn = c.getString(msisdnIdx);
 
 				statusMessage = new StatusMessage(c.getLong(idIdx), c.getString(mappedIdIdx), msisdn, null, c.getString(textIdx), StatusMessageType.values()[c.getInt(typeIdx)],
-						c.getLong(tsIdx), c.getInt(moodIdIdx), c.getInt(timeOfDayIdx));
+						c.getLong(tsIdx), c.getInt(moodIdIdx), c.getInt(timeOfDayIdx), null, c.getInt(isReadIdx) == 1?true:false);
 			}
 		}
 		finally
@@ -11794,6 +11832,180 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		asset.setIsDownloaded((byte) isDownloaded);
 
 		return asset;
+	}
+
+	public List<StoryItem<StatusMessage, ContactInfo>> getAllStories(@StoryItem.StoryCategory int storyCategory) {
+		return getStories(storyCategory, null);
+	}
+
+	public List<StoryItem<StatusMessage, ContactInfo>> getStories(@StoryItem.StoryCategory int storyCategory, List<String> msisdnsSelectionList) {
+		List<StoryItem<StatusMessage, ContactInfo>> storyList = new ArrayList<>(); // Atleast return empty list obj
+
+		String selection = null;
+
+		long storyTimeLimit = TimeUnit.HOURS.toSeconds(24);
+		long currentTimeSec = System.currentTimeMillis() / 1000;
+		long storyTimeRange = currentTimeSec - storyTimeLimit;
+
+		//Choose selection as per story
+		if (storyCategory == StoryItem.CATEGORY_NONE) {
+			// Unsupported
+		} else if (storyCategory == StoryItem.CATEGORY_RECENT) {
+			//Recent stories
+			selection = DBConstants.TIMESTAMP + " > " + storyTimeRange + " AND " //time range
+					+ DBConstants.IS_READ + " = 0" + " AND " // not read
+					+ DBConstants.STATUS_TYPE + " IN (" + StatusMessageType.PROFILE_PIC.ordinal() //profile pic
+					+ "," + StatusMessageType.IMAGE.ordinal() // photo post
+					+ "," + StatusMessageType.TEXT_IMAGE.ordinal() + " )"; // photo post with caption
+		} else if (storyCategory == StoryItem.CATEGORY_ALL) {
+			//All photo posts
+			selection = DBConstants.TIMESTAMP + " > " + storyTimeRange + " AND " //time range
+					+ DBConstants.IS_READ + " = 1" + " AND " // not read
+					+ DBConstants.STATUS_TYPE + " IN (" + StatusMessageType.PROFILE_PIC.ordinal() //profile pic
+					+ "," + StatusMessageType.IMAGE.ordinal() // photo post
+					+ "," + StatusMessageType.TEXT_IMAGE.ordinal() + " )"; // photo post with caption
+		} else if (storyCategory == StoryItem.CATEGORY_DEFAULT) {
+			//Camera shy
+			selection = DBConstants.TIMESTAMP + " > " + storyTimeRange; //time range
+		}
+
+		if (selection != null) {
+
+			StringBuilder selectionBuilder = new StringBuilder(selection);
+			//If msisdns are present, add them to selection
+			StringBuilder msisdnSelection = null;
+			if (!Utils.isEmpty(msisdnsSelectionList)) {
+				msisdnSelection = new StringBuilder("(");
+				for (String msisdn : msisdnsSelectionList) {
+					msisdnSelection.append(DatabaseUtils.sqlEscapeString(msisdn) + ",");
+				}
+				msisdnSelection.replace(msisdnSelection.lastIndexOf(","), msisdnSelection.length(), ")");
+			}
+
+			if (!TextUtils.isEmpty(msisdnSelection)) {
+				selectionBuilder.append(" AND " + DBConstants.MSISDN + " IN " + msisdnSelection.toString());
+				selection = selectionBuilder.toString();
+			}
+
+			// Need all columns to make StatusMessage model object
+			String[] columns = new String[]{DBConstants.STATUS_ID, DBConstants.STATUS_MAPPED_ID, DBConstants.MSISDN, DBConstants.STATUS_TEXT, DBConstants.STATUS_TYPE,
+					DBConstants.TIMESTAMP, DBConstants.MOOD_ID, DBConstants.TIME_OF_DAY, DBConstants.FILE_KEY, DBConstants.IS_READ};
+
+			Cursor c = null;
+			try {
+				c = mDb.query(DBConstants.STATUS_TABLE, columns, selection, null, null, null, DBConstants.TIMESTAMP + " DESC");
+
+				List<StatusMessage> statusMessages = new ArrayList<StatusMessage>(c.getCount());
+				Map<String, List<StatusMessage>> statusMessagesMap = new HashMap<String, List<StatusMessage>>();
+
+				int idIdx = c.getColumnIndex(DBConstants.STATUS_ID);
+				int mappedIdIdx = c.getColumnIndex(DBConstants.STATUS_MAPPED_ID);
+				int msisdnIdx = c.getColumnIndex(DBConstants.MSISDN);
+				int textIdx = c.getColumnIndex(DBConstants.STATUS_TEXT);
+				int typeIdx = c.getColumnIndex(DBConstants.STATUS_TYPE);
+				int tsIdx = c.getColumnIndex(DBConstants.TIMESTAMP);
+				int moodIdIdx = c.getColumnIndex(DBConstants.MOOD_ID);
+				int timeOfDayIdx = c.getColumnIndex(DBConstants.TIME_OF_DAY);
+				int fileKeyIdx = c.getColumnIndex(DBConstants.FILE_KEY);
+				int isReadIdx = c.getColumnIndex(DBConstants.IS_READ);
+
+				List<String> msisdns = new ArrayList<String>();
+
+				while (c.moveToNext()) {
+					String msisdn = c.getString(msisdnIdx);
+
+					// If ^ is a stealth msisdn and stealth mode is off, move to next msisdn
+					if (StealthModeManager.getInstance().isStealthMsisdn(msisdn) && !StealthModeManager.getInstance().isActive()) {
+						continue;
+					}
+
+					//Do not add to stories list for self-posts
+					if (msisdn.equals(ContactManager.getInstance().getSelfMsisdn())) {
+						continue;
+					}
+
+					StatusMessage statusMessage = new StatusMessage(c.getLong(idIdx), c.getString(mappedIdIdx), msisdn, null, c.getString(textIdx),
+							StatusMessageType.values()[c.getInt(typeIdx)], c.getLong(tsIdx), c.getInt(moodIdIdx), c.getInt(timeOfDayIdx), c.getString(fileKeyIdx), c.getInt(isReadIdx) == 1 ? true : false);
+					statusMessages.add(statusMessage);
+
+					List<StatusMessage> msisdnMessages = statusMessagesMap.get(msisdn);
+					if (msisdnMessages == null) {
+						msisdns.add(msisdn);
+						msisdnMessages = new ArrayList<StatusMessage>();
+						statusMessagesMap.put(msisdn, msisdnMessages);
+					}
+
+					msisdnMessages.add(statusMessage);
+				}
+
+				ContactInfo.FavoriteType[] favoriteTypes = new ContactInfo.FavoriteType[]{ContactInfo.FavoriteType.FRIEND, ContactInfo.FavoriteType.REQUEST_SENT, ContactInfo.FavoriteType.REQUEST_SENT_REJECTED};
+				List<ContactInfo> friendsList = ContactManager.getInstance().getContactsOfFavoriteType(favoriteTypes, HikeConstants.ON_HIKE_VALUE, ContactManager.getInstance().getSelfMsisdn(), false, false);
+
+				if (msisdns.size() > 0) {
+					List<ContactInfo> contactList = ContactManager.getInstance().getContact(msisdns, true, true);
+
+					for (ContactInfo contactInfo : contactList) {
+						List<StatusMessage> msisdnMessages = statusMessagesMap.get(contactInfo.getMsisdn());
+						if (msisdnMessages != null) {
+							for (StatusMessage statusMessage : msisdnMessages) {
+								statusMessage.setName(contactInfo.getName());
+							}
+						} else {
+							continue;
+						}
+
+						//For StoryItem.CATEGORY_DEFAULT, get friends list and select only those who have not posted in last 24 hours i.e. storyTimeRange
+						if (storyCategory == StoryItem.CATEGORY_DEFAULT) {
+							boolean hasRecentlyPosted = false;
+							for (ContactInfo friendInfo : friendsList) {
+								if (friendInfo.getMsisdn().equals(contactInfo.getMsisdn())) {
+									hasRecentlyPosted = true;
+									break;
+								}
+							}
+							if (hasRecentlyPosted) {
+								friendsList.remove(contactInfo.getMsisdn());
+							}
+						} else {
+							// Make a story item
+							StoryItem<StatusMessage, ContactInfo> storyItem = new StoryItem<>(StoryItem.TYPE_FRIEND, contactInfo.getNameOrMsisdn());
+							storyItem.setSubText(msisdnMessages.get(0).getTimestampFormatted(true, HikeMessengerApp.getInstance().getApplicationContext()));
+							storyItem.setTypeInfo(contactInfo);
+							storyItem.setDataObjectList(msisdnMessages);
+							storyItem.setCategory(storyCategory);
+							storyList.add(storyItem);
+						}
+					}
+				}
+
+				if (storyCategory == StoryItem.CATEGORY_DEFAULT) {
+					for (ContactInfo friendInfo : friendsList) {
+						String friendMsisdn = friendInfo.getMsisdn();
+
+						// Exclude self msisnd
+						if (friendMsisdn.equals(ContactManager.getInstance().getSelfMsisdn())) {
+							continue;
+						}
+						// If ^ is a stealth msisdn and stealth mode is off, move to next msisdn
+						if (StealthModeManager.getInstance().isStealthMsisdn(friendMsisdn) && !StealthModeManager.getInstance().isActive()) {
+							continue;
+						}
+						StoryItem<StatusMessage, ContactInfo> storyItem = new StoryItem<>(StoryItem.TYPE_FRIEND, friendInfo.getNameOrMsisdn());
+						storyItem.setSubText(StoryShyTextGenerator.getInstance().getCameraShySubText());
+						storyItem.setTypeInfo(friendInfo);
+						storyItem.setCategory(storyCategory);
+						storyList.add(storyItem);
+					}
+				}
+			} finally {
+				if (c != null) {
+					c.close();
+				}
+			}
+		}
+
+		return storyList;
+
 	}
 
 	private String getUserParameterTableCreateQuery()

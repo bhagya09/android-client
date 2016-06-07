@@ -95,6 +95,10 @@
     <style name="ComposeList" parent="ComposeListParent">
         <item name="android:listSelector">@drawable/listripple</item>
     </style>
+
+    <style name="StoryList" parent="StoryListParent">
+        <item name="android:listSelector">@drawable/listripple</item>
+    </style>
     
      <style name="ButtonCustomDialog" parent="ButtonCustomDialogBase">
      </style>

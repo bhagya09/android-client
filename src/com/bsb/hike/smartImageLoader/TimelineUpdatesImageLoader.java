@@ -16,20 +16,21 @@
 
 package com.bsb.hike.smartImageLoader;
 
-import java.io.File;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.text.TextUtils;
 
-import com.bsb.hike.HikeConstants;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
+import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+
+import java.io.File;
 
 /**
  * A simple subclass of {@link ImageResizer} that fetches and resizes images fetched from a URL.
@@ -43,6 +44,8 @@ public class TimelineUpdatesImageLoader extends ImageWorker
 	private int mImageHeight;
 
 	private Context context;
+
+	public static final String SMALL_ICON_ID_SUFFIX = "_icon";
 
 	/**
 	 * Initialize providing a target image width and height for the processing images.
@@ -116,11 +119,17 @@ public class TimelineUpdatesImageLoader extends ImageWorker
 	private Bitmap loadImage(String id, boolean loadingProfilePic, StatusMessage statusMessage)
 	{
 		Bitmap bitmap = null;
-		String fileName = Utils.getProfileImageFileName(id);
-		File orgFile =  new File(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT, fileName);
 
-		if (!orgFile.exists())
-		{
+		String fileID = id;
+		int idx = id.lastIndexOf(SMALL_ICON_ID_SUFFIX);
+		if (idx > 0) {
+			fileID = id.substring(0, idx);
+		}
+
+		String fileName = Utils.getProfileImageFileName(fileID);
+		File orgFile = new File(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT, fileName);
+
+		if (!orgFile.exists()) {
 			Bitmap cacheBmp = getFromCache(id, loadingProfilePic, statusMessage);
 			if(cacheBmp!=null)
 				return cacheBmp;

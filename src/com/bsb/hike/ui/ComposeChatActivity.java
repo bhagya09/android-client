@@ -1966,7 +1966,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					return;
 				}
 
-				intent = Utils.getHomeActivityIntent(this);
+				intent = IntentFactory.getHomeActivityDefaultTabIntent(this);
 			}
 			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			arrayList = forwardMessageAsPerType(presentIntent, intent, arrayList);
@@ -2158,7 +2158,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				else
 				{
 					// home activity
-					intent = Utils.getHomeActivityIntent(this);
+					intent = IntentFactory.getHomeActivityDefaultTabIntent(this);
 				}
 
 

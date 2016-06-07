@@ -4339,6 +4339,8 @@ public class HikeConstants
 
 		public static final String FORWARD_SCREEN = "fwd_screen";
 
+		public static final String ADDED_ME_SCREEN = "added_me_screen";
+
 		public static final String NOTIF = "notif";
 
 		public static final String ATOMIC_TIP = "atomic_tip";

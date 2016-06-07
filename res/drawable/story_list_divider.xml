@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:drawable="@color/home_screen_list_divider"
+        android:left="80dp"
+        android:right="@dimen/settings_screen_divider_right_padding"/>
+
+</layer-list>

@@ -1054,8 +1054,14 @@
 	 <style name="ComposeListParent" parent="HomeList">
         <item name="android:divider">@drawable/compose_list_divider</item>
     </style>
+
+    <style name="StoryListParent" parent="HomeList">
+        <item name="android:divider">@drawable/story_list_divider</item>
+    </style>
     
 	 <style name="ComposeList" parent="ComposeListParent" />
+
+    <style name="StoryList" parent="StoryListParent" />
 	 
 	 <style name="WebView.Theme" parent="AppTheme">
 	    <item name="vpiTabPageIndicatorStyle">@style/CustomTabPageIndicator</item>
