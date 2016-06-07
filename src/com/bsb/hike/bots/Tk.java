@@ -1,8 +1,11 @@
 package com.bsb.hike.bots;
 
+import com.bsb.hike.utils.CustomAnnotation.DoNotObfuscate;
+
 /**
  * Created by konarkarora on 01/05/16.
  */
+@DoNotObfuscate
 public class Tk {
 
     private String v;
