@@ -23,11 +23,11 @@ public class SpaceManagerItemsFetcher
 
 	private static final String TAG = "SpaceManagerItemsFetcher";
 
-	private static final String DEFAULT_CATEGORY_CLASS = "com.bsb.hike.spaceManager.items.ReceivedItems";
+	private static final String DEFAULT_CATEGORY_CLASS = "com.bsb.hike.spaceManager.items.ReceivedItemsCategory";
 
 	private static final String DEFAULT_CATEGORY_HEADER = "Received Content";
 
-	private static final String DEFAULT_SUB_CATEGORY_CLASS = "com.bsb.hike.spaceManager.items.ViralHumorImages";
+	private static final String DEFAULT_SUB_CATEGORY_CLASS = "com.bsb.hike.spaceManager.items.ViralImagesSubCategory";
 
 	private static final String DEFAULT_SUB_CATEGORY_HEADER = "Just For Laugh Images";
 

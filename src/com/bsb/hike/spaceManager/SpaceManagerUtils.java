@@ -34,9 +34,9 @@ public class SpaceManagerUtils
 
     private static final String DIRECTORY = "dir";
 
-    public static final String CATEGORY_TAG = "SpaceManagerCategory";
+    public static final String CATEGORY_TAG = "CategoryItem";
 
-    public static final String SUB_CATEGORY_TAG = "SpaceManagerSubCategory";
+    public static final String SUB_CATEGORY_TAG = "SubCategoryItem";
 
     public static final String SPACE_MANAGER_ITEMS = "spcMgrItems";
 

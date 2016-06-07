@@ -5,9 +5,9 @@ import com.google.gson.Gson;
 /**
  * @author paramshah
  */
-public abstract class SpaceManagerSubCategory extends SpaceManagerItem implements SpaceManagerItem.SpaceManagerDeleteListener
+public abstract class SubCategoryItem extends SpaceManagerItem implements SpaceManagerItem.SpaceManagerDeleteListener
 {
-    public SpaceManagerSubCategory(String header)
+    public SubCategoryItem(String header)
     {
         setHeader(header);
         setType(SUBCATEGORY);

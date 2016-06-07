@@ -8,11 +8,11 @@ import java.util.List;
 /**
  * @author paramshah
  */
-public abstract class SpaceManagerCategory extends SpaceManagerItem
+public abstract class CategoryItem extends SpaceManagerItem
 {
-    private List<SpaceManagerSubCategory> subCategoryList;
+    private List<SubCategoryItem> subCategoryList;
 
-    public SpaceManagerCategory(String header, ArrayList<SpaceManagerSubCategory> subCategories)
+    public CategoryItem(String header, ArrayList<SubCategoryItem> subCategories)
     {
         setHeader(header);
         setType(CATEGORY);
@@ -22,14 +22,14 @@ public abstract class SpaceManagerCategory extends SpaceManagerItem
     public long computeSize()
     {
         long size = 0;
-        for(SpaceManagerSubCategory subCategory : subCategoryList)
+        for(SubCategoryItem subCategory : subCategoryList)
         {
             size += subCategory.getSize();
         }
         return size;
     }
 
-    public List<SpaceManagerSubCategory> getSubCategoryList()
+    public List<SubCategoryItem> getSubCategoryList()
     {
         return subCategoryList;
     }

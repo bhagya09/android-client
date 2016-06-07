@@ -1,10 +1,10 @@
 package com.bsb.hike.spaceManager;
 
-import com.bsb.hike.spaceManager.models.SpaceManagerCategory;
+import com.bsb.hike.spaceManager.models.CategoryItem;
 import com.bsb.hike.spaceManager.models.CategoryPojo;
 import com.bsb.hike.spaceManager.models.SpaceManagerItem;
+import com.bsb.hike.spaceManager.models.SubCategoryItem;
 import com.bsb.hike.spaceManager.models.SubCategoryPojo;
-import com.bsb.hike.spaceManager.models.SpaceManagerSubCategory;
 import com.bsb.hike.utils.Logger;
 
 import java.lang.reflect.Constructor;
@@ -33,27 +33,27 @@ public class SpaceManagerJavaReflector
         return categoryList;
     }
 
-    private static SpaceManagerCategory getCategoryFromPojo(CategoryPojo categoryPojo) throws ClassNotFoundException,
+    private static CategoryItem getCategoryFromPojo(CategoryPojo categoryPojo) throws ClassNotFoundException,
             InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, IllegalArgumentException
     {
         Logger.d(TAG, "in getCategoryFromPojo");
-        List<SpaceManagerSubCategory> subCategories = new ArrayList<>();
+        List<SubCategoryItem> subCategories = new ArrayList<>();
         for(SubCategoryPojo subCategoryPojo : categoryPojo.getSubCategoryList())
         {
             subCategories.add(getSubCategoryFromPojo(subCategoryPojo));
         }
         Class categoryClass = Class.forName(categoryPojo.getClassName());
         Constructor categoryConstructor = categoryClass.getConstructor(String.class, ArrayList.class);
-        return (SpaceManagerCategory) categoryConstructor.newInstance(categoryPojo.getHeader(), subCategories);
+        return (CategoryItem) categoryConstructor.newInstance(categoryPojo.getHeader(), subCategories);
 
     }
 
-    private static SpaceManagerSubCategory getSubCategoryFromPojo(SubCategoryPojo subCategoryPojo) throws ClassNotFoundException,
+    private static SubCategoryItem getSubCategoryFromPojo(SubCategoryPojo subCategoryPojo) throws ClassNotFoundException,
             InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, IllegalArgumentException
     {
         Logger.d(TAG, "in getSubCategoryFromPojo");
         Class subCategoryClass = Class.forName(subCategoryPojo.getClassName());
         Constructor subCategoryConstructor = subCategoryClass.getConstructor(String.class);
-        return (SpaceManagerSubCategory) subCategoryConstructor.newInstance(subCategoryPojo.getHeader());
+        return (SubCategoryItem) subCategoryConstructor.newInstance(subCategoryPojo.getHeader());
     }
 }

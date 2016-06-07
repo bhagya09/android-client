@@ -1,15 +1,15 @@
 package com.bsb.hike.spaceManager.items;
 
-import com.bsb.hike.spaceManager.models.SpaceManagerSubCategory;
+import com.bsb.hike.spaceManager.models.SubCategoryItem;
 import com.bsb.hike.utils.Logger;
 import static com.bsb.hike.spaceManager.SpaceManagerUtils.SUB_CATEGORY_TAG;
 
 /**
  * @author paramshah
  */
-public class ViralHumorImages extends SpaceManagerSubCategory
+public class ViralImagesSubCategory extends SubCategoryItem
 {
-	public ViralHumorImages(String header)
+	public ViralImagesSubCategory(String header)
 	{
 		super(header);
 		setSize(computeSize());
