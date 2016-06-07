@@ -8,7 +8,6 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.utils.IntentFactory;
-import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 import org.json.JSONArray;
@@ -23,7 +22,7 @@ import java.util.Map;
  * Provides directory/file size as requested via packet from server.
  *
  */
-public class StorageSpecUtils
+public class SpaceManagerUtils
 {
     private static final String HIKE_STORAGE_INTERNAL = "internal";
 
@@ -34,6 +33,12 @@ public class StorageSpecUtils
     private static final String FILE = "file";
 
     private static final String DIRECTORY = "dir";
+
+    public static final String CATEGORY_TAG = "CategoryItem";
+
+    public static final String SUB_CATEGORY_TAG = "SubCategoryItem";
+
+    public static final String SPACE_MANAGER_ITEMS = "spcMgrItems";
 
     /**
      * Computes and returns a Map with key as directory path and value as directory size. The boolean
@@ -250,7 +255,7 @@ public class StorageSpecUtils
     }
 
     /**
-     * Methhod to trigger {@link StorageSpecIntentService} with appropriate action
+     * Methhod to trigger {@link SpaceManagerIntentService} with appropriate action
      * @param dirPath
      * @param shouldMapContainedFiles
      */
@@ -259,22 +264,22 @@ public class StorageSpecUtils
         switch (dirPath)
         {
             case HIKE_STORAGE_INTERNAL:
-                IntentFactory.startStorageSpecIntent(StorageSpecIntentService.ACTION_GET_INTERNAL_STORAGE_ANALYTICS,
+                IntentFactory.startStorageSpecIntent(SpaceManagerIntentService.ACTION_GET_INTERNAL_STORAGE_ANALYTICS,
                         null, shouldMapContainedFiles);
                 break;
 
             case HIKE_STORAGE_EXTERNAL:
-                IntentFactory.startStorageSpecIntent(StorageSpecIntentService.ACTION_GET_EXTERNAL_STORAGE_ANALYTICS,
+                IntentFactory.startStorageSpecIntent(SpaceManagerIntentService.ACTION_GET_EXTERNAL_STORAGE_ANALYTICS,
                         null, shouldMapContainedFiles);
                 break;
 
             case HIKE_STORAGE_SHARED:
-                IntentFactory.startStorageSpecIntent(StorageSpecIntentService.ACTION_GET_SHARED_STORAGE_ANALYTICS,
+                IntentFactory.startStorageSpecIntent(SpaceManagerIntentService.ACTION_GET_SHARED_STORAGE_ANALYTICS,
                         null, shouldMapContainedFiles);
                 break;
 
             default:
-                IntentFactory.startStorageSpecIntent(StorageSpecIntentService.ACTION_GET_CUSTOM_DIRECTORY_ANALYTICS,
+                IntentFactory.startStorageSpecIntent(SpaceManagerIntentService.ACTION_GET_CUSTOM_DIRECTORY_ANALYTICS,
                         dirPath, shouldMapContainedFiles);
         }
     }

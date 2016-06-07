@@ -123,6 +123,7 @@
         android:largeHeap="true"
         android:logo="@drawable/hike_logo_top_bar"
         tools:replace="android:name,android:allowBackup"
+        android:manageSpaceActivity=".spaceManager.ManageSpaceActivity"
         android:theme="@style/AppTheme" >
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -154,7 +155,7 @@
         </service>
 
         <service android:name=".service.UpgradeIntentService" />
-        <service android:name=".spaceManager.StorageSpecIntentService" />
+        <service android:name=".spaceManager.SpaceManagerIntentService" />
         <service android:name=".GCMIntentService" />
         <activity
             android:name=".ui.HomeActivity"
@@ -457,6 +458,11 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".spaceManager.ManageSpaceActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" >
+        </activity>
+         
         <receiver
             android:name=".service.BootService"
             android:enabled="true" >

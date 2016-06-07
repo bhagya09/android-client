@@ -1,20 +1,17 @@
 package com.bsb.hike.spaceManager;
 
-import android.app.IntentService;
-import android.content.Context;
 import android.content.Intent;
 
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.customClasses.HikeIntentService;
 
 /**
  * IntentService class to trigger & compute directory sizes as per received packet
  */
-public class StorageSpecIntentService extends HikeIntentService
+public class SpaceManagerIntentService extends HikeIntentService
 {
-    private static final String TAG = "StorageSpecIntentService";
+    private static final String TAG = "SpaceManagerIntentService";
 
     public static final String ACTION_GET_CUSTOM_DIRECTORY_ANALYTICS = "com.bsb.hike.CUSTOM_DIRECTORY_ANALYTICS";
 
@@ -24,7 +21,9 @@ public class StorageSpecIntentService extends HikeIntentService
 
     public static final String ACTION_GET_SHARED_STORAGE_ANALYTICS = "com.bsb.hike.SHARED_STORAGE_ANALYTICS";
 
-    public StorageSpecIntentService()
+    public static final String ACTION_FETCH_SPACE_MANAGER_ITEMS = "com.bsb.hike.FETCH_SPC_MGR_ITEMS";
+
+    public SpaceManagerIntentService()
     {
         super(TAG);
     }
@@ -59,26 +58,35 @@ public class StorageSpecIntentService extends HikeIntentService
             case ACTION_GET_SHARED_STORAGE_ANALYTICS:
                 sharedStorageAnalytics(shouldMapContainedFiles);
                 break;
+
+            case ACTION_FETCH_SPACE_MANAGER_ITEMS:
+                fetchSpaceManagerItems();
+                break;
         }
     }
 
     private void customDirectoryAnalytics(String dirPath, boolean shouldMapContainedFiles)
     {
-        StorageSpecUtils.recordDirectoryAnalytics(dirPath, shouldMapContainedFiles);
+        SpaceManagerUtils.recordDirectoryAnalytics(dirPath, shouldMapContainedFiles);
     }
 
     private void internalStorageAnalytics(boolean shouldMapContainedFiles)
     {
-        StorageSpecUtils.recordInternalHikeDirAnalytics(shouldMapContainedFiles);
+        SpaceManagerUtils.recordInternalHikeDirAnalytics(shouldMapContainedFiles);
     }
 
     private void externalStorageAnalytics(boolean shouldMapContainedFiles)
     {
-        StorageSpecUtils.recordExternalHikeDirAnalytics(shouldMapContainedFiles);
+        SpaceManagerUtils.recordExternalHikeDirAnalytics(shouldMapContainedFiles);
     }
 
     private void sharedStorageAnalytics(boolean shouldMapContainedFiles)
     {
-        StorageSpecUtils.recordSharedHikeDirAnalytics(shouldMapContainedFiles);
+        SpaceManagerUtils.recordSharedHikeDirAnalytics(shouldMapContainedFiles);
+    }
+
+    private void fetchSpaceManagerItems()
+    {
+        SpaceManagerItemsFetcher.fetchItems();
     }
 }
