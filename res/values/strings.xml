@@ -1677,6 +1677,7 @@
     <string name="uj_default_pretype_text">Hi</string>
     <string name="uj_default_cta_say_hi">Say Hi</string>
     <string name="uj_default_cta_add_friend">Add Friend</string>
+    <string name="space_manager">Manage Space</string>
     <string name="ct_confirmation_dialog">This will apply the Chat theme on your friends device too.</string>
     <string name="manage_privacy">Manage Privacy</string>
     <string name="last_seen">Last Seen</string>
