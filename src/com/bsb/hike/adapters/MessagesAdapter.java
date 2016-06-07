@@ -4602,8 +4602,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	 */
 	private void notifyFileThumbnailDataSetChanged()
 	{
-		int start = mListView.getFirstVisiblePosition();
-		int last = mListView.getLastVisiblePosition();
+		//As In case of unknown contact, header is shown for unknonw user info
+		int start = mListView.getFirstVisiblePosition() - mListView.getHeaderViewsCount();
+		int last = mListView.getLastVisiblePosition() - mListView.getHeaderViewsCount();
 		for (int i = start, j = last; i <= j; i++)
 		{
 			// adding a defensive check here ACRA crash IOB it suggests we are accessing i=convMessages.size()
@@ -4612,8 +4613,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				continue;
 			}
 
-			//As In case of unknown contact, header is shown for unknonw user info
-			Object object = mListView.getItemAtPosition(i + mListView.getHeaderViewsCount());
+			Object object = mListView.getItemAtPosition(i);
 			if (object instanceof ConvMessage)
 			{
 				ConvMessage convMessage = (ConvMessage) object;
