@@ -708,15 +708,6 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 	public long getUnreadRequestReceivedTime() {
 		return unreadRequestReceivedTime;
 	}
-	public void toggleLastSeen()
-	{
-		mPrivacyPrefs.toggleLastSeen();
-	}
-
-	public void toggleStatusUpdate()
-	{
-		mPrivacyPrefs.toggleStatusUpdate();
-	}
 
 	public void setPrivacyPrefs(PrivacyPreferences prefs)
 	{
@@ -732,7 +723,7 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 	 * P.S. Don't use this for any UI related work.
 	 * @return
      */
-	public String getUserIdentifer() {
+	public String getUserIdentifier() {
 		return msisdn;
 	}
 
