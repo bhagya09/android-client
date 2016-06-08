@@ -458,7 +458,7 @@ public class HikeAnalyticsEvent
 			json.put(AnalyticsConstants.V2.UNIQUE_KEY, ChatAnalyticConstants.CTA_ACCESS);
 			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_PLAT);
 			json.put(AnalyticsConstants.V2.PHYLUM, layoutId);
-			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.CLASS, action);
 			json.put(AnalyticsConstants.V2.ORDER, ChatAnalyticConstants.CTA_ACCESS);
 			json.put(AnalyticsConstants.V2.SOURCE, ChatThreadUtils.getChatThreadType(msisdn));
 			json.put(AnalyticsConstants.V2.TO_USER, msisdn);
