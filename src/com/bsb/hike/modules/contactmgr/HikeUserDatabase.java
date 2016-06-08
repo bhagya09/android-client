@@ -3027,7 +3027,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 
 		int rows = mDb.update(DBConstants.USERS_TABLE, cv, DBConstants.MSISDN + " IN " + msisdnsString, null);
 		if (rows > 0) {
-			Utils.sendULSPacket(msisdns);
+			Utils.sendULSPacket(msisdns, newValue);
 		}
 
 	}
@@ -3063,7 +3063,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		int rows = mDb.update(DBConstants.USERS_TABLE, cv, DBConstants.MSISDN + " IN " + msisdnsString, null);
 
 		if (rows > 0){
-			Utils.sendUSUPacket(msisdns);
+			Utils.sendUSUPacket(msisdns, newValue);
 		}
 	}
 

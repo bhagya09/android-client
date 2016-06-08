@@ -1681,8 +1681,10 @@
     <string name="manage_privacy">Manage Privacy</string>
     <string name="last_seen">Last Seen</string>
     <string name="status_update">Timeline Update</string>
-    <string name="ls_privacy_subtext">You also won’t be able to see last seen if you turn it off</string>
-    <string name="su_privacy_subtext">You also won’t receive timeline updates if you turn if off</string>
+    <string name="ls_privacy_subtext">Switch off to hide your last seen</string>
+    <string name="su_privacy_subtext">Switch off to stop sharing updates</string>
+    <string name="ls_privacy_subtext_off">Hiding your last seen will also hide your friend’s last seen</string>
+    <string name="su_privacy_subtext_off">Hiding your timeline updates will also hide your friends’ timeline updates</string>
     <string name="qs_received_first_tip_text">Hey, you just received this sticker</string>
     <string name="qs_received_second_tip_text">Tap on it to reply with a sticker</string>
     <string name="qs_received_third_tip_text">Awesome, you got it!</string>
@@ -1711,5 +1713,6 @@
     <string name="sm_subcategory_subheader_text">SubCategory Size</string>
     <string name="qs_empty_page_text_sub_text_part_one">"Tap on"</string>
     <string name="qs_empty_page_text_sub_text_part_two">"to send a sticker"</string>
+
 </resources>
 

@@ -4472,6 +4472,8 @@ public class HikeConstants
 
 	public static final String STATUS_UPDATE_EXCLUSION = "su_ex";
 
+	public static final String STATUS_UPDATE_INCLUSION = "su_in";
+
 	public static final String LS_EXCLUSION = "ls_ex";
 
 	public static final String LS_INCLUSION = "ls_in";
