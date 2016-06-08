@@ -1915,6 +1915,8 @@ public class HikeConstants
 
 		public static final String HIKE_BDAY_MODE = "hikeBdayMode";
 
+		public static final String FROM_SETTINGS = "fromSettingsScreen";
+
 		// constants related to sharing Functioanlity
 		public static final class ShareTypes
 		{
@@ -4509,5 +4511,9 @@ public class HikeConstants
     public static final String DOWNLOAD_TYPE = "t_dwnld";
 
 	public static final String ENABLE_UNKNOWN_USER_INFO_IN_CHAT = "en_uu_info";
+
+	public static final String ENABLE_SPACE_MANAGER = "en_sm";
+
+	public static final String SPACE_MANAGER_SEEN_ONCE = "spcmgr_seen_once";
 
 }

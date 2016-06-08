@@ -2,7 +2,6 @@ package com.bsb.hike.spaceManager;
 
 import com.bsb.hike.spaceManager.models.CategoryItem;
 import com.bsb.hike.spaceManager.models.CategoryPojo;
-import com.bsb.hike.spaceManager.models.SpaceManagerItem;
 import com.bsb.hike.spaceManager.models.SubCategoryItem;
 import com.bsb.hike.spaceManager.models.SubCategoryPojo;
 import com.bsb.hike.utils.Logger;
@@ -17,11 +16,11 @@ import java.util.List;
  */
 public class SpaceManagerJavaReflector
 {
-    private static List<SpaceManagerItem> categoryList;
+    private static List<CategoryItem> categoryList;
 
     private static final String TAG = "SpaceManagerJavaReflector";
 
-    public static List<SpaceManagerItem> reflect(List<CategoryPojo> categoryPojoList) throws ClassNotFoundException,
+    public static List<CategoryItem> reflect(List<CategoryPojo> categoryPojoList) throws ClassNotFoundException,
             InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, IllegalArgumentException
     {
         Logger.d(TAG, "in reflect");

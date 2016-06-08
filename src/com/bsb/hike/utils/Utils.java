@@ -3058,14 +3058,14 @@ public class Utils
 		return result;
 	}
 
-	public static void deleteFile(Context context, String filename, HikeFileType type)
+	public static void deleteFile(Context context, String filename, HikeFileType type, boolean isSent)
 	{
 		if (TextUtils.isEmpty(filename))
 		{
 			return;
 		}
 
-		HikeFile temp = new HikeFile(new File(filename).getName(), HikeFileType.toString(type), null, null, 0, false, null);
+		HikeFile temp = new HikeFile(new File(filename).getName(), HikeFileType.toString(type), null, null, 0, isSent, null);
 		temp.delete(context);
 	}
 
@@ -6487,7 +6487,7 @@ public class Utils
 		}
 	}
 
-	public static void deleteFiles(Context context, ArrayList<String> fileNames, HikeFileType type)
+	public static void deleteFiles(Context context, ArrayList<String> fileNames, HikeFileType type, boolean isSent)
 	{
 		if (fileNames == null || fileNames.isEmpty())
 		{
@@ -6496,9 +6496,14 @@ public class Utils
 
 		for (String filepath : fileNames)
 		{
-			deleteFile(context, filepath, type);
+			deleteFile(context, filepath, type, isSent);
 		}
 
+	}
+
+	public static void deleteFiles(Context context, ArrayList<String> fileNames, HikeFileType type)
+	{
+		deleteFiles(context, fileNames, type, false);
 	}
 
 	public static boolean isColumnExistsInTable(SQLiteDatabase db, String tableName, String givenColumnName)

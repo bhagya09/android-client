@@ -3473,6 +3473,12 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_UNKNOWN_USER_INFO_IN_CHAT, enableUnknownUserInfoView);
 		}
 
+		if(data.has(HikeConstants.ENABLE_SPACE_MANAGER))
+		{
+			boolean enableSM = data.getBoolean(HikeConstants.ENABLE_SPACE_MANAGER);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_SPACE_MANAGER, enableSM);
+		}
+
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 
