@@ -842,6 +842,21 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 		}
 	}
 
+	/*
+	 * Return actual receiver of the message.
+	 */
+	public String getReceiverMsisdn()
+	{
+		if(isSent() || (!TextUtils.isEmpty(groupParticipantMsisdn)))
+		{
+			return mMsisdn;
+		}
+		else
+		{
+			return ContactManager.getInstance().getSelfMsisdn();
+		}
+	}
+
 	public String getGroupParticipantMsisdn()
 	{
 		return groupParticipantMsisdn;

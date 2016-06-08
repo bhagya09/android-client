@@ -9,6 +9,7 @@ import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.utils.StickerManager;
 import com.google.android.gms.gcm.TaskParams;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -21,11 +22,13 @@ public class MultiStickerTagDownloadGcmTask implements IGcmTask
 	public Void execute(TaskParams taskParams)
 	{
 		Bundle extra = taskParams.getExtras();
-		Set<String> stickerList = new HashSet<String>(extra.getStringArrayList(HikeConstants.STICKERS));
-		Set<String> languages = new HashSet<String>(extra.getStringArrayList(HikeConstants.LANGUAGES));
+
+		String languageListString = extra.getString(HikeConstants.LANGUAGES);
+		Set<String> languages = new HashSet<String>(Arrays.asList(languageListString.split(",")));
+
 		int state = extra.getInt(HikeConstants.STATE);
 
-		StickerSearchManager.getInstance().downloadStickerTags(false, state, stickerList, languages);
+		StickerSearchManager.getInstance().downloadStickerTags(false, state, null, languages);
 		return null;
 	}
 }

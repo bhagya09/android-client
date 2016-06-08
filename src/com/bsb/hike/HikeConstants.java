@@ -3267,6 +3267,8 @@ public class HikeConstants
 
 	public static final String LARGE = "large";
 
+	public static final String MINI = "mini";
+
 	public static final int ATOMIC_APP_TIP_SETTINGS = 1;
 
 	public static final int ATOMIC_APP_TIP_SETTINGS_NOTIF = 2;
@@ -4341,6 +4343,8 @@ public class HikeConstants
 
 		public static final String FORWARD_SCREEN = "fwd_screen";
 
+		public static final String ADDED_ME_SCREEN = "added_me_screen";
+
 		public static final String NOTIF = "notif";
 
 		public static final String ATOMIC_TIP = "atomic_tip";
@@ -4417,6 +4421,8 @@ public class HikeConstants
 	public static final String REPLY = "reply";
 
 	public static final String SENT = "sent";
+
+	public static final String RECEIVED = "recvd";
 
 	public static final String LANG = "lang";
 

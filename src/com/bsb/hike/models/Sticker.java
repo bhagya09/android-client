@@ -393,4 +393,9 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
     {
 		return isStickerAvailable() ? StickerConstants.StickerType.LARGE : StickerConstants.StickerType.MINI;
     }
+
+	public String getStickerTypeString()
+	{
+		return isStickerAvailable() ? HikeConstants.LARGE : HikeConstants.MINI;
+	}
 }

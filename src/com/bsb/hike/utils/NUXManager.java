@@ -117,7 +117,7 @@ public class NUXManager
 
 			setCurrentState(NUX_IS_ACTIVE);
 
-			activity.startActivity(Utils.getHomeActivityIntent(activity));
+			activity.startActivity(IntentFactory.getHomeActivityDefaultTabIntent(activity));
 			activity.finish();
 
 		}

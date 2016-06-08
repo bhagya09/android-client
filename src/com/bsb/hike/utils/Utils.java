@@ -1,59 +1,5 @@
 package com.bsb.hike.utils;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Field;
-import java.net.URI;
-import java.net.URL;
-import java.nio.CharBuffer;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Random;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.concurrent.RejectedExecutionHandler;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.jar.JarFile;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.zip.GZIPInputStream;
-
-import org.apache.http.NameValuePair;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AuthenticatorDescription;
@@ -243,16 +189,72 @@ import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.SignupActivity;
 import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.ui.WelcomeActivity;
+import com.bsb.hike.ui.fragments.AddedMeFragment;
+import com.bsb.hike.ui.fragments.MyFragment;
 import com.bsb.hike.voip.VoIPUtils;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.maps.model.LatLng;
 
+import org.apache.http.NameValuePair;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Field;
+import java.net.URI;
+import java.net.URL;
+import java.nio.CharBuffer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Random;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.jar.JarFile;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
+
 public class Utils
 {
 	private static final String TAG = Utils.class.getSimpleName();
 
-	// Precision points definition for duration logging========================================[[
+    // Precision points definition for duration logging========================================[[
 	public static final class ExecutionDurationLogger
 	{
 		public static final String TAG = ExecutionDurationLogger.class.getSimpleName();
@@ -996,24 +998,12 @@ public class Utils
 
 	public static ContactInfo getUserContactInfo(boolean showNameAsYou)
 	{
-		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
-		String myMsisdn = prefs.getData(HikeMessengerApp.MSISDN_SETTING, null);
-		long userJoinTime = prefs.getData(HikeMessengerApp.USER_JOIN_TIME, 0L);
+		return getUserContactInfo(HikeSharedPreferenceUtil.getInstance().getPref(), showNameAsYou);
+	}
 
-		String myName;
-		if (showNameAsYou)
-		{
-			myName = "You";
-		}
-		else
-		{
-			myName = prefs.getData(HikeMessengerApp.NAME_SETTING, null);
-		}
-
-		ContactInfo contactInfo = new ContactInfo(myName, myMsisdn, myName, myMsisdn, true);
-		contactInfo.setHikeJoinTime(userJoinTime);
-
-		return contactInfo;
+	public static ContactInfo getUserContactInfo()
+	{
+		return getUserContactInfo(false);
 	}
 
 	public static boolean isVersionNameHigher(String oldVersion, String newVersion, Context context) throws NumberFormatException
@@ -7070,10 +7060,18 @@ public class Utils
 		return isAndroidDataStorageDir;
 	}
 
-	/*
+	/**
+	 * Returns a comma seprated string from a given list
+	 */
+	public static String listToString(Collection<String> strings)
+	{
+		return listToString(strings, ",");
+	}
+
+	/**
 	 * Returns a interval added string from a given list
 	 */
-	public static String listToString(List<String> list, String strInterVal)
+	public static String listToString(Collection<String> list, String strInterVal)
 	{
 		if (list == null)
 		{
@@ -8179,6 +8177,11 @@ public class Utils
 
 	}
 
+	public static void incrementFriendRequestReceivedCounters() {
+		AddedMeFragment.incrementBadgeCount();
+		MyFragment.incrementBadgeCount();
+	}
+
 	public static void clearNoMediaAndRescan(File dir, boolean rescan) {
 		File file = new File(dir.getPath(), ".nomedia");
 		if (file.exists()) {
@@ -8390,6 +8393,10 @@ public class Utils
 	{
 		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
 		return prefs.getData(HikeConstants.ENABLE_UNKNOWN_USER_INFO_IN_CHAT, false);
+	}
+
+	public static String getEmojiByUnicode(int unicode) {
+		return new String(Character.toChars(unicode));
 	}
 
 	public static void recordUpgradeTaskCompletion(String taskKey, long duration)

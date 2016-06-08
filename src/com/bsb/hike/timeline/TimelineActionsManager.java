@@ -1,13 +1,20 @@
 package com.bsb.hike.timeline;
 
-import java.util.ArrayList;
+import android.util.Pair;
 
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.timeline.model.FeedDataModel;
-import com.bsb.hike.timeline.model.TimelineActions;
+import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.timeline.model.ActionsDataModel;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
+import com.bsb.hike.timeline.model.FeedDataModel;
+import com.bsb.hike.timeline.model.TimelineActions;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Set;
 
 public class TimelineActionsManager
 {
@@ -49,14 +56,25 @@ public class TimelineActionsManager
 		actionsData = null;
 	}
 
-	public void setActionsData(TimelineActions actionsData)
-	{
-		this.actionsData = actionsData;
+	public void updateActionsData(TimelineActions argActionsData) {
+		if (this.actionsData == null) {
+			this.actionsData = argActionsData;
+		} else {
+			HashMap<Pair<String, String>, ArrayList<ActionsDataModel>> actionsMap = argActionsData.getActionsMap(); // Get all cached actions
+			Set<Pair<String, String>> uuidObjTypeSet = actionsMap.keySet(); // Get object type (su,card) and uuid pair
+			for (Pair<String, String> uuidObj : uuidObjTypeSet) // iterate and update
+			{
+				ArrayList<ActionsDataModel> modelArrayList = (ArrayList<ActionsDataModel>) argActionsData.getActionsMap().get(uuidObj);
+				ActionsDataModel model = modelArrayList.get(0);
+				Logger.d(TimelineActionsManager.class.getSimpleName(), "Updating model - " + model.toString());
+				actionsData.addActionDetails(uuidObj.first, new ArrayList<ContactInfo>(model.getContactInfoList()), model.getType(), model.getTotalCount(), ActivityObjectTypes.STATUS_UPDATE, true);
+			}
+		}
 	}
 
 	/**
 	 * Updates actions data in heap with incoming action
-	 * 
+	 *
 	 * @param objUUID
 	 *            SU id, Platform id, etc
 	 * @param actionType

@@ -1650,6 +1650,13 @@
     <string name="composeview_bday">Happy Birthday!</string>
     <string name="forward_to_single_timeline">Send message to %1$s and on Timeline?</string>
     <string name="forward_to_singular">Send message to %1$s?</string>
+    <string name="services">Services</string>
+    <string name="ADD_FRIENDS">ADD FRIENDS</string>
+    <string name="ADDED_ME">ADDED ME</string>
+    <string name="SERVICES">SERVICES</string>
+    <string name="add_friends">Add Friends</string>
+    <string name="added_me">Added Me</string>
+    <string name="add_btn_txt">+ ADD</string>
     <string name="custom_chattheme_device_not_supported">Unable to set Custom Chat Theme</string>
     <string name="qs_error_view_heading">Oops! something went wrong</string>
     <string name="qs_error_view_sub_text">Tap on the sticker to try again</string>
@@ -1658,6 +1665,14 @@
     <string name="multiple_bday_notif_text">%1$s and %2$s others has his birthday today!</string>
     <string name="single_bday_notif_subtext"> Tap here to wish your friend a Happy Birthday!</string>
     <string name="multiple_bday_notif_subtext">Tap here to wish them a Happy Birthday!</string>
+    <string name="change_photo">Change Photo</string>
+    <string name="unread_all">Unread all</string>
+    <string name="timeline_sub_new_updt">New updates available</string>
+    <string name="timeline_sub_likes">%1$d new likes</string>
+    <string name="story_category_recent">RECENT</string>
+    <string name="story_category_allphotos">ALL PHOTOS</string>
+    <string name="story_category_default">CAMERA SHY</string>
+    <string name="timeline_sub_no_updt">No new updates</string>
     <string name="rich_uj_default_msg">%1$s is now on hike</string>
     <string name="uj_default_pretype_text">Hi</string>
     <string name="uj_default_cta_say_hi">Say Hi</string>
@@ -1665,16 +1680,16 @@
     <string name="ct_confirmation_dialog">This will apply the Chat theme on your friends device too.</string>
     <string name="manage_privacy">Manage Privacy</string>
     <string name="last_seen">Last Seen</string>
-    <string name="status_update">Status Update</string>
+    <string name="status_update">Timeline Update</string>
     <string name="ls_privacy_subtext">You also won’t be able to see last seen if you turn it off</string>
-    <string name="su_privacy_subtext">You also won’t receive status updates if you turn if off</string>
+    <string name="su_privacy_subtext">You also won’t receive timeline updates if you turn if off</string>
     <string name="qs_received_first_tip_text">Hey, you just received this sticker</string>
     <string name="qs_received_second_tip_text">Tap on it to reply with a sticker</string>
     <string name="qs_received_third_tip_text">Awesome, you got it!</string>
     <string name="qs_sent_first_tip_text">Now you can send similar stickers</string>
     <string name="qs_sent_second_tip_text">By tapping on stickers that you sent</string>
     <string name="qs_sent_third_tip_text">Awesome, you got it!</string>
-    <string name="qs_empty_page_text">No Suggestions for this sticker</string>
+    <string name="qs_empty_page_text">We will add suggestions for this sticker soon</string>
     <string name="download_image_before_sharing">You need to download image before sharing.</string>
     <string name="native_card_file_transfer_of_type">Native card file transfer of type</string>
     <string name="space_manager">Manage Space</string>
@@ -1694,5 +1709,7 @@
     <string name="sm_category_subheader_text">Item Size</string>
     <string name="sm_subcategory_header_text">SubCategory Header</string>
     <string name="sm_subcategory_subheader_text">SubCategory Size</string>
+    <string name="qs_empty_page_text_sub_text_part_one">"Tap on"</string>
+    <string name="qs_empty_page_text_sub_text_part_two">"to send a sticker"</string>
 </resources>
 

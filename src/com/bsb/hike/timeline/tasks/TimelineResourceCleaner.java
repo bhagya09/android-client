@@ -1,4 +1,4 @@
-package com.bsb.hike.timeline;
+package com.bsb.hike.timeline.tasks;
 
 import java.io.File;
 import java.util.List;
@@ -8,9 +8,7 @@ import android.os.Looper;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.utils.Logger;

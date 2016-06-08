@@ -55,12 +55,14 @@ import com.bsb.hike.service.UpgradeIntentService;
 import com.bsb.hike.spaceManager.ManageSpaceActivity;
 import com.bsb.hike.spaceManager.SpaceManagerIntentService;
 import com.bsb.hike.timeline.view.StatusUpdate;
+import com.bsb.hike.timeline.view.StoryPhotosActivity;
 import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.ui.ApkSelectionActivity;
 import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.ConnectedAppsActivity;
 import com.bsb.hike.ui.CreateNewGroupOrBroadcastActivity;
 import com.bsb.hike.ui.FileSelectActivity;
+import com.bsb.hike.ui.FriendRequestActivity;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.GallerySelectionViewer;
 import com.bsb.hike.ui.HikeAuthActivity;
@@ -78,6 +80,7 @@ import com.bsb.hike.ui.PictureEditer;
 import com.bsb.hike.ui.PinHistoryActivity;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.ProfilePicActivity;
+import com.bsb.hike.ui.ServicesActivity;
 import com.bsb.hike.ui.SettingsActivity;
 import com.bsb.hike.modules.fusedlocation.ShareLocation;
 import com.bsb.hike.ui.SignupActivity;
@@ -368,7 +371,20 @@ public class IntentFactory
 
 	public static void openTimeLine(Context context)
 	{
-		context.startActivity(new Intent(context, TimelineActivity.class));
+		context.startActivity(getTimelineIntent(context));
+	}
+
+	public static Intent getTimelineIntent(Context context)
+	{
+		return new Intent(context, TimelineActivity.class);
+	}
+
+	public static Intent getContactTimelineIntent(Context context, ContactInfo cInfo)
+	{
+		Intent intent = new Intent(context, ProfileActivity.class);
+		intent.putExtra(HikeConstants.Extras.CONTACT_INFO_TIMELINE, cInfo.getMsisdn());
+		intent.putExtra(HikeConstants.Extras.ON_HIKE, cInfo.isOnhike());
+		return intent;
 	}
 	
 	public static void openHikeExtras(Context context)
@@ -692,6 +708,26 @@ public class IntentFactory
 		Intent intent = new Intent(context, HomeActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		return intent;
+	}
+
+	public static Intent getHomeActivityDefaultTabIntent(Context context)
+	{
+		return getHomeActivityIntent(context).putExtra(HomeActivity.OPEN_DEFAULT_TAB, true);
+	}
+
+	public static Intent getHomeActivityFriendsTabIntent(Context context)
+	{
+		return getHomeActivityIntent(context).putExtra(HomeActivity.OPEN_FRIENDS_TAB, true);
+	}
+
+	public static Intent getHomeActivityConvTabIntent(Context context)
+	{
+		return getHomeActivityIntent(context).putExtra(HomeActivity.OPEN_CONV_TAB, true);
+	}
+
+	public static Intent getHomeActivityMeTabIntent(Context context)
+	{
+		return getHomeActivityIntent(context).putExtra(HomeActivity.OPEN_ME_TAB, true);
 	}
 
 	public static Intent getComposeChatActivityIntent(Context context)
@@ -1685,6 +1721,31 @@ public class IntentFactory
 		hikeAppContext.startService(storageSpecIntent);
 	}
 
+	public static Intent getServicesActivityIntent(Context context)
+	{
+		Intent intent = new Intent(context, ServicesActivity.class);
+		return intent;
+	}
+
+	public static Intent getFriendReqActivityAddFriendsIntent(Context context)
+	{
+		Intent intent = new Intent(context, FriendRequestActivity.class);
+		intent.putExtra(FriendRequestActivity.ADD_FRIENDS, "");
+		return intent;
+	}
+	public static Intent getFriendReqActivityAddedMeIntent(Context context)
+	{
+		Intent intent = new Intent(context, FriendRequestActivity.class);
+		intent.putExtra(FriendRequestActivity.ADDED_ME, "");
+		return intent;
+	}
+
+	public static Intent getStoryPhotosActivityIntent(Context context, String msisdn)
+	{
+		Intent storyPhotosActivity = new Intent(context, StoryPhotosActivity.class);
+		storyPhotosActivity.putExtra(StoryPhotosActivity.STORY_MSISDN_INTENT_KEY, msisdn);
+		return storyPhotosActivity;
+	}
 	public static Intent getIntentForMuteAlarm(Mute mute)
 	{
 		Intent intent = new Intent();

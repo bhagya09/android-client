@@ -19,6 +19,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.smartImageLoader.TimelineUpdatesImageLoader;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.customClasses.MySoftReference;
@@ -281,6 +282,8 @@ public class HikeLruCache extends LruCache<String, BitmapDrawable>
 		if (b == null)
 		{
 			int idx = key.lastIndexOf(ProfileActivity.PROFILE_PIC_SUFFIX);
+			if(idx == -1)
+				idx = key.lastIndexOf(TimelineUpdatesImageLoader.SMALL_ICON_ID_SUFFIX);
 			if (idx > 0)
 				key = new String(key.substring(0, idx));
 			BitmapDrawable bd = (BitmapDrawable) ContactManager.getInstance().getIcon(key);
