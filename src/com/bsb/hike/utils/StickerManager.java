@@ -288,7 +288,7 @@ public class StickerManager
 
 	public static String stickerExternalDir;
 
-	public FilenameFilter stickerFileFilter = new FilenameFilter()
+	public final FilenameFilter stickerFileFilter = new FilenameFilter()
 	{
 		@Override
 		public boolean accept(File file, String fileName)
@@ -297,7 +297,7 @@ public class StickerManager
 		}
 	};
 
-	private Context context;
+	private final Context context;
 
 	private boolean showLastCategory = false;
 
