@@ -752,6 +752,12 @@ public class FileTransferManager
 			FTAnalyticEvents.platformAnalytics(((ConvMessage) userContext).getMsisdn(), ((ConvMessage) userContext).getMetadata().getHikeFiles().get(0).getFileKey(),
 					((ConvMessage) userContext).getMetadata().getHikeFiles().get(0).getFileTypeString());
 		}
+		ConvMessage convMessage = (ConvMessage)userContext;
+		if(convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.CONTENT)
+		{
+			FTAnalyticEvents.platformAnalytics(((ConvMessage) userContext).getMsisdn(), ((ConvMessage) userContext).platformMessageMetadata.contentId,
+					((ConvMessage) userContext).platformMessageMetadata.getHikeFiles().get(0).getFileTypeString());
+		}
 		deleteLogFile(msgId, hikefile.getFile());
 	}
 }
