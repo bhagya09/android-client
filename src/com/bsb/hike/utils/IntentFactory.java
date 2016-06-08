@@ -536,7 +536,7 @@ public class IntentFactory
 	public static void createBroadcastIntent(Context appContext)
 	{
 		Intent intent = new Intent(appContext.getApplicationContext(), ComposeChatActivity.class);
-		intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, HikeConstants.Extras.CREATE_BROADCAST_MODE);
+		intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, ComposeChatActivity.CREATE_BROADCAST_MODE);
 		intent.putExtra(HikeConstants.Extras.CREATE_BROADCAST, true);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		appContext.startActivity(intent);
@@ -1548,7 +1548,7 @@ public class IntentFactory
 		Intent intent = new Intent(context, ComposeChatActivity.class);
 		intent.putExtra(HikeConstants.Extras.BROADCAST_LIST, true);
 		intent.putExtra(HikeConstants.Extras.EXISTING_BROADCAST_LIST, mLocalMSISDN);
-		intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, HikeConstants.Extras.CREATE_BROADCAST_MODE);
+		intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, ComposeChatActivity.CREATE_BROADCAST_MODE);
 		return intent;
 	}
 

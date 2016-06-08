@@ -142,15 +142,15 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 	private static int MIN_MEMBERS_BROADCAST_LIST = 2;
 
-	private static final int CREATE_GROUP_MODE = 1;
+	public static final int CREATE_GROUP_MODE = 1;
 
-	private static final int START_CHAT_MODE = 2;
-	
-	private static final int MULTIPLE_FWD = 3;
+	public static final int START_CHAT_MODE = 2;
 
-    private static final int NUX_INCENTIVE_MODE = 6;
-    
-    private static final int CREATE_BROADCAST_MODE = 7;
+	public static final int MULTIPLE_FWD = 3;
+
+	public static final int NUX_INCENTIVE_MODE = 6;
+
+	public static final int CREATE_BROADCAST_MODE = 7;
     
     public static final int PICK_CONTACT_MODE = 8;
 
@@ -299,6 +299,9 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		{
 			Bundle bundle = getIntent().getBundleExtra(HikeConstants.Extras.GROUP_CREATE_BUNDLE);
 			createGroup = bundle.getBoolean(HikeConstants.Extras.CREATE_GROUP);
+			oneToNConvName = bundle.getString(HikeConstants.Extras.ONETON_CONVERSATION_NAME);
+			oneToNConvId = bundle.getString(HikeConstants.Extras.CONVERSATION_ID);
+			gcSettings = bundle.getInt(HikeConstants.Extras.CREATE_GROUP_SETTINGS);
 		}
 		
 		if (getIntent().hasExtra(HikeConstants.Extras.ADD_TO_CONFERENCE)) {
@@ -327,15 +330,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			existingGroupOrBroadcastId = getIntent().getStringExtra(HikeConstants.Extras.EXISTING_BROADCAST_LIST);
 		}
 
-		if (getIntent().hasExtra(HikeConstants.Extras.GROUP_CREATE_BUNDLE))
-		{
-			Bundle bundle = getIntent().getBundleExtra(HikeConstants.Extras.GROUP_CREATE_BUNDLE);
-			oneToNConvName = bundle.getString(HikeConstants.Extras.ONETON_CONVERSATION_NAME);
-			oneToNConvId = bundle.getString(HikeConstants.Extras.CONVERSATION_ID);
-			gcSettings = bundle.getInt(HikeConstants.Extras.CREATE_GROUP_SETTINGS);
-		}
-
-        if (getIntent().hasExtra(HikeConstants.Extras.IS_CONTACT_CHOOSER_FILTER_INTENT))
+		if (getIntent().hasExtra(HikeConstants.Extras.IS_CONTACT_CHOOSER_FILTER_INTENT))
         {
             isContactChooserFilter = getIntent().getBooleanExtra(HikeConstants.Extras.IS_CONTACT_CHOOSER_FILTER_INTENT,false);
             composeMode = PICK_CONTACT_SINGLE_MODE;

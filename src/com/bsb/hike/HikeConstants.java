@@ -1770,8 +1770,6 @@ public class HikeConstants
 
 		public static final String COMPOSE_MODE = "composeMode";
 
-		public static final int CREATE_BROADCAST_MODE = 7;
-
 		public static final String FROM_CREDITS_SCREEN = "fromCreditsScreen";
 
 		public static final String SHOW_KEYBOARD = "ShowKeyboard";
