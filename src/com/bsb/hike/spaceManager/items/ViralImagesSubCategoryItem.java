@@ -6,6 +6,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeSharedFile;
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.spaceManager.models.SubCategoryItem;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -22,8 +23,6 @@ public class ViralImagesSubCategoryItem extends SubCategoryItem
 {
 	private ArrayList<String> srcFileList;
 
-	private static final String VIRAL_MSISDN = "+hikeviral+";
-
 	public ViralImagesSubCategoryItem(String header)
 	{
 		super(header);
@@ -35,7 +34,7 @@ public class ViralImagesSubCategoryItem extends SubCategoryItem
 	public long computeSize()
 	{
 		HikeFile.HikeFileType[] type = {HikeFile.HikeFileType.IMAGE};
-		List<HikeSharedFile> list = HikeConversationsDatabase.getInstance().getSharedMedia(VIRAL_MSISDN, type, 0);
+		List<HikeSharedFile> list = HikeConversationsDatabase.getInstance().getSharedMedia(HikePlatformConstants.HIKE_VIRAL_MSISDN, type, 0);
 		long size = 0;
 		for (int i = 0; i < list.size(); i++)
 		{

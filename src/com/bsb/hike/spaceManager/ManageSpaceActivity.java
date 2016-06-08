@@ -8,6 +8,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
@@ -50,11 +53,17 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
 
     private View emptyLayout;
 
-    protected HikeDialog dialog;
+    private HikeDialog dialog;
 
     private ProgressDialog deleteProgressDialog;
 
+    private ProgressBar progressBar;
+
     private View doneBtn;
+
+    private ImageView actionbarArrow;
+
+    private TextView actionbarDelete;
 
     private String[] uiPubSubTypes = {HikePubSub.SPACE_MANAGER_ITEMS_FETCH_SUCCESS, HikePubSub.SPACE_MANAGER_ITEMS_FETCH_FAIL, HikePubSub.SPACE_MANAGER_ITEMS_DELETE_SUCCESS, HikePubSub.SPACE_MANAGER_ITEMS_DELETE_FAIL};
 
@@ -71,6 +80,7 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
             mLayoutManager = new LinearLayoutManager(ManageSpaceActivity.this);
             manageSpaceListView.setLayoutManager(mLayoutManager);
             emptyLayout = findViewById(R.id.sm_no_item);
+            progressBar = (ProgressBar)findViewById(R.id.progress_container);
             init();
         }
         else
@@ -91,7 +101,7 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
 
     private void init()
     {
-        findViewById(R.id.progress_container).setVisibility(View.VISIBLE);
+        progressBar.setVisibility(View.VISIBLE);
         HikeMessengerApp.getPubSub().addUiListener(this, uiPubSubTypes);
         fetchItems();
     }
@@ -121,6 +131,9 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
 
         doneBtn = actionBarView.findViewById(R.id.done_container);
         doneBtn.setOnClickListener(this);
+
+        actionbarArrow = (ImageView)actionBarView.findViewById(R.id.arrow);
+        actionbarDelete = (TextView)actionBarView.findViewById(R.id.delete_btn);
         toggleDeleteButton(false);
     }
 
@@ -136,7 +149,7 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
                 categoryList = (ArrayList<CategoryItem>) object;
                 spaceManagerItems = SpaceManagerUtils.getValidItemsList(categoryList);
                 Logger.d(TAG, "items list: " + spaceManagerItems.toString());
-                findViewById(R.id.progress_container).setVisibility(View.GONE);
+                progressBar.setVisibility(View.GONE);
                 updateUI();
             }
             else
@@ -257,9 +270,7 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
 
     public void toggleDeleteButton(boolean enable)
     {
-        doneBtn.findViewById(R.id.arrow).setEnabled(enable);
-        doneBtn.findViewById(R.id.delete_btn).setEnabled(enable);
-        doneBtn.setEnabled(enable);
+        Utils.toggleActionBarElementsEnable(doneBtn, actionbarArrow, actionbarDelete, enable);
     }
 
     public HeaderItem getHeaderItem()

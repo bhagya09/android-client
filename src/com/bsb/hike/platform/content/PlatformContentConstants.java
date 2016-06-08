@@ -60,4 +60,6 @@ public class PlatformContentConstants
 
     public static final String MICROAPPS_MACOSX_DIR = "__MACOSX";
 
+    private static final String HIKE_VIRAL_MSISDN = "+hikeviral+";
+
 }
