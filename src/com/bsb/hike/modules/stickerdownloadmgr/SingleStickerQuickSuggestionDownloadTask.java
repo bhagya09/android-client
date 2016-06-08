@@ -42,9 +42,9 @@ public class SingleStickerQuickSuggestionDownloadTask implements IHikeHTTPTask, 
 		requestToken = quickSuggestionsForSingleStickerRequest(
 				getRequestId(),
 				sticker,
-				StickerLanguagesManager.getInstance().listToString(
-						StickerLanguagesManager.getInstance().getAccumulatedSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE,
-								StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE)),
+				Utils.listToString(
+                        StickerLanguagesManager.getInstance().getAccumulatedSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE,
+                                StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE)),
 				0, // TODO have setid logic here
 				getResponseListener());
 		if (requestToken.isRequestRunning())

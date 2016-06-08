@@ -254,7 +254,7 @@ public class Utils
 {
 	private static final String TAG = Utils.class.getSimpleName();
 
-	// Precision points definition for duration logging========================================[[
+    // Precision points definition for duration logging========================================[[
 	public static final class ExecutionDurationLogger
 	{
 		public static final String TAG = ExecutionDurationLogger.class.getSimpleName();
@@ -7055,10 +7055,18 @@ public class Utils
 		return isAndroidDataStorageDir;
 	}
 
-	/*
+	/**
+	 * Returns a comma seprated string from a given list
+	 */
+	public static String listToString(Collection<String> strings)
+	{
+		return listToString(strings, ",");
+	}
+
+	/**
 	 * Returns a interval added string from a given list
 	 */
-	public static String listToString(List<String> list, String strInterVal)
+	public static String listToString(Collection<String> list, String strInterVal)
 	{
 		if (list == null)
 		{
@@ -8380,6 +8388,10 @@ public class Utils
 	{
 		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
 		return prefs.getData(HikeConstants.ENABLE_UNKNOWN_USER_INFO_IN_CHAT, false);
+	}
+
+	public static String getEmojiByUnicode(int unicode) {
+		return new String(Character.toChars(unicode));
 	}
 
 	public static void recordUpgradeTaskCompletion(String taskKey, long duration)

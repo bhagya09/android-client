@@ -401,6 +401,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.On
 					viewHolder.statusUpdateSwitch = (SwitchCompat) viewHolder.expandingLayout.findViewById(R.id.status_update_switch);
 					viewHolder.lastSeenSetting = viewHolder.expandingLayout.findViewById(R.id.last_seen_section);
 					viewHolder.statusUpdateSetting = viewHolder.expandingLayout.findViewById(R.id.status_update_section);
+					viewHolder.arrowImage = (ImageView) v.findViewById(R.id.arrow_image);
 					break;
 			}
 
@@ -853,8 +854,10 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.On
 				viewHolder.expandingLayout.setSizeChangedListener(profileItem);
 
 				if (!profileItem.isExpanded()) {
+					viewHolder.arrowImage.setRotation(0);
 					viewHolder.expandingLayout.setVisibility(View.GONE);
 				} else {
+					viewHolder.arrowImage.setRotation(180);
 					viewHolder.expandingLayout.setVisibility(View.VISIBLE);
 				}
 
@@ -1011,6 +1014,8 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.On
 		SwitchCompat lastSeenSwitch, statusUpdateSwitch;
 
 		View lastSeenSetting, statusUpdateSetting;
+
+		ImageView arrowImage;
 	}
 	
 	public void setProfilePreview(Bitmap preview)
@@ -1108,10 +1113,12 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.On
 				ExpandableListItem item = getItem(position);
 
 				if (!item.isExpanded()) {
+					((ImageView)v.findViewById(R.id.arrow_image)).animate().rotation(180).start(); //about to be expanded. Animate it
 					((ExpandingListView) listView).expandView((View) v.getParent());
 					((ProfileItem.ProfilePrivacyItem) item).setFtueShown(false);
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FRIENDS_PRIVACY_PROFILE_VIEW_SHOWN, true);
 				} else {
+					((ImageView)v.findViewById(R.id.arrow_image)).animate().rotation(0).start();
 					((ExpandingListView) listView).collapseView((View) v.getParent());
 				}
 
@@ -1174,6 +1181,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.On
 				json.put(AnalyticsConstants.V2.UNIQUE_KEY, "hs_privacy_options");
 				json.put(AnalyticsConstants.V2.ORDER, "hs_privacy_options");
 				json.put(AnalyticsConstants.V2.FAMILY, mContactInfo.isMyOneWayFriend() ? "friend" : "not_friend");
+				json.put(AnalyticsConstants.V2.TO_MISISDN, mContactInfo.getMsisdn());
 				HAManager.getInstance().recordV2(json);
 			}
 		} catch (JSONException e) {
@@ -1182,11 +1190,13 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.On
 	}
 
 	private void recordStatusUpdateSettingToggle() {
-		recordPrivacyAnalytics("su", mContactInfo.getPrivacyPrefs().shouldShowStatusUpdate() ? "on" : "off", null);
+		recordPrivacyAnalytics("su", mContactInfo.getPrivacyPrefs().shouldShowStatusUpdate() ? "true" : "false", null);
 	}
 
 	private void recordLastSeenSettingToggle() {
-		recordPrivacyAnalytics("last_seen", mContactInfo.getPrivacyPrefs().shouldShowLastSeen() ? "on" : "off", PreferenceManager.getDefaultSharedPreferences(profileActivity).getString(HikeConstants.LAST_SEEN_PREF_LIST, profileActivity.getString(R.string.privacy_favorites)));
+		String ls_setting = PreferenceManager.getDefaultSharedPreferences(profileActivity).getString(HikeConstants.LAST_SEEN_PREF_LIST, profileActivity.getString(R.string.privacy_favorites));
+		String variety = profileActivity.getString(R.string.privacy_favorites).equals(ls_setting) ? "friends" : "nobody";
+		recordPrivacyAnalytics("last_seen", mContactInfo.getPrivacyPrefs().shouldShowLastSeen() ? "true" : "false", variety);
 	}
 
 	private void recordPrivacyAnalytics(String family, String species, String variety) {
@@ -1200,6 +1210,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.On
 					json.put(AnalyticsConstants.V2.SPECIES, species);
 				if (!TextUtils.isEmpty(variety))
 					json.put(AnalyticsConstants.V2.VARIETY, variety);
+				json.put(AnalyticsConstants.V2.TO_MISISDN, mContactInfo.getMsisdn());
 				HAManager.getInstance().recordV2(json);
 			}
 		} catch (JSONException e) {

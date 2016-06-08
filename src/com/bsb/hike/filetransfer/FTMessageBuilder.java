@@ -318,21 +318,20 @@ public class FTMessageBuilder {
 	 * @param thumbnail
 	 * @return JSONObject
 	 */
-	private static JSONObject getFileOrMediaMetadata(Init<?> builder, String fileName, String thumbnailString, Bitmap thumbnail) throws JSONException
-	{
+	private static JSONObject getFileOrMediaMetadata(Init<?> builder, String fileName, String thumbnailString, Bitmap thumbnail) throws JSONException {
 		JSONArray files = new JSONArray();
 		String fileType = TextUtils.isEmpty(builder.fileType) ? HikeFileType.toString(builder.hikeFileType) : builder.fileType;
+
 		files.put(new HikeFile(fileName, fileType, thumbnailString, thumbnail, builder.recordingDuration, builder.sourceFile.getPath(),
-				(int)(builder.sourceFile.length()), true, FTUtils.getImageQuality(), builder.attachement).serialize());
+				(int) (builder.sourceFile.length()), true, FTUtils.getImageQuality(), builder.attachement).serialize());
 		JSONObject metadata;
-		if(builder.isNativeCardFT){
-            metadata = builder.nativeCardMetadata;
-		}else{
+		if (builder.isNativeCardFT) {
+			metadata = builder.nativeCardMetadata;
+		} else {
 			metadata = new JSONObject();
 		}
 		metadata.put(HikeConstants.FILES, files);
-		if(!TextUtils.isEmpty(builder.caption))
-		{
+		if (!TextUtils.isEmpty(builder.caption)) {
 			metadata.put(HikeConstants.CAPTION, builder.caption);
 		}
 
