@@ -601,12 +601,10 @@ public class DbConversationListener implements Listener
 			long timestamp = System.currentTimeMillis() / 1000;
 			mConversationDb.setChatBackground(conversation.getMsisdn(), themeId, timestamp);
 			ConvMessage convMessage = ChatThreadUtils.getChatThemeConvMessage(HikeMessengerApp.getInstance().getApplicationContext(), timestamp, themeId, conversation, true);
-			HikeMqttManagerNew.getInstance().sendMessage(convMessage.serialize(), MqttConstants.MQTT_QOS_ONE);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessage);
 
 			// Update the CT back as well.
-			HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, false);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.UPDATE_THREAD, convMessage);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.CHATTHEME_UPLOAD_SUCCESS, pair);
 		}
 	}
 
