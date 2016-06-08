@@ -23,6 +23,8 @@ public class DataPointTaskAllApps extends DataPointTask {
     private static final String APPLICATION_NAME = "an";
     private static final String INSTALL_TIME = "it";
     private static final String RUNNING_APPS = "ra";
+    private static final String VERSION_CODE = "vc";
+    private static final String VERSION_NAME = "vn";
 
     private final static byte RUNNING_PROCESS_BIT = 0;
     private final static byte FOREGROUND_TASK_BIT = 1;
@@ -55,7 +57,8 @@ public class DataPointTaskAllApps extends DataPointTask {
             try {
                 appLogsJsonArray.put(toJSON(pi.packageName,
                         pi.applicationInfo.loadLabel(ctx.getPackageManager()).toString(),
-                        new File(pi.applicationInfo.sourceDir).lastModified(), appStatus));
+                        new File(pi.applicationInfo.sourceDir).lastModified(), appStatus,
+                        pi.versionName, pi.versionCode));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -68,12 +71,16 @@ public class DataPointTaskAllApps extends DataPointTask {
     }
 
     public JSONObject toJSON(String packageName, String applicationName,
-                             long installTime, int running) throws JSONException {
+                             long installTime, int running, String versionName,
+                             int versionCode) throws JSONException {
         JSONObject jsonObj = new JSONObject();
         jsonObj.putOpt(PACKAGE_NAME, packageName);
         jsonObj.putOpt(APPLICATION_NAME, applicationName);
         jsonObj.putOpt(INSTALL_TIME, installTime);
         jsonObj.putOpt(RUNNING_APPS, running);
+        jsonObj.putOpt(VERSION_NAME, versionName);
+        jsonObj.putOpt(VERSION_CODE, versionCode);
+
         return jsonObj;
     }
 }
