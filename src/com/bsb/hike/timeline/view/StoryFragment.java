@@ -83,7 +83,6 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        HikeMessengerApp.getInstance().getPubSub().addListeners(this, pubsubEvents);
     }
 
     @Override
@@ -109,6 +108,7 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
         // Check if user has any friends
         if (HikeUserDatabase.getInstance().isTwoWayFriendsPresent()) {
             bindStoryFragmentList();
+            HikeMessengerApp.getInstance().getPubSub().addListeners(this, pubsubEvents); // listen only in non-empty state
         } else {
             //Show empty state
             bindEmptyStateView();
