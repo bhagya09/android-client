@@ -15,6 +15,7 @@ import com.bsb.hike.chatthemes.UploadCustomChatThemeBackgroundTask;
 import com.bsb.hike.filetransfer.FileTransferBase.FTState;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.modules.httpmgr.HttpManager;
@@ -327,8 +328,8 @@ public class FileTransferManager
 		downloadFile(destinationFile, fileKey, -100L, hikeFileType, null, false);
 	}
 
-	public void uploadCustomThemeBackgroundImage(String filepath){
-		UploadCustomChatThemeBackgroundTask cit = new UploadCustomChatThemeBackgroundTask(filepath, UUID.randomUUID().toString());
+	public void uploadCustomThemeBackgroundImage(String filepath, Conversation conversation){
+		UploadCustomChatThemeBackgroundTask cit = new UploadCustomChatThemeBackgroundTask(filepath, conversation, UUID.randomUUID().toString());
 		cit.execute();
 	}
 
