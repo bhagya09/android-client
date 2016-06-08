@@ -1169,6 +1169,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				{
 					wtHolder.duration.setVisibility(View.GONE);
 					wtHolder.action.setImageResource(R.drawable.ic_mic);
+					wtHolder.progress.setVisibility(View.INVISIBLE);
 				}
 
 				switch (fss.getFTState())
