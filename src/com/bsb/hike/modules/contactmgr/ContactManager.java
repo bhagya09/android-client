@@ -3269,6 +3269,8 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	}
 
 	public void toggleLastSeenSetting(final ContactInfo mContactInfo, final boolean isChecked) {
+		mContactInfo.getPrivacyPrefs().setLastSeen(isChecked);
+
 		HikeHandlerUtil.getInstance().postAtFront(new Runnable() {
 			@Override
 			public void run() {
@@ -3278,6 +3280,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	}
 
 	public void toggleStatusUpdateSetting(final ContactInfo mContactInfo, final boolean isChecked) {
+		mContactInfo.getPrivacyPrefs().setStatusUpdate(isChecked);
 
 		HikeHandlerUtil.getInstance().postAtFront(new Runnable() {
 			@Override
