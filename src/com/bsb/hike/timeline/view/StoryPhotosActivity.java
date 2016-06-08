@@ -36,6 +36,7 @@ import com.bsb.hike.timeline.adapter.ActivityFeedCursorAdapter;
 import com.bsb.hike.timeline.model.ActionsDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StoryItem;
+import com.bsb.hike.timeline.tasks.StatusReadDBRunnable;
 import com.bsb.hike.timeline.tasks.StoriesDataManager;
 import com.bsb.hike.timeline.tasks.UpdateActionsDataRunnable;
 import com.bsb.hike.ui.utils.CrossfadePageTransformer;
@@ -198,12 +199,23 @@ public class StoryPhotosActivity extends HikeAppStateBaseFragmentActivity implem
                 }
             });
 
+            //Mark first post as read (rest handled onPageSelected for PagerAdapter)
+            markAsRead(storyItem, 0);
+
             //Fetch latest loves from server
             List<StatusMessage> statusMessageList = storyItem.getDataObjects();
-            if(!Utils.isEmpty(statusMessageList))
-            {
-                HikeHandlerUtil.getInstance().postRunnable(new UpdateActionsDataRunnable(statusMessageList));
+            if (!Utils.isEmpty(statusMessageList)) {
+                HikeHandlerUtil.getInstance().postRunnableWithDelay(new UpdateActionsDataRunnable(statusMessageList),1000);
+                // The delay is purely for improving UX, since on fast phones (Nexus) the runnable completes execution before photo pager is displayed because of which the transition of thumbnail in friends tab is visible (looks glitchy)
             }
+        }
+    }
+
+    private void markAsRead(StoryItem<StatusMessage, ContactInfo> storyItem, int position) {
+        if (!Utils.isEmpty(storyItem.getDataObjects())) {
+            List<String> readSuIDList = new ArrayList<String>();
+            readSuIDList.add(storyItem.getDataObjects().get(position).getMappedId());
+            HikeHandlerUtil.getInstance().postRunnable(new StatusReadDBRunnable(readSuIDList));
         }
     }
 
@@ -235,6 +247,7 @@ public class StoryPhotosActivity extends HikeAppStateBaseFragmentActivity implem
             Logger.d(TAG, "onPageSelected " + position);
             checkBoxLove.setTag(getCurrentStatusMessage());
             updateActionsRelatedViews();
+            markAsRead(storyItem, position);
         }
 
         @Override

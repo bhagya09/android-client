@@ -82,6 +82,7 @@ import com.bsb.hike.platform.nativecards.NativeCardUtils;
 import com.bsb.hike.service.GeneralEventMessagesManager;
 import com.bsb.hike.service.UpgradeIntentService;
 import com.bsb.hike.timeline.StoryShyTextGenerator;
+import com.bsb.hike.timeline.TimelineServerConfigUtils;
 import com.bsb.hike.timeline.model.ActionsDataModel;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
@@ -11843,7 +11844,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 
 		String selection = null;
 
-		long storyTimeLimit = TimeUnit.HOURS.toSeconds(24);
+		long storyTimeLimit = TimelineServerConfigUtils.getStoryTimeLimit();
 		long currentTimeSec = System.currentTimeMillis() / 1000;
 		long storyTimeRange = currentTimeSec - storyTimeLimit;
 
