@@ -2059,6 +2059,16 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 			}
 
+			if(arrayList.size() > 1) {
+				// Scan through selected contacts. See if there are images to be posted on Timeline.
+				HikeFeatureInfo hikefeatureInfo = getTimelineHikeFeatureInfoFromArray(arrayList);
+				if(hikefeatureInfo !=null)
+				{
+					arrayList.remove(hikefeatureInfo);
+					postImagesToShareOnTimeline(false);
+				}
+			}
+
 			// forwarding it is
 			Intent intent = null;
 			if (arrayList.size() == 1)
@@ -2105,21 +2115,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			}
 			else
 			{
-
-				// Scan through selected contacts. See if there are images to be posted on Timeline.
-				HikeFeatureInfo hikefeatureInfo = getTimelineHikeFeatureInfoFromArray(arrayList);
-				if(hikefeatureInfo !=null)
-				{
-					arrayList.remove(hikefeatureInfo);
-					postImagesToShareOnTimeline(false);
-				}
-
-				if(arrayList.size() == 1)
-				{
-					forwardMultipleMessages(arrayList);
-					return;
-				}
-
 				// multi forward to multi people
 				if (presentIntent.hasExtra(HikeConstants.Extras.PREV_MSISDN))
 				{
