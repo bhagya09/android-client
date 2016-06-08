@@ -10600,77 +10600,80 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		insertStickersToDB(stickerSet, StickerConstants.StickerType.LARGE);
 	}
 
-	public List<Sticker> parseStickerTableCursor(Cursor c)
-	{
-		if (c == null)
-		{
-			return null;
-		}
+    public List<Sticker> parseStickerTableCursor(Cursor c) {
+        if (c == null) {
+            return null;
+        }
 
-		List<Sticker> resultSet = null;
+        List<Sticker> resultSet = null;
 
-		try
-		{
+        try {
 
-			resultSet = new ArrayList<Sticker>(c.getCount());
+            resultSet = new ArrayList<Sticker>(c.getCount());
 
-			int largestickerpathIdx = c.getColumnIndex(DBConstants.LARGE_STICKER_PATH);
-			int smallstickerpathIdx = c.getColumnIndex(DBConstants.SMALL_STICKER_PATH);
-			int stickerWidthIdx = c.getColumnIndex(DBConstants.WIDTH);
-			int stickerHeightIdx = c.getColumnIndex(DBConstants.HEIGHT);
-			int stickerIdIdx = c.getColumnIndex(DBConstants.STICKER_ID);
-			int categoryIdIdx = c.getColumnIndex(DBConstants.CATEGORY_ID);
+            int largestickerpathIdx = c.getColumnIndex(DBConstants.LARGE_STICKER_PATH);
+            int smallstickerpathIdx = c.getColumnIndex(DBConstants.SMALL_STICKER_PATH);
+            int stickerWidthIdx = c.getColumnIndex(DBConstants.WIDTH);
+            int stickerHeightIdx = c.getColumnIndex(DBConstants.HEIGHT);
+            int stickerIdIdx = c.getColumnIndex(DBConstants.STICKER_ID);
+            int categoryIdIdx = c.getColumnIndex(DBConstants.CATEGORY_ID);
 
-			while (c.moveToNext())
-			{
-				String categoryId = c.getString(categoryIdIdx);
-				String stickerId = c.getString(stickerIdIdx);
+            while (c.moveToNext()) {
+                String categoryId = c.getString(categoryIdIdx);
+                String stickerId = c.getString(stickerIdIdx);
 
-				Sticker sticker = new Sticker(categoryId, stickerId);
+                Sticker sticker = new Sticker(categoryId, stickerId);
 
-				sticker.setSmallStickerPath(c.getString(smallstickerpathIdx));
-				sticker.setLargeStickerPath(c.getString(largestickerpathIdx));
-				sticker.setWidth(c.getInt(stickerWidthIdx));
-				sticker.setHeight(c.getInt(stickerHeightIdx));
+                sticker.setSmallStickerPath(c.getString(smallstickerpathIdx));
+                sticker.setLargeStickerPath(c.getString(largestickerpathIdx));
+                sticker.setWidth(c.getInt(stickerWidthIdx));
+                sticker.setHeight(c.getInt(stickerHeightIdx));
 
-				resultSet.add(sticker);
-			}
+                resultSet.add(sticker);
+            }
 
-		}
-		finally
-		{
-			if (c != null)
-			{
-				c.close();
-			}
-		}
+        } finally {
+            if (c != null) {
+                c.close();
+            }
+        }
 
-		return resultSet;
-	}
+        return resultSet;
+    }
 
-	public Sticker getStickerFromStickerTable(Sticker sticker)
-	{
-		if (sticker == null || TextUtils.isEmpty(sticker.getStickerId()) || TextUtils.isEmpty(sticker.getCategoryId()))
-		{
-			return null;
-		}
+    public Sticker getStickerFromStickerTable(Sticker sticker) {
+        if (sticker == null || TextUtils.isEmpty(sticker.getStickerId()) || TextUtils.isEmpty(sticker.getCategoryId())) {
+            return null;
+        }
 
-		Cursor c = null;
+        Cursor c = null;
 
-		c = mDb.query(DBConstants.STICKER_TABLE, null, DBConstants.STICKER_ID + " =?" + " AND " + DBConstants.CATEGORY_ID + "=?",
-				new String[] { sticker.getStickerId(), sticker.getCategoryId() }, null, null, null, null);
+        try {
+            c = mDb.query(DBConstants.STICKER_TABLE, null, DBConstants.STICKER_ID + " =?" + " AND " + DBConstants.CATEGORY_ID + "=?", new String[]{sticker.getStickerId(), sticker.getCategoryId()}, null,
+                    null, null, null);
 
-		List<Sticker> results = parseStickerTableCursor(c);
+            int largestickerpathIdx = c.getColumnIndex(DBConstants.LARGE_STICKER_PATH);
+            int smallstickerpathIdx = c.getColumnIndex(DBConstants.SMALL_STICKER_PATH);
+            int stickerWidthIdx = c.getColumnIndex(DBConstants.WIDTH);
+            int stickerHeightIdx = c.getColumnIndex(DBConstants.HEIGHT);
 
-		if (!Utils.isEmpty(results))
-		{
-			sticker = results.get(0);
-		}
+            if (c.moveToFirst()) {
+                sticker.setSmallStickerPath(c.getString(smallstickerpathIdx));
+                sticker.setLargeStickerPath(c.getString(largestickerpathIdx));
+                sticker.setWidth(c.getInt(stickerWidthIdx));
+                sticker.setHeight(c.getInt(stickerHeightIdx));
+            }
+        } finally {
+            if (c != null) {
+                c.close();
+            }
+        }
 
-		return sticker;
-	}
+        return sticker;
+    }
 
-	public List<Sticker> getStickersForCatgeoryId(String categoryId, StickerConstants.StickerType stickerType)
+
+    public List<Sticker> getStickersForCatgeoryId(String categoryId, StickerConstants.StickerType stickerType)
 	{
 		Cursor c = null;
 		List<Sticker> stickerList;
