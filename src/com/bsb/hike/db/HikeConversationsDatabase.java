@@ -10602,7 +10602,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 
 	public List<Sticker> parseStickerTableCursor(Cursor c)
 	{
-		if (c == null || c.getCount() == 0)
+		if (c == null)
 		{
 			return null;
 		}
