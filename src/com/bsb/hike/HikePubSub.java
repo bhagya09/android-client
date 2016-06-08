@@ -567,6 +567,8 @@ public class HikePubSub extends Handler implements Runnable
 
 	public static final String SPACE_MANAGER_ITEMS_FETCH_FAIL = "spc_mgr_itm_fail";
 
+	public static final String ACTIONS_DATA_UPDATE = "actions_data_update";
+
 	private final Thread mThread;
 
 	private final BlockingQueue<Operation> mQueue;
