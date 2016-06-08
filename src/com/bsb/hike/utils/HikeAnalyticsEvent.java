@@ -427,7 +427,7 @@ public class HikeAnalyticsEvent
 		}
 	}
 
-	public static void nativeCardImageLoaded(int layoutId , int contentId,String msisdn) {
+	public static void nativeCardImageLoaded(int layoutId , String contentId,String msisdn) {
 		try
 		{
 			JSONObject json = new JSONObject();
@@ -451,7 +451,7 @@ public class HikeAnalyticsEvent
 
 	}
 
-	public static void cardClickEvent(String action, int layoutId, int contentId, String msisdn) {
+	public static void cardClickEvent(String action, int layoutId, String contentId, String msisdn) {
 		try
 		{
 			JSONObject json = new JSONObject();
