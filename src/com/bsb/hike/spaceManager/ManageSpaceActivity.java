@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -57,7 +58,7 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
 
     private ProgressDialog deleteProgressDialog;
 
-    private ProgressBar progressBar;
+    private LinearLayout progressBarLayout;
 
     private View doneBtn;
 
@@ -80,7 +81,7 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
             mLayoutManager = new LinearLayoutManager(ManageSpaceActivity.this);
             manageSpaceListView.setLayoutManager(mLayoutManager);
             emptyLayout = findViewById(R.id.sm_no_item);
-            progressBar = (ProgressBar)findViewById(R.id.progress_container);
+            progressBarLayout = (LinearLayout)findViewById(R.id.progress_container);
             init();
         }
         else
@@ -101,7 +102,7 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
 
     private void init()
     {
-        progressBar.setVisibility(View.VISIBLE);
+        progressBarLayout.setVisibility(View.VISIBLE);
         HikeMessengerApp.getPubSub().addUiListener(this, uiPubSubTypes);
         fetchItems();
     }
@@ -149,7 +150,7 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
                 categoryList = (ArrayList<CategoryItem>) object;
                 spaceManagerItems = SpaceManagerUtils.getValidItemsList(categoryList);
                 Logger.d(TAG, "items list: " + spaceManagerItems.toString());
-                progressBar.setVisibility(View.GONE);
+                progressBarLayout.setVisibility(View.GONE);
                 updateUI();
             }
             else
