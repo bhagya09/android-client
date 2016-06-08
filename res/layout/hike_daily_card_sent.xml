@@ -36,7 +36,8 @@
             android:tag="@string/content_card_tag"
             app:cardElevation="2dp"
             app:cardPreventCornerOverlap="false"
-            app:cardUseCompatPadding="true">
+            app:cardUseCompatPadding="true"
+            app:cardCornerRadius="@dimen/native_cardview_radius">
 
             <RelativeLayout
                 android:layout_width="match_parent"

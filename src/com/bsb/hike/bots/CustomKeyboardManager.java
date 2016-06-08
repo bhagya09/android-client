@@ -79,7 +79,7 @@ public class CustomKeyboardManager implements ShareablePopup, CustomKeyboardText
 	 * @param msisdn
 	 *            the bot msisdn
 	 */
-	public void initInputBox(Context context, CustomKeyboardTextPickerListener customKeyboardTextPickerListener, CustomKeyboardStickerPickerListener customKeyboardStickerPickerListener, String msisdn)
+	public void initInputBox(Context context, CustomKeyboardTextPickerListener customKeyboardTextPickerListener, CustomKeyboardStickerPickerListener customKeyboardStickerPickerListener, String msisdn,int orientation)
 	{
         // Removing listening pubsubs on previous adapter so that gc can remove previous instance
         if(customKeyboardInputBoxAdapter != null)
@@ -102,7 +102,7 @@ public class CustomKeyboardManager implements ShareablePopup, CustomKeyboardText
 		{
 			ArrayList<Sk> customKeyboardSks = customKeyboard.getSk();
 
-			viewToDisplay = customKeyboardInputBoxAdapter.initStickerKeyboardView(customKeyboardSks);
+			viewToDisplay = customKeyboardInputBoxAdapter.initStickerKeyboardView(customKeyboardSks,orientation);
 		}
 
 	}
@@ -138,7 +138,7 @@ public class CustomKeyboardManager implements ShareablePopup, CustomKeyboardText
         if (orientationChanged(screenOrientation))
         {
             Logger.i(getClass().getSimpleName(), "Orientation Changed");
-            initInputBox(this.context,this.customKeyboardTextPickerListener,this.customKeyboardStickerPickerListener,this.msisdn);
+            initInputBox(this.context,this.customKeyboardTextPickerListener,this.customKeyboardStickerPickerListener,this.msisdn,screenOrientation);
             currentConfig = screenOrientation;
         }
 

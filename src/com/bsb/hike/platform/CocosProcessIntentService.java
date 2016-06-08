@@ -33,6 +33,10 @@ public class CocosProcessIntentService extends IntentService
 	@Override
 	protected void onHandleIntent(Intent intent)
 	{
+		if(intent == null)
+		{
+			return;
+		}
 		Bundle bundleData = intent.getExtras();
 		if (bundleData != null)
 		{

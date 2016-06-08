@@ -53,7 +53,7 @@ public class DataPointTaskStaticLoc extends DataPointTask {
     @Override
     JSONArray recordData() {
         Location bestLocation = Utils.getPassiveLocation();
-        if (bestLocation == null)
+        if (bestLocation == null || (bestLocation.getLongitude() == 0.0D && bestLocation.getLatitude() == 0.0D))
             return null;
         LocLogPojo locLog = new LocLogPojo(bestLocation.getLatitude(), bestLocation.getLongitude(),
                 bestLocation.getAccuracy(), bestLocation.getTime());

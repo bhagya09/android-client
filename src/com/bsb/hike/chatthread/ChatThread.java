@@ -165,6 +165,7 @@ import com.bsb.hike.platform.PlatformMessageMetadata;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.WebMetadata;
 import com.bsb.hike.platform.content.PlatformContent;
+import com.bsb.hike.platform.nativecards.NativeCardUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.tasks.EmailConversationsAsyncTask;
 import com.bsb.hike.ui.ComposeViewWatcher;
@@ -606,7 +607,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				showQuickSuggestionTip((ConvMessage) msg.obj);
 				break;
             case SHOW_INPUT_BOX:
-                showInputBox();
+                if(!mConversation.isBlocked())
+                    showInputBox();
                 break;
             case REMOVE_INPUT_BOX:
                 dismissInputBox();
@@ -1367,6 +1369,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			}
 
 			QuickStickerSuggestionController.getInstance().seenQuickSuggestions();
+			QuickStickerSuggestionController.getInstance().setCurrentQSConvMessage(convMessage);
 			openOrRefreshStickerPalette(convMessage);
 
 			if (QuickStickerSuggestionController.getInstance().isFtueSessionRunning(convMessage.isSent()))
@@ -1378,6 +1381,11 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		}
 
 		StickerManager.getInstance().sendStickerClickedLogs(convMessage, HikeConstants.SINGLE_TAP);
+	}
+
+	private void stickerLongClicked(ConvMessage convMessage)
+	{
+		StickerManager.getInstance().sendStickerClickedLogs(convMessage, HikeConstants.LONG_TAP);
 	}
 
 	@Override
@@ -1461,6 +1469,19 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	}
 
+	@Override
+	public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id)
+	{
+		if(isWalkieTalkieShowing()) return true;
+
+		switch (view.getId())
+		{
+			case R.id.placeholder:
+				onPlaceHolderLongClick(view);
+				break;
+		}
+		return showMessageContextMenu(mAdapter.getItem(position - mConversationsView.getHeaderViewsCount()), view);
+	}
 
 	private void onPlaceHolderClick(View v)
 	{
@@ -1475,27 +1496,40 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		}
 	}
 
-    protected void sendButtonClicked()
-    {
-        // If bots custom keyboard is enabled for this chat, then on send button press toggle keyboard popup
-        if (TextUtils.isEmpty(mComposeView.getText()) && BotUtils.isBot(msisdn) && CustomKeyboardManager.getInstance().shouldShowInputBox(msisdn))
-        {
-            botsCustomKeyboardInputBoxClicked();
-            return;
-        }
+	private void onPlaceHolderLongClick(View v)
+	{
+		ConvMessage convMessage = (ConvMessage) v.getTag();
 
-        if (!useWTRevamped && TextUtils.isEmpty(mComposeView.getText()))
-        {
-            audioRecordClicked();
-        }
-        else
-        {
-            sendMessageForStickerRecommendLearning();
-            sendMessage();
-            dismissStickerRecommendationPopup();
-            dismissTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
-        }
-    }
+		if (convMessage.isStickerMessage())
+		{
+			if (convMessage.getMetadata() != null && convMessage.getMetadata().getSticker() != null)
+			{
+				stickerLongClicked(convMessage);
+			}
+		}
+	}
+
+	protected void sendButtonClicked()
+	{
+		// If bots custom keyboard is enabled for this chat, then on send button press toggle keyboard popup
+		if (TextUtils.isEmpty(mComposeView.getText()) && BotUtils.isBot(msisdn) && CustomKeyboardManager.getInstance().shouldShowInputBox(msisdn))
+		{
+			botsCustomKeyboardInputBoxClicked();
+			return;
+		}
+
+		if (!useWTRevamped && TextUtils.isEmpty(mComposeView.getText()))
+		{
+			audioRecordClicked();
+		}
+		else
+		{
+			sendMessageForStickerRecommendLearning();
+			sendMessage();
+			dismissStickerRecommendationPopup();
+			dismissTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
+		}
+	}
 
 
     /**
@@ -1666,6 +1700,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			int whichTip = convMessage.isSent() ? ChatThreadTips.QUICK_SUGGESTION_SENT_FIRST_TIP : ChatThreadTips.QUICK_SUGGESTION_RECEIVED_FIRST_TIP;
 			if (canStartFtue)
 			{
+				QuickStickerSuggestionController.getInstance().setCurrentQSConvMessage(convMessage);
 				QuickStickerSuggestionController.getInstance().startFtueSession(convMessage.isSent());
 				mTips.showQuickStickerSuggestionsTip(whichTip);
 				uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
@@ -2925,11 +2960,10 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
         if(CustomKeyboardManager.getInstance().shouldShowInputBox(mConversation.getMsisdn()))
         {
-            CustomKeyboardManager.getInstance().initInputBox(activity.getApplicationContext(),this,this,mConversation.getMsisdn());
+            CustomKeyboardManager.getInstance().initInputBox(activity.getApplicationContext(),this,this,mConversation.getMsisdn(),activity.getResources().getConfiguration().orientation);
             sendUIMessage(SHOW_INPUT_BOX, mConversation.getMsisdn());
         }
-
-        recordChatThreadOpen();
+		recordChatThreadOpen();
 	}
 
 	protected OnItemsFinishedListener mOnItemsFinishedListener  = new OnItemsFinishedListener()
@@ -3179,13 +3213,38 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 						sendNudge();
 					}
 					else if(msgExtrasJson.optInt(HikeConstants.MESSAGE_TYPE.MESSAGE_TYPE) == HikeConstants.MESSAGE_TYPE.CONTENT){
+						JSONObject metadata = msgExtrasJson.optJSONObject(HikeConstants.METADATA);
+						if(metadata != null){
+
+							if (metadata.optJSONArray(HikeConstants.FILES) != null && metadata.optJSONArray(HikeConstants.FILES).length() > 0) {
+									handleFileTypeMessage(intent, metadata, msgExtrasJson.optString(HikeConstants.HIKE_MESSAGE), msgExtrasJson.optString(HikeConstants.Extras.FILE_PATH));
+							} else {
+								sendNativeCardMessage(msgExtrasJson);
+							}
+						}
+
+					}
+					else if(msgExtrasJson.optInt(HikeConstants.MESSAGE_TYPE.MESSAGE_TYPE) == HikeConstants.MESSAGE_TYPE.WEB_CONTENT || msgExtrasJson.optInt(
+							HikeConstants.MESSAGE_TYPE.MESSAGE_TYPE) == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT){
 						// as we will be changing msisdn and hike status while inserting in DB
-						ConvMessage convMessage = Utils.makeConvMessage(msisdn, mConversation.isOnHike());
-						convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.CONTENT);
-						convMessage.platformMessageMetadata = new PlatformMessageMetadata(msgExtrasJson.optString(HikeConstants.METADATA), activity.getApplicationContext());
-//						convMessage.platformMessageMetadata.addThumbnailsToMetadata();
-						convMessage.setMessage(msgExtrasJson.optString(HikeConstants.HIKE_MESSAGE));
+						ConvMessage convMessage = Utils.makeConvMessage(msisdn,msgExtrasJson.getString(HikeConstants.HIKE_MESSAGE), mConversation.isOnHike());
+						convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT);
+						convMessage.setPlatformData(msgExtrasJson.optJSONObject(HikeConstants.PLATFORM_PACKET));
+						convMessage.webMetadata = new WebMetadata(msgExtrasJson.optString(HikeConstants.METADATA));
+						JSONObject json = new JSONObject();
+						try
+						{
+							json.put(HikePlatformConstants.CARD_TYPE, convMessage.webMetadata.getAppName());
+							json.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.CARD_FORWARD);
+							json.put(AnalyticsConstants.TO, msisdn);
+							HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
+						}
+						catch (JSONException | NullPointerException e)
+						{
+							e.printStackTrace();
+						}
 						sendMessage(convMessage);
+
 					}
 					else if (msgExtrasJson.has(HikeConstants.Extras.FILE_PATH))
 					{
@@ -3219,8 +3278,10 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 						HikeFileType hikeFileType = HikeFileType.fromString(fileType, isRecording);
 
 						Logger.d("ChatThread", "isCloudMediaUri" + Utils.isPicasaUri(filePath));
-						channelSelector.sendFile(activity.getApplicationContext(), msisdn, filePath, fileKey, hikeFileType, fileType, isRecording,
-								recordingDuration, true, mConversation.isOnHike(), attachmentType, caption);
+
+							channelSelector.sendFile(activity.getApplicationContext(), msisdn, filePath, fileKey, hikeFileType, fileType, isRecording,
+									recordingDuration, true, mConversation.isOnHike(), attachmentType, caption);
+
 					}
 					else if (msgExtrasJson.has(HikeConstants.Extras.LATITUDE) && msgExtrasJson.has(HikeConstants.Extras.LONGITUDE)
 							&& msgExtrasJson.has(HikeConstants.Extras.ZOOM_LEVEL))
@@ -3254,20 +3315,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 						 */
 						intent.removeExtra(StickerManager.FWD_CATEGORY_ID);
 					}
-
-
-					else if(msgExtrasJson.optInt(HikeConstants.MESSAGE_TYPE.MESSAGE_TYPE) == HikeConstants.MESSAGE_TYPE.CONTENT){
-						// as we will be changing msisdn and hike status while inserting in DB
-						ConvMessage convMessage = Utils.makeConvMessage(msisdn, mConversation.isOnHike());
-						convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.CONTENT);
-						convMessage.platformMessageMetadata = new PlatformMessageMetadata(msgExtrasJson.optString(HikeConstants.METADATA), activity.getApplicationContext());
-						//convMessage.platformMessageMetadata.addThumbnailsToMetadata();
-						convMessage.setMessage(convMessage.platformMessageMetadata.notifText);
-
-						sendMessage(convMessage);
-
-					}
-
 					else if(msgExtrasJson.optInt(HikeConstants.MESSAGE_TYPE.MESSAGE_TYPE) == HikeConstants.MESSAGE_TYPE.WEB_CONTENT || msgExtrasJson.optInt(
 							HikeConstants.MESSAGE_TYPE.MESSAGE_TYPE) == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT){
 						// as we will be changing msisdn and hike status while inserting in DB
@@ -3339,7 +3386,45 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			SmileyParser.getInstance().addSmileyToEditable(mComposeView.getText(), false);
 		}
 	}
+    private void sendNativeCardMessage(JSONObject msgExtrasJson){
+		JSONObject metadata = msgExtrasJson.optJSONObject(HikeConstants.METADATA);
+		ConvMessage convMessage = Utils.makeConvMessage(msisdn, mConversation.isOnHike());
+		convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.CONTENT);
+		convMessage.platformMessageMetadata = new PlatformMessageMetadata(metadata, true);
+		convMessage.setMessage(msgExtrasJson.optString(HikeConstants.HIKE_MESSAGE));
+		sendMessage(convMessage);
+	}
+	private void handleFileTypeMessage(Intent intent, JSONObject nativeCardMetadata, String hikeMessage, String filePath) throws JSONException{
+        //TODO: parse from HikeFile
+		JSONArray filesArray = nativeCardMetadata.optJSONArray(HikeConstants.FILES);
+		JSONObject msg = filesArray.getJSONObject(0);
+		String fileKey = null;
+		if (msg.has(HikeConstants.FILE_KEY))
+		{
+			fileKey = msg.getString(HikeConstants.FILE_KEY);
+		}
 
+		String fileType = msg.getString(HikeConstants.CONTENT_TYPE);
+		String caption = msg.optString(HikeConstants.CAPTION);
+
+		int attachmentType = FTAnalyticEvents.OTHER_ATTACHEMENT;
+						/*
+						 * Added to know the attachment type when selected from file.
+						 */
+		if (intent.hasExtra(FTAnalyticEvents.FT_ATTACHEMENT_TYPE))
+		{
+			attachmentType = FTAnalyticEvents.FILE_ATTACHEMENT;
+
+		}
+
+		HikeFileType hikeFileType = HikeFileType.fromString(fileType);
+
+		Logger.d("ChatThread", "isCloudMediaUri" + Utils.isPicasaUri(filePath));
+
+		ChatThreadUtils.initialiseFileTransferForNativeCards(activity.getApplicationContext(), msisdn, filePath, fileKey, hikeFileType, fileType, false,
+					0, true, mConversation.isOnHike(), attachmentType, caption, nativeCardMetadata, hikeMessage);
+
+	}
 	/*
 	 * This function is called in UI thread when conversation fetch is failed from DB, By default we finish activity, override in case you want to do something else
 	 */
@@ -3528,13 +3613,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	public void onLoaderReset(Loader<Object> arg0)
 	{
 
-	}
-
-	@Override
-	public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id)
-	{
-		if(isWalkieTalkieShowing()) return true;
-		return showMessageContextMenu(mAdapter.getItem(position - mConversationsView.getHeaderViewsCount()), view);
 	}
 
 	protected boolean showMessageContextMenu(ConvMessage message, View v)
@@ -4306,22 +4384,22 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 			sendUIMessage(MESSAGE_RECEIVED, message);
 
-            if(CustomKeyboardManager.getInstance().isInputBoxButtonShowing(senderMsisdn) && CustomKeyboardManager.getInstance().getCustomKeyboardObject(senderMsisdn) != null && CustomKeyboardManager.getInstance().getCustomKeyboardObject(senderMsisdn).getKeep())
-            {
-                // Ignore this msg for keyboard operation since bot custom keyboard is already in persistent state and is in display
-            }
-            else if(CustomKeyboardManager.getInstance().shouldShowInputBox(senderMsisdn))
-            {
-                CustomKeyboardManager.getInstance().initInputBox(activity.getApplicationContext(),this,this,senderMsisdn);
-                sendUIMessage(SHOW_INPUT_BOX, senderMsisdn);
-            }
-            else if(CustomKeyboardManager.getInstance().isInputBoxButtonShowing(senderMsisdn))
-            {
-                sendUIMessage(REMOVE_INPUT_BOX, null);
-            }
-
+            displayBotsCustomKeyboardForRcvdMsg(senderMsisdn);
 		}
 	}
+
+    private void displayBotsCustomKeyboardForRcvdMsg(String senderMsisdn) {
+
+        if (CustomKeyboardManager.getInstance().isInputBoxButtonShowing(senderMsisdn) && CustomKeyboardManager.getInstance().getCustomKeyboardObject(senderMsisdn) != null && CustomKeyboardManager.getInstance().getCustomKeyboardObject(senderMsisdn).getKeep()) {
+            // Ignore this msg for keyboard operation since bot custom keyboard is already in persistent state and is in display
+        } else if (CustomKeyboardManager.getInstance().shouldShowInputBox(senderMsisdn)) {
+            CustomKeyboardManager.getInstance().initInputBox(activity.getApplicationContext(), this, this, senderMsisdn,activity.getResources().getConfiguration().orientation);
+            sendUIMessage(SHOW_INPUT_BOX, senderMsisdn);
+        } else if (CustomKeyboardManager.getInstance().isInputBoxButtonShowing(senderMsisdn)) {
+            sendUIMessage(REMOVE_INPUT_BOX, null);
+        }
+
+    }
 
 	protected boolean onMessageDelivered(Object object)
 	{
@@ -4504,7 +4582,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			tipVisibilityAnimator = null;
 		}
 
-		QuickStickerSuggestionController.getInstance().completeFtueSession();
+		QuickStickerSuggestionController.getInstance().releaseResources();
 
 		if(mCustomTabActivityHelper != null && Utils.isJellybeanOrHigher()) {
 			mCustomTabActivityHelper.unbindCustomTabsService(activity);
@@ -5839,14 +5917,19 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 						else if (message.getMessageType() == HikeConstants.MESSAGE_TYPE.CONTENT)
 						{
-							multiMsgFwdObject.put(HikeConstants.MESSAGE_TYPE.MESSAGE_TYPE, HikeConstants.MESSAGE_TYPE.CONTENT);
-							if (message.platformMessageMetadata != null)
-							{
-								multiMsgFwdObject.put(HikeConstants.METADATA, message.platformMessageMetadata.JSONtoString());
-								multiMsgFwdObject.put(HikeConstants.HIKE_MESSAGE, message.getMessage());
-								intent.putExtra(HikeConstants.Extras.BYPASS_GALLERY, true);
-								intent.putExtra(AnalyticsConstants.NATIVE_CARD_FORWARD, message.platformMessageMetadata.contentId);
+							File fileUri = null;
+							boolean showTimeLine = false;
+							if (selectedMsgIds.size() == 1 && NativeCardUtils.isNativeCardFTMessage(message)) {
+								fileUri = message.platformMessageMetadata.getHikeFiles().get(0).getFile();
+								if (fileUri == null || fileUri.exists()) {
+									showTimeLine = true;
+								}
 							}
+							intent.putExtra(AnalyticsConstants.NATIVE_CARD_FORWARD, message.platformMessageMetadata.contentId);
+							if(showTimeLine){
+								intent.putExtra(HikeConstants.Extras.SHOW_TIMELINE, true);
+							}
+							multiMsgFwdObject = NativeCardUtils.getNativeCardForwardJSON(activity, message, fileUri);
 						}
 
 						else if (message.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT || message.getMessageType() == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT)
@@ -6419,6 +6502,9 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		{
 			mComposeView.setEnabled(true);
 			hideOverlay();
+            // Case is being added for checking if custom keyboard needs to be displayed for user
+            if(CustomKeyboardManager.getInstance().shouldShowInputBox(msisdn))
+                sendUIMessage(SHOW_INPUT_BOX, null);
 		}
 	}
 
@@ -6769,7 +6855,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
     private void createInputBox(Object object)
     {
-        CustomKeyboardManager.getInstance().initInputBox(activity.getApplicationContext(),this,this,msisdn);
+        CustomKeyboardManager.getInstance().initInputBox(activity.getApplicationContext(),this,this,msisdn,activity.getResources().getConfiguration().orientation);
         sendUIMessage(SHOW_INPUT_BOX, object);
     }
 
@@ -6786,20 +6872,21 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
         int screenWidth = activity.getResources().getDisplayMetrics().widthPixels;
         int stickerPadding = 2 * activity.getResources().getDimensionPixelSize(R.dimen.sticker_padding);
         int stickerGridPadding = activity.getResources().getDimensionPixelSize(R.dimen.sticker_grid_horizontal_padding);
-		final int customKeyBoardHeight = BotUtils.getCustomKeyBoardHeight(customKeyboard,screenWidth,stickerPadding,stickerGridPadding);
+		final int customKeyBoardHeight = BotUtils.getCustomKeyBoardHeight(customKeyboard,screenWidth,stickerPadding,stickerGridPadding,activity.getResources().getConfiguration().orientation);
 
         // Added show popup method on post delayed so that main view gets inflated till now and so that mainView window token not get null  in keyboard popup layout code.
         uiHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 if(mShareablePopupLayout != null)
+                    dismissInputBox();
                     mShareablePopupLayout.showPopup(CustomKeyboardManager.getInstance(), activity.getResources().getConfiguration().orientation, customKeyBoardHeight);
 
                 if(!TextUtils.isEmpty(mComposeView.getText()))
                 {
                     setComposeViewDefaultState();
                     Utils.showSoftKeyboard(activity,mComposeView);
-                    mShareablePopupLayout.togglePopup(CustomKeyboardManager.getInstance(), activity.getResources().getConfiguration().orientation, true);
+                    mShareablePopupLayout.toggleCustomKeyboardPopup(CustomKeyboardManager.getInstance(), activity.getResources().getConfiguration().orientation,customKeyBoardHeight);
 
                     if(useWTRevamped)
                     {
@@ -6821,6 +6908,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
                     customKeyboard.setHidden(false);
                 }
                 scrollToEnd();
+
             }
         },100);
     }
@@ -6921,7 +7009,13 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
             setComposeViewCustomKeyboardState();
 		}
 
-		mShareablePopupLayout.togglePopup(CustomKeyboardManager.getInstance(), activity.getResources().getConfiguration().orientation, true);
+        CustomKeyboard customKeyboard = CustomKeyboardManager.getInstance().getCustomKeyboardObject(msisdn);
+        int screenWidth = activity.getResources().getDisplayMetrics().widthPixels;
+        int stickerPadding = 2 * activity.getResources().getDimensionPixelSize(R.dimen.sticker_padding);
+        int stickerGridPadding = activity.getResources().getDimensionPixelSize(R.dimen.sticker_grid_horizontal_padding);
+        int customKeyBoardHeight = BotUtils.getCustomKeyBoardHeight(customKeyboard,screenWidth,stickerPadding,stickerGridPadding,activity.getResources().getConfiguration().orientation);
+
+        mShareablePopupLayout.toggleCustomKeyboardPopup(CustomKeyboardManager.getInstance(), activity.getResources().getConfiguration().orientation ,customKeyBoardHeight);
 	}
 
 

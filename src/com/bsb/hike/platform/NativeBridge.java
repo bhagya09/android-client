@@ -234,7 +234,7 @@ public class NativeBridge
 			@Override
 			public void run()
 			{
-				helper.forwardToChat(json, hikeMessage, mBotInfo, gameActivity);
+				helper.forwardToChat(json, hikeMessage, mBotInfo, gameActivity,null);
 			}
 		});
 	}

@@ -166,7 +166,7 @@ public class StickerRecommendationFtueFragment extends Fragment implements Liste
 			if(listener != null)
 			{
 				listener.shownStickerRecommendFtue();
-				listener.stickerSelected(word, phrase, sticker, 0, stickerList.size(), StickerManager.FROM_STICKER_RECOMMENDATION_FTUE, false);
+				listener.stickerSelected(word, phrase, sticker, 0, stickerList, StickerManager.FROM_STICKER_RECOMMENDATION_FTUE, false);
 
 				stickerRecommendFtueStep1.setVisibility(View.GONE);
 				stickerRecommendFtueStep2.setVisibility(View.VISIBLE);

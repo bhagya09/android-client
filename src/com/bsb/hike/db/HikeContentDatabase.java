@@ -396,8 +396,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper
 		productContentModel = getPopupFromId(productContentModel.hashCode());
 		if (productContentModel != null)
 		{
-			ProductInfoManager.recordPopupEvent(productContentModel.getAppName(), productContentModel.getPid(), productContentModel.isFullScreen(),
-					ProductPopupsConstants.RECEIVED_NOT_SHOWN);
+			ProductInfoManager.recordPopupEventV2(productContentModel.getAppName(), productContentModel.getPid(), cv.getAsString(PID), productContentModel.isFullScreen());
 			Logger.d("ProductPopup", "same start + trigger time so overriding "+ productContentModel.hashCode() + ", pid :- " + productContentModel.getPid());
 		}
 		long val = mDB.insertWithOnConflict(POPUPDATA, null, cv, SQLiteDatabase.CONFLICT_REPLACE);

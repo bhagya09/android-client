@@ -39,6 +39,7 @@ public class UpgradeIntentService extends IntentService
 
 	@Override
 	protected void onHandleIntent(Intent dbIntent) {
+		long upgradeIntentServiceInitSt = System.currentTimeMillis();
 		context = this;
 		prefs = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		if (prefs.getInt(HikeConstants.UPGRADE_AVATAR_CONV_DB, -1) == 1) {
@@ -96,6 +97,7 @@ public class UpgradeIntentService extends IntentService
 			}
 		}
 
+		long upgradeSortingIdSt = System.currentTimeMillis();
 		// This value is set as 1 in onUpgrade of HikeConversationsDatabase.
 		if (prefs.getInt(HikeMessengerApp.UPGRADE_SORTING_ID_FIELD, 0) == 1) {
 			if (upgradeForSortingIdField()) {
@@ -105,17 +107,25 @@ public class UpgradeIntentService extends IntentService
 				editor.commit();
 			}
 		}
+
+		Utils.recordUpgradeTaskCompletion(HikeMessengerApp.UPGRADE_SORTING_ID_FIELD, (System.currentTimeMillis() - upgradeSortingIdSt));
+
+		long upgradeLangOrderSt = System.currentTimeMillis();
 		if (prefs.getInt(HikeMessengerApp.UPGRADE_LANG_ORDER, 0) == 0) {
 			{
 				LocalLanguageUtils.requestLanguageOrderListFromServer();
 			}
 		}
+		Utils.recordUpgradeTaskCompletion(HikeMessengerApp.UPGRADE_LANG_ORDER, (System.currentTimeMillis() - upgradeLangOrderSt));
 
-		// Schedule versioning migration if its not done already
-		if (prefs.getBoolean(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, false) == false) {
-			scheduleHikeMicroAppsMigrationAlarm(getBaseContext());
-		}
+		long hikeCtMaMigSt = System.currentTimeMillis();
+        // Schedule versioning migration if its not done already
+        if(prefs.getBoolean(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, false) == false) {
+            scheduleHikeMicroAppsMigrationAlarm(getBaseContext());
+        }
+		Utils.recordUpgradeTaskCompletion(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, (System.currentTimeMillis() - hikeCtMaMigSt));
 
+		long upgradeStickerCategoriesTableTs = System.currentTimeMillis();
 		if (!prefs.getBoolean(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, false)) {
 			StickerManager.getInstance().markAllCategoriesAsDownloaded();
 			Editor editor = prefs.edit();
@@ -123,8 +133,10 @@ public class UpgradeIntentService extends IntentService
 			editor.apply();
 		}
 
-        if (prefs.getInt(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 1) == 1)
-		{
+		Utils.recordUpgradeTaskCompletion(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, (System.currentTimeMillis() - upgradeStickerCategoriesTableTs));
+
+		long upgradeForStickerTableSt = System.currentTimeMillis();
+		if(prefs.getInt(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 1) == 1) {
 			if (upgradeForStickerTable())
 			{
 				Logger.v(TAG, "Upgrade for sticker table was successful");
@@ -134,7 +146,9 @@ public class UpgradeIntentService extends IntentService
 				StickerManager.getInstance().doInitialSetup();
 			}
 		}
+		Utils.recordUpgradeTaskCompletion(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, (System.currentTimeMillis() - upgradeForStickerTableSt));
 
+		long moveStickerExternalSt = System.currentTimeMillis();
 		if ((!prefs.getBoolean(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, false)) && Utils
 				.doesExternalDirExists()) {
 			if (StickerManager.getInstance().migrateStickerAssets(StickerManager.getInstance().getOldStickerExternalDirFilePath(),
@@ -145,19 +159,15 @@ public class UpgradeIntentService extends IntentService
 				Logger.v(TAG, "Upgrade for sticker table was NOT successful");
 			}
 		}
+		Utils.recordUpgradeTaskCompletion(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, (System.currentTimeMillis() - moveStickerExternalSt));
 
+		long migrateRecentStkToDbTs = System.currentTimeMillis();
 		if ((!prefs.getBoolean(HikeMessengerApp.MIGRATE_RECENT_STICKER_TO_DB, false))) {
 			if (StickerManager.getInstance().migrateRecent()) {
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.MIGRATE_RECENT_STICKER_TO_DB, true);
 			}
 		}
-
-		if (!prefs.getBoolean(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, false)) {
-			StickerManager.getInstance().markAllCategoriesAsDownloaded();
-			Editor editor = prefs.edit();
-			editor.putBoolean(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, true);
-			editor.apply();
-		}
+		Utils.recordUpgradeTaskCompletion(HikeMessengerApp.MIGRATE_RECENT_STICKER_TO_DB, (System.currentTimeMillis() - migrateRecentStkToDbTs));
 
 		if (prefs.getInt(HikeMessengerApp.MIGRATE_TABLE_TO_USER, 0) == 1) {
 			MigrateTablesForHikeUID migrateTablesForHikeUID = new MigrateTablesForHikeUID();
@@ -196,9 +206,12 @@ public class UpgradeIntentService extends IntentService
 		editor.apply();
 
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPGRADING, false);
+
 		HikeMessengerApp.getPubSub().publish(HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE, null);
 
 		Utils.connectToGcmPreSignup();
+
+		Utils.recordUpgradeTaskCompletion(TAG, (System.currentTimeMillis() - upgradeIntentServiceInitSt));
 
 	}
 

@@ -1665,14 +1665,18 @@
     <string name="ct_confirmation_dialog">This will apply the Chat theme on your friends device too.</string>
     <string name="manage_privacy">Manage Privacy</string>
     <string name="last_seen">Last Seen</string>
-    <string name="status_update">Status Update</string>
+    <string name="status_update">Timeline Update</string>
     <string name="ls_privacy_subtext">You also won’t be able to see last seen if you turn it off</string>
-    <string name="su_privacy_subtext">You also won’t receive status updates if you turn if off</string>
+    <string name="su_privacy_subtext">You also won’t receive timeline updates if you turn if off</string>
     <string name="qs_received_first_tip_text">Hey, you just received this sticker</string>
     <string name="qs_received_second_tip_text">Tap on it to reply with a sticker</string>
     <string name="qs_received_third_tip_text">Awesome, you got it!</string>
     <string name="qs_sent_first_tip_text">Now you can send similar stickers</string>
     <string name="qs_sent_second_tip_text">By tapping on stickers that you sent</string>
     <string name="qs_sent_third_tip_text">Awesome, you got it!</string>
-    <string name="qs_empty_page_text">No Suggestions for this sticker</string>
+    <string name="qs_empty_page_text">We will add suggestions for this sticker soon</string>
+    <string name="download_image_before_sharing">You need to download image before sharing.</string>
+    <string name="native_card_file_transfer_of_type">Native card file transfer of type</string>
+    <string name="qs_empty_page_text_sub_text_part_one">"Tap on"</string>
+    <string name="qs_empty_page_text_sub_text_part_two">"to send a sticker"</string>
 </resources>

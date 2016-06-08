@@ -263,7 +263,6 @@ public class FileTransferManager
      */
 	public void downloadFile(File destinationFile, String fileKey, long msgId, HikeFileType hikeFileType, ConvMessage userContext, boolean showToast, HikeFile hikeFile)
 	{
-		Logger.d(getClass().getSimpleName(), "Downloading file: " + " NAME: " + destinationFile.getName() + " KEY: " + fileKey + "MSG ID: " + msgId);
 		DownloadFileTask downloadFileTask;
 		if (isFileTaskExist(msgId))
 		{
@@ -320,7 +319,6 @@ public class FileTransferManager
 
 		downloadFileTask.download();
 		HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
-		Logger.d(getClass().getSimpleName(), "Downloading file task started: " + " NAME: " + destinationFile.getName() + " KEY: " + fileKey + "MSG ID: " + msgId);
 	}
 
 	public void downloadApk(File destinationFile, String fileKey, HikeFileType hikeFileType)
@@ -740,7 +738,12 @@ public class FileTransferManager
 		}
 		else
 		{
-			hikefile = ((ConvMessage) userContext).getMetadata().getHikeFiles().get(0);
+			ConvMessage convMessage = (ConvMessage)userContext;
+			if(convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.CONTENT){
+				hikefile = ((ConvMessage) userContext).platformMessageMetadata.getHikeFiles().get(0);
+			}else{
+				hikefile = ((ConvMessage) userContext).getMetadata().getHikeFiles().get(0);
+			}
 		}
 		FTAnalyticEvents analyticEvent = FTAnalyticEvents.getAnalyticEvents(getAnalyticFile(hikefile.getFile(), msgId));
 		String network = FTUtils.getNetworkTypeString(context);

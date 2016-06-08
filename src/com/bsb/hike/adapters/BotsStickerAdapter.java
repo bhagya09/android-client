@@ -179,19 +179,20 @@ public class BotsStickerAdapter extends BaseAdapter implements View.OnClickListe
 		{
 			viewHolder = new ViewHolder();
             // Adding padding around stickers in custom keyboard
-            int padding = (int) (5 * Utils.scaledDensityMultiplier);
+            int verticalPadding = (int) (3 * Utils.scaledDensityMultiplier);
+            int horizontalPadding = (int) (5 * Utils.scaledDensityMultiplier);
 			switch (viewType)
 			{
 			case STICKER:
 				convertView = new RecyclingImageView(mContext);
                 convertView.setLayoutParams(ll);
-                (convertView).setPadding(padding, padding, padding, padding);
+                (convertView).setPadding(horizontalPadding, verticalPadding, horizontalPadding, verticalPadding);
 				((ImageView) convertView).setScaleType(ImageView.ScaleType.CENTER_INSIDE);
 				break;
 			case DOWNLOADING:
 				convertView = inflater.inflate(R.layout.update_sticker_set, null);
                 convertView.setLayoutParams(ll);
-                (convertView).setPadding(padding, padding, padding, padding);
+                (convertView).setPadding(horizontalPadding, verticalPadding, horizontalPadding, verticalPadding);
 				viewHolder.text = (TextView) convertView.findViewById(R.id.new_number_stickers);
 				viewHolder.image = (ImageView) convertView.findViewById(R.id.update_btn);
 				viewHolder.progress = (ProgressBar) convertView.findViewById(R.id.download_progress);

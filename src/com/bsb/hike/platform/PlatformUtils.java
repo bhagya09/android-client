@@ -2372,6 +2372,11 @@ public class PlatformUtils
 	{
         // Get list of all micro apps installed in content directory
 		JSONArray mArray = PlatformUtils.readFileList(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS, false);
+
+        // Precautionary check for NPE, return from here as no analytics would be required if there are no sub-directories found
+        if(Utils.isEmpty(mArray))
+            return;
+
         long contentFolderLength = 0,directorySize;
 
         // Precautionary check to check if these files are indeed folders and preventing NPE
@@ -2856,5 +2861,22 @@ public class PlatformUtils
 
 		CustomTabsIntent intent = intentBuilder.build();
 		CustomTabActivityHelper.openCustomTab((Activity)activity, intent, url, fallback, title);
+	}
+
+	public static void invalidPacketAnalytics(BotInfo botInfo) {
+		// Added analytics event to consider this micro app download as failure because of invalid data
+		PlatformContent.EventCode event = PlatformContent.EventCode.INVALID_PACKET_VERSION;
+		Logger.wtf(TAG, "microapp download packet failed." + event.toString());
+		JSONObject json = new JSONObject();
+		try
+		{
+			json.put(HikePlatformConstants.ERROR_CODE, event.toString());
+			PlatformUtils.createBotAnalytics(HikePlatformConstants.BOT_CREATION_FAILED, botInfo, json);
+			PlatformUtils.createBotMqttAnalytics(HikePlatformConstants.BOT_CREATION_FAILED_MQTT, botInfo, json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
 	}
 }
