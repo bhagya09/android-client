@@ -623,19 +623,11 @@ public class ConversationsAdapter extends BaseAdapter
 		{
 			for (ConvInfo info : allList)
 			{
-				try
+				if(filterConvForSearch(info, textToBeFiltered))
 				{
-					if(filterConvForSearch(info, textToBeFiltered))
-					{
-						listToUpdate.add(info);
-					}
-				}
-				catch (Exception ex)
-				{
-					Logger.d(getClass().getSimpleName(), "Exception while filtering conversation contacts." + ex);
+					listToUpdate.add(info);
 				}
 			}
-			
 		}
 		
 		public boolean filterConvForSearch(ConvInfo convInfo, String textToBeFiltered)

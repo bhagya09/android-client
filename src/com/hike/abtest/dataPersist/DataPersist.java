@@ -29,4 +29,6 @@ public abstract class DataPersist {
     public abstract void abortExperiment(List<String> experimentIds);
 
     public abstract Map<String, ?> getAllExperiments();
+
+    public abstract void clearAll();
 }

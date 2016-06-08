@@ -345,6 +345,11 @@
     <color name="atomic_tip_header_text">#f7f8f9</color>
     <color name="atomic_tip_body_text">#e6f7f8f9</color>
     <color name="rec_duration_color">#3D475B</color>
+    <color name="custom_tab_action_bar">#03000000</color>
+    <color name="green_added_friend">#7ED321</color>
+
+    <color name="stories_title_unread">#3D475B</color>
+    <color name="stories_sub_text_unread">#3D000000</color>
     <color name="textcolormessageinfoerror">#a3a3a3</color>
 
 

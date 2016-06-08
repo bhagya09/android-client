@@ -306,7 +306,7 @@ public class PlatformUtils
 			}
 			if (activityName.equals(HIKESCREEN.HOME_SCREEN.toString()))
 			{
-				context.startActivity(Utils.getHomeActivityIntent(context));
+				context.startActivity(IntentFactory.getHomeActivityDefaultTabIntent(context));
 			}
 			if (activityName.equals(HIKESCREEN.PROFILE_PHOTO.toString()))
 			{

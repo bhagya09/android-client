@@ -104,4 +104,10 @@ public class DataManager {
             Logger.d(TAG, variable.toString());
         }
     }
+
+    public void clearExperiments() {
+        mDataPersist.clearAll();
+        mExperimentMap.clear();
+        mVariableMap.clear();
+    }
 }

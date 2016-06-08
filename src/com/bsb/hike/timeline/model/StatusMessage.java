@@ -70,6 +70,8 @@ public class StatusMessage
 		}
 	}
 
+	private boolean isRead;
+
 	private long id;
 
 	private String mappedId;
@@ -153,6 +155,11 @@ public class StatusMessage
 	
 	public StatusMessage(long id, String mappedId, String msisdn, String name, String text, StatusMessageType statusMessageType, long timeStamp, int moodId, int timeOfDay, String fileKey)
 	{
+		this(id, mappedId, msisdn, name, text, statusMessageType, timeStamp, moodId, timeOfDay, fileKey, false);
+	}
+
+	public StatusMessage(long id, String mappedId, String msisdn, String name, String text, StatusMessageType statusMessageType, long timeStamp, int moodId, int timeOfDay, String fileKey, boolean isRead)
+	{
 		this.id = id;
 		this.mappedId = mappedId;
 		this.msisdn = msisdn;
@@ -163,6 +170,7 @@ public class StatusMessage
 		this.moodId = moodId;
 		this.timeOfDay = timeOfDay;
 		this.fileKey = fileKey;
+		this.isRead = isRead;
 	}
 
 	public StatusMessage(Protip protip)
@@ -263,6 +271,14 @@ public class StatusMessage
 	public Protip getProtip()
 	{
 		return protip;
+	}
+
+	public boolean isRead() {
+		return isRead;
+	}
+
+	public void setRead(boolean read) {
+		isRead = read;
 	}
 
 	public String getTimestampFormatted(boolean pretty, Context context)

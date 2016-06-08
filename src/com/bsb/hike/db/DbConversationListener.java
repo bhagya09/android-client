@@ -19,6 +19,7 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.models.*;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
@@ -260,7 +261,7 @@ public class DbConversationListener implements Listener
 			ContactInfo contactInfo = favoriteToggle.first;
 			FavoriteType favoriteType = favoriteToggle.second;
 
-			ContactManager.getInstance().toggleContactFavorite(contactInfo.getMsisdn(), favoriteType);
+			ContactManager.getInstance().toggleContactFavorite(contactInfo, favoriteType);
 
 			if (favoriteType != FavoriteType.REQUEST_RECEIVED && favoriteType != FavoriteType.REQUEST_SENT_REJECTED && !HikePubSub.FRIEND_REQUEST_ACCEPTED.equals(type))
 			{
@@ -813,6 +814,14 @@ public class DbConversationListener implements Listener
 		{
 			obj.put(HikeConstants.TYPE, type);
 			obj.put(HikeConstants.DATA, msisdn);
+			//CE-214: Adding CT type and stealth info for block/unblock
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.SPECIES, ChatThreadUtils.getChatThreadType(msisdn));
+			if(StealthModeManager.getInstance().isStealthMsisdn(msisdn)) {
+				metadata.put(HikeConstants.VARIETY, ChatAnalyticConstants.STEALTH_CHAT_THREAD);
+			}
+			obj.put(AnalyticsConstants.METADATA, metadata);
+
 			obj.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis()/1000));
 		}
 		catch (JSONException e)

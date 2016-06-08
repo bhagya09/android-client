@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:id="@+id/parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <com.bsb.hike.view.PinnedSectionListView
+        android:id="@+id/list_view_story"
+        style="@style/StoryList"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></com.bsb.hike.view.PinnedSectionListView>
+
+    <LinearLayout
+        android:id="@+id/empty_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/empty_state_no_friends" />
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="56dp"
+            android:layout_marginRight="56dp"
+            android:layout_marginTop="24dp"
+            android:gravity="center"
+            android:text="Your friend's latest photos and timeline will appear here"
+            android:textColor="#663d475b"
+            android:textSize="16sp" />
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/btn_add_friends"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/selector_auth_button_connect"
+            android:clickable="true"
+            android:gravity="center"
+            android:paddingBottom="12dp"
+            android:paddingLeft="22dp"
+            android:paddingRight="22dp"
+            android:paddingTop="12dp"
+            android:text="@string/ADD_FRIENDS"
+            android:textColor="@android:color/white"
+            android:textSize="16sp" />
+    </LinearLayout>
+</LinearLayout>

@@ -38,6 +38,11 @@ public class TimelineActions
 		};
 	}
 
+	public HashMap<Pair<String, String>, ArrayList<ActionsDataModel>> getActionsMap()
+	{
+		return timelineActionsMap;
+	}
+
 	public ActionsDataModel getActions(String uuid, ActionsDataModel.ActionTypes actionType, ActivityObjectTypes objType)
 	{
 		Logger.d(HikeConstants.TIMELINE_COUNT_LOGS,"gettingAction: "+ uuid); 
