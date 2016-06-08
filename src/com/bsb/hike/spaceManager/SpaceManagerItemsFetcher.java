@@ -2,8 +2,8 @@ package com.bsb.hike.spaceManager;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.spaceManager.models.CategoryItem;
 import com.bsb.hike.spaceManager.models.CategoryPojo;
-import com.bsb.hike.spaceManager.models.SpaceManagerItem;
 import com.bsb.hike.spaceManager.models.SubCategoryPojo;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
@@ -63,7 +63,7 @@ public class SpaceManagerItemsFetcher
 			CategoryPojo[] categoryPojos = new Gson().fromJson(itemsJson, CategoryPojo[].class);
 			categoryPojosList = Arrays.asList(categoryPojos);
 			Logger.d(TAG, "category list: " + categoryPojosList.toString());
-			List<SpaceManagerItem> spaceManagerItems = SpaceManagerJavaReflector.reflect(categoryPojosList);
+			List<CategoryItem> spaceManagerItems = SpaceManagerJavaReflector.reflect(categoryPojosList);
 			HikeMessengerApp.getPubSub().publishOnUI(HikePubSub.SPACE_MANAGER_ITEMS_FETCH_SUCCESS, spaceManagerItems);
 		}
 		catch (ClassNotFoundException |InstantiationException | IllegalAccessException | NoSuchMethodException

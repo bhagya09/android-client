@@ -1169,6 +1169,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				{
 					wtHolder.duration.setVisibility(View.GONE);
 					wtHolder.action.setImageResource(R.drawable.ic_mic);
+					wtHolder.progress.setVisibility(View.INVISIBLE);
 				}
 
 				switch (fss.getFTState())
@@ -3910,21 +3911,6 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	@Override
 	public boolean onLongClick(View view)
 	{
-		switch (view.getId())
-		{
-		case R.id.placeholder:
-			ConvMessage convMessage = (ConvMessage) view.getTag();
-
-			if (convMessage.isStickerMessage())
-			{
-				if (convMessage.getMetadata() != null && convMessage.getMetadata().getSticker() != null)
-				{
-					StickerManager.getInstance().sendStickerClickedLogs(convMessage, HikeConstants.LONG_TAP);
-				}
-			}
-			break;
-		}
-
 		/*
 		 * here returning false will pass this event to onItemLongClick method of listview.
 		 */

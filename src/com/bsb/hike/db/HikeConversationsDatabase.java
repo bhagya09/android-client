@@ -7699,7 +7699,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 					try
 					{
 						if(message.getMessageType() == com.bsb.hike.HikeConstants.MESSAGE_TYPE.CONTENT){
-							message.platformMessageMetadata = new PlatformMessageMetadata(metadata);
+							message.platformMessageMetadata = new PlatformMessageMetadata(metadata, message.isSent());
 						}else if(message.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT || message.getMessageType() == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT){
 							message.webMetadata = new WebMetadata(metadata);
 						}else{
@@ -10396,7 +10396,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				try
 				{
 					if(message.getMessageType() == com.bsb.hike.HikeConstants.MESSAGE_TYPE.CONTENT){
-						message.platformMessageMetadata = new PlatformMessageMetadata(metadata);
+						message.platformMessageMetadata = new PlatformMessageMetadata(metadata, message.isSent());
 					}else if(message.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT || message.getMessageType() == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT){
 						message.webMetadata = new WebMetadata(metadata);
 					}else{
@@ -12141,6 +12141,57 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		} finally {
 
 			mDb.endTransaction();
+		}
+	}
+
+	public String getSharedMediaSelection(HikeFileType[] mediaFileTypes)
+	{
+		StringBuilder hfTypeSelection = new StringBuilder("(");
+		for (HikeFileType hfType : mediaFileTypes)
+		{
+			hfTypeSelection.append(hfType.ordinal() + ",");
+		}
+		hfTypeSelection.replace(hfTypeSelection.lastIndexOf(","), hfTypeSelection.length(), ")");
+		return hfTypeSelection.toString();
+	}
+
+	public List<HikeSharedFile> getSharedMedia(String msisdn, HikeFileType[] hikeFileType, int isSent)
+	{
+		String hfTypeSelection = getSharedMediaSelection(hikeFileType);
+
+		String selection =  DBConstants.MSISDN + " = ?" + " AND " + DBConstants.IS_SENT+ " = ?" + " AND "
+				+ (DBConstants.HIKE_FILE_TYPE + " IN " + hfTypeSelection);
+
+		Cursor c = null;
+
+		List<HikeSharedFile> sharedFilesList = new ArrayList<>();
+		try
+		{
+			c = mDb.query(DBConstants.SHARED_MEDIA_TABLE, new String[] {DBConstants.MESSAGE_ID, DBConstants.GROUP_PARTICIPANT, DBConstants.TIMESTAMP, DBConstants.IS_SENT,
+							DBConstants.MESSAGE_METADATA}, selection, new String[] { msisdn, String.valueOf(isSent) }, null, null, null, null);
+
+			SharedMediaCursorIterator cursorIterator = new SharedMediaCursorIterator(c, msisdn);
+			while (cursorIterator.hasNext())
+			{
+				HikeSharedFile hikeSharedFile = cursorIterator.next();
+				if(hikeSharedFile.exactFilePathFileExists())
+				{
+					sharedFilesList.add(hikeSharedFile);
+				}
+			}
+
+			return sharedFilesList;
+		}
+		catch (Exception e)
+		{
+			return sharedFilesList;
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
 		}
 	}
 }

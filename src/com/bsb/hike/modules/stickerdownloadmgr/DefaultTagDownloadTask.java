@@ -22,7 +22,6 @@ import com.bsb.hike.utils.Utils;
 
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.defaultTagsRequest;
@@ -35,6 +34,8 @@ public class DefaultTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResul
 	private boolean isSignUp;
 
 	private Collection<String> languages;
+
+	private String languagesListString;
 
 	private RequestToken requestToken;
 	
@@ -55,9 +56,11 @@ public class DefaultTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResul
 			return;
 		}
 
+		languagesListString = Utils.listToString(languages);
+
 		long lastSuccessfulTagDownloadTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.LAST_SUCESSFULL_TAGS_DOWNLOAD_TIME, 0L);
-		requestToken = defaultTagsRequest(getRequestId(), isSignUp, lastSuccessfulTagDownloadTime, getResponseListener(),
-				StickerLanguagesManager.getInstance().listToString(languages), getRequestBundle());
+
+		requestToken = defaultTagsRequest(getRequestId(), isSignUp, lastSuccessfulTagDownloadTime, getResponseListener(), languagesListString, getRequestBundle());
 
 		if (requestToken.isRequestRunning())
 		{
@@ -152,7 +155,7 @@ public class DefaultTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResul
 	{
 		Bundle extras = new Bundle();
 		extras.putBoolean(HikeConstants.IS_NEW_USER, isSignUp);
-		extras.putStringArrayList(HikeConstants.LANGUAGES, new ArrayList<String>(languages));
+		extras.putString(HikeConstants.LANGUAGES, languagesListString);
 		return extras;
 	}
 }

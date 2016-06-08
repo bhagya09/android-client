@@ -21,4 +21,10 @@ public class ReceivedContentCategoryItem extends CategoryItem
 		Logger.d(CATEGORY_TAG, "creating category - received items");
 		setSize(computeSize());
 	}
+
+	@Override
+	public long getSize() {
+		return computeSize();
+	}
+
 }

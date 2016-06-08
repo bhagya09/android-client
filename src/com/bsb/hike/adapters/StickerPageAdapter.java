@@ -301,12 +301,8 @@ public class StickerPageAdapter extends BaseAdapter implements OnClickListener
 			Sticker sticker = item.getSticker();
 			String source = getSourceOfSticker();
 			mStickerPickerListener.stickerSelected(sticker, source);
-
-			/* In case sticker is clicked on the recents screen, don't update the UI or recents list. Also if this sticker is disabled don't update the recents UI */
-			if (!category.getCategoryId().equals(StickerManager.RECENT))
-			{
-				StickerManager.getInstance().addRecentStickerToPallete(sticker);	
-			}
+			addToRecent(sticker);
+			sendAnalytics(sticker);
 			sendBroadcastIfQsFtue();
 			break;
 		case StickerPageAdapterItem.UPDATE:
@@ -368,8 +364,8 @@ public class StickerPageAdapter extends BaseAdapter implements OnClickListener
 				return StickerManager.FROM_RECENT;
 			case StickerManager.QUICK_SUGGESTIONS:
 				QuickSuggestionStickerCategory quickSuggestionStickerCategory = (QuickSuggestionStickerCategory) category;
-				return (quickSuggestionStickerCategory.isShowReplyStickers() ? StickerManager.FROM_QR : StickerManager.FROM_QF) + HikeConstants.SEPARATOR +
-			quickSuggestionStickerCategory.getQuickSuggestSticker().getStickerCode();
+				return (quickSuggestionStickerCategory.isShowReplyStickers() ? (qsFtueCategory ? StickerManager.FROM_QR_FTUE : StickerManager.FROM_QR): (qsFtueCategory ? StickerManager.FROM_QF_FTUE : StickerManager.FROM_QF)) + HikeConstants.SEPARATOR +
+				quickSuggestionStickerCategory.getQuickSuggestSticker().getStickerCode();
 			default:
 				return StickerManager.FROM_OTHER;
 		}
@@ -380,11 +376,28 @@ public class StickerPageAdapter extends BaseAdapter implements OnClickListener
 		this.qsFtueCategory = qsFtueCategory;
 	}
 
+	private void addToRecent(Sticker sticker)
+	{
+		/* In case sticker is clicked on the recents screen, don't update the UI or recents list. Also if this sticker is disabled don't update the recents UI */
+		if (!StickerManager.getInstance().isRecentCategory(category.getCategoryId()))
+		{
+			StickerManager.getInstance().addRecentStickerToPallete(sticker);
+		}
+	}
+
 	private void sendBroadcastIfQsFtue()
 	{
 		if(qsFtueCategory)
 		{
 			LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(StickerManager.QUICK_STICKER_SUGGESTION_FTUE_STICKER_CLICKED));
+		}
+	}
+
+	private void sendAnalytics(Sticker sticker)
+	{
+		if(StickerManager.getInstance().isQuickSuggestionCategory(category.getCategoryId()))
+		{
+			StickerManager.getInstance().sendAnalyticsForStickerSentFromQr(sticker, category);
 		}
 	}
 }
