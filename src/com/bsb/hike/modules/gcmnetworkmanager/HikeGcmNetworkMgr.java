@@ -57,6 +57,7 @@ public class HikeGcmNetworkMgr implements IGcmNetworkMgr
         try {
             if (!isGooglePlayServicesAvailable()) {
                 Logger.e(TAG, "google play services not available");
+                removeGcmTaskConfigFromDB(config);
                 return;
             }
 
@@ -73,6 +74,7 @@ public class HikeGcmNetworkMgr implements IGcmNetworkMgr
 
             GcmNetworkManager.getInstance(context).schedule(task);
         } catch (Throwable e) {
+            removeGcmTaskConfigFromDB(config);
             Logger.wtf(TAG, "Error while scheduling", e);
         }
     }
@@ -124,4 +126,36 @@ public class HikeGcmNetworkMgr implements IGcmNetworkMgr
 			}
 		}, 0);
 	}
+
+    public void removeGcmTaskConfigFromDB(final Config config)
+    {
+        HikeHandlerUtil.getInstance().postAtFront(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                if (config != null)
+                {
+                    Logger.d(TAG, "removing config from db with tag : " + config.getTag());
+                    HttpRequestStateDB.getInstance().deleteBundleForTag(config.getTag());
+                }
+            }
+        });
+    }
+
+    public void updateGcmTaskConfigInDB(final Config config)
+    {
+        HikeHandlerUtil.getInstance().postAtFront(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                if (config != null)
+                {
+                    Logger.d(TAG, "updating config in db with tag : " + config.getTag());
+                    HttpRequestStateDB.getInstance().update(config.getTag(), config.toBundle());
+                }
+            }
+        });
+    }
 }
