@@ -28,6 +28,7 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.smartImageLoader.StoryPhotoLoader;
 import com.bsb.hike.timeline.LoveCheckBoxToggleListener;
 import com.bsb.hike.timeline.TimelineActionsManager;
@@ -36,6 +37,7 @@ import com.bsb.hike.timeline.model.ActionsDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StoryItem;
 import com.bsb.hike.timeline.tasks.StoriesDataManager;
+import com.bsb.hike.timeline.tasks.UpdateActionsDataRunnable;
 import com.bsb.hike.ui.utils.CrossfadePageTransformer;
 import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
@@ -83,7 +85,7 @@ public class StoryPhotosActivity extends HikeAppStateBaseFragmentActivity implem
 
     private StoryItem<StatusMessage, ContactInfo> storyItem;
 
-    private String[] pubSubListeners = {HikePubSub.ACTIVITY_UPDATE};
+    private String[] pubSubListeners = {HikePubSub.ACTIVITY_UPDATE, HikePubSub.ACTIONS_DATA_UPDATE};
 
     private GestureDetector gestureDetector;
 
@@ -188,7 +190,20 @@ public class StoryPhotosActivity extends HikeAppStateBaseFragmentActivity implem
             pagerView.setAdapter(pagerAdapter);
             pagerView.addOnPageChangeListener(pageChangeListener);
             checkBoxLove.setTag(getCurrentStatusMessage());
-            updateActionsData();
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    updateActionsRelatedViews();
+                }
+            });
+
+            //Fetch latest loves from server
+            List<StatusMessage> statusMessageList = storyItem.getDataObjects();
+            if(!Utils.isEmpty(statusMessageList))
+            {
+                HikeHandlerUtil.getInstance().postRunnable(new UpdateActionsDataRunnable(statusMessageList));
+            }
         }
     }
 
@@ -219,7 +234,7 @@ public class StoryPhotosActivity extends HikeAppStateBaseFragmentActivity implem
         public void onPageSelected(int position) {
             Logger.d(TAG, "onPageSelected " + position);
             checkBoxLove.setTag(getCurrentStatusMessage());
-            updateActionsData();
+            updateActionsRelatedViews();
         }
 
         @Override
@@ -230,7 +245,7 @@ public class StoryPhotosActivity extends HikeAppStateBaseFragmentActivity implem
 
     private CompoundButton.OnCheckedChangeListener onLoveToggleListener = new LoveCheckBoxToggleListener();
 
-    private void updateActionsData() {
+    private void updateActionsRelatedViews() {
         StatusMessage currentStatusMessage = getCurrentStatusMessage();
         ActionsDataModel actionsData = TimelineActionsManager.getInstance().getActionsData()
                 .getActions(currentStatusMessage.getMappedId(), ActionsDataModel.ActionTypes.LIKE, ActionsDataModel.ActivityObjectTypes.STATUS_UPDATE);
@@ -273,12 +288,9 @@ public class StoryPhotosActivity extends HikeAppStateBaseFragmentActivity implem
         viewTranslucentFGScreen.setVisibility(View.VISIBLE);
         viewTranslucentFGScreen.animate().setDuration(1000).alpha(0.8f);
 
-        if (currentStatusMessage.getStatusMessageType() == StatusMessage.StatusMessageType.IMAGE)
-        {
+        if (currentStatusMessage.getStatusMessageType() == StatusMessage.StatusMessageType.IMAGE) {
             textViewCaption.setVisibility(View.GONE);
-        }
-        else
-        {
+        } else {
             SmileyParser smileyParser = SmileyParser.getInstance();
             textViewCaption.setText(smileyParser.addSmileySpans(currentStatusMessage.getText().trim(), true));
             Linkify.addLinks(textViewCaption, Linkify.ALL);
@@ -313,11 +325,11 @@ public class StoryPhotosActivity extends HikeAppStateBaseFragmentActivity implem
 
     @Override
     public void onEventReceived(String type, Object object) {
-        if (HikePubSub.ACTIVITY_UPDATE.equals(type)) {
+        if (HikePubSub.ACTIVITY_UPDATE.equals(type) || HikePubSub.ACTIONS_DATA_UPDATE.equals(type)) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    updateActionsData();
+                    updateActionsRelatedViews();
 
                 }
             });
