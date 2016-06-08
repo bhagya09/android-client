@@ -238,6 +238,8 @@ public class AnalyticsConstants
 	public static String PLATFORM_RICH_NOTIF = "platform_rich_notif";
 	public static String TTL_EXPIRED = "ttlExpired";
 	public static String NATIVE_CARD_FORWARD = "nativeCardForward";
+	public static String ACT_PLAT = "act_plat";
+	public static String EXTSHARE_DONE = "extshr_done";
 
 	//Constants for v2 (Normalized Taxonomy)
 	public static final class V2
@@ -911,6 +913,16 @@ public class AnalyticsConstants
 
 	public static final String CHAT_THREAD_CROSS = "chat_thread_cross";
 
+	public static final String STICKER_QUICK_REPLY = "stkQckRply";
+
+	public static final String QR_PANEL_SHOWN = "qrPanelShown";
+
+	public static final String SENT_STICKER_QR = "stkSntQR";
+
+	public static final String QR_ERROR = "QRerror";
+
+	public static final String QR_FTUE = "QRFtue";
+
 	public static final class AtomicTipsAnalyticsConstants
 	{
 		public static final String TIPS = "tips";
@@ -1033,4 +1045,10 @@ public class AnalyticsConstants
 
 		public static final String SILENT = "silent";
 	}
+
+	public static final String PPOPUP = "ppopup";
+
+	public static final String DUPLICATE = "duplicate";
+
+	public static final String POPUP_DUPLICATE = "popup_duplicate";
 }

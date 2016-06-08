@@ -799,6 +799,10 @@ public class HikeConstants
 
 	public static final String CALL_TYPE = "call_type";
 	public static String CONTENT_RANGE = "Content-Range";
+	public static String TIMELINE = "timeline";
+	public static String SEND ="send";
+
+	public static String TEXT_SHARE ="text";
 
 	public class Shortcut
 	{
@@ -855,11 +859,20 @@ public class HikeConstants
 	/* how often to ping after a failure */
 	public static final int RECONNECT_TIME = 10; /* 10 seconds */
 
+	/* reconnect after PAUID call */
+	public static final int PA_RECONNECT_TIME = 1; /* 1 second */
+
 	/* how often to ping after a server unavailable failure */
 	public static final int SERVER_UNAVAILABLE_MAX_CONNECT_TIME = 9; /* 9 minutes */
 
 	/* the max amount (in seconds) the reconnect time can be */
 	public static final int MAX_RECONNECT_TIME = 120;
+
+	/* the max amount (in seconds) the reconnect time can be */
+	public static final int PA_MAX_RECONNECT_TIME = 21600;
+
+	/* the max amount (in seconds) the reconnect time can be */
+	public static final int PA_BACKOFF_MULTIPLIER = 4;
 
 	/* the max amount of time we allow the service to run in case of no activity */
 	public static final int DISCONNECT_TIME = 10 * 60;
@@ -1431,11 +1444,13 @@ public class HikeConstants
 
 		public static final String LOGS_SCHEDULE="logs_schdl";
 
-		public static final String INTERVAL = "inv";
+		public static final String INTERVAL = "intv";
 
 		public static final String FREQUENCY = "frq";
 
 		public static final String TYPE = "typ";
+
+		public static final String CONFIG = "signup_config";
 	}
 
 	public static final class ChatHead
@@ -2379,6 +2394,12 @@ public class HikeConstants
 
 		public static final String STICKER_RECOMMENDATION_REBALANCING_SUMMERIZATION = "srRS";
 
+		public static final String STICKER_RECOMMENDATION = "sr_rec";
+
+		public static final String STICKER_RECOMMENDATION_REPORT = "sr_rec_rep";
+
+		public static final String STICKER_RECOMMENDATION_COUNT_REPORT = "sr_rec_cnt_rep";
+
 		public static final String STICKER_FOLDER_ERROR = "stFEr";
 
 		public static final String STICKER_ERROR = "stEr";
@@ -3243,6 +3264,8 @@ public class HikeConstants
 	public static final String FROM_CHAT_THREAD = "ct";
 
 	public static final String LARGE = "large";
+
+	public static final String MINI = "mini";
 
 	public static final int ATOMIC_APP_TIP_SETTINGS = 1;
 
@@ -4395,6 +4418,8 @@ public class HikeConstants
 
 	public static final String SENT = "sent";
 
+	public static final String RECEIVED = "recvd";
+
 	public static final String LANG = "lang";
 
 	public static final String QUICK_RESPONSE = "quickResponse";
@@ -4480,5 +4505,7 @@ public class HikeConstants
 	public static final String FRIENDS_PRIVACY_PROFILE_VIEW_SHOWN = "fr_privacy_profile_ftue";
 
     public static final String DOWNLOAD_TYPE = "t_dwnld";
+
+	public static final String ENABLE_UNKNOWN_USER_INFO_IN_CHAT = "en_uu_info";
 
 }

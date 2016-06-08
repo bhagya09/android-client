@@ -3,6 +3,7 @@ package com.bsb.hike.ui;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -65,6 +66,7 @@ import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.analytics.HomeAnalyticsConstants;
 import com.bsb.hike.db.AccountRestoreAsyncTask;
+import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
@@ -91,6 +93,7 @@ import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.service.MqttMessagesManager;
+import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.snowfall.SnowFallView;
 import com.bsb.hike.tasks.DownloadAndInstallUpdateAsyncTask;
 import com.bsb.hike.tasks.SendLogsTask;
@@ -223,7 +226,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	private AccountRestoreAsyncTask restoreAsyncTask;
 
 	private boolean wasFragmentRemoved = false;
-
+    private IconLoader iconloader;
+	private boolean botRequested;
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -240,7 +244,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		        return;       
 		    }
 		}
-
+		int mIconImageSize = getResources().getDimensionPixelSize(R.dimen.icon_picture_size);
+		iconloader = new IconLoader(this, mIconImageSize);
+		iconloader.setDefaultAvatarIfNoCustomIcon(true);
+		iconloader.setImageFadeIn(false);
 		if (savedInstanceState != null && savedInstanceState.getBoolean(HikeConstants.Extras.CLEARED_OUT, false)) 
 		{
 
@@ -882,8 +889,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		try
 		{
-			UserLogInfo.requestUserLogs(255);
-
 			JSONObject metadata = new JSONObject();
 			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.HOME_SEARCH);
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
@@ -1175,7 +1180,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
             return;
         }
 
-        if (linkUrl.contains(HttpRequestConstants.BASE_LINK_SHARING_URL))
+        if (linkUrl.contains(HttpRequestConstants.BASE_LINK_SHARING_URL) || linkUrl.contains(HttpRequestConstants.BASE_LINK_SHARING_HTTPS_URL) || linkUrl.contains(HttpRequestConstants.WWW_BASE_LINK_SHARING_URL) || linkUrl.contains(HttpRequestConstants.WWW_BASE_LINK_SHARING_HTTPS_URL))
         {
             // linkurl is http://hike.in/refid:gc:code
             String codeArray[] = linkUrl.split("/");
@@ -1254,19 +1259,86 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
                 requestToken.execute();
             }
             // For Bots:- linkurl is http://hike.in/bots/handle
-            else if (codeArray.length == 5 && linkUrl.contains("/bots/"))
-            {
-                makeBotsJoinRequestCall(codeArray[codeArray.length - 1]);
-            }
-        }
-        else if (BotUtils.isBotUrl(intentUri))
-        {
-            makeBotsJoinRequestCall(intentUri.getQueryParameter(HikeConstants.HANDLE));
-        }
+            else if (codeArray.length == 5)
+			{
+				if (linkUrl.contains("/bots/"))
+				{
+					makeBotsJoinRequestCall(codeArray[codeArray.length - 1]);
+				}
+				//Adding explicit support for https://hike.in/c/JFL
+				else if (linkUrl.toLowerCase().contains("/c/jfl"))
+				{
+					handleJFLLink();
+				}
+
+			}
+        } else if (BotUtils.isBotUrl(intentUri)) {
+			makeBotsJoinRequestCall(intentUri.getQueryParameter(HikeConstants.HANDLE));
+		} else if (BotUtils.isJFLUrl(intentUri)) {
+			handleJFLLink();
+		} else if (BotUtils.isSendUrl(intentUri)) {
+			handleSendLink(intentUri);
+		}
 
     }
 
 
+	private void handleJFLLink(){
+
+		BotInfo mBotInfo = new BotInfo.HikeBotBuilder(HikePlatformConstants.HIKE_VIRAL_MSISDN).build();
+		String msisdn = mBotInfo.getMsisdn();
+		mBotInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+		if (mBotInfo != null && mBotInfo.isMessagingBot())
+		{
+			if (!HikeConversationsDatabase.getInstance().isConversationExist(mBotInfo.getMsisdn()))
+			{
+				// Using the one from the microapp list to get the description of the bot sent in the add_di_bot packet.
+				if (BotUtils.isBot(mBotInfo.getMsisdn()))
+				{
+					BotUtils.unblockBotIfBlocked(BotUtils.getBotInfoForBotMsisdn(mBotInfo.getMsisdn()), AnalyticsConstants.BOT_DISCOVERY);
+				}
+				/**
+				 * On resetting account, a previously blocked microapp will remain blocked. So we're checking if that msisdn is blocked before we initiate the bot download.
+				 */
+				else if (ContactManager.getInstance().isBlocked(mBotInfo.getMsisdn()))
+				{
+					ContactManager.getInstance().unblock(mBotInfo.getMsisdn());
+				}
+                JSONObject json = BotUtils.getBotJson(mBotInfo.getMsisdn());
+				RequestToken token = HttpRequests.microAppPostRequest(HttpRequestConstants.getBotDownloadUrlV2(), json, new IRequestListener()
+				{
+
+					@Override
+					public void onRequestSuccess(Response result)
+					{
+
+					}
+
+					@Override
+					public void onRequestProgressUpdate(float progress)
+					{
+
+					}
+
+					@Override
+					public void onRequestFailure(Response response, HttpException httpException)
+					{
+						botRequested = false;
+					}
+				});
+				if (!token.isRequestRunning())
+				{
+					botRequested = true;
+					token.execute();
+				}
+			}
+			else
+			{
+				BotUtils.unblockBotIfBlocked(mBotInfo, AnalyticsConstants.BOT_DISCOVERY);
+				BotUtils.openBot(HomeActivity.this, mBotInfo);
+			}
+		}
+	}
     @Override
 	public void onBackPressed()
 	{
@@ -1501,6 +1573,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		else if (type.equals(HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE))
 		{
+			long upgradeDialogueSt = HikeSharedPreferenceUtil.getInstance().getData(HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE, 0L);
+			Utils.recordUpgradeTaskCompletion(HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE, (System.currentTimeMillis() - upgradeDialogueSt));
+
 			runOnUiThread(new Runnable()
 			{
 				@SuppressLint("NewApi")
@@ -1818,10 +1893,16 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 						public void run()
 						{
 							ArrayList<OverFlowMenuItem> optionsList = new ArrayList<OverFlowMenuItem>();
-							addBotItem(optionsList,info);
+							addBotItem(optionsList, info);
+
 						}
 					});
 			 }
+				if(botRequested){
+					botRequested = false;
+					Intent intent = IntentFactory.getIntentForBots(info, HomeActivity.this);
+					startActivity(intent);
+				}
 		   }
 		}
 	}
@@ -2703,7 +2784,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
             e.printStackTrace();
         }
     }
-    
+
 	/**
 	 * Start chat thread by providing that intent.
 	 *
@@ -2795,5 +2876,23 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			e.toString();
 		}
+	}
+	private void handleSendLink(Uri intentUri) {
+		String sendText ="";
+		try {
+			sendText = intentUri.getQueryParameter(HikeConstants.TEXT_SHARE);
+		}
+		catch(UnsupportedOperationException e)
+		{
+			Logger.e(TAG,"Error in external url share");
+			return;
+		}
+		Intent intent =IntentFactory.getComposeChatActivityIntent(this);
+		intent.putExtra(HikeConstants.SEND,sendText);
+		intent.putExtra(HikeConstants.Extras.IS_GROUP_FIRST,true);
+		HikeAnalyticsEvent.recordAnalyticsForExternalShare(sendText);
+		startActivity(intent);
+		finish();
+
 	}
 }

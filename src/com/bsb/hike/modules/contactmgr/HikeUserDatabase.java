@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.preference.PreferenceManager;
 import android.provider.BaseColumns;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.text.TextUtils;
@@ -20,6 +21,7 @@ import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.R;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.CallerContentModel;
 import com.bsb.hike.chatHead.CallerMetadata;
@@ -335,17 +337,17 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		if(oldVersion < 19) {
 			//TODO : Handle migration
 
-			if (!Utils.isColumnExistsInTable(mDb, DBConstants.USERS_TABLE, DBConstants.HIKE_UID)) {
+			if (!Utils.isColumnExistsInTable(db, DBConstants.USERS_TABLE, DBConstants.HIKE_UID)) {
 				String alter = "ALTER TABLE " + DBConstants.USERS_TABLE + " ADD COLUMN " + DBConstants.HIKE_UID + " TEXT";
 				db.execSQL(alter);
 			}
 
-			if (!Utils.isColumnExistsInTable(mDb, DBConstants.USERS_TABLE, DBConstants.BLOCK_STATUS)) {
+			if (!Utils.isColumnExistsInTable(db, DBConstants.USERS_TABLE, DBConstants.BLOCK_STATUS)) {
 				String alter = "ALTER TABLE " + DBConstants.USERS_TABLE + " ADD COLUMN " + DBConstants.BLOCK_STATUS + " TEXT DEFAULT 0";
 				db.execSQL(alter);
 			}
 
-			if (!Utils.isColumnExistsInTable(mDb, DBConstants.USERS_TABLE, DBConstants.FAVORITE_TYPE)) {
+			if (!Utils.isColumnExistsInTable(db, DBConstants.USERS_TABLE, DBConstants.FAVORITE_TYPE)) {
 				String alter = "ALTER TABLE " + DBConstants.USERS_TABLE + " ADD COLUMN " + DBConstants.FAVORITE_TYPE + " TEXT DEFAULT 0";
 				db.execSQL(alter);
 			}
@@ -356,21 +358,25 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 			// Need to migrate the DBs in upgradeIntentService
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.MIGRATE_TABLE_TO_USER, 1);
 
-			String alter1 = "ALTER TABLE " + DBConstants.HIKE_USER.HIKE_CALLER_TABLE + " ADD COLUMN " + DBConstants.HIKE_USER.CALLER_METADATA + " TEXT";
-			db.execSQL(alter1);
+			if (!Utils.isColumnExistsInTable(db, DBConstants.HIKE_USER.HIKE_CALLER_TABLE, DBConstants.HIKE_USER.CALLER_METADATA)) {
+				String alter = "ALTER TABLE " + DBConstants.HIKE_USER.HIKE_CALLER_TABLE + " ADD COLUMN " + DBConstants.HIKE_USER.CALLER_METADATA + " TEXT";
+				db.execSQL(alter);
+			}
 
-			String alter2 = "ALTER TABLE " + DBConstants.HIKE_USER.HIKE_CALLER_TABLE + " ADD COLUMN " + DBConstants.HIKE_USER.EXPIRY_TIME + " INTEGER DEFAULT 0";
-			db.execSQL(alter2);
+			if (!Utils.isColumnExistsInTable(db, DBConstants.HIKE_USER.HIKE_CALLER_TABLE, DBConstants.HIKE_USER.EXPIRY_TIME)) {
+				String alter = "ALTER TABLE " + DBConstants.HIKE_USER.HIKE_CALLER_TABLE + " ADD COLUMN " + DBConstants.HIKE_USER.EXPIRY_TIME + " INTEGER DEFAULT 0";
+				db.execSQL(alter);
+			}
 		}
 
 
 		if (oldVersion < 20) {
-			if (!Utils.isColumnExistsInTable(mDb, DBConstants.USERS_TABLE, DBConstants.LAST_SEEN_SETTINGS)) {
+			if (!Utils.isColumnExistsInTable(db, DBConstants.USERS_TABLE, DBConstants.LAST_SEEN_SETTINGS)) {
 				String alter = "ALTER TABLE " + DBConstants.USERS_TABLE + " ADD COLUMN " + DBConstants.LAST_SEEN_SETTINGS + " INTEGER DEFAULT 0";
 				db.execSQL(alter);
 			}
 
-			if (!Utils.isColumnExistsInTable(mDb, DBConstants.USERS_TABLE, DBConstants.STATUS_UPDATE_SETTINGS)) {
+			if (!Utils.isColumnExistsInTable(db, DBConstants.USERS_TABLE, DBConstants.STATUS_UPDATE_SETTINGS)) {
 				String alter = "ALTER TABLE " + DBConstants.USERS_TABLE + " ADD COLUMN " + DBConstants.STATUS_UPDATE_SETTINGS + " INTEGER DEFAULT 1"; // By default SU will be shown to friends
 				db.execSQL(alter);
 			}
@@ -2077,6 +2083,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		Logger.d(TAG, "Adding msisdb to favourite" + msisdn);
 		cv.put(DBConstants.MSISDN, msisdn);
 		cv.put(DBConstants.FAVORITE_TYPE, favoriteType.ordinal());
+		cv.put(DBConstants.LAST_SEEN_SETTINGS, getLastSeenSettingsForMsisdn());
 		long value = mDb.update(DBConstants.USERS_TABLE, cv, DBConstants.MSISDN + "=?", new String[]{msisdn});
 		if (value == -1 || value == 0) {
 			value = mDb.insertWithOnConflict(DBConstants.USERS_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
@@ -2085,6 +2092,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 			Logger.d(TAG, "MSISDN FAVOURITE" + msisdn + "result -->" + value + "UPDATE EXECUTED");
 		}
 	}
+
 
 	public List<ContactInfo> getNonHikeMostContactedContactsFromListOfNumbers(String selectionNumbers, final Map<String, Integer> mostContactedValues, int limit)
 	{
@@ -3042,6 +3050,14 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		ContentValues values = new ContentValues();
 		values.put(DBConstants.LAST_SEEN_SETTINGS, newValue ? 1 : 0);
 		mDb.update(DBConstants.USERS_TABLE, values, null, null);
+	}
+
+	private int getLastSeenSettingsForMsisdn() {
+		String ls_setting = PreferenceManager.getDefaultSharedPreferences(HikeMessengerApp.getInstance()).getString(HikeConstants.LAST_SEEN_PREF_LIST, HikeMessengerApp.getInstance().getString(R.string.privacy_favorites));
+		if (HikeMessengerApp.getInstance().getString(R.string.privacy_favorites).equals(ls_setting)) {
+			return 1;
+		}
+		return 0;
 	}
 
 }

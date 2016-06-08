@@ -170,7 +170,7 @@ public abstract class ChangeProfileImageBaseActivity extends HikeAppStateBaseFra
 		else
 		{
 			CropCompression compression = new CropCompression().maxWidth(640).maxHeight(640).quality(80);
-			Intent imageChooserIntent = IntentFactory.getImageChooserIntent(ChangeProfileImageBaseActivity.this, galleryFlags, getNewProfileImagePath(true),compression, true);
+			Intent imageChooserIntent = IntentFactory.getImageChooserIntent(ChangeProfileImageBaseActivity.this, galleryFlags, getNewProfileImagePath(useTimestamp),compression, true);
 			startActivityForResult(imageChooserIntent, HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE);
 		}
 	}

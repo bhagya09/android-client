@@ -1,4 +1,4 @@
-package com.bsb.hike.utils;
+package com.hike.cognito;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -7,7 +7,6 @@ import java.io.InputStreamReader;
 /**
  * Helps check if device is rooted. Unused for now, but keeping for future
  */
-@SuppressWarnings("unused")
 public class RootUtil {
 
     public static boolean isDeviceRooted() {

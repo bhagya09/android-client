@@ -485,7 +485,7 @@ import com.bsb.hike.voip.VoIPUtils;
 		}
 
 		list.add(new OverFlowMenuItem(mConversation.isBlocked() ? getString(R.string.unblock_title) : getString(R.string.block_title), 0, 0, !isNotMyOneWayFriend(), R.string.block_title));
-		if (BotUtils.isBot(HikePlatformConstants.CUSTOMER_SUPPORT_BOT_MSISDN))
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikePlatformConstants.ENABLE_HELP, false) && BotUtils.isBot(HikePlatformConstants.CUSTOMER_SUPPORT_BOT_MSISDN))
 		{
 			list.add(new OverFlowMenuItem(getString(R.string.help), 0, 0, R.string.help));
 		}
@@ -628,13 +628,21 @@ import com.bsb.hike.voip.VoIPUtils;
 			unknownContactInfoView.findViewById(R.id.block_unknown_contact).setOnClickListener(this);
 			checkAndAddListViewHeader(unknownContactInfoView);
 		}
-		showUknownUserInfoView();
+
+		if(Utils.isUnknownUserInfoViewEnabled())
+		{
+			showUnknownUserInfoView();
+		}
+		else
+		{
+			unknownContactInfoView.findViewById(R.id.unknown_user_info_view).setVisibility(View.GONE);
+		}
 	}
 
 	/**
 	 * This shows Unknown User (Name, location)
 	 */
-	protected void showUknownUserInfoView()
+	protected void showUnknownUserInfoView()
 	{
 		try
 		{

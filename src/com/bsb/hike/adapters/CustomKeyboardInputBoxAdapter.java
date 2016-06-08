@@ -1,12 +1,13 @@
 package com.bsb.hike.adapters;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
@@ -104,14 +105,14 @@ public class CustomKeyboardInputBoxAdapter implements OnClickListener
 			{
 				view = inflater.inflate(R.layout.custom_keyboard_text, null);
 				TextView textView = (TextView) view.findViewById(R.id.text);
-				FrameLayout frameLayout = (FrameLayout) view.findViewById(R.id.text_container_layout);
+                RelativeLayout relativeLayout = (RelativeLayout) view.findViewById(R.id.text_container_layout);
 
 				textView.setText(tk.getV());
 				textView.setSingleLine(true);
 				params.setMargins((int) (4 * Utils.densityMultiplier), (int) (8 * Utils.densityMultiplier), (int) (4 * Utils.densityMultiplier),
 						(int) (8 * Utils.densityMultiplier));
 
-				frameLayout.setLayoutParams(params);
+                relativeLayout.setLayoutParams(params);
 
 				view.setOnClickListener(this);
 
@@ -132,12 +133,15 @@ public class CustomKeyboardInputBoxAdapter implements OnClickListener
 	 *            the custom keyboard sticker keys
 	 * @return the view
 	 */
-	public View initStickerKeyboardView(List<Sk> customKeyboardStickerKeys)
+	public View initStickerKeyboardView(List<Sk> customKeyboardStickerKeys,int screenOrientation)
 	{
 		View stickerViewToDisplay = inflater.inflate(R.layout.custom_keyboard_sticker_page, null);
 		GridView stickerGridView = (GridView) stickerViewToDisplay.findViewById(R.id.emoticon_grid);
 
-		int stickerGridNumCols = HikePlatformConstants.stickerGridNoOfCols;
+		int stickerGridNumCols = HikePlatformConstants.stickerGridNoOfColsPortrait;
+
+        if(screenOrientation ==  Configuration.ORIENTATION_LANDSCAPE)
+            stickerGridNumCols = HikePlatformConstants.stickerGridNoOfColsLandscape;
 
 		stickerGridView.setNumColumns(stickerGridNumCols);
 		List<Sticker> stickersList = new CopyOnWriteArrayList<>();

@@ -16,7 +16,7 @@ public class AESSecurity extends Security {
     public String encryptData(String data) {
         HikeSharedPreferenceUtil settings = HikeSharedPreferenceUtil.getInstance();
         String key, salt;
-        if (Utils.isUserAuthenticated(HikeMessengerApp.getInstance().getApplicationContext())) {
+        if (Utils.isMsisdnVerified(HikeMessengerApp.getInstance().getApplicationContext())) {
             key = settings.getData(HikeMessengerApp.MSISDN_SETTING, null);
             salt = settings.getData(HikeMessengerApp.BACKUP_TOKEN_SETTING, null);
         } else {

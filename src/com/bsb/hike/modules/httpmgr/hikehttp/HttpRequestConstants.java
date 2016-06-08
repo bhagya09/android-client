@@ -28,8 +28,13 @@ public class HttpRequestConstants
 	public static final String FT_PRODUCTION_API = "ft.im.hike.in";
 
 	public static final String STICKERS_CDN_PRODUCTION_API = "staticstickers.im.hike.in";
+
+	public static final String STICKERS_CACHE_PRODUCTION_API = "stickers-cache.im.hike.in";
 	
 	public static final String BASE_LINK_SHARING_URL = HTTP + "hike.in";
+	public static final String BASE_LINK_SHARING_HTTPS_URL = HTTPS + "hike.in";
+	public static final String WWW_BASE_LINK_SHARING_URL = HTTP + "www.hike.in";
+	public static final String WWW_BASE_LINK_SHARING_HTTPS_URL = HTTPS + "www.hike.in";
 		
 	public static final int PRODUCTION_PORT = 80;
 
@@ -48,6 +53,8 @@ public class HttpRequestConstants
 	private static String BASE_STICKERS_URL = HTTP + STICKERS_PRODUCTION_API;
 
 	private static String BASE_STICKERS_CDN_URL = HTTP + STICKERS_CDN_PRODUCTION_API;
+
+	private static String BASE_STICKERS_CACHE_URL = HTTP + STICKERS_CACHE_PRODUCTION_API;
 
     private static final String BASE_PRODUCTION_ABTEST_EXPERIMENT_URL = HTTP + "eps.analytics.hike.in";
 
@@ -72,6 +79,8 @@ public class HttpRequestConstants
 	private static final String BASE_USER = "/user";
 
 	private static final String BASE_STICKER = "/stickers";
+
+	private static final String BASE_QUICK = "/quick";
 
 	private static final String BASE_CHATTHEME = "/cbg";
 
@@ -147,7 +156,7 @@ public class HttpRequestConstants
 
 	public static final String BASE_FORCED_STICKERS = BASE_V4 + BASE_STICKER + "/force_stickers";
 
-	public static final String BASE_QUICK_SUGGESTIONS = BASE_V4 + BASE_STICKER + "/quickSuggestions";
+	public static final String BASE_QUICK_SUGGESTIONS = BASE_V4 + BASE_QUICK + "/quickSuggestions";
 
 	public static synchronized void setUpBase()
 	{
@@ -233,6 +242,10 @@ public class HttpRequestConstants
 		BASE_STICKERS_CDN_URL = "";
 		BASE_STICKERS_CDN_URL += (isSSL) ? HTTPS : HTTP;
 		BASE_STICKERS_CDN_URL += (isProduction) ? STICKERS_CDN_PRODUCTION_API : STAGING_API;
+
+		BASE_STICKERS_CACHE_URL = "";
+		BASE_STICKERS_CACHE_URL += (isSSL) ? HTTPS : HTTP;
+		BASE_STICKERS_CACHE_URL += (isProduction) ? STICKERS_CACHE_PRODUCTION_API : STAGING_API;
 	}
 
 	//TODO Check on SSL URL
@@ -334,7 +347,7 @@ public class HttpRequestConstants
 
 	public static String quickSuggestionUrl()
 	{
-		return BASE_STICKERS_URL + BASE_QUICK_SUGGESTIONS;
+		return BASE_STICKERS_CACHE_URL + BASE_QUICK_SUGGESTIONS;
 	}
 
 	public static String userParameterUrl()
@@ -419,7 +432,7 @@ public class HttpRequestConstants
 
 	public static String sendUserLogsInfoBaseUrl()
 	{
-		if(!Utils.isUserAuthenticated(HikeMessengerApp.getInstance().getApplicationContext()))
+		if(!Utils.isMsisdnVerified(HikeMessengerApp.getInstance().getApplicationContext()))
 		{
 			return BASE_URL + BASE_V1 + "/pa/";
 		}
