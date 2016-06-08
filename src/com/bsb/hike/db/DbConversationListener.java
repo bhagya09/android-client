@@ -604,6 +604,7 @@ public class DbConversationListener implements Listener
 			HikeMqttManagerNew.getInstance().sendMessage(convMessage.serialize(), MqttConstants.MQTT_QOS_ONE);
 
 			// Update the CT back as well.
+			HikeConversationsDatabase.getInstance().addConversationMessages(convMessage, false);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.UPDATE_THREAD, convMessage);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.CHATTHEME_UPLOAD_SUCCESS, pair);
 		}
