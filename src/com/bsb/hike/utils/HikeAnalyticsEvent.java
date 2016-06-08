@@ -427,7 +427,7 @@ public class HikeAnalyticsEvent
 		}
 	}
 
-	public static void nativeCardImageLoaded(int layoutId , int contentId,String msisdn) {
+	public static void nativeCardImageLoaded(int layoutId , String contentId,String msisdn) {
 		try
 		{
 			JSONObject json = new JSONObject();
@@ -451,14 +451,14 @@ public class HikeAnalyticsEvent
 
 	}
 
-	public static void cardClickEvent(String action, int layoutId, int contentId, String msisdn) {
+	public static void cardClickEvent(String action, int layoutId, String contentId, String msisdn) {
 		try
 		{
 			JSONObject json = new JSONObject();
 			json.put(AnalyticsConstants.V2.UNIQUE_KEY, ChatAnalyticConstants.CTA_ACCESS);
 			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_PLAT);
 			json.put(AnalyticsConstants.V2.PHYLUM, layoutId);
-			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.CLASS, action);
 			json.put(AnalyticsConstants.V2.ORDER, ChatAnalyticConstants.CTA_ACCESS);
 			json.put(AnalyticsConstants.V2.SOURCE, ChatThreadUtils.getChatThreadType(msisdn));
 			json.put(AnalyticsConstants.V2.TO_USER, msisdn);

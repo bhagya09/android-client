@@ -263,7 +263,7 @@ public class ViewHolderFactory
 			}
 			if (convMessage.platformMessageMetadata.cards.get(0).background != null)
 			{
-				hikeDailyCardImageLoader = new HikeDailyCardImageLoader();
+				hikeDailyCardImageLoader = new HikeDailyCardImageLoader(convMessage.platformMessageMetadata.layoutId,convMessage.platformMessageMetadata.contentId, convMessage.getMsisdn());
 				hikeDailyCardImageLoader.setImageFadeIn(false);
 				hikeDailyCardImageLoader.setDontSetBackground(true);
 				hikeDailyCardImageLoader.setDefaultDrawableNull(false);
