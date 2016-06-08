@@ -1046,6 +1046,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 
 	public void endSearchActionMode()
 	{
+		searchMenuItem.getActionView().clearFocus();
 		searchMenuItem.collapseActionView();
 	}
 
@@ -4003,11 +4004,9 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			}
 		}
 
-		if (searchMenuItem.isActionViewExpanded())
-		{
-			MenuItemCompat.getActionView(searchMenuItem).clearFocus();
-			MenuItemCompat.collapseActionView(searchMenuItem);
-		}
+		if (isSearchInActionMode())
+			endSearchActionMode();
+
 	}
 
 	@Override
