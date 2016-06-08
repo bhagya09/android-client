@@ -158,9 +158,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	
 	public static final int HIKE_DIRECT_MODE = 10;
 
-    public static final int PICK_CONTACT_SINGLE_MODE = 11;
-    
-    public static final int PAYMENT_MODE = 12;
+    public static final int PAYMENT_MODE = 11;
 
 	private View multiSelectActionBar, groupChatActionBar;
 
@@ -333,7 +331,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		if (getIntent().hasExtra(HikeConstants.Extras.IS_CONTACT_CHOOSER_FILTER_INTENT))
         {
             isContactChooserFilter = getIntent().getBooleanExtra(HikeConstants.Extras.IS_CONTACT_CHOOSER_FILTER_INTENT,false);
-            composeMode = PICK_CONTACT_SINGLE_MODE;
         }
         if (getIntent().hasExtra(HikeConstants.Extras.TITLE))
         {
@@ -1329,7 +1326,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		{
 		case CREATE_GROUP_MODE:
 		case PICK_CONTACT_MODE:
-        case PICK_CONTACT_SINGLE_MODE:
 		case PICK_CONTACT_AND_SEND_MODE:
 		case CREATE_BROADCAST_MODE:
 			// createGroupHeader.setVisibility(View.GONE);
@@ -1649,11 +1645,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		else if (!TextUtils.isEmpty(existingGroupOrBroadcastId) && this.composeMode == CREATE_BROADCAST_MODE)
 		{
 			title.setText(R.string.add_broadcast);
-		}
-        else if (this.composeMode == PICK_CONTACT_SINGLE_MODE)
-        {
-            title.setText(R.string.contacts);
-        }else if (titleText!=null)
+		}else if (titleText!=null)
         {
             title.setText(titleText);
         }
