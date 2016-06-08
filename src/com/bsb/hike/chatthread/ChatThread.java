@@ -1170,7 +1170,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	private void initializeCTBackground() {
 		if(Utils.isUserOnline(activity)) {
 			if(ChatThemeManager.getInstance().customThemeTempUploadImagePath != null) {
-				FileTransferManager.getInstance(activity).uploadCustomThemeBackgroundImage(ChatThemeManager.getInstance().customThemeTempUploadImagePath);
+				FileTransferManager.getInstance(activity).uploadCustomThemeBackgroundImage(ChatThemeManager.getInstance().customThemeTempUploadImagePath, mConversation);
 			}
 			uiHandler.sendEmptyMessageDelayed(SET_CUSTOM_THEME_BACKGROUND, 100);
 			if (themePicker != null && themePicker.isShowing()) {
@@ -4175,17 +4175,15 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 					ChatThemeManager.getInstance().currentDownloadingAssetsThemeId = null;
 				}
 				break;
-			case HikePubSub.CHATTHEME_CUSTOM_IMAGE_UPLOAD_SUCCESS:
-				updateCustomChatTheme(object);
-				break;
-			case HikePubSub.CHATTHEME_CUSTOM_IMAGE_UPLOAD_FAILED:
-				break;
 			case HikePubSub.CHATTHEME_CUSTOM_COMPATABILITY_ERROR:
 				sendUIMessage(CUSTOM_CT_COMPATABILITY_ERROR_MESSAGE, object);
 				break;
 			case HikePubSub.SHOW_INPUT_BOX:
 				Logger.i(TAG, "General Event: Show Custom Keyboard PubSub");
 				createInputBox(object);
+				break;
+			case HikePubSub.CHATTHEME_UPLOAD_SUCCESS:
+				updateCustomChatTheme(object);
 				break;
 			default:
 				Logger.e(TAG, "PubSub Registered But Not used : " + type);
@@ -4419,7 +4417,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				HikePubSub.CHAT_BACKGROUND_CHANGED, HikePubSub.CLOSE_CURRENT_STEALTH_CHAT, HikePubSub.ClOSE_PHOTO_VIEWER_FRAGMENT, HikePubSub.STICKER_CATEGORY_MAP_UPDATED,
 				HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.MULTI_MESSAGE_DB_INSERTED, HikePubSub.BLOCK_USER, HikePubSub.UNBLOCK_USER, HikePubSub.MUTE_CONVERSATION_TOGGLED, HikePubSub.SHARED_WHATSAPP,
 				HikePubSub.STEALTH_CONVERSATION_MARKED, HikePubSub.STEALTH_CONVERSATION_UNMARKED, HikePubSub.BULK_MESSAGE_DELIVERED_READ, HikePubSub.STICKER_RECOMMEND_PREFERENCE_CHANGED, HikePubSub.ENTER_TO_SEND_SETTINGS_CHANGED, HikePubSub.NUDGE_SETTINGS_CHANGED,
-				HikePubSub.UPDATE_THREAD,HikePubSub.GENERAL_EVENT_STATE_CHANGE, HikePubSub.FILE_OPENED, HikePubSub.CLEAR_CONVERSATION, HikePubSub.CHATTHEME_DOWNLOAD_SUCCESS, HikePubSub.CHATTHEME_CUSTOM_IMAGE_UPLOAD_SUCCESS, HikePubSub.CHATTHEME_CUSTOM_IMAGE_UPLOAD_FAILED, HikePubSub.CHATTHEME_CUSTOM_COMPATABILITY_ERROR, HikePubSub.SHOW_INPUT_BOX};
+				HikePubSub.UPDATE_THREAD,HikePubSub.GENERAL_EVENT_STATE_CHANGE, HikePubSub.FILE_OPENED, HikePubSub.CLEAR_CONVERSATION, HikePubSub.CHATTHEME_DOWNLOAD_SUCCESS, HikePubSub.CHATTHEME_CUSTOM_COMPATABILITY_ERROR, HikePubSub.SHOW_INPUT_BOX, HikePubSub.CHATTHEME_UPLOAD_SUCCESS};
 
 		/**
 		 * Array of pubSub listeners we get from {@link OneToOneChatThread} or {@link GroupChatThread}
@@ -7003,12 +7001,15 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		return mConversation.isMuted();
 	}
 
-	public void updateCustomChatTheme(Object data)
+	public void updateCustomChatTheme(Object object)
 	{
-		String themeId = (String) data;
-		HikeAnalyticsEvent.recordCTAnalyticEvents(ChatAnalyticConstants.CUSTOM_THEME_DONE, AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, msisdn, themeId, null);
-		sendUIMessage(CHAT_THEME, themeId);
-		sendUIMessage(SEND_CUSTOM_THEME_MESSAGE, null);
+		Pair<Conversation, String> pair = (Pair<Conversation, String>) object;
+		Conversation conversation = pair.first;
+		String themeId = pair.second;
+		if(msisdn.equalsIgnoreCase(conversation.getMsisdn())) {
+			HikeAnalyticsEvent.recordCTAnalyticEvents(ChatAnalyticConstants.CUSTOM_THEME_DONE, AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, msisdn, themeId, null);
+			sendUIMessage(CHAT_THEME, themeId);
+		}
 	}
 
 	public void customThemeErrorNotifier(String errorType) {

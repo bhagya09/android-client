@@ -428,7 +428,7 @@ public class ChatThreadUtils
 		}
 	}
 
-	protected static ConvMessage getChatThemeConvMessage(Context context, long timestamp, String bgId, Conversation conv, boolean isCustom)
+	public static ConvMessage getChatThemeConvMessage(Context context, long timestamp, String bgId, Conversation conv, boolean isCustom)
 	{
 
 		JSONObject jsonObject = new JSONObject();

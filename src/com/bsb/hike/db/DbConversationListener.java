@@ -19,6 +19,7 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.models.*;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
@@ -102,6 +103,7 @@ public class DbConversationListener implements Listener
 		mPubSub.addListener(HikePubSub.BOT_DISCOVERY_TABLE_FLUSH, this);
 		mPubSub.addListener(HikePubSub.ADD_NM_BOT_CONVERSATION, this);
 		mPubSub.addListener(HikePubSub.ADD_INLINE_FRIEND_MSG, this);
+		mPubSub.addListener(HikePubSub.CHATTHEME_CUSTOM_IMAGE_UPLOAD_SUCCESS, this);
 	}
 
 	@Override
@@ -589,6 +591,21 @@ public class DbConversationListener implements Listener
 				// Update the CT back as well.
 				HikeMessengerApp.getPubSub().publish(HikePubSub.UPDATE_THREAD, msg);
 			}
+		}
+		else if(HikePubSub.CHATTHEME_CUSTOM_IMAGE_UPLOAD_SUCCESS.equals(type))
+		{
+			Pair<Conversation, String> pair = (Pair<Conversation, String>) object;
+			Conversation conversation = pair.first;
+			String themeId = pair.second;
+
+			long timestamp = System.currentTimeMillis() / 1000;
+			mConversationDb.setChatBackground(conversation.getMsisdn(), themeId, timestamp);
+			ConvMessage convMessage = ChatThreadUtils.getChatThemeConvMessage(HikeMessengerApp.getInstance().getApplicationContext(), timestamp, themeId, conversation, true);
+			HikeMqttManagerNew.getInstance().sendMessage(convMessage.serialize(), MqttConstants.MQTT_QOS_ONE);
+
+			// Update the CT back as well.
+			HikeMessengerApp.getPubSub().publish(HikePubSub.UPDATE_THREAD, convMessage);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.CHATTHEME_UPLOAD_SUCCESS, pair);
 		}
 	}
 

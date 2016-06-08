@@ -561,6 +561,8 @@ public class HikePubSub extends Handler implements Runnable
 
 	public static final String SHOW_BIRTHDAY_NOTIF = "show_bday_notif";
 
+	public static final String CHATTHEME_UPLOAD_SUCCESS = "chatthemeUploadSuccess";
+
 	private final Thread mThread;
 
 	private final BlockingQueue<Operation> mQueue;
