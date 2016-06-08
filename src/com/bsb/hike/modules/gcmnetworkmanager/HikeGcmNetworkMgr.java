@@ -80,27 +80,40 @@ public class HikeGcmNetworkMgr implements IGcmNetworkMgr
     }
 
     @Override
-    public void cancelTask(String tag, Class<? extends GcmTaskService> gcmTaskService)
+    public void cancelTask(Config config)
     {
-        if (!isGooglePlayServicesAvailable())
-        {
-            Logger.e(TAG, "google play services not available");
-            return;
-        }
+        removeGcmTaskConfigFromDB(config);
 
-        GcmNetworkManager.getInstance(context).cancelTask(tag, gcmTaskService);
+        try {
+            if (!isGooglePlayServicesAvailable()) {
+                Logger.e(TAG, "google play services not available");
+                return;
+            }
+
+            if (config != null) {
+                GcmNetworkManager.getInstance(context).cancelTask(config.getTag(), config.getService());
+            }
+        } catch (Throwable e) {
+            Logger.wtf(TAG, "Error while cancelling task", e);
+        }
     }
 
     @Override
     public void cancelAllTasks(Class<? extends GcmTaskService> gcmTaskService)
     {
-        if (!isGooglePlayServicesAvailable())
-        {
-            Logger.e(TAG, "google play services not available");
-            return;
-        }
+        removeAllGcmTasksFromDB();
 
-        GcmNetworkManager.getInstance(context).cancelAllTasks(gcmTaskService);
+        try {
+
+            if (!isGooglePlayServicesAvailable()) {
+                Logger.e(TAG, "google play services not available");
+                return;
+            }
+
+            GcmNetworkManager.getInstance(context).cancelAllTasks(gcmTaskService);
+        } catch (Throwable e) {
+            Logger.wtf(TAG, "Error while cancelling all tasks", e);
+        }
     }
 
 	public void triggerPendingGcmNetworkCalls()
@@ -139,6 +152,19 @@ public class HikeGcmNetworkMgr implements IGcmNetworkMgr
                     Logger.d(TAG, "removing config from db with tag : " + config.getTag());
                     HttpRequestStateDB.getInstance().deleteBundleForTag(config.getTag());
                 }
+            }
+        });
+    }
+
+    public void removeAllGcmTasksFromDB()
+    {
+        HikeHandlerUtil.getInstance().postAtFront(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                    Logger.d(TAG, "removing all tasks from db : ");
+                    HttpRequestStateDB.getInstance().deleteAllGcmTasksFromDb();
             }
         });
     }
