@@ -311,7 +311,6 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
     {
         if(spaceManagerItems.isEmpty())
         {
-            emptyLayoutViewStub.inflate();
             emptyLayoutViewStub.setVisibility(View.VISIBLE);
             manageSpaceListView.setVisibility(View.GONE);
             doneBtn.setVisibility(View.GONE);

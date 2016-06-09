@@ -20,8 +20,10 @@
         android:id="@+id/stub_sm_emptyView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="57dp"
+        android:layout_marginRight="57dp"
         android:inflatedId="@+id/content_import"
-        android:layout_centerInParent="true"
+        android:layout_centerVertical="true"
         android:layout="@layout/space_manager_emptyview" />
 
 </RelativeLayout>
