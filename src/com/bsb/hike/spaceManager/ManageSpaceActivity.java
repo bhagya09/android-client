@@ -305,7 +305,7 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
 
     public HeaderItem getHeaderItem()
     {
-        return new HeaderItem(getResources().getString(R.string.sm_clear_all_header) ,getResources().getString(R.string.sm_clear_all_subheader));
+        return new HeaderItem(getResources().getString(R.string.sm_select_all_text));
     }
 
     private void updateUI()

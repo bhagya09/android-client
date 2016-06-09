@@ -4,12 +4,9 @@ import com.bsb.hike.spaceManager.models.SpaceManagerItem;
 
 public class HeaderItem extends SpaceManagerItem
 {
-	private String subHeader;
-
-	public HeaderItem(String header, String subHeader)
+	public HeaderItem(String header)
 	{
 		setHeader(header);
-		this.subHeader = subHeader;
 	}
 
 	@Override
@@ -22,10 +19,5 @@ public class HeaderItem extends SpaceManagerItem
 	public String toString()
 	{
 		return null;
-	}
-
-	public String getSubHeader()
-	{
-		return subHeader;
 	}
 }
