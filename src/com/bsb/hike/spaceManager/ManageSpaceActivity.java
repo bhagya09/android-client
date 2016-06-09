@@ -6,12 +6,11 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewStub;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
@@ -62,10 +61,6 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
     private LinearLayout progressBarLayout;
 
     private View doneBtn;
-
-    private ImageView actionbarArrow;
-
-    private TextView actionbarDelete;
 
     private String[] uiPubSubTypes = {HikePubSub.SPACE_MANAGER_ITEMS_FETCH_SUCCESS, HikePubSub.SPACE_MANAGER_ITEMS_FETCH_FAIL, HikePubSub.SPACE_MANAGER_ITEMS_DELETE_SUCCESS, HikePubSub.SPACE_MANAGER_ITEMS_DELETE_FAIL};
 
@@ -142,9 +137,8 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
         doneBtn = actionBarView.findViewById(R.id.done_container);
         doneBtn.setOnClickListener(this);
 
-        actionbarArrow = (ImageView)actionBarView.findViewById(R.id.arrow);
-        actionbarDelete = (TextView)actionBarView.findViewById(R.id.delete_btn);
-        toggleDeleteButton(false);
+        Toolbar parent=(Toolbar)actionBarView.getParent();
+        parent.setContentInsetsAbsolute(0,0);
     }
 
     @Override
@@ -308,7 +302,7 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
 
     public void toggleDeleteButton(boolean enable)
     {
-        Utils.toggleActionBarElementsEnable(doneBtn, actionbarArrow, actionbarDelete, enable);
+        doneBtn.setVisibility(enable ? View.VISIBLE : View.GONE);
     }
 
     public HeaderItem getHeaderItem()
@@ -330,7 +324,6 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
             spaceManagerItems.add(0, getHeaderItem());
             manageSpaceAdapter = new ManageSpaceAdapter(ManageSpaceActivity.this, spaceManagerItems, this);
             manageSpaceListView.setAdapter(manageSpaceAdapter);
-            doneBtn.setVisibility(View.VISIBLE);
         }
         else
         {
