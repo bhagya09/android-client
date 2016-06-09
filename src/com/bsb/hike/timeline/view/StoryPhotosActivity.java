@@ -123,7 +123,7 @@ public class StoryPhotosActivity extends HikeAppStateBaseFragmentActivity implem
 
         gestureDetector = new GestureDetector(getApplicationContext(), new GestureListener());
         pagerView.setGestureDetector(gestureDetector);
-        pagerView.setScrollDurationFactor(4);
+        pagerView.setScrollDurationFactor(3);
         pagerView.setPageTransformer(false, new CrossfadePageTransformer());
 
         //Get data

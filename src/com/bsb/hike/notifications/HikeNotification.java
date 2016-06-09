@@ -988,7 +988,7 @@ public class HikeNotification
 
 		final long timeStamp = statusMessage.getTimeStamp();
 
-		final Intent notificationIntent = Utils.getTimelineActivityIntent(context);
+		final Intent notificationIntent = IntentFactory.getHomeActivityFriendsTabIntent(context);
 		notificationIntent.setData((Uri.parse("custom://" + notificationId)));
 
 		final int icon = returnSmallIcon();
@@ -1079,7 +1079,7 @@ public class HikeNotification
 		final String text = key + " " + message;
 
 		final int icon = returnSmallIcon();
-		final Intent notificationIntent = Utils.getTimelineActivityIntent(context);
+		final Intent notificationIntent = IntentFactory.getHomeActivityFriendsTabIntent(context);
 		final Bitmap bigPictureImage = HikeBitmapFactory.decodeBitmapFromFile(imagePath, Bitmap.Config.RGB_565);
 		notificationIntent.setData((Uri.parse("custom://" + notificationId)));
 		notificationIntent.putExtra(HikeConstants.Extras.MSISDN, msisdn.toString());
@@ -1125,7 +1125,7 @@ public class HikeNotification
 
 		final int notificationId = (int) timeStamp;
 
-		final Intent notificationIntent = Utils.getTimelineActivityIntent(context);
+		final Intent notificationIntent = IntentFactory.getHomeActivityFriendsTabIntent(context);
 		notificationIntent.setData((Uri.parse("custom://" + notificationId)));
 
 		final int icon = returnSmallIcon();

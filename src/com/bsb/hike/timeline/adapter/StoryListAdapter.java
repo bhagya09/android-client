@@ -170,6 +170,7 @@ public class StoryListAdapter extends BaseAdapter implements PinnedSectionListVi
             viewHolder.titleView.setText(storyItem.getTitle());
             viewHolder.titleView.setAlpha(1f);
             viewHolder.avatarView.setAlpha(1f);
+            viewHolder.avatarView.setScaleType(ImageView.ScaleType.CENTER);
 
             String subText = storyItem.getSubText();
             if (!TextUtils.isEmpty(subText)) {

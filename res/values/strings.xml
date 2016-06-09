@@ -1669,6 +1669,7 @@
     <string name="unread_all">Unread all</string>
     <string name="timeline_sub_new_updt">New updates available</string>
     <string name="timeline_sub_likes">%1$d new likes</string>
+    <string name="timeline_sub_like">1 new like</string>
     <string name="story_category_recent">RECENT</string>
     <string name="story_category_allphotos">ALL PHOTOS</string>
     <string name="story_category_default">CAMERA SHY</string>
