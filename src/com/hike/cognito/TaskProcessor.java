@@ -12,7 +12,8 @@ import com.hike.cognito.datapoints.DataPointTask;
  */
 public class TaskProcessor {
 
-    private TaskProcessor() {
+    //Move to ScheduleThreadExec eventually: https://github.com/hike/android-client/pull/8473
+    TaskProcessor() {
     }
 
     public static void processTaskWithDelay(DataPointTask dataPointTask, long delay) {
