@@ -8,8 +8,6 @@ import android.media.audiofx.AutomaticGainControl;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
-import java.util.concurrent.LinkedBlockingQueue;
-
 public class VoIPRecorderImpl implements VoIPRecorder {
 
     private Thread recordingThread;
@@ -19,10 +17,12 @@ public class VoIPRecorderImpl implements VoIPRecorder {
     private boolean isRunning;
     private boolean mute;
 
-    private final LinkedBlockingQueue<VoIPDataPacket> recordedSamples     = new LinkedBlockingQueue<>(VoIPConstants.MAX_SAMPLES_BUFFER);
-
     private final String tag = VoIPConstants.TAG + getClass().getSimpleName();
 
+    /**
+     *
+     * @param preferredFrameSize Pass a negative value if there is no preferred size.
+     */
     public VoIPRecorderImpl(int preferredFrameSize) {
         this.preferredFrameSize = preferredFrameSize;
     }
@@ -138,13 +138,7 @@ public class VoIPRecorderImpl implements VoIPRecorder {
                         index += newSize;
 
                         // Add it to the samples to encode queue
-                        VoIPDataPacket dp = new VoIPDataPacket(VoIPDataPacket.PacketType.AUDIO_PACKET);
-                        dp.write(data);
-                        try {
-                            recordedSamples.add(dp);
-                        } catch (IllegalStateException e) {
-                            // Recorded samples queue is full
-                        }
+                        callback.onDataAvailable(data);
                     }
 
                     if (Thread.interrupted()) {
@@ -170,7 +164,6 @@ public class VoIPRecorderImpl implements VoIPRecorder {
     public void stop() {
         recordingThread.interrupt();
         isRunning = false;
-        recordedSamples.clear();
     }
 
     @Override
@@ -183,8 +176,4 @@ public class VoIPRecorderImpl implements VoIPRecorder {
         return isRunning;
     }
 
-    @Override
-    public VoIPDataPacket take() throws InterruptedException {
-        return recordedSamples.take();
-    }
 }
