@@ -3292,7 +3292,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 					JSONObject data = new JSONObject();
 
 					JSONArray msisdns = new JSONArray();
-					msisdns.put(contactInfo.getUserIdentifer());
+					msisdns.put(contactInfo.getUserIdentifier());
 
 					data.put(HikeConstants.MSISDNS, msisdns);
 					data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis()));

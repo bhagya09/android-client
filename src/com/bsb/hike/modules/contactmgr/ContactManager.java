@@ -30,7 +30,6 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.models.GroupParticipant;
-import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.Mute;
 import com.bsb.hike.models.PrivacyPreferences;
 import com.bsb.hike.modules.iface.ITransientCache;
@@ -73,6 +72,8 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	// This should always be present so making it loading on class loading itself
 	private volatile static ContactManager _instance;
 
+	private PrivacyPreferencePersistence privacyPreferencePersistence;
+
 	private PersistenceCache persistenceCache;
 
 	private TransientCache transientCache;
@@ -114,6 +115,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		hDb = HikeUserDatabase.getInstance();
 		persistenceCache = new PersistenceCache(hDb);
 		transientCache = new TransientCache(hDb);
+		privacyPreferencePersistence = new PrivacyPreferencePersistence(hDb);
 	}
 
 	public static ContactManager getInstance()
@@ -199,7 +201,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	/**
 	 * This is used to remove the list of msisdns from either 1-n or 1-1 conversation and should be called when multiple group or one to one conversations are deleted.
 	 * 
-	 * @param msisdns
+	 * @param msisdn
 	 */
 	public void removeContacts(String msisdn)
 	{
@@ -971,7 +973,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	/**
 	 * return true if conversation with this id already exists group and 1-1 conversations both will be checked The implementation is thread safe
 	 * 
-	 * @param msisdn
+	 * @param id
 	 * @return
 	 */
 	public boolean isConvExists(String id)
@@ -1152,7 +1154,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	 * This method updates the favorite type of a contact in memory as well as in database
 	 *
 	 * @param contact
-	 * @param ftype
+	 * @param unreadRequestTime
 	 */
 	public void updateUnreadRequestTime(ContactInfo contact, long unreadRequestTime)
 	{
@@ -1673,7 +1675,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	/**
 	 * Sync Updates **Deprecated**
 	 * @deprecated
-	 * @param ctx
+	 * @param deviceContacts
 	 */
 	public byte syncUpdatesOld(List<ContactInfo> deviceContacts, List<ContactInfo> hikeContacts)
 	{
@@ -3140,6 +3142,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		hDb = null;
 		context = null;
 		_instance = null;
+		privacyPreferencePersistence = null;
 	}
 
 	public void platformUserIdEntry(JSONArray data)
@@ -3265,48 +3268,30 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 
 	public void flushOldPrivacyValues(boolean lastSeenFlush, boolean statusUpdateFlush)
 	{
-		hDb.flushOldPrivacyValues(lastSeenFlush, statusUpdateFlush);
+		privacyPreferencePersistence.flushOldPrivacyValues(lastSeenFlush, statusUpdateFlush);
 	}
 
 	public void toggleLastSeenSetting(final ContactInfo mContactInfo, final boolean isChecked) {
-		HikeHandlerUtil.getInstance().postAtFront(new Runnable() {
-			@Override
-			public void run() {
-				hDb.setLastSeenForMsisdns(mContactInfo.getMsisdn(), isChecked ? 1 : 0);
-			}
-		});
+
+		privacyPreferencePersistence.toggleLastSeenSetting(mContactInfo, isChecked);
 	}
 
 	public void toggleStatusUpdateSetting(final ContactInfo mContactInfo, final boolean isChecked) {
 
-		HikeHandlerUtil.getInstance().postAtFront(new Runnable() {
-			@Override
-			public void run() {
-				hDb.setSUSettingForMsisdns(mContactInfo.getMsisdn(), isChecked ? 1 : 0);
-			}
-		});
+		privacyPreferencePersistence.toggleStatusUpdateSetting(mContactInfo, isChecked);
 	}
 
 	public PrivacyPreferences getPrivacyPrefsForAGivenMsisdn(String msisdn)
 	{
-		return hDb.getPrivacyPreferencesForAGivenMsisdn(msisdn);
+		return privacyPreferencePersistence.getPrivacyPrefsForAGivenMsisdn(msisdn);
 	}
 
 	public boolean shouldShowStatusUpdateForGivenMsisdn(String msisdn) {
-		PrivacyPreferences privacyPreferences = hDb.getPrivacyPreferencesForAGivenMsisdn(msisdn);
-		if (privacyPreferences != null) {
-			return privacyPreferences.shouldShowStatusUpdate();
-		} else
-			return false;
+		return privacyPreferencePersistence.shouldShowStatusUpdateForGivenMsisdn(msisdn);
 	}
 
 	public void setAllLastSeenValues(final boolean newValue) {
-		HikeHandlerUtil.getInstance().postAtFront(new Runnable() {
-			@Override
-			public void run() {
-				hDb.setAllLastSeenPrivacyValues(newValue);
-			}
-		});
+		privacyPreferencePersistence.setAllLastSeenValues(newValue);
 	}
 
 	private List<ContactInfo> getFriendsList() {
