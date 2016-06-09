@@ -814,7 +814,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	@Override
 	public void onTrimMemory(int level)
 	{
-		// TODO Auto-generated method stub
 		super.onTrimMemory(level);
 	}
 
