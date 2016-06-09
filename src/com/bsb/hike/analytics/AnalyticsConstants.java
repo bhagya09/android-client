@@ -915,6 +915,16 @@ public class AnalyticsConstants
 
 	public static final String CHAT_THREAD_CROSS = "chat_thread_cross";
 
+	public static final String STICKER_QUICK_REPLY = "stkQckRply";
+
+	public static final String QR_PANEL_SHOWN = "qrPanelShown";
+
+	public static final String SENT_STICKER_QR = "stkSntQR";
+
+	public static final String QR_ERROR = "QRerror";
+
+	public static final String QR_FTUE = "QRFtue";
+
 	public static final class AtomicTipsAnalyticsConstants
 	{
 		public static final String TIPS = "tips";
