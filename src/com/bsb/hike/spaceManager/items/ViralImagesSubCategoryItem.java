@@ -12,6 +12,7 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import static com.bsb.hike.spaceManager.SpaceManagerUtils.SUB_CATEGORY_TAG;
@@ -35,22 +36,26 @@ public class ViralImagesSubCategoryItem extends SubCategoryItem
 	{
 		HikeFile.HikeFileType[] type = {HikeFile.HikeFileType.IMAGE};
 		List<HikeSharedFile> list = HikeConversationsDatabase.getInstance().getSharedMedia(HikePlatformConstants.HIKE_VIRAL_MSISDN, type, 0);
+
+		HashSet<String> set = new HashSet<String>();
 		long size = 0;
 		for (int i = 0; i < list.size(); i++)
 		{
-			size = size + list.get(i).getFileSize();
-			srcFileList.add(list.get(i).getExactFilePath());
+			if(set.add(list.get(i).getExactFilePath()))
+			{
+				size = size + list.get(i).getFileSize();
+			}
 		}
+		srcFileList = new ArrayList<String>(set);
 		return size;
 	}
 
 	@Override
-	public void onDelete()
-	{
+	public void onDelete() {
 		Logger.d(SUB_CATEGORY_TAG, "deleting viral humor images");
 		Context context = HikeMessengerApp.getInstance().getApplicationContext();
 		Utils.deleteFiles(context, srcFileList, HikeFile.HikeFileType.IMAGE, false);
-		setSize(0);
+		setSize(computeSize());
 	}
 
 	public ArrayList<String> getSrcFileList()
