@@ -72,4 +72,9 @@ public class StoryShyTextGenerator {
     private int getRandomPosition(int size) {
         return random.nextInt(size);
     }
+
+    public void reset()
+    {
+        instance = null;
+    }
 }

@@ -118,6 +118,7 @@ import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.productpopup.AtomicTipManager;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.spaceManager.SpaceManagerUtils;
+import com.bsb.hike.timeline.StoryShyTextGenerator;
 import com.bsb.hike.timeline.TimelineActionsManager;
 import com.bsb.hike.timeline.TimelineServerConfigUtils;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
@@ -3494,6 +3495,7 @@ public class MqttMessagesManager
 					subTextSet.add(subTextArray.getString(i));
 				}
 				HikeSharedPreferenceUtil.getInstance().saveStringSet(TimelineServerConfigUtils.AC_KEY_CAMSHY_SUBTEXT, subTextSet);
+				StoryShyTextGenerator.getInstance().reset();
 			}
 		}
 
