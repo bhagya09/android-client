@@ -3988,14 +3988,21 @@ public class StickerManager
 
 
 	public void sendQsShownAnalytics(final StickerCategory stickerCategory) {
+
+		final ConvMessage convMessage = QuickStickerSuggestionController.getInstance().getCurrentQSConvMessage();
+		final QuickSuggestionStickerCategory quickSuggestionStickerCategory = (QuickSuggestionStickerCategory) stickerCategory;
+
+		if(stickerCategory == null || convMessage == null) {
+			Logger.e(TAG, "sendQsShownAnalytics : stickercategory or convmessage is null ");
+			return ;
+		}
+
+		final Sticker qsSticker = quickSuggestionStickerCategory.getQuickSuggestSticker();
+
 		HikeHandlerUtil.getInstance().postRunnable(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					QuickSuggestionStickerCategory quickSuggestionStickerCategory = (QuickSuggestionStickerCategory) stickerCategory;
-					Sticker qsSticker = quickSuggestionStickerCategory.getQuickSuggestSticker();
-					ConvMessage convMessage = QuickStickerSuggestionController.getInstance().getCurrentQSConvMessage();
-
 					JSONObject json = new JSONObject();
 					json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.STICKER_QUICK_REPLY);
 					json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.STICKER_QUICK_REPLY);
@@ -4020,14 +4027,21 @@ public class StickerManager
 	}
 
 	public void sendAnalyticsForStickerSentFromQr(final Sticker sentSticker, final StickerCategory stickerCategory) {
+
+		final QuickSuggestionStickerCategory quickSuggestionStickerCategory = (QuickSuggestionStickerCategory) stickerCategory;
+		final ConvMessage convMessage = QuickStickerSuggestionController.getInstance().getCurrentQSConvMessage();
+
+		if(stickerCategory == null || convMessage == null) {
+			Logger.e(TAG, "sendAnalyticsForStickerSentFromQr : stickercategory or convmessage is null ");
+			return ;
+		}
+
+		final Sticker qsSticker = quickSuggestionStickerCategory.getQuickSuggestSticker();
+
 		HikeHandlerUtil.getInstance().postRunnable(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					QuickSuggestionStickerCategory quickSuggestionStickerCategory = (QuickSuggestionStickerCategory) stickerCategory;
-					Sticker qsSticker = quickSuggestionStickerCategory.getQuickSuggestSticker();
-					ConvMessage convMessage = QuickStickerSuggestionController.getInstance().getCurrentQSConvMessage();
-
 					JSONObject json = new JSONObject();
 					json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.STICKER_QUICK_REPLY);
 					json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.STICKER_QUICK_REPLY);
@@ -4055,12 +4069,19 @@ public class StickerManager
 	}
 
 	public void sendQsErrorAnalytics(final StickerCategory stickerCategory, @QuickStickerSuggestionController.ErrorType final int errorType) {
+		final QuickSuggestionStickerCategory quickSuggestionStickerCategory = (QuickSuggestionStickerCategory) stickerCategory;
+
+		if(stickerCategory == null) {
+			Logger.e(TAG, "sendQsErrorAnalytics : stickercategory is null ");
+			return ;
+		}
+
+		final Sticker qsSticker = quickSuggestionStickerCategory.getQuickSuggestSticker();
+
 		HikeHandlerUtil.getInstance().postRunnable(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					QuickSuggestionStickerCategory quickSuggestionStickerCategory = (QuickSuggestionStickerCategory) stickerCategory;
-					Sticker qsSticker = quickSuggestionStickerCategory.getQuickSuggestSticker();
 
 					JSONObject json = new JSONObject();
 					json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.STICKER_QUICK_REPLY);
@@ -4083,17 +4104,19 @@ public class StickerManager
 	}
 
 	public void sendQsFTUEAnalytics(final String tipString) {
+		final ConvMessage convMessage = QuickStickerSuggestionController.getInstance().getCurrentQSConvMessage();
+		if(TextUtils.isEmpty(tipString) || null == convMessage || null ==  convMessage.getMetadata().getSticker())
+		{
+			Logger.e(TAG, "sendQsFTUEAnalytics : stickercategory or tipstring or convmessage is null ");
+			return ;
+		}
+
+		final Sticker qsSticker = convMessage.getMetadata().getSticker();
+
 		HikeHandlerUtil.getInstance().postRunnable(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					ConvMessage convMessage = QuickStickerSuggestionController.getInstance().getCurrentQSConvMessage();
-					Sticker qsSticker = convMessage.getMetadata().getSticker();
-
-					if(TextUtils.isEmpty(tipString) || null == qsSticker)
-					{
-						return ;
-					}
 
 					JSONObject json = new JSONObject();
 					json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.STICKER_QUICK_REPLY);

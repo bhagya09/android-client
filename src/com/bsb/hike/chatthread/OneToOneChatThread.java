@@ -4532,6 +4532,9 @@ import com.bsb.hike.voip.VoIPUtils;
 			mConversationsView.setAdapter(null);
 			mConversationsView.addHeaderView(headerView);
 			mConversationsView.setAdapter(mAdapter);
+
+			//Takes to list end
+			uiHandler.sendEmptyMessage(SCROLL_TO_END);
 		} else {
 			mConversationsView.addHeaderView(headerView);
 		}
