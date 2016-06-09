@@ -94,14 +94,12 @@ public class CategorySearchWatcher implements CategorySearchListener, SearchView
 	}
 
     @Override
-	public boolean onQueryTextSubmit(String query)
-	{
-		return CategorySearchManager.getInstance().onQueryTextSubmit(query, this);
-	}
+    public boolean onQueryTextSubmit(String query) {
+        return CategorySearchManager.getInstance().onQueryTextSubmit(query, this);
+    }
 
-	@Override
-	public boolean onQueryTextChange(final String query)
-	{
+    @Override
+    public boolean onQueryTextChange(final String query) {
         return CategorySearchManager.getInstance().onQueryTextChange(query, CategorySearchWatcher.this);
-	}
+    }
 }
