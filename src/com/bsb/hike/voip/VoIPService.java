@@ -98,7 +98,7 @@ public class VoIPService extends Service implements Listener
 	private TextToSpeech tts = null;
 	
 	// Task executors
-	private Thread processRecordedSamplesThread = null, bufferSendingThread = null, reconnectingBeepsThread = null;
+	private Thread bufferSendingThread = null, reconnectingBeepsThread = null;
 	private Thread connectionTimeoutThread = null;
 	private Thread notificationThread = null;
 	private Thread conferenceBroadcastThread = null;
@@ -1313,9 +1313,6 @@ public class VoIPService extends Service implements Listener
 		if (recorder != null)
 			recorder.stop();
 
-		if (processRecordedSamplesThread != null)
-			processRecordedSamplesThread.interrupt();
-		
 		if (bufferSendingThread != null)
 			bufferSendingThread.interrupt();
 		
@@ -1497,100 +1494,79 @@ public class VoIPService extends Service implements Listener
 			sendClientsListToAllClients();
 		}
 	}
-	
+
 	private void startRecording() {
 
-		if (recorder == null) {
-
-			int preferredFrameSize = -1;
-
-			if (aecEnabled) {
-				// For the Solicall AEC library to work, we must record data in chunks
-				// which is a multiple of the library's supported frame size (20ms).
-				preferredFrameSize = SolicallWrapper.SOLICALL_FRAME_SIZE;
-			}
-
-			recorder = new VoIPRecorderImpl(preferredFrameSize);
-
-			recorder.startRecording(new VoIPRecorder.RecorderCallback() {
-				@Override
-				public void onInitFailure() {
-					sendMessageToActivity(VoIPConstants.MSG_AUDIORECORD_FAILURE);
-				}
-
-				@Override
-				public byte[] resample(byte[] sourceData, int bitsPerSample, int sourceRate, int targetRate) {
-					return resampler.reSample(sourceData, bitsPerSample, sourceRate, targetRate);
-				}
-			});
+		if (recorder != null) {
+			Logger.w(tag, "Recorder already running.");
+			return;
 		}
 
-		processRecordedSamples();
-	}
-	
-	private void processRecordedSamples() {
+		int preferredFrameSize = -1;
 
-		if (processRecordedSamplesThread != null)
-			processRecordedSamplesThread.interrupt();
-		
-		processRecordedSamplesThread = new Thread(new Runnable() {
-			
+		if (aecEnabled) {
+			// For the Solicall AEC library to work, we must record data in chunks
+			// which is a multiple of the library's supported frame size (20ms).
+			preferredFrameSize = SolicallWrapper.SOLICALL_FRAME_SIZE;
+		}
+
+		recorder = new VoIPRecorderImpl(preferredFrameSize);
+
+		recorder.startRecording(new VoIPRecorder.RecorderCallback() {
 			@Override
-			public void run() {
-				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
-				
-				while (keepRunning) {
-					VoIPDataPacket dpRaw;
-					try {
-						dpRaw = recorder.take();
-					} catch (InterruptedException e) {
-						break;
+			public void onInitFailure() {
+				sendMessageToActivity(VoIPConstants.MSG_AUDIORECORD_FAILURE);
+			}
+
+			@Override
+			public byte[] resample(byte[] sourceData, int bitsPerSample, int sourceRate, int targetRate) {
+				return resampler.reSample(sourceData, bitsPerSample, sourceRate, targetRate);
+			}
+
+			@Override
+			public void onDataAvailable(byte[] data) {
+
+				VoIPClient client = getClient();
+				if (client == null)
+					return;
+
+				// AEC
+				if (solicallAec != null && aecEnabled && aecMicSignal && aecSpeakerSignal) {
+					int ret = solicallAec.processMic(data);
+					if (ret == 0) {
+						if (speechDetected)
+							client.updateLocalSpeech(false);
+						speechDetected = false;
 					}
+					else {
+						if (!speechDetected)
+							client.updateLocalSpeech(true);
+						speechDetected = true;
+					}
+				} else
+					aecMicSignal = true;
 
-					VoIPClient client = getClient();
-					if (client == null)
-						continue;
+				recordBuffer.write(data);
 
-					// AEC
-					if (solicallAec != null && aecEnabled && aecMicSignal && aecSpeakerSignal) {
-						int ret = solicallAec.processMic(dpRaw.getData());
-						if (ret == 0) {
-							if (speechDetected)
-								client.updateLocalSpeech(false);
-							speechDetected = false;
-						}
-						else {
-							if (!speechDetected)
-								client.updateLocalSpeech(true);
-							speechDetected = true;
-						}
-					} else
-						aecMicSignal = true;
-					
-					recordBuffer.write(dpRaw.getData());
-
-					// Pass the recorded samples to the client objects
-					// so they can be compressed and sent
-					while (recordBuffer.getAvailable() >= OpusWrapper.OPUS_FRAME_SIZE * 2) {
-						byte[] pcmData = new byte[OpusWrapper.OPUS_FRAME_SIZE * 2];
-						recordBuffer.read(pcmData);
-						VoIPDataPacket dp = new VoIPDataPacket(PacketType.AUDIO_PACKET);
-						dp.setData(pcmData);
-						dp.setVoice(speechDetected);
-						if (!hostingConference()) {
-							client.addSampleToEncode(dp);
-						} else {
-							if (processedRecordedSamples.size() < VoIPConstants.MAX_SAMPLES_BUFFER)
-								processedRecordedSamples.add(dp);
-							else
-								Logger.w(tag, "Recorded buffers queue is full.");
-						}
+				// Pass the recorded samples to the client objects
+				// so they can be compressed and sent
+				while (recordBuffer.getAvailable() >= OpusWrapper.OPUS_FRAME_SIZE * 2) {
+					byte[] pcmData = new byte[OpusWrapper.OPUS_FRAME_SIZE * 2];
+					recordBuffer.read(pcmData);
+					VoIPDataPacket dp = new VoIPDataPacket(PacketType.AUDIO_PACKET);
+					dp.setData(pcmData);
+					dp.setVoice(speechDetected);
+					if (!hostingConference()) {
+						client.addSampleToEncode(dp);
+					} else {
+						if (processedRecordedSamples.size() < VoIPConstants.MAX_SAMPLES_BUFFER)
+							processedRecordedSamples.add(dp);
+						else
+							Logger.w(tag, "Recorded buffers queue is full.");
 					}
 				}
 			}
-		}, "PROCESS_RECORDED_SAMPLES_THREAD");
-		
-		processRecordedSamplesThread.start();
+		});
 	}
 	
 	private void startPlayBack() {
@@ -1862,14 +1838,6 @@ public class VoIPService extends Service implements Listener
 		
 		if (newHold) {
 			if (recorder != null) {
-				try {
-					if (processRecordedSamplesThread != null) {
-						processRecordedSamplesThread.interrupt();
-						processRecordedSamplesThread.join();
-					}
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
 				recorder.stop();
 				recorder = null;
 			}
