@@ -6,10 +6,12 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import com.bsb.hike.R;
@@ -19,7 +21,7 @@ import com.bsb.hike.spaceManager.models.SpaceManagerItem;
 import com.bsb.hike.spaceManager.models.SubCategoryItem;
 import com.bsb.hike.utils.Utils;
 
-public class ManageSpaceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements View.OnClickListener
+public class ManageSpaceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements SwitchCompat.OnCheckedChangeListener
 {
     private Context mContext;
 
@@ -57,14 +59,11 @@ public class ManageSpaceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
         View separator;
 
-        View layout;
-
         public ItemViewHolder(View convertView, int viewType)
         {
             super(convertView);
 
             // Common views
-            layout = convertView;
             header = (TextView) convertView.findViewById(R.id.header);
 			subHeader = (TextView) convertView.findViewById(R.id.subHeader);
 
@@ -84,8 +83,6 @@ public class ManageSpaceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
         CheckBox checkBox;
 
-        View layout;
-
         public HeaderViewHolder(View convertView, int viewType)
         {
             super(convertView);
@@ -93,7 +90,6 @@ public class ManageSpaceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             switch (viewType)
             {
                 case SpaceManagerItem.HEADER:
-                    layout = convertView;
                     header = (TextView) convertView.findViewById(R.id.header);
                     checkBox = (CheckBox) convertView.findViewById(R.id.select_all_checkbox);
                     break;
@@ -133,9 +129,9 @@ public class ManageSpaceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             HeaderViewHolder holder = (HeaderViewHolder)viewHolder;
             HeaderItem headerItem = (HeaderItem) spaceItemList.get(holder.getAdapterPosition());
             holder.header.setText(headerItem.getHeader());
-            holder.layout.setTag(headerItem);
-            holder.layout.setOnClickListener(this);
+            holder.checkBox.setTag(headerItem);
             holder.checkBox.setChecked(areAllItemsSelected);
+            holder.checkBox.setOnCheckedChangeListener(this);
         }
         else if(viewHolder instanceof ItemViewHolder)
         {
@@ -158,9 +154,9 @@ public class ManageSpaceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     {
                         holder.separator.setVisibility(View.GONE);
                     }
-                    holder.layout.setTag(subCategoryItem);
-                    holder.layout.setOnClickListener(this);
+                    holder.checkBox.setTag(subCategoryItem);
                     holder.checkBox.setChecked(subCategoryItem.isSelected());
+                    holder.checkBox.setOnCheckedChangeListener(this);
                     break;
 
                 default:
@@ -182,32 +178,23 @@ public class ManageSpaceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     }
 
     @Override
-    public void onClick(View v)
+    public void onCheckedChanged(CompoundButton compoundButton, boolean checked)
     {
-        if(v != null)
+        SpaceManagerItem item = (SpaceManagerItem) compoundButton.getTag();
+        if(item.getType() == SpaceManagerItem.HEADER)
         {
-            SpaceManagerItem item = (SpaceManagerItem) v.getTag();
-            CheckBox checkBox;
-            if(item.getType() == SpaceManagerItem.HEADER)
-            {
-                checkBox = (CheckBox) v.findViewById(R.id.select_all_checkbox);
-                headerClicked(checkBox);
-            }
-            else if(item.getType() == SpaceManagerItem.SUBCATEGORY)
-            {
-                SubCategoryItem subCategoryItem = (SubCategoryItem) item;
-                checkBox = (CheckBox) v.findViewById(R.id.subcategory_checkbox);
-                subCategoryClicked(subCategoryItem, checkBox);
-            }
-            postNotifyDataSetChanged();
+            headerCheckedChanged(checked);
         }
-
+        else if(item.getType() == SpaceManagerItem.SUBCATEGORY)
+        {
+            SubCategoryItem subCategoryItem = (SubCategoryItem) item;
+            subCategoryCheckedChanged(subCategoryItem, checked);
+        }
+        postNotifyDataSetChanged();
     }
 
-    private void subCategoryClicked(SubCategoryItem subCategory, CheckBox checkBox)
+    private void subCategoryCheckedChanged(SubCategoryItem subCategory, boolean isChecked)
     {
-        boolean isChecked = !checkBox.isChecked();
-        checkBox.setChecked(isChecked);
         if (isChecked)
         {
             subCategory.setIsSelected(true);
@@ -229,11 +216,8 @@ public class ManageSpaceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         }
     }
 
-    private void headerClicked(CheckBox checkBox)
+    private void headerCheckedChanged(boolean checked)
     {
-
-        boolean checked = !checkBox.isChecked();
-        checkBox.setChecked(checked);
         areAllItemsSelected = checked;
 
         toggleListener.toggleDeleteButton(checked);
