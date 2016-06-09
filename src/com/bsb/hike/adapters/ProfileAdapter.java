@@ -20,6 +20,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bsb.hike.BitmapModule.BitmapUtils;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
@@ -1169,6 +1171,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.On
 				// 250 is the default switch thumb animation. http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android/5.1.0_r1/android/support/v7/widget/Switch
 				ContactManager.getInstance().toggleLastSeenSetting(mContactInfo, isChecked);
 				mContactInfo.getPrivacyPrefs().toggleLastSeen();
+				HikeMessengerApp.getInstance().getPubSub().publish(HikePubSub.USER_PRIVACY_TOGGLED, null);
 				recordLastSeenSettingToggle();
 				break;
 
@@ -1185,6 +1188,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.On
 				// 250 is the default switch thumb animation. http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android/5.1.0_r1/android/support/v7/widget/SwitchCompat.java
 				ContactManager.getInstance().toggleStatusUpdateSetting(mContactInfo, isChecked);
 				mContactInfo.getPrivacyPrefs().toggleStatusUpdate();
+				HikeMessengerApp.getInstance().getPubSub().publish(HikePubSub.USER_PRIVACY_TOGGLED, null);
 				recordStatusUpdateSettingToggle();
 				break;
 		}

@@ -73,7 +73,8 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
             HikePubSub.FAVORITE_TOGGLED,
             HikePubSub.STEALTH_CONVERSATION_MARKED,
             HikePubSub.STEALTH_CONVERSATION_UNMARKED,
-            HikePubSub.FAVORITE_TOGGLED};
+            HikePubSub.FAVORITE_TOGGLED,
+            HikePubSub.USER_PRIVACY_TOGGLED};
 
     public static StoryFragment newInstance(@Nullable Bundle argBundle) {
         StoryFragment fragmentInstance = new StoryFragment();
@@ -231,7 +232,8 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
                 || type.equals(HikePubSub.STEALTH_MODE_TOGGLED)
                 || type.equals(HikePubSub.DELETE_STATUS)
                 || type.equals(HikePubSub.STEALTH_CONVERSATION_MARKED)
-                || type.equals(HikePubSub.STEALTH_CONVERSATION_UNMARKED)) {
+                || type.equals(HikePubSub.STEALTH_CONVERSATION_UNMARKED)
+                || type.equals(HikePubSub.USER_PRIVACY_TOGGLED)) {
             if (isAdded() && getActivity() != null) {
                 HikeHandlerUtil.getInstance().postRunnable(new Runnable() {
                     @Override
