@@ -6,11 +6,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class PrivacyPreferencesTest {
-    private PrivacyPreferences preferences = new PrivacyPreferences(PrivacyPreferences.DEFAULT_VALUE);
+    private final PrivacyPreferences preferences = new PrivacyPreferences(PrivacyPreferences.DEFAULT_VALUE);
 
     @Test
     public void byDefaultAllPrivacyPreferencesAreOff() {
-        preferences = new PrivacyPreferences(PrivacyPreferences.DEFAULT_VALUE);
         assertFalse(preferences.shouldShowLastSeen());
         assertFalse(preferences.shouldShowStatusUpdate());
     }
