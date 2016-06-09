@@ -31,9 +31,9 @@ import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.CreateNewGroupOrBroadcastActivity;
 import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HomeActivity;
-import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.WhichScreen;
@@ -349,15 +349,15 @@ public class EmptyConversationsAdapter extends ArrayAdapter<EmptyConversationIte
 			EmptyConversationFtueCardItem item = (EmptyConversationFtueCardItem) v.getTag();
 			if (item.getType() == EmptyConversationItem.LAST_SEEN)
 			{
-				openActivityAndSendLogEvent(PeopleActivity.class, HikeConstants.LogEvent.FTUE_CARD_LAST_SEEN_CLICKED);
+				openActivityAndSendLogEvent(IntentFactory.getFriendReqActivityAddFriendsIntent(context), HikeConstants.LogEvent.FTUE_CARD_LAST_SEEN_CLICKED);
 			}
 			else if (item.getType() == EmptyConversationItem.GROUP)
 			{
-				openActivityAndSendLogEvent(CreateNewGroupOrBroadcastActivity.class, HikeConstants.LogEvent.FTUE_CARD_GROUP_CLICKED);
+				openActivityAndSendLogEvent(new Intent(context, CreateNewGroupOrBroadcastActivity.class), HikeConstants.LogEvent.FTUE_CARD_GROUP_CLICKED);
 			}
 			else if (item.getType() == EmptyConversationItem.INVITE)
 			{
-				openActivityAndSendLogEvent(HikeListActivity.class, HikeConstants.LogEvent.FTUE_CARD_INVITE_CLICKED);
+				openActivityAndSendLogEvent(new Intent(context, HikeListActivity.class), HikeConstants.LogEvent.FTUE_CARD_INVITE_CLICKED);
 			}
 			else if (item.getType() == EmptyConversationItem.HIKE_OFFLINE)
 			{
@@ -380,9 +380,8 @@ public class EmptyConversationsAdapter extends ArrayAdapter<EmptyConversationIte
 		}
 	};
 
-	private void openActivityAndSendLogEvent(Class<?> activity, String logEventKey)
+	private void openActivityAndSendLogEvent(Intent intent, String logEventKey)
 	{
-		Intent intent = new Intent(context, activity);
 		context.startActivity(intent);
 		
 		try

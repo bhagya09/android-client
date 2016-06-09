@@ -302,7 +302,7 @@ public class PlatformUtils
 			}
 			if (activityName.equals(HIKESCREEN.FAVOURITES.toString()))
 			{
-				context.startActivity(IntentFactory.getFavouritesIntent(context));
+				context.startActivity(IntentFactory.getFriendReqActivityAddFriendsIntent(context));
 			}
 			if (activityName.equals(HIKESCREEN.HOME_SCREEN.toString()))
 			{

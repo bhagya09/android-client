@@ -75,7 +75,6 @@ import com.bsb.hike.ui.HomeFtueActivity;
 import com.bsb.hike.ui.MessageInfoActivity;
 import com.bsb.hike.ui.NUXInviteActivity;
 import com.bsb.hike.ui.NuxSendCustomMessageActivity;
-import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.PictureEditer;
 import com.bsb.hike.ui.PinHistoryActivity;
 import com.bsb.hike.ui.ProfileActivity;
@@ -1251,13 +1250,6 @@ public class IntentFactory
 	{
 		Intent intent = getComposeChatIntent(context);
 		intent.putExtra(HikeConstants.Extras.IS_MICROAPP_SHOWCASE_INTENT, true);
-		return intent;
-	}
-
-	public static Intent getFavouritesIntent(Activity context)
-	{
-		Intent intent = new Intent(context, PeopleActivity.class);
-		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		return intent;
 	}
 

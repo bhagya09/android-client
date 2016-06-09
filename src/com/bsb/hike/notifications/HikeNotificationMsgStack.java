@@ -329,7 +329,7 @@ public class HikeNotificationMsgStack implements Listener
 		}
 		else if (uniqueNotifTypes.equals(NotificationType.FAVADD))
 		{
-			mNotificationIntent = Utils.getPeopleActivityIntent(mContext);
+			mNotificationIntent = IntentFactory.getFriendReqActivityAddedMeIntent(mContext);
 		}
 		else if (containsStealthMessage())
 		{

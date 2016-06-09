@@ -670,8 +670,6 @@ public class HikeConstants
 
 	public static final String BLOKED_LIST_PREF = "blockedList";
 
-	public static final String FAV_LIST_PREF = "favoriteList";
-
 	public static final String STEALTH_MODE_PREF = "stealthModeSettings";
 
 	public static final String STEALTH_PREF_SCREEN = "stealthPrefScreen";
@@ -2425,8 +2423,6 @@ public class HikeConstants
 		public static final String LS_FAVOURITES_CLICKED = "psLS_F";
 
 		public static final String LS_NOBODY_CLICKED = "psLS_N";
-
-		public static final String MANAGE_FAV_LIST_SETTING = "psMFav";
 
 		public static final String STICKER_SETTINGS_REORDER_CLICKED = "ssReorderClick";
 

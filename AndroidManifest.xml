@@ -355,10 +355,6 @@
         <activity android:name=".ui.CreateNewGroupOrBroadcastActivity" >
         </activity>
         <activity
-            android:name=".ui.PeopleActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize" >
-        </activity>
-        <activity
             android:name="com.bsb.hike.timeline.view.TimelineActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
