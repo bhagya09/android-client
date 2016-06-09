@@ -750,14 +750,14 @@ public class FileTransferManager
 		analyticEvent.sendFTSuccessFailureEvent(network, hikefile.getFileSize(), FTAnalyticEvents.FT_SUCCESS, hikefile.getAttachmentSharedAs(), hikefile.getAttachementType());
 		if (userContext != null && BotUtils.isBot(((ConvMessage) userContext).getMsisdn()) && isDownloadTask)
 		{
-			if(BotUtils.isBot(((ConvMessage) userContext).getMsisdn())) {
-				FTAnalyticEvents.platformAnalytics(((ConvMessage) userContext).getMsisdn(), ((ConvMessage) userContext).getMetadata().getHikeFiles().get(0).getFileKey(),
-						((ConvMessage) userContext).getMetadata().getHikeFiles().get(0).getFileTypeString());
-			}
-			else if(((ConvMessage) userContext).getMessageType() == HikeConstants.MESSAGE_TYPE.CONTENT)
+			if(((ConvMessage) userContext).getMessageType() == HikeConstants.MESSAGE_TYPE.CONTENT)
 			{
 				FTAnalyticEvents.platformAnalytics(((ConvMessage) userContext).getMsisdn(), ((ConvMessage) userContext).platformMessageMetadata.contentId,
 						((ConvMessage) userContext).platformMessageMetadata.getHikeFiles().get(0).getFileTypeString());
+			}
+			else if(BotUtils.isBot(((ConvMessage) userContext).getMsisdn())) {
+				FTAnalyticEvents.platformAnalytics(((ConvMessage) userContext).getMsisdn(), ((ConvMessage) userContext).getMetadata().getHikeFiles().get(0).getFileKey(),
+						((ConvMessage) userContext).getMetadata().getHikeFiles().get(0).getFileTypeString());
 			}
 		}
 
