@@ -3480,10 +3480,21 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_SPACE_MANAGER, enableSM);
 		}
 
-		if(data.has(TimelineServerConfigUtils.AC_KEY_STORY_DURATION))
-		{
+		if (data.has(TimelineServerConfigUtils.AC_KEY_STORY_DURATION)) {
 			long storyTimeLimit = data.getLong(TimelineServerConfigUtils.AC_KEY_STORY_DURATION);
 			HikeSharedPreferenceUtil.getInstance().saveData(TimelineServerConfigUtils.AC_KEY_STORY_DURATION, storyTimeLimit);
+		}
+
+		if (data.has(TimelineServerConfigUtils.AC_KEY_CAMSHY_SUBTEXT)) {
+			JSONArray subTextArray = data.getJSONArray(TimelineServerConfigUtils.AC_KEY_CAMSHY_SUBTEXT);
+			int subTextArrayLength = subTextArray.length();
+			if (subTextArrayLength > 0) {
+				Set<String> subTextSet = new HashSet<String>();
+				for (int i = 0; i < subTextArrayLength; i++) {
+					subTextSet.add(subTextArray.getString(i));
+				}
+				HikeSharedPreferenceUtil.getInstance().saveStringSet(TimelineServerConfigUtils.AC_KEY_CAMSHY_SUBTEXT, subTextSet);
+			}
 		}
 
 		editor.commit();
