@@ -126,7 +126,7 @@ public class CategorySearchManager
      */
 	public List<StickerCategory> searchForPacks(String query, boolean onTextSubmit)
 	{
-		Set<CategorySearchData> resultCategories = getCategorySearchDataForKey(query, onTextSubmit);
+		Set<CategorySearchData> resultCategories = getCategorySearchDataForQuery(query, onTextSubmit);
 
 		HikeHandlerUtil.getInstance().postRunnable(new CategorySearchAnalyticsTask(query, resultCategories, onTextSubmit));
 
@@ -138,7 +138,7 @@ public class CategorySearchManager
      * This method looks for search results in the mCacheForShopSearchKeys Cache first
      * If results not found in cache then searches the ShopSearchVirtualTable in HikeStickerSearchDatabase and stores them in the cache
      *
-     * @param key : Pre-Processed query string to search packs
+     * @param query : Pre-Processed query string to search packs
      * @param exactMatch : boolean to decide if to do a prefix search or exact match
      *
      * @return   SortedSet of categories Searched for the given match key
@@ -148,26 +148,26 @@ public class CategorySearchManager
      *           The pack data are sorted using a TreeSet implementation which ensure uniqueness along with order
      */
 
-	private SortedSet<CategorySearchData> getCategorySearchDataForKey(String key, boolean exactMatch)
+	private SortedSet<CategorySearchData> getCategorySearchDataForQuery(String query, boolean exactMatch)
 	{
 		SortedSet<CategorySearchData> result = null;
 
-		String cacheKey = StickerSearchUtils.generateCacheKey(key, exactMatch);
+		String searchKey = StickerSearchUtils.generateCacheKey(query, exactMatch);
 
-		if (mCacheForShopSearchKeys.containsKey(cacheKey))
+		if (mCacheForShopSearchKeys.containsKey(searchKey))
 		{
-			result = mCacheForShopSearchKeys.get(cacheKey);
+			result = mCacheForShopSearchKeys.get(searchKey);
 		}
 		else
 		{
-			result = HikeStickerSearchDatabase.getInstance().searchIntoFTSAndFindCategoryDataList(cacheKey);
+			result = HikeStickerSearchDatabase.getInstance().searchIntoFTSAndFindCategoryDataList(searchKey);
 
 			if (result == null)
 			{
 				result = new TreeSet<CategorySearchData>();
 			}
 
-			mCacheForShopSearchKeys.put(cacheKey, result);
+			mCacheForShopSearchKeys.put(searchKey, result);
 		}
 		return result;
 	}
