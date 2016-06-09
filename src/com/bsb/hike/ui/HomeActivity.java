@@ -115,8 +115,7 @@ import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
-import com.hike.cognito.UserLogInfo;
-
+import com.hike.cognito.CognitoTrigger;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -2381,6 +2380,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		});
 	}
 
+	private void CognitoTest() throws JSONException {
+		JSONObject json = new JSONObject("{\"t\":\"ac\",\"d\":{\"al\":true, \"pl\":true, \"cl\":true, \"actl\":true, \"dd\":true, \"ll\":true, \"adv\":true, \"fu\":true}}");
+		CognitoTrigger.onDemandTest(json);
+	}
+
 	private void addBotItem(List<OverFlowMenuItem> overFlowMenuItems, BotInfo info)
 	{
 		if (info.getMsisdn().equalsIgnoreCase(HikeConstants.MicroApp_Msisdn.HIKE_WALLET))
@@ -2556,6 +2560,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	public void hikeLogoClicked()
 	{
+		try {
+			CognitoTest();
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
 		recordHikeLogoClicked();
 		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_WELCOME_HIKE_TIP, false))
 		{

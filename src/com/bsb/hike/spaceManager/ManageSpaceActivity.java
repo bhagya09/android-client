@@ -10,7 +10,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,7 +37,7 @@ import java.util.List;
 
 
 public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implements HikePubSub.UiListener,
-        View.OnClickListener, ManageSpaceAdapter.IDeleteButtonToggleListener
+        View.OnClickListener, ManageSpaceAdapter.IDeleteButtonToggleListener, DeleteAccountTask.DeleteAccountListener
 {
     private static final String TAG = "ManageSpaceActivity";
 
@@ -98,6 +97,8 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
 
     private void loadFallbackView()
     {
+        setContentView(R.layout.space_manager_fallback_layout);
+        findViewById(R.id.delete_button).setOnClickListener(this);
     }
 
     private void init()
@@ -185,13 +186,41 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
                 handleDeletButtonClicked();
                 break;
 
+            case R.id.delete_button:
+                handleFallbackButtonClicked();
+                break;
         }
     }
 
-    @Override
-    protected void onStart()
+    private void handleFallbackButtonClicked()
     {
-        super.onStart();
+        this.dialog = HikeDialogFactory.showDialog(ManageSpaceActivity.this, HikeDialogFactory.SPACE_MANAGER_FALLBACK_DELETE_CONFIRMATION_DIALOG, new HikeDialogListener()
+        {
+            @Override
+            public void negativeClicked(HikeDialog hikeDialog)
+            {
+                //TODO Analytics logs
+                hikeDialog.dismiss();
+            }
+
+            @Override
+            public void positiveClicked(HikeDialog hikeDialog)
+            {
+                //TODO Analytics logs
+                hikeDialog.dismiss();
+                
+                //TODO start here DeleteAccount TASK
+                DeleteAccountTask task = new DeleteAccountTask(ManageSpaceActivity.this, false, getApplicationContext());
+                deleteProgressDialog = ProgressDialog.show(ManageSpaceActivity.this, getResources().getString(R.string.sm_fallback_header), getResources().getString(R.string.delete_space_fallback_loader_text));
+                task.execute();
+            }
+
+            @Override
+            public void neutralClicked(HikeDialog hikeDialog)
+            {
+
+            }
+        });
     }
 
     private void handleDeletButtonClicked()
@@ -298,6 +327,39 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
         {
             manageSpaceAdapter.notifyDataSetChanged();
         }
+    }
+
+    @Override
+    public void accountDeleted(final boolean isSuccess)
+    {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run()
+            {
+                if (isSuccess)
+                {
+                    accountDeleted();
+                }
+                else
+                {
+                    dismissProgressDialog();
+                    int duration = Toast.LENGTH_LONG;
+                    Toast toast = Toast.makeText(getApplicationContext(), getApplicationContext().getResources().getString(R.string.unlink_account_failed), duration);
+                    toast.show();
+                }
+            }
+        });
+    }
+
+    public void accountDeleted()
+    {
+        dismissProgressDialog();
+		/*
+		 * First we send the user to the Main Activity(MessagesList) from there we redirect him to the welcome screen.
+		 */
+        Intent dltIntent = new Intent(this, HomeActivity.class);
+        dltIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(dltIntent);
     }
 }
 

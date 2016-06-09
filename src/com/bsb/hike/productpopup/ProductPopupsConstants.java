@@ -407,6 +407,14 @@ public class ProductPopupsConstants
 			}
 
 		},
+		SPACE_MANAGER
+		{
+			@Override
+			public String toString()
+			{
+				return "spacemanager";
+			}
+		},
 		CHAT_HEAD
 		{
 			@Override

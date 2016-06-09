@@ -3293,5 +3293,73 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	public void setAllLastSeenValues(final boolean newValue) {
 		privacyPreferencePersistence.setAllLastSeenValues(newValue);
 	}
+
+	private List<ContactInfo> getFriendsList() {
+		if (Utils.isEmpty(transientCache.transientFavList)) {
+			transientCache.loadAllFriends();
+		}
+
+		return transientCache.transientFavList;
+	}
+
+	public void flushAllTransientFriends() {
+		if (!Utils.isEmpty(transientCache.transientFavList)) {
+			transientCache.clearTransientFriendsList();
+		}
+	}
+
+	public List<ContactInfo> getAllFriendsWithLastSeenShown() {
+		List<ContactInfo> friendsList = getFriendsList();
+		List<ContactInfo> filteredFriendsList = new ArrayList<ContactInfo>(0);
+
+		for (ContactInfo contactInfo : friendsList) {
+			PrivacyPreferences pref = contactInfo.getPrivacyPrefs();
+			if (pref.shouldShowLastSeen())
+				filteredFriendsList.add(contactInfo);
+		}
+
+		return filteredFriendsList;
+	}
+
+	public List<ContactInfo> getAllFriendsWithLastSeenHidden() {
+		List<ContactInfo> friendsList = getFriendsList();
+		List<ContactInfo> filteredFriendsList = new ArrayList<ContactInfo>(0);
+
+		for (ContactInfo contactInfo : friendsList) {
+			PrivacyPreferences pref = contactInfo.getPrivacyPrefs();
+			if (!pref.shouldShowLastSeen())
+				filteredFriendsList.add(contactInfo);
+		}
+
+		return filteredFriendsList;
+	}
+
+	public List<ContactInfo> getAllFriendsWithStatusUpdateShown() {
+
+		List<ContactInfo> friendsList = getFriendsList();
+		List<ContactInfo> filteredFriendsList = new ArrayList<ContactInfo>(0);
+
+		for (ContactInfo contactInfo : friendsList) {
+			PrivacyPreferences pref = contactInfo.getPrivacyPrefs();
+			if (pref.shouldShowStatusUpdate())
+				filteredFriendsList.add(contactInfo);
+		}
+
+		return filteredFriendsList;
+	}
+
+	public List<ContactInfo> getAllFriendsWithStatusUpdateHidden() {
+		List<ContactInfo> friendsList = getFriendsList();
+		List<ContactInfo> filteredFriendsList = new ArrayList<ContactInfo>(0);
+
+		for (ContactInfo contactInfo : friendsList) {
+			PrivacyPreferences pref = contactInfo.getPrivacyPrefs();
+			if (!pref.shouldShowStatusUpdate())
+				filteredFriendsList.add(contactInfo);
+		}
+
+		return filteredFriendsList;
+	}
+
 }
 

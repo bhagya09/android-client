@@ -903,7 +903,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			progressDialog = null;
 		}
 
-		if(!enableCompression && mActivityTask.task == null && !TextUtils.isEmpty(mImagePath))
+		if(!enableCompression && mActivityTask.task == null && !TextUtils.isEmpty(mImagePath) && new File(mImagePath).exists())// TODO: http://stackoverflow.com/questions/24573640/android-error-upload-image-in-different-android-versions
 		{
 			Utils.deleteFile(new File(mImagePath));
 		}

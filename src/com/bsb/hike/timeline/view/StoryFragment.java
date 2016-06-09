@@ -231,8 +231,7 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
                 || type.equals(HikePubSub.STEALTH_MODE_TOGGLED)
                 || type.equals(HikePubSub.DELETE_STATUS)
                 || type.equals(HikePubSub.STEALTH_CONVERSATION_MARKED)
-                || type.equals(HikePubSub.STEALTH_CONVERSATION_UNMARKED)
-                || type.equals(HikePubSub.FAVORITE_TOGGLED)) {
+                || type.equals(HikePubSub.STEALTH_CONVERSATION_UNMARKED)) {
             if (isAdded() && getActivity() != null) {
                 HikeHandlerUtil.getInstance().postRunnable(new Runnable() {
                     @Override
@@ -256,7 +255,11 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        bindFragmentViews();
+                        if (emptyStateView.getVisibility() == View.VISIBLE) {
+                            bindFragmentViews();
+                        } else {
+                            StoriesDataManager.getInstance().updateCameraShyStories(new WeakReference<StoriesDataManager.StoriesDataListener>(StoryFragment.this));
+                        }
                     }
                 });
             }

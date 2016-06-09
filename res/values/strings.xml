@@ -1698,9 +1698,9 @@
     <string name="delete_space_confirmation_dialog_heading">Delete Data</string>
     <string name="delete_space_confirmation_dialog_text">You are about to delete %1$s of data from your device. Once deleted it will be gone forever.\nDo you wish to proceed with this?</string>
     <string name="delete_space_loader_text">Deleting Hike Data</string>
-    <string name="delete_space_fallback_heading">Clear All Data</string>
-    <string name="delete_space_fallback_text">This will clear all app data except your signup account details.Once deleted, there won\'t be a way  for you to restore it back.\nTap on the button below to continue.</string>
-    <string name="delete_space_fallback_button_text">CLEAR DATA</string>
+    <string name="sm_fallback_header">Clear All Data</string>
+    <string name="sm_fallback_subheader">This will clear all app data and preferences and reset your hike account.\n\nTap on the button below to continue.</string>
+    <string name="sm_fallback_button">CLEAR DATA</string>
     <string name="delete_space_fallback_confirmation_dialog_text">You are about to delete the most important data of your life.This action cannot be undone. \n Do you wish to proceeed with this?</string>
     <string name="sm_empty_view_text1">Hooray! You have cleared all data</string>
     <string name="sm_empty_view_text2">Come back again after sometime</string>

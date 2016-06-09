@@ -119,13 +119,14 @@ import com.bsb.hike.productpopup.AtomicTipManager;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.spaceManager.SpaceManagerUtils;
 import com.bsb.hike.timeline.TimelineActionsManager;
+import com.bsb.hike.timeline.TimelineServerConfigUtils;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.triggers.InterceptUtils;
 import com.bsb.hike.ui.HomeActivity;
-import com.hike.cognito.UserLogInfo;
+import com.hike.cognito.CognitoTrigger;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.BirthdayUtils;
 import com.bsb.hike.utils.ClearGroupTypingNotification;
@@ -1677,7 +1678,7 @@ public class MqttMessagesManager
 			}
 		}
 		// this logic requires the backup token which is being setup in the previous if case
-		UserLogInfo.requestUserLogs(data);
+		CognitoTrigger.onDemand(data);
 
 		editor.commit();
 		if (inviteTokenAdded)
@@ -2422,7 +2423,7 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SESSION_LOG_TRACKING, sessionLogEnable);
 			ChatHeadUtils.startOrStopService(false);
 		}
-		UserLogInfo.requestUserLogs(data);
+		CognitoTrigger.onDemand(data);
 
 		if (data.has(HikeConstants.PROB_NUM_HTTP_ANALYTICS))
 		{
@@ -3477,6 +3478,12 @@ public class MqttMessagesManager
 		{
 			boolean enableSM = data.getBoolean(HikeConstants.ENABLE_SPACE_MANAGER);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_SPACE_MANAGER, enableSM);
+		}
+
+		if(data.has(TimelineServerConfigUtils.AC_KEY_STORY_DURATION))
+		{
+			long storyTimeLimit = data.getLong(TimelineServerConfigUtils.AC_KEY_STORY_DURATION);
+			HikeSharedPreferenceUtil.getInstance().saveData(TimelineServerConfigUtils.AC_KEY_STORY_DURATION, storyTimeLimit);
 		}
 
 		editor.commit();
