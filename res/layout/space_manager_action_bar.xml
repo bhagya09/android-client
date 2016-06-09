@@ -11,11 +11,10 @@
         android:layout_toLeftOf="@id/done_container"
         android:clickable="false"
         android:ellipsize="end"
-        style="@style/SettingsItemHeader"
+        style="@style/ListSectionTextView"
         android:text="@string/space_manager"
         android:textColor="@color/white_96"
-        android:textSize="18sp"
-        android:fontFamily="sans-serif-medium"/>
+        android:textSize="18sp"/>
 
     <LinearLayout
         android:id="@+id/done_container"
@@ -26,7 +25,7 @@
         android:gravity="center_vertical"
         android:background="@drawable/bg_overflow_menu_selector"
         android:paddingLeft="12dp"
-        android:paddingRight="12dp"
+        android:paddingRight="20dp"
         android:orientation="horizontal"
         android:visibility="gone">
 

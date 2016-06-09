@@ -1706,8 +1706,7 @@
     <string name="sm_empty_view_text1">Hooray! You have cleared all data</string>
     <string name="sm_empty_view_text2">Come back again after sometime</string>
     <string name="delete_space_fallback_loader_text">Clearing Data ...</string>
-    <string name="sm_clear_all_header">Clear All Data</string>
-    <string name="sm_clear_all_subheader">Select all options to be deleted</string>
+    <string name="sm_select_all_text">Select All</string>
     <string name="sm_category_header_text">CATEGORY HEADER</string>
     <string name="sm_category_subheader_text">Item Size</string>
     <string name="sm_subcategory_header_text">SubCategory Header</string>
