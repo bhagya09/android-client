@@ -4506,6 +4506,6 @@ public class HikeConstants
 
 	public static final String ENABLE_SPACE_MANAGER = "en_sm";
 
-	public static final String SPACE_MANAGER_SEEN_ONCE = "spcmgr_seen_once";
+	public static final String SPACE_MANAGER_JSON = "sm_json";
 
 }

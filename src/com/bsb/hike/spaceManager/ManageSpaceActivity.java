@@ -8,6 +8,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewStub;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -29,6 +30,7 @@ import com.bsb.hike.spaceManager.models.SubCategoryItem;
 import com.bsb.hike.tasks.DeleteAccountTask;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -51,7 +53,7 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
 
     private LinearLayoutManager mLayoutManager;
 
-    private View emptyLayout;
+    private ViewStub emptyLayoutViewStub;
 
     private HikeDialog dialog;
 
@@ -79,7 +81,7 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
             manageSpaceListView = (RecyclerView) findViewById(R.id.smRecycleView);
             mLayoutManager = new LinearLayoutManager(ManageSpaceActivity.this);
             manageSpaceListView.setLayoutManager(mLayoutManager);
-            emptyLayout = findViewById(R.id.sm_no_item);
+            emptyLayoutViewStub = (ViewStub)findViewById(R.id.stub_sm_emptyView);
             progressBarLayout = (LinearLayout)findViewById(R.id.progress_container);
             init();
         }
@@ -119,7 +121,9 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
     {
         Logger.d(TAG, "received invalid list or items");
         findViewById(R.id.progress_container).setVisibility(View.GONE);
-        loadFallbackView();
+
+        // Default json string is corrupted, Log here or close Activity
+        this.finish();
     }
 
     private void setupActionBar()
@@ -225,7 +229,6 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
 
     private void handleDeletButtonClicked()
     {
-        //TODO get total size to be deleted
         long size = SpaceManagerUtils.getTotalSizeToDelete(spaceManagerItems);
 
         this.dialog = HikeDialogFactory.showDialog(ManageSpaceActivity.this, HikeDialogFactory.SPACE_MANAGER_DELETE_CONFIRMATION_DIALOG, new HikeDialogListener()
@@ -312,7 +315,8 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
     {
         if(spaceManagerItems.isEmpty())
         {
-            emptyLayout.setVisibility(View.VISIBLE);
+            emptyLayoutViewStub.inflate();
+            emptyLayoutViewStub.setVisibility(View.VISIBLE);
             manageSpaceListView.setVisibility(View.GONE);
             doneBtn.setVisibility(View.GONE);
         }
