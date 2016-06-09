@@ -75,6 +75,12 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
         super.onCreate(savedInstanceState);
         long start = System.currentTimeMillis();
 
+        recordScreenopenSource(getIntent());
+
+        if(!Utils.isUserAuthenticated(ManageSpaceActivity.this))
+        {
+            accountDeleted();
+        }
         if(SpaceManagerUtils.isSpaceManagerEnabled())
         {
             setContentView(R.layout.space_manager_main);
@@ -91,8 +97,6 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
         }
 
         setupActionBar();
-
-        recordScreenopenSource(getIntent());
 
         Logger.d(TAG, "time taken: " + (System.currentTimeMillis() - start));
     }
@@ -173,6 +177,7 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
             spaceManagerItems = SpaceManagerUtils.getValidItemsList(categoryList);
             updateUI();
             dismissProgressDialog();
+            Toast.makeText(ManageSpaceActivity.this, getString(R.string.space_successfully_deleted), Toast.LENGTH_SHORT).show();
         }
         else if(type.equals(HikePubSub.SPACE_MANAGER_ITEMS_DELETE_FAIL))
         {
@@ -364,6 +369,7 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
         Intent dltIntent = new Intent(this, HomeActivity.class);
         dltIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(dltIntent);
+        this.finish();
     }
 }
 
