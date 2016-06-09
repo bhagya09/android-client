@@ -55,8 +55,8 @@ public class CategorySearchTask implements Runnable
 		}
 	}
 
-	private String preProcessQuery(String query)
-	{
-		return query.trim().toLowerCase();
-	}
+    private String preProcessQuery(String query) {
+        query = query.replaceAll("^\\s+", "");//trimming all leading spaces
+        return query.toLowerCase();
+    }
 }
