@@ -151,20 +151,23 @@ public class CategorySearchManager
 	private SortedSet<CategorySearchData> getCategorySearchDataForKey(String key, boolean exactMatch)
 	{
 		SortedSet<CategorySearchData> result = null;
-		if (mCacheForShopSearchKeys.containsKey(key))
+
+		String cacheKey = StickerSearchUtils.generateCacheKey(key, exactMatch);
+
+		if (mCacheForShopSearchKeys.containsKey(cacheKey))
 		{
-			result = mCacheForShopSearchKeys.get(key);
+			result = mCacheForShopSearchKeys.get(cacheKey);
 		}
 		else
 		{
-			result = HikeStickerSearchDatabase.getInstance().searchIntoFTSAndFindCategoryDataList(key, exactMatch);
+			result = HikeStickerSearchDatabase.getInstance().searchIntoFTSAndFindCategoryDataList(cacheKey);
 
 			if (result == null)
 			{
 				result = new TreeSet<CategorySearchData>();
 			}
 
-			mCacheForShopSearchKeys.put(StickerSearchUtils.generateCacheKey(key, exactMatch), result);
+			mCacheForShopSearchKeys.put(cacheKey, result);
 		}
 		return result;
 	}
