@@ -209,7 +209,7 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
 				if (stickerShopSearchFragment != null && stickerShopSearchFragment.isAdded())
 				{
 					CategorySearchManager.sendCategorySearchResultResponseAnalytics(CategorySearchAnalyticsTask.SHOP_SEARCH_CROSS_BUTTON_TRIGGER);
-					StickerShopActivity.super.onBackPressed();
+					simulateSuperBackPress();
 				}
 				return true;
 			}
@@ -241,13 +241,13 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
 
 			if (stickerShopSearchFragment != null && stickerShopSearchFragment.isAdded())
 			{
-				super.onBackPressed();
+                simulateSuperBackPress();
 			}
 
 			return;
 		}
 
-		super.onBackPressed();
+		simulateSuperBackPress();
 	}
 
 	private void setupSearchFTUE()
@@ -345,5 +345,11 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
 
 		super.onDestroy();
 	}
+
+    private void simulateSuperBackPress() {
+        if (isActivityVisible()) {
+            StickerShopActivity.super.onBackPressed();
+        }
+    }
 
 }
