@@ -1,13 +1,11 @@
 package com.bsb.hike.modules.httpmgr.engine;
 
-import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.gcmnetworkmanager.Config;
 import com.bsb.hike.modules.gcmnetworkmanager.HikeGcmNetworkMgr;
 import com.bsb.hike.modules.httpmgr.client.ClientOptions;
 import com.bsb.hike.modules.httpmgr.client.IClient;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.request.Request;
-import com.bsb.hike.modules.httpmgr.requeststate.HttpRequestStateDB;
 import com.bsb.hike.modules.httpmgr.response.Response;
 
 /**
@@ -55,20 +53,19 @@ public abstract class RequestRunnerBase
 							if (gcmTaskConfig != null && gcmTaskConfig.getNumRetries() > 0)
 							{
 								gcmTaskConfig.decrementRetries();
-								updateGcmTaskConfigInDB(gcmTaskConfig);
+								HikeGcmNetworkMgr.getInstance().updateGcmTaskConfigInDB(gcmTaskConfig);
 								HikeGcmNetworkMgr.getInstance().schedule(gcmTaskConfig);
 							}
 							else
 							{
-								removeGcmTaskConfigFromDB(gcmTaskConfig);
+								HikeGcmNetworkMgr.getInstance().removeGcmTaskConfigFromDB(gcmTaskConfig);
 							}
 						}
 						else
 						{
 							if (gcmTaskConfig != null)
 							{
-								removeGcmTaskConfigFromDB(gcmTaskConfig);
-								HikeGcmNetworkMgr.getInstance().cancelTask(gcmTaskConfig.getTag(), gcmTaskConfig.getService());
+								HikeGcmNetworkMgr.getInstance().cancelTask(gcmTaskConfig);
 							}
 							requestListenerNotifier.notifyListenersOfRequestSuccess(request, response);
 						}
@@ -77,35 +74,7 @@ public abstract class RequestRunnerBase
 		requestExecuter.execute();
 	}
 
-	private void removeGcmTaskConfigFromDB(final Config gcmTaskConfig)
-	{
-		HikeHandlerUtil.getInstance().postAtFront(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				if (gcmTaskConfig != null)
-				{
-					HttpRequestStateDB.getInstance().deleteBundleForTag(gcmTaskConfig.getTag());
-				}
-			}
-		});
-	}
 
-	private void updateGcmTaskConfigInDB(final Config gcmTaskConfig)
-	{
-		HikeHandlerUtil.getInstance().postAtFront(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				if (gcmTaskConfig != null)
-				{
-					HttpRequestStateDB.getInstance().update(gcmTaskConfig.getTag(), gcmTaskConfig.toBundle());
-				}
-			}
-		});
-	}
 
 	/**
 	 * Shutdown method to close everything (setting all variables to null for easy garbage collection)
