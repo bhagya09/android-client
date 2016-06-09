@@ -59,7 +59,8 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
 
     private View doneBtn;
 
-    private String[] uiPubSubTypes = {HikePubSub.SPACE_MANAGER_ITEMS_FETCH_SUCCESS, HikePubSub.SPACE_MANAGER_ITEMS_FETCH_FAIL, HikePubSub.SPACE_MANAGER_ITEMS_DELETE_SUCCESS, HikePubSub.SPACE_MANAGER_ITEMS_DELETE_FAIL};
+    private String[] uiPubSubTypes = {HikePubSub.SPACE_MANAGER_ITEMS_FETCH_SUCCESS, HikePubSub.SPACE_MANAGER_ITEMS_FETCH_FAIL,
+            HikePubSub.SPACE_MANAGER_ITEMS_DELETE_SUCCESS, HikePubSub.SPACE_MANAGER_ITEMS_DELETE_FAIL};
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -69,10 +70,11 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
 
         recordScreenopenSource(getIntent());
 
-        if(!Utils.isUserAuthenticated(ManageSpaceActivity.this))
+        if(!Utils.isUserSignedUp(ManageSpaceActivity.this, false))
         {
             accountDeleted();
         }
+
         if(SpaceManagerUtils.isSpaceManagerEnabled())
         {
             setContentView(R.layout.space_manager_main);
