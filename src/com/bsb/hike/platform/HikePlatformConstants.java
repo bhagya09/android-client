@@ -468,4 +468,6 @@ public interface HikePlatformConstants
     String BOT_CUSTOM_KEYBOARD_TYPE_STICKER = "s";
 
     String BOT_CUSTOM_KEYBOARD_TYPE_TEXT = "t";
+
+	String CONTENT_UID = "contentUid";
 }

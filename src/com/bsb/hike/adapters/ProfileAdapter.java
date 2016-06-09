@@ -106,6 +106,8 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.On
 
 	public ListView listView;
 
+	int lsViewHeight, suViewHeight;
+
 	public ProfileAdapter(ProfileActivity profileActivity, List<ProfileItem> itemList, OneToNConversation groupConversation, ContactInfo contactInfo, boolean myProfile)
 	{
 		this(profileActivity, itemList, groupConversation, contactInfo, myProfile, false);
@@ -402,6 +404,8 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.On
 					viewHolder.lastSeenSetting = viewHolder.expandingLayout.findViewById(R.id.last_seen_section);
 					viewHolder.statusUpdateSetting = viewHolder.expandingLayout.findViewById(R.id.status_update_section);
 					viewHolder.arrowImage = (ImageView) v.findViewById(R.id.arrow_image);
+					viewHolder.lastSeenSettingTV = (TextView) v.findViewById(R.id.ls_update_subtext);
+					viewHolder.suSettingTV = (TextView) v.findViewById(R.id.status_update_subtext);
 					break;
 			}
 
@@ -850,9 +854,6 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.On
 
 			case PRIVACY_SECTION:
 
-				viewHolder.expandingLayout.setExpandedHeight(Utils.dpToPx(115));
-				viewHolder.expandingLayout.setSizeChangedListener(profileItem);
-
 				if (!profileItem.isExpanded()) {
 					viewHolder.arrowImage.setRotation(0);
 					viewHolder.expandingLayout.setVisibility(View.GONE);
@@ -864,6 +865,14 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.On
 				PrivacyPreferences prefs = mContactInfo.getPrivacyPrefs();
 				viewHolder.statusUpdateSwitch.setChecked(prefs.shouldShowStatusUpdate());
 				viewHolder.lastSeenSwitch.setChecked(prefs.shouldShowLastSeen());
+
+				setStatusUpdateLayoutParams(viewHolder.statusUpdateSetting, viewHolder.statusUpdateSwitch.isChecked());
+				setLastSeenLayoutParams(viewHolder.lastSeenSetting, viewHolder.lastSeenSwitch.isChecked());
+				setExpandingLayoutHeight(viewHolder.expandingLayout);
+				viewHolder.expandingLayout.setSizeChangedListener(profileItem);
+
+				viewHolder.suSettingTV.setText(profileActivity.getString(viewHolder.statusUpdateSwitch.isChecked() ? R.string.su_privacy_subtext : R.string.su_privacy_subtext_off));
+				viewHolder.lastSeenSettingTV.setText(profileActivity.getString(viewHolder.lastSeenSwitch.isChecked() ? R.string.ls_privacy_subtext : R.string.ls_privacy_subtext_off));
 
 				viewHolder.parent.setTag(position);
 				viewHolder.parent.setOnClickListener(this);
@@ -1016,6 +1025,8 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.On
 		View lastSeenSetting, statusUpdateSetting;
 
 		ImageView arrowImage;
+
+		TextView lastSeenSettingTV, suSettingTV;
 	}
 	
 	public void setProfilePreview(Bitmap preview)
@@ -1142,16 +1153,36 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.On
 	 * @param isChecked  The new checked state of buttonView.
 	 */
 	@Override
-	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+	public void onCheckedChanged(final CompoundButton buttonView, boolean isChecked) {
 
 		switch (buttonView.getId()) {
 			case R.id.last_seen_switch:
+				buttonView.postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						View lsView = (View) buttonView.getParent();
+						setLastSeenLayoutParams(lsView, buttonView.isChecked());
+						setExpandingLayoutHeight((ExpandingLayout) lsView.getParent());
+						((TextView) lsView.findViewById(R.id.ls_update_subtext)).setText(profileActivity.getString(buttonView.isChecked() ? R.string.ls_privacy_subtext : R.string.ls_privacy_subtext_off));
+					}
+				}, 250); // Simple set text will cause invalidate for textview --> resulting in onMeasure call for parent view & switch view -- resulting in inconsistent switch state on UI
+				// 250 is the default switch thumb animation. http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android/5.1.0_r1/android/support/v7/widget/Switch
 				ContactManager.getInstance().toggleLastSeenSetting(mContactInfo, isChecked);
 				mContactInfo.getPrivacyPrefs().toggleLastSeen();
 				recordLastSeenSettingToggle();
 				break;
 
 			case R.id.status_update_switch:
+				buttonView.postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						View suView = (View) buttonView.getParent();
+						setStatusUpdateLayoutParams(suView, buttonView.isChecked());
+						setExpandingLayoutHeight((ExpandingLayout) suView.getParent());
+						((TextView) suView.findViewById(R.id.status_update_subtext)).setText(profileActivity.getString(buttonView.isChecked() ? R.string.su_privacy_subtext : R.string.su_privacy_subtext_off));
+					}
+				}, 250); // Simple set text will cause invalidate for textview --> resulting in onMeasure call for parent view & switch view -- resulting in inconsistent switch state on UI
+				// 250 is the default switch thumb animation. http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android/5.1.0_r1/android/support/v7/widget/SwitchCompat.java
 				ContactManager.getInstance().toggleStatusUpdateSetting(mContactInfo, isChecked);
 				mContactInfo.getPrivacyPrefs().toggleStatusUpdate();
 				recordStatusUpdateSettingToggle();
@@ -1216,6 +1247,22 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.On
 		} catch (JSONException e) {
 			e.toString();
 		}
+	}
+
+	private void setExpandingLayoutHeight(ExpandingLayout expandingLayout) {
+		expandingLayout.setExpandedHeight(lsViewHeight + suViewHeight);
+	}
+
+	private void setLastSeenLayoutParams(View lastSeenSetting, boolean checked) {
+		LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Utils.dpToPx(checked ? 63 : 78));
+		lastSeenSetting.setLayoutParams(params);
+		lsViewHeight = Utils.dpToPx(checked ? 63 : 78);
+	}
+
+	private void setStatusUpdateLayoutParams(View statusUpdateSetting, boolean checked) {
+		LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Utils.dpToPx(checked ? 63 : 78));
+		statusUpdateSetting.setLayoutParams(params);
+		suViewHeight = Utils.dpToPx(checked ? 63 : 78);
 	}
 
 }

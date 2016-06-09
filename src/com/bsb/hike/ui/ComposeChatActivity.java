@@ -2001,7 +2001,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				try
 				{
 					//Sending File Transfer analytics for bots.
-					if (BotUtils.isBot(presentIntent.getStringExtra(HikeConstants.Extras.PREV_MSISDN)))
+					if (BotUtils.isBot(presentIntent.getStringExtra(HikeConstants.Extras.PREV_MSISDN)) || !TextUtils.isEmpty(presentIntent.getStringExtra(AnalyticsConstants.NATIVE_CARD_FORWARD)))
 					{
 						JSONArray array = new JSONArray(presentIntent.getStringExtra(HikeConstants.Extras.MULTIPLE_MSG_OBJECT));
 						JSONObject msgObject;
@@ -2016,6 +2016,17 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 									json.putOpt(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
 									json.putOpt(AnalyticsConstants.EVENT, AnalyticsConstants.BOT_CONTENT_FORWARDED);
 									json.putOpt(AnalyticsConstants.LOG_FIELD_4, fileKey);
+									json.putOpt(AnalyticsConstants.LOG_FIELD_1, msgObject.optString(HikeConstants.Extras.FILE_TYPE));
+									json.putOpt(AnalyticsConstants.BOT_MSISDN, presentIntent.getStringExtra(HikeConstants.Extras.PREV_MSISDN));
+									HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
+								}
+								else if(msgObject.getJSONObject(HikeConstants.METADATA).has(HikePlatformConstants.CONTENT_UID))
+								{
+									String contentId = msgObject.getJSONObject(HikeConstants.METADATA).getString(HikePlatformConstants.CONTENT_UID);
+									JSONObject json = new JSONObject();
+									json.putOpt(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
+									json.putOpt(AnalyticsConstants.EVENT, AnalyticsConstants.BOT_CONTENT_FORWARDED);
+									json.putOpt(AnalyticsConstants.LOG_FIELD_4, contentId);
 									json.putOpt(AnalyticsConstants.LOG_FIELD_1, msgObject.optString(HikeConstants.Extras.FILE_TYPE));
 									json.putOpt(AnalyticsConstants.BOT_MSISDN, presentIntent.getStringExtra(HikeConstants.Extras.PREV_MSISDN));
 									HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
@@ -2071,6 +2082,16 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 			}
 
+			if(arrayList.size() > 1) {
+				// Scan through selected contacts. See if there are images to be posted on Timeline.
+				HikeFeatureInfo hikefeatureInfo = getTimelineHikeFeatureInfoFromArray(arrayList);
+				if(hikefeatureInfo !=null)
+				{
+					arrayList.remove(hikefeatureInfo);
+					postImagesToShareOnTimeline(false);
+				}
+			}
+
 			// forwarding it is
 			Intent intent = null;
 			if (arrayList.size() == 1)
@@ -2117,21 +2138,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			}
 			else
 			{
-
-				// Scan through selected contacts. See if there are images to be posted on Timeline.
-				HikeFeatureInfo hikefeatureInfo = getTimelineHikeFeatureInfoFromArray(arrayList);
-				if(hikefeatureInfo !=null)
-				{
-					arrayList.remove(hikefeatureInfo);
-					postImagesToShareOnTimeline(false);
-				}
-
-				if(arrayList.size() == 1)
-				{
-					forwardMultipleMessages(arrayList);
-					return;
-				}
-
 				// multi forward to multi people
 				if (presentIntent.hasExtra(HikeConstants.Extras.PREV_MSISDN))
 				{
