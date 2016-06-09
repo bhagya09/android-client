@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/friend_request_item"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/conv_item_height"
+    android:background="@drawable/conversation_list_item"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingLeft="@dimen/conv_item_padding"
+    android:paddingRight="@dimen/conv_item_padding">
+
+
+    <com.bsb.hike.view.RoundedImageView
+        android:id="@+id/avatar"
+        style="@style/AvatarStyle.MorePadding"
+        android:layout_width="@dimen/conv_item_avatar"
+        android:layout_height="@dimen/conv_item_avatar" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="12dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/name"
+            style="@style/ListItemHeaderTextView"
+            android:layout_alignParentLeft="true"
+            android:text="Put Name here" />
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/number"
+            style="@style/ListItemSubHeaderTextView"
+            android:layout_marginTop="2dp"
+            android:text="Put Number here" />
+
+    </LinearLayout>
+
+    <com.bsb.hike.view.CustomFontTextView
+        android:id="@+id/add"
+        android:layout_width="70dp"
+        android:layout_height="30dp"
+        android:background="@drawable/bg_add_friend"
+        android:gravity="center"
+        android:text="@string/add_btn_txt"
+        android:textColor="@color/blue_hike"
+        android:textSize="14dp" />
+
+    <ImageView
+        android:id="@+id/added"
+        android:layout_width="70dp"
+        android:layout_height="30dp"
+        android:src="@drawable/ic_tick_added_friends"
+        android:scaleType="center"
+        android:background="@drawable/bg_added_friend" />
+
+</LinearLayout>

@@ -1915,6 +1915,8 @@ public class HikeConstants
 
 		public static final String HIKE_BDAY_MODE = "hikeBdayMode";
 
+		public static final String FROM_SETTINGS = "fromSettingsScreen";
+
 		// constants related to sharing Functioanlity
 		public static final class ShareTypes
 		{
@@ -3265,6 +3267,8 @@ public class HikeConstants
 
 	public static final String LARGE = "large";
 
+	public static final String MINI = "mini";
+
 	public static final int ATOMIC_APP_TIP_SETTINGS = 1;
 
 	public static final int ATOMIC_APP_TIP_SETTINGS_NOTIF = 2;
@@ -4339,6 +4343,8 @@ public class HikeConstants
 
 		public static final String FORWARD_SCREEN = "fwd_screen";
 
+		public static final String ADDED_ME_SCREEN = "added_me_screen";
+
 		public static final String NOTIF = "notif";
 
 		public static final String ATOMIC_TIP = "atomic_tip";
@@ -4416,6 +4422,8 @@ public class HikeConstants
 
 	public static final String SENT = "sent";
 
+	public static final String RECEIVED = "recvd";
+
 	public static final String LANG = "lang";
 
 	public static final String QUICK_RESPONSE = "quickResponse";
@@ -4464,6 +4472,8 @@ public class HikeConstants
 
 	public static final String STATUS_UPDATE_EXCLUSION = "su_ex";
 
+	public static final String STATUS_UPDATE_INCLUSION = "su_in";
+
 	public static final String LS_EXCLUSION = "ls_ex";
 
 	public static final String LS_INCLUSION = "ls_in";
@@ -4501,5 +4511,11 @@ public class HikeConstants
 	public static final String FRIENDS_PRIVACY_PROFILE_VIEW_SHOWN = "fr_privacy_profile_ftue";
 
     public static final String DOWNLOAD_TYPE = "t_dwnld";
+
+	public static final String ENABLE_UNKNOWN_USER_INFO_IN_CHAT = "en_uu_info";
+
+	public static final String ENABLE_SPACE_MANAGER = "en_sm";
+
+	public static final String SPACE_MANAGER_SEEN_ONCE = "spcmgr_seen_once";
 
 }

@@ -233,7 +233,11 @@ public class ProfileImageLoader implements LoaderCallbacks<Boolean>
 	{
 		if(imageView.get() != null)
 		{
-			imageView.get().setImageDrawable(drawable);
+			if (drawable == null && defaultDrawable != null) {
+				imageView.get().setImageDrawable(defaultDrawable);
+			} else {
+				imageView.get().setImageDrawable(drawable);
+			}
 		}
 		else
 		{

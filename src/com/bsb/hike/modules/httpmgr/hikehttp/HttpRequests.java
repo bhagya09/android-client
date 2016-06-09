@@ -16,7 +16,6 @@ import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants;
-import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.interceptor.GzipRequestInterceptor;
 import com.bsb.hike.modules.httpmgr.interceptor.IRequestInterceptor;
 import com.bsb.hike.modules.httpmgr.interceptor.IResponseInterceptor;
@@ -37,7 +36,6 @@ import com.bsb.hike.modules.httpmgr.request.requestbody.FileBody;
 import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
 import com.bsb.hike.modules.httpmgr.request.requestbody.JsonBody;
 import com.bsb.hike.modules.httpmgr.request.requestbody.MultipartRequestBody;
-import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.httpmgr.retry.BasicRetryPolicy;
 import com.bsb.hike.modules.quickstickersuggestions.QuickStickerSuggestionController;
 import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
@@ -397,7 +395,7 @@ public class HttpRequests
 		String parameterUrl = Utils.getParameterUrlForHttpApi(BASE_CATEGORY_DETAIL);
         List<String> unsupportedLanguages = StickerLanguagesManager.getInstance().getUnsupportedLanguagesCollection();
         String url = stickerCategoryDetailsUrl() + "?catId=" + categoryId + "&resId=" + Utils.getResolutionId() + "&lang=" + StickerSearchUtils.getCurrentLanguageISOCode() + parameterUrl;
-        url = Utils.isEmpty(unsupportedLanguages) ? url : (url + "&unknown_langs=" + StickerLanguagesManager.getInstance().listToString(unsupportedLanguages));
+        url = Utils.isEmpty(unsupportedLanguages) ? url : (url + "&unknown_langs=" + Utils.listToString(unsupportedLanguages));
         RequestToken requestToken = new JSONObjectRequest.Builder()
                 .setUrl(url)
                 .setId(requestId)
@@ -405,7 +403,6 @@ public class HttpRequests
                 .setRequestType(REQUEST_TYPE_SHORT)
                 .setGcmTaskConfig(config)
                 .build();
-        requestToken.getRequestInterceptors().addFirst("gzip", new GzipRequestInterceptor());
         return requestToken;
     }
 
@@ -812,7 +809,6 @@ public class HttpRequests
                 .setGcmTaskConfig(config)
                 .build();
 
-        requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
         return requestToken;
     }
 

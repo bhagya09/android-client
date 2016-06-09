@@ -32,7 +32,7 @@ public class UserLogInfo {
     public static final int CALL_ANALYTICS_FLAG = 1;
     public static final int APP_ANALYTICS_FLAG = 2;
     public static final int LOCATION_ANALYTICS_FLAG = 4;
-    public static final int ADVERTISIND_ID_FLAG = 8;
+    public static final int ADVERTISING_ID_FLAG = 8;
     public static final int FETCH_LOG_FLAG = 16;
     public static final int PHONE_SPEC = 32;
     public static final int DEVICE_DETAILS = 64;
@@ -53,7 +53,7 @@ public class UserLogInfo {
                 requestUserLogs(LOCATION_ANALYTICS_FLAG);
                 return;
             case HikeConstants.ADVERTSING_ID_ANALYTICS:
-                requestUserLogs(ADVERTISIND_ID_FLAG);
+                requestUserLogs(ADVERTISING_ID_FLAG);
                 return;
             case HikeConstants.SESSION_LOG_TRACKING:
                 requestUserLogs(FETCH_LOG_FLAG);
@@ -95,7 +95,7 @@ public class UserLogInfo {
             mRequestFlags |= UserLogInfo.APP_ANALYTICS_FLAG;
         }
         if (data.optBoolean(HikeConstants.ADVERTSING_ID_ANALYTICS)) {
-            mRequestFlags |= UserLogInfo.ADVERTISIND_ID_FLAG;
+            mRequestFlags |= UserLogInfo.ADVERTISING_ID_FLAG;
         }
         if (data.optBoolean(HikeConstants.FETCH_LOG_ANALYTICS)) {
             //TODO possibly turn this into "gl":true to "gl":"stl"
@@ -160,7 +160,7 @@ public class UserLogInfo {
                 TaskProcessor.processTask(new DataPointTaskStaticLoc(HikeConstants.LOCATION_LOG_ANALYTICS,
                         true, Transport.TRANSPORT_TYPE_REALTIME));
                 break;
-            case ADVERTISIND_ID_FLAG:
+            case ADVERTISING_ID_FLAG:
                 TaskProcessor.processTask(new DataPointTaskAdvId(HikeConstants.ADVERTSING_ID_ANALYTICS,
                         true, Transport.TRANSPORT_TYPE_REALTIME));
                 break;

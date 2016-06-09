@@ -32,7 +32,7 @@ public class MultiStickerDownloadGcmTask implements IGcmTask
 				category = HikeConversationsDatabase.getInstance().getStickerCategoryforId(categoryId);
 			}
 
-			StickerConstants.DownloadType downloadType = (StickerConstants.DownloadType) extra.getSerializable(HikeConstants.DOWNLOAD_TYPE);
+			StickerConstants.DownloadType downloadType = StickerConstants.DownloadType.values()[extra.getInt(HikeConstants.DOWNLOAD_TYPE)];
 			JSONObject bodyJson = new JSONObject(extra.getString(HikeConstants.BODY));
 
 			StickerManager.getInstance().initialiseDownloadStickerPackTask(category, downloadType, bodyJson);

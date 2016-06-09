@@ -117,8 +117,9 @@ import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.productpopup.AtomicTipManager;
 import com.bsb.hike.productpopup.ProductInfoManager;
-import com.bsb.hike.spaceManager.StorageSpecUtils;
+import com.bsb.hike.spaceManager.SpaceManagerUtils;
 import com.bsb.hike.timeline.TimelineActionsManager;
+import com.bsb.hike.timeline.TimelineServerConfigUtils;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
@@ -147,6 +148,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.hike.abtest.ABTest;
+import com.squareup.okhttp.internal.Util;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -1771,6 +1773,8 @@ public class MqttMessagesManager
 				: FavoriteType.FRIEND;
 
 		Pair<ContactInfo, FavoriteType> favoriteToggle = new Pair<ContactInfo, FavoriteType>(contactInfo, favoriteType);
+		contactInfo.setUnreadRequestReceivedTime(System.currentTimeMillis());
+		Utils.incrementFriendRequestReceivedCounters();
 		this.pubSub.publish(favoriteType == FavoriteType.REQUEST_RECEIVED ? HikePubSub.FAVORITE_TOGGLED : HikePubSub.FRIEND_REQUEST_ACCEPTED, favoriteToggle);
 
 		if (favoriteType == favoriteType.FRIEND)
@@ -2995,7 +2999,7 @@ public class MqttMessagesManager
 				if(data.has(HikeConstants.SPACE_MANAGER.DIRECTORY_LIST))
 				{
 					JSONArray dirList = data.getJSONArray(HikeConstants.SPACE_MANAGER.DIRECTORY_LIST);
-					StorageSpecUtils.processDirectoryList(dirList);
+					SpaceManagerUtils.processDirectoryList(dirList);
 				}
 			}
 		}
@@ -3462,6 +3466,24 @@ public class MqttMessagesManager
 		{
 			boolean enableCes = data.getBoolean(HikeConstants.HIKE_CES_ENABLE);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.HIKE_CES_ENABLE, enableCes);
+		}
+
+		if (data.has(HikeConstants.ENABLE_UNKNOWN_USER_INFO_IN_CHAT))
+		{
+			boolean enableUnknownUserInfoView = data.getBoolean(HikeConstants.ENABLE_UNKNOWN_USER_INFO_IN_CHAT);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_UNKNOWN_USER_INFO_IN_CHAT, enableUnknownUserInfoView);
+		}
+
+		if(data.has(HikeConstants.ENABLE_SPACE_MANAGER))
+		{
+			boolean enableSM = data.getBoolean(HikeConstants.ENABLE_SPACE_MANAGER);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_SPACE_MANAGER, enableSM);
+		}
+
+		if(data.has(TimelineServerConfigUtils.AC_KEY_STORY_DURATION))
+		{
+			long storyTimeLimit = data.getLong(TimelineServerConfigUtils.AC_KEY_STORY_DURATION);
+			HikeSharedPreferenceUtil.getInstance().saveData(TimelineServerConfigUtils.AC_KEY_STORY_DURATION, storyTimeLimit);
 		}
 
 		editor.commit();
@@ -5357,6 +5379,7 @@ public class MqttMessagesManager
 		updatedContact.setFavoriteType(favoriteType);
 		ContactManager.getInstance().updateContacts(updatedContact);
 
+		contact.setUnreadRequestReceivedTime(0);
 		Pair<ContactInfo, FavoriteType> favoriteToggle = new Pair<ContactInfo, ContactInfo.FavoriteType>(contact, favoriteType);
 		this.pubSub.publish(HikePubSub.FAVORITE_TOGGLED, favoriteToggle);
 	}

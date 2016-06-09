@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/img_icon"
+        android:layout_width="37dp"
+        android:layout_height="37dp"
+        android:layout_centerHorizontal="true"
+        android:scaleType="center" />
+
+    <com.bsb.hike.view.CustomFontTextView
+        android:id="@+id/txt_counter"
+        android:layout_width="22dp"
+        android:layout_height="22dp"
+        android:layout_alignRight="@id/img_icon"
+        android:background="@drawable/bg_icon_badge_counter"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:textSize="11dp"
+        android:visibility="gone" />
+
+    <com.bsb.hike.view.CustomFontTextView
+        android:id="@+id/txt_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/img_icon"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="4dp"
+        android:gravity="center"
+        android:text="title"
+        android:textColor="@color/caller_free_call"
+        android:textSize="11dp" />
+
+</RelativeLayout>

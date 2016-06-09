@@ -219,9 +219,8 @@ public class MultiStickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTask
 	public Bundle getRequestBundle()
 	{
 		Bundle extras = new Bundle();
-		extras.putStringArrayList(HikeConstants.STICKERS, stickerCategoryList);
 		extras.putInt(HikeConstants.STATE, state);
-		extras.putStringArrayList(HikeConstants.LANGUAGES, languagesList);
+		extras.putString(HikeConstants.LANGUAGES, Utils.listToString(languagesList));
 		return extras;
 	}
 }

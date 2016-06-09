@@ -1966,7 +1966,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					return;
 				}
 
-				intent = Utils.getHomeActivityIntent(this);
+				intent = IntentFactory.getHomeActivityDefaultTabIntent(this);
 			}
 			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			arrayList = forwardMessageAsPerType(presentIntent, intent, arrayList);
@@ -2071,6 +2071,16 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 			}
 
+			if(arrayList.size() > 1) {
+				// Scan through selected contacts. See if there are images to be posted on Timeline.
+				HikeFeatureInfo hikefeatureInfo = getTimelineHikeFeatureInfoFromArray(arrayList);
+				if(hikefeatureInfo !=null)
+				{
+					arrayList.remove(hikefeatureInfo);
+					postImagesToShareOnTimeline(false);
+				}
+			}
+
 			// forwarding it is
 			Intent intent = null;
 			if (arrayList.size() == 1)
@@ -2117,21 +2127,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			}
 			else
 			{
-
-				// Scan through selected contacts. See if there are images to be posted on Timeline.
-				HikeFeatureInfo hikefeatureInfo = getTimelineHikeFeatureInfoFromArray(arrayList);
-				if(hikefeatureInfo !=null)
-				{
-					arrayList.remove(hikefeatureInfo);
-					postImagesToShareOnTimeline(false);
-				}
-
-				if(arrayList.size() == 1)
-				{
-					forwardMultipleMessages(arrayList);
-					return;
-				}
-
 				// multi forward to multi people
 				if (presentIntent.hasExtra(HikeConstants.Extras.PREV_MSISDN))
 				{
@@ -2158,7 +2153,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				else
 				{
 					// home activity
-					intent = Utils.getHomeActivityIntent(this);
+					intent = IntentFactory.getHomeActivityDefaultTabIntent(this);
 				}
 
 

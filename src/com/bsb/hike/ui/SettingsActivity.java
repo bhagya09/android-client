@@ -41,6 +41,7 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ImageViewerInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
+import com.bsb.hike.spaceManager.SpaceManagerUtils;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.ui.fragments.ImageViewerFragment;
@@ -155,6 +156,10 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.SHOW_STICKY_CALLER, false))
 		{
 			items.add(new SettingsDisplayPojo(getString(R.string.sticky_caller_settings), R.string.sticky_caller_settings, R.drawable.sticky_caller_settings));
+		}
+		if(SpaceManagerUtils.isSpaceManagerEnabled())
+		{
+			items.add(new SettingsDisplayPojo(getString(R.string.space_manager), R.string.space_manager, R.drawable.ic_settings_space));
 		}
     	items.add(new SettingsDisplayPojo(getString(R.string.help), R.string.help, R.drawable.ic_help_settings));
 		
@@ -422,6 +427,10 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 				IntentFactory.openStickyCallerSettings(this, false);
 				break;
 				
+			case R.string.space_manager:
+				IntentFactory.openSettingManageSpace(this);
+				break;
+
 			case R.string.help:
 				IntentFactory.openSettingHelp(this);
 				break;
@@ -624,7 +633,8 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		}
 
 		Bundle arguments = (Bundle) object;
-		ImageViewerFragment imageViewerFragment = new ImageViewerFragment();			
+		ImageViewerFragment imageViewerFragment = new ImageViewerFragment();
+		imageViewerFragment.setDisplayPictureEditListener(this, ImageViewerFragment.FROM_SETTINGS_ACTIVITY);
 		imageViewerFragment.setArguments(arguments);
 		FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
 		fragmentTransaction.add(R.id.parent_layout, imageViewerFragment, HikeConstants.IMAGE_FRAGMENT_TAG);

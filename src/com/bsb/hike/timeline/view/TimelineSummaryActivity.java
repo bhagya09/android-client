@@ -1,6 +1,7 @@
 package com.bsb.hike.timeline.view;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -51,6 +52,7 @@ import com.bsb.hike.imageHttp.HikeImageDownloader;
 import com.bsb.hike.imageHttp.HikeImageWorker;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.timeline.LoveCheckBoxToggleListener;
@@ -62,6 +64,7 @@ import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
+import com.bsb.hike.timeline.tasks.StatusReadDBRunnable;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
@@ -278,6 +281,10 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 			mActivityState.dialogShown = false;
 			showLikesContactsDialog();
 		}
+
+		List<String> readSuIDList = new ArrayList<String>();
+		readSuIDList.add(mappedId);
+		HikeHandlerUtil.getInstance().postRunnable(new StatusReadDBRunnable(readSuIDList));
 	}
 	
 	private void fetchActionsData()

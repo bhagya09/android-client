@@ -842,6 +842,21 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 		}
 	}
 
+	/*
+	 * Return actual receiver of the message.
+	 */
+	public String getReceiverMsisdn()
+	{
+		if(isSent() || (!TextUtils.isEmpty(groupParticipantMsisdn)))
+		{
+			return mMsisdn;
+		}
+		else
+		{
+			return ContactManager.getInstance().getSelfMsisdn();
+		}
+	}
+
 	public String getGroupParticipantMsisdn()
 	{
 		return groupParticipantMsisdn;
@@ -1529,7 +1544,7 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 	
 	public boolean isNormalMessageSilent()
 	{
-		return getPlatformData().optString(HikeConstants.PLAY_NOTIFICATION).equals(HikeConstants.SILENT);
+		return getPlatformData().optString(HikeConstants.PLAY_NOTIFICATION).equals(HikeConstants.SILENT) || ContactManager.getInstance().isChatMuted(mMsisdn);
 	}
 
 	@Override
