@@ -19,7 +19,7 @@ public class PrivacyPreferencePersistence {
     public void toggleLastSeenSetting(final ContactInfo mContactInfo, final boolean isChecked) {
         mContactInfo.getPrivacyPrefs().setLastSeen(isChecked);
 
-        HikeHandlerUtil.getInstance().postAtFront(new Runnable() {
+        execute(new Runnable() {
             @Override
             public void run() {
                 db.setLastSeenForMsisdns(mContactInfo.getMsisdn(), isChecked ? 1 : 0);
@@ -30,7 +30,7 @@ public class PrivacyPreferencePersistence {
     public void toggleStatusUpdateSetting(final ContactInfo mContactInfo, final boolean isChecked) {
         mContactInfo.getPrivacyPrefs().setStatusUpdate(isChecked);
 
-        HikeHandlerUtil.getInstance().postAtFront(new Runnable() {
+        execute(new Runnable() {
             @Override
             public void run() {
                 db.setSUSettingForMsisdns(mContactInfo.getMsisdn(), isChecked ? 1 : 0);
@@ -49,11 +49,15 @@ public class PrivacyPreferencePersistence {
     }
 
     public void setAllLastSeenValues(final boolean newValue) {
-        HikeHandlerUtil.getInstance().postAtFront(new Runnable() {
+        execute(new Runnable() {
             @Override
             public void run() {
                 db.setAllLastSeenPrivacyValues(newValue);
             }
         });
+    }
+
+    protected void execute(Runnable runnable) {
+        HikeHandlerUtil.getInstance().postAtFront(runnable);
     }
 }
