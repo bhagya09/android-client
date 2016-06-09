@@ -16,7 +16,7 @@ public abstract class DataPointTask implements Runnable {
     boolean mIsPii = false;
     int mTransportType = Transport.TRANSPORT_TYPE_DEFAULT;
 
-    protected DataPointTask(String url, boolean isPii, int transportType) {
+    protected DataPointTask(String url, Boolean isPii, Integer transportType) {
         mUrl = url;
         mIsPii = isPii;
         mTransportType = transportType;

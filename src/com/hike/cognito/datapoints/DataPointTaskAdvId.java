@@ -19,7 +19,7 @@ import java.io.IOException;
 public class DataPointTaskAdvId extends DataPointTask {
     private static final String TAG = DataPointTaskAdvId.class.getSimpleName();
 
-    public DataPointTaskAdvId(String url, boolean isPii, int transportType) {
+    public DataPointTaskAdvId(String url, Boolean isPii, Integer transportType) {
         super(url, isPii, transportType);
     }
 
@@ -27,7 +27,7 @@ public class DataPointTaskAdvId extends DataPointTask {
     JSONArray recordData() {
         try {
             AdvertisingIdClient.Info adInfo = AdvertisingIdClient.getAdvertisingIdInfo(HikeMessengerApp.getInstance().getApplicationContext());
-            return new JSONArray().put(new JSONObject().putOpt(HikeConstants.ADVERTSING_ID_ANALYTICS, adInfo.getId()));
+            return new JSONArray().put(new JSONObject().putOpt(DataPointMapper.ID_ADVERTISING_ID, adInfo.getId()));
         } catch (JSONException jse) {
             Logger.d(TAG, "IOException" + jse.toString());
         } catch (IOException e) {

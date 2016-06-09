@@ -9,7 +9,7 @@ import org.json.JSONArray;
  */
 public class DataPointTaskPhoneSpec extends DataPointTask {
 
-    public DataPointTaskPhoneSpec(String url, boolean isPii, int transportType) {
+    public DataPointTaskPhoneSpec(String url, Boolean isPii, Integer transportType) {
         super(url, isPii, transportType);
     }
 
