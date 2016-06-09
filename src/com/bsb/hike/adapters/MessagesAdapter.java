@@ -221,8 +221,6 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		ProgressBar loader;
 
 		ImageView image;
-
-		ProgressBar miniStickerLoader;
 	}
 
 	private static class NudgeViewHolder extends DetailViewHolder
@@ -837,7 +835,6 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					v = inflateView(R.layout.message_sent_sticker, parent, false);
 					stickerHolder.placeHolder = v.findViewById(R.id.placeholder);
 					stickerHolder.loader = (ProgressBar) v.findViewById(R.id.loading_progress);
-					stickerHolder.miniStickerLoader = (ProgressBar) v.findViewById(R.id.mini_loader);
 					stickerHolder.image = (ImageView) v.findViewById(R.id.image);
 					stickerHolder.time = (TextView) v.findViewById(R.id.time);
 					stickerHolder.status = (ImageView) v.findViewById(R.id.status);
@@ -862,7 +859,6 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 					stickerHolder.placeHolder = v.findViewById(R.id.placeholder);
 					stickerHolder.loader = (ProgressBar) v.findViewById(R.id.loading_progress);
-					stickerHolder.miniStickerLoader = (ProgressBar) v.findViewById(R.id.mini_loader);
 					stickerHolder.image = (ImageView) v.findViewById(R.id.image);
 					stickerHolder.broadcastIndicator = (ImageView) v.findViewById(R.id.broadcastIndicator);
 					stickerHolder.time = (TextView) v.findViewById(R.id.time);
@@ -888,21 +884,11 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 			stickerLoader.loadSticker(sticker, StickerConstants.StickerType.LARGE, stickerHolder.image, isListFlinging, true);
 
-            if((sticker.isStickerAvailable() && sticker.isStickerFileAvailable()) || (convMessage.isOfflineMessage() && sticker.isStickerOfflineFileAvailable()))
+			if (stickerHolder.image.getDrawable() != null)
 			{
 				stickerHolder.placeHolder.setBackgroundResource(0);
 				stickerHolder.loader.setVisibility(View.GONE);
 				stickerHolder.image.setVisibility(View.VISIBLE);
-				stickerHolder.miniStickerLoader.setVisibility(View.GONE);
-
-			}
-            else if(useMiniSticker && sticker.isMiniStickerAvailable())
-            {
-                stickerHolder.placeHolder.setBackgroundResource(0);
-                stickerHolder.loader.setVisibility(View.GONE);
-                stickerHolder.image.setVisibility(View.VISIBLE);
-                //to add animation or other mini sticker enhancements
-				stickerHolder.miniStickerLoader.setVisibility(View.VISIBLE);
 			}
 			else
 			{
