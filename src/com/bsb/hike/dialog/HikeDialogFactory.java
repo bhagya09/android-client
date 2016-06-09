@@ -1392,7 +1392,7 @@ public class HikeDialogFactory
 	{
 		CustomAlertDialog dialog = new CustomAlertDialog(context, dialogId);
 		dialog.setMessage(context.getString(R.string.delete_space_fallback_confirmation_dialog_text));
-		dialog.setTitle(context.getString(R.string.delete_space_fallback_heading));
+		dialog.setTitle(context.getString(R.string.sm_fallback_header));
 		dialog.setPositiveButton(R.string.OK, listener);
 		dialog.setNegativeButton(R.string.CANCEL, listener);
 		dialog.show();

@@ -373,6 +373,10 @@ public class PlatformUtils
 			{
 				IntentFactory.createBroadcastIntent(context);
 			}
+			if(activityName.equals(HIKESCREEN.SPACE_MANAGER.toString()))
+			{
+				IntentFactory.openSettingManageSpace(context);
+			}
 			if (activityName.equals(HIKESCREEN.CHAT_HEAD.toString()))
 			{
 				if (ChatHeadUtils.areWhitelistedPackagesSharable(context))
