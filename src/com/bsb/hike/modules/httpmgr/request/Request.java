@@ -689,20 +689,7 @@ public abstract class Request<T> implements IRequestFacade
 		}
 		this.isCancelled = true;
 
-		if (gcmTaskConfig != null)
-		{
-			final String tag = gcmTaskConfig.getTag();
-			HikeHandlerUtil.getInstance().postAtFront(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					HttpRequestStateDB.getInstance().deleteBundleForTag(tag);
-				}
-			});
-
-			HikeGcmNetworkMgr.getInstance().cancelTask(tag, gcmTaskConfig.getService());
-		}
+		HikeGcmNetworkMgr.getInstance().cancelTask(gcmTaskConfig);
 
 		if (future != null)
 		{

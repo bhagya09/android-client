@@ -118,6 +118,7 @@ import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.productpopup.AtomicTipManager;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.spaceManager.SpaceManagerUtils;
+import com.bsb.hike.timeline.StoryShyTextGenerator;
 import com.bsb.hike.timeline.TimelineActionsManager;
 import com.bsb.hike.timeline.TimelineServerConfigUtils;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
@@ -3480,7 +3481,7 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_SPACE_MANAGER, enableSM);
 		}
 
-		if(data.has(TimelineServerConfigUtils.AC_KEY_STORY_DURATION)) {
+		if (data.has(TimelineServerConfigUtils.AC_KEY_STORY_DURATION)) {
 			long storyTimeLimit = data.getLong(TimelineServerConfigUtils.AC_KEY_STORY_DURATION);
 			HikeSharedPreferenceUtil.getInstance().saveData(TimelineServerConfigUtils.AC_KEY_STORY_DURATION, storyTimeLimit);
 		}
@@ -3491,6 +3492,19 @@ public class MqttMessagesManager
 			if(SpaceManagerUtils.isJSONValid(smJSON))
 			{
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_SPACE_MANAGER, smJSON);
+			}
+		}
+
+		if (data.has(TimelineServerConfigUtils.AC_KEY_CAMSHY_SUBTEXT)) {
+			JSONArray subTextArray = data.getJSONArray(TimelineServerConfigUtils.AC_KEY_CAMSHY_SUBTEXT);
+			int subTextArrayLength = subTextArray.length();
+			if (subTextArrayLength > 0) {
+				Set<String> subTextSet = new HashSet<String>();
+				for (int i = 0; i < subTextArrayLength; i++) {
+					subTextSet.add(subTextArray.getString(i));
+				}
+				HikeSharedPreferenceUtil.getInstance().saveStringSet(TimelineServerConfigUtils.AC_KEY_CAMSHY_SUBTEXT, subTextSet);
+				StoryShyTextGenerator.getInstance().reset();
 			}
 		}
 

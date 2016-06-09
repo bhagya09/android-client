@@ -214,6 +214,11 @@ public class StickerPreviewContainer extends LinearLayout implements HikePubSub.
 	{
 		if (type.equalsIgnoreCase(HikePubSub.STICKER_DOWNLOADED))
 		{
+			if(uiHandler == null)
+			{
+				return ;
+			}
+			
 			uiHandler.post(new Runnable()
 			{
 				@Override

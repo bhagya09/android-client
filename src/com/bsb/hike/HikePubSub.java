@@ -573,6 +573,8 @@ public class HikePubSub extends Handler implements Runnable
 
 	public static final String SPACE_MANAGER_ITEMS_DELETE_FAIL = "spc_mgr_itm_del_fail";
 
+	public static final String USER_PRIVACY_TOGGLED = "usr_privcy_toggl";
+
 	private final Thread mThread;
 
 	private final BlockingQueue<Operation> mQueue;

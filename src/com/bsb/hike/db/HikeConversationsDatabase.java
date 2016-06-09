@@ -63,6 +63,7 @@ import com.bsb.hike.models.HikeSharedFile;
 import com.bsb.hike.models.MessageEvent;
 import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.Mute;
+import com.bsb.hike.models.PrivacyPreferences;
 import com.bsb.hike.models.Protip;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
@@ -121,7 +122,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
 import static com.bsb.hike.chatthemes.HikeChatThemeConstants.ASSET_INDEX_ACTION_BAR_BG;
 import static com.bsb.hike.chatthemes.HikeChatThemeConstants.ASSET_INDEX_BG_LANDSCAPE;
@@ -11922,6 +11922,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 
 					//Do not add to stories list for self-posts
 					if (msisdn.equals(ContactManager.getInstance().getSelfMsisdn())) {
+						continue;
+					}
+
+					PrivacyPreferences pref = ContactManager.getInstance().getPrivacyPrefsForAGivenMsisdn(msisdn);
+					if (!pref.shouldShowStatusUpdate()) {
 						continue;
 					}
 
