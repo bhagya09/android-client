@@ -54,8 +54,6 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
 
     private ViewStub emptyLayoutViewStub;
 
-    private HikeDialog dialog;
-
     private ProgressDialog deleteProgressDialog;
 
     private LinearLayout progressBarLayout;
@@ -118,8 +116,8 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
 
     private void onItemFetchFailure()
     {
-        Logger.d(TAG, "received invalid list or items");
-        findViewById(R.id.progress_container).setVisibility(View.GONE);
+        Logger.d(TAG, "received invalid list or other failure");
+        progressBarLayout.setVisibility(View.GONE);
 
         // Default json string is corrupted, Log here or close Activity
         this.finish();
@@ -197,7 +195,7 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
 
     private void handleFallbackButtonClicked()
     {
-        this.dialog = HikeDialogFactory.showDialog(ManageSpaceActivity.this, HikeDialogFactory.SPACE_MANAGER_FALLBACK_DELETE_CONFIRMATION_DIALOG, new HikeDialogListener()
+        HikeDialogFactory.showDialog(ManageSpaceActivity.this, HikeDialogFactory.SPACE_MANAGER_FALLBACK_DELETE_CONFIRMATION_DIALOG, new HikeDialogListener()
         {
             @Override
             public void negativeClicked(HikeDialog hikeDialog)
@@ -230,7 +228,7 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
     {
         long size = SpaceManagerUtils.getTotalSizeToDelete(spaceManagerItems);
 
-        this.dialog = HikeDialogFactory.showDialog(ManageSpaceActivity.this, HikeDialogFactory.SPACE_MANAGER_DELETE_CONFIRMATION_DIALOG, new HikeDialogListener()
+        HikeDialogFactory.showDialog(ManageSpaceActivity.this, HikeDialogFactory.SPACE_MANAGER_DELETE_CONFIRMATION_DIALOG, new HikeDialogListener()
         {
             @Override
             public void negativeClicked(HikeDialog hikeDialog)
