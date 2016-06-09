@@ -6,11 +6,17 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.content.Intent;
 
 import com.bsb.hike.HikeConstants;
 import com.hike.abtest.dataPersist.DataPersist;
 import com.hike.abtest.dataparser.DataParser;
 import com.hike.abtest.model.Experiment;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * ABTest interface for application
@@ -50,6 +56,16 @@ public class ABTest {
 
     private DataPersist getDataPersist() {
         return mDataPersist;
+    }
+
+
+   public static void clearExperiments() {
+        Logger.d(TAG, "Clearing Experiments!!! " + getInstance().hashCode());
+        getInstance().getDataManager().clearExperiments();
+    }
+
+    public static void refreshExperiments() {
+        getInstance().loadExperiments();
     }
 
     /**
