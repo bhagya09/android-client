@@ -16,7 +16,6 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.TransitionDrawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -1946,9 +1945,13 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		if(isTiled){
 			backgroundImage.setScaleType(ScaleType.FIT_XY);
 		} else {
-			backgroundImage.setScaleType(ScaleType.MATRIX);
+			if(getResources().getConfiguration().orientation == getResources().getConfiguration().ORIENTATION_LANDSCAPE) {
+				backgroundImage.setScaleType(ScaleType.CENTER_CROP);
+			} else {
+				backgroundImage.setScaleType(ScaleType.MATRIX);
+			}
+			ChatThreadUtils.applyMatrixTransformationToImageView(drawable, backgroundImage);
 		}
-		ChatThreadUtils.applyMatrixTransformationToImageView(drawable, backgroundImage);
 
 		if(isCustom && !ChatThreadUtils.disableOverlayEffectForCCT()) {
 			backgroundImage.setOverLay(true);
