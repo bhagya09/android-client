@@ -29,12 +29,10 @@ public class ABTestAbortTest {
         Log.d(TAG, "Initializing ABTEST in abort");
         ABTest.clearExperiments();
         ABTest.refreshExperiments();
-
     }
 
     @Test
     public void testABExpAbort1() throws Throwable {
-
         Log.d(TAG, " Abort Default Value: " + ABTest.getInt(ABTestJunitConstants.VARIABEL_NAME, ABTestJunitConstants.DEFAULT_VALUE));
         Assert.assertEquals(ABTestJunitConstants.DEFAULT_VALUE, ABTest.getInt(ABTestJunitConstants.VARIABEL_NAME, ABTestJunitConstants.DEFAULT_VALUE));
 
@@ -43,29 +41,21 @@ public class ABTestAbortTest {
 
         Log.d(TAG, "Abort Experimental Value: " + ABTest.getInt(ABTestJunitConstants.VARIABEL_NAME, ABTestJunitConstants.DEFAULT_VALUE));
         Assert.assertEquals(ABTestJunitConstants.DEFAULT_VALUE, ABTest.getInt(ABTestJunitConstants.VARIABEL_NAME, ABTestJunitConstants.DEFAULT_VALUE));
-
-
     }
 
     @Test
     public void testABExpAbort2() throws Throwable {
-
-
         Log.d(TAG, " Testing with init abort Default Value  " + ABTest.getInt(ABTestJunitConstants.VARIABEL_NAME, ABTestJunitConstants.DEFAULT_VALUE));
         Assert.assertEquals(ABTestJunitConstants.DEFAULT_VALUE, ABTest.getInt(ABTestJunitConstants.VARIABEL_NAME, ABTestJunitConstants.DEFAULT_VALUE));
 
         String experimentInit = "{ \"t\": \"AB-Exp-Init\", \"d\": { \"md\": { \"ver\": 1, \"expList\": [ { \"expId\":\"SAMPLE-EXPERIMENTID-1\", \"expType\": 0, \"desc\": \"AB Demo\", \"variantId\" : \"SAMPLE-VariantID-1\", \"sTime\": 1461643490000, \"eTime\": 1466380914000, \"varList\": [ { \"varName\":\"ABTEST-SAMPLE-01\", \"type\" : 2, \"defValue\": \"1\", \"expValue\": \"2\" } ], \"cbUrl\" : \"http://hike.co.in/...\" } ] } } }";
         parse_StartService("AB-Exp-Init", experimentInit);
 
-
         String experimentAbort = "{ \"t\": \"AB-Exp-Abort\", \"d\": { \"md\": { \"ver\": 1, \"expList\": [ { \"expId\":\"SAMPLE-EXPERIMENTID-1\", \"expType\": 0, \"desc\": \"AB Demo\", \"variantId\" : \"SAMPLE-VariantID-1\", \"sTime\": 1461643490000, \"eTime\": 1466380914000, \"varList\": [ { \"varName\":\"ABTEST-SAMPLE-01\", \"type\" : 2, \"defValue\": \"1\", \"expValue\": \"2\" } ], \"cbUrl\" : \"http://hike.co.in/...\" } ] } } }";
         parse_StartService(ABTestJunitConstants.REQUEST_TYPE_EXPERIMENT_ABORT, experimentAbort);
 
-
         Log.d(TAG, "Testing with init abort Experimental Value: " + ABTest.getInt(ABTestJunitConstants.VARIABEL_NAME, ABTestJunitConstants.DEFAULT_VALUE));
         Assert.assertEquals(ABTestJunitConstants.DEFAULT_VALUE, ABTest.getInt(ABTestJunitConstants.VARIABEL_NAME, ABTestJunitConstants.DEFAULT_VALUE));
-
-
     }
 
     /**
@@ -86,9 +76,7 @@ public class ABTestAbortTest {
         ABTest.onRequestReceived(request, experimentAbortJson);
 
         //SystemClock.sleep(WAIT_TIME_FOR_REQUEST);
-
         ABTest.refreshExperiments();
-
     }
 
     @After

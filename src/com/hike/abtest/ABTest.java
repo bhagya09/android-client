@@ -1,12 +1,6 @@
 package com.hike.abtest;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Context;
-import android.content.Intent;
 
 import com.bsb.hike.HikeConstants;
 import com.hike.abtest.dataPersist.DataPersist;
@@ -60,7 +54,6 @@ public class ABTest {
 
 
    public static void clearExperiments() {
-        Logger.d(TAG, "Clearing Experiments!!! " + getInstance().hashCode());
         getInstance().getDataManager().clearExperiments();
     }
 

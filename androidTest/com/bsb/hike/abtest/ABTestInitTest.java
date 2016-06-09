@@ -35,16 +35,17 @@ public class ABTestInitTest {
 
     @Test
     public void testABExpInit1() throws Throwable {
-
         initTest();
-
     }
 
     /**
      * This test case for the initializing the experiment
+     *
+     *  Experiment ID: SAMPLE-EXPERIMENTID-1
+     *  Start time: 26 April 2016 at 9:34:50 AM
+     *  End Time: 20 June 2016 at 5:31:54 AM
      */
     private void initTest() {
-
         Log.d(TAG, "Init initial Default Value: " + ABTest.getInt(ABTestJunitConstants.VARIABEL_NAME, ABTestJunitConstants.DEFAULT_VALUE));
         Assert.assertEquals(ABTestJunitConstants.DEFAULT_VALUE, ABTest.getInt(ABTestJunitConstants.VARIABEL_NAME, ABTestJunitConstants.DEFAULT_VALUE));
 
@@ -54,21 +55,20 @@ public class ABTestInitTest {
 
         Log.d(TAG, "Init Experimental Value: " + ABTest.getInt(ABTestJunitConstants.VARIABEL_NAME, ABTestJunitConstants.DEFAULT_VALUE));
         Assert.assertEquals(ABTestJunitConstants.EXPERIMENT_VALUE, ABTest.getInt(ABTestJunitConstants.VARIABEL_NAME, ABTestJunitConstants.DEFAULT_VALUE));
-
     }
 
     @Test
     public void testABExpInit2() throws Throwable {
-
         initMultipleValues();
-
     }
 
     /**
      * This test case for the init with multiple experiments values
+     *  Experiment ID: SAMPLE-EXPERIMENTID-1
+     *  Start time: 6 June 2016 6 June 2016
+     *  End Time: 6 June 2017 at 11:01:54
      */
     private void initMultipleValues() {
-
         Log.d(TAG, "Init  multiple experiment Default Value: " + ABTest.getInt(ABTestJunitConstants.VARIABEL_NAME, ABTestJunitConstants.DEFAULT_VALUE));
         Assert.assertEquals(ABTestJunitConstants.DEFAULT_VALUE, ABTest.getInt(ABTestJunitConstants.VARIABEL_NAME, ABTestJunitConstants.DEFAULT_VALUE));
 
@@ -81,13 +81,14 @@ public class ABTestInitTest {
 
     @Test
     public void testABExpInit3() throws Throwable {
-
         initTimeExpired();
-
     }
 
     /**
      * This method is for the experiments  which has passed  the expired time
+     *  Experiment ID: SAMPLE-EXPERIMENTID-1
+     *  Start time: 5 June 2016 at 11:40:40 AM
+     *  End Time:  6 June 2016 at 11:40:40 AM
      */
     private void initTimeExpired() {
         Log.d(TAG, "Init ExpiredTime Default Value: " + ABTest.getInt(ABTestJunitConstants.VARIABEL_NAME, ABTestJunitConstants.DEFAULT_VALUE));
