@@ -1,16 +1,17 @@
 package com.bsb.hike.spaceManager;
 
+import android.text.TextUtils;
+
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.spaceManager.models.CategoryItem;
 import com.bsb.hike.spaceManager.models.CategoryPojo;
-import com.bsb.hike.spaceManager.models.SubCategoryPojo;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -23,41 +24,47 @@ public class SpaceManagerItemsFetcher
 
 	private static final String TAG = "SpaceManagerItemsFetcher";
 
-	private static final String DEFAULT_CATEGORY_CLASS = "com.bsb.hike.spaceManager.items.ReceivedContentCategoryItem";
-
-	private static final String DEFAULT_CATEGORY_HEADER = "Received Content";
-
-	private static final String DEFAULT_SUB_CATEGORY_CLASS = "com.bsb.hike.spaceManager.items.ViralImagesSubCategoryItem";
-
-	private static final String DEFAULT_SUB_CATEGORY_HEADER = "Just For Laugh Images";
-
-	private static String getDefaultItemsString()
-	{
-		/**
-		 * Default Items: Category - Received Content, SubCategory - Viral Humor Images
-		 */
-		SubCategoryPojo subCategoryPojo = new SubCategoryPojo();
-		subCategoryPojo.setClassName(DEFAULT_SUB_CATEGORY_CLASS);
-		subCategoryPojo.setHeader(DEFAULT_SUB_CATEGORY_HEADER);
-
-		List<SubCategoryPojo> subCategoryPojos = new ArrayList<>();
-		subCategoryPojos.add(subCategoryPojo);
-
-		List<CategoryPojo> categoryPojos = new ArrayList<>();
-		CategoryPojo categoryPojo = new CategoryPojo();
-		categoryPojo.setClassName(DEFAULT_CATEGORY_CLASS);
-		categoryPojo.setHeader(DEFAULT_CATEGORY_HEADER);
-		categoryPojo.setSubCategoryList(subCategoryPojos);
-		categoryPojos.add(categoryPojo);
-
-		return new Gson().toJson(categoryPojos);
-	}
+	/**
+	 * Contains Array of JSON Object
+	 * each JSON Object :- subCategoryList(JSON Array), className, header
+	 */
+	public static final String DEFAULT_ITEM_JSON =
+			"[" +
+				"{\"subCategoryList\"" +
+					":[" +
+						"{\"className\":\"com.bsb.hike.spaceManager.items.ViralImagesSubCategoryItem\"," +
+						"\"header\":\"Just For Laugh Images\"}" +
+					"]," +
+					"\"className\":\"com.bsb.hike.spaceManager.items.ReceivedContentCategoryItem\"," +
+					"\"header\":\"Received Content\"" +
+				"}" +
+			"]";
 
 	public static void fetchItems()
 	{
+		String json = getJSON();
+		parseFetchedJSON(json, DEFAULT_ITEM_JSON.equals(json));
+	}
+
+	private static String getJSON()
+	{
+		String json = DEFAULT_ITEM_JSON;
+		if (HikeSharedPreferenceUtil.getInstance().contains(SpaceManagerUtils.SPACE_MANAGER_ITEMS))
+		{
+			json = HikeSharedPreferenceUtil.getInstance().getData(SpaceManagerUtils.SPACE_MANAGER_ITEMS, DEFAULT_ITEM_JSON);
+			if (TextUtils.isEmpty(json))
+			{
+				json = DEFAULT_ITEM_JSON;
+			}
+		}
+		return json;
+	}
+
+
+	public static void parseFetchedJSON(String itemsJson, boolean isDefaultJSON)
+	{
 		Logger.d(TAG, "fetching space manager items");
-		String itemsJson = HikeSharedPreferenceUtil.getInstance().getData(SpaceManagerUtils.SPACE_MANAGER_ITEMS, getDefaultItemsString());
-		Logger.d(TAG, "items string: " + itemsJson);
+
 		try
 		{
 			CategoryPojo[] categoryPojos = new Gson().fromJson(itemsJson, CategoryPojo[].class);
@@ -67,10 +74,18 @@ public class SpaceManagerItemsFetcher
 			HikeMessengerApp.getPubSub().publishOnUI(HikePubSub.SPACE_MANAGER_ITEMS_FETCH_SUCCESS, spaceManagerItems);
 		}
 		catch (ClassNotFoundException |InstantiationException | IllegalAccessException | NoSuchMethodException
-				| InvocationTargetException | IllegalArgumentException ex)
+				| InvocationTargetException | IllegalArgumentException | JsonSyntaxException ex)
 		{
-			Logger.d(TAG, "error in fetching items " + ex.getMessage());
-			HikeMessengerApp.getPubSub().publishOnUI(HikePubSub.SPACE_MANAGER_ITEMS_FETCH_FAIL, null);
+			Logger.d(TAG, "error in fetching items, invalid json ");
+			if(isDefaultJSON)
+			{
+				HikeMessengerApp.getPubSub().publishOnUI(HikePubSub.SPACE_MANAGER_ITEMS_FETCH_FAIL, null);
+			}
+			else
+			{
+				HikeSharedPreferenceUtil.getInstance().removeData(SpaceManagerUtils.SPACE_MANAGER_ITEMS);
+				parseFetchedJSON(DEFAULT_ITEM_JSON, true);
+			}
 		}
 	}
 }

@@ -3480,10 +3480,18 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_SPACE_MANAGER, enableSM);
 		}
 
-		if(data.has(TimelineServerConfigUtils.AC_KEY_STORY_DURATION))
-		{
+		if(data.has(TimelineServerConfigUtils.AC_KEY_STORY_DURATION)) {
 			long storyTimeLimit = data.getLong(TimelineServerConfigUtils.AC_KEY_STORY_DURATION);
 			HikeSharedPreferenceUtil.getInstance().saveData(TimelineServerConfigUtils.AC_KEY_STORY_DURATION, storyTimeLimit);
+		}
+		
+		if(data.has(HikeConstants.SPACE_MANAGER_JSON))
+		{
+			String smJSON = data.getString(HikeConstants.SPACE_MANAGER_JSON);
+			if(SpaceManagerUtils.isJSONValid(smJSON))
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_SPACE_MANAGER, smJSON);
+			}
 		}
 
 		editor.commit();
