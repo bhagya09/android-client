@@ -14,6 +14,7 @@ import android.widget.ImageView;
 
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.ui.ProfileActivity;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.customClasses.AsyncTask.MyAsyncTask;
 import com.bsb.hike.view.TextDrawable;
@@ -28,14 +29,24 @@ import io.fabric.sdk.android.services.network.HttpRequest;
  */
 public class HikeDailyCardImageLoader extends ImageWorker {
 
+    private int layoutId;
+    private String contentId;
+    private String msisdn;
 
     private static final String TAG = HikeDailyCardImageLoader.class.getSimpleName();
+
+    public HikeDailyCardImageLoader(int layoutId, String contentId, String msisdn) {
+        this.layoutId = layoutId;
+        this.contentId = contentId;
+        this.msisdn = msisdn;
+    }
 
     @Override
     protected Bitmap processBitmap(String data) {
         InputStream input = null;
         try {
             input = new java.net.URL(data).openStream();
+            HikeAnalyticsEvent.nativeCardImageLoaded(layoutId, contentId, msisdn);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -50,21 +61,17 @@ public class HikeDailyCardImageLoader extends ImageWorker {
         return processBitmap(data);
     }
 
-    protected void setImageDrawable(ImageView imageView, Drawable drawable)
-    {
-        try
-        {
-            if(TextUtils.isEmpty(foreGroundColor)){
+    protected void setImageDrawable(ImageView imageView, Drawable drawable) {
+        try {
+            if (TextUtils.isEmpty(foreGroundColor)) {
                 imageView.setImageDrawable(drawable);
-            }else{
+            } else {
                 LayerDrawable layerDrawable = new LayerDrawable(new Drawable[]{drawable, new ColorDrawable(Color.parseColor(foreGroundColor))});
                 imageView.setImageDrawable(layerDrawable);
             }
 
 
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             Logger.d(TAG, "Bitmap is already recycled when setImageDrawable is called in ImageWorker post processing.");
         }
     }
