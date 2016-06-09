@@ -358,4 +358,6 @@
     <color name="black_8">#14000000</color>
     <color name="black_72">#B8000000</color>
 
+    <color name="custom_theme_status_bar_color">#000000</color>
+
 </resources>
