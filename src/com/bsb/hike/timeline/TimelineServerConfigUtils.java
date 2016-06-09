@@ -1,7 +1,6 @@
 package com.bsb.hike.timeline;
 
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.Logger;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -20,7 +19,6 @@ public class TimelineServerConfigUtils {
     }
 
     public static Set<String> getCameraShySubtext() {
-        Logger.d("Atul,","Atul1.5");
         return HikeSharedPreferenceUtil.getInstance().getStringSet(AC_KEY_CAMSHY_SUBTEXT, new HashSet<String>());
     }
 }

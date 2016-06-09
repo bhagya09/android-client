@@ -166,7 +166,7 @@ public class StoryListAdapter extends BaseAdapter implements PinnedSectionListVi
             Drawable timelineLogoDrawable = ContextCompat.getDrawable(mContext, R.drawable.ic_dp_timeline);
             Drawable otherFeaturesDrawable = ContextCompat.getDrawable(mContext, R.drawable.other_features_bg);
             viewHolder.avatarView.setImageDrawable(timelineLogoDrawable);
-            viewHolder.avatarView.setBackground(otherFeaturesDrawable);
+            viewHolder.avatarView.setBackgroundDrawable(otherFeaturesDrawable);
             viewHolder.titleView.setText(storyItem.getTitle());
             viewHolder.titleView.setAlpha(1f);
             viewHolder.avatarView.setAlpha(1f);
