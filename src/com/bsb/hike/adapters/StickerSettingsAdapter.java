@@ -404,6 +404,10 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 			switch(v.getId())
 			{
 				case R.id.delete_button:
+					if (deleteDialog!=null && deleteDialog.isShowing())		//To handle multiple clicks before delete dialog appears
+					{
+						break;
+					}
 					StickerManager.getInstance().sendPackDeleteAnalytics(HikeConstants.LogEvent.PACK_DELETE_CLICKED, category.getCategoryId());
 					final DeleteStickerPackAsyncTask deletePackTask = new DeleteStickerPackAsyncTask(category);
 					deleteDialog = HikeDialogFactory.showDialog(mContext, HikeDialogFactory.DELETE_STICKER_PACK_DIALOG,

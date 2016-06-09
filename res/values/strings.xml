@@ -1627,7 +1627,7 @@
     <string name="atomic_tip_http_failure">Some error occurred. Please try again later.</string>
     <string name="edit_profile_birthday">Birth Date</string>
 
-    <string name="select_options">Select options...</string>
+    <string name="select_options">Select an option...</string>
     <string name="sticker_restore_diffdpi_title">Sticker Upgrade</string>
     <string name="sticker_restore_diffdpi_message">Looks like you have upgraded your phone. You will need to upgrade your sticker packs to support your new phone</string>
     <string name="GOT_IT">GOT IT</string>

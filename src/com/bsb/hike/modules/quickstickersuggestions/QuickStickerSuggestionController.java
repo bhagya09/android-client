@@ -341,11 +341,11 @@ public class QuickStickerSuggestionController
         {
             if(sessionType == FTUE_RECEIVE_SESSION)
             {
-                receiveFtueSessionCount --;
+                HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.QS_RECEIVE_FTUE_SESSION_COUNT, --receiveFtueSessionCount);
             }
             else
             {
-                sentFtueSessionCount --;
+                HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.QS_SENT_FTUE_SESSION_COUNT, --sentFtueSessionCount);
             }
         }
         ftueSessionRunning = false;
