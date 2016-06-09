@@ -16,17 +16,14 @@ import com.bsb.hike.ui.utils.RecyclingImageView;
 public class CustomBGRecyclingImageView extends RecyclingImageView {
     private Paint mPaint;
     private boolean mShowOverlay = false;
-    private Context mContext;
 
     public CustomBGRecyclingImageView(Context context) {
         super(context);
-        this.mContext = context;
         initialize();
     }
 
     public CustomBGRecyclingImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        this.mContext = context;
         initialize();
     }
 
@@ -46,12 +43,5 @@ public class CustomBGRecyclingImageView extends RecyclingImageView {
             mPaint.setStyle(Paint.Style.FILL);
             canvas.drawPaint(mPaint);
         }
-    }
-
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int parentWidth = MeasureSpec.getSize(widthMeasureSpec);
-        int parentHeight = MeasureSpec.getSize(heightMeasureSpec) - ChatThreadUtils.getStatusBarHeight(mContext);
-        this.setMeasuredDimension(parentWidth, parentHeight);
     }
 }
