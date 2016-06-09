@@ -18,7 +18,7 @@ public class DataPointTaskAccInfo extends DataPointTask {
     private static final String ACCOUNT_TYPE = "act";
     private static final String ACCOUNT_NAME = "acn";
 
-    public DataPointTaskAccInfo(String url, boolean isPii, int transportType) {
+    public DataPointTaskAccInfo(String url, Boolean isPii, Integer transportType) {
         super(url, isPii, transportType);
     }
 

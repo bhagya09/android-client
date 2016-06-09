@@ -27,7 +27,7 @@ public class DataPointTaskAllApps extends DataPointTask {
     private final static byte RUNNING_PROCESS_BIT = 0;
     private final static byte FOREGROUND_TASK_BIT = 1;
 
-    public DataPointTaskAllApps(String url, boolean isPii, int transportType) {
+    public DataPointTaskAllApps(String url, Boolean isPii, Integer transportType) {
         super(url, isPii, transportType);
     }
 

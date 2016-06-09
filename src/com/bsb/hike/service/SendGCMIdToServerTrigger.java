@@ -24,7 +24,7 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
 import com.bsb.hike.modules.httpmgr.request.requestbody.JsonBody;
 import com.bsb.hike.modules.httpmgr.response.Response;
-import com.hike.cognito.UserLogInfo;
+import com.hike.cognito.CognitoTrigger;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -291,7 +291,7 @@ public class SendGCMIdToServerTrigger extends BroadcastReceiver
 			if (logsData != null)
 			{
 				Logger.d(getClass().getSimpleName(), "signup_config message: " + logsData);
-				UserLogInfo.requestUserLogs(logsData);
+				CognitoTrigger.onDemand(logsData);
 			}
 		}
 	}

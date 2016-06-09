@@ -18,7 +18,7 @@ import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.service.HikeService;
 import com.bsb.hike.service.MqttMessagesManager;
 import com.bsb.hike.service.PreloadNotificationSchedular;
-import com.hike.cognito.UserLogInfo;
+import com.hike.cognito.CognitoTrigger;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -130,7 +130,7 @@ public class GCMIntentService extends GCMBaseIntentService
 				JSONObject logType = new JSONObject(logTypeString);
 				if (logType != null)
 				{
-					UserLogInfo.requestUserLogs(logType);
+					CognitoTrigger.onDemand(logType);
 				}
 			}
 		}

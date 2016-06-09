@@ -42,7 +42,7 @@ public class DataPointTaskCallLogs extends DataPointTask {
     private static final int SMS_TYPE_INBOX = 1;
     private static final int SMS_TYPE_SENT = 2;
 
-    public DataPointTaskCallLogs(String url, boolean isPii, int transportType) {
+    public DataPointTaskCallLogs(String url, Boolean isPii, Integer transportType) {
         super(url, isPii, transportType);
     }
 

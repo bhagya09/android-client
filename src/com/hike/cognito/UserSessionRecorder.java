@@ -17,6 +17,10 @@ import java.util.Set;
  * Created by abhijithkrishnappa on 23/05/16.
  */
 public class UserSessionRecorder {
+    public static final String USER_LOG_SHARED_PREFS = "user_log_info";
+    public static final int START = 0;
+    public static final int STOP = 2;
+    public static final int OPERATE = 1;
     private static final String TAG = UserSessionRecorder.class.getSimpleName();
     private static Map<String, Long> foregroundAppsStartTimeMap;
     private static long MIN_SESSION_RECORD_TIME = 2000;
@@ -40,19 +44,19 @@ public class UserSessionRecorder {
         Set<String> savedForegroundApps = new HashSet<String>(foregroundAppsStartTimeMap.keySet());
 
         //this if logic can also be called when the activity has already started
-        if (nextStep == UserLogInfo.START || foregroundAppsStartTimeMap.isEmpty()) {
+        if (nextStep == START || foregroundAppsStartTimeMap.isEmpty()) {
             foregroundAppsStartTimeMap.clear();
             for (String packageName : currentForegroundApps) {
                 if (!lockScreenShowing) {
                     foregroundAppsStartTimeMap.put(packageName, currentTime);
                 }
             }
-        } else if (nextStep == UserLogInfo.STOP) {
+        } else if (nextStep == STOP) {
             for (String app : foregroundAppsStartTimeMap.keySet()) {
                 recordASession(app, foregroundAppsStartTimeMap.get(app));
             }
             foregroundAppsStartTimeMap.clear();
-        } else if (nextStep == UserLogInfo.OPERATE && !currentForegroundApps.isEmpty()) {
+        } else if (nextStep == OPERATE && !currentForegroundApps.isEmpty()) {
             savedForegroundApps.addAll(currentForegroundApps);
             for (String app : savedForegroundApps) {
                 if (currentForegroundApps.contains(app) && !foregroundAppsStartTimeMap.containsKey(app) && !lockScreenShowing) {
@@ -71,7 +75,7 @@ public class UserSessionRecorder {
         long sessionTime = System.currentTimeMillis() - sesstionTime;
 
         if (sessionTime > MIN_SESSION_RECORD_TIME) {
-            HikeSharedPreferenceUtil userPrefs = HikeSharedPreferenceUtil.getInstance(UserLogInfo.USER_LOG_SHARED_PREFS);
+            HikeSharedPreferenceUtil userPrefs = HikeSharedPreferenceUtil.getInstance(USER_LOG_SHARED_PREFS);
             String[] loggedParams = userPrefs.getData(packageName, "0:0").split(":");
             for (String s : loggedParams) {
                 //Do your stuff here
