@@ -173,6 +173,7 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
             spaceManagerItems = SpaceManagerUtils.getValidItemsList(categoryList);
             updateUI();
             dismissProgressDialog();
+            Toast.makeText(ManageSpaceActivity.this, getString(R.string.space_successfully_deleted), Toast.LENGTH_SHORT).show();
         }
         else if(type.equals(HikePubSub.SPACE_MANAGER_ITEMS_DELETE_FAIL))
         {
