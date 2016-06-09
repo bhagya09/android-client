@@ -20,7 +20,11 @@ public class TimelineUtils {
         if (newUpdates > 0) {
             return context.getString(R.string.timeline_sub_new_updt);
         } else if (newLikes > 0) {
-            return String.format(context.getString(R.string.timeline_sub_likes), newLikes);
+            if (newLikes == 1) {
+                return context.getString(R.string.timeline_sub_like);
+            } else {
+                return String.format(context.getString(R.string.timeline_sub_likes), newLikes);
+            }
         } else {
             return context.getString(R.string.timeline_sub_no_updt);
         }
