@@ -1722,16 +1722,16 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		return result;
 	}
 
-	/**
-	 * @param matchKey
-	 *            : the match key for which the packs are to be searched
-	 * 
-	 * @return : SortedSet of categories Searched for the given match key 
-     *           The searched categories are sorted based on comparator of CategorySearchedData model
-     *           Considering pack attributes [Targeted_Gender ; Pack_Downloaded_State ; Pack_stickersAvailable_Count] including the text match score of the match key with the pack name
-	 *
-	 *           The pack data are sorted using a TreeSet implementation which ensure uniqueness along with order
-	 */
+    /**
+     * @param matchKey   : the match key for which the packs are to be searched
+     * @param exactMatch : boolean to decide if to do a prefix search or exact match
+     *
+     * @return : SortedSet of categories Searched for the given match key
+     * The searched categories are sorted based on comparator of CategorySearchedData model
+     * Considering pack attributes [Targeted_Gender ; Pack_Downloaded_State ; Pack_stickersAvailable_Count] including the text match score of the match key with the pack name
+     * <p/>
+     * The pack data are sorted using a TreeSet implementation which ensure uniqueness along with order
+     */
     public SortedSet<CategorySearchData> searchIntoFTSAndFindCategoryDataList(String matchKey, boolean exactMatch)
     {
         

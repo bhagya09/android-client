@@ -120,7 +120,7 @@ public class CategorySearchManager
     /**
      *
      * @param query : Pre-Processed query string to search packs
-     * @param onTextSubmit : boolean if to send result analytics as soon as searched
+     * @param onTextSubmit : boolean to decide if the search was automatically initiated or user initiated, send result analytics as soon as searched in case of user initiated search and look for an exact match
      *
      * @return StickerCategory model List of the categories searched on the basis of given user query
      */
@@ -139,6 +139,8 @@ public class CategorySearchManager
      * If results not found in cache then searches the ShopSearchVirtualTable in HikeStickerSearchDatabase and stores them in the cache
      *
      * @param key : Pre-Processed query string to search packs
+     * @param exactMatch : boolean to decide if to do a prefix search or exact match
+     *
      * @return   SortedSet of categories Searched for the given match key
      *           The searched categories are sorted based on comparator of CategorySearchedData model
      *           Considering pack attributes [Targeted_Gender ; Pack_Downloaded_State ; Pack_stickersAvailable_Count] including the text match score of the match key with the pack name
