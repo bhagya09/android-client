@@ -365,5 +365,6 @@
     <color name="black_64">#A3000000</color>
     <color name="white_96">#F5FFFFFF</color>
     <color name="sm_ev_text">#803d475b</color>
+    <color name="black_32">#52000000</color>
 
 </resources>

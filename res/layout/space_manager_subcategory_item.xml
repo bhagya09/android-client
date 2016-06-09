@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/white"
+    android:background="@drawable/list_item"
     android:paddingRight="16dp"
     android:paddingLeft="16dp">
 
@@ -21,7 +21,8 @@
         android:layout_height="wrap_content"
         android:layout_toLeftOf="@id/subcategory_checkbox"
         android:orientation="vertical"
-        android:layout_marginTop="13dp">
+        android:layout_marginTop="13dp"
+        android:layout_marginBottom="12dp">
 
         <com.bsb.hike.view.CustomFontTextView
             android:id="@+id/header"
@@ -39,9 +40,8 @@
     <View
         android:id="@+id/item_seperator"
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginTop="12dp"
+        android:layout_height="0.5dp"
         android:layout_below="@id/text_container"
-        android:background="@color/home_screen_list_divider"/>
+        android:background="@color/list_divider"/>
 
 </RelativeLayout>
