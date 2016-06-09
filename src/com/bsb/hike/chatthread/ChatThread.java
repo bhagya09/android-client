@@ -1911,7 +1911,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 		}
 
-		else if (!mAdapter.getChatThemeId().equals(themeId))
+		else
 		{
 			Logger.i(TAG, "update ui for theme " + themeId);
 			if (mAdapter.getChatThemeId().equals(ChatThemeManager.getInstance().defaultChatThemeId))
