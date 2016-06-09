@@ -148,8 +148,6 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 	protected List<ContactInfo> smsStealthContactsList;
 
-	protected List<ContactInfo> recentStealthContactsList;
-	
 	protected List<ContactInfo> filteredFriendsList;
 
 	protected List<ContactInfo> filteredHikeContactsList;
@@ -305,20 +303,6 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
         this.showFilteredContacts = showFilteredContacts;
         this.msisdnList = msisdnList;
     }
-
-
-	public void executeFetchTask()
-	{
-		setLoadingView();
-
-        FetchFriendsTask fetchFriendsTask;
-
-        msisdnList = showFilteredContacts ? (msisdnList) : "";
-
-        fetchFriendsTask = new FetchFriendsTask(this, context, friendsList, hikeContactsList, smsContactsList, recentContactsList, recentlyJoinedHikeContactsList,friendsStealthList, hikeStealthContactsList,
-                smsStealthContactsList, recentStealthContactsList, filteredFriendsList, filteredHikeContactsList, filteredSmsContactsList,suggestedContactsList,filteredSuggestedContactsList, false, true, false, false, false,true,true,showFilteredContacts,msisdnList);
-		fetchFriendsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-	}
 
 	public void setListFetchedOnce(boolean b)
 	{
