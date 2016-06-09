@@ -1,26 +1,16 @@
 package com.bsb.hike.models;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class PrivacyPreferencesTest {
-
-    private PrivacyPreferences preferences;
-
-    /**
-     * http://junit.sourceforge.net/doc/faq/faq.htm#tests_2
-     */
-    @Before
-    public void setUp() {
-        preferences = new PrivacyPreferences(PrivacyPreferences.DEFAULT_VALUE);
-    }
-
+    private PrivacyPreferences preferences = new PrivacyPreferences(PrivacyPreferences.DEFAULT_VALUE);
 
     @Test
     public void byDefaultAllPrivacyPreferencesAreOff() {
+        preferences = new PrivacyPreferences(PrivacyPreferences.DEFAULT_VALUE);
         assertFalse(preferences.shouldShowLastSeen());
         assertFalse(preferences.shouldShowStatusUpdate());
     }
