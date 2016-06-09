@@ -45,6 +45,8 @@ public class TransientCache extends ContactsCache
 
 	private final Lock writeLock = readWriteLockTrans.writeLock();
 
+	protected List<ContactInfo> transientFavList;
+
 	/**
 	 * Initializes all the transient maps
 	 */
@@ -52,6 +54,7 @@ public class TransientCache extends ContactsCache
 	{
 		transientContacts = new LinkedHashMap<String, PairModified<ContactInfo, Integer>>();
 		groupParticipants = new HashMap<String, Map<String, PairModified<GroupParticipant, String>>>();
+		transientFavList = new ArrayList<ContactInfo>(0);
 		hDb = db;
 	}
 
@@ -1177,6 +1180,7 @@ public class TransientCache extends ContactsCache
 		hDb = null;
 		transientContacts = null;
 		groupParticipants = null;
+		transientFavList = null;
 	}
 	
 	void updateContactDetailInAllGroups(String contact)
@@ -1199,5 +1203,18 @@ public class TransientCache extends ContactsCache
 		{
 			writeLock.unlock();
 		}
+	}
+
+	void loadAllFriends() {
+		writeLock.lock();
+		try {
+			transientFavList.addAll(hDb.getAllFriends());
+		} finally {
+			writeLock.unlock();
+		}
+	}
+
+	void clearTransientFriendsList() {
+		transientFavList.clear();
 	}
 }
