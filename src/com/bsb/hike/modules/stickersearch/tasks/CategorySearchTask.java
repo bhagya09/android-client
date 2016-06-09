@@ -18,14 +18,13 @@ public class CategorySearchTask implements Runnable
 
 	private CategorySearchListener mListener;
 
-    private boolean sendLogs;
+    private boolean onTextSubmit;
 
-	public CategorySearchTask(String query, CategorySearchListener listener, boolean sendLogs)
-	{
-		this.query = preProcessQuery(query);
-		this.mListener = listener;
-        this.sendLogs = sendLogs;
-	}
+    public CategorySearchTask(String query, CategorySearchListener listener, boolean onTextSubmit) {
+        this.query = preProcessQuery(query);
+        this.mListener = listener;
+        this.onTextSubmit = onTextSubmit;
+    }
 
 	@Override
 	public void run()
@@ -37,7 +36,7 @@ public class CategorySearchTask implements Runnable
 
 		mListener.onSearchInitiated();
 
-		List<StickerCategory> results = CategorySearchManager.getInstance().searchForPacks(query, sendLogs);
+		List<StickerCategory> results = CategorySearchManager.getInstance().searchForPacks(query, onTextSubmit);
 
 		sendResponse(results);
 

@@ -1732,7 +1732,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 	 *
 	 *           The pack data are sorted using a TreeSet implementation which ensure uniqueness along with order
 	 */
-    public SortedSet<CategorySearchData> searchIntoFTSAndFindCategoryDataList(String matchKey)
+    public SortedSet<CategorySearchData> searchIntoFTSAndFindCategoryDataList(String matchKey, boolean exactMatch)
     {
         
         String[] tempReferences = null;
@@ -1744,8 +1744,10 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
             Logger.i(TAG, "Searching \"" + matchKey + "\" in " + HikeStickerSearchBaseConstants.DEFAULT_VT_SHOP_SEARCH );
 
-			c = mDb.query(HikeStickerSearchBaseConstants.DEFAULT_VT_SHOP_SEARCH, new String[]{HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID}, HikeStickerSearchBaseConstants.TAG_REAL_PHRASE + " MATCH '" + matchKey + "*'", null, null, null,
-					null);
+            String conditionKey = HikeStickerSearchBaseConstants.TAG_REAL_PHRASE + " MATCH '" + matchKey + (exactMatch ? "" : "*'");
+
+            c = mDb.query(HikeStickerSearchBaseConstants.DEFAULT_VT_SHOP_SEARCH, new String[]{HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID}, conditionKey, null, null, null,
+                    null);
 
             count = ((c == null) ? 0 : c.getCount());
 

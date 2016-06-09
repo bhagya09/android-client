@@ -23,6 +23,7 @@ import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.stickersearch.SearchEngine;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
+import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.modules.stickersearch.datamodel.CategorySearchData;
 import com.bsb.hike.modules.stickersearch.datamodel.CategoryTagData;
 import com.bsb.hike.modules.stickersearch.listeners.CategorySearchListener;
@@ -119,15 +120,15 @@ public class CategorySearchManager
     /**
      *
      * @param query : Pre-Processed query string to search packs
-     * @param sendLogs : boolean if to send result analytics as soon as searched
+     * @param onTextSubmit : boolean if to send result analytics as soon as searched
      *
      * @return StickerCategory model List of the categories searched on the basis of given user query
      */
-	public List<StickerCategory> searchForPacks(String query, boolean sendLogs)
+	public List<StickerCategory> searchForPacks(String query, boolean onTextSubmit)
 	{
-		Set<CategorySearchData> resultCategories = getCategorySearchDataForKey(query);
+		Set<CategorySearchData> resultCategories = getCategorySearchDataForKey(query, onTextSubmit);
 
-		HikeHandlerUtil.getInstance().postRunnable(new CategorySearchAnalyticsTask(query, resultCategories, sendLogs));
+		HikeHandlerUtil.getInstance().postRunnable(new CategorySearchAnalyticsTask(query, resultCategories, onTextSubmit));
 
 		return getOrderedCategoryList(resultCategories);
 	}
@@ -145,7 +146,7 @@ public class CategorySearchManager
      *           The pack data are sorted using a TreeSet implementation which ensure uniqueness along with order
      */
 
-	private SortedSet<CategorySearchData> getCategorySearchDataForKey(String key)
+	private SortedSet<CategorySearchData> getCategorySearchDataForKey(String key, boolean exactMatch)
 	{
 		SortedSet<CategorySearchData> result = null;
 		if (mCacheForShopSearchKeys.containsKey(key))
@@ -154,14 +155,14 @@ public class CategorySearchManager
 		}
 		else
 		{
-			result = HikeStickerSearchDatabase.getInstance().searchIntoFTSAndFindCategoryDataList(key);
+			result = HikeStickerSearchDatabase.getInstance().searchIntoFTSAndFindCategoryDataList(key, exactMatch);
 
 			if (result == null)
 			{
 				result = new TreeSet<CategorySearchData>();
 			}
 
-			mCacheForShopSearchKeys.put(key, result);
+			mCacheForShopSearchKeys.put(StickerSearchUtils.generateCacheKey(key, exactMatch), result);
 		}
 		return result;
 	}

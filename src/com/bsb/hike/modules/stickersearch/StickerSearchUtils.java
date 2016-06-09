@@ -237,4 +237,9 @@ public class StickerSearchUtils
         return  0;
     }
 
+    public static String generateCacheKey(String searchKey, boolean exactMatch)
+    {
+        return searchKey + (exactMatch ? "" : "*");
+    }
+
 }
