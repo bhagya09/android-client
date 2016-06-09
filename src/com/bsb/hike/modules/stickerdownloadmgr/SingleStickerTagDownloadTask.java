@@ -47,7 +47,7 @@ public class SingleStickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTas
                 getRequestId(),
                 stickerId,
                 categoryId,
-                StickerLanguagesManager.getInstance().listToString(
+                Utils.listToString(
                         StickerLanguagesManager.getInstance().getAccumulatedSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE,
                                 StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE)),
                 getResponseListener(),

@@ -26,7 +26,7 @@ public class ActionsDataModel
 {
 	private int totalCount;
 
-	private LinkedHashSet<ContactInfo> contactInfoList;
+	private LinkedHashSet<ContactInfo> contactInfoList = new LinkedHashSet<ContactInfo>();;
 
 	private ActionsDataModel.ActionTypes type;
 	
@@ -177,11 +177,6 @@ public class ActionsDataModel
 		if (TextUtils.isEmpty(msisdn))
 		{
 			throw new IllegalArgumentException("addContact(argContactInfo) : input msisdn cannot be null");
-		}
-
-		if (contactInfoList == null)
-		{
-			contactInfoList = new LinkedHashSet<ContactInfo>();
 		}
 
 		ContactInfo contactInfo = Utils.getUserContactInfo(true);

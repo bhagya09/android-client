@@ -3,16 +3,39 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center"
-    android:orientation="vertical" >
+    android:orientation="vertical">
 
-    <com.bsb.hike.view.CustomFontTextView
-        android:id="@+id/qs_empty_state"
+    <LinearLayout
+        android:id="@+id/error_view"
         android:layout_width="wrap_content"
         android:layout_height="160dp"
-        android:layout_gravity="center"
         android:gravity="center"
-        android:text="@string/qs_empty_page_text"
-        android:textColor="#7b807c"
-        android:textSize="14sp" />
+        android:orientation="vertical"
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp">
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/emoji_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/qs_empty_state"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:gravity="center_horizontal"
+            android:text="@string/qs_empty_page_text"
+            android:textColor="#9b9b9b"
+            android:textSize="20sp" />
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/empty_view_sub_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="#9b9b9b"
+            android:textSize="16sp" />
+    </LinearLayout>
 
 </LinearLayout>

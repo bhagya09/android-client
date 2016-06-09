@@ -29,6 +29,7 @@ import com.bsb.hike.modules.contactmgr.HikeUserDatabase;
 import com.bsb.hike.timeline.adapter.StoryListAdapter;
 import com.bsb.hike.timeline.model.StoryItem;
 import com.bsb.hike.timeline.tasks.StoriesDataManager;
+import com.bsb.hike.timeline.tasks.UpdateActionsDataRunnable;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Utils;
@@ -59,6 +60,8 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
 
     private Animation shakeAnim;
 
+    private final String TAG = StoryFragment.class.getSimpleName();
+
     private final String[] pubsubEvents = new String[]{
             HikePubSub.UNSEEN_STATUS_COUNT_CHANGED,
             HikePubSub.TIMELINE_UPDATE_RECIEVED,
@@ -69,7 +72,8 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
             HikePubSub.DELETE_STATUS,
             HikePubSub.FAVORITE_TOGGLED,
             HikePubSub.STEALTH_CONVERSATION_MARKED,
-            HikePubSub.STEALTH_CONVERSATION_UNMARKED};
+            HikePubSub.STEALTH_CONVERSATION_UNMARKED,
+            HikePubSub.FAVORITE_TOGGLED};
 
     public static StoryFragment newInstance(@Nullable Bundle argBundle) {
         StoryFragment fragmentInstance = new StoryFragment();
@@ -83,7 +87,6 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        HikeMessengerApp.getInstance().getPubSub().addListeners(this, pubsubEvents);
     }
 
     @Override
@@ -105,21 +108,26 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        bindFragmentViews();
+        shakeAnim = AnimationUtils.loadAnimation(getActivity(), R.anim.shake);
+    }
 
+    private void bindFragmentViews()
+    {
         // Check if user has any friends
         if (HikeUserDatabase.getInstance().isTwoWayFriendsPresent()) {
             bindStoryFragmentList();
+            HikeMessengerApp.getInstance().getPubSub().addListeners(this, pubsubEvents); // listen only in non-empty state
         } else {
             //Show empty state
             bindEmptyStateView();
         }
-
-        shakeAnim = AnimationUtils.loadAnimation(getActivity(), R.anim.shake);
     }
 
     private void bindStoryFragmentList() {
         listViewStories.setVisibility(View.VISIBLE);
         emptyStateView.setVisibility(View.GONE);
+        btnAddFriends.setOnClickListener(null);
 
         // Setup adapters
         storyAdapter = new StoryListAdapter(storyItemList);
@@ -129,6 +137,9 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
         listViewStories.setOnItemClickListener(this);
 
         StoriesDataManager.getInstance().getAllStoryData(this);
+
+        // Get actions for SU from DB
+        HikeHandlerUtil.getInstance().postRunnable(new UpdateActionsDataRunnable(null));
     }
 
     private void bindEmptyStateView() {
@@ -220,8 +231,7 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
                 || type.equals(HikePubSub.STEALTH_MODE_TOGGLED)
                 || type.equals(HikePubSub.DELETE_STATUS)
                 || type.equals(HikePubSub.STEALTH_CONVERSATION_MARKED)
-                || type.equals(HikePubSub.STEALTH_CONVERSATION_UNMARKED)
-                || type.equals(HikePubSub.FAVORITE_TOGGLED)) {
+                || type.equals(HikePubSub.STEALTH_CONVERSATION_UNMARKED)) {
             if (isAdded() && getActivity() != null) {
                 HikeHandlerUtil.getInstance().postRunnable(new Runnable() {
                     @Override
@@ -236,6 +246,20 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
                     @Override
                     public void run() {
                         storyAdapter.notifyDataSetChanged();
+                    }
+                });
+            }
+        }
+        else if (type.equals(HikePubSub.FAVORITE_TOGGLED)) {
+            if (isAdded() && getActivity() != null) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (emptyStateView.getVisibility() == View.VISIBLE) {
+                            bindFragmentViews();
+                        } else {
+                            StoriesDataManager.getInstance().updateCameraShyStories(new WeakReference<StoriesDataManager.StoriesDataListener>(StoryFragment.this));
+                        }
                     }
                 });
             }

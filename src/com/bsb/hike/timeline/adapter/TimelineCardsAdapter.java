@@ -856,20 +856,6 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			break;
 		}
 
-		// TODO Removed for v1
-		// if (position >= mLastPosition)
-		// {
-		// Animator[] anims = getAnimators(viewHolder.itemView);
-		// int length = anims.length;
-		// for (int i = length; i > 0; i--)
-		// {
-		// Animator anim = anims[i - 1];
-		// anim.setInterpolator(cardInterp);
-		// anim.setDuration(500).start();
-		// }
-		// mLastPosition = position;
-		// }
-
 		// Done to support Quick Return
 		if (position == 0 && !mShowUserProfile)
 		{

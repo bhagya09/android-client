@@ -73,7 +73,7 @@ public class HikeGcmNetworkMgr implements IGcmNetworkMgr
 
             GcmNetworkManager.getInstance(context).schedule(task);
         } catch (Throwable e) {
-
+            Logger.wtf(TAG, "Error while scheduling", e);
         }
     }
 

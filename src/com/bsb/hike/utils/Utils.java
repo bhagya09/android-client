@@ -253,7 +253,7 @@ public class Utils
 {
 	private static final String TAG = Utils.class.getSimpleName();
 
-	// Precision points definition for duration logging========================================[[
+    // Precision points definition for duration logging========================================[[
 	public static final class ExecutionDurationLogger
 	{
 		public static final String TAG = ExecutionDurationLogger.class.getSimpleName();
@@ -3057,14 +3057,14 @@ public class Utils
 		return result;
 	}
 
-	public static void deleteFile(Context context, String filename, HikeFileType type)
+	public static void deleteFile(Context context, String filename, HikeFileType type, boolean isSent)
 	{
 		if (TextUtils.isEmpty(filename))
 		{
 			return;
 		}
 
-		HikeFile temp = new HikeFile(new File(filename).getName(), HikeFileType.toString(type), null, null, 0, false, null);
+		HikeFile temp = new HikeFile(new File(filename).getName(), HikeFileType.toString(type), null, null, 0, isSent, null);
 		temp.delete(context);
 	}
 
@@ -6477,7 +6477,7 @@ public class Utils
 		}
 	}
 
-	public static void deleteFiles(Context context, ArrayList<String> fileNames, HikeFileType type)
+	public static void deleteFiles(Context context, ArrayList<String> fileNames, HikeFileType type, boolean isSent)
 	{
 		if (fileNames == null || fileNames.isEmpty())
 		{
@@ -6486,9 +6486,14 @@ public class Utils
 
 		for (String filepath : fileNames)
 		{
-			deleteFile(context, filepath, type);
+			deleteFile(context, filepath, type, isSent);
 		}
 
+	}
+
+	public static void deleteFiles(Context context, ArrayList<String> fileNames, HikeFileType type)
+	{
+		deleteFiles(context, fileNames, type, false);
 	}
 
 	public static boolean isColumnExistsInTable(SQLiteDatabase db, String tableName, String givenColumnName)
@@ -7045,10 +7050,18 @@ public class Utils
 		return isAndroidDataStorageDir;
 	}
 
-	/*
+	/**
+	 * Returns a comma seprated string from a given list
+	 */
+	public static String listToString(Collection<String> strings)
+	{
+		return listToString(strings, ",");
+	}
+
+	/**
 	 * Returns a interval added string from a given list
 	 */
-	public static String listToString(List<String> list, String strInterVal)
+	public static String listToString(Collection<String> list, String strInterVal)
 	{
 		if (list == null)
 		{
@@ -8285,7 +8298,7 @@ public class Utils
 	 *
 	 * @param msisdns
 	 */
-	public static void sendULSPacket(List<String> msisdns) {
+	public static void sendULSPacket(List<String> msisdns, int newValue) {
 
 		if (!Utils.isFavToFriendsMigrationAllowed()) {
 			return;
@@ -8311,7 +8324,8 @@ public class Utils
 			JSONObject data = new JSONObject();
 			data.put(HikeConstants.UPDATED_LAST_SEEN_SETTING, selectedPrivacyId);
 			// Inclusion/exclusion based on setting of none or friends
-			data.put(selectedPrivacyId == 0 ? HikeConstants.LS_INCLUSION : HikeConstants.LS_EXCLUSION, lsExclusionArray);
+			data.put(newValue == 1 ? HikeConstants.LS_INCLUSION : HikeConstants.LS_EXCLUSION, lsExclusionArray);
+
 			data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis()));
 			object.put(HikeConstants.DATA, data);
 
@@ -8329,7 +8343,7 @@ public class Utils
 	 *
 	 * @param msisdns
 	 */
-	public static void sendUSUPacket(List<String> msisdns) {
+	public static void sendUSUPacket(List<String> msisdns, int newValue) {
 
 		if (!Utils.isFavToFriendsMigrationAllowed()) {
 			return;
@@ -8346,7 +8360,7 @@ public class Utils
 
 			JSONObject data = new JSONObject();
 			data.put(HikeConstants.UPDATED_STATUS_UPDATE_SETTING, 2);
-			data.put(HikeConstants.STATUS_UPDATE_EXCLUSION, suExclusionArray);
+			data.put(newValue == 1 ? HikeConstants.STATUS_UPDATE_INCLUSION : HikeConstants.STATUS_UPDATE_EXCLUSION, suExclusionArray);
 			data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis()));
 			object.put(HikeConstants.DATA, data);
 
@@ -8370,6 +8384,10 @@ public class Utils
 	{
 		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
 		return prefs.getData(HikeConstants.ENABLE_UNKNOWN_USER_INFO_IN_CHAT, false);
+	}
+
+	public static String getEmojiByUnicode(int unicode) {
+		return new String(Character.toChars(unicode));
 	}
 
 	public static void recordUpgradeTaskCompletion(String taskKey, long duration)

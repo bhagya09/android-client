@@ -37,6 +37,7 @@ import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.quickstickersuggestions.QuickStickerSuggestionController;
+import com.bsb.hike.modules.quickstickersuggestions.model.QuickSuggestionStickerCategory;
 import com.bsb.hike.modules.quickstickersuggestions.tasks.FetchForAllStickerQuickSuggestionTask;
 import com.bsb.hike.modules.stickerdownloadmgr.FetchCategoryRanksTask;
 import com.bsb.hike.modules.stickerdownloadmgr.DefaultTagDownloadTask;
@@ -265,6 +266,10 @@ public class StickerManager
 	public static final String FROM_QR = "qr";
 
 	public static final String FROM_QF = "qf";
+
+	public static final String FROM_QR_FTUE = "qr_ftue";
+
+	public static final String FROM_QF_FTUE = "qf_ftue";
 
 	public static final String REJECT_FROM_CROSS = "crs";
 
@@ -4004,7 +4009,7 @@ public class StickerManager
 					metadata.put(AnalyticsConstants.V2.SPECIES, sticker.getStickerId());
 					metadata.put(AnalyticsConstants.V2.SOURCE, convMessage.isOneToNChat() ? HikeConstants.GROUP_CONVERSATION : HikeConstants.ONE_TO_ONE_CONVERSATION);
 					metadata.put(AnalyticsConstants.V2.FROM_USER, convMessage.getSenderMsisdn());
-					metadata.put(AnalyticsConstants.V2.TO_USER, convMessage.getMsisdn());
+					metadata.put(AnalyticsConstants.V2.TO_USER, convMessage.getReceiverMsisdn());
 					metadata.put(AnalyticsConstants.TYPE, type);
 					metadata.put(AnalyticsConstants.V2.FORM, isSent);
 					sendStickerClickedLogs(metadata);
@@ -4101,6 +4106,136 @@ public class StickerManager
 	public void removeQuickSuggestionCategoryFromMap(String catId)
 	{
 		stickerCategoriesMap.remove(catId);
+	}
+
+
+	public void sendQsShownAnalytics(final StickerCategory stickerCategory) {
+		HikeHandlerUtil.getInstance().postRunnable(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					QuickSuggestionStickerCategory quickSuggestionStickerCategory = (QuickSuggestionStickerCategory) stickerCategory;
+					Sticker qsSticker = quickSuggestionStickerCategory.getQuickSuggestSticker();
+					ConvMessage convMessage = QuickStickerSuggestionController.getInstance().getCurrentQSConvMessage();
+
+					JSONObject json = new JSONObject();
+					json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.STICKER_QUICK_REPLY);
+					json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.STICKER_QUICK_REPLY);
+					json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_STICKER_LOGS);
+					json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+					json.put(AnalyticsConstants.V2.VAL_INT,  quickSuggestionStickerCategory.getStickerList().size());
+					json.put(AnalyticsConstants.V2.RACE, qsSticker.getCategoryId());
+					json.put(AnalyticsConstants.V2.BREED, qsSticker.getStickerId());
+					json.put(AnalyticsConstants.V2.SOURCE, quickSuggestionStickerCategory.isShowReplyStickers() ? HikeConstants.RECEIVED : HikeConstants.SENT);
+					json.put(AnalyticsConstants.V2.VAL_STR, quickSuggestionStickerCategory.getStickerList());
+					json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.QR_PANEL_SHOWN);
+					json.put(AnalyticsConstants.V2.FROM_USER, convMessage.getSenderMsisdn());
+					json.put(AnalyticsConstants.V2.TO_USER, convMessage.getReceiverMsisdn());
+					json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
+					HAManager.getInstance().recordV2(json);
+				} catch (JSONException e) {
+					Logger.e(TAG, "json exception in sendQsShownAnalytics ", e);
+				}
+			}
+		});
+
+	}
+
+	public void sendAnalyticsForStickerSentFromQr(final Sticker sentSticker, final StickerCategory stickerCategory) {
+		HikeHandlerUtil.getInstance().postRunnable(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					QuickSuggestionStickerCategory quickSuggestionStickerCategory = (QuickSuggestionStickerCategory) stickerCategory;
+					Sticker qsSticker = quickSuggestionStickerCategory.getQuickSuggestSticker();
+					ConvMessage convMessage = QuickStickerSuggestionController.getInstance().getCurrentQSConvMessage();
+
+					JSONObject json = new JSONObject();
+					json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.STICKER_QUICK_REPLY);
+					json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.STICKER_QUICK_REPLY);
+					json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_STICKER_LOGS);
+					json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+					json.put(AnalyticsConstants.V2.VAL_INT,  quickSuggestionStickerCategory.getStickerList().size());
+					json.put(AnalyticsConstants.V2.RACE, qsSticker.getCategoryId());
+					json.put(AnalyticsConstants.V2.BREED, qsSticker.getStickerId());
+					json.put(AnalyticsConstants.V2.SOURCE, quickSuggestionStickerCategory.isShowReplyStickers() ? HikeConstants.RECEIVED : HikeConstants.SENT);
+					json.put(AnalyticsConstants.V2.VARIETY, sentSticker.getStickerTypeString());
+					json.put(AnalyticsConstants.V2.USER_STATE, quickSuggestionStickerCategory.getStickerList().indexOf(sentSticker));
+					json.put(AnalyticsConstants.V2.VAL_STR, quickSuggestionStickerCategory.getStickerList());
+					json.put(AnalyticsConstants.V2.GENUS, sentSticker.getCategoryId());
+					json.put(AnalyticsConstants.V2.SPECIES, sentSticker.getStickerId());
+					json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.SENT_STICKER_QR);
+					json.put(AnalyticsConstants.V2.FROM_USER, convMessage.getSenderMsisdn());
+					json.put(AnalyticsConstants.V2.TO_USER, convMessage.getReceiverMsisdn());
+					json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
+					HAManager.getInstance().recordV2(json);
+				} catch (JSONException e) {
+					Logger.e(TAG, "json exception in sendAnalyticsForStickerSentFromQr ", e);
+				}
+			}
+		});
+	}
+
+	public void sendQsErrorAnalytics(final StickerCategory stickerCategory, @QuickStickerSuggestionController.ErrorType final int errorType) {
+		HikeHandlerUtil.getInstance().postRunnable(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					QuickSuggestionStickerCategory quickSuggestionStickerCategory = (QuickSuggestionStickerCategory) stickerCategory;
+					Sticker qsSticker = quickSuggestionStickerCategory.getQuickSuggestSticker();
+
+					JSONObject json = new JSONObject();
+					json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.STICKER_QUICK_REPLY);
+					json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.STICKER_QUICK_REPLY);
+					json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_STICKER_LOGS);
+					json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+					json.put(AnalyticsConstants.V2.RACE, qsSticker.getCategoryId());
+					json.put(AnalyticsConstants.V2.BREED, qsSticker.getStickerId());
+					json.put(AnalyticsConstants.V2.SOURCE, quickSuggestionStickerCategory.isShowReplyStickers() ? HikeConstants.RECEIVED : HikeConstants.SENT);
+					json.put(AnalyticsConstants.V2.VAL_INT, errorType);
+					json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.QR_ERROR);
+					json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
+					HAManager.getInstance().recordV2(json);
+				} catch (JSONException e) {
+					Logger.e(TAG, "json exception in sendQsErrorAnalytics ", e);
+				}
+			}
+		});
+
+	}
+
+	public void sendQsFTUEAnalytics(final String tipString) {
+		HikeHandlerUtil.getInstance().postRunnable(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					ConvMessage convMessage = QuickStickerSuggestionController.getInstance().getCurrentQSConvMessage();
+					Sticker qsSticker = convMessage.getMetadata().getSticker();
+
+					if(TextUtils.isEmpty(tipString) || null == qsSticker)
+					{
+						return ;
+					}
+
+					JSONObject json = new JSONObject();
+					json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.STICKER_QUICK_REPLY);
+					json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.STICKER_QUICK_REPLY);
+					json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_STICKER_LOGS);
+					json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+					json.put(AnalyticsConstants.V2.RACE, qsSticker.getCategoryId());
+					json.put(AnalyticsConstants.V2.BREED, qsSticker.getStickerId());
+					json.put(AnalyticsConstants.V2.VAL_STR, tipString);
+					json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.QR_FTUE);
+					json.put(AnalyticsConstants.V2.FROM_USER, convMessage.getSenderMsisdn());
+					json.put(AnalyticsConstants.V2.TO_USER, convMessage.getReceiverMsisdn());
+					json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
+					HAManager.getInstance().recordV2(json);
+				} catch (JSONException e) {
+					Logger.e(TAG, "json exception in sendQsFTUEAnalytics ", e);
+				}
+			}
+		});
+
 	}
 
 	public void makeCallForUserParameters()

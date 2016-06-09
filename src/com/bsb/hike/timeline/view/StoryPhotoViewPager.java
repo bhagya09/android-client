@@ -35,7 +35,12 @@ public class StoryPhotoViewPager extends ViewPager {
             mGestureDetector.onTouchEvent(ev);
         }
 
-        return super.onInterceptTouchEvent(ev);
+        return false;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        return false;
     }
 
     public void setGestureDetector(GestureDetector argGestureDetector) {

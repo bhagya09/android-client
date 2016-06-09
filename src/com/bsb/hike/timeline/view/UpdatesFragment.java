@@ -46,12 +46,12 @@ import com.bsb.hike.timeline.EndlessRecyclerScrollListener;
 import com.bsb.hike.timeline.TimelineActionsManager;
 import com.bsb.hike.timeline.adapter.TimelineCardsAdapter;
 import com.bsb.hike.timeline.model.ActionsDataModel;
-import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.timeline.model.TimelineActions;
 import com.bsb.hike.timeline.tasks.StatusReadDBManager;
 import com.bsb.hike.timeline.tasks.StatusReadDBRunnable;
+import com.bsb.hike.timeline.tasks.UpdateActionsDataRunnable;
 import com.bsb.hike.ui.CustomTabsBar;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
@@ -91,7 +91,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	private List<StatusMessage> statusMessages;
 
 	private String[] pubSubListeners = { HikePubSub.TIMELINE_UPDATE_RECIEVED, HikePubSub.LARGER_UPDATE_IMAGE_DOWNLOADED, HikePubSub.PROTIP_ADDED, HikePubSub.ICON_CHANGED,
-			HikePubSub.ACTIVITY_UPDATE, HikePubSub.TIMELINE_WIPE, HikePubSub.TIMELINE_FTUE_LIST_UPDATE,HikePubSub.HIKE_JOIN_TIME_OBTAINED, HikePubSub.USER_JOIN_TIME_OBTAINED, HikePubSub.CLOSE_CURRENT_STEALTH_CHAT, HikePubSub.PROFILE_UPDATE_FINISH, HikePubSub.STATUS_MARKED_READ };
+			HikePubSub.ACTIVITY_UPDATE, HikePubSub.TIMELINE_WIPE, HikePubSub.TIMELINE_FTUE_LIST_UPDATE,HikePubSub.HIKE_JOIN_TIME_OBTAINED, HikePubSub.USER_JOIN_TIME_OBTAINED, HikePubSub.CLOSE_CURRENT_STEALTH_CHAT, HikePubSub.PROFILE_UPDATE_FINISH, HikePubSub.STATUS_MARKED_READ, HikePubSub.ACTIONS_DATA_UPDATE };
 	
 	private String[] friendMsisdns = new String[]{};
 
@@ -305,60 +305,18 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 						}
 
 						@Override
-						protected void onPostExecute(List<StatusMessage> olderMessages)
-						{
-							if (!isAdded())
-							{
+						protected void onPostExecute(List<StatusMessage> olderMessages) {
+							if (!isAdded()) {
 								return;
 							}
 
 							final ArrayList<String> suIDList = new ArrayList<String>();
 
-							if (!olderMessages.isEmpty())
-							{
-								for (StatusMessage suMessage : olderMessages)
-								{
-									if (!TextUtils.isEmpty(suMessage.getMappedId()))
-									{
-										suIDList.add(suMessage.getMappedId());
-									}
-								}
-								
-								if (!suIDList.isEmpty())
-								{
-									// Get actions for SU from HTTP
-									JSONArray suIDArray = new JSONArray(suIDList);
-									JSONObject suUpdateJSON = new JSONObject();
-									try
-									{
-										Logger.d(HikeConstants.TIMELINE_LOGS, "list of suIDArray, fetching HTTP calls " + suIDArray);
-										suUpdateJSON.put(HikeConstants.SU_ID_LIST, suIDArray);
-										RequestToken requestToken = HttpRequests.getActionUpdates(suUpdateJSON, actionUpdatesReqListener);
-										requestToken.execute();
-									}
-									catch (JSONException e)
-									{
-										e.printStackTrace();
-									}
-
-									// Get actions for SU from DB
-									HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
-									{
-										@Override
-										public void run()
-										{
-											HikeConversationsDatabase.getInstance().getActionsData(ActionsDataModel.ActivityObjectTypes.STATUS_UPDATE.getTypeString(), suIDList,
-													TimelineActionsManager.getInstance().getActionsData());
-											notifyVisibleItems();
-										}
-									}, 0);
-								}
-								
+							if (!olderMessages.isEmpty()) {
+								HikeHandlerUtil.getInstance().postRunnable(new UpdateActionsDataRunnable(olderMessages));
 								statusMessages.addAll(statusMessages.size(), olderMessages);
 								timelineCardsAdapter.notifyDataSetChanged();
-							}
-							else
-							{
+							} else {
 								/*
 								 * This signifies that we've reached the end. No need to query the db anymore unless we add a new message.
 								 */
@@ -593,7 +551,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				}
 			});
 		}
-		else if (HikePubSub.ACTIVITY_UPDATE.equals(type))
+		else if (HikePubSub.ACTIVITY_UPDATE.equals(type) || HikePubSub.ACTIONS_DATA_UPDATE.equals(type))
 		{
 			getActivity().runOnUiThread(new Runnable()
 			{
@@ -892,43 +850,9 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 
 			Logger.d(HikeConstants.TIMELINE_LOGS, "list of SUs to show on Timeline " + result);
 			
-			final ArrayList<String> suIDList = new ArrayList<String>();
-
-			for (StatusMessage suMessage : result)
+			if(!Utils.isEmpty(result))
 			{
-				if (!TextUtils.isEmpty(suMessage.getMappedId()))
-				{
-					suIDList.add(suMessage.getMappedId());
-				}
-			}
-
-			if (!suIDList.isEmpty())
-			{
-				// Get actions for SU from HTTP
-				JSONArray suIDArray = new JSONArray(suIDList);
-				JSONObject suUpdateJSON = new JSONObject();
-				try
-				{
-					Logger.d(HikeConstants.TIMELINE_LOGS, "list of suIDArray, fetching HTTP calls " + suIDArray);
-					suUpdateJSON.put(HikeConstants.SU_ID_LIST, suIDArray);
-					RequestToken requestToken = HttpRequests.getActionUpdates(suUpdateJSON, actionUpdatesReqListener);
-					requestToken.execute();
-				}
-				catch (JSONException e)
-				{
-					e.printStackTrace();
-				}
-
-				// Get actions for SU from DB
-				HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						HikeConversationsDatabase.getInstance().getActionsData(ActionsDataModel.ActivityObjectTypes.STATUS_UPDATE.getTypeString(), suIDList, TimelineActionsManager.getInstance().getActionsData());
-						notifyVisibleItems();
-					}
-				}, 0);
+				HikeHandlerUtil.getInstance().postRunnable(new UpdateActionsDataRunnable(result));
 			}
 
 			long currentProtipId = -1l;
@@ -1119,46 +1043,6 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		}
 		timelineCardsAdapter.setFTUEFriendList(finalContactLsit);
 	}
-
-	private IRequestListener actionUpdatesReqListener = new IRequestListener()
-	{
-		@Override
-		public void onRequestSuccess(Response result)
-		{
-			final JSONObject response = (JSONObject) result.getBody().getContent();
-
-			Logger.d(HikeConstants.TIMELINE_LOGS, "responce from http call "+ response);
-			
-			if (Utils.isResponseValid(response))
-			{
-				TimelineActions actionsData = gson.fromJson(response.toString(), TimelineActions.class);
-				
-				if(actionsData == null)
-				{
-					return;
-				}
-
-				notifyVisibleItems();
-
-				TimelineActionsManager.getInstance().updateActionsData(actionsData);
-
-				HikeConversationsDatabase.getInstance().updateActionsData(actionsData, ActivityObjectTypes.STATUS_UPDATE);
-			}
-		}
-
-		@Override
-		public void onRequestProgressUpdate(float progress)
-		{
-			// Do nothing
-		}
-
-		@Override
-		public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException)
-		{
-			// Do nothing
-			Logger.d(HikeConstants.TIMELINE_LOGS, "responce from http call failed "+ httpException.toString());
-		}
-	};
 
 	private void addProtip(Protip protip)
 	{

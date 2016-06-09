@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/section_view"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:paddingTop="30dp"
+    android:paddingRight="19dp"
+    android:paddingLeft="16dp"
+    android:paddingBottom="6dp">
+
+    <com.bsb.hike.view.CustomFontTextView
+        android:id="@+id/header"
+        android:layout_alignParentLeft="true"
+        android:text="@string/sm_category_header_text"
+        style="@style/ListSectionTextView"
+        android:textStyle="normal"
+        android:fontFamily="sans-serif-medium"/>
+
+    <com.bsb.hike.view.CustomFontTextView
+        android:id="@+id/subHeader"
+        android:layout_alignParentRight="true"
+        android:text="@string/sm_category_subheader_text"
+        style="@style/AtomicTipBodyText"
+        android:textColor="@color/share_text"
+        android:fontFamily="sans-serif-medium"/>
+
+</RelativeLayout>
