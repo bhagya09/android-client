@@ -29,7 +29,6 @@ import com.bsb.hike.spaceManager.models.SubCategoryItem;
 import com.bsb.hike.tasks.DeleteAccountTask;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -212,7 +211,7 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
                 
                 //TODO start here DeleteAccount TASK
                 DeleteAccountTask task = new DeleteAccountTask(ManageSpaceActivity.this, false, getApplicationContext());
-                deleteProgressDialog = ProgressDialog.show(ManageSpaceActivity.this, getResources().getString(R.string.sm_fallback_header), getResources().getString(R.string.delete_space_fallback_loader_text));
+                deleteProgressDialog = ProgressDialog.show(ManageSpaceActivity.this, getResources().getString(R.string.sm_fallback_header), getResources().getString(R.string.sm_fallback_loader_text));
                 task.execute();
             }
 
@@ -242,7 +241,7 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
             {
                 //TODO Analytics logs
                 hikeDialog.dismiss();
-                deleteProgressDialog = ProgressDialog.show(ManageSpaceActivity.this, null, getString(R.string.delete_space_loader_text));
+                deleteProgressDialog = ProgressDialog.show(ManageSpaceActivity.this, null, getString(R.string.sm_delete_loader_text));
                 HikeHandlerUtil.getInstance().postRunnable(new Runnable()
                 {
                     @Override
