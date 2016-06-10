@@ -70,8 +70,6 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
 	private boolean fetchRecents;
 	
-	private boolean fetchRecentlyJoined;
-
 	private String existingGroupId;
 
 	private String sendingMsisdn;
@@ -102,7 +100,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
 	private boolean isGroupFirst;
 
-    public ComposeChatAdapter(Context context, ListView listView, boolean fetchGroups, boolean fetchRecents, boolean fetchRecentlyJoined, String existingGroupId, String sendingMsisdn, FriendsListFetchedCallback friendsListFetchedCallback, boolean showSMSContacts, boolean showMicroappShowcase,boolean isContactChooserFilter, boolean showTimeline, boolean showBdaySection)
+    public ComposeChatAdapter(Context context, ListView listView, boolean fetchGroups, boolean fetchRecents, String existingGroupId, String sendingMsisdn, FriendsListFetchedCallback friendsListFetchedCallback, boolean showSMSContacts, boolean showMicroappShowcase,boolean isContactChooserFilter, boolean showTimeline, boolean showBdaySection)
 	{
 		super(context, listView, friendsListFetchedCallback, ContactInfo.lastSeenTimeComparatorWithoutFav);
 		selectedPeople = new LinkedHashMap<String, ContactInfo>();
@@ -116,7 +114,6 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		this.sendingMsisdn = sendingMsisdn;
 		this.fetchGroups = fetchGroups;
 		this.fetchRecents = fetchRecents;
-		this.fetchRecentlyJoined = fetchRecentlyJoined;
 		this.showMicroappShowcase = showMicroappShowcase;
 		
 		groupsList = new ArrayList<ContactInfo>(0);
@@ -186,14 +183,14 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
 			}
 
-			fetchFriendsTask = new FetchFriendsTask(this, context, friendsList, hikeContactsList, smsContactsList, recentContactsList,recentlyJoinedHikeContactsList, friendsStealthList, hikeStealthContactsList,
-					smsStealthContactsList, filteredFriendsList, filteredHikeContactsList, filteredSmsContactsList, groupsList, groupsStealthList, nuxRecommendedList, nuxFilteredRecoList, filteredGroupsList, filteredRecentsList,filteredRecentlyJoinedHikeContactsList,
-					existingParticipants, sendingMsisdn, false, existingGroupId, isCreatingOrEditingGroup, fetchSMSContacts, false, false , false, showDefaultEmptyList, fetchHikeContacts, false, fetchRecommendedContacts, fetchHideListContacts, null, null, false, null, showBdaySection,
+			fetchFriendsTask = new FetchFriendsTask(this, context, friendsList, hikeContactsList, smsContactsList, recentContactsList, friendsStealthList, hikeStealthContactsList,
+					smsStealthContactsList, filteredFriendsList, filteredHikeContactsList, filteredSmsContactsList, groupsList, groupsStealthList, nuxRecommendedList, nuxFilteredRecoList, filteredGroupsList, filteredRecentsList,
+					existingParticipants, sendingMsisdn, false, existingGroupId, isCreatingOrEditingGroup, fetchSMSContacts, false, false, showDefaultEmptyList, fetchHikeContacts, false, fetchRecommendedContacts, fetchHideListContacts, null, null, false, null, showBdaySection,
                     hikeBdayContactList, filteredHikeBdayContactList);
 		} else {
-			fetchFriendsTask = new FetchFriendsTask(this, context, friendsList, hikeContactsList, smsContactsList, recentContactsList,recentlyJoinedHikeContactsList, friendsStealthList, hikeStealthContactsList,
-					smsStealthContactsList, filteredFriendsList, filteredHikeContactsList, filteredSmsContactsList, groupsList, groupsStealthList, null, null, filteredGroupsList, filteredRecentsList,filteredRecentlyJoinedHikeContactsList,
-					existingParticipants, sendingMsisdn, fetchGroups, existingGroupId, isCreatingOrEditingGroup, showSMSContacts, false, fetchRecents , fetchRecentlyJoined, showDefaultEmptyList, true, true, false , false, microappShowcaseList , filteredmicroAppShowcaseList, showMicroappShowcase, composeExcludeList,
+			fetchFriendsTask = new FetchFriendsTask(this, context, friendsList, hikeContactsList, smsContactsList, recentContactsList, friendsStealthList, hikeStealthContactsList,
+					smsStealthContactsList, filteredFriendsList, filteredHikeContactsList, filteredSmsContactsList, groupsList, groupsStealthList, null, null, filteredGroupsList, filteredRecentsList,
+					existingParticipants, sendingMsisdn, fetchGroups, existingGroupId, isCreatingOrEditingGroup, showSMSContacts, false, fetchRecents , showDefaultEmptyList, true, true, false , false, microappShowcaseList , filteredmicroAppShowcaseList, showMicroappShowcase, composeExcludeList,
                     showBdaySection, hikeBdayContactList, filteredHikeBdayContactList);
 		}
 
@@ -742,16 +739,6 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			updateHikeBdayContactList(hikeBdayContactsSection);
 		}
 
-		if(fetchRecentlyJoined && !recentlyJoinedHikeContactsList.isEmpty())
-		{
-			ContactInfo recentsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredRecentlyJoinedHikeContactsList.size()), context.getString(R.string.recently_joined_hike), RECENTLY_JOINED);
-			if (filteredRecentlyJoinedHikeContactsList.size() > 0)
-			{
-				completeList.add(recentsSection);
-				completeList.addAll(filteredRecentlyJoinedHikeContactsList);
-			}
-		}
-		
 		// hack for header, as we are using pinnedSectionListView
 		if(fetchRecents && !recentContactsList.isEmpty())
 		{
@@ -902,8 +889,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		onHikeLists.add(getOnHikeSublist(friendsList));
 		onHikeLists.add(hikeContactsList);
 		onHikeLists.add(getOnHikeSublist(recentContactsList));
-		onHikeLists.add(getOnHikeSublist(recentlyJoinedHikeContactsList));
-		
+
 		return onHikeLists;
 	}
 

@@ -813,13 +813,13 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			boolean isGroupFirst = getIntent().getBooleanExtra(HikeConstants.Extras.IS_GROUP_FIRST, false);
 			boolean isRecentJoined = getIntent().getBooleanExtra(HikeConstants.Extras.IS_RECENT_JOINED, fetchRecentlyJoined);
 			List<String> excludeGroupList = getIntent().getStringArrayListExtra(HikeConstants.Extras.COMPOSE_EXCLUDE_LIST);
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage || isGroupFirst, (isForwardingMessage && !isSharingFile), isRecentJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false, false,isContactChooserFilter,isShowTimeline(), false);
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage || isGroupFirst, isRecentJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false, false,isContactChooserFilter,isShowTimeline(), false);
 
 			adapter.setGroupFirst(isGroupFirst);
 			adapter.setComposeExcludeList(excludeGroupList);
 			break;
 		case CREATE_GROUP_MODE:
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId,
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, fetchRecentlyJoined, existingGroupOrBroadcastId,
 					sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent), isContactChooserFilter, isShowTimeline(), false);
 			break;
 		case START_CHAT_MODE:
@@ -828,13 +828,13 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			{
 				showGroups =getIntent().getBooleanExtra(HikeConstants.Extras.IS_GROUP_FIRST,false);
 			}
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage || showGroups, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId,
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage || showGroups, fetchRecentlyJoined, existingGroupOrBroadcastId,
 					sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent), isContactChooserFilter, isShowTimeline(),
 					showBdaySection);
 			break;
 
 		default:
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId,
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, fetchRecentlyJoined, existingGroupOrBroadcastId,
 					sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent), isContactChooserFilter, isShowTimeline(), false);
 			break;
 		}

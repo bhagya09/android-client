@@ -55,8 +55,6 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 
 	private List<ContactInfo> recentTaskList;
 
-	private List<ContactInfo> recentlyJoinedTaskList;
-
 	private List<ContactInfo> groupsList;
 
 	private List<ContactInfo> friendsList;
@@ -71,8 +69,6 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 
 	private List<ContactInfo> suggestedContactsList;
 
-	private List<ContactInfo> recentlyJoinedContactsList;
-
 	private List<ContactInfo> groupsStealthList;
 
 	private List<ContactInfo> friendsStealthList;
@@ -84,8 +80,6 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 	private List<ContactInfo> filteredGroupsList;
 
 	private List<ContactInfo> filteredRecentsList;
-
-	private List<ContactInfo> filteredRecentlyJoinedList;
 
 	private List<ContactInfo> filteredFriendsList;
 
@@ -121,8 +115,6 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 
 	private boolean fetchRecents;
 
-	private boolean fetchRecentlyJoined;
-
 	private boolean fetchRecommendedContacts;
 
 	private boolean filterHideList;
@@ -144,13 +136,13 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 	private boolean showBdaySection;
 
 	public FetchFriendsTask(FriendsAdapter friendsAdapter, Context context, List<ContactInfo> friendsList, List<ContactInfo> hikeContactsList, List<ContactInfo> smsContactsList,
-			List<ContactInfo> recentContactsList, List<ContactInfo> recentlyJoinedHikeContactsList, List<ContactInfo> friendsStealthList,
+			List<ContactInfo> recentContactsList, List<ContactInfo> friendsStealthList,
 			List<ContactInfo> hikeStealthContactsList, List<ContactInfo> smsStealthContactsList, List<ContactInfo> filteredFriendsList,
 			List<ContactInfo> filteredHikeContactsList, List<ContactInfo> filteredSmsContactsList, List<ContactInfo> groupsList, List<ContactInfo> groupsStealthList,
 			List<ContactInfo> recommendedContactsList, List<ContactInfo> filteredRecommendedContactsList, List<ContactInfo> filteredGroupsList,
-			List<ContactInfo> filteredRecentsList, List<ContactInfo> filteredRecentlyJoinedContactsList, Map<String, ContactInfo> selectedPeople, String sendingMsisdn,
+			List<ContactInfo> filteredRecentsList, Map<String, ContactInfo> selectedPeople, String sendingMsisdn,
 			boolean fetchGroups, String existingGroupId, boolean creatingOrEditingGroup, boolean fetchSmsContacts, boolean checkFavTypeInComparision, boolean fetchRecents,
-			boolean fetchRecentlyJoined, boolean showDefaultEmptyList, boolean fetchHikeContacts, boolean fetchFavContacts, boolean fetchRecommendedContacts,
+			boolean showDefaultEmptyList, boolean fetchHikeContacts, boolean fetchFavContacts, boolean fetchRecommendedContacts,
 			boolean filterHideList, List<BotInfo> microappShowcaseList, List<BotInfo> filteredMicroAppShowcaseList, boolean showMicroappShowcase, List<String> composeExcludeList,
             boolean showBdaySection, List<ContactInfo> hikeBdayContactList, List<ContactInfo> filteredHikeBdayContactList)
 	{
@@ -163,7 +155,6 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		this.hikeContactsList = hikeContactsList;
 		this.smsContactsList = smsContactsList;
 		this.recentContactsList = recentContactsList;
-		this.recentlyJoinedContactsList = recentlyJoinedHikeContactsList;
 		this.recommendedContactsList = recommendedContactsList;
 
 		this.groupsStealthList = groupsStealthList;
@@ -176,7 +167,6 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		this.filteredHikeContactsList = filteredHikeContactsList;
 		this.filteredSmsContactsList = filteredSmsContactsList;
 		this.filteredRecentsList = filteredRecentsList;
-		this.filteredRecentlyJoinedList = filteredRecentlyJoinedContactsList;
 		this.filteredRecommendedContactsList = filteredRecommendedContactsList;
 
 		this.selectedPeople = selectedPeople;
@@ -194,7 +184,6 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		this.fetchFavContacts = fetchFavContacts;
 		this.checkFavTypeInComparision = checkFavTypeInComparision;
 		this.fetchRecents = fetchRecents;
-		this.fetchRecentlyJoined = fetchRecentlyJoined;
 
 		this.showDefaultEmptyList = showDefaultEmptyList;
 		this.showMicroappShowcase = showMicroappShowcase;
@@ -284,7 +273,6 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		friendTaskList = new ArrayList<ContactInfo>();
 		hikeTaskList = new ArrayList<ContactInfo>();
 		smsTaskList = new ArrayList<ContactInfo>();
-		recentlyJoinedTaskList = new ArrayList<ContactInfo>();
 		nuxRecommendedTaskList = new ArrayList<ContactInfo>();
 		nuxHideTaskList = new ArrayList<ContactInfo>();
 
@@ -352,7 +340,6 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 			}
 			FavoriteType favoriteType = contactInfo.getFavoriteType();
 
-			addToRecentlyJoinedIfNeeded(contactInfo);
 			if (shouldAddToFavorites(favoriteType) && fetchFavContacts)
 			{
 				friendTaskList.add(contactInfo);
@@ -379,26 +366,6 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		Collections.sort(friendTaskList, checkFavTypeInComparision ? ContactInfo.lastSeenTimeComparator : ContactInfo.lastSeenTimeComparatorWithoutFav);
 		Logger.d("TestQuery", "Sorting time: " + (System.currentTimeMillis() - sortTime));
 
-		Collections.sort(recentlyJoinedTaskList, new Comparator<ContactInfo>()
-		{
-			@Override
-			public int compare(ContactInfo lhs, ContactInfo rhs)
-			{
-				return (lhs.getHikeJoinTime() < rhs.getHikeJoinTime()) ? 1 : -1;
-			}
-		});
-
-		/*
-             *
-             */
-		if (recentlyJoinedTaskList.size() > HikeConstants.MAX_RECENTLY_JOINED_HIKE_TO_SHOW)
-		{
-			recentlyJoinedTaskList = recentlyJoinedTaskList.subList(0, HikeConstants.MAX_RECENTLY_JOINED_HIKE_TO_SHOW);
-		}
-
-		hikeTaskList.removeAll(recentlyJoinedTaskList);
-		friendTaskList.removeAll(recentlyJoinedTaskList);
-
 		// When adding members to an existing group, remove existing participants
 		if (!TextUtils.isEmpty(existingGroupId))
 		{
@@ -418,10 +385,6 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 			if (fetchSmsContacts)
 			{
 				removeContactsFromList(smsTaskList, groupParticipants);
-			}
-			if(fetchRecentlyJoined)
-			{
-				removeContactsFromList(recentlyJoinedTaskList, groupParticipants);
 			}
 
 			for (PairModified<GroupParticipant, String> groupParticipant : groupParticipants.values())
@@ -464,22 +427,6 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		Logger.d("TestQuery", "total time: " + (System.currentTimeMillis() - startTime));
 		return null;
 
-	}
-
-	private void addToRecentlyJoinedIfNeeded(ContactInfo contactInfo)
-	{
-		if (fetchRecentlyJoined && contactInfo.isOnhike() && !contactInfo.isUnknownContact())
-		{
-			if (!StealthModeManager.getInstance().isActive() && StealthModeManager.getInstance().isStealthMsisdn(contactInfo.getMsisdn()))
-			{
-				return;
-			}
-			long hikeJoinTime = contactInfo.getHikeJoinTime();
-			if (hikeJoinTime > 0)
-			{
-				recentlyJoinedTaskList.add(contactInfo);
-			}
-		}
 	}
 
 	private boolean shouldAddToFavorites(FavoriteType favoriteType)
@@ -635,11 +582,6 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 			filteredSmsContactsList.addAll(smsTaskList);
 		}
 
-		if (fetchRecentlyJoined)
-		{
-			recentlyJoinedContactsList.addAll(recentlyJoinedTaskList);
-			filteredRecentlyJoinedList.addAll(recentlyJoinedTaskList);
-		}
 		if (fetchRecommendedContacts)
 		{
 			if (recommendedContactsList != null)
@@ -685,12 +627,6 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		{
 			recentContactsList.clear();
 			filteredRecentsList.clear();
-		}
-
-		if (fetchRecentlyJoined)
-		{
-			recentlyJoinedContactsList.clear();
-			filteredRecentlyJoinedList.clear();
 		}
 
 		friendsList.clear();
