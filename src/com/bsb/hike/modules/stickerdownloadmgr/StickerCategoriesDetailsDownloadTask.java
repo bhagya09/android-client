@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.os.Bundle;
@@ -74,9 +75,9 @@ public class StickerCategoriesDetailsDownloadTask implements IHikeHTTPTask, IHik
 			}
 
 		}
-		catch (Exception e)
+		catch (JSONException e)
 		{
-			Logger.e(TAG, "Exception in createjJsonBody", e);
+			Logger.e(TAG, "Exception in create JsonBody", e);
 		}
 	}
 
