@@ -8683,7 +8683,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 	/*
 	 * This method is called from sticker shop call responce.
 	 */
-	public boolean updateStickerCategoriesInDb(JSONArray jsonArray, boolean insertInShopTable)
+	public boolean updateStickerCategoriesInDb(JSONArray jsonArray)
 	{
 		try
 		{
@@ -8705,12 +8705,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				contentValues.put(DBConstants.SIMILAR_CATEGORIES, category.getSimilarPacksString());
 				contentValues.put(DBConstants.AUTHOR, category.getAuthor());
 				contentValues.put(DBConstants.COPYRIGHT_STRING, category.getCopyRightString());
-				if (!insertInShopTable)
-				{
-					contentValues.put(DBConstants.IS_DISABLED, category.isDisabled() ? 1 : 0);
-					contentValues.put(DBConstants.UPDATED_METADATA_TIMESTAMP, category.getPackUpdationTime());
-					contentValues.put(DBConstants.UCID, category.getUcid());
-				}
+				contentValues.put(DBConstants.IS_DISABLED, category.isDisabled() ? 1 : 0);
+				contentValues.put(DBConstants.UPDATED_METADATA_TIMESTAMP, category.getPackUpdationTime());
+				contentValues.put(DBConstants.UPDATE_AVAILABLE, category.isUpdateAvailable());
+				contentValues.put(DBConstants.UCID, category.getUcid());
+
 				int rowsAffected = mDb.update(DBConstants.STICKER_CATEGORIES_TABLE, contentValues, DBConstants._ID + "=?", new String[]{category.getCategoryId()});
 				if(rowsAffected <= 0)
 				{

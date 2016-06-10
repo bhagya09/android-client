@@ -113,7 +113,7 @@ public class FetchCategoryMetadataTask implements IHikeHTTPTask, IHikeHttpTaskRe
 						return;
 					}
 					JSONArray jsonArray = resultData.optJSONArray(HikeConstants.PACKS);
-					boolean isUpdated =HikeConversationsDatabase.getInstance().updateStickerCategoriesInDb(jsonArray, false);
+					boolean isUpdated = HikeConversationsDatabase.getInstance().updateStickerCategoriesInDb(jsonArray);
 					if (isUpdated)
 					{
 						HikeConversationsDatabase.getInstance().updateIsPackMetadataUpdated(list);
