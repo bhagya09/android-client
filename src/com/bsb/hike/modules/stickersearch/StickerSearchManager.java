@@ -958,7 +958,7 @@ public class StickerSearchManager
 		}
 		catch (JSONException e)
 		{
-			Logger.e(TAG, "sendSearchedCategoryDailyReport() : Exception While send report analytics JSON : " + e.getMessage());
+			Logger.e(TAG, "sendDailyStickerSearchReport() : Exception While send report analytics JSON : " + e.getMessage());
 		}
 	}
 
@@ -989,7 +989,7 @@ public class StickerSearchManager
 		}
 		catch (JSONException e)
 		{
-			Logger.e(TAG, "sendSearchedCategoryDailyReport() : Exception While send report analytics JSON : " + e.getMessage());
+			Logger.e(TAG, "sendDailyStickerSearchEffeciencyReport() : Exception While send report analytics JSON : " + e.getMessage());
 		}
 	}
 
