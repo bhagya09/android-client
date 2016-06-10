@@ -4197,6 +4197,7 @@ public class StickerManager
 		for (int i = 0; i < activeStickerArray.length(); i++)
 		{
 			String stickerId = activeStickerArray.getString(i);
+			currentActiveStickerCount++;
 
 			if (TextUtils.isEmpty(stickerId))
 			{
@@ -4211,7 +4212,6 @@ public class StickerManager
 				prevActiveStickerCount++;
 			}
 
-			currentActiveStickerCount++;
 		}
 
 		Set<String> stickerCodesForRemovedStickers = new HashSet<>(previousActiveStickerList.size());
