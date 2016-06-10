@@ -4157,12 +4157,17 @@ public class StickerManager
 			currentActiveStickerCount++;
 		}
 
+		Set<String> stickerCodesForRemovedStickers = new HashSet<>(previousActiveStickerList.size());
+
 		for (Sticker sticker : previousActiveStickerList)
 		{
 			removeSticker(sticker);
+			stickerCodesForRemovedStickers.add(sticker.getStickerCode());
 		}
 
 		HikeConversationsDatabase.getInstance().activateStickerFromDB(activeStickerList);
+
+		StickerManager.getInstance().removeTagForDeletedStickers(stickerCodesForRemovedStickers);
 
 		int newActiveStickerCount = currentActiveStickerCount - prevActiveStickerCount;
 
