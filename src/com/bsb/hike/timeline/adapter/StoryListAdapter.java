@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -176,7 +177,7 @@ public class StoryListAdapter extends BaseAdapter implements PinnedSectionListVi
             if (!TextUtils.isEmpty(subText)) {
                 viewHolder.subTextView.setText(subText);
                 viewHolder.subTextView.setVisibility(View.VISIBLE);
-
+                viewHolder.subTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
                 if (mContext.getString(R.string.timeline_sub_no_updt).equals(subText)) {
                     // Color gray
                     viewHolder.subTextView.setTextColor(mContext.getResources().getColor(R.color.stories_sub_text_unread));
@@ -191,6 +192,7 @@ public class StoryListAdapter extends BaseAdapter implements PinnedSectionListVi
             if (!TextUtils.isEmpty(subText)) {
                 viewHolder.subTextView.setText(subText);
                 viewHolder.subTextView.setVisibility(View.VISIBLE);
+                viewHolder.subTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
             }
             List<StatusMessage> statusMessagesList = storyItem.getDataObjects();
             ContactInfo contactInfo = (ContactInfo) storyItem.getTypeInfo();
@@ -213,11 +215,14 @@ public class StoryListAdapter extends BaseAdapter implements PinnedSectionListVi
             if (storyItem.getCategory() != StoryItem.CATEGORY_RECENT) {
                 viewHolder.titleView.setAlpha(0.6f);
                 viewHolder.avatarView.setAlpha(0.6f);
+                viewHolder.subTextView.setTextColor(mContext.getResources().getColor(R.color.stories_sub_text_unread));
+
             } else {
                 viewHolder.titleView.setAlpha(1f);
+                viewHolder.subTextView.setTextColor(mContext.getResources().getColor(R.color.blue_hike));
                 viewHolder.avatarView.setAlpha(1f);
             }
-            viewHolder.subTextView.setTextColor(mContext.getResources().getColor(R.color.stories_sub_text_unread));
+
 
         } else if (storyItem.getType() == StoryItem.TYPE_BRAND) {
             // TODO

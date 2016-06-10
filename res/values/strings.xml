@@ -1668,8 +1668,10 @@
     <string name="change_photo">Change Photo</string>
     <string name="unread_all">Unread all</string>
     <string name="timeline_sub_new_updt">New updates available</string>
-    <string name="timeline_sub_likes">%1$d new likes</string>
-    <string name="timeline_sub_like">1 new like</string>
+    <plurals name="abbrev_new_likes">
+        <item quantity="one">1 new like</item>
+        <item quantity="other">%d new likes</item>
+    </plurals>
     <string name="story_category_recent">RECENT</string>
     <string name="story_category_allphotos">ALL PHOTOS</string>
     <string name="story_category_default">CAMERA SHY</string>

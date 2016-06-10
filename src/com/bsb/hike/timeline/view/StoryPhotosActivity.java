@@ -3,6 +3,7 @@ package com.bsb.hike.timeline.view;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.annotation.UiThread;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
@@ -185,29 +186,30 @@ public class StoryPhotosActivity extends HikeAppStateBaseFragmentActivity implem
     }
 
     @Override
-    public void onDataUpdated(List<StoryItem> storyItemList) {
+    public void onDataUpdated(final List<StoryItem> storyItemList) {
         if (!Utils.isEmpty(storyItemList)) {
-            storyItem = storyItemList.get(0);
-            pagerView.setAdapter(pagerAdapter);
-            pagerView.addOnPageChangeListener(pageChangeListener);
-            checkBoxLove.setTag(getCurrentStatusMessage());
-
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    storyItem = storyItemList.get(0);
+                    pagerView.setAdapter(pagerAdapter);
+                    pagerView.addOnPageChangeListener(pageChangeListener);
+                    checkBoxLove.setTag(getCurrentStatusMessage());
                     updateActionsRelatedViews();
+                    //Mark first post as read (rest handled onPageSelected for PagerAdapter)
+                    markAsRead(storyItem, 0);
+
+                    viewTranslucentFGScreen.setAlpha(0.25f);
+                    viewTranslucentFGScreen.setVisibility(View.VISIBLE);
+                    viewTranslucentFGScreen.animate().setDuration(1000).alpha(0.8f);
+                    //Fetch latest loves from server
+                    List<StatusMessage> statusMessageList = storyItem.getDataObjects();
+                    if (!Utils.isEmpty(statusMessageList)) {
+                        HikeHandlerUtil.getInstance().postRunnableWithDelay(new UpdateActionsDataRunnable(statusMessageList), 1000);
+                        // The delay is purely for improving UX, since on fast phones (Nexus) the runnable completes execution before photo pager is displayed because of which the transition of thumbnail in friends tab is visible (looks glitchy)
+                    }
                 }
             });
-
-            //Mark first post as read (rest handled onPageSelected for PagerAdapter)
-            markAsRead(storyItem, 0);
-
-            //Fetch latest loves from server
-            List<StatusMessage> statusMessageList = storyItem.getDataObjects();
-            if (!Utils.isEmpty(statusMessageList)) {
-                HikeHandlerUtil.getInstance().postRunnableWithDelay(new UpdateActionsDataRunnable(statusMessageList),1000);
-                // The delay is purely for improving UX, since on fast phones (Nexus) the runnable completes execution before photo pager is displayed because of which the transition of thumbnail in friends tab is visible (looks glitchy)
-            }
         }
     }
 
@@ -258,6 +260,7 @@ public class StoryPhotosActivity extends HikeAppStateBaseFragmentActivity implem
 
     private CompoundButton.OnCheckedChangeListener onLoveToggleListener = new LoveCheckBoxToggleListener();
 
+    @UiThread
     private void updateActionsRelatedViews() {
         StatusMessage currentStatusMessage = getCurrentStatusMessage();
         ActionsDataModel actionsData = TimelineActionsManager.getInstance().getActionsData()
@@ -296,10 +299,6 @@ public class StoryPhotosActivity extends HikeAppStateBaseFragmentActivity implem
         }
 
         checkBoxLove.setOnCheckedChangeListener(onLoveToggleListener);
-
-        viewTranslucentFGScreen.setAlpha(0.25f);
-        viewTranslucentFGScreen.setVisibility(View.VISIBLE);
-        viewTranslucentFGScreen.animate().setDuration(1000).alpha(0.8f);
 
         if (currentStatusMessage.getStatusMessageType() == StatusMessage.StatusMessageType.IMAGE) {
             textViewCaption.setVisibility(View.GONE);

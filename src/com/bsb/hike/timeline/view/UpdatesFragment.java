@@ -43,9 +43,8 @@ import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.timeline.ActionsDeserializer;
 import com.bsb.hike.timeline.EndlessRecyclerScrollListener;
-import com.bsb.hike.timeline.TimelineActionsManager;
+import com.bsb.hike.timeline.TimelineUtils;
 import com.bsb.hike.timeline.adapter.TimelineCardsAdapter;
-import com.bsb.hike.timeline.model.ActionsDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.timeline.model.TimelineActions;
@@ -143,8 +142,6 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		emptyLayout = parent.findViewById(R.id.timeline_no_item);
 		mLayoutManager = new LinearLayoutManager(getActivity());
 		mUpdatesList.setLayoutManager(mLayoutManager);
-		// TODO
-		// mUpdatesList.setEmptyView(parent.findViewById(android.R.id.empty));
 		return parent;
 	}
 	
@@ -347,6 +344,8 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			actionsView.findViewById(R.id.new_photo_tab).setOnClickListener(this);
 
 			actionsView.findViewById(R.id.new_status_tab).setOnClickListener(this);
+
+			TimelineUtils.updateLastSeenSUID();
 		}
 		else
 		{
@@ -912,7 +911,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			}
 			
 			timelineCardsAdapter.notifyDataSetChanged();
-			
+
 			HikeMessengerApp.getPubSub().addListeners(UpdatesFragment.this, pubSubListeners);
 		}
 
