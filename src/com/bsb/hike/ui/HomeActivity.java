@@ -3,7 +3,6 @@ package com.bsb.hike.ui;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
-import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -59,11 +58,11 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.analytics.HomeAnalyticsConstants;
 import com.bsb.hike.backup.AccountBackupRestore;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthread.ChatThreadActivity;
-import com.bsb.hike.analytics.HomeAnalyticsConstants;
 import com.bsb.hike.db.AccountRestoreAsyncTask;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.CustomAlertDialog;
@@ -255,7 +254,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		time = System.currentTimeMillis();
 		Logger.d(TAG,"onCreate");
 		super.onCreate(savedInstanceState);
-		
+
 		if (!isTaskRoot())
 		{
 		    final Intent intent = getIntent();

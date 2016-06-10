@@ -64,11 +64,10 @@ public class StoriesDataManager {
 
         final WeakReference<StoriesDataListener> listenerRef = new WeakReference<StoriesDataListener>(argListener);
 
-        updateDefaultData(listenerRef);
-
         HikeHandlerUtil.getInstance().postAtFront(new Runnable() {
             @Override
             public void run() {
+                updateDefaultData(listenerRef);
                 updateRecentStories(listenerRef);
                 updateAllPhotosStories(listenerRef);
                 updateCameraShyStories(listenerRef);
