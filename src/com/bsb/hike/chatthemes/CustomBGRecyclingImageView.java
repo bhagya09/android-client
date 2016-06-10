@@ -5,8 +5,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
-import android.util.Log;
 
+import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.ui.utils.RecyclingImageView;
 
 /**

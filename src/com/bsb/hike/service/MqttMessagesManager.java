@@ -1608,6 +1608,7 @@ public class MqttMessagesManager
 					newTalkTime = talkTime;
 				}
 			}
+			// We can either get "nls" or "uls" from server
 			if (account.has(HikeConstants.NEW_LAST_SEEN_SETTING))
 			{
 				SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
@@ -1619,6 +1620,19 @@ public class MqttMessagesManager
 				settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, Integer.toString(account.optInt(HikeConstants.NEW_LAST_SEEN_SETTING)));
 				settingEditor.commit();
 			}
+
+			if (account.has(HikeConstants.UPDATED_LAST_SEEN_SETTING) && Utils.isFavToFriendsMigrationAllowed())
+			{
+				SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+				Editor settingEditor = settings.edit();
+				if (account.has(HikeConstants.LAST_SEEN_SETTING))
+				{
+					settingEditor.putBoolean(HikeConstants.LAST_SEEN_PREF, account.optBoolean(HikeConstants.LAST_SEEN_SETTING, true));
+				}
+				settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, Integer.toString(account.optInt(HikeConstants.UPDATED_LAST_SEEN_SETTING)));
+				settingEditor.apply();
+			}
+
 			if (account.has(HikeConstants.UJ_NOTIF_SETTING))
 			{
 				SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);

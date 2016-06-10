@@ -813,7 +813,7 @@ public class PlatformUtils
 			return;
 		}
 		final boolean autoResume = downloadData.optBoolean(HikePlatformConstants.AUTO_RESUME, false);
-
+		final boolean resumeSupported = downloadData.optBoolean(HikePlatformConstants.RESUME_SUPPORTED,autoResume);
         // Check here to reject a mapp packet if its latest version is already present on device
         int currentMappVersionCode = 0,mAppVersionCode = 0;
         JSONObject cardObjectJson = downloadData.optJSONObject(HikePlatformConstants.CARD_OBJECT);
@@ -831,83 +831,65 @@ public class PlatformUtils
 		}
 
         final PlatformContentModel platformContentModel = PlatformContentModel.make(downloadData.toString(), HikePlatformConstants.PlatformBotType.HIKE_MAPPS);
-		PlatformContentRequest rqst = PlatformContentRequest.make(platformContentModel, new PlatformContentListener<PlatformContentModel>()
-		{
+		PlatformContentRequest rqst = PlatformContentRequest.make(platformContentModel, new PlatformContentListener<PlatformContentModel>() {
 			long fileLength = 0;
 
 			@Override
-			public void onComplete(PlatformContentModel content)
-			{
+			public void onComplete(PlatformContentModel content) {
 				microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOADED, content);
 				Logger.d(TAG, "microapp download packet success.");
-                // Store successful micro app creation in db
-                mAppCreationSuccessHandling(downloadData);
+				// Store successful micro app creation in db
+				mAppCreationSuccessHandling(downloadData);
 				// Removing from state table in case of Download success
 				removeFromPlatformDownloadStateTable(platformContentModel.getId(), platformContentModel.cardObj.getmAppVersionCode());
 			}
 
 			@Override
-			public void onEventOccured(int uniqueId, PlatformContent.EventCode event)
-			{
+			public void onEventOccured(int uniqueId, PlatformContent.EventCode event) {
 
-				if (event == PlatformContent.EventCode.DOWNLOADING || event == PlatformContent.EventCode.LOADED)
-				{
+				if (event == PlatformContent.EventCode.DOWNLOADING || event == PlatformContent.EventCode.LOADED) {
 					// do nothing
 					return;
 				}
 
 				JSONObject jsonObject = new JSONObject();
-				try
-				{
+				try {
 					jsonObject.put(HikePlatformConstants.ERROR_CODE, event.toString());
-				}
-				catch (JSONException e)
-				{
+				} catch (JSONException e) {
 					e.printStackTrace();
 				}
 
-				if (event == PlatformContent.EventCode.ALREADY_DOWNLOADED)
-				{
+				if (event == PlatformContent.EventCode.ALREADY_DOWNLOADED) {
 					microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOADED, platformContentModel, jsonObject);
 					Logger.d(TAG, "microapp already exists.");
-				}
-				else
-				{
-                    try
-					{
-						if (fileLength > 0)
-						{
+				} else {
+					try {
+						if (fileLength > 0) {
 							jsonObject.put(AnalyticsConstants.FILE_SIZE, String.valueOf(fileLength));
 						}
 						jsonObject.put(AnalyticsConstants.INTERNAL_STORAGE_SPACE, String.valueOf(Utils.getFreeInternalStorage()) + " MB");
-					}
-					catch (JSONException e)
-					{
+					} catch (JSONException e) {
 						Logger.e(TAG, "JSONException " + e.getMessage());
 					}
-                    // Publish pubsub for failure case of mapp packet received
-                    JSONObject cardObjectJson = downloadData.optJSONObject(HikePlatformConstants.CARD_OBJECT);
+					// Publish pubsub for failure case of mapp packet received
+					JSONObject cardObjectJson = downloadData.optJSONObject(HikePlatformConstants.CARD_OBJECT);
 
-                    if (cardObjectJson != null) {
-                        final String appName = cardObjectJson.optString(HikePlatformConstants.APP_NAME, "");
-                        // Publish pubsub for failed creation of mapp packet received
-                        Pair<BotInfo,Boolean> mAppCreatedSuccessfullyPair = new Pair(appName,false);
-                        HikeMessengerApp.getPubSub().publish(HikePubSub.MAPP_CREATED, mAppCreatedSuccessfullyPair);
-                    }
+					if (cardObjectJson != null) {
+						final String appName = cardObjectJson.optString(HikePlatformConstants.APP_NAME, "");
+						// Publish pubsub for failed creation of mapp packet received
+						Pair<BotInfo, Boolean> mAppCreatedSuccessfullyPair = new Pair(appName, false);
+						HikeMessengerApp.getPubSub().publish(HikePubSub.MAPP_CREATED, mAppCreatedSuccessfullyPair);
+					}
 					//Updating state in case of failure
-					if (autoResume && !(PlatformContent.EventCode.UNZIP_FAILED.toString().equals(event.toString())))
-					{
+					if (autoResume && !(PlatformContent.EventCode.UNZIP_FAILED.toString().equals(event.toString()))) {
 
 						updatePlatformDownloadState(platformContentModel.getId(), platformContentModel.cardObj.getmAppVersionCode(),
 								HikePlatformConstants.PlatformDwnldState.FAILED);
 						sendDownloadPausedAnalytics(platformContentModel.getId());
 					}
-					if (!autoResume)
-					{
+					if (!autoResume && !resumeSupported) {
 						PlatformUtils.removeFromPlatformDownloadStateTable(platformContentModel.getId(), platformContentModel.cardObj.getmAppVersionCode());
-					}
-					else
-					{
+					} else {
 						microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOAD_FAILED, platformContentModel, jsonObject);
 						Logger.wtf(TAG, "microapp download packet failed.Because it is" + event.toString());
 					}
@@ -938,15 +920,10 @@ public class PlatformUtils
 
 		boolean doReplace = downloadData.optBoolean(HikePlatformConstants.REPLACE_MICROAPP_VERSION);
 		String callbackId = downloadData.optString(HikePlatformConstants.CALLBACK_ID);
-		boolean resumeSupported = downloadData.optBoolean(HikePlatformConstants.RESUME_SUPPORTED);
 		String assoc_cbot = downloadData.optString(HikePlatformConstants.ASSOCIATE_CBOT, "");
 		int prefNetwork = downloadData.optInt(HikePlatformConstants.PREF_NETWORK, Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK));
 		int tagId = downloadData.optInt(HikePlatformConstants.TAG_ID,-1);
 		int tagType = downloadData.optInt(HikePlatformConstants.TAG_TYPE,-1);
-		if (autoResume)
-		{
-			resumeSupported = true;
-		}
 			PlatformUtils.addToPlatformDownloadStateTable(rqst.getContentData().getId(), rqst.getContentData().cardObj.getmAppVersionCode(), downloadData.toString(), HikePlatformConstants.PlatformTypes.MAPP,
 					downloadData.optLong(HikePlatformConstants.TTL, HikePlatformConstants.oneDayInMS), downloadData.optInt(HikePlatformConstants.PREF_NETWORK, Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK)), HikePlatformConstants.PlatformDwnldState.IN_PROGRESS,autoResume);
 		if(currentNetwork <= 0 || prefNetwork < currentNetwork)

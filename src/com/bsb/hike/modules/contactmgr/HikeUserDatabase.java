@@ -2135,6 +2135,13 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 /*
 * If we are setting the type as not favorite, we'll remove the row itself.
 */
+		toggleContactFavorite(msisdn, favoriteType, true, unreadRequestTime);
+	}
+
+	void toggleContactFavorite(String msisdn, FavoriteType favoriteType, boolean updatePrivacyValues, long unreadRequestTime) {
+		/*
+		* If we are setting the type as not favorite, we'll remove the row itself.
+		*/
 		ContentValues cv = new ContentValues();
 		Logger.d(TAG, "Adding msisdb to favourite" + msisdn);
 		cv.put(DBConstants.MSISDN, msisdn);
@@ -2142,7 +2149,11 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 // convert millisecond timestamp to seconds(int) before storing
 		unreadRequestTime /= 1000;
 		cv.put(DBConstants.UNREAD_RECEIVED_REQ_TIME, (int) (unreadRequestTime));
-		cv.put(DBConstants.LAST_SEEN_SETTINGS, getLastSeenSettingsForMsisdn());
+
+		if (updatePrivacyValues) {
+			cv.put(DBConstants.LAST_SEEN_SETTINGS, getLastSeenSettingsForMsisdn());
+		}
+
 		long value = mDb.update(DBConstants.USERS_TABLE, cv, DBConstants.MSISDN + "=?", new String[]{msisdn});
 		if (value == -1 || value == 0) {
 			value = mDb.insertWithOnConflict(DBConstants.USERS_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);

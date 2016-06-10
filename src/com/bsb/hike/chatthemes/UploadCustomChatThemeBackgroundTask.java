@@ -4,9 +4,11 @@ package com.bsb.hike.chatthemes;
 import android.support.annotation.Nullable;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Pair;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHTTPTask;
@@ -26,12 +28,14 @@ public class UploadCustomChatThemeBackgroundTask implements IHikeHTTPTask {
     private RequestToken token;
     private String imagePath;
     private String sessionId;
+    private Conversation mConversation;
 
     private final String TAG = "UploadCustomChatThemeBackgroundTask";
 
-    public UploadCustomChatThemeBackgroundTask(String imagePath, String sessionId) {
+    public UploadCustomChatThemeBackgroundTask(String imagePath, Conversation conversation, String sessionId) {
         this.imagePath = imagePath;
         this.sessionId = sessionId;
+        this.mConversation = conversation;
     }
 
     @Override
@@ -64,7 +68,6 @@ public class UploadCustomChatThemeBackgroundTask implements IHikeHTTPTask {
         return new IRequestListener() {
             @Override
             public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException) {
-                Log.v(TAG, "Custom Chattheme Image Upload Failed :::::::::::::::::");
                 HikeMessengerApp.getPubSub().publish(HikePubSub.CHATTHEME_CUSTOM_IMAGE_UPLOAD_FAILED, null);
             }
 
@@ -78,10 +81,10 @@ public class UploadCustomChatThemeBackgroundTask implements IHikeHTTPTask {
                     }
 
                     JSONObject meta = response.getJSONObject(HikeChatThemeConstants.JSON_SIGNAL_THEME_META);
-                    Log.v(TAG, "Custom Chattheme Image Upload Successful :::::::::::::::::"+meta);
                     String themeId = ChatThemeManager.getInstance().processCustomThemeSignal(meta, false);
-                    if(themeId != null) {
-                        HikeMessengerApp.getPubSub().publish(HikePubSub.CHATTHEME_CUSTOM_IMAGE_UPLOAD_SUCCESS, themeId);
+                    if(themeId != null && mConversation != null) {
+                        Pair<Conversation, String> pair = new Pair<>(mConversation, themeId);
+                        HikeMessengerApp.getPubSub().publish(HikePubSub.CHATTHEME_CUSTOM_IMAGE_UPLOAD_SUCCESS, pair);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

@@ -297,8 +297,10 @@ public class NativeCardUtils
 				Toast.makeText(context, R.string.download_image_before_sharing, Toast.LENGTH_SHORT).show();
 				return;
 			}
-			Intent intent = IntentFactory.shareIntent("image/jpeg", file.getAbsolutePath(), null, HikeConstants.Extras.ShareTypes.IMAGE_SHARE, null,
+			String currentFileSelectionPath = HikeConstants.FILE_SHARE_PREFIX + file.getAbsolutePath();
+			Intent intent = IntentFactory.shareIntent("image/jpeg", currentFileSelectionPath, null, HikeConstants.Extras.ShareTypes.IMAGE_SHARE, null,
 					true);
+
 			context.startActivity(intent);
 		} else {
 			file = NativeCardUtils.getFileForView(view, HikeMessengerApp.getInstance());

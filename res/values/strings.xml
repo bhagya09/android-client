@@ -1657,7 +1657,7 @@
     <string name="add_friends">Add Friends</string>
     <string name="added_me">Added Me</string>
     <string name="add_btn_txt">+ ADD</string>
-    <string name="custom_chattheme_device_not_supported">Unable to set Custom Chat Theme</string>
+    <string name="custom_chattheme_device_not_supported">Unable to set chat theme for your friend.</string>
     <string name="qs_error_view_heading">Oops! something went wrong</string>
     <string name="qs_error_view_sub_text">Tap on the sticker to try again</string>
     <string name="qs_ftue_page_tap_text">Tap on any of the stickers to send</string>

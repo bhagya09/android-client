@@ -1129,8 +1129,13 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	 */
 	public void toggleContactFavorite(String msisdn, FavoriteType ftype)
 	{
+		toggleContactFavorite(msisdn, ftype, true);
+	}
+
+	public void toggleContactFavorite(String msisdn, FavoriteType ftype, boolean updatePrivacyValues)
+	{
 		ContactInfo contact = getContact(msisdn);
-		toggleContactFavorite(contact,ftype);
+		toggleContactFavorite(contact,ftype, updatePrivacyValues);
 	}
 
 	/**
@@ -1141,13 +1146,24 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	 */
 	public void toggleContactFavorite(ContactInfo contact, FavoriteType ftype)
 	{
+		toggleContactFavorite(contact, ftype, true);
+	}
+
+	/**
+	 * This method updates the favorite type of a contact in memory as well as in database
+	 *
+	 * @param contact
+	 * @param ftype
+	 */
+	public void toggleContactFavorite(ContactInfo contact, FavoriteType ftype, boolean updatePrivacyPrefs)
+	{
 		if (null != contact)
 		{
 			ContactInfo updatedContact = new ContactInfo(contact);
 			updatedContact.setFavoriteType(ftype);
 			updateContacts(updatedContact);
 		}
-		hDb.toggleContactFavorite(contact.getMsisdn(), ftype, contact.getUnreadRequestReceivedTime());
+		hDb.toggleContactFavorite(contact.getMsisdn(), ftype, updatePrivacyPrefs, contact.getUnreadRequestReceivedTime());
 	}
 
 	/**
