@@ -86,12 +86,8 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 	
 	private boolean nuxStateActive = false;
 	
-	private boolean showMicroappShowcase = false;
-	
 	private boolean isSearchModeOn = false;
 	
-	private MicroappsListAdapter microappsListAdapter;
-
     private boolean isContactChooserFilter = false;
 
 	private boolean addFriendOption;
@@ -100,7 +96,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
 	private boolean isGroupFirst;
 
-    public ComposeChatAdapter(Context context, ListView listView, boolean fetchGroups, boolean fetchRecents, String existingGroupId, String sendingMsisdn, FriendsListFetchedCallback friendsListFetchedCallback, boolean showSMSContacts, boolean showMicroappShowcase,boolean isContactChooserFilter, boolean showTimeline, boolean showBdaySection)
+    public ComposeChatAdapter(Context context, ListView listView, boolean fetchGroups, boolean fetchRecents, String existingGroupId, String sendingMsisdn, FriendsListFetchedCallback friendsListFetchedCallback, boolean showSMSContacts,boolean isContactChooserFilter, boolean showTimeline, boolean showBdaySection)
 	{
 		super(context, listView, friendsListFetchedCallback, ContactInfo.lastSeenTimeComparatorWithoutFav);
 		selectedPeople = new LinkedHashMap<String, ContactInfo>();
@@ -114,8 +110,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		this.sendingMsisdn = sendingMsisdn;
 		this.fetchGroups = fetchGroups;
 		this.fetchRecents = fetchRecents;
-		this.showMicroappShowcase = showMicroappShowcase;
-		
+
 		groupsList = new ArrayList<ContactInfo>(0);
 		groupsStealthList = new ArrayList<ContactInfo>(0);
 		filteredGroupsList = new ArrayList<ContactInfo>(0);
@@ -185,12 +180,12 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
 			fetchFriendsTask = new FetchFriendsTask(this, context, friendsList, hikeContactsList, smsContactsList, recentContactsList, friendsStealthList, hikeStealthContactsList,
 					smsStealthContactsList, filteredFriendsList, filteredHikeContactsList, filteredSmsContactsList, groupsList, groupsStealthList, nuxRecommendedList, nuxFilteredRecoList, filteredGroupsList, filteredRecentsList,
-					existingParticipants, sendingMsisdn, false, existingGroupId, isCreatingOrEditingGroup, fetchSMSContacts, false, false, showDefaultEmptyList, fetchHikeContacts, false, fetchRecommendedContacts, fetchHideListContacts, null, null, false, null, showBdaySection,
+					existingParticipants, sendingMsisdn, false, existingGroupId, isCreatingOrEditingGroup, fetchSMSContacts, false, false, showDefaultEmptyList, fetchHikeContacts, false, fetchRecommendedContacts, fetchHideListContacts, null, showBdaySection,
                     hikeBdayContactList, filteredHikeBdayContactList);
 		} else {
 			fetchFriendsTask = new FetchFriendsTask(this, context, friendsList, hikeContactsList, smsContactsList, recentContactsList, friendsStealthList, hikeStealthContactsList,
 					smsStealthContactsList, filteredFriendsList, filteredHikeContactsList, filteredSmsContactsList, groupsList, groupsStealthList, null, null, filteredGroupsList, filteredRecentsList,
-					existingParticipants, sendingMsisdn, fetchGroups, existingGroupId, isCreatingOrEditingGroup, showSMSContacts, false, fetchRecents , showDefaultEmptyList, true, true, false , false, microappShowcaseList , filteredmicroAppShowcaseList, showMicroappShowcase, composeExcludeList,
+					existingParticipants, sendingMsisdn, fetchGroups, existingGroupId, isCreatingOrEditingGroup, showSMSContacts, false, fetchRecents , showDefaultEmptyList, true, true, false , false, composeExcludeList,
                     showBdaySection, hikeBdayContactList, filteredHikeBdayContactList);
 		}
 
@@ -322,13 +317,6 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		{
 			TextView tv = (TextView) convertView.findViewById(R.id.contact);
 			tv.setText(R.string.compose_chat_heading);
-		}
-		else if (viewType == ViewType.HIKE_APPS)
-		{
-			if ((microappsListAdapter.getItemCount() != originalMicroAppCount) || isSearchModeOn)
-			{
-				microappsListAdapter.notifyDataSetChanged();
-			}
 		}
 		else if (viewType == ViewType.BDAY_CONTACT)
 		{
@@ -586,23 +574,6 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			holder.onlineIndicator = (ImageView) convertView.findViewById(R.id.online_indicator);
 			convertView.setTag(holder);
 			break;
-		case HIKE_APPS:
-			convertView = LayoutInflater.from(context).inflate(R.layout.microapps_horizontal_view, null);
-			holder = new ViewHolder();
-			holder.recyclerView = (RecyclerView) convertView.findViewById(R.id.mapps_list);
-
-			if (microappsListAdapter == null)
-			{
-				microappsListAdapter = new MicroappsListAdapter(context, filteredmicroAppShowcaseList, iconloader);
-			}
-
-			holder.recyclerView.setAdapter(microappsListAdapter);
-			LinearLayoutManager layoutManager = new LinearLayoutManager(context.getApplicationContext(), LinearLayoutManager.HORIZONTAL, false);
-			holder.recyclerView.setLayoutManager(layoutManager);
-			holder.recyclerView.setOverScrollMode(View.OVER_SCROLL_NEVER);
-
-			convertView.setTag(holder);
-			break;
 		case BDAY_CONTACT:
 			convertView = LayoutInflater.from(context).inflate(R.layout.hike_bday_list_item, parent, false);
 			holder = new ViewHolder();
@@ -701,24 +672,6 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			{
 				completeList.remove(otherFeaturesSection);
 				completeList.removeAll(filteredHikeOtherFeaturesList);
-			}
-		}
-
-		if (showMicroappShowcase && filteredmicroAppShowcaseList != null)
-		{
-			ContactInfo microappSection = new ContactInfo(SECTION_ID, "" + filteredmicroAppShowcaseList.size(), HikeSharedPreferenceUtil.getInstance().getData(
-					HikeConstants.BOTS_DISCOVERY_SECTION, context.getResources().getString(R.string.hike_apps)), APPS_ON_HIKE);
-			ContactInfo microappShowcaseList = new ContactInfo(HIKE_APPS_ID, HIKE_APPS_MSISDN, context.getString(R.string.hike_apps), HIKE_APPS_NUM);
-
-			if (!filteredmicroAppShowcaseList.isEmpty())
-			{
-				completeList.add(microappSection);
-				completeList.add(microappShowcaseList);
-			}
-
-			else {
-				completeList.remove(microappSection);
-				completeList.remove(microappShowcaseList);
 			}
 		}
 
@@ -1098,10 +1051,6 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 	
 	public void releaseResources()
 	{
-		if (microappsListAdapter != null)
-		{
-			microappsListAdapter.releaseResources();
-		}
 	}
 
 	/**
@@ -1112,32 +1061,5 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 	{
 		this.isSearchModeOn = isSearchModeOn;
 	}
-
-	/**
-	 * Forcefully refresh microapps list post closing the search view
-	 */
-	public void refreshBots()
-	{
-		if (microappsListAdapter == null)
-		{
-			return;
-		}
-
-		if (filteredmicroAppShowcaseList != null)
-		{
-			filteredmicroAppShowcaseList.clear();
-			filteredmicroAppShowcaseList.addAll(microappShowcaseList);
-			microappsListAdapter.notifyDataSetChanged();
-		}
-	}
-
-	public void onBotCreated(Object data)
-	{
-		if (microappsListAdapter != null)
-		{
-			microappsListAdapter.onBotCreated(data);
-		}
-	}
-
 
 }

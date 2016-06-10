@@ -201,7 +201,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	private LastSeenScheduler lastSeenScheduler;
 
 	private String[] hikePubSubListeners = { HikePubSub.MULTI_FILE_TASK_FINISHED, HikePubSub.APP_FOREGROUNDED, HikePubSub.LAST_SEEN_TIME_UPDATED,
-			HikePubSub.LAST_SEEN_TIME_BULK_UPDATED, HikePubSub.CONTACT_SYNC_STARTED, HikePubSub.CONTACT_SYNCED, HikePubSub.BOT_CREATED };
+			HikePubSub.LAST_SEEN_TIME_BULK_UPDATED, HikePubSub.CONTACT_SYNC_STARTED, HikePubSub.CONTACT_SYNCED };
 
 	private int previousFirstVisibleItem;
 
@@ -245,8 +245,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	
 	private boolean thumbnailsRequired= false;
 	
-	private boolean hasMicroappShowcaseIntent = false;
-
 	private ArrayList<String> imagesToShare = new ArrayList<String>();
 
 	private ArrayList<String> imageCaptions = new ArrayList<String>()
@@ -312,7 +310,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		nuxIncentiveMode = getIntent().getBooleanExtra(HikeConstants.Extras.NUX_INCENTIVE_MODE, false);
 		createBroadcast = getIntent().getBooleanExtra(HikeConstants.Extras.CREATE_BROADCAST, false);
 		thumbnailsRequired = getIntent().getBooleanExtra(HikeConstants.Extras.THUMBNAILS_REQUIRED, false);
-		hasMicroappShowcaseIntent = getIntent().getBooleanExtra(HikeConstants.Extras.IS_MICROAPP_SHOWCASE_INTENT, false);
 
 		// Getting the group id. This will be a valid value if the intent
 		// was passed to add group participants.
@@ -799,7 +796,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		HikeSharedPreferenceUtil pref = HikeSharedPreferenceUtil.getInstance();
 		boolean fetchRecentlyJoined = pref.getData(HikeConstants.SHOW_RECENTLY_JOINED_DOT, false) || pref.getData(HikeConstants.SHOW_RECENTLY_JOINED, false);
 		fetchRecentlyJoined = fetchRecentlyJoined && !isForwardingMessage && showNujNotif;
-		boolean showMicroappShowcase = BotUtils.isBotDiscoveryEnabled();
 		boolean showBdaySection = Utils.isBDayInNewChatEnabled() && (pref.getStringSet(HikeConstants.BDAYS_LIST, new HashSet<String>()).size() > 0);
 		
 		switch (composeMode)
@@ -813,29 +809,27 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			boolean isGroupFirst = getIntent().getBooleanExtra(HikeConstants.Extras.IS_GROUP_FIRST, false);
 			boolean isRecentJoined = getIntent().getBooleanExtra(HikeConstants.Extras.IS_RECENT_JOINED, fetchRecentlyJoined);
 			List<String> excludeGroupList = getIntent().getStringArrayListExtra(HikeConstants.Extras.COMPOSE_EXCLUDE_LIST);
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage || isGroupFirst, isRecentJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false, false,isContactChooserFilter,isShowTimeline(), false);
-
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage || isGroupFirst, isRecentJoined, existingGroupOrBroadcastId,
+					sendingMsisdn, friendsListFetchedCallback, false,isContactChooserFilter,isShowTimeline(), false);
 			adapter.setGroupFirst(isGroupFirst);
 			adapter.setComposeExcludeList(excludeGroupList);
 			break;
 		case CREATE_GROUP_MODE:
 			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, fetchRecentlyJoined, existingGroupOrBroadcastId,
-					sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent), isContactChooserFilter, isShowTimeline(), false);
+					sendingMsisdn, friendsListFetchedCallback, true, isContactChooserFilter, isShowTimeline(), false);
 			break;
 		case START_CHAT_MODE:
 			boolean showGroups =false;
-			if(getIntent().hasExtra(HikeConstants.Extras.IS_GROUP_FIRST))
-			{
+			if(getIntent().hasExtra(HikeConstants.Extras.IS_GROUP_FIRST)) {
 				showGroups =getIntent().getBooleanExtra(HikeConstants.Extras.IS_GROUP_FIRST,false);
 			}
 			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage || showGroups, fetchRecentlyJoined, existingGroupOrBroadcastId,
-					sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent), isContactChooserFilter, isShowTimeline(),
+					sendingMsisdn, friendsListFetchedCallback, true, isContactChooserFilter, isShowTimeline(),
 					showBdaySection);
 			break;
-
 		default:
 			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, fetchRecentlyJoined, existingGroupOrBroadcastId,
-					sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent), isContactChooserFilter, isShowTimeline(), false);
+					sendingMsisdn, friendsListFetchedCallback, true, isContactChooserFilter, isShowTimeline(), false);
 			break;
 		}
 
@@ -3113,19 +3107,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 			});
 		}
-
-		else if (HikePubSub.BOT_CREATED.equals(type))
-		{
-            if (object instanceof Pair)
-            {
-                BotInfo botInfo = (BotInfo)(((Pair) object).first);
-                Boolean isBotCreationSuccess = (Boolean) (((Pair) object).second);
-				if (adapter != null && isBotCreationSuccess)
-				{
-					adapter.onBotCreated(botInfo);
-				}
-			}
-		}
 	}
 
 	private void showProgressBarContactsSync(int value)
@@ -3576,7 +3557,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					if (adapter != null)
 					{
 						adapter.setSearchModeOn(false);
-						adapter.refreshBots();
 						adapter.removeFilter();
 					}
 

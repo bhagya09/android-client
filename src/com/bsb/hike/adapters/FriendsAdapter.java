@@ -84,8 +84,6 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 	public static final String REMOVE_SUGGESTIONS_ID = "-913";
 	
-	public static final String HIKE_APPS_ID = "-914";
-
 	public static final String INVITE_MSISDN = "-123";
 
 	public static final String GROUP_MSISDN = "-124";
@@ -123,7 +121,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 	public enum ViewType
 	{
-		SECTION, FRIEND, NOT_FRIEND_HIKE, NOT_FRIEND_SMS, FRIEND_REQUEST, EXTRA, EMPTY, FTUE_CONTACT, REMOVE_SUGGESTIONS, NEW_CONTACT, RECOMMENDED, HIKE_APPS, HIKE_FEATURES, BDAY_CONTACT
+		SECTION, FRIEND, NOT_FRIEND_HIKE, NOT_FRIEND_SMS, FRIEND_REQUEST, EXTRA, EMPTY, FTUE_CONTACT, REMOVE_SUGGESTIONS, NEW_CONTACT, RECOMMENDED, HIKE_FEATURES, BDAY_CONTACT
 	}
 
 	private LayoutInflater layoutInflater;
@@ -165,10 +163,6 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 	protected List<ContactInfo> nuxRecommendedList;
 
 	protected List<ContactInfo> nuxFilteredRecoList;
-
-	protected List<BotInfo> microappShowcaseList;
-
-	protected List<BotInfo> filteredmicroAppShowcaseList;
 
 	protected List<ContactInfo> hikeOtherFeaturesList;
 
@@ -255,8 +249,6 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		smsContactsList = new ArrayList<ContactInfo>(0);
         suggestedContactsList = new ArrayList<ContactInfo>(0);
 		nuxRecommendedList = new ArrayList<ContactInfo>(0);
-		microappShowcaseList = new ArrayList<BotInfo>(0);
-		filteredmicroAppShowcaseList = new ArrayList<BotInfo>(0);
 		hikeOtherFeaturesList = new ArrayList<ContactInfo>(0);
 		filteredHikeOtherFeaturesList = new ArrayList<ContactInfo>(0);
 
@@ -321,8 +313,6 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 	private class ContactFilter extends Filter
 	{
-		List<BotInfo> filteredBotList = new ArrayList<BotInfo>(0);
-		
 		@Override
 		protected FilterResults performFiltering(CharSequence constraint)
 		{
@@ -381,7 +371,6 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 					filterList(hikeOtherFeaturesList, filteredFeaturesList, textToBeFiltered);
 				}
 
-				filterBots(textToBeFiltered);
 				List<List<ContactInfo>> resultList = new ArrayList<List<ContactInfo>>();
 				resultList.add(filteredHikeBdayContactList);
 				resultList.add(filteredFeaturesList);
@@ -400,51 +389,11 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 			else
 			{
 				results.values = makeOriginalList();
-				this.filteredBotList.clear();
-				this.filteredBotList.addAll(microappShowcaseList);
 				isFiltered = false;
 			}
 			results.count = 1;
 			
 			return results;
-		}
-
-		private void filterBots(String textToBeFiltered)
-		{
-			if (filteredBotList != null)
-			{
-				filteredBotList.clear();
-			}
-			
-			else
-			{
-				filteredBotList = new ArrayList<BotInfo>(0);
-			}
-			
-			for (BotInfo mBotInfo : microappShowcaseList)
-			{
-				String name = mBotInfo.getConversationName();
-				
-				boolean found = false;
-				int startIndex = 0;
-				if(name!=null){
-				name = name.toLowerCase();
-				if (name.startsWith(textToBeFiltered))
-				{
-					found = true;
-				}
-				else if (name.contains(" " + textToBeFiltered))
-				{
-					found = true;
-					startIndex = name.indexOf(" " + textToBeFiltered) + 1;
-				}
-				}
-				if(found)
-				{
-					contactSpanStartIndexes.put(mBotInfo.getMsisdn(), startIndex);
-					filteredBotList.add(mBotInfo);
-				}
-			}
 		}
 
 		private void filterList(List<? extends ContactInfo> allList, List<ContactInfo> listToUpdate, String textToBeFiltered)
@@ -499,8 +448,6 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		protected void publishResults(CharSequence constraint, FilterResults results)
 		{
 			List<List<ContactInfo>> resultList = (List<List<ContactInfo>>) results.values;
-
-			makeFilteredList(constraint, resultList, filteredBotList);
 
 			if(nuxRecommendedList != null && !nuxRecommendedList.isEmpty())
 			{
@@ -578,24 +525,6 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 			if(listsSize > 6)
 				filteredRecentsList.addAll(resultList.get(6));
 		}
-	}
-
-	protected void makeFilteredList(CharSequence constraint, List<List<ContactInfo>> resultsList, List<BotInfo> filteredBots)
-	{
-		makeFilteredList(constraint, resultsList);
-
-		if (filteredBots != null)
-		{
-			if (listFetchedOnce)
-			{
-				filteredmicroAppShowcaseList.clear();
-			}
-
-			if (!filteredBots.isEmpty())
-				filteredmicroAppShowcaseList.addAll(filteredBots);
-		}
-
-
 	}
 
 	public void makeCompleteList(boolean filtered)
@@ -1137,10 +1066,6 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		else if (REMOVE_SUGGESTIONS_ID.equals(contactInfo.getId()))
 		{
 			return ViewType.REMOVE_SUGGESTIONS.ordinal();
-		}
-		else if (HIKE_APPS_ID.equals(contactInfo.getId()))
-		{
-			return ViewType.HIKE_APPS.ordinal();
 		}
 		else if (HIKE_FEATURES_ID.equals(contactInfo.getId()))
 		{
@@ -1902,11 +1827,6 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		return iconloader;
 	}
 	
-	public void setOriginalMicroAppsCount(int count)
-	{
-		this.originalMicroAppCount = count;
-	}
-
 	public boolean isBirthdayContact(ContactInfo contactInfo)
 	{
 		return filteredHikeBdayContactList.contains(contactInfo);

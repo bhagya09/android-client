@@ -1246,13 +1246,6 @@ public class IntentFactory
 		return intent;
 	}
 
-	public static Intent getComposeChatIntentWithBotDiscovery(Activity context)
-	{
-		Intent intent = getComposeChatIntent(context);
-		intent.putExtra(HikeConstants.Extras.IS_MICROAPP_SHOWCASE_INTENT, true);
-		return intent;
-	}
-
 	public static Intent getStickerShopIntent(Context context)
 	{
 		return new Intent(context, StickerShopActivity.class);

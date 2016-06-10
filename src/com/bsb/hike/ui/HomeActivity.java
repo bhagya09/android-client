@@ -1951,7 +1951,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER, false))
 		{
 			HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER);
-			Intent intent = IntentFactory.getComposeChatIntentWithBotDiscovery(HomeActivity.this);
+			Intent intent = IntentFactory.getComposeChatIntent(HomeActivity.this);
 			startActivity(intent);
 		}
 	}
