@@ -294,7 +294,7 @@ public class NativeCardRenderer implements View.OnLongClickListener, View.OnClic
 			hqThumbLoader.setLoadingImage(thumbnail);
 			hqThumbLoader.loadImage(hikeFile.getFilePath(), ftViewHolder.fileThumb, isListFlinging);
 		}else{
-			ftViewHolder.fileThumb.setBackground(new ColorDrawable(context.getResources().getColor(R.color.thumbnail_default_color)));
+			Utils.setBackground(ftViewHolder.fileThumb, new ColorDrawable(context.getResources().getColor(R.color.thumbnail_default_color)));
 			ftViewHolder.fileThumb.setImageDrawable(null);
 		}
 
