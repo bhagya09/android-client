@@ -70,7 +70,7 @@ public class StickerCategoriesDetailsDownloadTask implements IHikeHTTPTask, IHik
 			List<String> unsupportedLanguages = StickerLanguagesManager.getInstance().getUnsupportedLanguagesCollection();
 			if (Utils.isEmpty(unsupportedLanguages))
 			{
-				requestJsonBody.put(HikeConstants.UNKNOWN_KEYBOARDS, StickerLanguagesManager.getInstance().listToString(unsupportedLanguages));
+				requestJsonBody.put(HikeConstants.UNKNOWN_KEYBOARDS, Utils.listToString(unsupportedLanguages));
 			}
 
 		}
