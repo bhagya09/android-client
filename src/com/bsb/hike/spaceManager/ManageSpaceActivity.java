@@ -6,12 +6,11 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewStub;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
@@ -30,7 +29,6 @@ import com.bsb.hike.spaceManager.models.SubCategoryItem;
 import com.bsb.hike.tasks.DeleteAccountTask;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -55,19 +53,14 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
 
     private ViewStub emptyLayoutViewStub;
 
-    private HikeDialog dialog;
-
     private ProgressDialog deleteProgressDialog;
 
     private LinearLayout progressBarLayout;
 
     private View doneBtn;
 
-    private ImageView actionbarArrow;
-
-    private TextView actionbarDelete;
-
-    private String[] uiPubSubTypes = {HikePubSub.SPACE_MANAGER_ITEMS_FETCH_SUCCESS, HikePubSub.SPACE_MANAGER_ITEMS_FETCH_FAIL, HikePubSub.SPACE_MANAGER_ITEMS_DELETE_SUCCESS, HikePubSub.SPACE_MANAGER_ITEMS_DELETE_FAIL};
+    private String[] uiPubSubTypes = {HikePubSub.SPACE_MANAGER_ITEMS_FETCH_SUCCESS, HikePubSub.SPACE_MANAGER_ITEMS_FETCH_FAIL,
+            HikePubSub.SPACE_MANAGER_ITEMS_DELETE_SUCCESS, HikePubSub.SPACE_MANAGER_ITEMS_DELETE_FAIL};
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -77,10 +70,11 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
 
         recordScreenopenSource(getIntent());
 
-        if(!Utils.isUserAuthenticated(ManageSpaceActivity.this))
+        if(!Utils.isUserSignedUp(ManageSpaceActivity.this, false))
         {
             accountDeleted();
         }
+
         if(SpaceManagerUtils.isSpaceManagerEnabled())
         {
             setContentView(R.layout.space_manager_main);
@@ -123,8 +117,8 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
 
     private void onItemFetchFailure()
     {
-        Logger.d(TAG, "received invalid list or items");
-        findViewById(R.id.progress_container).setVisibility(View.GONE);
+        Logger.d(TAG, "received invalid list or other failure");
+        progressBarLayout.setVisibility(View.GONE);
 
         // Default json string is corrupted, Log here or close Activity
         this.finish();
@@ -142,9 +136,8 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
         doneBtn = actionBarView.findViewById(R.id.done_container);
         doneBtn.setOnClickListener(this);
 
-        actionbarArrow = (ImageView)actionBarView.findViewById(R.id.arrow);
-        actionbarDelete = (TextView)actionBarView.findViewById(R.id.delete_btn);
-        toggleDeleteButton(false);
+        Toolbar parent=(Toolbar)actionBarView.getParent();
+        parent.setContentInsetsAbsolute(0,0);
     }
 
     @Override
@@ -203,7 +196,7 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
 
     private void handleFallbackButtonClicked()
     {
-        this.dialog = HikeDialogFactory.showDialog(ManageSpaceActivity.this, HikeDialogFactory.SPACE_MANAGER_FALLBACK_DELETE_CONFIRMATION_DIALOG, new HikeDialogListener()
+        HikeDialogFactory.showDialog(ManageSpaceActivity.this, HikeDialogFactory.SPACE_MANAGER_FALLBACK_DELETE_CONFIRMATION_DIALOG, new HikeDialogListener()
         {
             @Override
             public void negativeClicked(HikeDialog hikeDialog)
@@ -220,7 +213,7 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
                 
                 //TODO start here DeleteAccount TASK
                 DeleteAccountTask task = new DeleteAccountTask(ManageSpaceActivity.this, false, getApplicationContext());
-                deleteProgressDialog = ProgressDialog.show(ManageSpaceActivity.this, getResources().getString(R.string.sm_fallback_header), getResources().getString(R.string.delete_space_fallback_loader_text));
+                deleteProgressDialog = ProgressDialog.show(ManageSpaceActivity.this, getResources().getString(R.string.sm_fallback_header), getResources().getString(R.string.sm_fallback_loader_text));
                 task.execute();
             }
 
@@ -236,7 +229,7 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
     {
         long size = SpaceManagerUtils.getTotalSizeToDelete(spaceManagerItems);
 
-        this.dialog = HikeDialogFactory.showDialog(ManageSpaceActivity.this, HikeDialogFactory.SPACE_MANAGER_DELETE_CONFIRMATION_DIALOG, new HikeDialogListener()
+        HikeDialogFactory.showDialog(ManageSpaceActivity.this, HikeDialogFactory.SPACE_MANAGER_DELETE_CONFIRMATION_DIALOG, new HikeDialogListener()
         {
             @Override
             public void negativeClicked(HikeDialog hikeDialog)
@@ -250,7 +243,7 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
             {
                 //TODO Analytics logs
                 hikeDialog.dismiss();
-                deleteProgressDialog = ProgressDialog.show(ManageSpaceActivity.this, null, getString(R.string.delete_space_loader_text));
+                deleteProgressDialog = ProgressDialog.show(ManageSpaceActivity.this, null, getString(R.string.sm_delete_loader_text));
                 HikeHandlerUtil.getInstance().postRunnable(new Runnable()
                 {
                     @Override
@@ -308,19 +301,18 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
 
     public void toggleDeleteButton(boolean enable)
     {
-        Utils.toggleActionBarElementsEnable(doneBtn, actionbarArrow, actionbarDelete, enable);
+        doneBtn.setVisibility(enable ? View.VISIBLE : View.GONE);
     }
 
     public HeaderItem getHeaderItem()
     {
-        return new HeaderItem(getResources().getString(R.string.sm_clear_all_header) ,getResources().getString(R.string.sm_clear_all_subheader));
+        return new HeaderItem(getResources().getString(R.string.sm_select_all_text));
     }
 
     private void updateUI()
     {
         if(spaceManagerItems.isEmpty())
         {
-            emptyLayoutViewStub.inflate();
             emptyLayoutViewStub.setVisibility(View.VISIBLE);
             manageSpaceListView.setVisibility(View.GONE);
             doneBtn.setVisibility(View.GONE);
@@ -330,7 +322,6 @@ public class ManageSpaceActivity extends HikeAppStateBaseFragmentActivity implem
             spaceManagerItems.add(0, getHeaderItem());
             manageSpaceAdapter = new ManageSpaceAdapter(ManageSpaceActivity.this, spaceManagerItems, this);
             manageSpaceListView.setAdapter(manageSpaceAdapter);
-            doneBtn.setVisibility(View.VISIBLE);
         }
         else
         {
