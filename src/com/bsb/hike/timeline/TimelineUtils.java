@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.support.annotation.WorkerThread;
 
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.HikeHandlerUtil;
@@ -32,11 +31,7 @@ public class TimelineUtils {
         if (newUpdates > 0) {
             return context.getString(R.string.timeline_sub_new_updt);
         } else if (newLikes > 0) {
-            if (newLikes == 1) {
-                return context.getString(R.string.timeline_sub_like);
-            } else {
-                return String.format(context.getString(R.string.timeline_sub_likes), newLikes);
-            }
+            return context.getResources().getQuantityString(R.plurals.abbrev_new_likes, newLikes, newLikes);
         } else {
             return context.getString(R.string.timeline_sub_no_updt);
         }
