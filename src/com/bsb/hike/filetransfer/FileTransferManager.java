@@ -262,7 +262,6 @@ public class FileTransferManager
      */
 	public void downloadFile(File destinationFile, String fileKey, long msgId, HikeFileType hikeFileType, ConvMessage userContext, boolean showToast, HikeFile hikeFile)
 	{
-		Logger.d(getClass().getSimpleName(), "Downloading file: " + " NAME: " + destinationFile.getName() + " KEY: " + fileKey + "MSG ID: " + msgId);
 		DownloadFileTask downloadFileTask;
 		if (isFileTaskExist(msgId))
 		{
@@ -319,7 +318,6 @@ public class FileTransferManager
 
 		downloadFileTask.download();
 		HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
-		Logger.d(getClass().getSimpleName(), "Downloading file task started: " + " NAME: " + destinationFile.getName() + " KEY: " + fileKey + "MSG ID: " + msgId);
 	}
 
 	public void downloadApk(File destinationFile, String fileKey, HikeFileType hikeFileType)
@@ -751,9 +749,17 @@ public class FileTransferManager
 		analyticEvent.sendFTSuccessFailureEvent(network, hikefile.getFileSize(), FTAnalyticEvents.FT_SUCCESS, hikefile.getAttachmentSharedAs(), hikefile.getAttachementType());
 		if (userContext != null && BotUtils.isBot(((ConvMessage) userContext).getMsisdn()) && isDownloadTask)
 		{
-			FTAnalyticEvents.platformAnalytics(((ConvMessage) userContext).getMsisdn(), ((ConvMessage) userContext).getMetadata().getHikeFiles().get(0).getFileKey(),
-					((ConvMessage) userContext).getMetadata().getHikeFiles().get(0).getFileTypeString());
+			if(BotUtils.isBot(((ConvMessage) userContext).getMsisdn())) {
+				FTAnalyticEvents.platformAnalytics(((ConvMessage) userContext).getMsisdn(), ((ConvMessage) userContext).getMetadata().getHikeFiles().get(0).getFileKey(),
+						((ConvMessage) userContext).getMetadata().getHikeFiles().get(0).getFileTypeString());
+			}
+			else if(((ConvMessage) userContext).getMessageType() == HikeConstants.MESSAGE_TYPE.CONTENT)
+			{
+				FTAnalyticEvents.platformAnalytics(((ConvMessage) userContext).getMsisdn(), ((ConvMessage) userContext).platformMessageMetadata.contentId,
+						((ConvMessage) userContext).platformMessageMetadata.getHikeFiles().get(0).getFileTypeString());
+			}
 		}
+
 		deleteLogFile(msgId, hikefile.getFile());
 	}
 }

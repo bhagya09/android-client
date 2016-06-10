@@ -255,6 +255,11 @@ public class HttpRequestStateDB extends SQLiteOpenHelper
 		mDb.delete(GCM_NETWORK_MANAGER_TABLE, REQUEST_TAG + "=?", new String[] { requestTag });
 	}
 
+	public void deleteAllGcmTasksFromDb()
+	{
+		mDb.delete(GCM_NETWORK_MANAGER_TABLE, null, null);
+	}
+
 	public void deleteAll()
 	{
 		mDb.delete(HTTP_REQUEST_STATE_TABLE, null, null);

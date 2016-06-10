@@ -5,9 +5,9 @@ import android.content.res.Configuration;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
@@ -105,14 +105,14 @@ public class CustomKeyboardInputBoxAdapter implements OnClickListener
 			{
 				view = inflater.inflate(R.layout.custom_keyboard_text, null);
 				TextView textView = (TextView) view.findViewById(R.id.text);
-				FrameLayout frameLayout = (FrameLayout) view.findViewById(R.id.text_container_layout);
+                RelativeLayout relativeLayout = (RelativeLayout) view.findViewById(R.id.text_container_layout);
 
 				textView.setText(tk.getV());
 				textView.setSingleLine(true);
 				params.setMargins((int) (4 * Utils.densityMultiplier), (int) (8 * Utils.densityMultiplier), (int) (4 * Utils.densityMultiplier),
 						(int) (8 * Utils.densityMultiplier));
 
-				frameLayout.setLayoutParams(params);
+                relativeLayout.setLayoutParams(params);
 
 				view.setOnClickListener(this);
 

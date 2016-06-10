@@ -3292,7 +3292,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 					JSONObject data = new JSONObject();
 
 					JSONArray msisdns = new JSONArray();
-					msisdns.put(contactInfo.getUserIdentifer());
+					msisdns.put(contactInfo.getUserIdentifier());
 
 					data.put(HikeConstants.MSISDNS, msisdns);
 					data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis()));
@@ -3991,7 +3991,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		}
 
 		Bundle arguments = (Bundle) object;
-		ImageViewerFragment imageViewerFragment = new ImageViewerFragment();			
+		ImageViewerFragment imageViewerFragment = new ImageViewerFragment();
+		imageViewerFragment.setDisplayPictureEditListener(this, ImageViewerFragment.FROM_PROFILE_ACTIVITY);
 		imageViewerFragment.setArguments(arguments);
 
 		FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();

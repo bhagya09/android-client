@@ -306,7 +306,7 @@ public class PlatformUtils
 			}
 			if (activityName.equals(HIKESCREEN.HOME_SCREEN.toString()))
 			{
-				context.startActivity(Utils.getHomeActivityIntent(context));
+				context.startActivity(IntentFactory.getHomeActivityDefaultTabIntent(context));
 			}
 			if (activityName.equals(HIKESCREEN.PROFILE_PHOTO.toString()))
 			{
@@ -372,6 +372,10 @@ public class PlatformUtils
 			if (activityName.equals(HIKESCREEN.BROADCAST.toString()))
 			{
 				IntentFactory.createBroadcastIntent(context);
+			}
+			if(activityName.equals(HIKESCREEN.SPACE_MANAGER.toString()))
+			{
+				IntentFactory.openSettingManageSpace(context);
 			}
 			if (activityName.equals(HIKESCREEN.CHAT_HEAD.toString()))
 			{
@@ -2373,8 +2377,9 @@ public class PlatformUtils
         // Get list of all micro apps installed in content directory
 		JSONArray mArray = PlatformUtils.readFileList(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS, false);
 
+        // Precautionary check for NPE, return from here as no analytics would be required if there are no sub-directories found
         if(Utils.isEmpty(mArray))
-          return;
+            return;
 
         long contentFolderLength = 0,directorySize;
 

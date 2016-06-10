@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:paddingRight="16dp"
+    android:paddingLeft="16dp">
+
+    <CheckBox
+        android:id="@+id/subcategory_checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:defaultValue="false"
+        android:button="@drawable/hike_list_item_checkbox"/>
+
+    <LinearLayout
+        android:id="@+id/text_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@id/subcategory_checkbox"
+        android:orientation="vertical"
+        android:layout_marginTop="13dp">
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/header"
+            android:text="@string/sm_subcategory_header_text"
+            style="@style/ListItemHeaderTextView"
+            android:textStyle="normal"/>
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/subHeader"
+            android:layout_marginTop="4dp"
+            android:text="@string/sm_subcategory_subheader_text"
+            style="@style/ListItemSubHeaderTextView"/>
+    </LinearLayout>
+
+    <View
+        android:id="@+id/item_seperator"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="12dp"
+        android:layout_below="@id/text_container"
+        android:background="@color/home_screen_list_divider"/>
+
+</RelativeLayout>

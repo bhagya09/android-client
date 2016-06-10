@@ -43,12 +43,12 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.ui.utils.RecyclingImageView;
-import com.hike.cognito.UserLogInfo;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.ShareUtils;
 import com.bsb.hike.utils.Utils;
+import com.hike.cognito.UserSessionRecorder;
 
 public class ChatHeadViewManager
 {
@@ -152,7 +152,7 @@ public class ChatHeadViewManager
 
 		chatHead.setOnTouchListener(chatHeadOnTouchListener);
 
-		UserLogInfo.recordSessionInfo(ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_TOP_MOST_SINGLE_PROCESS), UserLogInfo.START);
+		UserSessionRecorder.recordSessionInfo(ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_TOP_MOST_SINGLE_PROCESS), UserSessionRecorder.START);
 
 		RECT_CONST_DP = (int) (RECT_CONST * Utils.densityMultiplier);
 	}
@@ -160,7 +160,7 @@ public class ChatHeadViewManager
 	public void onDestroy()
 	{
 
-		UserLogInfo.recordSessionInfo(ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_TOP_MOST_SINGLE_PROCESS), UserLogInfo.STOP);
+		UserSessionRecorder.recordSessionInfo(ChatHeadUtils.getRunningAppPackage(ChatHeadUtils.GET_TOP_MOST_SINGLE_PROCESS), UserSessionRecorder.STOP);
 		try
 		{
 			windowManager.removeView(chatHead);
@@ -714,7 +714,7 @@ public class ChatHeadViewManager
 
 	public void actionWindowChange(	Set<String> foregroundPackages, boolean isAccessibilityBeingUsed)
 	{
-		UserLogInfo.recordSessionInfo(foregroundPackages, UserLogInfo.OPERATE);
+		UserSessionRecorder.recordSessionInfo(foregroundPackages, UserSessionRecorder.OPERATE);
 		if (ChatHeadUtils.shouldRunChatHeadServiceForStickey() && !ChatHeadUtils.accessibilityMustBeActivated(isAccessibilityBeingUsed))
 		{
 			boolean isSharableAppActive = false;

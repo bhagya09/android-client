@@ -14,6 +14,7 @@ import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.content.PlatformContent;
+import com.bsb.hike.platform.nativecards.NativeCardUtils;
 import com.bsb.hike.service.HikeMqttManagerNew;
 
 import org.json.JSONArray;
@@ -424,5 +425,53 @@ public class HikeAnalyticsEvent
 			e.toString();
 			return null;
 		}
+	}
+
+	public static void nativeCardImageLoaded(int layoutId , String contentId,String msisdn) {
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, ChatAnalyticConstants.IMAGE_LOAD);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_PLAT);
+			json.put(AnalyticsConstants.V2.PHYLUM, layoutId);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, ChatAnalyticConstants.IMAGE_LOAD);
+			json.put(AnalyticsConstants.V2.SOURCE, ChatThreadUtils.getChatThreadType(msisdn));
+			json.put(AnalyticsConstants.V2.TO_USER, msisdn);
+			json.put(AnalyticsConstants.V2.GENUS, contentId);
+			json.put(AnalyticsConstants.V2.NETWORK, Utils.getNetworkTypeAsString(HikeMessengerApp.getInstance().getApplicationContext()));
+
+
+			HAManager.getInstance().recordV2(json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
+	}
+
+	public static void cardClickEvent(String action, int layoutId, String contentId, String msisdn) {
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, ChatAnalyticConstants.CTA_ACCESS);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_PLAT);
+			json.put(AnalyticsConstants.V2.PHYLUM, layoutId);
+			json.put(AnalyticsConstants.V2.CLASS, action);
+			json.put(AnalyticsConstants.V2.ORDER, ChatAnalyticConstants.CTA_ACCESS);
+			json.put(AnalyticsConstants.V2.SOURCE, ChatThreadUtils.getChatThreadType(msisdn));
+			json.put(AnalyticsConstants.V2.TO_USER, msisdn);
+			json.put(AnalyticsConstants.V2.GENUS, contentId);
+			json.put(AnalyticsConstants.V2.NETWORK, Utils.getNetworkTypeAsString(HikeMessengerApp.getInstance().getApplicationContext()));
+
+
+			HAManager.getInstance().recordV2(json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
 	}
 }

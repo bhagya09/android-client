@@ -6,14 +6,12 @@ import android.content.pm.PackageManager;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
-import com.hike.cognito.UserLogInfo;
+import com.hike.cognito.UserSessionRecorder;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -27,13 +25,13 @@ public class DataPointTaskSessionLog extends DataPointTask {
     private static final String SESSION_COUNT = "sn";
     private static final String DURATION = "dr";
 
-    public DataPointTaskSessionLog(String url, boolean isPii, int transportType) {
+    public DataPointTaskSessionLog(String url, Boolean isPii, Integer transportType) {
         super(url, isPii, transportType);
     }
 
     @Override
     JSONArray recordData() {
-        HikeSharedPreferenceUtil userPrefs = HikeSharedPreferenceUtil.getInstance(UserLogInfo.USER_LOG_SHARED_PREFS);
+        HikeSharedPreferenceUtil userPrefs = HikeSharedPreferenceUtil.getInstance(UserSessionRecorder.USER_LOG_SHARED_PREFS);
         PackageManager pm = HikeMessengerApp.getInstance().getPackageManager();
         JSONArray sessionJsonArray = new JSONArray();
 

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:paddingTop="24dp"
+    android:paddingRight="32dp">
+
+    <ImageView
+        android:id="@+id/clear_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_delete"
+        android:layout_marginLeft="20dp"
+        android:tint="@color/blue_hike"/>
+
+    <LinearLayout
+        android:id="@+id/text_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_toRightOf="@id/clear_icon"
+        android:layout_marginLeft="20dp"
+        android:orientation="vertical">
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/header"
+            style="@style/ListSectionTextView"
+            android:text="@string/sm_fallback_header"
+            android:textSize="20sp"
+            android:textStyle="normal"/>
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/subHeader"
+            android:layout_marginTop="12dp"
+            style="@style/SettingsItemHeader"
+            android:text="@string/sm_fallback_subheader"
+            android:textColor="@color/black_64"/>
+
+        <Button
+            android:id="@+id/delete_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:background="@color/blue_hike"
+            style="@style/ListSectionTextView"
+            android:text="@string/sm_fallback_button"
+            android:textColor="@color/white"
+            android:textStyle="normal"
+            android:fontFamily="sans-serif-medium"/>
+
+    </LinearLayout>
+
+</RelativeLayout>

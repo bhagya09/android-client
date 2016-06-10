@@ -117,15 +117,17 @@ import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.productpopup.AtomicTipManager;
 import com.bsb.hike.productpopup.ProductInfoManager;
-import com.bsb.hike.spaceManager.StorageSpecUtils;
+import com.bsb.hike.spaceManager.SpaceManagerUtils;
+import com.bsb.hike.timeline.StoryShyTextGenerator;
 import com.bsb.hike.timeline.TimelineActionsManager;
+import com.bsb.hike.timeline.TimelineServerConfigUtils;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.triggers.InterceptUtils;
 import com.bsb.hike.ui.HomeActivity;
-import com.hike.cognito.UserLogInfo;
+import com.hike.cognito.CognitoTrigger;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.BirthdayUtils;
 import com.bsb.hike.utils.ClearGroupTypingNotification;
@@ -147,6 +149,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.hike.abtest.ABTest;
+import com.squareup.okhttp.internal.Util;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -1676,7 +1679,7 @@ public class MqttMessagesManager
 			}
 		}
 		// this logic requires the backup token which is being setup in the previous if case
-		UserLogInfo.requestUserLogs(data);
+		CognitoTrigger.onDemand(data);
 
 		editor.commit();
 		if (inviteTokenAdded)
@@ -1771,6 +1774,8 @@ public class MqttMessagesManager
 				: FavoriteType.FRIEND;
 
 		Pair<ContactInfo, FavoriteType> favoriteToggle = new Pair<ContactInfo, FavoriteType>(contactInfo, favoriteType);
+		contactInfo.setUnreadRequestReceivedTime(System.currentTimeMillis());
+		Utils.incrementFriendRequestReceivedCounters();
 		this.pubSub.publish(favoriteType == FavoriteType.REQUEST_RECEIVED ? HikePubSub.FAVORITE_TOGGLED : HikePubSub.FRIEND_REQUEST_ACCEPTED, favoriteToggle);
 
 		if (favoriteType == favoriteType.FRIEND)
@@ -2419,7 +2424,7 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SESSION_LOG_TRACKING, sessionLogEnable);
 			ChatHeadUtils.startOrStopService(false);
 		}
-		UserLogInfo.requestUserLogs(data);
+		CognitoTrigger.onDemand(data);
 
 		if (data.has(HikeConstants.PROB_NUM_HTTP_ANALYTICS))
 		{
@@ -2995,7 +3000,7 @@ public class MqttMessagesManager
 				if(data.has(HikeConstants.SPACE_MANAGER.DIRECTORY_LIST))
 				{
 					JSONArray dirList = data.getJSONArray(HikeConstants.SPACE_MANAGER.DIRECTORY_LIST);
-					StorageSpecUtils.processDirectoryList(dirList);
+					SpaceManagerUtils.processDirectoryList(dirList);
 				}
 			}
 		}
@@ -3462,6 +3467,45 @@ public class MqttMessagesManager
 		{
 			boolean enableCes = data.getBoolean(HikeConstants.HIKE_CES_ENABLE);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.HIKE_CES_ENABLE, enableCes);
+		}
+
+		if (data.has(HikeConstants.ENABLE_UNKNOWN_USER_INFO_IN_CHAT))
+		{
+			boolean enableUnknownUserInfoView = data.getBoolean(HikeConstants.ENABLE_UNKNOWN_USER_INFO_IN_CHAT);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_UNKNOWN_USER_INFO_IN_CHAT, enableUnknownUserInfoView);
+		}
+
+		if(data.has(HikeConstants.ENABLE_SPACE_MANAGER))
+		{
+			boolean enableSM = data.getBoolean(HikeConstants.ENABLE_SPACE_MANAGER);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_SPACE_MANAGER, enableSM);
+		}
+
+		if (data.has(TimelineServerConfigUtils.AC_KEY_STORY_DURATION)) {
+			long storyTimeLimit = data.getLong(TimelineServerConfigUtils.AC_KEY_STORY_DURATION);
+			HikeSharedPreferenceUtil.getInstance().saveData(TimelineServerConfigUtils.AC_KEY_STORY_DURATION, storyTimeLimit);
+		}
+		
+		if(data.has(HikeConstants.SPACE_MANAGER_JSON))
+		{
+			String smJSON = data.getString(HikeConstants.SPACE_MANAGER_JSON);
+			if(SpaceManagerUtils.isJSONValid(smJSON))
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_SPACE_MANAGER, smJSON);
+			}
+		}
+
+		if (data.has(TimelineServerConfigUtils.AC_KEY_CAMSHY_SUBTEXT)) {
+			JSONArray subTextArray = data.getJSONArray(TimelineServerConfigUtils.AC_KEY_CAMSHY_SUBTEXT);
+			int subTextArrayLength = subTextArray.length();
+			if (subTextArrayLength > 0) {
+				Set<String> subTextSet = new HashSet<String>();
+				for (int i = 0; i < subTextArrayLength; i++) {
+					subTextSet.add(subTextArray.getString(i));
+				}
+				HikeSharedPreferenceUtil.getInstance().saveStringSet(TimelineServerConfigUtils.AC_KEY_CAMSHY_SUBTEXT, subTextSet);
+				StoryShyTextGenerator.getInstance().reset();
+			}
 		}
 
 		editor.commit();
@@ -3961,11 +4005,6 @@ public class MqttMessagesManager
         {
             int limit = data.optInt(HikeConstants.LIMIT_KEY, CategorySearchManager.DEFAULT_SEARCH_QUERY_LENGTH_THRESHOLD);
             HikeSharedPreferenceUtil.getInstance().saveData(CategorySearchManager.SEARCH_QUERY_LENGTH_THRESHOLD, limit);
-        }
-        else if(CategorySearchManager.AUTO_SEARCH_TIME.equals(subType))
-        {
-            long limit = data.optLong(HikeConstants.LIMIT_KEY, CategorySearchManager.DEFAULT_AUTO_SEARCH_TIME);
-            HikeSharedPreferenceUtil.getInstance().saveData(CategorySearchManager.AUTO_SEARCH_TIME, limit);
         }
         else if(CategorySearchManager.SEARCH_RESULTS_LOG_LIMIT.equals(subType))
         {
@@ -5366,6 +5405,7 @@ public class MqttMessagesManager
 		updatedContact.setFavoriteType(favoriteType);
 		ContactManager.getInstance().updateContacts(updatedContact);
 
+		contact.setUnreadRequestReceivedTime(0);
 		Pair<ContactInfo, FavoriteType> favoriteToggle = new Pair<ContactInfo, ContactInfo.FavoriteType>(contact, favoriteType);
 		this.pubSub.publish(HikePubSub.FAVORITE_TOGGLED, favoriteToggle);
 	}

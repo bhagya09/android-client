@@ -1915,6 +1915,8 @@ public class HikeConstants
 
 		public static final String HIKE_BDAY_MODE = "hikeBdayMode";
 
+		public static final String FROM_SETTINGS = "fromSettingsScreen";
+
 		// constants related to sharing Functioanlity
 		public static final class ShareTypes
 		{
@@ -3265,6 +3267,8 @@ public class HikeConstants
 
 	public static final String LARGE = "large";
 
+	public static final String MINI = "mini";
+
 	public static final int ATOMIC_APP_TIP_SETTINGS = 1;
 
 	public static final int ATOMIC_APP_TIP_SETTINGS_NOTIF = 2;
@@ -3330,21 +3334,11 @@ public class HikeConstants
 
 	public static final String REWARDS_URL = "rewards_url";
 
-	public static final String CALL_LOG_ANALYTICS = "cl";
-
-	public static final String ADVERTSING_ID_ANALYTICS = "adv";
-
-	public static final String APP_LOG_ANALYTICS = "al";
-
 	public static final String LOCATION_LOG_ANALYTICS = "ll";
 
 	public static final String FETCH_LOG_ANALYTICS = "gl";
 
 	public static final String SESSION_LOG_TRACKING = "stl";
-
-	public static final String ACCOUNT_LOG_ANALYTICS = "actl";
-
-	public static final String PHONE_SPEC = "pl";
 
 	public static final String SHOP = "shop";
 
@@ -4341,6 +4335,8 @@ public class HikeConstants
 
 		public static final String FORWARD_SCREEN = "fwd_screen";
 
+		public static final String ADDED_ME_SCREEN = "added_me_screen";
+
 		public static final String NOTIF = "notif";
 
 		public static final String ATOMIC_TIP = "atomic_tip";
@@ -4418,6 +4414,8 @@ public class HikeConstants
 
 	public static final String SENT = "sent";
 
+	public static final String RECEIVED = "recvd";
+
 	public static final String LANG = "lang";
 
 	public static final String QUICK_RESPONSE = "quickResponse";
@@ -4466,6 +4464,8 @@ public class HikeConstants
 
 	public static final String STATUS_UPDATE_EXCLUSION = "su_ex";
 
+	public static final String STATUS_UPDATE_INCLUSION = "su_in";
+
 	public static final String LS_EXCLUSION = "ls_ex";
 
 	public static final String LS_INCLUSION = "ls_in";
@@ -4503,5 +4503,11 @@ public class HikeConstants
 	public static final String FRIENDS_PRIVACY_PROFILE_VIEW_SHOWN = "fr_privacy_profile_ftue";
 
     public static final String DOWNLOAD_TYPE = "t_dwnld";
+
+	public static final String ENABLE_UNKNOWN_USER_INFO_IN_CHAT = "en_uu_info";
+
+	public static final String ENABLE_SPACE_MANAGER = "en_sm";
+
+	public static final String SPACE_MANAGER_JSON = "sm_json";
 
 }

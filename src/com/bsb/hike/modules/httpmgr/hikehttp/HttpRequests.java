@@ -380,7 +380,7 @@ public class HttpRequests
 		String parameterUrl = Utils.getParameterUrlForHttpApi(BASE_CATEGORY_DETAIL);
         List<String> unsupportedLanguages = StickerLanguagesManager.getInstance().getUnsupportedLanguagesCollection();
         String url = stickerCategoryDetailsUrl() + "?catId=" + categoryId + "&resId=" + Utils.getResolutionId() + "&lang=" + StickerSearchUtils.getCurrentLanguageISOCode() + parameterUrl;
-        url = Utils.isEmpty(unsupportedLanguages) ? url : (url + "&unknown_langs=" + StickerLanguagesManager.getInstance().listToString(unsupportedLanguages));
+        url = Utils.isEmpty(unsupportedLanguages) ? url : (url + "&unknown_langs=" + Utils.listToString(unsupportedLanguages));
         RequestToken requestToken = new JSONObjectRequest.Builder()
                 .setUrl(url)
                 .setId(requestId)
@@ -388,7 +388,6 @@ public class HttpRequests
                 .setRequestType(REQUEST_TYPE_SHORT)
                 .setGcmTaskConfig(config)
                 .build();
-        requestToken.getRequestInterceptors().addFirst("gzip", new GzipRequestInterceptor());
         return requestToken;
     }
 
@@ -823,7 +822,6 @@ public class HttpRequests
                 .setGcmTaskConfig(config)
                 .build();
 
-        requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
         return requestToken;
     }
 

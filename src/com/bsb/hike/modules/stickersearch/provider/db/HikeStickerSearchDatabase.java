@@ -1722,16 +1722,15 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		return result;
 	}
 
-	/**
-	 * @param matchKey
-	 *            : the match key for which the packs are to be searched
-	 * 
-	 * @return : SortedSet of categories Searched for the given match key 
-     *           The searched categories are sorted based on comparator of CategorySearchedData model
-     *           Considering pack attributes [Targeted_Gender ; Pack_Downloaded_State ; Pack_stickersAvailable_Count] including the text match score of the match key with the pack name
-	 *
-	 *           The pack data are sorted using a TreeSet implementation which ensure uniqueness along with order
-	 */
+    /**
+     * @param matchKey   : the match key for which the packs are to be searched
+     *
+     * @return : SortedSet of categories Searched for the given match key
+     * The searched categories are sorted based on comparator of CategorySearchedData model
+     * Considering pack attributes [Targeted_Gender ; Pack_Downloaded_State ; Pack_stickersAvailable_Count] including the text match score of the match key with the pack name
+     * <p/>
+     * The pack data are sorted using a TreeSet implementation which ensure uniqueness along with order
+     */
     public SortedSet<CategorySearchData> searchIntoFTSAndFindCategoryDataList(String matchKey)
     {
         
@@ -1744,8 +1743,10 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
             Logger.i(TAG, "Searching \"" + matchKey + "\" in " + HikeStickerSearchBaseConstants.DEFAULT_VT_SHOP_SEARCH );
 
-			c = mDb.query(HikeStickerSearchBaseConstants.DEFAULT_VT_SHOP_SEARCH, new String[]{HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID}, HikeStickerSearchBaseConstants.TAG_REAL_PHRASE + " MATCH '" + matchKey + "'", null, null, null,
-					null);
+			String conditionKey = HikeStickerSearchBaseConstants.TAG_REAL_PHRASE + " MATCH '" + matchKey + "'";
+
+            c = mDb.query(HikeStickerSearchBaseConstants.DEFAULT_VT_SHOP_SEARCH, new String[]{HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID}, conditionKey, null, null, null,
+                    null);
 
             count = ((c == null) ? 0 : c.getCount());
 

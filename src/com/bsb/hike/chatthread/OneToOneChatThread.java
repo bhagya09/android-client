@@ -628,13 +628,21 @@ import com.bsb.hike.voip.VoIPUtils;
 			unknownContactInfoView.findViewById(R.id.block_unknown_contact).setOnClickListener(this);
 			checkAndAddListViewHeader(unknownContactInfoView);
 		}
-		showUknownUserInfoView();
+
+		if(Utils.isUnknownUserInfoViewEnabled())
+		{
+			showUnknownUserInfoView();
+		}
+		else
+		{
+			unknownContactInfoView.findViewById(R.id.unknown_user_info_view).setVisibility(View.GONE);
+		}
 	}
 
 	/**
 	 * This shows Unknown User (Name, location)
 	 */
-	protected void showUknownUserInfoView()
+	protected void showUnknownUserInfoView()
 	{
 		try
 		{
@@ -4524,6 +4532,9 @@ import com.bsb.hike.voip.VoIPUtils;
 			mConversationsView.setAdapter(null);
 			mConversationsView.addHeaderView(headerView);
 			mConversationsView.setAdapter(mAdapter);
+
+			//Takes to list end
+			uiHandler.sendEmptyMessage(SCROLL_TO_END);
 		} else {
 			mConversationsView.addHeaderView(headerView);
 		}

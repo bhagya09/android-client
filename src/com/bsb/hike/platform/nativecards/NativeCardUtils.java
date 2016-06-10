@@ -20,9 +20,11 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.platform.CardComponent;
 import com.bsb.hike.platform.CustomTabFallBackImpl;
 import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -111,16 +113,24 @@ public class NativeCardUtils
 	{
 		if (actionComponent.getAction().equals(ActionType.FORWARD.getAction()))
 		{
+			HikeAnalyticsEvent.cardClickEvent(ActionType.FORWARD.toString(),convMessage.platformMessageMetadata.layoutId,convMessage.platformMessageMetadata.contentId,convMessage.getMsisdn());
 			forwardCard(context, shareView, convMessage);
+			//TODO put action performed analytics
 		}
 		else if (actionComponent.getAction().equals(ActionType.POST_TIMELINE.getAction()))
 		{
+			HikeAnalyticsEvent.cardClickEvent(ActionType.POST_TIMELINE.toString(),convMessage.platformMessageMetadata.layoutId,convMessage.platformMessageMetadata.contentId,convMessage.getMsisdn());
 			postToTimeLine(context, shareView, convMessage);
+			//TODO put action performed analytics
 		}else if(actionComponent.getAction().equals(ActionType.SHARE.getAction())){
+			HikeAnalyticsEvent.cardClickEvent(ActionType.SHARE.toString(),convMessage.platformMessageMetadata.layoutId,convMessage.platformMessageMetadata.contentId,convMessage.getMsisdn());
 			shareCard(context,shareView, convMessage);
+			//TODO put action performed analytics
 		}else if(actionComponent.getAction().equals(ActionType.OPEN_URL.getAction())){
+			HikeAnalyticsEvent.cardClickEvent(ActionType.OPEN_URL.toString(),convMessage.platformMessageMetadata.layoutId,convMessage.platformMessageMetadata.contentId,convMessage.getMsisdn());
 			CustomTabFallBackImpl fallBack = new CustomTabFallBackImpl(context);
 			PlatformUtils.openCustomTab(actionComponent.getActionUrl().getString(HikeConstants.URL), actionComponent.getActionUrl().optString(HikeConstants.TITLE),context, fallBack);
+			//TODO put action performed analytics
 		}
 		else if (actionComponent.getAction().equals(ActionType.OPEN_CAMERA.getAction()))
 		{
@@ -209,7 +219,7 @@ public class NativeCardUtils
 	}
     public static JSONObject getNativeCardForwardJSON(Context context, ConvMessage convMessage, File file){
 		JSONObject multiMsgFwdObject = new JSONObject();
-		JSONObject metadata = convMessage.platformMessageMetadata.getJsonFromObj();
+		JSONObject metadata = convMessage.platformMessageMetadata.getJSON();
 		try
 		{
 			multiMsgFwdObject.put(HikeConstants.MESSAGE_TYPE.MESSAGE_TYPE, convMessage.getMessageType());
@@ -224,6 +234,34 @@ public class NativeCardUtils
 				// intent.putExtra((Intent.EXTRA_STREAM),fileUri);
 				multiMsgFwdObject.put(HikeConstants.Extras.FILE_PATH, file.getPath());
 				multiMsgFwdObject.put(HikeConstants.Extras.FILE_TYPE, "image/jpeg");
+
+			}
+
+		}
+		catch (JSONException e)
+		{
+			Logger.e(context.getClass().getSimpleName(), "Invalid JSON", e);
+		}
+		return multiMsgFwdObject;
+	}
+
+	public static JSONObject getNativeCardForwardJSON(Context context, ConvMessage convMessage, HikeFile file){
+		JSONObject multiMsgFwdObject = new JSONObject();
+		JSONObject metadata = convMessage.platformMessageMetadata.getJSON();
+		try
+		{
+			multiMsgFwdObject.put(HikeConstants.MESSAGE_TYPE.MESSAGE_TYPE, convMessage.getMessageType());
+			if (metadata != null)
+			{
+				multiMsgFwdObject.put(HikeConstants.METADATA, metadata);
+			}
+
+			multiMsgFwdObject.put(HikeConstants.HIKE_MESSAGE, convMessage.getMessage());
+			if (file != null)
+			{
+				// intent.putExtra((Intent.EXTRA_STREAM),fileUri);
+				multiMsgFwdObject.put(HikeConstants.Extras.FILE_PATH, file.getFilePath());
+				multiMsgFwdObject.put(HikeConstants.Extras.FILE_TYPE, file.getFileTypeString());
 
 			}
 

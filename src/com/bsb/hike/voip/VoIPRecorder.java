@@ -12,11 +12,11 @@ public interface VoIPRecorder {
     void stop();
     void setMute(boolean mute);
     boolean isRunning();
-    VoIPDataPacket take() throws InterruptedException;
 
 
     interface RecorderCallback {
         void onInitFailure();
         byte[] resample(byte[] sourceData, int bitsPerSample, int sourceRate, int targetRate);
+        void onDataAvailable(byte[] data);
     }
 }

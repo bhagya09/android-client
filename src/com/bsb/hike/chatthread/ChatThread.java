@@ -16,7 +16,6 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.TransitionDrawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -138,7 +137,6 @@ import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.GalleryItem;
-import com.bsb.hike.models.HikeChatTheme;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.MovingList;
@@ -606,7 +604,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				showQuickSuggestionTip((ConvMessage) msg.obj);
 				break;
             case SHOW_INPUT_BOX:
-                showInputBox();
+                if(!mConversation.isBlocked())
+                    showInputBox();
                 break;
             case REMOVE_INPUT_BOX:
                 dismissInputBox();
@@ -662,8 +661,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		Context context = activity.getApplicationContext();
 		useWTRevamped = ChatThreadUtils.isWT1RevampEnabled(context);
 		nudgeManager = new NudgeManager(context, HikeSharedPreferenceUtil.getInstance(), HAManager.getInstance());
-		//CD-787 Bug fix
-		scrollToEnd();
     }
 
 	public HikeActionBar mActionBar;
@@ -1369,6 +1366,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			}
 
 			QuickStickerSuggestionController.getInstance().seenQuickSuggestions();
+			QuickStickerSuggestionController.getInstance().setCurrentQSConvMessage(convMessage);
 			openOrRefreshStickerPalette(convMessage);
 
 			if (QuickStickerSuggestionController.getInstance().isFtueSessionRunning(convMessage.isSent()))
@@ -1380,6 +1378,11 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		}
 
 		StickerManager.getInstance().sendStickerClickedLogs(convMessage, HikeConstants.SINGLE_TAP);
+	}
+
+	private void stickerLongClicked(ConvMessage convMessage)
+	{
+		StickerManager.getInstance().sendStickerClickedLogs(convMessage, HikeConstants.LONG_TAP);
 	}
 
 	@Override
@@ -1463,6 +1466,19 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	}
 
+	@Override
+	public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id)
+	{
+		if(isWalkieTalkieShowing()) return true;
+
+		switch (view.getId())
+		{
+			case R.id.placeholder:
+				onPlaceHolderLongClick(view);
+				break;
+		}
+		return showMessageContextMenu(mAdapter.getItem(position - mConversationsView.getHeaderViewsCount()), view);
+	}
 
 	private void onPlaceHolderClick(View v)
 	{
@@ -1477,27 +1493,40 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		}
 	}
 
-    protected void sendButtonClicked()
-    {
-        // If bots custom keyboard is enabled for this chat, then on send button press toggle keyboard popup
-        if (TextUtils.isEmpty(mComposeView.getText()) && BotUtils.isBot(msisdn) && CustomKeyboardManager.getInstance().shouldShowInputBox(msisdn))
-        {
-            botsCustomKeyboardInputBoxClicked();
-            return;
-        }
+	private void onPlaceHolderLongClick(View v)
+	{
+		ConvMessage convMessage = (ConvMessage) v.getTag();
 
-        if (!useWTRevamped && TextUtils.isEmpty(mComposeView.getText()))
-        {
-            audioRecordClicked();
-        }
-        else
-        {
-            sendMessageForStickerRecommendLearning();
-            sendMessage();
-            dismissStickerRecommendationPopup();
-            dismissTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
-        }
-    }
+		if (convMessage.isStickerMessage())
+		{
+			if (convMessage.getMetadata() != null && convMessage.getMetadata().getSticker() != null)
+			{
+				stickerLongClicked(convMessage);
+			}
+		}
+	}
+
+	protected void sendButtonClicked()
+	{
+		// If bots custom keyboard is enabled for this chat, then on send button press toggle keyboard popup
+		if (TextUtils.isEmpty(mComposeView.getText()) && BotUtils.isBot(msisdn) && CustomKeyboardManager.getInstance().shouldShowInputBox(msisdn))
+		{
+			botsCustomKeyboardInputBoxClicked();
+			return;
+		}
+
+		if (!useWTRevamped && TextUtils.isEmpty(mComposeView.getText()))
+		{
+			audioRecordClicked();
+		}
+		else
+		{
+			sendMessageForStickerRecommendLearning();
+			sendMessage();
+			dismissStickerRecommendationPopup();
+			dismissTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
+		}
+	}
 
 
     /**
@@ -1668,6 +1697,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			int whichTip = convMessage.isSent() ? ChatThreadTips.QUICK_SUGGESTION_SENT_FIRST_TIP : ChatThreadTips.QUICK_SUGGESTION_RECEIVED_FIRST_TIP;
 			if (canStartFtue)
 			{
+				QuickStickerSuggestionController.getInstance().setCurrentQSConvMessage(convMessage);
 				QuickStickerSuggestionController.getInstance().startFtueSession(convMessage.isSent());
 				mTips.showQuickStickerSuggestionsTip(whichTip);
 				uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
@@ -2924,8 +2954,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
             CustomKeyboardManager.getInstance().initInputBox(activity.getApplicationContext(),this,this,mConversation.getMsisdn(),activity.getResources().getConfiguration().orientation);
             sendUIMessage(SHOW_INPUT_BOX, mConversation.getMsisdn());
         }
-
-        recordChatThreadOpen();
+		recordChatThreadOpen();
 	}
 
 	protected OnItemsFinishedListener mOnItemsFinishedListener  = new OnItemsFinishedListener()
@@ -3178,14 +3207,9 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 						JSONObject metadata = msgExtrasJson.optJSONObject(HikeConstants.METADATA);
 						if(metadata != null){
 
-							if(metadata.optJSONArray(HikeConstants.FILES) != null && metadata.optJSONArray(HikeConstants.FILES).length()>0){
-								HikeFile hikeFile = new HikeFile(metadata.optJSONArray(HikeConstants.FILES).getJSONObject(0), true);
-								if(hikeFile.getFile() != null && hikeFile.getFile().exists()){
-									handleFileTypeMessage(intent,metadata,msgExtrasJson.optString(HikeConstants.HIKE_MESSAGE));
-								}else{
-									sendNativeCardMessage(msgExtrasJson);
-								}
-							}else{
+							if (metadata.optJSONArray(HikeConstants.FILES) != null && metadata.optJSONArray(HikeConstants.FILES).length() > 0) {
+									handleFileTypeMessage(intent, metadata, msgExtrasJson.optString(HikeConstants.HIKE_MESSAGE), msgExtrasJson.optString(HikeConstants.Extras.FILE_PATH));
+							} else {
 								sendNativeCardMessage(msgExtrasJson);
 							}
 						}
@@ -3357,11 +3381,11 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		JSONObject metadata = msgExtrasJson.optJSONObject(HikeConstants.METADATA);
 		ConvMessage convMessage = Utils.makeConvMessage(msisdn, mConversation.isOnHike());
 		convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.CONTENT);
-		convMessage.platformMessageMetadata = new PlatformMessageMetadata(metadata);
+		convMessage.platformMessageMetadata = new PlatformMessageMetadata(metadata, true);
 		convMessage.setMessage(msgExtrasJson.optString(HikeConstants.HIKE_MESSAGE));
 		sendMessage(convMessage);
 	}
-	private void handleFileTypeMessage(Intent intent, JSONObject nativeCardMetadata, String hikeMessage) throws JSONException{
+	private void handleFileTypeMessage(Intent intent, JSONObject nativeCardMetadata, String hikeMessage, String filePath) throws JSONException{
         //TODO: parse from HikeFile
 		JSONArray filesArray = nativeCardMetadata.optJSONArray(HikeConstants.FILES);
 		JSONObject msg = filesArray.getJSONObject(0);
@@ -3370,7 +3394,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		{
 			fileKey = msg.getString(HikeConstants.FILE_KEY);
 		}
-		String filePath = msg.getString(HikeConstants.FILE_PATH);
+
 		String fileType = msg.getString(HikeConstants.CONTENT_TYPE);
 		String caption = msg.optString(HikeConstants.CAPTION);
 
@@ -3580,13 +3604,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	public void onLoaderReset(Loader<Object> arg0)
 	{
 
-	}
-
-	@Override
-	public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id)
-	{
-		if(isWalkieTalkieShowing()) return true;
-		return showMessageContextMenu(mAdapter.getItem(position - mConversationsView.getHeaderViewsCount()), view);
 	}
 
 	protected boolean showMessageContextMenu(ConvMessage message, View v)
@@ -4554,7 +4571,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			tipVisibilityAnimator = null;
 		}
 
-		QuickStickerSuggestionController.getInstance().completeFtueSession();
+		QuickStickerSuggestionController.getInstance().releaseResources();
 
 		if(mCustomTabActivityHelper != null && Utils.isJellybeanOrHigher()) {
 			mCustomTabActivityHelper.unbindCustomTabsService(activity);
@@ -6474,6 +6491,9 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		{
 			mComposeView.setEnabled(true);
 			hideOverlay();
+            // Case is being added for checking if custom keyboard needs to be displayed for user
+            if(CustomKeyboardManager.getInstance().shouldShowInputBox(msisdn))
+                sendUIMessage(SHOW_INPUT_BOX, null);
 		}
 	}
 
@@ -6848,6 +6868,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
             @Override
             public void run() {
                 if(mShareablePopupLayout != null)
+                    dismissInputBox();
                     mShareablePopupLayout.showPopup(CustomKeyboardManager.getInstance(), activity.getResources().getConfiguration().orientation, customKeyBoardHeight);
 
                 if(!TextUtils.isEmpty(mComposeView.getText()))
@@ -6876,10 +6897,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
                     customKeyboard.setHidden(false);
                 }
                 scrollToEnd();
-
-                if (mConversation.getConvInfo().isBlocked()) {
-                    dismissInputBox();
-                }
 
             }
         },100);

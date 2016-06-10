@@ -92,6 +92,8 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 
 	private long inviteTime;
 
+	private long unreadRequestReceivedTime = 0;
+
 	private String platformId;
 
 	private PrivacyPreferences mPrivacyPrefs = new PrivacyPreferences(PrivacyPreferences.DEFAULT_VALUE);
@@ -505,6 +507,7 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 		setNum(3, 5, contactInfo.getFavoriteTypeNumRepresentation());
 		this.inviteTime = contactInfo.getInviteTime();
 		this.lastSeenTime = contactInfo.getLastSeenTime();
+		this.unreadRequestReceivedTime = contactInfo.getUnreadRequestReceivedTime();
 		setNum(6, 7, contactInfo.getOffline() + 1);
 	}
 
@@ -698,14 +701,12 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 		this.isBlocked = status;
 	}
 
-	public void toggleLastSeen()
-	{
-		mPrivacyPrefs.toggleLastSeen();
+	public void setUnreadRequestReceivedTime(long unreadRequestReceivedTime) {
+		this.unreadRequestReceivedTime = unreadRequestReceivedTime;
 	}
 
-	public void toggleStatusUpdate()
-	{
-		mPrivacyPrefs.toggleStatusUpdate();
+	public long getUnreadRequestReceivedTime() {
+		return unreadRequestReceivedTime;
 	}
 
 	public void setPrivacyPrefs(PrivacyPreferences prefs)
@@ -722,7 +723,7 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 	 * P.S. Don't use this for any UI related work.
 	 * @return
      */
-	public String getUserIdentifer() {
+	public String getUserIdentifier() {
 		return msisdn;
 	}
 

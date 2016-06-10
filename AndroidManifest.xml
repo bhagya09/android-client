@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1762"
-    android:versionName="4.2.7.82.21" >
+    android:versionCode="1781"
+    android:versionName="4.2.7.83.106" >
 
    <uses-sdk
         android:minSdkVersion="14"
@@ -123,6 +123,7 @@
         android:largeHeap="true"
         android:logo="@drawable/hike_logo_top_bar"
         tools:replace="android:name,android:allowBackup"
+        android:manageSpaceActivity=".spaceManager.ManageSpaceActivity"
         android:theme="@style/AppTheme" >
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -154,7 +155,7 @@
         </service>
 
         <service android:name=".service.UpgradeIntentService" />
-        <service android:name=".spaceManager.StorageSpecIntentService" />
+        <service android:name=".spaceManager.SpaceManagerIntentService" />
         <service android:name=".GCMIntentService" />
         <activity
             android:name=".ui.HomeActivity"
@@ -169,7 +170,23 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
+        <activity
+            android:name=".ui.ServicesActivity"
+            android:label="@string/app_label"
+            android:launchMode="singleTop"
+            android:windowSoftInputMode="adjustPan|stateAlwaysHidden"/>
+        <activity
+            android:name=".ui.FriendRequestActivity"
+            android:label="@string/app_label"
+            android:launchMode="singleTop"
+            android:windowSoftInputMode="adjustPan|stateAlwaysHidden"/>
+        <activity
+            android:name=".ui.EditDPActivity"
+            android:label="@string/app_label"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/Transparent" >
+        </activity>
         <activity
             android:name=".ui.ComposeChatActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
@@ -346,7 +363,13 @@
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:exported="true"
-            android:configChanges="orientation|keyboardHidden|screenSize" >
+            android:configChanges="orientation|keyboardHidden|screenSize" />
+        <activity
+            android:name="com.bsb.hike.timeline.view.StoryPhotosActivity"
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            android:screenOrientation="portrait"
+            android:configChanges="keyboardHidden|screenSize" >
         </activity>
         <activity
             android:name="com.bsb.hike.ui.NUXInviteActivity"
@@ -457,6 +480,11 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".spaceManager.ManageSpaceActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" >
+        </activity>
+         
         <receiver
             android:name=".service.BootService"
             android:enabled="true" >

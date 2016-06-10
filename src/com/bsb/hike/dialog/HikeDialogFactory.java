@@ -163,6 +163,10 @@ public class HikeDialogFactory
 
 	public static final int CT_CONFIRMATION_DIALOG = 56;
 
+	public static final int SPACE_MANAGER_DELETE_CONFIRMATION_DIALOG = 57;
+
+	public static final int SPACE_MANAGER_FALLBACK_DELETE_CONFIRMATION_DIALOG = 58;
+
 	public static HikeDialog showDialog(Context context, int whichDialog, Object... data)
 	{
 		return showDialog(context, whichDialog, null, data);
@@ -263,9 +267,12 @@ public class HikeDialogFactory
 			return showChatMuteDialog(context, dialogId, listener, data);
 		case STICKER_RESTORE_DIFF_DPI_DIALOG:
 			return showStickerRestoreDiffDpiDialog(context, dialogId, listener, data);
-
 		case CT_CONFIRMATION_DIALOG:
 			return showCTConfirmationDialog(context, dialogId, listener, data);
+		case SPACE_MANAGER_DELETE_CONFIRMATION_DIALOG:
+			return showSpaceManagerDeleteConfirmationDialog(context, dialogId, listener, data);
+		case SPACE_MANAGER_FALLBACK_DELETE_CONFIRMATION_DIALOG:
+			return showSpaceManagerFallbackDeleteConfirmationDialog(context, dialogId, listener, data);
 		}
 		return null;
 	}
@@ -1365,6 +1372,29 @@ public class HikeDialogFactory
 		dialog.setPositiveButton(R.string.OK, listener);
 		dialog.setNegativeButton(R.string.CANCEL, listener);
 
+		dialog.show();
+		return dialog;
+	}
+
+	private static HikeDialog showSpaceManagerDeleteConfirmationDialog(Context context, int dialogId, HikeDialogListener listener, Object[] data)
+	{
+		String size = (String)data[0];
+		CustomAlertDialog dialog = new CustomAlertDialog(context, dialogId);
+		dialog.setMessage(context.getString(R.string.delete_space_confirmation_dialog_text, size));
+		dialog.setTitle(context.getString(R.string.delete_space_confirmation_dialog_heading));
+		dialog.setPositiveButton(R.string.OK, listener);
+		dialog.setNegativeButton(R.string.CANCEL, listener);
+		dialog.show();
+		return dialog;
+	}
+
+	private static HikeDialog showSpaceManagerFallbackDeleteConfirmationDialog(Context context, int dialogId, HikeDialogListener listener, Object[] data)
+	{
+		CustomAlertDialog dialog = new CustomAlertDialog(context, dialogId);
+		dialog.setMessage(context.getString(R.string.delete_space_fallback_confirmation_dialog_text));
+		dialog.setTitle(context.getString(R.string.sm_fallback_header));
+		dialog.setPositiveButton(R.string.OK, listener);
+		dialog.setNegativeButton(R.string.CANCEL, listener);
 		dialog.show();
 		return dialog;
 	}

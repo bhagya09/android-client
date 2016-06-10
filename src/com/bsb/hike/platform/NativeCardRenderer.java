@@ -14,6 +14,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.text.TextUtils;
@@ -55,6 +56,7 @@ import com.bsb.hike.smartImageLoader.HighQualityThumbLoader;
 import com.bsb.hike.smartImageLoader.ImageWorker;
 import com.bsb.hike.smartImageLoader.NativeCardImageLoader;
 import com.bsb.hike.ui.fragments.PhotoViewerFragment;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
@@ -214,18 +216,18 @@ public class NativeCardRenderer implements View.OnLongClickListener, View.OnClic
 				});
 				if (imageComponent.getUrl() != null)
 				{
-					populateImageWithUrl(imageView, imageComponent);
+					populateImageWithUrl(imageView, imageComponent,convMessage.platformMessageMetadata.layoutId,convMessage.platformMessageMetadata.contentId,convMessage.getMsisdn());
 				}
 			}
 		}
 
 	}
 
-	private void populateImageWithUrl(ImageView imageView, CardComponent.ImageComponent imageComponent)
+	private void populateImageWithUrl(ImageView imageView, CardComponent.ImageComponent imageComponent, final int layoutId, final String contentId, final String msisdn)
 	{
 
 		NativeCardImageLoader nativeCardImageLoader = new NativeCardImageLoader((int) context.getResources().getDimension(R.dimen.native_card_message_container_wide_width),
-				(int) context.getResources().getDimension(R.dimen.native_card_image_height));
+				(int) context.getResources().getDimension(R.dimen.native_card_image_height),  layoutId,  contentId,  msisdn);
 		nativeCardImageLoader.setImageFadeIn(false);
 		nativeCardImageLoader.setDefaultDrawableNull(true);
 		nativeCardImageLoader.setImageLoaderListener(new ImageWorker.ImageLoaderListener()
@@ -291,29 +293,29 @@ public class NativeCardRenderer implements View.OnLongClickListener, View.OnClic
 			ftViewHolder.fileThumb.setImageDrawable(thumbnail);
 			hqThumbLoader.setLoadingImage(thumbnail);
 			hqThumbLoader.loadImage(hikeFile.getFilePath(), ftViewHolder.fileThumb, isListFlinging);
-		}
-		else
-		{
-			createMediaThumb(ftViewHolder.fileThumb, convMessage.platformMessageMetadata.isWideCard());
+		}else{
+			ftViewHolder.fileThumb.setBackground(new ColorDrawable(context.getResources().getColor(R.color.thumbnail_default_color)));
+			ftViewHolder.fileThumb.setImageDrawable(null);
 		}
 
 		RelativeLayout.LayoutParams fileThumbParams = (RelativeLayout.LayoutParams) ftViewHolder.fileThumb.getLayoutParams();
-
-		if (showThumbnail && thumbnail != null)
+		ftViewHolder.fileThumb.setScaleType(ImageView.ScaleType.CENTER_CROP);
+		if (convMessage.platformMessageMetadata.isWideCard())
 		{
-			ftViewHolder.fileThumb.setScaleType(ImageView.ScaleType.CENTER_CROP);
-			if (convMessage.platformMessageMetadata.isWideCard())
-			{
-				fileThumbParams.width = (int) context.getResources().getDimension(R.dimen.native_card_message_container_wide_width);
-			}
-			else
-			{
-				fileThumbParams.width = (int) context.getResources().getDimension(R.dimen.native_card_message_container_narror_width);
-			}
-
-			fileThumbParams.height = (int) (thumbnail.getIntrinsicHeight() * fileThumbParams.width) / thumbnail.getIntrinsicWidth();
-
+			fileThumbParams.width = (int) context.getResources().getDimension(R.dimen.native_card_message_container_wide_width);
 		}
+		else
+		{
+			fileThumbParams.width = (int) context.getResources().getDimension(R.dimen.native_card_message_container_narror_width);
+		}
+		if (thumbnail != null)
+		{
+			fileThumbParams.height = (int) (thumbnail.getIntrinsicHeight() * fileThumbParams.width) / thumbnail.getIntrinsicWidth();
+		}else{
+			//Maintaining a 150/100 width - height ratio for native card in case the thumbnail is not present
+			fileThumbParams.height = (int)(fileThumbParams.width / 1.5);
+		}
+
 		ftViewHolder.fileThumb.setLayoutParams(fileThumbParams);
 
 		ftViewHolder.fileThumb.setVisibility(View.VISIBLE);
@@ -326,31 +328,6 @@ public class NativeCardRenderer implements View.OnLongClickListener, View.OnClic
 
 	}
 
-	private void createMediaThumb(ImageView fileThumb, boolean isWide)
-	{
-		// TODO Auto-generated method stub
-		Logger.d(getClass().getSimpleName(), "creating default thumb. . . ");
-		int pixels;
-		if (isWide)
-		{
-			pixels = context.getResources().getDimensionPixelSize(R.dimen.native_card_message_container_wide_width);
-		}
-		else
-		{
-			pixels = context.getResources().getDimensionPixelSize(R.dimen.native_card_message_container_narror_width);
-		}
-
-		// int pixels = (int) (250 * Utils.densityMultiplier);
-		Logger.d(getClass().getSimpleName(), "density: " + Utils.scaledDensityMultiplier);
-		fileThumb.getLayoutParams().height = pixels;
-		fileThumb.getLayoutParams().width = pixels;
-		// fileThumb.setBackgroundColor(context.getResources().getColor(R.color.file_message_item_bg))
-		fileThumb.setBackgroundResource(R.drawable.bg_file_thumb);
-		/*
-		 * When setting default media thumb to image view, need to remove the previous drawable of that view in case of view is re-used by adapter. Fogbugz Id : 37212
-		 */
-		fileThumb.setImageDrawable(null);
-	}
 
 	@Override
 	public void onClick(View v)

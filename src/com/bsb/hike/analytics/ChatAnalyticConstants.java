@@ -55,6 +55,8 @@ public class ChatAnalyticConstants {
     public static final String CUSTOM_THEME_DONE = "ctDone";
 
     public static final String MUTE_CANCEL_UK = "muteCncl";
+    public static String IMAGE_LOAD = "image_load";
+    public static String CTA_ACCESS = "cta_accessed";
 
     public static final class GCEvents
     {

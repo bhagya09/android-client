@@ -63,4 +63,9 @@ public class DataPersistPrefImpl extends DataPersist {
         Map<String, ?> allExperiments = mExperimentsPref.getAll();
         return allExperiments;
     }
+
+    @Override
+    public void clearAll() {
+        mExperimentsPref.edit().clear().commit();
+    }
 }

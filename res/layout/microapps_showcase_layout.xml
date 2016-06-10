@@ -3,27 +3,27 @@
     android:id="@+id/showcase_item_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical" >
-    
+    android:gravity="center_horizontal"
+    android:orientation="vertical">
+
     <com.bsb.hike.view.RoundedImageView
-                android:id="@+id/microapp_image"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                style="@style/AvatarStyle.MorePadding" />
-    
-    <com.bsb.hike.view.CustomFontTextView 
+        android:id="@+id/microapp_image"
+        style="@style/AvatarStyle.MorePadding"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp" />
+
+    <com.bsb.hike.view.CustomFontTextView
         android:id="@+id/microapp_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:maxWidth="60dp"
         android:layout_gravity="center"
-        android:textSize="11sp"
-        android:singleLine="true"
+        android:layout_marginTop="5dp"
         android:ellipsize="end"
+        android:maxWidth="60dp"
+        android:singleLine="true"
         android:textColor="#888888"
-        />
+        android:textSize="11sp" />
 
 </LinearLayout>

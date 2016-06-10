@@ -333,8 +333,8 @@ public class HikeNotificationMsgStack implements Listener
 		}
 		else if (containsStealthMessage())
 		{
-			mNotificationIntent = new Intent(mContext, HomeActivity.class);
-			mNotificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			// Home activity default tab
+			mNotificationIntent = IntentFactory.getHomeActivityDefaultTabIntent(mContext);
 		}
 		else
 		{
@@ -345,15 +345,13 @@ public class HikeNotificationMsgStack implements Listener
 				if (uniqueNotifTypes.containsOnly(new int[] { NotificationType.STATUSUPDATE, NotificationType.IMAGE_POST, NotificationType.DPUPDATE,
 						NotificationType.ACTIVITYUPDATE, NotificationType.FAVADD }))
 				{
-					// General timeline
-					mNotificationIntent = Utils.getTimelineActivityIntent(mContext, false, true);
+					mNotificationIntent = IntentFactory.getHomeActivityFriendsTabIntent(mContext);
 				}
 				else
 				{
 					// Multiple msisdn, mixed types
-					// Home activity
-					mNotificationIntent = new Intent(mContext, HomeActivity.class);
-					mNotificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+					// Home activity default tab
+					mNotificationIntent = IntentFactory.getHomeActivityDefaultTabIntent(mContext);
 				}
 			}
 			// if all the new messages belong to a single user/group
@@ -363,7 +361,7 @@ public class HikeNotificationMsgStack implements Listener
 				if (uniqueNotifTypes.containsOnly(new int[] { NotificationType.STATUSUPDATE, NotificationType.IMAGE_POST, NotificationType.DPUPDATE,
 						NotificationType.ACTIVITYUPDATE, NotificationType.FAVADD }))
 				{
-					mNotificationIntent = Utils.getTimelineActivityIntent(mContext, false, true);
+					mNotificationIntent = IntentFactory.getHomeActivityFriendsTabIntent(mContext);
 				}
 				else if (lastAddedMsisdn.equals(mContext.getString(R.string.app_name)))
 				{

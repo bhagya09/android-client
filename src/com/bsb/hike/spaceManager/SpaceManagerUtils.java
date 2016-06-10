@@ -7,23 +7,35 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.spaceManager.models.CategoryItem;
+import com.bsb.hike.spaceManager.models.CategoryPojo;
+import com.bsb.hike.spaceManager.models.SpaceManagerItem;
+import com.bsb.hike.spaceManager.models.SubCategoryItem;
+import com.bsb.hike.spaceManager.models.SubCategoryPojo;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.view.TagEditText;
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
  * Provides directory/file size as requested via packet from server.
  *
  */
-public class StorageSpecUtils
+public class SpaceManagerUtils
 {
     private static final String HIKE_STORAGE_INTERNAL = "internal";
 
@@ -34,6 +46,14 @@ public class StorageSpecUtils
     private static final String FILE = "file";
 
     private static final String DIRECTORY = "dir";
+
+    public static final String CATEGORY_TAG = "CategoryItem";
+
+    public static final String SUB_CATEGORY_TAG = "SubCategoryItem";
+
+    public static final String SPACE_MANAGER_ITEMS = "spcMgrItems";
+
+    public static final String SPACE_MANAGER_UTILS_TAG = "spcMgrUtilsTag";
 
     /**
      * Computes and returns a Map with key as directory path and value as directory size. The boolean
@@ -250,7 +270,7 @@ public class StorageSpecUtils
     }
 
     /**
-     * Methhod to trigger {@link StorageSpecIntentService} with appropriate action
+     * Methhod to trigger {@link SpaceManagerIntentService} with appropriate action
      * @param dirPath
      * @param shouldMapContainedFiles
      */
@@ -259,23 +279,130 @@ public class StorageSpecUtils
         switch (dirPath)
         {
             case HIKE_STORAGE_INTERNAL:
-                IntentFactory.startStorageSpecIntent(StorageSpecIntentService.ACTION_GET_INTERNAL_STORAGE_ANALYTICS,
+                IntentFactory.startStorageSpecIntent(SpaceManagerIntentService.ACTION_GET_INTERNAL_STORAGE_ANALYTICS,
                         null, shouldMapContainedFiles);
                 break;
 
             case HIKE_STORAGE_EXTERNAL:
-                IntentFactory.startStorageSpecIntent(StorageSpecIntentService.ACTION_GET_EXTERNAL_STORAGE_ANALYTICS,
+                IntentFactory.startStorageSpecIntent(SpaceManagerIntentService.ACTION_GET_EXTERNAL_STORAGE_ANALYTICS,
                         null, shouldMapContainedFiles);
                 break;
 
             case HIKE_STORAGE_SHARED:
-                IntentFactory.startStorageSpecIntent(StorageSpecIntentService.ACTION_GET_SHARED_STORAGE_ANALYTICS,
+                IntentFactory.startStorageSpecIntent(SpaceManagerIntentService.ACTION_GET_SHARED_STORAGE_ANALYTICS,
                         null, shouldMapContainedFiles);
                 break;
 
             default:
-                IntentFactory.startStorageSpecIntent(StorageSpecIntentService.ACTION_GET_CUSTOM_DIRECTORY_ANALYTICS,
+                IntentFactory.startStorageSpecIntent(SpaceManagerIntentService.ACTION_GET_CUSTOM_DIRECTORY_ANALYTICS,
                         dirPath, shouldMapContainedFiles);
         }
     }
+
+    /**
+     * Method to check if Space Manager is enabled
+     * @return
+     */
+    public static boolean isSpaceManagerEnabled()
+    {
+        return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_SPACE_MANAGER, true);
+    }
+
+    public static List<SpaceManagerItem> getValidItemsList(List<CategoryItem> categoryList)
+    {
+        List<SpaceManagerItem> finalList = new ArrayList<>();
+        if(!categoryList.isEmpty())
+        {
+            for(CategoryItem category : categoryList)
+            {
+                if(category.getSize() > 0)
+                {
+                    finalList.add(category);
+                }
+
+                List<SubCategoryItem> subCategoryList = category.getSubCategoryList();
+                for(SubCategoryItem subCategory : subCategoryList)
+                {
+                    if(subCategory.getSize() > 0)
+                    {
+                        finalList.add(subCategory);
+                    }
+                }
+            }
+        }
+
+        return finalList;
+    }
+
+    public static long getTotalSizeToDelete(List<SpaceManagerItem> spaceManagerItems)
+    {
+        long size = 0;
+        for(int i = 0; i < spaceManagerItems.size(); i++)
+        {
+            SpaceManagerItem item = spaceManagerItems.get(i);
+            if(item.getType() == SpaceManagerItem.CATEGORY)
+            {
+                size = size + item.getSize();
+            }
+        }
+        return size;
+    }
+
+    public static boolean isJSONValid(String itemsJson)
+    {
+        boolean isValid = true;
+        if (TextUtils.isEmpty(itemsJson))
+        {
+            isValid = false;
+        }
+        else
+        {
+            try
+            {
+                CategoryPojo[] categoryPojos = new Gson().fromJson(itemsJson, CategoryPojo[].class);
+                List<CategoryPojo> categoryPojosList = Arrays.asList(categoryPojos);
+                if (categoryPojosList == null || categoryPojosList.isEmpty())
+                {
+                    isValid = false;
+                }
+                else
+                {
+                    for (CategoryPojo categoryPojo : categoryPojosList)
+                    {
+                        if (!categoryPojo.isValid())
+                        {
+                            isValid = false;
+                            break;
+                        }
+                        List<SubCategoryPojo> subCategoryPojoList = categoryPojo.getSubCategoryList();
+                        if (subCategoryPojoList == null || subCategoryPojoList.isEmpty())
+                        {
+                            isValid = false;
+                            break;
+                        }
+                        for (SubCategoryPojo subCategoryPojo : subCategoryPojoList)
+                        {
+                            if (!subCategoryPojo.isValid())
+                            {
+                                isValid = false;
+                                break;
+                            }
+                        }
+                        if (!isValid)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+            catch (JsonSyntaxException ex)
+            {
+                Logger.d(SPACE_MANAGER_UTILS_TAG, ex.getMessage());
+                isValid = false;
+            }
+        }
+        return isValid;
+    }
+
+    
 }

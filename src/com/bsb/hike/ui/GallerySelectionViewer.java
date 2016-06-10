@@ -1051,7 +1051,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			{
 				if(isIndexEdited(position))
 				{
-					Utils.deleteFile(getApplicationContext(), editedImages.get(position), HikeFileType.IMAGE);
+					Utils.deleteFile(getApplicationContext(), editedImages.get(position), HikeFileType.IMAGE, false);
 				}
 
 				if(editedImages.size() > position)

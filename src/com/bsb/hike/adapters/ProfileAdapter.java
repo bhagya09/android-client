@@ -20,6 +20,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bsb.hike.BitmapModule.BitmapUtils;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
@@ -105,6 +107,8 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.On
 	private int sizeOfThumbnail;
 
 	public ListView listView;
+
+	int lsViewHeight, suViewHeight;
 
 	public ProfileAdapter(ProfileActivity profileActivity, List<ProfileItem> itemList, OneToNConversation groupConversation, ContactInfo contactInfo, boolean myProfile)
 	{
@@ -401,6 +405,9 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.On
 					viewHolder.statusUpdateSwitch = (SwitchCompat) viewHolder.expandingLayout.findViewById(R.id.status_update_switch);
 					viewHolder.lastSeenSetting = viewHolder.expandingLayout.findViewById(R.id.last_seen_section);
 					viewHolder.statusUpdateSetting = viewHolder.expandingLayout.findViewById(R.id.status_update_section);
+					viewHolder.arrowImage = (ImageView) v.findViewById(R.id.arrow_image);
+					viewHolder.lastSeenSettingTV = (TextView) v.findViewById(R.id.ls_update_subtext);
+					viewHolder.suSettingTV = (TextView) v.findViewById(R.id.status_update_subtext);
 					break;
 			}
 
@@ -849,18 +856,25 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.On
 
 			case PRIVACY_SECTION:
 
-				viewHolder.expandingLayout.setExpandedHeight(Utils.dpToPx(115));
-				viewHolder.expandingLayout.setSizeChangedListener(profileItem);
-
 				if (!profileItem.isExpanded()) {
+					viewHolder.arrowImage.setRotation(0);
 					viewHolder.expandingLayout.setVisibility(View.GONE);
 				} else {
+					viewHolder.arrowImage.setRotation(180);
 					viewHolder.expandingLayout.setVisibility(View.VISIBLE);
 				}
 
 				PrivacyPreferences prefs = mContactInfo.getPrivacyPrefs();
 				viewHolder.statusUpdateSwitch.setChecked(prefs.shouldShowStatusUpdate());
 				viewHolder.lastSeenSwitch.setChecked(prefs.shouldShowLastSeen());
+
+				setStatusUpdateLayoutParams(viewHolder.statusUpdateSetting, viewHolder.statusUpdateSwitch.isChecked());
+				setLastSeenLayoutParams(viewHolder.lastSeenSetting, viewHolder.lastSeenSwitch.isChecked());
+				setExpandingLayoutHeight(viewHolder.expandingLayout);
+				viewHolder.expandingLayout.setSizeChangedListener(profileItem);
+
+				viewHolder.suSettingTV.setText(profileActivity.getString(viewHolder.statusUpdateSwitch.isChecked() ? R.string.su_privacy_subtext : R.string.su_privacy_subtext_off));
+				viewHolder.lastSeenSettingTV.setText(profileActivity.getString(viewHolder.lastSeenSwitch.isChecked() ? R.string.ls_privacy_subtext : R.string.ls_privacy_subtext_off));
 
 				viewHolder.parent.setTag(position);
 				viewHolder.parent.setOnClickListener(this);
@@ -1011,6 +1025,10 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.On
 		SwitchCompat lastSeenSwitch, statusUpdateSwitch;
 
 		View lastSeenSetting, statusUpdateSetting;
+
+		ImageView arrowImage;
+
+		TextView lastSeenSettingTV, suSettingTV;
 	}
 	
 	public void setProfilePreview(Bitmap preview)
@@ -1108,10 +1126,12 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.On
 				ExpandableListItem item = getItem(position);
 
 				if (!item.isExpanded()) {
+					((ImageView)v.findViewById(R.id.arrow_image)).animate().rotation(180).start(); //about to be expanded. Animate it
 					((ExpandingListView) listView).expandView((View) v.getParent());
 					((ProfileItem.ProfilePrivacyItem) item).setFtueShown(false);
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FRIENDS_PRIVACY_PROFILE_VIEW_SHOWN, true);
 				} else {
+					((ImageView)v.findViewById(R.id.arrow_image)).animate().rotation(0).start();
 					((ExpandingListView) listView).collapseView((View) v.getParent());
 				}
 
@@ -1135,18 +1155,38 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.On
 	 * @param isChecked  The new checked state of buttonView.
 	 */
 	@Override
-	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+	public void onCheckedChanged(final CompoundButton buttonView, boolean isChecked) {
 
 		switch (buttonView.getId()) {
 			case R.id.last_seen_switch:
+				buttonView.postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						View lsView = (View) buttonView.getParent();
+						setLastSeenLayoutParams(lsView, buttonView.isChecked());
+						setExpandingLayoutHeight((ExpandingLayout) lsView.getParent());
+						((TextView) lsView.findViewById(R.id.ls_update_subtext)).setText(profileActivity.getString(buttonView.isChecked() ? R.string.ls_privacy_subtext : R.string.ls_privacy_subtext_off));
+					}
+				}, 250); // Simple set text will cause invalidate for textview --> resulting in onMeasure call for parent view & switch view -- resulting in inconsistent switch state on UI
+				// 250 is the default switch thumb animation. http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android/5.1.0_r1/android/support/v7/widget/Switch
 				ContactManager.getInstance().toggleLastSeenSetting(mContactInfo, isChecked);
-				mContactInfo.getPrivacyPrefs().toggleLastSeen();
+				HikeMessengerApp.getInstance().getPubSub().publish(HikePubSub.USER_PRIVACY_TOGGLED, null);
 				recordLastSeenSettingToggle();
 				break;
 
 			case R.id.status_update_switch:
+				buttonView.postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						View suView = (View) buttonView.getParent();
+						setStatusUpdateLayoutParams(suView, buttonView.isChecked());
+						setExpandingLayoutHeight((ExpandingLayout) suView.getParent());
+						((TextView) suView.findViewById(R.id.status_update_subtext)).setText(profileActivity.getString(buttonView.isChecked() ? R.string.su_privacy_subtext : R.string.su_privacy_subtext_off));
+					}
+				}, 250); // Simple set text will cause invalidate for textview --> resulting in onMeasure call for parent view & switch view -- resulting in inconsistent switch state on UI
+				// 250 is the default switch thumb animation. http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android/5.1.0_r1/android/support/v7/widget/SwitchCompat.java
 				ContactManager.getInstance().toggleStatusUpdateSetting(mContactInfo, isChecked);
-				mContactInfo.getPrivacyPrefs().toggleStatusUpdate();
+				HikeMessengerApp.getInstance().getPubSub().publish(HikePubSub.USER_PRIVACY_TOGGLED, null);
 				recordStatusUpdateSettingToggle();
 				break;
 		}
@@ -1174,6 +1214,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.On
 				json.put(AnalyticsConstants.V2.UNIQUE_KEY, "hs_privacy_options");
 				json.put(AnalyticsConstants.V2.ORDER, "hs_privacy_options");
 				json.put(AnalyticsConstants.V2.FAMILY, mContactInfo.isMyOneWayFriend() ? "friend" : "not_friend");
+				json.put(AnalyticsConstants.V2.TO_MISISDN, mContactInfo.getMsisdn());
 				HAManager.getInstance().recordV2(json);
 			}
 		} catch (JSONException e) {
@@ -1182,11 +1223,13 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.On
 	}
 
 	private void recordStatusUpdateSettingToggle() {
-		recordPrivacyAnalytics("su", mContactInfo.getPrivacyPrefs().shouldShowStatusUpdate() ? "on" : "off", null);
+		recordPrivacyAnalytics("su", mContactInfo.getPrivacyPrefs().shouldShowStatusUpdate() ? "true" : "false", null);
 	}
 
 	private void recordLastSeenSettingToggle() {
-		recordPrivacyAnalytics("last_seen", mContactInfo.getPrivacyPrefs().shouldShowLastSeen() ? "on" : "off", PreferenceManager.getDefaultSharedPreferences(profileActivity).getString(HikeConstants.LAST_SEEN_PREF_LIST, profileActivity.getString(R.string.privacy_favorites)));
+		String ls_setting = PreferenceManager.getDefaultSharedPreferences(profileActivity).getString(HikeConstants.LAST_SEEN_PREF_LIST, profileActivity.getString(R.string.privacy_favorites));
+		String variety = profileActivity.getString(R.string.privacy_favorites).equals(ls_setting) ? "friends" : "nobody";
+		recordPrivacyAnalytics("last_seen", mContactInfo.getPrivacyPrefs().shouldShowLastSeen() ? "true" : "false", variety);
 	}
 
 	private void recordPrivacyAnalytics(String family, String species, String variety) {
@@ -1200,11 +1243,28 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.On
 					json.put(AnalyticsConstants.V2.SPECIES, species);
 				if (!TextUtils.isEmpty(variety))
 					json.put(AnalyticsConstants.V2.VARIETY, variety);
+				json.put(AnalyticsConstants.V2.TO_MISISDN, mContactInfo.getMsisdn());
 				HAManager.getInstance().recordV2(json);
 			}
 		} catch (JSONException e) {
 			e.toString();
 		}
+	}
+
+	private void setExpandingLayoutHeight(ExpandingLayout expandingLayout) {
+		expandingLayout.setExpandedHeight(lsViewHeight + suViewHeight);
+	}
+
+	private void setLastSeenLayoutParams(View lastSeenSetting, boolean checked) {
+		LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Utils.dpToPx(checked ? 63 : 78));
+		lastSeenSetting.setLayoutParams(params);
+		lsViewHeight = Utils.dpToPx(checked ? 63 : 78);
+	}
+
+	private void setStatusUpdateLayoutParams(View statusUpdateSetting, boolean checked) {
+		LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Utils.dpToPx(checked ? 63 : 78));
+		statusUpdateSetting.setLayoutParams(params);
+		suViewHeight = Utils.dpToPx(checked ? 63 : 78);
 	}
 
 }
