@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.media.ThumbnailUtils;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.bsb.hike.HikeConstants;
@@ -108,7 +109,13 @@ public class ChatThemeManager {
     }
 
     public HikeChatTheme getTheme(String themeId) {
-        return mChatThemesMap.get(themeId);
+        HikeChatTheme theme = mChatThemesMap.get(themeId);
+        if(theme == null) {
+            theme = mChatThemesMap.get(defaultChatThemeId);
+            //looks like theme data is missing downloading theme content
+            downloadThemeContent(themeId, true);
+        }
+        return theme;
     }
 
     public void clearThemes() {
@@ -130,7 +137,7 @@ public class ChatThemeManager {
         if (themeId.equals(ChatThemeManager.getInstance().defaultChatThemeId)) // the default theme is always available
             return true;
 
-        if (!mChatThemesMap.containsKey(themeId))
+        if (mChatThemesMap == null || !mChatThemesMap.containsKey(themeId))
             return false;
 
         HikeChatTheme theme = getTheme(themeId);
@@ -341,7 +348,7 @@ public class ChatThemeManager {
             getAllHikeThemesForDisplay();
         }
         availableThemes.addAll(defaultHikeThemes);
-        if (recentCustomTheme != null && ChatThreadUtils.isCustomChatThemeEnabled()) {
+        if (!TextUtils.isEmpty(recentCustomTheme) && isThemeAvailable(recentCustomTheme) && ChatThreadUtils.isCustomChatThemeEnabled()) {
             availableThemes.add(0, recentCustomTheme);
         }
         return availableThemes;
@@ -369,6 +376,10 @@ public class ChatThemeManager {
             HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CUSTOM_CHATTHEME_ENABLED, true);
         }
 
+        downloadThemeContent(themeId, isCustom);
+    }
+
+    public void downloadThemeContent(String themeId, boolean isCustom) {
         if (!mChatThemesMap.containsKey(themeId)) {
             DownloadThemeContentTask downloadAssetIds = new DownloadThemeContentTask(themeId, isCustom);
             downloadAssetIds.execute();

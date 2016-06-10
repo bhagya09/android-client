@@ -1023,7 +1023,12 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
                 preference.setTitle(getString(R.string.last_seen_header) + ": " + selectedPrivacyValue);
                 preference.setSummary(ls_summary);
                 PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean(HikeConstants.LAST_SEEN_PREF, isLSEnabled).commit();
-                sendNLSToServer(slectedPrivacyId, isLSEnabled);
+                if (Utils.isFavToFriendsMigrationAllowed()) {
+                    sendULSToServer(slectedPrivacyId, isLSEnabled);
+                } else {
+                    sendNLSToServer(slectedPrivacyId, isLSEnabled);
+                }
+
             } catch (Exception e) {
                 e.printStackTrace();
             }

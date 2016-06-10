@@ -104,6 +104,7 @@ public class DbConversationListener implements Listener
 		mPubSub.addListener(HikePubSub.BOT_DISCOVERY_TABLE_FLUSH, this);
 		mPubSub.addListener(HikePubSub.ADD_NM_BOT_CONVERSATION, this);
 		mPubSub.addListener(HikePubSub.ADD_INLINE_FRIEND_MSG, this);
+		mPubSub.addListener(HikePubSub.CHATTHEME_CUSTOM_IMAGE_UPLOAD_SUCCESS, this);
 	}
 
 	@Override
@@ -261,7 +262,12 @@ public class DbConversationListener implements Listener
 			ContactInfo contactInfo = favoriteToggle.first;
 			FavoriteType favoriteType = favoriteToggle.second;
 
-			ContactManager.getInstance().toggleContactFavorite(contactInfo, favoriteType);
+			// When someone rejects a sent request, the privacy values should not change at our end
+			if (favoriteType == FavoriteType.REQUEST_SENT_REJECTED) {
+				ContactManager.getInstance().toggleContactFavorite(contactInfo.getMsisdn(), favoriteType, false);
+			} else {
+				ContactManager.getInstance().toggleContactFavorite(contactInfo.getMsisdn(), favoriteType);
+			}
 
 			if (favoriteType != FavoriteType.REQUEST_RECEIVED && favoriteType != FavoriteType.REQUEST_SENT_REJECTED && !HikePubSub.FRIEND_REQUEST_ACCEPTED.equals(type))
 			{
@@ -596,6 +602,20 @@ public class DbConversationListener implements Listener
 				// Update the CT back as well.
 				HikeMessengerApp.getPubSub().publish(HikePubSub.UPDATE_THREAD, msg);
 			}
+		}
+		else if(HikePubSub.CHATTHEME_CUSTOM_IMAGE_UPLOAD_SUCCESS.equals(type))
+		{
+			Pair<Conversation, String> pair = (Pair<Conversation, String>) object;
+			Conversation conversation = pair.first;
+			String themeId = pair.second;
+
+			long timestamp = System.currentTimeMillis() / 1000;
+			mConversationDb.setChatBackground(conversation.getMsisdn(), themeId, timestamp);
+			ConvMessage convMessage = ChatThreadUtils.getChatThemeConvMessage(HikeMessengerApp.getInstance().getApplicationContext(), timestamp, themeId, conversation, true);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessage);
+
+			// Update the CT back as well.
+			HikeMessengerApp.getPubSub().publish(HikePubSub.UPDATE_THREAD, convMessage);
 		}
 	}
 
