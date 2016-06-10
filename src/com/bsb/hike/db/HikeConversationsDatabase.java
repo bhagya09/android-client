@@ -10645,12 +10645,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 			return null;
 		}
 
-		List<Sticker> resultSet = null;
+		List<Sticker> stickerList = null;
 
 		try
 		{
 
-			resultSet = new ArrayList<Sticker>(c.getCount());
+			stickerList = new ArrayList<Sticker>(c.getCount());
 
 			int largestickerpathIdx = c.getColumnIndex(DBConstants.LARGE_STICKER_PATH);
 			int smallstickerpathIdx = c.getColumnIndex(DBConstants.SMALL_STICKER_PATH);
@@ -10671,7 +10671,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				sticker.setWidth(c.getInt(stickerWidthIdx));
 				sticker.setHeight(c.getInt(stickerHeightIdx));
 
-				resultSet.add(sticker);
+				stickerList.add(sticker);
 			}
 
 		}
@@ -10683,7 +10683,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 			}
 		}
 
-		return resultSet;
+		return stickerList;
 	}
 
 	public Sticker getStickerFromStickerTable(Sticker sticker)
@@ -10724,7 +10724,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		return sticker;
 	}
 
-	public List<Sticker> getStickersForCatgeoryId(String categoryId, StickerConstants.StickerType stickerType)
+	public List<Sticker> getActiveStickersListForCatgeoryId(String categoryId, StickerConstants.StickerType stickerType)
 	{
 		Cursor c = null;
 		List<Sticker> stickerList;

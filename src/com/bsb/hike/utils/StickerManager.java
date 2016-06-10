@@ -4185,7 +4185,7 @@ public class StickerManager
 
 		List<Sticker> activeStickerList = new ArrayList<Sticker>(activeStickerArray.length());
 
-		List<Sticker> previousActiveStickerList = HikeConversationsDatabase.getInstance().getStickersForCatgeoryId(category.getCategoryId(), StickerConstants.StickerType.LARGE);
+		List<Sticker> previousActiveStickerList = HikeConversationsDatabase.getInstance().getActiveStickersListForCatgeoryId(category.getCategoryId(), StickerConstants.StickerType.LARGE);
 
 		if (Utils.isEmpty(previousActiveStickerList))
 		{
