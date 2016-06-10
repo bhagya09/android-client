@@ -5,44 +5,44 @@
 
     <com.bsb.hike.view.CustomFontTextView
         android:id="@+id/title"
-        style="@style/ActionBarText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_marginBottom="1dp"
         android:layout_marginLeft="6dp"
-        android:layout_marginRight="5dp"
         android:layout_alignParentLeft="true"
         android:layout_toLeftOf="@id/done_container"
         android:clickable="false"
         android:ellipsize="end"
-        android:text="@string/space_manager" />
+        style="@style/ListSectionTextView"
+        android:text="@string/space_manager"
+        android:textColor="@color/white_96"
+        android:textSize="18sp"/>
 
     <LinearLayout
         android:id="@+id/done_container"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
+        android:gravity="center_vertical"
         android:background="@drawable/bg_overflow_menu_selector"
         android:paddingLeft="12dp"
-        android:paddingRight="6dp"
-        android:orientation="horizontal">
+        android:paddingRight="20dp"
+        android:orientation="horizontal"
+        android:visibility="gone">
 
       <ImageView
-          android:id="@+id/arrow"
+          android:id="@+id/delete_icon"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:src="@drawable/action_bar_arrow"
-          android:layout_marginRight="8dp"/>
+          android:src="@drawable/ic_delete"
+          android:layout_marginRight="5dp"/>
 
         <com.bsb.hike.view.CustomFontTextView
             android:id="@+id/delete_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            style="@style/SettingsItemHeader"
             android:text="@string/delete"
-            android:textColor="@drawable/action_bar_btn_text"
-            android:textSize="16sp"/>
+            android:textColor="@color/white"/>
     </LinearLayout>
     
 </RelativeLayout>

@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.support.annotation.Nullable;
 import android.os.Bundle;
+import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -127,7 +128,9 @@ public class NewUserExperimentFetchTask implements IHikeHTTPTask, IHikeHttpTaskR
         JSONObject requestJson = new JSONObject();
         requestJson.put(USER_ID, settings.getString(HikeMessengerApp.UID_SETTING, null));
         requestJson.put(HikeConstants.MSISDN, settings.getString(HikeMessengerApp.MSISDN_SETTING, null));
-        requestJson.put(HikeConstants.GENDER, settings.getString(HikeConstants.SERVER_GENDER_SETTING, null));
+        if(!TextUtils.isEmpty(settings.getString(HikeConstants.SERVER_GENDER_SETTING, null))) {
+            requestJson.put(HikeConstants.GENDER, settings.getString(HikeConstants.SERVER_GENDER_SETTING, null));
+        }
         requestJson.put(OS_VERSION, Build.VERSION.RELEASE);
         requestJson.put(OS, HikeConstants.ANDROID);
         try {

@@ -3485,6 +3485,15 @@ public class MqttMessagesManager
 			long storyTimeLimit = data.getLong(TimelineServerConfigUtils.AC_KEY_STORY_DURATION);
 			HikeSharedPreferenceUtil.getInstance().saveData(TimelineServerConfigUtils.AC_KEY_STORY_DURATION, storyTimeLimit);
 		}
+		
+		if(data.has(HikeConstants.SPACE_MANAGER_JSON))
+		{
+			String smJSON = data.getString(HikeConstants.SPACE_MANAGER_JSON);
+			if(SpaceManagerUtils.isJSONValid(smJSON))
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_SPACE_MANAGER, smJSON);
+			}
+		}
 
 		if (data.has(TimelineServerConfigUtils.AC_KEY_CAMSHY_SUBTEXT)) {
 			JSONArray subTextArray = data.getJSONArray(TimelineServerConfigUtils.AC_KEY_CAMSHY_SUBTEXT);
@@ -3996,11 +4005,6 @@ public class MqttMessagesManager
         {
             int limit = data.optInt(HikeConstants.LIMIT_KEY, CategorySearchManager.DEFAULT_SEARCH_QUERY_LENGTH_THRESHOLD);
             HikeSharedPreferenceUtil.getInstance().saveData(CategorySearchManager.SEARCH_QUERY_LENGTH_THRESHOLD, limit);
-        }
-        else if(CategorySearchManager.AUTO_SEARCH_TIME.equals(subType))
-        {
-            long limit = data.optLong(HikeConstants.LIMIT_KEY, CategorySearchManager.DEFAULT_AUTO_SEARCH_TIME);
-            HikeSharedPreferenceUtil.getInstance().saveData(CategorySearchManager.AUTO_SEARCH_TIME, limit);
         }
         else if(CategorySearchManager.SEARCH_RESULTS_LOG_LIMIT.equals(subType))
         {

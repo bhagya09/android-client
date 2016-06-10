@@ -2,46 +2,35 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/white"
-    android:paddingTop="12dp"
+    android:background="@drawable/list_item"
     android:paddingRight="16dp"
     android:paddingLeft="16dp">
 
-    <android.support.v7.widget.SwitchCompat
-        android:id="@+id/deleteSwitch"
+    <CheckBox
+        android:id="@+id/select_all_checkbox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:checked="false"/>
+        android:checked="false"
+        android:button="@drawable/hike_list_item_checkbox"/>
 
-    <LinearLayout
-        android:id="@+id/text_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_toLeftOf="@id/deleteSwitch"
-        android:orientation="vertical"
-        android:layout_marginTop="13dp">
-
-        <com.bsb.hike.view.CustomFontTextView
-            android:id="@+id/header"
-            android:text="@string/sm_clear_all_header"
-            style="@style/ListItemHeaderTextView"
-            android:textStyle="normal"/>
-
-        <com.bsb.hike.view.CustomFontTextView
-            android:id="@+id/subHeader"
-            android:layout_marginTop="4dp"
-            android:text="@string/sm_clear_all_subheader"
-            style="@style/ListItemSubHeaderTextView"/>
-    </LinearLayout>
+    <com.bsb.hike.view.CustomFontTextView
+        android:id="@+id/header"
+        android:layout_alignParentLeft="true"
+        android:layout_toLeftOf="@id/select_all_checkbox"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="21dp"
+        style="@style/SettingsItemHeader"
+        android:text="@string/sm_select_all_text"
+        android:textColor="@color/black_80"
+        android:textSize="20sp"/>
 
     <View
         android:id="@+id/item_seperator"
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginTop="12dp"
-        android:layout_below="@id/text_container"
-        android:background="@color/home_screen_list_divider"/>
+        android:layout_height="0.5dp"
+        android:layout_below="@id/header"
+        android:background="@color/list_divider"/>
 
 </RelativeLayout>

@@ -1,16 +1,16 @@
 package com.hike.abtest;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Context;
 
 import com.bsb.hike.HikeConstants;
 import com.hike.abtest.dataPersist.DataPersist;
 import com.hike.abtest.dataparser.DataParser;
 import com.hike.abtest.model.Experiment;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * ABTest interface for application
@@ -50,6 +50,15 @@ public class ABTest {
 
     private DataPersist getDataPersist() {
         return mDataPersist;
+    }
+
+
+   private static void clearExperiments() {
+        getInstance().getDataManager().clearExperiments();
+    }
+
+    private static void refreshExperiments() {
+        getInstance().loadExperiments();
     }
 
     /**

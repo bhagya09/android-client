@@ -1,5 +1,7 @@
 package com.bsb.hike.spaceManager.models;
 
+import android.text.TextUtils;
+
 import com.google.gson.Gson;
 
 import java.util.List;
@@ -25,5 +27,15 @@ public class CategoryPojo extends SpaceManagerPojo
 	public String toString()
 	{
 		return new Gson().toJson(this);
+	}
+	
+	public boolean isValid()
+	{
+		if (TextUtils.isEmpty(getHeader()) || TextUtils.isEmpty(getClassName())
+				|| getSubCategoryList() == null || getSubCategoryList().isEmpty())
+		{
+			return false;
+		}
+		return true;
 	}
 }

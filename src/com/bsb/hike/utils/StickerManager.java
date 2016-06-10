@@ -3167,7 +3167,7 @@ public class StickerManager
     public boolean isShopSearchEnabled()
     {
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SHOP_SEARCH_ALLOWED, false)
-				&& HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SHOP_SEARCH_TOGGLE, false);
+				&& HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SHOP_SEARCH_TOGGLE, true);
     }
 
 	public void saveSticker(List<Sticker> stickers, StickerConstants.StickerType stickerType)
