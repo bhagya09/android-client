@@ -215,11 +215,14 @@ public class StoryListAdapter extends BaseAdapter implements PinnedSectionListVi
             if (storyItem.getCategory() != StoryItem.CATEGORY_RECENT) {
                 viewHolder.titleView.setAlpha(0.6f);
                 viewHolder.avatarView.setAlpha(0.6f);
+                viewHolder.subTextView.setTextColor(mContext.getResources().getColor(R.color.stories_sub_text_unread));
+
             } else {
                 viewHolder.titleView.setAlpha(1f);
+                viewHolder.subTextView.setTextColor(mContext.getResources().getColor(R.color.blue_hike));
                 viewHolder.avatarView.setAlpha(1f);
             }
-            viewHolder.subTextView.setTextColor(mContext.getResources().getColor(R.color.stories_sub_text_unread));
+
 
         } else if (storyItem.getType() == StoryItem.TYPE_BRAND) {
             // TODO
