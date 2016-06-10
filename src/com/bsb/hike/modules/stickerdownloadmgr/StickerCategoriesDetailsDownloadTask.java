@@ -84,9 +84,7 @@ public class StickerCategoriesDetailsDownloadTask implements IHikeHTTPTask, IHik
 	@Override
 	public void execute()
 	{
-		String requestId = getRequestId(); // for duplicate check
-
-		token = stickerCategoriesDetailsDownloadRequest(requestId, requestJsonBody, getRequestListener(), getRequestBundle());
+		token = stickerCategoriesDetailsDownloadRequest(getRequestId(), requestJsonBody, getRequestListener(), getRequestBundle());
 
 		if (token.isRequestRunning()) // return if request is running
 		{
