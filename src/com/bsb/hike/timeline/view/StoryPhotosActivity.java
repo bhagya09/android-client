@@ -198,6 +198,9 @@ public class StoryPhotosActivity extends HikeAppStateBaseFragmentActivity implem
                     //Mark first post as read (rest handled onPageSelected for PagerAdapter)
                     markAsRead(storyItem, 0);
 
+                    viewTranslucentFGScreen.setAlpha(0.25f);
+                    viewTranslucentFGScreen.setVisibility(View.VISIBLE);
+                    viewTranslucentFGScreen.animate().setDuration(1000).alpha(0.8f);
                     //Fetch latest loves from server
                     List<StatusMessage> statusMessageList = storyItem.getDataObjects();
                     if (!Utils.isEmpty(statusMessageList)) {
@@ -294,10 +297,6 @@ public class StoryPhotosActivity extends HikeAppStateBaseFragmentActivity implem
         }
 
         checkBoxLove.setOnCheckedChangeListener(onLoveToggleListener);
-
-        viewTranslucentFGScreen.setAlpha(0.25f);
-        viewTranslucentFGScreen.setVisibility(View.VISIBLE);
-        viewTranslucentFGScreen.animate().setDuration(1000).alpha(0.8f);
 
         if (currentStatusMessage.getStatusMessageType() == StatusMessage.StatusMessageType.IMAGE) {
             textViewCaption.setVisibility(View.GONE);
