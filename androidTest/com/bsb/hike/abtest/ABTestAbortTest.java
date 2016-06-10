@@ -27,35 +27,35 @@ public class ABTestAbortTest {
     @Before
     public void init() {
         Log.d(TAG, "Initializing ABTEST in abort");
-        ABTest.clearExperiments();
-        ABTest.refreshExperiments();
+       ABTestJunitUtil.reflect_ClearExp();
+        ABTestJunitUtil.reflect_RefreshExp();
     }
 
     @Test
     public void testABExpAbort1() throws Throwable {
-        Log.d(TAG, " Abort Default Value: " + ABTest.getInt(ABTestJunitConstants.VARIABEL_NAME, ABTestJunitConstants.DEFAULT_VALUE));
-        Assert.assertEquals(ABTestJunitConstants.DEFAULT_VALUE, ABTest.getInt(ABTestJunitConstants.VARIABEL_NAME, ABTestJunitConstants.DEFAULT_VALUE));
+        Log.d(TAG, " Abort Default Value: " + ABTest.getInt(ABTestJunitUtil.VARIABEL_NAME, ABTestJunitUtil.DEFAULT_VALUE));
+        Assert.assertEquals(ABTestJunitUtil.DEFAULT_VALUE, ABTest.getInt(ABTestJunitUtil.VARIABEL_NAME, ABTestJunitUtil.DEFAULT_VALUE));
 
         String experimentAbort = "{ \"t\": \"AB-Exp-Abort\", \"d\" : { \"md\": { \"ver\": 1, \"expList\": [ { \"expId\": \"SAMPLE-EXPERIMENTID-1\", \"variantId\" : \"SAMPLE-VariantID-1\", \"cbUrl\" : \"http://hike.co.in/...\" } ] } } }";
-        parse_StartService(ABTestJunitConstants.REQUEST_TYPE_EXPERIMENT_ABORT, experimentAbort);
+        parse_StartService(ABTestJunitUtil.REQUEST_TYPE_EXPERIMENT_ABORT, experimentAbort);
 
-        Log.d(TAG, "Abort Experimental Value: " + ABTest.getInt(ABTestJunitConstants.VARIABEL_NAME, ABTestJunitConstants.DEFAULT_VALUE));
-        Assert.assertEquals(ABTestJunitConstants.DEFAULT_VALUE, ABTest.getInt(ABTestJunitConstants.VARIABEL_NAME, ABTestJunitConstants.DEFAULT_VALUE));
+        Log.d(TAG, "Abort Experimental Value: " + ABTest.getInt(ABTestJunitUtil.VARIABEL_NAME, ABTestJunitUtil.DEFAULT_VALUE));
+        Assert.assertEquals(ABTestJunitUtil.DEFAULT_VALUE, ABTest.getInt(ABTestJunitUtil.VARIABEL_NAME, ABTestJunitUtil.DEFAULT_VALUE));
     }
 
     @Test
     public void testABExpAbort2() throws Throwable {
-        Log.d(TAG, " Testing with init abort Default Value  " + ABTest.getInt(ABTestJunitConstants.VARIABEL_NAME, ABTestJunitConstants.DEFAULT_VALUE));
-        Assert.assertEquals(ABTestJunitConstants.DEFAULT_VALUE, ABTest.getInt(ABTestJunitConstants.VARIABEL_NAME, ABTestJunitConstants.DEFAULT_VALUE));
+        Log.d(TAG, " Testing with init abort Default Value  " + ABTest.getInt(ABTestJunitUtil.VARIABEL_NAME, ABTestJunitUtil.DEFAULT_VALUE));
+        Assert.assertEquals(ABTestJunitUtil.DEFAULT_VALUE, ABTest.getInt(ABTestJunitUtil.VARIABEL_NAME, ABTestJunitUtil.DEFAULT_VALUE));
 
         String experimentInit = "{ \"t\": \"AB-Exp-Init\", \"d\": { \"md\": { \"ver\": 1, \"expList\": [ { \"expId\":\"SAMPLE-EXPERIMENTID-1\", \"expType\": 0, \"desc\": \"AB Demo\", \"variantId\" : \"SAMPLE-VariantID-1\", \"sTime\": 1461643490000, \"eTime\": 1466380914000, \"varList\": [ { \"varName\":\"ABTEST-SAMPLE-01\", \"type\" : 2, \"defValue\": \"1\", \"expValue\": \"2\" } ], \"cbUrl\" : \"http://hike.co.in/...\" } ] } } }";
         parse_StartService("AB-Exp-Init", experimentInit);
 
         String experimentAbort = "{ \"t\": \"AB-Exp-Abort\", \"d\": { \"md\": { \"ver\": 1, \"expList\": [ { \"expId\":\"SAMPLE-EXPERIMENTID-1\", \"expType\": 0, \"desc\": \"AB Demo\", \"variantId\" : \"SAMPLE-VariantID-1\", \"sTime\": 1461643490000, \"eTime\": 1466380914000, \"varList\": [ { \"varName\":\"ABTEST-SAMPLE-01\", \"type\" : 2, \"defValue\": \"1\", \"expValue\": \"2\" } ], \"cbUrl\" : \"http://hike.co.in/...\" } ] } } }";
-        parse_StartService(ABTestJunitConstants.REQUEST_TYPE_EXPERIMENT_ABORT, experimentAbort);
+        parse_StartService(ABTestJunitUtil.REQUEST_TYPE_EXPERIMENT_ABORT, experimentAbort);
 
-        Log.d(TAG, "Testing with init abort Experimental Value: " + ABTest.getInt(ABTestJunitConstants.VARIABEL_NAME, ABTestJunitConstants.DEFAULT_VALUE));
-        Assert.assertEquals(ABTestJunitConstants.DEFAULT_VALUE, ABTest.getInt(ABTestJunitConstants.VARIABEL_NAME, ABTestJunitConstants.DEFAULT_VALUE));
+        Log.d(TAG, "Testing with init abort Experimental Value: " + ABTest.getInt(ABTestJunitUtil.VARIABEL_NAME, ABTestJunitUtil.DEFAULT_VALUE));
+        Assert.assertEquals(ABTestJunitUtil.DEFAULT_VALUE, ABTest.getInt(ABTestJunitUtil.VARIABEL_NAME, ABTestJunitUtil.DEFAULT_VALUE));
     }
 
     /**
@@ -76,13 +76,13 @@ public class ABTestAbortTest {
         ABTest.onRequestReceived(request, experimentAbortJson);
 
         //SystemClock.sleep(WAIT_TIME_FOR_REQUEST);
-        ABTest.refreshExperiments();
+        ABTestJunitUtil.reflect_RefreshExp();
     }
 
     @After
     public void clearExp() {
         Log.d(TAG, "after abort test clearing experiment");
-        ABTest.clearExperiments();
+        ABTestJunitUtil.reflect_ClearExp();
     }
 }
 

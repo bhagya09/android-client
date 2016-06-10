@@ -53,11 +53,11 @@ public class ABTest {
     }
 
 
-   public static void clearExperiments() {
+   private static void clearExperiments() {
         getInstance().getDataManager().clearExperiments();
     }
 
-    public static void refreshExperiments() {
+    private static void refreshExperiments() {
         getInstance().loadExperiments();
     }
 
