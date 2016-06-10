@@ -230,6 +230,11 @@ public class HikeSharedPreferenceUtil
 	{
         Map<String, ?> hikeSharedPreferencesAll = hikeSharedPreferences.getAll();
         // Changes here for issue : https://hikeapp.atlassian.net/browse/CPR-337
+
+        if(hikeSharedPreferencesAll == null || hikeSharedPreferencesAll.isEmpty()) {
+            return new HashMap<>();
+        }
+
         HashMap<String, ?> hikeSharedPrefsMapNewInstance = new HashMap<>(hikeSharedPreferencesAll);
         return hikeSharedPrefsMapNewInstance;
 	}
