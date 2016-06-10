@@ -221,6 +221,9 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 	protected Void doInBackground(Void... params)
 	{
 		long startTime = System.currentTimeMillis();
+		List<ContactInfo> allContacts = ContactManager.getInstance().getAllContacts();
+		removeExcludedParticipants(allContacts, composeExcludeList);
+		Set<String> blockSet = ContactManager.getInstance().getBlockedMsisdnSet();
 		String myMsisdn = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, "");
 
 		if(showBdaySection)
@@ -230,6 +233,10 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
             hikeBdayContactList.addAll(BirthdayUtils.getSortedBdayContactListFromSharedPref());
 			BirthdayUtils.removeHiddenMsisdnFromContactInfoList(hikeBdayContactList);
 			filteredHikeBdayContactList.addAll(hikeBdayContactList);
+			/**
+			 * Removing Birthday users from all contacts list
+			 */
+			allContacts.removeAll(filteredHikeBdayContactList);
 		}
 		else
 		{
@@ -245,9 +252,6 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		}
 
 		long queryTime = System.currentTimeMillis();
-		List<ContactInfo> allContacts = ContactManager.getInstance().getAllContacts();
-		removeExcludedParticipants(allContacts, composeExcludeList);
-		Set<String> blockSet = ContactManager.getInstance().getBlockedMsisdnSet();
 
 		NUXManager nm = NUXManager.getInstance();
 
@@ -327,13 +331,13 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		}
 
 		long iterationTime = System.currentTimeMillis();
-		/**
-		 * Removing Birthday users from all contacts list
-		 */
-		allContacts.removeAll(filteredHikeBdayContactList);
+
+		// Creating Friend list
 		for (ContactInfo contactInfo : allContacts)
 		{
 			String msisdn = contactInfo.getMsisdn();
+			// No need
+			// If the contact is myself or is a bot.
 			if (msisdn.equals(myMsisdn) || HikeMessengerApp.hikeBotInfoMap.containsKey(msisdn))
 			{
 				continue;
