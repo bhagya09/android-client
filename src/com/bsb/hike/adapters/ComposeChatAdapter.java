@@ -82,8 +82,6 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
 	private boolean lastSeenPref;
 	
-	private boolean showDefaultEmptyList;
-	
 	private boolean nuxStateActive = false;
 	
 	private boolean isSearchModeOn = false;
@@ -180,12 +178,12 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
 			fetchFriendsTask = new FetchFriendsTask(this, context, friendsList, hikeContactsList, smsContactsList, recentContactsList, friendsStealthList, hikeStealthContactsList,
 					smsStealthContactsList, filteredFriendsList, filteredHikeContactsList, filteredSmsContactsList, groupsList, groupsStealthList, nuxRecommendedList, nuxFilteredRecoList, filteredGroupsList, filteredRecentsList,
-					existingParticipants, sendingMsisdn, false, existingGroupId, isCreatingOrEditingGroup, fetchSMSContacts, false, false, showDefaultEmptyList, fetchHikeContacts, false, fetchRecommendedContacts, fetchHideListContacts, null, showBdaySection,
+					existingParticipants, sendingMsisdn, false, existingGroupId, isCreatingOrEditingGroup, fetchSMSContacts, false, false, fetchHikeContacts, false, fetchRecommendedContacts, fetchHideListContacts, null, showBdaySection,
                     hikeBdayContactList, filteredHikeBdayContactList);
 		} else {
 			fetchFriendsTask = new FetchFriendsTask(this, context, friendsList, hikeContactsList, smsContactsList, recentContactsList, friendsStealthList, hikeStealthContactsList,
 					smsStealthContactsList, filteredFriendsList, filteredHikeContactsList, filteredSmsContactsList, groupsList, groupsStealthList, null, null, filteredGroupsList, filteredRecentsList,
-					existingParticipants, sendingMsisdn, fetchGroups, existingGroupId, isCreatingOrEditingGroup, showSMSContacts, false, fetchRecents , showDefaultEmptyList, true, true, false , false, composeExcludeList,
+					existingParticipants, sendingMsisdn, fetchGroups, existingGroupId, isCreatingOrEditingGroup, showSMSContacts, false, fetchRecents, true, true, false , false, composeExcludeList,
                     showBdaySection, hikeBdayContactList, filteredHikeBdayContactList);
 		}
 
@@ -627,15 +625,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 	@Override
 	protected List<List<ContactInfo>> makeOriginalList()
 	{
-		if(showDefaultEmptyList)
-		{
-			List<List<ContactInfo>> resultList = new ArrayList<List<ContactInfo>>();
-			return resultList;
-		}
-		else
-		{
-			return super.makeOriginalList();
-		}
+		return super.makeOriginalList();
 	}
 
 	@Override

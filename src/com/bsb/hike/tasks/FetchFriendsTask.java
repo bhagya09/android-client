@@ -119,8 +119,6 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 
 	private boolean nativeSMSOn;
 
-	private boolean showDefaultEmptyList;
-
 	private List<ContactInfo> filteredOtherFeaturesList;
 	private List<ContactInfo> otherFeaturesList;
 
@@ -137,7 +135,7 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 			List<ContactInfo> recommendedContactsList, List<ContactInfo> filteredRecommendedContactsList, List<ContactInfo> filteredGroupsList,
 			List<ContactInfo> filteredRecentsList, Map<String, ContactInfo> selectedPeople, String sendingMsisdn,
 			boolean fetchGroups, String existingGroupId, boolean creatingOrEditingGroup, boolean fetchSmsContacts, boolean checkFavTypeInComparision, boolean fetchRecents,
-			boolean showDefaultEmptyList, boolean fetchHikeContacts, boolean fetchFavContacts, boolean fetchRecommendedContacts,
+			boolean fetchHikeContacts, boolean fetchFavContacts, boolean fetchRecommendedContacts,
 			boolean filterHideList, List<String> composeExcludeList,
             boolean showBdaySection, List<ContactInfo> hikeBdayContactList, List<ContactInfo> filteredHikeBdayContactList)
 	{
@@ -179,8 +177,6 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		this.fetchFavContacts = fetchFavContacts;
 		this.checkFavTypeInComparision = checkFavTypeInComparision;
 		this.fetchRecents = fetchRecents;
-
-		this.showDefaultEmptyList = showDefaultEmptyList;
 
 		this.nativeSMSOn = Utils.getSendSmsPref(context);
 
@@ -572,16 +568,7 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 			}
 		}
 		friendsAdapter.setListFetchedOnce(true);
-
-		// We dont need to show contacts in NUX Invite screen
-		if (showDefaultEmptyList)
-		{
-			friendsAdapter.setEmptyView();
-		}
-		else
-		{
-			friendsAdapter.makeCompleteList(true, true);
-		}
+		friendsAdapter.makeCompleteList(true, true);
 	}
 
 	private void clearAllLists()
