@@ -12010,6 +12010,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 						if (StealthModeManager.getInstance().isStealthMsisdn(friendMsisdn) && !StealthModeManager.getInstance().isActive()) {
 							continue;
 						}
+
+						PrivacyPreferences pref = ContactManager.getInstance().getPrivacyPrefsForAGivenMsisdn(friendMsisdn);
+						if (!pref.shouldShowStatusUpdate()) {
+							continue;
+						}
 						StoryItem<StatusMessage, ContactInfo> storyItem = new StoryItem<>(StoryItem.TYPE_FRIEND, friendInfo.getNameOrMsisdn());
 						storyItem.setSubText(StoryShyTextGenerator.getInstance().getCameraShySubText());
 						storyItem.setTypeInfo(friendInfo);
