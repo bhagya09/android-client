@@ -327,7 +327,6 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 				List<ContactInfo> filteredSmsContactsList = new ArrayList<ContactInfo>();
 				List<ContactInfo> filteredGroupList = new ArrayList<ContactInfo>();
 				List<ContactInfo> filteredRecentsList = new ArrayList<ContactInfo>();
-				List<ContactInfo> filteredRecentlyJoinedList = new ArrayList<ContactInfo>();
 				List<ContactInfo> filteredFeaturesList = new ArrayList<ContactInfo>();
                 List<ContactInfo> filteredSuggestedContactsList = new ArrayList<ContactInfo>();
 
@@ -379,7 +378,6 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 				resultList.add(filteredSmsContactsList);
 				resultList.add(filteredGroupList);
 				resultList.add(filteredRecentsList);
-				resultList.add(filteredRecentlyJoinedList);
 				resultList.add(nuxFilteredRecoList);
                 resultList.add(filteredSuggestedContactsList);
 
