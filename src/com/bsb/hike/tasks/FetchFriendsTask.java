@@ -8,9 +8,6 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.NUXConstants;
 import com.bsb.hike.adapters.FriendsAdapter;
-import com.bsb.hike.bots.BotInfo;
-import com.bsb.hike.chatHead.ChatHeadUtils;
-import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
@@ -26,7 +23,6 @@ import com.bsb.hike.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -519,53 +515,28 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		 */
 		clearAllLists();
 
-		if (fetchGroups)
-		{
-			groupsList.addAll(groupTaskList);
-		}
-		if (fetchRecents)
-		{
-			recentContactsList.addAll(recentTaskList);
-		}
 		friendsAdapter.initiateLastStatusMessagesMap(lastStatusMessagesMap);
 		friendsList.addAll(friendTaskList);
-
-		if (fetchHikeContacts)
-		{
-			hikeContactsList.addAll(hikeTaskList);
-		}
-		if (fetchRecents)
-		{
-			filteredRecentsList.addAll(recentTaskList);
-		}
-
-		if (fetchSmsContacts)
-		{
-			smsContactsList.addAll(smsTaskList);
-		}
-
-		if (fetchGroups)
-		{
+		filteredFriendsList.addAll(friendTaskList);
+		if (fetchGroups) {
+			groupsList.addAll(groupTaskList);
 			filteredGroupsList.addAll(groupTaskList);
 		}
-		filteredFriendsList.addAll(friendTaskList);
-		if (fetchHikeContacts)
-		{
+		if (fetchRecents) {
+			recentContactsList.addAll(recentTaskList);
+			filteredRecentsList.addAll(recentTaskList);
+		}
+		if (fetchHikeContacts) {
+			hikeContactsList.addAll(hikeTaskList);
 			filteredHikeContactsList.addAll(hikeTaskList);
 		}
-		if (fetchSmsContacts)
-		{
+		if (fetchSmsContacts) {
+			smsContactsList.addAll(smsTaskList);
 			filteredSmsContactsList.addAll(smsTaskList);
 		}
-
-		if (fetchRecommendedContacts)
-		{
-			if (recommendedContactsList != null)
-			{
-
-				recommendedContactsList.addAll(nuxRecommendedTaskList);
-				filteredRecommendedContactsList.addAll(nuxRecommendedTaskList);
-			}
+		if (fetchRecommendedContacts && recommendedContactsList != null) {
+			recommendedContactsList.addAll(nuxRecommendedTaskList);
+			filteredRecommendedContactsList.addAll(nuxRecommendedTaskList);
 		}
 		friendsAdapter.setListFetchedOnce(true);
 		friendsAdapter.makeCompleteList(true, true);
