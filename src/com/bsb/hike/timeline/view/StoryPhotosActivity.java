@@ -3,6 +3,7 @@ package com.bsb.hike.timeline.view;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.annotation.UiThread;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
@@ -259,6 +260,7 @@ public class StoryPhotosActivity extends HikeAppStateBaseFragmentActivity implem
 
     private CompoundButton.OnCheckedChangeListener onLoveToggleListener = new LoveCheckBoxToggleListener();
 
+    @UiThread
     private void updateActionsRelatedViews() {
         StatusMessage currentStatusMessage = getCurrentStatusMessage();
         ActionsDataModel actionsData = TimelineActionsManager.getInstance().getActionsData()

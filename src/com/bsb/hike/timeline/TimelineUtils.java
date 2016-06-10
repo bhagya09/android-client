@@ -2,6 +2,7 @@ package com.bsb.hike.timeline;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.support.annotation.WorkerThread;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -22,6 +23,7 @@ public class TimelineUtils {
 
     public static final String KEY_LAST_SEEN_SUID = "last_seen_su_pref";
 
+    @WorkerThread //Multiple prefs and DB calls
     public static String getTimelineSubText() {
         Context context = HikeMessengerApp.getInstance().getApplicationContext();
         SharedPreferences sharedPref = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0); // To support old code
