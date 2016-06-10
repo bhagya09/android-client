@@ -4236,13 +4236,11 @@ public class StickerManager
 	{
 		long lastRefreshTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PACK_METADATA_REFRESH_TIME, 0l);
 		int packRefreshDayFrequency = HikeSharedPreferenceUtil.getInstance().getData(PACK_METADATA_REFRESH_FREQUENCY, DEFAULT_PACK_METADATA_REFRESH_FREQUENCY);
-		long currentTime = System.currentTimeMillis();
 
-		if ((currentTime - lastRefreshTime) > (HikeConstants.ONE_DAY_MILLS * packRefreshDayFrequency) || forceRun) // greater than n days
+		if ((System.currentTimeMillis() - lastRefreshTime) > (HikeConstants.ONE_DAY_MILLS * packRefreshDayFrequency) || forceRun) // greater than n days
 		{
 			StickerCategoriesDetailsDownloadTask stickerCategoriesDetailsDownloadTask = new StickerCategoriesDetailsDownloadTask(getMyStickerCategoryList());
 			stickerCategoriesDetailsDownloadTask.execute();
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.PACK_METADATA_REFRESH_TIME, currentTime);
 		}
 
 	}

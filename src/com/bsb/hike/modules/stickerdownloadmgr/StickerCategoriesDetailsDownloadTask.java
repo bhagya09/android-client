@@ -26,6 +26,7 @@ import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerRequestType;
 import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
@@ -157,6 +158,7 @@ public class StickerCategoriesDetailsDownloadTask implements IHikeHTTPTask, IHik
 		JSONArray resultData = (JSONArray) result;
 		HikeConversationsDatabase.getInstance().updateStickerCategoriesInDb(resultData);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_CATEGORY_MAP_UPDATED, null);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.PACK_METADATA_REFRESH_TIME, System.currentTimeMillis());
 	}
 
 	@Override
