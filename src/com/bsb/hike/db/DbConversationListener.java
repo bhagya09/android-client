@@ -260,7 +260,12 @@ public class DbConversationListener implements Listener
 			ContactInfo contactInfo = favoriteToggle.first;
 			FavoriteType favoriteType = favoriteToggle.second;
 
-			ContactManager.getInstance().toggleContactFavorite(contactInfo.getMsisdn(), favoriteType);
+			// When someone rejects a sent request, the privacy values should not change at our end
+			if (favoriteType == FavoriteType.REQUEST_SENT_REJECTED) {
+				ContactManager.getInstance().toggleContactFavorite(contactInfo.getMsisdn(), favoriteType, false);
+			} else {
+				ContactManager.getInstance().toggleContactFavorite(contactInfo.getMsisdn(), favoriteType);
+			}
 
 			if (favoriteType != FavoriteType.REQUEST_RECEIVED && favoriteType != FavoriteType.REQUEST_SENT_REJECTED && !HikePubSub.FRIEND_REQUEST_ACCEPTED.equals(type))
 			{
