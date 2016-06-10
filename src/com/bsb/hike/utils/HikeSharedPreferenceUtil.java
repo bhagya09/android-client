@@ -228,9 +228,12 @@ public class HikeSharedPreferenceUtil
 		return hikeSharedPreferences.getLong(key, defaultValue);
 	}
 
-	public synchronized Map<String, ?> getAllData()
+	public synchronized HashMap<String, ?> getAllData()
 	{
-		return hikeSharedPreferences.getAll();
+        Map<String, ?> hikeSharedPreferencesAll = hikeSharedPreferences.getAll();
+        // Changes here for issue : https://hikeapp.atlassian.net/browse/CPR-337
+        HashMap<String, ?> hikeSharedPrefsMapNewInstance = new HashMap<>(hikeSharedPreferencesAll);
+        return hikeSharedPrefsMapNewInstance;
 	}
 
 	public synchronized void deleteAllData()
