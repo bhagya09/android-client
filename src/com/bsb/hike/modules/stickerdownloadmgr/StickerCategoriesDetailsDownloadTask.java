@@ -14,6 +14,7 @@ import android.support.annotation.Nullable;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -155,13 +156,14 @@ public class StickerCategoriesDetailsDownloadTask implements IHikeHTTPTask, IHik
 	public void doOnSuccess(Object result)
 	{
 		JSONArray resultData = (JSONArray) result;
-		StickerManager.getInstance().parseStickerCategoryMetadata(resultData);
+		HikeConversationsDatabase.getInstance().updateStickerCategoriesInDb(resultData);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_CATEGORY_MAP_UPDATED, null);
 	}
 
 	@Override
 	public void doOnFailure(HttpException exception)
 	{
-		HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_CATEGORY_DETAILS_DOWNLOAD_FAILURE, exception);
+		Logger.e(TAG, "Sticker Categories Download Failed", exception);
 	}
 
 	@Override
