@@ -3505,7 +3505,7 @@ public class MqttMessagesManager
 			String smJSON = data.getString(HikeConstants.SPACE_MANAGER_JSON);
 			if(SpaceManagerUtils.isJSONValid(smJSON))
 			{
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_SPACE_MANAGER, smJSON);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SPACE_MANAGER_JSON, smJSON);
 			}
 		}
 

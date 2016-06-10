@@ -2,6 +2,7 @@ package com.bsb.hike.spaceManager;
 
 import android.text.TextUtils;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.spaceManager.models.CategoryItem;
@@ -49,9 +50,9 @@ public class SpaceManagerItemsFetcher
 	private static String getJSON()
 	{
 		String json = DEFAULT_ITEM_JSON;
-		if (HikeSharedPreferenceUtil.getInstance().contains(SpaceManagerUtils.SPACE_MANAGER_ITEMS))
+		if (HikeSharedPreferenceUtil.getInstance().contains(HikeConstants.SPACE_MANAGER_JSON))
 		{
-			json = HikeSharedPreferenceUtil.getInstance().getData(SpaceManagerUtils.SPACE_MANAGER_ITEMS, DEFAULT_ITEM_JSON);
+			json = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SPACE_MANAGER_JSON, DEFAULT_ITEM_JSON);
 			if (TextUtils.isEmpty(json))
 			{
 				json = DEFAULT_ITEM_JSON;
