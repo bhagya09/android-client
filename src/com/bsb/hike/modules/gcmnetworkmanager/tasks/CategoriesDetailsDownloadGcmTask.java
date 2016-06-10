@@ -24,7 +24,7 @@ public class CategoriesDetailsDownloadGcmTask implements IGcmTask
 		}
 		else
 		{
-			StickerManager.getInstance().refreshDownloadPacksMetadata(true);
+			StickerManager.getInstance().initiateDownloadedStickerCategoriesDetailsRefreshTask();
 		}
 
 		return null;

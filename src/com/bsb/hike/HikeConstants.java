@@ -3911,7 +3911,7 @@ public class HikeConstants
 
 	public static final String STICKER_TAG_MAXIMUM_SEARCH = "stms"; // initial to following 4 keys
 
-    public static final String LIMIT_KEY = "limit";
+    public static final String MAGNITUDE_KEY = "limit";
 
 	public static final String STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT = "stms_tl"; // integer
 
@@ -4509,5 +4509,7 @@ public class HikeConstants
 	public static final String ENABLE_SPACE_MANAGER = "en_sm";
 
 	public static final String SPACE_MANAGER_JSON = "sm_json";
+
+	public static final long DEFAULT_PACK_METADATA_REFRESH_FREQUENCY_IN_DAYS = 7L;
 
 }

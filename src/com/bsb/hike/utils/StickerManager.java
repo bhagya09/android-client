@@ -292,8 +292,6 @@ public class StickerManager
 
 	public static final String PACK_METADATA_REFRESH_FREQUENCY = "pk_md_rF";
 
-	public static final int DEFAULT_PACK_METADATA_REFRESH_FREQUENCY = 7;
-
 	private final Map<String, StickerCategory> stickerCategoriesMap;
 
 	public static String stickerExternalDir;
@@ -2532,7 +2530,7 @@ public class StickerManager
 		sendStickerPackAndOrderListForAnalytics();
 		CategorySearchManager.sendSearchedCategoryDailyReport();
 		StickerSearchManager.getInstance().sendStickerSearchDailyAnalytics();
-		refreshDownloadPacksMetadata(false);
+		refreshDownloadPacksMetadata();
 	}
 
 	/**
@@ -4232,16 +4230,21 @@ public class StickerManager
 
 	}
 
-	public void refreshDownloadPacksMetadata(boolean forceRun)
+	public void refreshDownloadPacksMetadata()
 	{
 		long lastRefreshTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PACK_METADATA_REFRESH_TIME, 0l);
-		int packRefreshDayFrequency = HikeSharedPreferenceUtil.getInstance().getData(PACK_METADATA_REFRESH_FREQUENCY, DEFAULT_PACK_METADATA_REFRESH_FREQUENCY);
+		long packRefreshDayFrequency = HikeSharedPreferenceUtil.getInstance().getData(PACK_METADATA_REFRESH_FREQUENCY, HikeConstants.DEFAULT_PACK_METADATA_REFRESH_FREQUENCY_IN_DAYS);
 
-		if ((System.currentTimeMillis() - lastRefreshTime) > (HikeConstants.ONE_DAY_MILLS * packRefreshDayFrequency) || forceRun) // greater than n days
+		if ((System.currentTimeMillis() - lastRefreshTime) > (HikeConstants.ONE_DAY_MILLS * packRefreshDayFrequency)) // greater than n days
 		{
-			StickerCategoriesDetailsDownloadTask stickerCategoriesDetailsDownloadTask = new StickerCategoriesDetailsDownloadTask(getMyStickerCategoryList());
-			stickerCategoriesDetailsDownloadTask.execute();
+			initiateDownloadedStickerCategoriesDetailsRefreshTask();
 		}
 
+	}
+
+	public void initiateDownloadedStickerCategoriesDetailsRefreshTask()
+	{
+		StickerCategoriesDetailsDownloadTask stickerCategoriesDetailsDownloadTask = new StickerCategoriesDetailsDownloadTask(getMyStickerCategoryList());
+		stickerCategoriesDetailsDownloadTask.execute();
 	}
 }

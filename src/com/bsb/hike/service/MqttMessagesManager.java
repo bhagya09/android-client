@@ -3984,8 +3984,8 @@ public class MqttMessagesManager
         }
         else if(HikeConstants.SHOW_STICKER_SHOP_SEARCH_FTUE_LIMIT.equals(subType))
         {
-            int limit = data.optInt(HikeConstants.LIMIT_KEY, HikeConstants.DEFAULT_SEARCH_FTUE_LIMIT);
-            HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_STICKER_SHOP_SEARCH_FTUE_LIMIT, limit);
+            int magnitude = data.optInt(HikeConstants.MAGNITUDE_KEY, HikeConstants.DEFAULT_SEARCH_FTUE_LIMIT);
+            HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_STICKER_SHOP_SEARCH_FTUE_LIMIT, magnitude);
         }
         else if(HikeConstants.STICKER_SHOP_SEARCH_TOGGLE.equals(subType))
         {
@@ -3998,38 +3998,38 @@ public class MqttMessagesManager
         }
         else if(CategorySearchManager.SEARCH_RESULTS_LIMIT.equals(subType))
         {
-            int limit = data.optInt(HikeConstants.LIMIT_KEY, CategorySearchManager.DEFAULT_SEARCH_RESULTS_LIMIT);
-            HikeSharedPreferenceUtil.getInstance().saveData(CategorySearchManager.SEARCH_RESULTS_LIMIT, limit);
+            int magnitude = data.optInt(HikeConstants.MAGNITUDE_KEY, CategorySearchManager.DEFAULT_SEARCH_RESULTS_LIMIT);
+            HikeSharedPreferenceUtil.getInstance().saveData(CategorySearchManager.SEARCH_RESULTS_LIMIT, magnitude);
         }
         else if(CategorySearchManager.SEARCH_QUERY_LENGTH_THRESHOLD.equals(subType))
         {
-            int limit = data.optInt(HikeConstants.LIMIT_KEY, CategorySearchManager.DEFAULT_SEARCH_QUERY_LENGTH_THRESHOLD);
-            HikeSharedPreferenceUtil.getInstance().saveData(CategorySearchManager.SEARCH_QUERY_LENGTH_THRESHOLD, limit);
+            int magnitude = data.optInt(HikeConstants.MAGNITUDE_KEY, CategorySearchManager.DEFAULT_SEARCH_QUERY_LENGTH_THRESHOLD);
+            HikeSharedPreferenceUtil.getInstance().saveData(CategorySearchManager.SEARCH_QUERY_LENGTH_THRESHOLD, magnitude);
         }
         else if(CategorySearchManager.SEARCH_RESULTS_LOG_LIMIT.equals(subType))
         {
-            int limit = data.optInt(HikeConstants.LIMIT_KEY, CategorySearchManager.DEFAULT_SEARCH_RESULTS_LOG_LIMIT);
-            HikeSharedPreferenceUtil.getInstance().saveData(CategorySearchManager.SEARCH_RESULTS_LOG_LIMIT, limit);
+            int magnitude = data.optInt(HikeConstants.MAGNITUDE_KEY, CategorySearchManager.DEFAULT_SEARCH_RESULTS_LOG_LIMIT);
+            HikeSharedPreferenceUtil.getInstance().saveData(CategorySearchManager.SEARCH_RESULTS_LOG_LIMIT, magnitude);
         }
         else if(HikeStickerSearchBaseConstants.STICKER_SEARCH_RECORD_COUNT_LIMIT.equals(subType))
         {
-            int limit = data.optInt(HikeConstants.LIMIT_KEY, HikeStickerSearchBaseConstants.DEFAULT_STICKER_SEARCH_COUNT_LIMIT);
-            HikeSharedPreferenceUtil.getInstance().saveData(HikeStickerSearchBaseConstants.STICKER_SEARCH_RECORD_COUNT_LIMIT, limit);
+            int magnitude = data.optInt(HikeConstants.MAGNITUDE_KEY, HikeStickerSearchBaseConstants.DEFAULT_STICKER_SEARCH_COUNT_LIMIT);
+            HikeSharedPreferenceUtil.getInstance().saveData(HikeStickerSearchBaseConstants.STICKER_SEARCH_RECORD_COUNT_LIMIT, magnitude);
         }
         else if(HikeStickerSearchBaseConstants.STICKER_SEARCH_SUCCESS_COUNT_LIMIT.equals(subType))
         {
-            int limit = data.optInt(HikeConstants.LIMIT_KEY, HikeStickerSearchBaseConstants.DEFAULT_STICKER_SEARCH_SUCCESS_COUNT_LIMIT);
-            HikeSharedPreferenceUtil.getInstance().saveData(HikeStickerSearchBaseConstants.STICKER_SEARCH_SUCCESS_COUNT_LIMIT, limit);
+            int magnitude = data.optInt(HikeConstants.MAGNITUDE_KEY, HikeStickerSearchBaseConstants.DEFAULT_STICKER_SEARCH_SUCCESS_COUNT_LIMIT);
+            HikeSharedPreferenceUtil.getInstance().saveData(HikeStickerSearchBaseConstants.STICKER_SEARCH_SUCCESS_COUNT_LIMIT, magnitude);
         }
         else if(HikeStickerSearchBaseConstants.STICKER_SEARCH_FAIL_COUNT_LIMIT.equals(subType))
         {
-            int limit = data.optInt(HikeConstants.LIMIT_KEY, HikeStickerSearchBaseConstants.DEFAULT_STICKER_SEARCH_FAIL_COUNT_LIMIT);
-            HikeSharedPreferenceUtil.getInstance().saveData(HikeStickerSearchBaseConstants.STICKER_SEARCH_FAIL_COUNT_LIMIT, limit);
+            int magnitude = data.optInt(HikeConstants.MAGNITUDE_KEY, HikeStickerSearchBaseConstants.DEFAULT_STICKER_SEARCH_FAIL_COUNT_LIMIT);
+            HikeSharedPreferenceUtil.getInstance().saveData(HikeStickerSearchBaseConstants.STICKER_SEARCH_FAIL_COUNT_LIMIT, magnitude);
         }
         else if(StickerManager.PACK_METADATA_REFRESH_FREQUENCY.equals(subType))
         {
-            int limit = data.optInt(HikeConstants.LIMIT_KEY, StickerManager.DEFAULT_PACK_METADATA_REFRESH_FREQUENCY);
-            HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.PACK_METADATA_REFRESH_FREQUENCY, limit);
+            long magnitude = data.optLong(HikeConstants.MAGNITUDE_KEY, HikeConstants.DEFAULT_PACK_METADATA_REFRESH_FREQUENCY_IN_DAYS);
+            HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.PACK_METADATA_REFRESH_FREQUENCY, magnitude);
         }
 	}
 
