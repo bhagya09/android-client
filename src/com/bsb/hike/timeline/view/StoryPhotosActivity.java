@@ -185,29 +185,27 @@ public class StoryPhotosActivity extends HikeAppStateBaseFragmentActivity implem
     }
 
     @Override
-    public void onDataUpdated(List<StoryItem> storyItemList) {
+    public void onDataUpdated(final List<StoryItem> storyItemList) {
         if (!Utils.isEmpty(storyItemList)) {
-            storyItem = storyItemList.get(0);
-            pagerView.setAdapter(pagerAdapter);
-            pagerView.addOnPageChangeListener(pageChangeListener);
-            checkBoxLove.setTag(getCurrentStatusMessage());
-
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    storyItem = storyItemList.get(0);
+                    pagerView.setAdapter(pagerAdapter);
+                    pagerView.addOnPageChangeListener(pageChangeListener);
+                    checkBoxLove.setTag(getCurrentStatusMessage());
                     updateActionsRelatedViews();
+                    //Mark first post as read (rest handled onPageSelected for PagerAdapter)
+                    markAsRead(storyItem, 0);
+
+                    //Fetch latest loves from server
+                    List<StatusMessage> statusMessageList = storyItem.getDataObjects();
+                    if (!Utils.isEmpty(statusMessageList)) {
+                        HikeHandlerUtil.getInstance().postRunnableWithDelay(new UpdateActionsDataRunnable(statusMessageList), 1000);
+                        // The delay is purely for improving UX, since on fast phones (Nexus) the runnable completes execution before photo pager is displayed because of which the transition of thumbnail in friends tab is visible (looks glitchy)
+                    }
                 }
             });
-
-            //Mark first post as read (rest handled onPageSelected for PagerAdapter)
-            markAsRead(storyItem, 0);
-
-            //Fetch latest loves from server
-            List<StatusMessage> statusMessageList = storyItem.getDataObjects();
-            if (!Utils.isEmpty(statusMessageList)) {
-                HikeHandlerUtil.getInstance().postRunnableWithDelay(new UpdateActionsDataRunnable(statusMessageList),1000);
-                // The delay is purely for improving UX, since on fast phones (Nexus) the runnable completes execution before photo pager is displayed because of which the transition of thumbnail in friends tab is visible (looks glitchy)
-            }
         }
     }
 
