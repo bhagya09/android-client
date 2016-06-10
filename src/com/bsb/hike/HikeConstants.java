@@ -1532,8 +1532,6 @@ public class HikeConstants
 
 		public static final String PREF = "pref";
 
-		public static final String EDIT = "edit";
-
 		public static final String IMAGE_PATH = "image-path";
 
 		public static final String SCALE = "scale";

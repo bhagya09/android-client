@@ -1242,7 +1242,6 @@ public class IntentFactory
 	public static Intent getComposeChatIntent(Activity context)
 	{
 		Intent intent = new Intent(context, ComposeChatActivity.class);
-		intent.putExtra(HikeConstants.Extras.EDIT, true);
 		return intent;
 	}
 
