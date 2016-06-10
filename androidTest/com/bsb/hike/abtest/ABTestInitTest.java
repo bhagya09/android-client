@@ -28,9 +28,8 @@ public class ABTestInitTest {
     @Before
     public void init() {
         Log.d(TAG, "Initializing ABTEST before every test case in init");
-        ABTest.clearExperiments();
-        ABTest.refreshExperiments();
-
+        ABTestJunitUtil.reflect_ClearExp();
+        ABTestJunitUtil.reflect_RefreshExp();
     }
 
     @Test
@@ -46,15 +45,15 @@ public class ABTestInitTest {
      *  End Time: 20 June 2016 at 5:31:54 AM
      */
     private void initTest() {
-        Log.d(TAG, "Init initial Default Value: " + ABTest.getInt(ABTestJunitConstants.VARIABEL_NAME, ABTestJunitConstants.DEFAULT_VALUE));
-        Assert.assertEquals(ABTestJunitConstants.DEFAULT_VALUE, ABTest.getInt(ABTestJunitConstants.VARIABEL_NAME, ABTestJunitConstants.DEFAULT_VALUE));
+        Log.d(TAG, "Init initial Default Value: " + ABTest.getInt(ABTestJunitUtil.VARIABEL_NAME, ABTestJunitUtil.DEFAULT_VALUE));
+        Assert.assertEquals(ABTestJunitUtil.DEFAULT_VALUE, ABTest.getInt(ABTestJunitUtil.VARIABEL_NAME, ABTestJunitUtil.DEFAULT_VALUE));
 
         String experimentInit = "{ \"t\": \"AB-Exp-Init\", \"d\": { \"md\": { \"ver\": 1, \"expList\": [ { \"expId\":\"SAMPLE-EXPERIMENTID-1\", \"expType\": 0, \"desc\": \"AB Demo\", \"variantId\" : \"SAMPLE-VariantID-1\", \"sTime\": 1461643490000, \"eTime\": 1466380914000, \"varList\": [ { \"varName\":\"ABTEST-SAMPLE-01\", \"type\" : 2, \"defValue\": \"1\", \"expValue\": \"2\" } ], \"cbUrl\" : \"http://hike.co.in/...\" } ] } } }";
-        parse_StartService(ABTestJunitConstants.REQUEST_TYPE_EXPERIMENT_INIT, experimentInit);
+        parse_StartService(ABTestJunitUtil.REQUEST_TYPE_EXPERIMENT_INIT, experimentInit);
 
 
-        Log.d(TAG, "Init Experimental Value: " + ABTest.getInt(ABTestJunitConstants.VARIABEL_NAME, ABTestJunitConstants.DEFAULT_VALUE));
-        Assert.assertEquals(ABTestJunitConstants.EXPERIMENT_VALUE, ABTest.getInt(ABTestJunitConstants.VARIABEL_NAME, ABTestJunitConstants.DEFAULT_VALUE));
+        Log.d(TAG, "Init Experimental Value: " + ABTest.getInt(ABTestJunitUtil.VARIABEL_NAME, ABTestJunitUtil.DEFAULT_VALUE));
+        Assert.assertEquals(ABTestJunitUtil.EXPERIMENT_VALUE, ABTest.getInt(ABTestJunitUtil.VARIABEL_NAME, ABTestJunitUtil.DEFAULT_VALUE));
     }
 
     @Test
@@ -69,14 +68,14 @@ public class ABTestInitTest {
      *  End Time: 6 June 2017 at 11:01:54
      */
     private void initMultipleValues() {
-        Log.d(TAG, "Init  multiple experiment Default Value: " + ABTest.getInt(ABTestJunitConstants.VARIABEL_NAME, ABTestJunitConstants.DEFAULT_VALUE));
-        Assert.assertEquals(ABTestJunitConstants.DEFAULT_VALUE, ABTest.getInt(ABTestJunitConstants.VARIABEL_NAME, ABTestJunitConstants.DEFAULT_VALUE));
+        Log.d(TAG, "Init  multiple experiment Default Value: " + ABTest.getInt(ABTestJunitUtil.VARIABEL_NAME, ABTestJunitUtil.DEFAULT_VALUE));
+        Assert.assertEquals(ABTestJunitUtil.DEFAULT_VALUE, ABTest.getInt(ABTestJunitUtil.VARIABEL_NAME, ABTestJunitUtil.DEFAULT_VALUE));
 
         String initwithMultipleValues = "{ \"t\": \"AB-Exp-Init\", \"d\": { \"md\": { \"ver\": 1, \"expList\": [ { \"expId\":\"SAMPLE-EXPERIMENTID-1\", \"expType\": 0, \"desc\": \"AB Demo\", \"variantId\" : \"SAMPLE-VariantID-1\", \"sTime\": 1465191114000, \"eTime\": 1496727114000, \"varList\": [ { \"varName\":\"ABTEST-SAMPLE-01\", \"type\" : 2, \"defValue\": \"1\", \"expValue\": \"2\" }, { \"varName\":\"ABTEST-SAMPLE-02\", \"type\" : 1, \"defValue\": \"true\", \"expValue\": \"false\" }, { \"varName\":\"ABTEST-SAMPLE-03\", \"type\" : 3, \"defValue\": \"888888888\", \"expValue\": \"999999999\" }, { \"varName\":\"ABTEST-SAMPLE-04\", \"type\" : 4, \"defValue\": \"Hike\", \"expValue\": \"Hike Ltd\" } ], \"cbUrl\" : \"http://hike.co.in/...\" } ] } } }";
-        parse_StartService(ABTestJunitConstants.REQUEST_TYPE_EXPERIMENT_INIT, initwithMultipleValues);
+        parse_StartService(ABTestJunitUtil.REQUEST_TYPE_EXPERIMENT_INIT, initwithMultipleValues);
 
-        Log.d(TAG, "Init multiple experiment Experimental Value: " + ABTest.getInt(ABTestJunitConstants.VARIABEL_NAME, ABTestJunitConstants.DEFAULT_VALUE));
-        Assert.assertEquals(ABTestJunitConstants.EXPERIMENT_VALUE, ABTest.getInt(ABTestJunitConstants.VARIABEL_NAME, ABTestJunitConstants.DEFAULT_VALUE));
+        Log.d(TAG, "Init multiple experiment Experimental Value: " + ABTest.getInt(ABTestJunitUtil.VARIABEL_NAME, ABTestJunitUtil.DEFAULT_VALUE));
+        Assert.assertEquals(ABTestJunitUtil.EXPERIMENT_VALUE, ABTest.getInt(ABTestJunitUtil.VARIABEL_NAME, ABTestJunitUtil.DEFAULT_VALUE));
     }
 
     @Test
@@ -91,14 +90,14 @@ public class ABTestInitTest {
      *  End Time:  6 June 2016 at 11:40:40 AM
      */
     private void initTimeExpired() {
-        Log.d(TAG, "Init ExpiredTime Default Value: " + ABTest.getInt(ABTestJunitConstants.VARIABEL_NAME, ABTestJunitConstants.DEFAULT_VALUE));
-        Assert.assertEquals(ABTestJunitConstants.DEFAULT_VALUE, ABTest.getInt(ABTestJunitConstants.VARIABEL_NAME, ABTestJunitConstants.DEFAULT_VALUE));
+        Log.d(TAG, "Init ExpiredTime Default Value: " + ABTest.getInt(ABTestJunitUtil.VARIABEL_NAME, ABTestJunitUtil.DEFAULT_VALUE));
+        Assert.assertEquals(ABTestJunitUtil.DEFAULT_VALUE, ABTest.getInt(ABTestJunitUtil.VARIABEL_NAME, ABTestJunitUtil.DEFAULT_VALUE));
 
         String experimentInit = "{ \"t\": \"AB-Exp-Init\", \"d\": { \"md\": { \"ver\": 1, \"expList\": [ { \"expId\":\"SAMPLE-EXPERIMENTID-1\", \"expType\": 0, \"desc\": \"AB Demo\", \"variantId\" : \"SAMPLE-VariantID-1\", \"sTime\": 1465107040000, \"eTime\": 1465193440000, \"varList\": [ { \"varName\":\"ABTEST-SAMPLE-01\", \"type\" : 2, \"defValue\": \"1\", \"expValue\": \"2\" } ], \"cbUrl\" : \"http://hike.co.in/...\" } ] } } }";
-        parse_StartService(ABTestJunitConstants.REQUEST_TYPE_EXPERIMENT_INIT, experimentInit);
+        parse_StartService(ABTestJunitUtil.REQUEST_TYPE_EXPERIMENT_INIT, experimentInit);
 
-        Log.d(TAG, "Init ExpiredTime Experimental Default Value: " + ABTest.getInt(ABTestJunitConstants.VARIABEL_NAME, ABTestJunitConstants.DEFAULT_VALUE));
-        Assert.assertEquals(ABTestJunitConstants.EXPERIMENT_DEFAULT_VALUE, ABTest.getInt(ABTestJunitConstants.VARIABEL_NAME, ABTestJunitConstants.DEFAULT_VALUE));
+        Log.d(TAG, "Init ExpiredTime Experimental Default Value: " + ABTest.getInt(ABTestJunitUtil.VARIABEL_NAME, ABTestJunitUtil.DEFAULT_VALUE));
+        Assert.assertEquals(ABTestJunitUtil.EXPERIMENT_DEFAULT_VALUE, ABTest.getInt(ABTestJunitUtil.VARIABEL_NAME, ABTestJunitUtil.DEFAULT_VALUE));
     }
 
 
@@ -117,19 +116,17 @@ public class ABTestInitTest {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        ABTest.onRequestReceived(ABTestJunitConstants.REQUEST_TYPE_EXPERIMENT_INIT, experimentInitJson);
+        ABTest.onRequestReceived(ABTestJunitUtil.REQUEST_TYPE_EXPERIMENT_INIT, experimentInitJson);
          /* Sleep for 10sec */
-        SystemClock.sleep(ABTestJunitConstants.WAIT_TIME_FOR_REQUEST);
+        SystemClock.sleep(ABTestJunitUtil.WAIT_TIME_FOR_REQUEST);
 
-        ABTest.refreshExperiments();
-
+        ABTestJunitUtil.reflect_RefreshExp();
     }
 
 
     @After
     public void clearExp() {
         Log.d(TAG, "Clearing ABTEST at after every test case");
-        ABTest.clearExperiments();
+        ABTestJunitUtil.reflect_ClearExp();
     }
 }
-
