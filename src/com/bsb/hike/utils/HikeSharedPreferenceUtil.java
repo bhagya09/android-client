@@ -15,7 +15,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 public class HikeSharedPreferenceUtil
 {
@@ -205,12 +204,11 @@ public class HikeSharedPreferenceUtil
         // Changes here for issue : https://hikeapp.atlassian.net/browse/CPR-337
         Set<String> stringSet = hikeSharedPreferences.getStringSet(key, defaultValues);
 
-        // IsEmpty check here as ConcurrentSkipListSet constructor doesn't accept null and its not needed to be created for empty set
         if(Utils.isEmpty(stringSet)) {
             return new HashSet<>();
         }
-        ConcurrentSkipListSet concurrentSkipListSet = new ConcurrentSkipListSet<>(stringSet);
-        return concurrentSkipListSet;
+        HashSet sharedPrefsSetNewInstance = new HashSet<>(stringSet);
+        return sharedPrefsSetNewInstance;
 	}
 
 	public synchronized float getData(String key, float defaultValue)
