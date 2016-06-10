@@ -561,6 +561,8 @@ public class HikePubSub extends Handler implements Runnable
 
 	public static final String SHOW_BIRTHDAY_NOTIF = "show_bday_notif";
 
+	public static final String LAST_SEEN_SETTING_TOGGLED = "usr_privcy_toggl";
+
 	private final Thread mThread;
 
 	private final BlockingQueue<Operation> mQueue;
