@@ -810,13 +810,13 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			boolean isRecentJoined = getIntent().getBooleanExtra(HikeConstants.Extras.IS_RECENT_JOINED, fetchRecentlyJoined);
 			List<String> excludeGroupList = getIntent().getStringArrayListExtra(HikeConstants.Extras.COMPOSE_EXCLUDE_LIST);
 			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage || isGroupFirst, isRecentJoined, existingGroupOrBroadcastId,
-					sendingMsisdn, friendsListFetchedCallback, false,isContactChooserFilter,isShowTimeline(), false);
+					sendingMsisdn, friendsListFetchedCallback, false, isShowTimeline(), false);
 			adapter.setGroupFirst(isGroupFirst);
 			adapter.setComposeExcludeList(excludeGroupList);
 			break;
 		case CREATE_GROUP_MODE:
 			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, fetchRecentlyJoined, existingGroupOrBroadcastId,
-					sendingMsisdn, friendsListFetchedCallback, true, isContactChooserFilter, isShowTimeline(), false);
+					sendingMsisdn, friendsListFetchedCallback, true, isShowTimeline(), false);
 			break;
 		case START_CHAT_MODE:
 			boolean showGroups =false;
@@ -824,12 +824,12 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				showGroups =getIntent().getBooleanExtra(HikeConstants.Extras.IS_GROUP_FIRST,false);
 			}
 			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage || showGroups, fetchRecentlyJoined, existingGroupOrBroadcastId,
-					sendingMsisdn, friendsListFetchedCallback, true, isContactChooserFilter, isShowTimeline(),
+					sendingMsisdn, friendsListFetchedCallback, true, isShowTimeline(),
 					showBdaySection);
 			break;
 		default:
 			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, fetchRecentlyJoined, existingGroupOrBroadcastId,
-					sendingMsisdn, friendsListFetchedCallback, true, isContactChooserFilter, isShowTimeline(), false);
+					sendingMsisdn, friendsListFetchedCallback, true, isShowTimeline(), false);
 			break;
 		}
 

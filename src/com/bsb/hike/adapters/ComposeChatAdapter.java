@@ -13,7 +13,6 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -80,21 +79,17 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
 	private boolean isCreatingOrEditingGroup;
 
-	private boolean lastSeenPref;
-	
 	private boolean nuxStateActive = false;
 	
 	private boolean isSearchModeOn = false;
 	
-    private boolean isContactChooserFilter = false;
-
 	private boolean addFriendOption;
 
 	private List<String> composeExcludeList;
 
 	private boolean isGroupFirst;
 
-    public ComposeChatAdapter(Context context, ListView listView, boolean fetchGroups, boolean fetchRecents, String existingGroupId, String sendingMsisdn, FriendsListFetchedCallback friendsListFetchedCallback, boolean showSMSContacts,boolean isContactChooserFilter, boolean showTimeline, boolean showBdaySection)
+    public ComposeChatAdapter(Context context, ListView listView, boolean fetchGroups, boolean fetchRecents, String existingGroupId, String sendingMsisdn, FriendsListFetchedCallback friendsListFetchedCallback, boolean showSMSContacts, boolean showTimeline, boolean showBdaySection)
 	{
 		super(context, listView, friendsListFetchedCallback, ContactInfo.lastSeenTimeComparatorWithoutFav);
 		selectedPeople = new LinkedHashMap<String, ContactInfo>();
@@ -117,15 +112,12 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		recentContactsList = new ArrayList<ContactInfo>(0);
 		filteredRecentsList = new ArrayList<ContactInfo>(0);
 
-		this.lastSeenPref = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.LAST_SEEN_PREF, true);
 		/*
 		 * We should show sms contacts section in new compose
 		 */
 		this.showSMSContacts = showSMSContacts;
 
 		this.showTimeline = showTimeline;
-
-        this.isContactChooserFilter = isContactChooserFilter;
 
 		this.showBdaySection = showBdaySection;
 	}
