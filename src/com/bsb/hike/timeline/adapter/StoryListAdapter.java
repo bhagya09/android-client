@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -176,7 +177,7 @@ public class StoryListAdapter extends BaseAdapter implements PinnedSectionListVi
             if (!TextUtils.isEmpty(subText)) {
                 viewHolder.subTextView.setText(subText);
                 viewHolder.subTextView.setVisibility(View.VISIBLE);
-
+                viewHolder.subTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
                 if (mContext.getString(R.string.timeline_sub_no_updt).equals(subText)) {
                     // Color gray
                     viewHolder.subTextView.setTextColor(mContext.getResources().getColor(R.color.stories_sub_text_unread));
@@ -191,6 +192,7 @@ public class StoryListAdapter extends BaseAdapter implements PinnedSectionListVi
             if (!TextUtils.isEmpty(subText)) {
                 viewHolder.subTextView.setText(subText);
                 viewHolder.subTextView.setVisibility(View.VISIBLE);
+                viewHolder.subTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
             }
             List<StatusMessage> statusMessagesList = storyItem.getDataObjects();
             ContactInfo contactInfo = (ContactInfo) storyItem.getTypeInfo();
