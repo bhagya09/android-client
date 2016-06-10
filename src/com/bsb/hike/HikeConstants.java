@@ -4033,7 +4033,7 @@ public class HikeConstants
 
 	public static final String UNKNOWN_KEYBOARDS = "unknown_kbds";
 
-    public static final String UNKNOWN_LANGUAGES = "unknown_langs";
+	public static final String UNKNOWN_LANGUAGES = "unknown_langs";
 
 	public static final float ONE_PERCENT_PROGRESS = 0.01f;
 

@@ -16,16 +16,16 @@ public class CategoriesDetailsDownloadGcmTask implements IGcmTask
 	public Void execute(TaskParams taskParams)
 	{
 		Bundle extra = taskParams.getExtras();
-		boolean isNewUser  = extra.getBoolean(HikeConstants.IS_NEW_USER, false);
+		boolean isNewUser = extra.getBoolean(HikeConstants.IS_NEW_USER, false);
 
-        if(isNewUser)
-        {
-            StickerManager.getInstance().checkAndDownLoadStickerData();
-        }
-        else
-        {
-            StickerManager.getInstance().refreshDownloadPacksMetadata(true);
-        }
+		if (isNewUser)
+		{
+			StickerManager.getInstance().checkAndDownLoadStickerData();
+		}
+		else
+		{
+			StickerManager.getInstance().refreshDownloadPacksMetadata(true);
+		}
 
 		return null;
 	}
