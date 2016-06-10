@@ -237,7 +237,6 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 			filteredHikeBdayContactList = new ArrayList<ContactInfo>();
 		}
 
-		boolean removeExistingParticipants = !TextUtils.isEmpty(existingGroupId);
 		if (fetchGroups)
 		{
 			groupTaskList = ContactManager.getInstance().getConversationGroupsAsContacts(true);
@@ -396,7 +395,8 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		hikeTaskList.removeAll(recentlyJoinedTaskList);
 		friendTaskList.removeAll(recentlyJoinedTaskList);
 
-		if (removeExistingParticipants)
+		// When adding members to an existing group, remove existing participants
+		if (!TextUtils.isEmpty(existingGroupId))
 		{
 			List<PairModified<GroupParticipant, String>> groupParticipantsList = ContactManager.getInstance().getGroupParticipants(existingGroupId, true, false);
 			Map<String, PairModified<GroupParticipant, String>> groupParticipants = new HashMap<String, PairModified<GroupParticipant, String>>();
