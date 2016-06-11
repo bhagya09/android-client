@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -372,7 +373,7 @@ public class StickerManager
 
 	public String getNewStickerDirFilePath()
 	{
-		String stickerExternalDir = HikeConstants.HIKE_DIRECTORY_ROOT + HikeConstants.STICKERS_ROOT;
+		String stickerExternalDir = Environment.getExternalStorageDirectory() + "/Hike" + HikeConstants.STICKERS_ROOT;
 		return stickerExternalDir;
 	}
 
