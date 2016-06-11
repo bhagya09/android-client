@@ -1831,7 +1831,7 @@ public class StickerManager
 			}
 			return category;
 		}
-		catch(JSONException ex)
+		catch(JSONException | NullPointerException ex)
 		{
 			Logger.e(TAG, "exception during sticker category json parsing", ex);
 		}
