@@ -2,7 +2,6 @@ package com.bsb.hike.adapters;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -17,8 +16,6 @@ import android.widget.BaseAdapter;
 import android.widget.Filter;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
-import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
@@ -27,20 +24,16 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.smartImageLoader.IconLoader;
-import com.bsb.hike.tasks.FetchFriendsTask;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.ui.HomeActivity;
-import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.LastSeenComparator;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
-import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.WhichScreen;
@@ -214,13 +207,6 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 	protected Map<String, Integer> contactSpanStartIndexes;
 
-    /*
-     * Variables added for showing friends list based on a given csv
-     */
-    private boolean showFilteredContacts;
-
-    private String msisdnList;
-
 	protected boolean showBdaySection;
 
 	public FriendsAdapter(Context context, ListView listView, FriendsListFetchedCallback friendsListFetchedCallback, LastSeenComparator lastSeenComparator)
@@ -280,17 +266,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		numberPattern = Pattern.compile("^\\+?((?>[0-9]+)[-.\\s/]?)*");
 	}
 
-    public FriendsAdapter(Context context, ListView listView, FriendsListFetchedCallback friendsListFetchedCallback, LastSeenComparator lastSeenComparator,boolean showFilteredContacts,String msisdnList)
-    {
-        this(context,listView,friendsListFetchedCallback,lastSeenComparator);
-        /*
-         * Initializing instance variables for retrieval of contacts based on given msisdns and phone nos list
-         */
-        this.showFilteredContacts = showFilteredContacts;
-        this.msisdnList = msisdnList;
-    }
-
-	public void setListFetchedOnce(boolean b)
+    public void setListFetchedOnce(boolean b)
 	{
 		listFetchedOnce = b;
 	}
@@ -548,11 +524,8 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		 * removed extra items from friends screen
 		 */
 
-        if(!showFilteredContacts)
-        {
-            friendsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredFriendsList.size()), context.getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.friends_upper_case : R.string.favorites_upper_case), FRIEND_PHONE_NUM);
-            updateFriendsList(friendsSection, true, true);
-        }
+		friendsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredFriendsList.size()), context.getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.friends_upper_case : R.string.favorites_upper_case), FRIEND_PHONE_NUM);
+		updateFriendsList(friendsSection, true, true);
 
         if (isHikeContactsPresent())
 		{
@@ -564,11 +537,6 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 			smsContactsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredSmsContactsList.size()), context.getString(R.string.sms_contacts), CONTACT_SMS_NUM);
 			updateSMSContacts(smsContactsSection);
 		}
-        if(showFilteredContacts)
-        {
-            suggestedContactsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredSuggestedContactsList.size()), context.getString(R.string.contacts), CONTACT_FILTERED_NUM);
-            updateSuggestedContacts(suggestedContactsSection);
-        }
 
 		notifyDataSetChanged();
 		setEmptyView();
@@ -1123,367 +1091,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent)
 	{
-
-		ViewType viewType = ViewType.values()[getItemViewType(position)];
-
-		ContactInfo contactInfo = getItem(position);
-
-		ViewHolder viewHolder = null;
-		if (convertView == null)
-		{
-			viewHolder = new ViewHolder();
-
-			switch (viewType)
-			{
-			case FTUE_CONTACT:
-			case FRIEND:
-				convertView = layoutInflater.inflate(R.layout.friends_child_view, null);
-				break;
-
-			case NOT_FRIEND_HIKE:
-				convertView = layoutInflater.inflate(R.layout.hike_contact_child_view, null);
-				break;
-
-			case NOT_FRIEND_SMS:
-				convertView = layoutInflater.inflate(R.layout.sms_contact_child_view, null);
-				break;
-
-			case SECTION:
-				convertView = layoutInflater.inflate(R.layout.friends_group_view, null);
-				break;
-			case FRIEND_REQUEST:
-				convertView = layoutInflater.inflate(R.layout.friend_request_view, null);
-				break;
-			case EXTRA:
-				convertView = layoutInflater.inflate(R.layout.friends_tab_extra_item, null);
-				break;
-			case EMPTY:
-				convertView = layoutInflater.inflate(R.layout.friends_empty_view, parent, false);
-				break;
-			case REMOVE_SUGGESTIONS:
-				convertView = layoutInflater.inflate(R.layout.remove_suggestions, parent, false);
-			}
-
-			switch (viewType)
-			{
-			case FRIEND:
-			case NOT_FRIEND_HIKE:
-			case FRIEND_REQUEST:
-			case NOT_FRIEND_SMS:
-			case FTUE_CONTACT:
-				viewHolder.avatar = (ImageView) convertView.findViewById(R.id.avatar);
-				viewHolder.name = (TextView) convertView.findViewById(R.id.contact);
-				viewHolder.onlineIndicator = (ImageView) convertView.findViewById(R.id.online_indicator);
-				viewHolder.lastSeen = (TextView) convertView.findViewById(R.id.last_seen);
-				viewHolder.statusMood = (ImageView) convertView.findViewById(R.id.status_mood);
-				viewHolder.inviteBtn = (TextView) convertView.findViewById(R.id.invite_btn);
-				viewHolder.acceptBtn = (ImageView) convertView.findViewById(R.id.accept);
-				viewHolder.rejectBtn = (ImageView) convertView.findViewById(R.id.reject);
-				viewHolder.addBtn = (TextView) convertView.findViewById(R.id.invite_btn);
-				viewHolder.inviteBtn = (TextView) convertView.findViewById(R.id.invite_btn);
-				viewHolder.inviteIcon = (ImageView) convertView.findViewById(R.id.invite_icon);
-				viewHolder.addFriend = (ImageView) convertView.findViewById(R.id.add_friend);
-				viewHolder.info = (TextView) convertView.findViewById(R.id.info);
-				viewHolder.infoContainer = (ViewGroup) convertView.findViewById(R.id.info_container);
-				break;
-
-			case SECTION:
-				viewHolder.name = (TextView) convertView.findViewById(R.id.name);
-				viewHolder.info = (TextView) convertView.findViewById(R.id.count);
-				break;
-
-			case EXTRA:
-				viewHolder.name = (TextView) convertView.findViewById(R.id.contact);
-				viewHolder.onlineIndicator = (ImageView) convertView.findViewById(R.id.icon);
-				break;
-			case EMPTY:
-				viewHolder.name = (TextView) convertView.findViewById(R.id.empty_text);
-				String infoSubText = context.getString(Utils.isLastSeenSetToFavorite() ? R.string.both_ls_status_update : R.string.status_updates_proper_casing);
-				viewHolder.name.setText(context.getString(R.string.tap_plus_add_favorites, infoSubText));
-				break;
-			}
-
-			convertView.setTag(viewHolder);
-		}
-		else
-		{
-			viewHolder = (ViewHolder) convertView.getTag();
-		}
-
-		switch (viewType)
-		{
-		case FRIEND:
-		case NOT_FRIEND_HIKE:
-		case FRIEND_REQUEST:
-		case NOT_FRIEND_SMS:
-		case FTUE_CONTACT:
-
-			viewHolder.msisdn = contactInfo.getMsisdn();
-
-			TextView name = viewHolder.name;
-			ImageView onlineIndicator = viewHolder.onlineIndicator;
-
-			updateViewsRelatedToAvatar(convertView, contactInfo);
-
-			String contactName = contactInfo.getName();
-			String msisdn = contactInfo.getMsisdn();
-
-			if(TextUtils.isEmpty(contactName))
-			{
-				name.setText(msisdn);
-			}
-			else
-			{
-				Integer startIndex = contactSpanStartIndexes.get(msisdn);
-				if(startIndex!=null)
-				{
-					name.setText(getSpanText(contactName, startIndex), TextView.BufferType.SPANNABLE);
-				}
-				else
-				{
-					name.setText(contactName);
-				}
-			}
-
-			if (viewType == ViewType.FRIEND || viewType == ViewType.FRIEND_REQUEST || viewType == ViewType.FTUE_CONTACT)
-			{
-				TextView lastSeen = viewHolder.lastSeen;
-				ImageView statusMood = viewHolder.statusMood;
-
-				lastSeen.setTextColor(context.getResources().getColor(R.color.list_item_subtext));
-				lastSeen.setVisibility(View.GONE);
-
-				TextView inviteBtn = viewHolder.inviteBtn;
-				if (inviteBtn != null)
-				{
-					inviteBtn.setVisibility(View.GONE);
-				}
-
-				if (contactInfo.getFavoriteType() == FavoriteType.FRIEND)
-				{
-					lastSeen.setVisibility(View.VISIBLE);
-					StatusMessage lastStatusMessage = lastStatusMessagesMap.get(contactInfo.getMsisdn());
-					if(lastStatusMessage != null)
-					{
-						lastSeen.setTextColor(context.getResources().getColor(R.color.list_item_subtext));
-						SmileyParser smileyParser = SmileyParser.getInstance();
-						switch (lastStatusMessage.getStatusMessageType())
-						{
-						case TEXT:
-							lastSeen.setText(smileyParser.addSmileySpans(lastStatusMessage.getText(), true));
-							if (lastStatusMessage.hasMood())
-							{
-								statusMood.setVisibility(View.VISIBLE);
-								statusMood.setImageResource(EmoticonConstants.moodMapping.get(lastStatusMessage.getMoodId()));
-							}
-							else
-							{
-								statusMood.setVisibility(View.GONE);
-							}
-							break;
-
-						case PROFILE_PIC:
-							lastSeen.setText(R.string.changed_profile);
-							statusMood.setVisibility(View.GONE);
-							break;
-
-						case IMAGE:
-						case TEXT_IMAGE:
-							if(TextUtils.isEmpty(lastStatusMessage.getText()))
-							{
-								lastSeen.setText(lastStatusMessage.getMsisdn());
-							}
-							else
-							{
-								lastSeen.setText(smileyParser.addSmileySpans(lastStatusMessage.getText(), true));
-							}
-							if (lastStatusMessage.hasMood())
-							{
-								statusMood.setVisibility(View.VISIBLE);
-								statusMood.setImageResource(EmoticonConstants.moodMapping.get(lastStatusMessage.getMoodId()));
-							}
-							else
-							{
-								statusMood.setVisibility(View.GONE);
-							}
-							break;
-							
-						default:
-							break;
-						}
-					}
-					else
-					{
-						lastSeen.setText(contactInfo.getMsisdn());
-						statusMood.setVisibility(View.GONE);
-					}
-					if(onlineIndicator != null)
-					{
-						onlineIndicator.setVisibility(View.GONE);
-					}
-				}
-				else if (contactInfo.getFavoriteType() == FavoriteType.REQUEST_SENT_REJECTED)
-				{
-					lastSeen.setVisibility(View.VISIBLE);
-					lastSeen.setText(contactInfo.getMsisdn());
-					statusMood.setVisibility(View.GONE);
-					onlineIndicator.setVisibility(View.GONE);
-				}
-				else
-				{
-					if(onlineIndicator != null)
-					{
-						onlineIndicator.setVisibility(View.GONE);
-					}
-					if(statusMood != null)
-					{
-						statusMood.setVisibility(View.GONE);
-					}
-					if (contactInfo.getFavoriteType() == FavoriteType.REQUEST_SENT)
-					{
-						lastSeen.setVisibility(View.VISIBLE);
-						lastSeen.setText(contactInfo.getMsisdn());
-
-						if (!contactInfo.isOnhike())
-						{
-							setInviteButton(contactInfo, inviteBtn, null);
-						}
-					}
-					else if (viewType == ViewType.FRIEND_REQUEST)
-					{
-						lastSeen.setVisibility(View.VISIBLE);
-						String infoSubText = context.getString(Utils.isLastSeenSetToFavorite() ? R.string.both_ls_status_update : R.string.status_updates_proper_casing);
-						if (Utils.isFavToFriendsMigrationAllowed())
-						{
-							lastSeen.setText(context.getString(R.string.sent_you_friend_req));
-						}
-						else
-						{
-							lastSeen.setText(context.getString(R.string.sent_favorite_request_tab, infoSubText));
-						}
-
-						ImageView acceptBtn = viewHolder.acceptBtn;
-						ImageView rejectBtn = viewHolder.rejectBtn;
-
-						acceptBtn.setTag(contactInfo);
-						rejectBtn.setTag(contactInfo);
-
-						acceptBtn.setOnClickListener(acceptOnClickListener);
-						rejectBtn.setOnClickListener(rejectOnClickListener);
-
-						if (Utils.isFavToFriendsMigrationAllowed())
-						{
-							rejectBtn.setVisibility(View.GONE);
-						}
-
-					}
-					else if (viewType == ViewType.FTUE_CONTACT)
-					{
-						lastSeen.setVisibility(View.VISIBLE);
-						lastSeen.setText(Utils.isFavToFriendsMigrationAllowed() ? R.string.ftue_frn_subtext : R.string.ftue_favorite_subtext);
-
-						TextView addBtn = viewHolder.addBtn;
-
-						addBtn.setVisibility(View.VISIBLE);
-						addBtn.setText(R.string.add);
-						addBtn.setTag(contactInfo);
-						addBtn.setOnClickListener(addOnClickListener);
-					}
-					
-				}
-			}
-			else
-			{
-				TextView info = viewHolder.info;
-				info.setText(contactInfo.isOnhike() ? R.string.tap_chat : R.string.tap_sms);
-				if (viewType == ViewType.NOT_FRIEND_HIKE)
-				{
-					ImageView addFriend = viewHolder.addFriend;
-					viewHolder.addFriend.setImageResource(Utils.isFavToFriendsMigrationAllowed() ? R.drawable.ic_add_friend : R.drawable.ic_add_favourite );
-					addFriend.setTag(contactInfo);
-					addFriend.setOnClickListener(this);
-				}
-				else
-				{
-					TextView inviteBtn = viewHolder.inviteBtn;
-					ImageView inviteIcon = viewHolder.inviteIcon;
-					ViewGroup infoContainer = viewHolder.infoContainer;
-
-					setInviteButton(contactInfo, inviteBtn, inviteIcon);
-
-                    LayoutParams layoutParams = (LayoutParams) infoContainer.getLayoutParams();
-                    if (inviteIcon.getVisibility() == View.VISIBLE)
-                    {
-                        layoutParams.addRule(RelativeLayout.LEFT_OF, inviteIcon.getId());
-                    }
-                    else
-                    {
-                        layoutParams.addRule(RelativeLayout.LEFT_OF, inviteBtn.getId());
-                    }
-				}
-			}
-			break;
-
-		case SECTION:
-			TextView headerName = viewHolder.name;
-			TextView headerCount = viewHolder.info;
-
-			headerName.setText(contactInfo.getName());
-			headerCount.setText(contactInfo.getMsisdn());
-			if (!TextUtils.isEmpty(contactInfo.getPhoneNum()))
-			{
-				switch (contactInfo.getPhoneNum())
-				{
-				case FRIEND_PHONE_NUM:
-					headerName.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(Utils.isFavToFriendsMigrationAllowed() ? R.drawable.ic_section_header_friends : R.drawable.ic_section_header_favorite), null, null, null);
-					break;
-
-				case CONTACT_PHONE_NUM:
-					headerName.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(R.drawable.ic_section_header_people_on_hike), null, null, null);
-					break;
-
-				case CONTACT_SMS_NUM:
-                    headerName.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(R.drawable.ic_section_header_sms_contact), null, null, null);
-                    break;
-
-                case CONTACT_FILTERED_NUM:
-                    headerName.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(R.drawable.ic_section_header_people_on_hike), null, null, null);
-                    break;
-				}
-
-				headerName.setCompoundDrawablePadding((int) context.getResources().getDimension(R.dimen.favorites_star_icon_drawable_padding));
-
-			}
-			else
-			{
-				headerName.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
-			}
-			break;
-
-		case EXTRA:
-			TextView headerName2 = viewHolder.name;
-			ImageView headerIcon = viewHolder.onlineIndicator;
-
-			if (contactInfo.getMsisdn().equals(INVITE_MSISDN))
-			{
-				headerIcon.setImageResource(R.drawable.ic_invite_to_hike);
-				headerName2.setText(R.string.invite_friends_hike);
-			}
-			else
-			{
-				headerIcon.setImageResource(R.drawable.ic_create_group);
-				headerName2.setText(R.string.create_group);
-			}
-			break;
-
-		case EMPTY:
-			TextView emptyText = viewHolder.name;
-			String infoSubText = context.getString(Utils.isLastSeenSetToFavorite() ? R.string.both_ls_status_update : R.string.status_updates_proper_casing);
-			emptyText.setText(context.getString(R.string.tap_plus_add_favorites, infoSubText));
-			break;
-		}
-
-		return convertView;
+		return null;
 	}
 
 	protected SpannableString getSpanText(String text, Integer start)
