@@ -3514,6 +3514,30 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(TimelineServerConfigUtils.AC_KEY_CAMSHY_ENABLED, enableCamShy);
 		}
 
+		if(data.has(TimelineServerConfigUtils.AC_KEY_SHOWDP_STORYTHUMB))
+		{
+			boolean stryThumbDP = data.getBoolean(TimelineServerConfigUtils.AC_KEY_SHOWDP_STORYTHUMB);
+			HikeSharedPreferenceUtil.getInstance().saveData(TimelineServerConfigUtils.AC_KEY_SHOWDP_STORYTHUMB, stryThumbDP);
+		}
+
+		if(data.has(TimelineServerConfigUtils.AC_KEY_TITLE_RECENT))
+		{
+			String title = data.getString(TimelineServerConfigUtils.AC_KEY_TITLE_RECENT);
+			HikeSharedPreferenceUtil.getInstance().saveData(TimelineServerConfigUtils.AC_KEY_TITLE_RECENT, title);
+		}
+
+		if(data.has(TimelineServerConfigUtils.AC_KEY_TITLE_ALL))
+		{
+			String title = data.getString(TimelineServerConfigUtils.AC_KEY_TITLE_ALL);
+			HikeSharedPreferenceUtil.getInstance().saveData(TimelineServerConfigUtils.AC_KEY_TITLE_ALL, title);
+		}
+
+		if(data.has(TimelineServerConfigUtils.AC_KEY_TITLE_SHY))
+		{
+			String title = data.getString(TimelineServerConfigUtils.AC_KEY_TITLE_SHY);
+			HikeSharedPreferenceUtil.getInstance().saveData(TimelineServerConfigUtils.AC_KEY_TITLE_SHY, title);
+		}
+
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 

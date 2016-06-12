@@ -134,7 +134,7 @@ public class StoriesDataManager {
         recentsList = HikeConversationsDatabase.getInstance().getAllStories(StoryItem.CATEGORY_RECENT);
         if (!Utils.isEmpty(recentsList)) {
             // Make a header
-            StoryItem recentsHeader = new StoryItem(StoryItem.TYPE_HEADER, mContext.getString(R.string.story_category_recent));
+            StoryItem recentsHeader = new StoryItem(StoryItem.TYPE_HEADER, TimelineServerConfigUtils.getStoryTitleRecent());
             recentsHeader.setSubText(String.valueOf(recentsList.size()));
             recentsList.add(0, recentsHeader);
 
@@ -148,7 +148,7 @@ public class StoriesDataManager {
         removeSimilarElements(recentsList, allPhotosList);
         if (!Utils.isEmpty(allPhotosList)) {
             // Make a header
-            StoryItem allPhotosHeader = new StoryItem(StoryItem.TYPE_HEADER, mContext.getString(R.string.story_category_allphotos));
+            StoryItem allPhotosHeader = new StoryItem(StoryItem.TYPE_HEADER, TimelineServerConfigUtils.getStoryTitleAll());
             allPhotosHeader.setSubText(String.valueOf(allPhotosList.size()));
             allPhotosList.add(0, allPhotosHeader);
 
@@ -171,7 +171,7 @@ public class StoriesDataManager {
             Collections.sort(cameraShyList, cameraShyFriendsComparator);
 
             // Make a header
-            StoryItem defaultHeader = new StoryItem(StoryItem.TYPE_HEADER, mContext.getString(R.string.story_category_default));
+            StoryItem defaultHeader = new StoryItem(StoryItem.TYPE_HEADER, TimelineServerConfigUtils.getStoryTitleShy());
             defaultHeader.setSubText(String.valueOf(cameraShyList.size()));
             cameraShyList.add(0, defaultHeader);
 
