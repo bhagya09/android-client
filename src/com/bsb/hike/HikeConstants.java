@@ -4508,4 +4508,6 @@ public class HikeConstants
 
 	public static final String SPACE_MANAGER_JSON = "sm_json";
 
+	public static final String FRIENDS_TAB_NOTIF_DOT = "frnTabNotifDot";
+
 }

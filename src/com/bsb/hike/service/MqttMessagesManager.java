@@ -3797,6 +3797,8 @@ public class MqttMessagesManager
 
 		if (favoriteType == FavoriteType.FRIEND)
 		{
+			// To update the friends tab indicator
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FRIENDS_TAB_NOTIF_DOT, true);
 			incrementUnseenStatusCount();
 			pubSub.publish(HikePubSub.TIMELINE_UPDATE_RECIEVED, statusMessage);
 			if (statusMessage.getStatusMessageType() == StatusMessageType.PROFILE_PIC || statusMessage.getStatusMessageType() == StatusMessageType.IMAGE
@@ -5297,6 +5299,9 @@ public class MqttMessagesManager
 
 						// To update Overflow menu on Home Screen
 						HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_HOME_OVERFLOW_CLICKED, false);
+
+						// To update the friends tab indicator
+						HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FRIENDS_TAB_NOTIF_DOT, true);
 						HikeMessengerApp.getPubSub().publish(HikePubSub.UNSEEN_STATUS_COUNT_CHANGED, null);
 					}
 
