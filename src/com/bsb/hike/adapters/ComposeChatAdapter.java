@@ -89,7 +89,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
 	private boolean isGroupFirst;
 
-    public ComposeChatAdapter(Context context, ListView listView, boolean fetchGroups, boolean fetchRecents, String existingGroupId, String sendingMsisdn, FriendsListFetchedCallback friendsListFetchedCallback, boolean showSMSContacts, boolean showTimeline, boolean showBdaySection)
+    public ComposeChatAdapter(Context context, ListView listView, boolean fetchGroups, boolean fetchRecents, String existingGroupId, String sendingMsisdn, FriendsListFetchedCallback friendsListFetchedCallback, boolean showSMSContacts, boolean showHikeContacts, boolean showTimeline, boolean showBdaySection)
 	{
 		super(context, listView, friendsListFetchedCallback, ContactInfo.lastSeenTimeComparatorWithoutFav);
 		selectedPeople = new LinkedHashMap<String, ContactInfo>();
@@ -112,9 +112,8 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		recentContactsList = new ArrayList<ContactInfo>(0);
 		filteredRecentsList = new ArrayList<ContactInfo>(0);
 
-		/*
-		 * We should show sms contacts section in new compose
-		 */
+		this.showHikeContacts = showHikeContacts;
+
 		this.showSMSContacts = showSMSContacts;
 
 		this.showTimeline = showTimeline;
@@ -175,7 +174,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		} else {
 			fetchFriendsTask = new FetchFriendsTask(this, context, friendsList, hikeContactsList, smsContactsList, recentContactsList, friendsStealthList, hikeStealthContactsList,
 					smsStealthContactsList, filteredFriendsList, filteredHikeContactsList, filteredSmsContactsList, groupsList, groupsStealthList, null, null, filteredGroupsList, filteredRecentsList,
-					existingParticipants, sendingMsisdn, fetchGroups, existingGroupId, isCreatingOrEditingGroup, showSMSContacts, false, fetchRecents, true, true, false , false, composeExcludeList,
+					existingParticipants, sendingMsisdn, fetchGroups, existingGroupId, isCreatingOrEditingGroup, showSMSContacts, false, fetchRecents, showHikeContacts, true, false , false, composeExcludeList,
                     showBdaySection, hikeBdayContactList, filteredHikeBdayContactList);
 		}
 
@@ -707,7 +706,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			addGroupList();
 			addFriendList();
 		}
-		if (isHikeContactsPresent())
+		if (showHikeContacts && isHikeContactsPresent())
 		{
 			ContactInfo hikeContactsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredHikeContactsList.size()), context.getString(R.string.hike_contacts),
 					CONTACT_PHONE_NUM);
