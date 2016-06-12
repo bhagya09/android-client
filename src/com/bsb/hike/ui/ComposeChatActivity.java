@@ -813,8 +813,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			adapter.setComposeExcludeList(excludeGroupList);
 			break;
 		case CREATE_GROUP_MODE:
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, fetchRecentlyJoined, existingGroupOrBroadcastId,
-					sendingMsisdn, friendsListFetchedCallback, true, isShowTimeline(), false);
+			adapter = new ComposeChatAdapter(this, listView, false, false, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, true, false, false);
 			break;
 		case START_CHAT_MODE:
 			adapter = new ComposeChatAdapter(this, listView, false, false, null, null, friendsListFetchedCallback, true, false, showBdaySection);
@@ -1285,7 +1284,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 		else if(getIntent().hasExtra(HikeConstants.Extras.GROUP_CREATE_BUNDLE) || getIntent().hasExtra(HikeConstants.Extras.EXISTING_GROUP_CHAT))
 		{
-				mode=CREATE_GROUP_MODE;
+			mode = CREATE_GROUP_MODE;
 		}
 		else if (getIntent().hasExtra(HikeConstants.Extras.HIKE_DIRECT_MODE))
 		{
