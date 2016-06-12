@@ -78,7 +78,6 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.models.GalleryItem;
 import com.bsb.hike.models.HikeFeatureInfo;
-import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.MultipleConvMessage;
@@ -87,7 +86,6 @@ import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
-import com.bsb.hike.platform.ContentLove;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformMessageMetadata;
 import com.bsb.hike.platform.WebMetadata;
@@ -819,13 +817,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					sendingMsisdn, friendsListFetchedCallback, true, isShowTimeline(), false);
 			break;
 		case START_CHAT_MODE:
-			boolean showGroups =false;
-			if(getIntent().hasExtra(HikeConstants.Extras.IS_GROUP_FIRST)) {
-				showGroups =getIntent().getBooleanExtra(HikeConstants.Extras.IS_GROUP_FIRST,false);
-			}
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage || showGroups, fetchRecentlyJoined, existingGroupOrBroadcastId,
-					sendingMsisdn, friendsListFetchedCallback, true, isShowTimeline(),
-					showBdaySection);
+			adapter = new ComposeChatAdapter(this, listView, false, false, null, null, friendsListFetchedCallback, true, false, showBdaySection);
 			break;
 		default:
 			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, fetchRecentlyJoined, existingGroupOrBroadcastId,
@@ -843,18 +835,14 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 		originalAdapterLength = adapter.getCount();
 
-		if (this.composeMode != START_CHAT_MODE && this.composeMode != HIKE_DIRECT_MODE)
-		{
+		if (this.composeMode == START_CHAT_MODE || this.composeMode == HIKE_DIRECT_MODE) {
+			tagEditText = (TagEditText) findViewById(R.id.composeChatNewGroupTagET);
+			tagEditText.setVisibility(View.GONE);
+		} else {
 			initTagEditText();
 			tagEditText.setVisibility(View.VISIBLE);
 		}
-		
-		else
-		{
-			tagEditText = (TagEditText) findViewById(R.id.composeChatNewGroupTagET);
-			tagEditText.setVisibility(View.GONE);
-		}
-		
+
 		if (existingGroupOrBroadcastId != null)
 		{
 			MIN_MEMBERS_GROUP_CHAT = 1;

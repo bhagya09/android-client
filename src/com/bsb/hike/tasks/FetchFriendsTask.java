@@ -202,10 +202,10 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		if(showBdaySection)
 		{
 			hikeBdayContactList.clear();
-			filteredHikeBdayContactList.clear();
             hikeBdayContactList.addAll(BirthdayUtils.getSortedBdayContactListFromSharedPref());
-			BirthdayUtils.removeHiddenMsisdnFromContactInfoList(hikeBdayContactList);
+			filteredHikeBdayContactList.clear();
 			filteredHikeBdayContactList.addAll(hikeBdayContactList);
+			BirthdayUtils.removeHiddenMsisdnFromContactInfoList(hikeBdayContactList);
 			/**
 			 * Removing Birthday users from all contacts list
 			 */
