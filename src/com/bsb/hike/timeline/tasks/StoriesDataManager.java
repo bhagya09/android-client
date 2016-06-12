@@ -221,7 +221,7 @@ public class StoriesDataManager {
                 updateRecentStories(null);
                 updateAllPhotosStories(null);
 
-                StoryItem friendStory = null;
+                StoryItem<StatusMessage,ContactInfo> friendStory = null;
 
                 for (StoryItem<StatusMessage, ContactInfo> recentStory : recentsList) {
                     ContactInfo cInfo = recentStory.getTypeInfo();
@@ -241,6 +241,7 @@ public class StoriesDataManager {
 
                 List<StoryItem> storyItemList = new ArrayList<StoryItem>();
                 if (friendStory != null) {
+                    Collections.reverse(friendStory.getDataObjects()); // Oldest first
                     storyItemList.add(friendStory);
                 }
 
