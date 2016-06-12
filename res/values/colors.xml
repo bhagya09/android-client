@@ -367,4 +367,6 @@
     <color name="sm_ev_text">#803d475b</color>
     <color name="black_32">#52000000</color>
 
+    <color name="custom_theme_status_bar_color">#000000</color>
+
 </resources>

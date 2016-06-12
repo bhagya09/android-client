@@ -15,6 +15,7 @@ import com.bsb.hike.chatthemes.UploadCustomChatThemeBackgroundTask;
 import com.bsb.hike.filetransfer.FileTransferBase.FTState;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.modules.httpmgr.HttpManager;
@@ -325,8 +326,8 @@ public class FileTransferManager
 		downloadFile(destinationFile, fileKey, -100L, hikeFileType, null, false);
 	}
 
-	public void uploadCustomThemeBackgroundImage(String filepath){
-		UploadCustomChatThemeBackgroundTask cit = new UploadCustomChatThemeBackgroundTask(filepath, UUID.randomUUID().toString());
+	public void uploadCustomThemeBackgroundImage(String filepath, Conversation conversation){
+		UploadCustomChatThemeBackgroundTask cit = new UploadCustomChatThemeBackgroundTask(filepath, conversation, UUID.randomUUID().toString());
 		cit.execute();
 	}
 
@@ -749,14 +750,14 @@ public class FileTransferManager
 		analyticEvent.sendFTSuccessFailureEvent(network, hikefile.getFileSize(), FTAnalyticEvents.FT_SUCCESS, hikefile.getAttachmentSharedAs(), hikefile.getAttachementType());
 		if (userContext != null && BotUtils.isBot(((ConvMessage) userContext).getMsisdn()) && isDownloadTask)
 		{
-			if(BotUtils.isBot(((ConvMessage) userContext).getMsisdn())) {
-				FTAnalyticEvents.platformAnalytics(((ConvMessage) userContext).getMsisdn(), ((ConvMessage) userContext).getMetadata().getHikeFiles().get(0).getFileKey(),
-						((ConvMessage) userContext).getMetadata().getHikeFiles().get(0).getFileTypeString());
-			}
-			else if(((ConvMessage) userContext).getMessageType() == HikeConstants.MESSAGE_TYPE.CONTENT)
+			if(((ConvMessage) userContext).getMessageType() == HikeConstants.MESSAGE_TYPE.CONTENT)
 			{
 				FTAnalyticEvents.platformAnalytics(((ConvMessage) userContext).getMsisdn(), ((ConvMessage) userContext).platformMessageMetadata.contentId,
 						((ConvMessage) userContext).platformMessageMetadata.getHikeFiles().get(0).getFileTypeString());
+			}
+			else if(BotUtils.isBot(((ConvMessage) userContext).getMsisdn())) {
+				FTAnalyticEvents.platformAnalytics(((ConvMessage) userContext).getMsisdn(), ((ConvMessage) userContext).getMetadata().getHikeFiles().get(0).getFileKey(),
+						((ConvMessage) userContext).getMetadata().getHikeFiles().get(0).getFileTypeString());
 			}
 		}
 
