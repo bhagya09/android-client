@@ -1165,7 +1165,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 		fetchHikeUIDForUpgrade();
 
-		ChatThemeManager.getInstance().initialize();
+		ChatThemeManager.initializeChatThemes();
 
 		checkAndTriggerPendingGcmNetworkCalls();
 	}
