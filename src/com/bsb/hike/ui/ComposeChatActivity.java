@@ -795,33 +795,34 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		boolean fetchRecentlyJoined = pref.getData(HikeConstants.SHOW_RECENTLY_JOINED_DOT, false) || pref.getData(HikeConstants.SHOW_RECENTLY_JOINED, false);
 		fetchRecentlyJoined = fetchRecentlyJoined && !isForwardingMessage && showNujNotif;
 		boolean showBdaySection = Utils.isBDayInNewChatEnabled() && (pref.getStringSet(HikeConstants.BDAYS_LIST, new HashSet<String>()).size() > 0);
-		
-		switch (composeMode)
-		{
-		case HIKE_DIRECT_MODE:
-		case PICK_CONTACT_AND_SEND_MODE:
-		case PICK_CONTACT_MODE:
-			//We do not show sms contacts in broadcast mode
-			// read intent to find if group chat is enabled or not. also read to find out if any chats are excluded
-			boolean isGroupFirst = getIntent().getBooleanExtra(HikeConstants.Extras.IS_GROUP_FIRST, false);
-			boolean isRecentJoined = getIntent().getBooleanExtra(HikeConstants.Extras.IS_RECENT_JOINED, fetchRecentlyJoined);
-			List<String> excludeGroupList = getIntent().getStringArrayListExtra(HikeConstants.Extras.COMPOSE_EXCLUDE_LIST);
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage || isGroupFirst, isRecentJoined, existingGroupOrBroadcastId,
-					sendingMsisdn, friendsListFetchedCallback, false, false, isShowTimeline(), false);
-			adapter.setGroupFirst(isGroupFirst);
-			adapter.setComposeExcludeList(excludeGroupList);
-			break;
-		case CREATE_BROADCAST_MODE:
-		case CREATE_GROUP_MODE:
-			adapter = new ComposeChatAdapter(this, listView, false, false, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false, false, false, false);
-			break;
-		case START_CHAT_MODE:
-			adapter = new ComposeChatAdapter(this, listView, false, false, null, null, friendsListFetchedCallback, true, true, false, showBdaySection);
-			break;
-		default:
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, fetchRecentlyJoined, existingGroupOrBroadcastId,
-					sendingMsisdn, friendsListFetchedCallback, true, true, isShowTimeline(), false);
-			break;
+
+		switch (composeMode) {
+			case HIKE_DIRECT_MODE:
+			case PICK_CONTACT_AND_SEND_MODE:
+			case PICK_CONTACT_MODE:
+				//We do not show sms contacts in broadcast mode
+				// read intent to find if group chat is enabled or not. also read to find out if any chats are excluded
+				boolean isGroupFirst = getIntent().getBooleanExtra(HikeConstants.Extras.IS_GROUP_FIRST, false);
+				boolean isRecentJoined = getIntent().getBooleanExtra(HikeConstants.Extras.IS_RECENT_JOINED, fetchRecentlyJoined);
+				List<String> excludeGroupList = getIntent().getStringArrayListExtra(HikeConstants.Extras.COMPOSE_EXCLUDE_LIST);
+				adapter = new ComposeChatAdapter(this, listView, isForwardingMessage || isGroupFirst, isRecentJoined, existingGroupOrBroadcastId,
+						sendingMsisdn, friendsListFetchedCallback, false, false, isShowTimeline(), false);
+				adapter.setGroupFirst(isGroupFirst);
+				adapter.setComposeExcludeList(excludeGroupList);
+				break;
+			case CREATE_BROADCAST_MODE:
+			case CREATE_GROUP_MODE:
+				adapter = new ComposeChatAdapter(this, listView, false, false, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false, false, false, false);
+				break;
+			case START_CHAT_MODE:
+				adapter = new ComposeChatAdapter(this, listView, false, false, null, null, friendsListFetchedCallback, true, true, false, showBdaySection);
+				break;
+			case MULTIPLE_FWD:
+				adapter = new ComposeChatAdapter(this, listView, true, true, null, sendingMsisdn, friendsListFetchedCallback, false, false, isShowTimeline(), false);
+			default:
+				adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, fetchRecentlyJoined, existingGroupOrBroadcastId,
+						sendingMsisdn, friendsListFetchedCallback, true, true, isShowTimeline(), false);
+				break;
 		}
 
 		View emptyView = findViewById(android.R.id.empty);

@@ -1038,7 +1038,7 @@ public class HikeConstants
 
 	public static final String MAIL = "support@hike.in";
 
-	public static final int MAX_RECENTS_TO_SHOW = 10;
+	public static final int MAX_RECENTS_TO_SHOW = 20;
 
 	public static final int MAX_RECENTLY_JOINED_HIKE_TO_SHOW = 5;
 
