@@ -799,7 +799,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		switch (composeMode)
 		{
 		case HIKE_DIRECT_MODE:
-		case CREATE_BROADCAST_MODE:
 		case PICK_CONTACT_AND_SEND_MODE:
 		case PICK_CONTACT_MODE:
 			//We do not show sms contacts in broadcast mode
@@ -812,6 +811,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			adapter.setGroupFirst(isGroupFirst);
 			adapter.setComposeExcludeList(excludeGroupList);
 			break;
+		case CREATE_BROADCAST_MODE:
 		case CREATE_GROUP_MODE:
 			adapter = new ComposeChatAdapter(this, listView, false, false, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false, false, false, false);
 			break;
