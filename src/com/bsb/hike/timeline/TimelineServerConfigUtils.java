@@ -14,11 +14,17 @@ public class TimelineServerConfigUtils {
 
     public static final String AC_KEY_CAMSHY_SUBTEXT = "stryCamShyStr";
 
+    public static final String AC_KEY_CAMSHY_ENABLED = "stryCamShyEn";
+
     public static long getStoryTimeLimit() {
         return HikeSharedPreferenceUtil.getInstance().getData(AC_KEY_STORY_DURATION, TimeUnit.HOURS.toSeconds(24));
     }
 
     public static Set<String> getCameraShySubtext() {
         return HikeSharedPreferenceUtil.getInstance().getStringSet(AC_KEY_CAMSHY_SUBTEXT, new HashSet<String>());
+    }
+
+    public static boolean isCameraShyEnabled() {
+        return HikeSharedPreferenceUtil.getInstance().getData(AC_KEY_CAMSHY_ENABLED, true);
     }
 }

@@ -3508,6 +3508,12 @@ public class MqttMessagesManager
 			}
 		}
 
+		if(data.has(TimelineServerConfigUtils.AC_KEY_CAMSHY_ENABLED))
+		{
+			boolean enableCamShy = data.getBoolean(TimelineServerConfigUtils.AC_KEY_CAMSHY_ENABLED);
+			HikeSharedPreferenceUtil.getInstance().saveData(TimelineServerConfigUtils.AC_KEY_CAMSHY_ENABLED, enableCamShy);
+		}
+
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 

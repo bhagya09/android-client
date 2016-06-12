@@ -9,6 +9,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.timeline.TimelineServerConfigUtils;
 import com.bsb.hike.timeline.TimelineUtils;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StoryItem;
@@ -156,6 +157,12 @@ public class StoriesDataManager {
     }
 
     public void updateCameraShyStories(WeakReference<StoriesDataListener> argListenerRef) {
+        if(!TimelineServerConfigUtils.isCameraShyEnabled())
+        {
+            cameraShyList = null;
+            return;
+        }
+
         // Get camera shy
         cameraShyList = HikeConversationsDatabase.getInstance().getAllStories(StoryItem.CATEGORY_DEFAULT);
         removeSimilarElements(recentsList, cameraShyList);
