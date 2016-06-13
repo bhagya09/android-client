@@ -722,6 +722,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		initMessageChannel();
 		shouldKeyboardPopupShow=HikeMessengerApp.keyboardApproach(activity);
 		keyboardOffBoarding = new KeyboardOffBoarding();
+		QuickStickerSuggestionController.getInstance().setCurrentChatMsisdn(msisdn);
 	}
 
 

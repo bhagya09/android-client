@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.support.annotation.IntDef;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.TextUtils;
 import android.util.SparseArray;
 import android.view.View;
 
@@ -19,6 +20,7 @@ import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
 import com.bsb.hike.modules.quickstickersuggestions.model.QuickSuggestionStickerCategory;
 import com.bsb.hike.modules.quickstickersuggestions.tasks.FetchQuickStickerSuggestionTask;
 import com.bsb.hike.modules.quickstickersuggestions.tasks.InsertQuickSuggestionTask;
+import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.StickerManager;
 
@@ -79,6 +81,8 @@ public class QuickStickerSuggestionController
     public static final int NETWORK_ERROR = 2;
 
     private boolean qsLoaded;
+
+    private String msisdn;
 
     @IntDef({EMPTY_STATE_ERROR, NETWORK_ERROR})
     @Retention(RetentionPolicy.SOURCE)
@@ -151,13 +155,14 @@ public class QuickStickerSuggestionController
 
     public boolean isStickerClickAllowed(boolean isSent)
     {
-        return isSent ? showQuickStickerSuggestionOnStickerSent : showQuickStickerSuggestionOnStickerReceive;
+        return !isConnectedToHikeDirect() && (isSent ? showQuickStickerSuggestionOnStickerSent : showQuickStickerSuggestionOnStickerReceive);
     }
 
     public void releaseResources()
     {
         completeFtueSession();
         currentQsConvMessage = null;
+        msisdn = null;
     }
 
     public void loadQuickStickerSuggestions(QuickSuggestionStickerCategory quickSuggestionCategory)
@@ -419,5 +424,21 @@ public class QuickStickerSuggestionController
     public ConvMessage getCurrentQSConvMessage()
     {
         return currentQsConvMessage;
+    }
+
+    public void setCurrentChatMsisdn(String msisdn)
+    {
+        this.msisdn = msisdn;
+    }
+
+    public boolean isConnectedToHikeDirect()
+    {
+        String hikeDirectMsisdn = OfflineController.getInstance().getConnectedDevice();
+        if(TextUtils.isEmpty(hikeDirectMsisdn) || TextUtils.isEmpty(msisdn))
+        {
+            return false;
+        }
+
+        return hikeDirectMsisdn.equalsIgnoreCase(msisdn);
     }
 }
