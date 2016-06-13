@@ -9,6 +9,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.timeline.TimelineServerConfigUtils;
 import com.bsb.hike.timeline.TimelineUtils;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StoryItem;
@@ -133,7 +134,7 @@ public class StoriesDataManager {
         recentsList = HikeConversationsDatabase.getInstance().getAllStories(StoryItem.CATEGORY_RECENT);
         if (!Utils.isEmpty(recentsList)) {
             // Make a header
-            StoryItem recentsHeader = new StoryItem(StoryItem.TYPE_HEADER, mContext.getString(R.string.story_category_recent));
+            StoryItem recentsHeader = new StoryItem(StoryItem.TYPE_HEADER, TimelineServerConfigUtils.getStoryTitleRecent());
             recentsHeader.setSubText(String.valueOf(recentsList.size()));
             recentsList.add(0, recentsHeader);
 
@@ -147,7 +148,7 @@ public class StoriesDataManager {
         removeSimilarElements(recentsList, allPhotosList);
         if (!Utils.isEmpty(allPhotosList)) {
             // Make a header
-            StoryItem allPhotosHeader = new StoryItem(StoryItem.TYPE_HEADER, mContext.getString(R.string.story_category_allphotos));
+            StoryItem allPhotosHeader = new StoryItem(StoryItem.TYPE_HEADER, TimelineServerConfigUtils.getStoryTitleAll());
             allPhotosHeader.setSubText(String.valueOf(allPhotosList.size()));
             allPhotosList.add(0, allPhotosHeader);
 
@@ -156,6 +157,12 @@ public class StoriesDataManager {
     }
 
     public void updateCameraShyStories(WeakReference<StoriesDataListener> argListenerRef) {
+        if(!TimelineServerConfigUtils.isCameraShyEnabled())
+        {
+            cameraShyList = null;
+            return;
+        }
+
         // Get camera shy
         cameraShyList = HikeConversationsDatabase.getInstance().getAllStories(StoryItem.CATEGORY_DEFAULT);
         removeSimilarElements(recentsList, cameraShyList);
@@ -164,7 +171,7 @@ public class StoriesDataManager {
             Collections.sort(cameraShyList, cameraShyFriendsComparator);
 
             // Make a header
-            StoryItem defaultHeader = new StoryItem(StoryItem.TYPE_HEADER, mContext.getString(R.string.story_category_default));
+            StoryItem defaultHeader = new StoryItem(StoryItem.TYPE_HEADER, TimelineServerConfigUtils.getStoryTitleShy());
             defaultHeader.setSubText(String.valueOf(cameraShyList.size()));
             cameraShyList.add(0, defaultHeader);
 
@@ -210,42 +217,56 @@ public class StoriesDataManager {
         HikeHandlerUtil.getInstance().postAtFront(new Runnable() {
             @Override
             public void run() {
+                List<String> msisdnSelection = new ArrayList<String>();
+                msisdnSelection.add(friendMsisdn);
+
+                // get both recent and all photos for friendMsisdn
+                List<StoryItem<StatusMessage, ContactInfo>> recentStories = HikeConversationsDatabase.getInstance().getStories(StoryItem.CATEGORY_RECENT, msisdnSelection);
+                List<StoryItem<StatusMessage, ContactInfo>> allStories = HikeConversationsDatabase.getInstance().getStories(StoryItem.CATEGORY_ALL, msisdnSelection);
+
+                StoryItem<StatusMessage, ContactInfo> friendStory = null;
+
+                if (!Utils.isEmpty(recentStories)) {
+                    friendStory = recentStories.get(0);
+                }
+
+                if (!Utils.isEmpty(allStories)) {
+                    if (friendStory == null) {
+                        friendStory = allStories.get(0);
+                    } else {
+                        List<StatusMessage> recentStatusMessages = friendStory.getDataObjects();
+                        long earliestUnreadSUID = recentStatusMessages.get(recentStatusMessages.size() - 1).getId();
+                        List<StatusMessage> allPhotosStatusMessages = allStories.get(0).getDataObjects();
+                        for (StatusMessage su : allPhotosStatusMessages) {
+                            if(su.getId() > earliestUnreadSUID)
+                            {
+                                recentStatusMessages.add(su);
+                            }
+                        }
+                    }
+                }
+
+                List<StoryItem> storyItemList = new ArrayList<>();
+                if (friendStory != null) {
+                    Collections.sort(friendStory.getDataObjects(), statusMessageIDComparator); // Oldest first
+                    storyItemList.add(friendStory);
+                }
+
 
                 Object weakRefListener = argListenerRef.get();
                 if (weakRefListener == null) {
                     return;
                 }
-
                 StoriesDataListener storyListener = (StoriesDataListener) weakRefListener;
-
-                updateRecentStories(null);
-                updateAllPhotosStories(null);
-
-                StoryItem friendStory = null;
-
-                for (StoryItem<StatusMessage, ContactInfo> recentStory : recentsList) {
-                    ContactInfo cInfo = recentStory.getTypeInfo();
-                    if (cInfo != null && friendMsisdn.equals(cInfo.getMsisdn())) {
-                        friendStory = recentStory;
-                    }
-                }
-
-                if (friendStory == null) {
-                    for (StoryItem<StatusMessage, ContactInfo> allPhotoStory : allPhotosList) {
-                        ContactInfo cInfo = allPhotoStory.getTypeInfo();
-                        if (cInfo != null && friendMsisdn.equals(cInfo.getMsisdn())) {
-                            friendStory = allPhotoStory;
-                        }
-                    }
-                }
-
-                List<StoryItem> storyItemList = new ArrayList<StoryItem>();
-                if (friendStory != null) {
-                    storyItemList.add(friendStory);
-                }
-
                 storyListener.onDataUpdated(storyItemList);
             }
         });
     }
+
+    Comparator statusMessageIDComparator = new Comparator<StatusMessage>() {
+        @Override
+        public int compare(StatusMessage t1, StatusMessage t2) {
+            return t1.getId() > t2.getId() ? 1 : -1;
+        }
+    };
 }
