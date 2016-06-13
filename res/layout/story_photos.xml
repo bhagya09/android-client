@@ -131,7 +131,7 @@
                 android:background="@null"
                 android:drawableLeft="@drawable/ic_tab_chat"
                 android:gravity="center_vertical"
-                android:text="Chat"
+                android:text="@string/story_photos_chat_btn"
                 android:textColor="#B3FFFFFF"
                 android:textSize="14sp"
                 android:textStyle="normal" />
