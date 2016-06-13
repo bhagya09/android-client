@@ -15,7 +15,7 @@
         android:layout_marginRight="20dp"
         android:background="@color/list_divider" />
 
-    <TextView
+    <com.bsb.hike.view.CustomFontTextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
