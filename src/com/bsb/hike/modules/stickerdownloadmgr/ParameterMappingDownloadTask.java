@@ -122,28 +122,38 @@ public class ParameterMappingDownloadTask implements IHikeHTTPTask, IHikeHttpTas
 	public void doOnSuccess(Object result)
 	{
 		JSONObject paramMappingJSON = (JSONObject) result;
+		parseParameterMapping(paramMappingJSON);
+	}
 
-		Iterator<String> keys = paramMappingJSON.keys();
+	private void parseParameterMapping(JSONObject paramMappingJSON)
+	{
+		Iterator<String> urls = paramMappingJSON.keys();
 		List<Pair<String, Pair<String, String>>> parameterMapping = new ArrayList<>(paramMappingJSON.length());
-
-		while (keys.hasNext()) {
+		while (urls.hasNext()) {
 			try {
-				String url = keys.next();
-				JSONObject mappingJSON = paramMappingJSON.getJSONObject(url);
-				String method = mappingJSON.getString("m");
-				JSONArray parameterArray = mappingJSON.getJSONArray("lis");
-
-				if(parameterArray == null)
-				{
-					continue;
-				}
-				parameterMapping.add(new Pair<>(url, new Pair<>(method, parameterArray.toString())));
+				String url = urls.next();
+				JSONObject urlJSON = paramMappingJSON.getJSONObject(url);
+				parseUrlJSON(parameterMapping, url, urlJSON);
 			} catch (JSONException e) {
 				Logger.e(TAG, "exception in parsing response ", e);
 			}
 		}
 		HikeConversationsDatabase.getInstance().insertParameterMappingInDb(parameterMapping);
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LAST_PARAMETER_MAPPING_FETCH_TIME, System.currentTimeMillis());
+	}
+
+	private void parseUrlJSON(List<Pair<String, Pair<String, String>>> parameterMapping, String url, JSONObject urlJSON) throws JSONException
+	{
+		Iterator<String> methods = urlJSON.keys();
+		while (methods.hasNext()) {
+			String method = methods.next();
+			JSONArray parameterArray = urlJSON.getJSONArray(method);
+
+			if (parameterArray == null) {
+				continue;
+			}
+			parameterMapping.add(new Pair<>(url, new Pair<>(method, parameterArray.toString())));
+		}
 	}
 
 	@Override
