@@ -638,7 +638,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 				break;
 
 			case CREATE_ONE_TO_N:
-				convertView = LayoutInflater.from(context).inflate(R.layout.new_group_broadcast_item, parent, false);
+				convertView = LayoutInflater.from(context).inflate(R.layout.basic_icon_list_item, parent, false);
 				holder = new ViewHolder();
 				holder.userImage = (ImageView) convertView.findViewById(R.id.icon);
 				holder.name = (TextView) convertView.findViewById(R.id.text);
