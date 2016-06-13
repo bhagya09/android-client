@@ -306,7 +306,7 @@ public class StickerManager
 
 	public static final int INDEX_INFO_BOUND = 2;
 
-	public static final int SHOP_PAGE_SIZE = 100;
+	public static final int DEFAULT_SHOP_PAGE_SIZE = 100;
 
 	public static final String STICKER_TYPE = "s_t";
 
@@ -1944,6 +1944,11 @@ public class StickerManager
 		{
 			return false;
 		}
+	}
+
+	public int getShopPageSize()
+	{
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOP_PAGE_SIZE, StickerManager.DEFAULT_SHOP_PAGE_SIZE);
 	}
 
 	public String getCategoryOtherAssetLoaderKey(String categoryId, int type)

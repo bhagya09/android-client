@@ -16,6 +16,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
@@ -157,7 +158,7 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 		}
 		else if (HikePubSub.STICKER_SHOP_DOWNLOAD_SUCCESS.equals(type))
 		{
-			StickerManager.getInstance().executeFetchShopPackTask(currentCategoriesCount + StickerManager.SHOP_PAGE_SIZE);
+			StickerManager.getInstance().executeFetchShopPackTask(currentCategoriesCount + StickerManager.getInstance().getShopPageSize());
 		}
 		else if (HikePubSub.STICKER_SHOP_DOWNLOAD_FAILURE.equals(type))
 		{
@@ -239,7 +240,7 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 					loadingEmptyState.setVisibility(View.GONE);
 					loadingFailedEmptyState.setVisibility(View.GONE);
 					searchFailedState.setVisibility(View.GONE);
-					if ((count > currentCategoriesCount) && ((currentCategoriesCount - maxIndexShown) < StickerManager.SHOP_PAGE_SIZE))
+					if ((count > currentCategoriesCount) && ((currentCategoriesCount - maxIndexShown) < StickerManager.getInstance().getShopPageSize()))
 					{
 						reloadAdapter();
 					}
@@ -255,7 +256,7 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 
 	private void initiateFetchCategoryRankTask(int count)
 	{
-		if (((currentCategoriesCount) > (count - (3 * StickerManager.SHOP_PAGE_SIZE)))
+		if (((currentCategoriesCount) > (count - (3 * StickerManager.getInstance().getShopPageSize())))
 				&& !HikeSharedPreferenceUtil.getInstance().getData(StickerManager.STICKER_SHOP_RANK_FULLY_FETCHED, false))
 		{
 			StickerManager.getInstance().initiateFetchCategoryRanksAndDataTask(count, true);

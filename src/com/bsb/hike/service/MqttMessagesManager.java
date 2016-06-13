@@ -3318,6 +3318,11 @@ public class MqttMessagesManager
 		{
 			QuickStickerSuggestionController.getInstance().toggleQuickSuggestionOnSent(data.optBoolean(HikeConstants.SHOW_QUICK_STICKER_SUGGESTION_ON_STICKER_SENT));
 		}
+		if(data.has(HikeConstants.SHOP_PAGE_SIZE))
+		{
+			int shopPageSize = data.optInt(HikeConstants.SHOP_PAGE_SIZE, StickerManager.DEFAULT_SHOP_PAGE_SIZE);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOP_PAGE_SIZE, shopPageSize);
+		}
 
 		if(data.has(HikeConstants.QUICK_SUGGESTED_STICKERS_TTL))
 		{
