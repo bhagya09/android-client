@@ -61,7 +61,7 @@
     <color name="unread_message">#0090ec</color>
     <color name="conversation_pressed">#7fececec</color>
     <color name="list_divider">#e6e6e6</color>
-    <color name="home_bg">#fffffc</color>
+    <color name="home_bg">#ffffff</color>
     <color name="update_no_btn">#73716d</color>
     <color name="chat_thread_default_bg">#e8e3d8</color>
     <color name="actionbar_text">#faf8f2</color>

@@ -1003,7 +1003,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 			}
 
-			Intent intent = IntentFactory.getComposeChatIntentWithBotDiscovery(getActivity());
+			Intent intent = IntentFactory.getComposeChatIntent(getActivity());
 			HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_USER_JOINED, new Integer(0));
 			startActivity(intent);
 		}

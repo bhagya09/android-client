@@ -64,12 +64,6 @@
             android:layout="@layout/icon_preference"
             android:summary="@string/blocked_list_hinttext"
             android:title="@string/blocked_list" />
-        <!-- icon="@drawable/ic_blocked_list" -->
-        <com.bsb.hike.view.IconPreference
-            android:key="favoriteList"
-            android:layout="@layout/icon_preference"
-            android:summary="@string/fav_list_summary"
-            android:title="@string/privacy_favorites_key" />
     </PreferenceCategory>
     
 </PreferenceScreen>

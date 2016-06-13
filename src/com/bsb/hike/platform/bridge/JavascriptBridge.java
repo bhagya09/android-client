@@ -578,7 +578,6 @@ public abstract class JavascriptBridge
         if (activity != null) {
 
         	Intent intent = new Intent(activity, ComposeChatActivity.class);
-            intent.putExtra(HikeConstants.Extras.EDIT, true);
             intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, ComposeChatActivity.PAYMENT_MODE);
             intent.putExtra(HikeConstants.Extras.IS_CONTACT_CHOOSER_FILTER_INTENT,true);
             intent.putExtra(HikeConstants.Extras.FUNCTION_ID,id);

@@ -12,6 +12,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.ui.fragments.AddFriendsFragment;
 import com.bsb.hike.ui.fragments.AddedMeFragment;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
+import com.bsb.hike.utils.IntentFactory;
 
 /**
  * Created by gauravmittal on 19/05/16.
@@ -81,4 +82,9 @@ public class FriendRequestActivity extends HikeAppStateBaseFragmentActivity {
         super.onResume();
     }
 
+    @Override
+    public void onBackPressed() {
+        IntentFactory.openHomeActivity(FriendRequestActivity.this, true);
+        super.onBackPressed();
+    }
 }
