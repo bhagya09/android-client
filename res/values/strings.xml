@@ -1716,6 +1716,7 @@
     <string name="qs_empty_page_text_sub_text_part_one">"Tap on"</string>
     <string name="qs_empty_page_text_sub_text_part_two">"to send a sticker"</string>
     <string name="space_successfully_deleted">Space Deleted successfully</string>
+    <string name="added_me_tab_empty_string">All your new friends will appear here</string>
     <string name="story_photos_chat_btn">Chat</string>
 
 </resources>
