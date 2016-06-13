@@ -97,6 +97,7 @@ import com.bsb.hike.bots.CustomKeyboardTextPickerListener;
 import com.bsb.hike.chatthemes.ChatThemeManager;
 import com.bsb.hike.chatthemes.CustomBGRecyclingImageView;
 import com.bsb.hike.chatthemes.HikeChatThemeConstants;
+import com.bsb.hike.chatthemes.model.ChatThemeToken;
 import com.bsb.hike.chatthread.ChatThreadActivity.ChatThreadOpenSources;
 import com.bsb.hike.chatthread.HikeActionMode.ActionModeListener;
 import com.bsb.hike.chatthread.KeyboardOffBoarding.KeyboardShutdownListener;
@@ -137,6 +138,7 @@ import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.GalleryItem;
+import com.bsb.hike.models.HikeChatTheme;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.MovingList;
@@ -1936,7 +1938,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		setChatBackground(REMOVE_CHAT_BACKGROUND);
 		Drawable drawable = Utils.getChatTheme(themeId, activity);
 
-		setThemeBackground(backgroundImage, drawable, ChatThemeManager.getInstance().getTheme(themeId).isTiled(), ChatThemeManager.getInstance().getTheme(themeId).isCustomTheme());
+		HikeChatTheme theme = ChatThemeManager.getInstance().getTheme(themeId, msisdn);
+		setThemeBackground(backgroundImage, drawable, theme.isTiled(), theme.isCustomTheme());
 	}
 
 	private void setThemeBackground(CustomBGRecyclingImageView backgroundImage, Drawable drawable, boolean isTiled, boolean isCustom) {
@@ -4222,13 +4225,9 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				uiHandler.sendEmptyMessage(FILE_OPENED);
 				break;
 			case HikePubSub.CHATTHEME_DOWNLOAD_SUCCESS:
-				if(object != null) {
-					String themeId = (String) object;
-					sendUIMessage(CHAT_THEME, themeId);
-				}else{
-					//if object is null an asset for this theme is downloaded
-					sendUIMessage(CHAT_THEME, ChatThemeManager.getInstance().currentDownloadingAssetsThemeId);
-					ChatThemeManager.getInstance().currentDownloadingAssetsThemeId = null;
+				ChatThemeToken token = (ChatThemeToken) object;
+				if(msisdn.equalsIgnoreCase(token.getMsisdn())) {
+					sendUIMessage(CHAT_THEME, token.getThemeId());
 				}
 				break;
 			case HikePubSub.CHATTHEME_CUSTOM_IMAGE_UPLOAD_SUCCESS:

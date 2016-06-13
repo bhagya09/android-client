@@ -8,6 +8,7 @@ import android.util.Pair;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.chatthemes.model.ChatThemeToken;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -81,7 +82,8 @@ public class UploadCustomChatThemeBackgroundTask implements IHikeHTTPTask {
                     }
 
                     JSONObject meta = response.getJSONObject(HikeChatThemeConstants.JSON_SIGNAL_THEME_META);
-                    String themeId = ChatThemeManager.getInstance().processCustomThemeSignal(meta, false);
+                    ChatThemeToken token = new ChatThemeToken(null, mConversation.getMsisdn(), true);
+                    String themeId = ChatThemeManager.getInstance().processCustomThemeSignal(meta, token, false);
                     if(themeId != null && mConversation != null) {
                         Pair<Conversation, String> pair = new Pair<>(mConversation, themeId);
                         HikeMessengerApp.getPubSub().publish(HikePubSub.CHATTHEME_CUSTOM_IMAGE_UPLOAD_SUCCESS, pair);

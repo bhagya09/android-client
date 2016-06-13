@@ -4,6 +4,7 @@ import android.support.annotation.Nullable;
 import android.os.Bundle;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.chatthemes.model.ChatThemeToken;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHTTPTask;
@@ -22,23 +23,14 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.downloadChatThe
 
 public class DownloadThemeContentTask implements IHikeHTTPTask, IHikeHttpTaskResult {
 
-    private String[] mThemeIds = null;
-
-    private String mThemeId = null;
-
-    private boolean isCustom = false;
-
     private RequestToken token;
+
+    private ChatThemeToken mToken = null;
 
     private final String TAG = "DownloadThemeContentTask";
 
-    public DownloadThemeContentTask(String[] themeIds) {
-        this.mThemeIds = themeIds;
-    }
-
-    public DownloadThemeContentTask(String themeId, boolean isCustom) {
-        this.mThemeId = themeId;
-        this.isCustom = isCustom;
+    public DownloadThemeContentTask(ChatThemeToken token) {
+        this.mToken = token;
     }
 
     @Override
@@ -96,7 +88,8 @@ public class DownloadThemeContentTask implements IHikeHTTPTask, IHikeHttpTaskRes
                         doOnFailure(null);
                         return;
                     }
-                    doOnSuccess(parseAssetContent(response));
+                    parseAssetContent(response);
+                    doOnSuccess(null);
                 } catch (Exception e) {
                     e.printStackTrace();
                     doOnFailure(new HttpException(HttpException.REASON_CODE_UNEXPECTED_ERROR, e));
@@ -115,13 +108,7 @@ public class DownloadThemeContentTask implements IHikeHTTPTask, IHikeHttpTaskRes
         try {
             JSONObject themeIds = new JSONObject();
             JSONArray ids = new JSONArray();
-            if (mThemeId != null) {
-                ids.put(0, mThemeId);
-            } else {
-                for (int i = 0; i < mThemeIds.length; i++) {
-                    ids.put(i, mThemeIds[i]);
-                }
-            }
+            ids.put(0, mToken.getThemeId());
             themeIds.put(HikeChatThemeConstants.JSON_DWNLD_THEME_ID, ids);
             return themeIds;
         } catch (JSONException e) {
@@ -130,11 +117,11 @@ public class DownloadThemeContentTask implements IHikeHTTPTask, IHikeHttpTaskRes
         return null;
     }
 
-    private String[] parseAssetContent(JSONObject resp) {
+    private void parseAssetContent(JSONObject resp) {
         try {
             JSONArray data = resp.getJSONArray(HikeConstants.DATA_2);
-            if(isCustom){
-                ChatThemeManager.getInstance().processCustomThemeSignal(data.getJSONObject(0), true);
+            if(mToken.isCustom()){
+                ChatThemeManager.getInstance().processCustomThemeSignal(data.getJSONObject(0), mToken, true);
             }else {
                 //TODO CHATTHEME, Enable if it OTA Themes
                 //ChatThemeManager.getInstance().processNewThemeSignal(data, false);
@@ -143,7 +130,5 @@ public class DownloadThemeContentTask implements IHikeHTTPTask, IHikeHttpTaskRes
             doOnFailure(new HttpException(HttpException.REASON_CODE_UNEXPECTED_ERROR, e));
             e.printStackTrace();
         }
-
-        return mThemeIds;
     }
 }
