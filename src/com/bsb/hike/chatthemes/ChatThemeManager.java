@@ -208,7 +208,7 @@ public class ChatThemeManager {
 
     public void downloadAssetsForTheme(ChatThemeToken token) {
         String[] assets = getMissingAssetsForTheme(token.getThemeId());
-        if ((assets != null) && (assets.length > 0)) {
+        if (!Utils.isEmpty(assets)) {
             token.setAssets(assets);
             mAssetHelper.assetDownloadRequest(token);
         }

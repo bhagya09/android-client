@@ -108,7 +108,7 @@ public class DownloadThemeContentTask implements IHikeHTTPTask, IHikeHttpTaskRes
         try {
             JSONObject themeIds = new JSONObject();
             JSONArray ids = new JSONArray();
-            ids.put(0, mToken.getThemeId());
+            ids.put(mToken.getThemeId());
             themeIds.put(HikeChatThemeConstants.JSON_DWNLD_THEME_ID, ids);
             return themeIds;
         } catch (JSONException e) {
@@ -121,7 +121,9 @@ public class DownloadThemeContentTask implements IHikeHTTPTask, IHikeHttpTaskRes
         try {
             JSONArray data = resp.getJSONArray(HikeConstants.DATA_2);
             if(mToken.isCustom()){
-                ChatThemeManager.getInstance().processCustomThemeSignal(data.getJSONObject(0), mToken, true);
+                if(!Utils.isEmpty(data)) {
+                    ChatThemeManager.getInstance().processCustomThemeSignal(data.getJSONObject(0), mToken, true);
+                }
             }else {
                 //TODO CHATTHEME, Enable if it OTA Themes
                 //ChatThemeManager.getInstance().processNewThemeSignal(data, false);
