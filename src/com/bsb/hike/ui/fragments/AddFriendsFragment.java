@@ -63,6 +63,7 @@ public class AddFriendsFragment extends ListFragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        listView = getListView();
         setListAdapter(mAdapter);
         listView.setOnItemClickListener(onItemClickListener);
     }

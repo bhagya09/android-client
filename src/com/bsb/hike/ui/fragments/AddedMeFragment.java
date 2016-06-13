@@ -75,7 +75,7 @@ public class AddedMeFragment extends ListFragment implements HikePubSub.Listener
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setHasOptionsMenu(true);
-        View parent = inflater.inflate(R.layout.fragment_friend_request, null);
+        View parent = inflater.inflate(R.layout.fragment_added_me, null);
         mAdapter = new FriendRequestAdapter(setupAddedMeContactList(), getActivity());
         markFriendsRead();
         return parent;
