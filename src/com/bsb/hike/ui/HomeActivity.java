@@ -360,8 +360,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		moveToComposeChatScreen();
 
 		BirthdayUtils.fetchAndUpdateBdayList(false, null);
-
-		showTimelineUpdatesIndicator();
     }
 	
 	@Override
@@ -401,21 +399,34 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		//conversationFragment.showRecentlyJoinedDot();
 	}
 
-	private void showTimelineUpdatesIndicator() {
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FRIENDS_TAB_NOTIF_DOT, false)) // Some pending Notif ?
-		{
-			if (suFragCounterListener != null) {
-				suFragCounterListener.onBadgeCounterUpdated(1);
-			}
-		} else {
-			hideTimelineUpdatesIndicator();
-		}
-	}
+	private void showTimelineUpdatesIndicator()
+	{
+		// Defensive check for case where newConversationIndicator was coming as null. Possible due to the various if..else conditions for newConversationIndicator initialisation.
+//		if (timelineUpdatesIndicator == null)
+//		{
+//			return;
+//		}
+//
+//		int count = 0;
+//		count = Utils.getNotificationCount(accountPrefs, true);
+//		if (count > 9)
+//		{
+//			timelineUpdatesIndicator.setVisibility(View.VISIBLE);
+//			timelineUpdatesIndicator.setText("9+");
+//			timelineUpdatesIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
+//		}
+//		else if (count > 0)
+//		{
+//			timelineUpdatesIndicator.setVisibility(View.VISIBLE);
+//			timelineUpdatesIndicator.setText(String.valueOf(count));
+//			timelineUpdatesIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
+//		}
+//		else
+//		{
+//			timelineUpdatesIndicator.setVisibility(View.GONE);
+//		}
+//		HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_TIMELINE_UPDATE_CHANGED, null);
 
-	private void hideTimelineUpdatesIndicator() {
-		if (suFragCounterListener != null) {
-			suFragCounterListener.onBadgeCounterUpdated(0);
-		}
 	}
 
 	private void showOverFlowIndicator(int count)
@@ -629,7 +640,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 	}
 
-	CustomTabsBar.CustomTabBadgeCounterListener suFragCounterListener = new CustomTabsBar.CustomTabBadgeCounterListener() {
+	CustomTabsBar.CustomTabBadgeCounterListener storyFragCounterListener = new CustomTabsBar.CustomTabBadgeCounterListener() {
 		@Override
 		public void onBadgeCounterUpdated(int newCount) {
 			if (null != tabsBar)
@@ -655,11 +666,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		@Override
 		public void onTabSelected(CustomTabsBar.Tab tab) {
 			if (mPager != null) {
-
-				if (tab.getId() == FRIENDS_FRAGMENT_POSITION) {
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FRIENDS_TAB_NOTIF_DOT, false);
-					hideTimelineUpdatesIndicator();
-				}
 				mPager.setCurrentItem(tab.getId());
 			}
 		}
@@ -715,6 +721,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	private Fragment getStoryFragment() {
 		if (storyFragment == null) {
 			storyFragment = StoryFragment.newInstance(null);
+			storyFragment.setCustomTabBadgeCounterListener(storyFragCounterListener);
 		}
 		return storyFragment;
 	}
