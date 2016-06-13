@@ -1,7 +1,7 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
-import android.support.annotation.Nullable;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.models.Sticker;
@@ -14,8 +14,6 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.quickstickersuggestions.QuickStickerSuggestionController;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerRequestType;
-import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -84,10 +82,6 @@ public class MultiStickerQuickSuggestionDownloadTask implements IHikeHTTPTask, I
 		{
 			JSONObject json = new JSONObject();
 			json.put("stickers", array);
-			json.put(HikeConstants.LANG, new JSONArray(StickerLanguagesManager.getInstance().getAccumulatedSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE, StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE)));
-			json.put(HikeConstants.GENDER, HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.GENDER, 0));
-			json.put(HikeConstants.SET_ID, QuickStickerSuggestionController.getInstance().getSetIdForQuickSuggestions());
-
 			json = Utils.getParameterPostBodyForHttpApi(HttpRequestConstants.BASE_QUICK_SUGGESTIONS, json);
 			RequestToken requestToken = quickSuggestionsForMultiStickerRequest(getRequestId(), json, getResponseListener());
 
