@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:alpha=".91"
+              android:background="#3d475b"
+              android:orientation="vertical"
+              android:paddingBottom="5dp">
+
+    <LinearLayout
+        android:id="@+id/name_cross_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:orientation="horizontal">
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/unknown_user_info_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="16dp"
+            android:textColor="@color/white"
+            android:textSize="18sp"/>
+
+        <LinearLayout
+            android:id="@+id/unknown_user_info_close"
+            android:layout_width="fill_parent"
+            android:layout_height="24dp"
+            android:layout_marginRight="18dp"
+            android:layout_marginTop="18dp"
+            android:gravity="right"
+            android:padding="6dp">
+
+            <com.bsb.hike.ui.utils.RecyclingImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/connectionscreencross"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <com.bsb.hike.view.CustomFontTextView
+        android:id="@+id/unknown_user_info_location"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/unknown_user_info_name"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="4dp"
+        android:textColor="#ced0d5"
+        android:visibility="gone"
+        android:textSize="12sp"/>
+
+    <com.bsb.hike.view.CustomFontTextView
+        android:id="@+id/unknown_user_spam_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/unknown_user_info_location"
+        android:layout_marginBottom="12dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="12dp"
+        android:textSize="13sp"
+        android:visibility="gone"/>
+    >
+</LinearLayout>
+
+
+

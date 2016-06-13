@@ -40,6 +40,7 @@ import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -250,6 +251,8 @@ import java.util.Map;
 	private CallerContentModel callerContentModel;
 
 	protected View unknownContactInfoView;
+
+	protected LinearLayout unknownContactInfoSpinnerLayout;
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
@@ -621,23 +624,24 @@ import java.util.Map;
 			return;
 		}
 
+		boolean isUnknownUserInfoViewEnabled = Utils.isUnknownUserInfoViewEnabled();
 		if (unknownContactInfoView == null)
 		{
 			unknownContactInfoView = LayoutInflater.from(activity.getApplicationContext()).inflate(R.layout.block_add_unknown_contact_mute_bot, null);
 			CustomFontButton addButton = (CustomFontButton) unknownContactInfoView.findViewById(R.id.add_unknown_contact);
-			unknownContactInfoView.findViewById(R.id.unknown_user_info_view).setVisibility(View.VISIBLE);
 			addButton.setOnClickListener(this);
+			unknownContactInfoSpinnerLayout =  (LinearLayout)unknownContactInfoView.findViewById(R.id.unknown_user_info_spinner);
+			if(!isUnknownUserInfoViewEnabled)
+			{
+				unknownContactInfoSpinnerLayout.setVisibility(View.GONE);
+			}
 			unknownContactInfoView.findViewById(R.id.block_unknown_contact).setOnClickListener(this);
 			checkAndAddListViewHeader(unknownContactInfoView);
 		}
 
-		if(Utils.isUnknownUserInfoViewEnabled())
+		if(isUnknownUserInfoViewEnabled)
 		{
 			showUnknownUserInfoView();
-		}
-		else
-		{
-			unknownContactInfoView.findViewById(R.id.unknown_user_info_view).setVisibility(View.GONE);
 		}
 	}
 
@@ -656,7 +660,7 @@ import java.util.Map;
 			else if (!((OneToOneConversationMetadata) (mConversation.getMetadata())).isUserInfoViewToBeShown())
 			{
 				Logger.d("c_spam", "chat thread opened for unknown contact, found cross applied so not going ahead");
-				unknownContactInfoView.findViewById(R.id.unknown_user_info_view).setVisibility(View.GONE);
+				unknownContactInfoSpinnerLayout.setVisibility(View.GONE);
 				return;
 			}
 
@@ -3000,7 +3004,7 @@ import java.util.Map;
 				((OneToOneConversationMetadata) mConversation.getMetadata()).setUserInfoViewToBeShown(false);
 				HikeConversationsDatabase.getInstance().updateConversationMetadata(mConversation.getMsisdn(), mConversation.getMetadata());
 			}
-			unknownContactInfoView.findViewById(R.id.unknown_user_info_view).setVisibility(View.GONE);
+			unknownContactInfoView.findViewById(R.id.unknown_user_info_view_stubid).setVisibility(View.GONE);
 			HAManager.getInstance().recordCallerChatSpamAnalytics(AnalyticsConstants.CHAT_THREAD_CROSS, AnalyticsConstants.CROSS, null, null);
 		}
 		catch (JSONException ex)
@@ -4002,7 +4006,7 @@ import java.util.Map;
 			if (object == null)
 			{
 				Logger.d("c_spam", "inside updateUnknownUserInfoViews, object is "+ object + " so not showing view");
-				unknownContactInfoView.findViewById(R.id.unknown_user_info_view).setVisibility(View.GONE);
+				unknownContactInfoSpinnerLayout.setVisibility(View.GONE);
 				return;
 			}
 			else
@@ -4019,23 +4023,30 @@ import java.util.Map;
 				if (!ChatHeadUtils.isFullNameValid(callerContentModel.getFullName()))
 				{
 					Logger.d("c_spam", "As full name( "+callerContentModel.getFullName()+" ) in callerContentModel is not valid, so not showing view " + callerContentModel);
-					unknownContactInfoView.findViewById(R.id.unknown_user_info_view).setVisibility(View.GONE);
+					unknownContactInfoSpinnerLayout.setVisibility(View.GONE);
 					return;
 				}
 
 				// set UI (Name, Location, Spam)
+				unknownContactInfoSpinnerLayout.setVisibility(View.GONE);
 				unknownContactInfoView.findViewById(R.id.unknown_user_info_view).setVisibility(View.VISIBLE);
-				unknownContactInfoView.findViewById(R.id.unknown_user_info_spinner).setVisibility(View.GONE);
-				unknownContactInfoView.findViewById(R.id.unknown_user_info_close).setOnClickListener(this);
-				((CustomFontTextView) unknownContactInfoView.findViewById(R.id.unknown_user_info_name)).setText(callerContentModel.getFullName());
+				TextView unknownContactName = (CustomFontTextView)unknownContactInfoView.findViewById(R.id.unknown_user_info_name);
+				TextView unknownContactLocation = (CustomFontTextView)unknownContactInfoView.findViewById(R.id.unknown_user_info_location);
+				TextView unknownContactSpamInfo = (CustomFontTextView)unknownContactInfoView.findViewById(R.id.unknown_user_spam_info);
+				LinearLayout unknownContactViewClose = (LinearLayout)unknownContactInfoView.findViewById(R.id.unknown_user_info_close);
+				LinearLayout unknownContactNameCrossLayout = (LinearLayout)unknownContactInfoView.findViewById(R.id.name_cross_layout);
+				unknownContactViewClose.setOnClickListener(this);
+				unknownContactNameCrossLayout.setVisibility(View.VISIBLE);
+
+				unknownContactName.setText(callerContentModel.getFullName());
 
 				if (!TextUtils.isEmpty(callerContentModel.getLocation()))
 				{
-					unknownContactInfoView.findViewById(R.id.unknown_user_info_location).setVisibility(View.VISIBLE);
-					((CustomFontTextView) unknownContactInfoView.findViewById(R.id.unknown_user_info_location)).setText(callerContentModel.getLocation());
+					unknownContactLocation.setVisibility(View.VISIBLE);
+					unknownContactLocation.setText(callerContentModel.getLocation());
 				} else
 				{
-					unknownContactInfoView.findViewById(R.id.unknown_user_info_location).setVisibility(View.GONE);
+					unknownContactLocation.setVisibility(View.GONE);
 				}
 
 				if (callerContentModel.getCallerMetadata() != null)
@@ -4044,12 +4055,12 @@ import java.util.Map;
 					Logger.d("c_spam", "spam count inside callercontentmodel is " + callerContentModel.getCallerMetadata().getChatSpamCount() + " and text is " + spamCoutString);
 					if (!TextUtils.isEmpty(spamCoutString) && callerContentModel.getCallerMetadata().getChatSpamCount() > 0)
 					{
-						unknownContactInfoView.findViewById(R.id.unknown_user_spam_info).setVisibility(View.VISIBLE);
-						((CustomFontTextView) unknownContactInfoView.findViewById(R.id.unknown_user_spam_info)).setText(Html.fromHtml(spamCoutString));
+						unknownContactSpamInfo.setVisibility(View.VISIBLE);
+						unknownContactSpamInfo.setText(Html.fromHtml(spamCoutString));
 					}
 					else
 					{
-						unknownContactInfoView.findViewById(R.id.unknown_user_spam_info).setVisibility(View.GONE);
+						unknownContactSpamInfo.setVisibility(View.GONE);
 					}
 				}
 			}
