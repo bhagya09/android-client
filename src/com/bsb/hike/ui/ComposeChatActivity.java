@@ -816,6 +816,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				break;
 			case START_CHAT_MODE:
 				adapter = new ComposeChatAdapter(this, listView, false, false, null, null, friendsListFetchedCallback, true, true, false, showBdaySection);
+				adapter.setCreateGroupBroadcastOption(true);
 				break;
 			case MULTIPLE_FWD:
 				adapter = new ComposeChatAdapter(this, listView, true, true, null, sendingMsisdn, friendsListFetchedCallback, false, false, isShowTimeline(), false);
@@ -976,11 +977,19 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 
 		// jugaad , coz of pinned listview , discussed with team
-		if (ComposeChatAdapter.EXTRA_ID.equals(contactInfo.getId()))
-		{
+		if (ComposeChatAdapter.EXTRA_ID.equals(contactInfo.getId())) {
 			Intent intent = new Intent(this, CreateNewGroupOrBroadcastActivity.class);
 			startActivity(intent);
 			return;
+		} else if (ComposeChatAdapter.HIKE_FEATURES_ID.equals(contactInfo.getId())) {
+			if (ComposeChatAdapter.HIKE_FEATURES_NEW_GROUP_ID.equals(contactInfo.getMsisdn())) {
+				Intent intent = new Intent(this, CreateNewGroupOrBroadcastActivity.class);
+				startActivity(intent);
+				return;
+			} else if (ComposeChatAdapter.HIKE_FEATURES_NEW_BROADCAST_ID.equals(contactInfo.getMsisdn())) {
+				IntentFactory.createBroadcastIntent(ComposeChatActivity.this);
+				return;
+			}
 		}
 		int viewtype;
 		String name;
