@@ -1169,6 +1169,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	private void initializeCTBackground() {
 		if(Utils.isUserOnline(activity)) {
+			ChatThemeManager.getInstance().addTempCustomThemeToMap();
 			if(ChatThemeManager.getInstance().customThemeTempUploadImagePath != null) {
 				FileTransferManager.getInstance(activity).uploadCustomThemeBackgroundImage(ChatThemeManager.getInstance().customThemeTempUploadImagePath, mConversation);
 			}
