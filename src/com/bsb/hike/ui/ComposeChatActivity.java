@@ -975,13 +975,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
             return;
         }
 
-
-		// jugaad , coz of pinned listview , discussed with team
-		if (ComposeChatAdapter.EXTRA_ID.equals(contactInfo.getId())) {
-			Intent intent = new Intent(this, CreateNewGroupOrBroadcastActivity.class);
-			startActivity(intent);
-			return;
-		} else if (ComposeChatAdapter.HIKE_FEATURES_ID.equals(contactInfo.getId())) {
+		if (ComposeChatAdapter.HIKE_FEATURES_ID.equals(contactInfo.getId())) {
 			if (ComposeChatAdapter.HIKE_FEATURES_NEW_GROUP_ID.equals(contactInfo.getMsisdn())) {
 				Intent intent = new Intent(this, CreateNewGroupOrBroadcastActivity.class);
 				startActivity(intent);

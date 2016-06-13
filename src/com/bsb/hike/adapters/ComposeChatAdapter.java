@@ -60,7 +60,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
 	private Map<String, ContactInfo> existingParticipants;
 
-	private boolean showCheckbox, showExtraAtFirst;
+	private boolean showCheckbox;
 
 	private int mIconImageSize;
 
@@ -335,11 +335,6 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 				holder.checkbox.setVisibility(View.GONE);
 			}
 		}
-		else if (viewType == ViewType.EXTRA)
-		{
-			TextView tv = (TextView) convertView.findViewById(R.id.contact);
-			tv.setText(R.string.compose_chat_heading);
-		}
 		else if (viewType == ViewType.BDAY_CONTACT)
 		{
 			holder = (ViewHolder) convertView.getTag();
@@ -580,9 +575,6 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		case SECTION:
 			convertView = LayoutInflater.from(context).inflate(R.layout.friends_group_view, null);
 			break;
-		case EXTRA:
-			convertView = LayoutInflater.from(context).inflate(R.layout.compose_chat_header, null);
-			break;
 		case FRIEND:
 		case FRIEND_REQUEST:
 			convertView = LayoutInflater.from(context).inflate(R.layout.friends_child_view, null);
@@ -767,13 +759,6 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		{
 			completeList.addAll(newContactsList);
 		}
-		if (completeList.size() != 0 && showExtraAtFirst)
-		{
-			// items are > 0
-			ContactInfo header = new ContactInfo(EXTRA_ID, null, null, null);
-			completeList.add(0, header);
-		}
-
 		notifyDataSetChanged();
 		setEmptyView();
 		friendsListFetchedCallback.completeListFetched();
@@ -893,11 +878,6 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		}
 		return contactCount;
 	}
-	
-	public void setShowExtraAtFirst(boolean showExtraAtFirst)
-	{
-		this.showExtraAtFirst = showExtraAtFirst;
-	}
 
 	@Override
 	protected void makeFilteredList(CharSequence constraint, List<List<ContactInfo>> resultList)
@@ -989,7 +969,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 				/*
 				 * Since sms contacts and dividers cannot have custom avatars, we simply skip these cases.
 				 */
-				if (viewType == ViewType.SECTION || viewType == ViewType.EXTRA || !contactInfo.isOnhike())
+				if (viewType == ViewType.SECTION || !contactInfo.isOnhike())
 				{
 					continue;
 				}

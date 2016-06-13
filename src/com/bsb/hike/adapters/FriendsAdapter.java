@@ -69,8 +69,6 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 	public static final int SMS_INDEX = 2;
 
-	public static final String EXTRA_ID = "-910";
-
 	public static final String SECTION_ID = "-911";
 
 	public static final String EMPTY_ID = "-912";
@@ -118,7 +116,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 	public enum ViewType
 	{
-		SECTION, FRIEND, NOT_FRIEND_HIKE, NOT_FRIEND_SMS, FRIEND_REQUEST, EXTRA, EMPTY, FTUE_CONTACT, REMOVE_SUGGESTIONS, NEW_CONTACT, RECOMMENDED, HIKE_FEATURES, BDAY_CONTACT
+		SECTION, FRIEND, NOT_FRIEND_HIKE, NOT_FRIEND_SMS, FRIEND_REQUEST, EMPTY, FTUE_CONTACT, REMOVE_SUGGESTIONS, NEW_CONTACT, RECOMMENDED, HIKE_FEATURES, BDAY_CONTACT
 	}
 
 	private LayoutInflater layoutInflater;
@@ -578,19 +576,6 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		return true;
 	}
 
-	protected void updateExtraList()
-	{
-		if (TextUtils.isEmpty(queryText))
-		{
-
-			inviteExtraItem = new ContactInfo(EXTRA_ID, INVITE_MSISDN, context.getString(R.string.invite_friends_hike), null);
-			completeList.add(inviteExtraItem);
-
-			groupExtraItem = new ContactInfo(EXTRA_ID, GROUP_MSISDN, context.getString(R.string.create_group), null);
-			completeList.add(groupExtraItem);
-		}
-	}
-
 	protected void updateFriendsList(ContactInfo section, boolean addFTUE, boolean showAddFriendView)
 	{
 
@@ -1022,10 +1007,6 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		{
 			return ViewType.SECTION.ordinal();
 		}
-		else if (EXTRA_ID.equals(contactInfo.getId()))
-		{
-			return ViewType.EXTRA.ordinal();
-		}
 		else if (REMOVE_SUGGESTIONS_ID.equals(contactInfo.getId()))
 		{
 			return ViewType.REMOVE_SUGGESTIONS.ordinal();
@@ -1411,7 +1392,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 				/*
 				 * Since sms contacts and dividers cannot have custom avatars, we simply skip these cases.
 				 */
-				if (viewType == ViewType.SECTION || viewType == ViewType.EXTRA || viewType == ViewType.EMPTY || !contactInfo.isOnhike())
+				if (viewType == ViewType.SECTION || viewType == ViewType.EMPTY || !contactInfo.isOnhike())
 				{
 					continue;
 				}
