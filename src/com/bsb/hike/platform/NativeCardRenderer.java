@@ -52,6 +52,7 @@ import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.nativecards.NativeCardManager;
 import com.bsb.hike.platform.nativecards.NativeCardUtils;
+import com.bsb.hike.platform.nativecards.ViewHolder;
 import com.bsb.hike.smartImageLoader.HighQualityThumbLoader;
 import com.bsb.hike.smartImageLoader.ImageWorker;
 import com.bsb.hike.smartImageLoader.NativeCardImageLoader;
@@ -102,7 +103,7 @@ public class NativeCardRenderer implements View.OnLongClickListener, View.OnClic
 	public View getView(View view, final ConvMessage convMessage, ViewGroup parent)
 	{
 		int cardType = convMessage.platformMessageMetadata.layoutId;
-		ViewHolderFactory.ViewHolder viewHolder;
+		ViewHolder viewHolder;
 		if (view == null)
 		{
 			view = NativeCardManager.getInflatedViewAsPerType(context, cardType, parent, convMessage.isSent());
@@ -111,7 +112,7 @@ public class NativeCardRenderer implements View.OnLongClickListener, View.OnClic
 		}
 		else
 		{
-			viewHolder = (ViewHolderFactory.ViewHolder) view.getTag();
+			viewHolder = (ViewHolder) view.getTag();
 		}
 
 		viewHolder.initializeHolder(view, convMessage);
@@ -144,7 +145,7 @@ public class NativeCardRenderer implements View.OnLongClickListener, View.OnClic
 				+ NativeCardManager.NativeCardType.values().length;
 	}
 
-	private void cardDataFiller(final ConvMessage convMessage, final ViewHolderFactory.ViewHolder viewHolder, final View containerView)
+	private void cardDataFiller(final ConvMessage convMessage, final ViewHolder viewHolder, final View containerView)
 	{
 		for (CardComponent.TextComponent textComponent : convMessage.platformMessageMetadata.cards.get(0).textComponents)
 		{
@@ -152,7 +153,7 @@ public class NativeCardRenderer implements View.OnLongClickListener, View.OnClic
 			if (!TextUtils.isEmpty(tag))
 			{
 
-				CustomFontTextView tv = (CustomFontTextView) viewHolder.viewHashMap.get(tag);
+				CustomFontTextView tv = (CustomFontTextView) viewHolder.getViewHashMap().get(tag);
 				if (null != tv)
 				{
 					tv.setVisibility(View.VISIBLE);
@@ -184,7 +185,7 @@ public class NativeCardRenderer implements View.OnLongClickListener, View.OnClic
 
 			if (!TextUtils.isEmpty(tag))
 			{
-				View mediaView = viewHolder.viewHashMap.get(tag);
+				View mediaView = viewHolder.getViewHashMap().get(tag);
                 if(mediaView != null){
 					HikeFile hikeFile = mediaComponent.getHikeFile();
 					if (hikeFile != null)
@@ -205,7 +206,7 @@ public class NativeCardRenderer implements View.OnLongClickListener, View.OnClic
 			String tag = imageComponent.getTag();
 
 			if (!TextUtils.isEmpty(tag)) {
-				ImageView imageView = (ImageView) viewHolder.viewHashMap.get(tag);
+				ImageView imageView = (ImageView) viewHolder.getViewHashMap().get(tag);
 				imageView.setVisibility(View.VISIBLE);
 				imageView.setOnLongClickListener(this);
 				imageView.setOnClickListener(new View.OnClickListener() {
