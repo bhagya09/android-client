@@ -1078,13 +1078,12 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 				{
 					if(contactInfo.isOnhike())
 					{
-						if (Utils.isFavToFriendsMigrationAllowed() && !OneToNConversationUtils.isOneToNConversation(contactInfo.getMsisdn()))
-						{
-							if (contactInfo.isMyOneWayFriend())
-								selectedPeople.put(contactInfo.getMsisdn(), contactInfo);
+						// select if its a group or a broadcast.
+						if (OneToNConversationUtils.isOneToNConversation(contactInfo.getMsisdn())) {
+							selectedPeople.put(contactInfo.getMsisdn(), contactInfo);
 						}
-						else
-						{
+						// select if its my friend
+						else if (contactInfo.isMyOneWayFriend()) {
 							selectedPeople.put(contactInfo.getMsisdn(), contactInfo);
 						}
 					}
