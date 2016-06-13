@@ -10,6 +10,7 @@
         android:layout_height="180dp"
         android:layout_marginTop="70dp"
         android:scaleType="centerInside"
+        android:src="@drawable/added_me_empty"
         />
 
     <com.bsb.hike.view.CustomFontTextView
