@@ -820,6 +820,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				break;
 			case MULTIPLE_FWD:
 				adapter = new ComposeChatAdapter(this, listView, true, true, null, sendingMsisdn, friendsListFetchedCallback, false, false, isShowTimeline(), false);
+				break;
 			default:
 				adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, fetchRecentlyJoined, existingGroupOrBroadcastId,
 						sendingMsisdn, friendsListFetchedCallback, true, true, isShowTimeline(), false);

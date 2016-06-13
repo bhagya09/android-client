@@ -1,17 +1,9 @@
 package com.bsb.hike.adapters;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
-import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -32,7 +24,6 @@ import com.bsb.hike.NUXConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
-import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.HikeFeatureInfo;
 import com.bsb.hike.models.NuxSelectFriends;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -41,7 +32,6 @@ import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.tasks.FetchFriendsTask;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.utils.EmoticonConstants;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.OneToNConversationUtils;
@@ -50,6 +40,13 @@ import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.WhichScreen;
 import com.bsb.hike.view.PinnedSectionListView.PinnedSectionListAdapter;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionListAdapter
 {
@@ -374,6 +371,31 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			{
 				holder.checkbox.setVisibility(View.GONE);
 			}
+		} else if (viewType == ViewType.NOT_FRIEND_HIKE) {
+			holder = (ViewHolder) convertView.getTag();
+			String displayName = contactInfo.getNameOrMsisdn();
+			holder.name.setText(displayName);
+			holder.number.setText(contactInfo.getMsisdn());
+			holder.userImage.setTag(contactInfo.getMsisdn());
+			iconloader.loadImage(contactInfo.getMsisdn(), holder.userImage, false, false, true, contactInfo);
+			if (contactInfo.isMyOneWayFriend()) {
+				holder.addedFriend.setVisibility(View.VISIBLE);
+				holder.addFriend.setVisibility(View.GONE);
+			} else {
+				holder.addedFriend.setVisibility(View.GONE);
+				holder.addFriend.setVisibility(View.VISIBLE);
+				holder.addFriend.setTag(position);
+			}
+
+			Integer startIndex = contactSpanStartIndexes.get(contactInfo.getMsisdn());
+			if (startIndex != null)
+			{
+				holder.name.setText(getSpanText(contactInfo.getNameOrMsisdn(), startIndex), TextView.BufferType.SPANNABLE);
+			}
+			else
+			{
+				holder.name.setText(contactInfo.getNameOrMsisdn());
+			}
 		}
 		else
 		{
@@ -570,45 +592,56 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 	{
 		View convertView = null;
 		ViewHolder holder = null;
-		switch (viewType)
-		{
-		case SECTION:
-			convertView = LayoutInflater.from(context).inflate(R.layout.friends_group_view, null);
-			break;
-		case FRIEND:
-			convertView = LayoutInflater.from(context).inflate(R.layout.friends_child_view, null);
-			holder = new ViewHolder();
-			holder.userImage = (ImageView) convertView.findViewById(R.id.avatar);
-			holder.name = (TextView) convertView.findViewById(R.id.contact);
-			holder.status = (TextView) convertView.findViewById(R.id.last_seen);
-			holder.statusMood = (ImageView) convertView.findViewById(R.id.status_mood);
-			holder.checkbox = (CheckBox) convertView.findViewById(R.id.checkbox);
-			holder.addFriendIcon = (ImageView) convertView.findViewById(R.id.add_friend);
-			holder.onlineIndicator = (ImageView) convertView.findViewById(R.id.online_indicator);
-			convertView.setTag(holder);
-			break;
-		case BDAY_CONTACT:
-			convertView = LayoutInflater.from(context).inflate(R.layout.hike_bday_list_item, parent, false);
-			holder = new ViewHolder();
-			holder.userImage = (ImageView) convertView.findViewById(R.id.contact_image);
-			holder.name = (TextView) convertView.findViewById(R.id.name);
-			holder.checkbox = (CheckBox) convertView.findViewById(R.id.checkbox);
-			convertView.setTag(holder);
-			break;
-		default:
-			convertView = LayoutInflater.from(context).inflate(R.layout.hike_list_item, parent, false);
-			holder = new ViewHolder();
-			holder.userImage = (ImageView) convertView.findViewById(R.id.contact_image);
-			holder.numLayout = (View) convertView.findViewById(R.id.num_layout);
-			holder.name = (TextView) convertView.findViewById(R.id.name);
-			holder.status = (TextView) convertView.findViewById(R.id.number);
-			holder.statusMood = (ImageView) convertView.findViewById(R.id.status_mood);
-			holder.checkbox = (CheckBox) convertView.findViewById(R.id.checkbox);
-			holder.inviteText = (TextView) convertView.findViewById(R.id.invite_Text);
-			holder.addFriendIcon = (ImageView) convertView.findViewById(R.id.add_friend);
-			holder.inviteIcon = (ImageView) convertView.findViewById(R.id.invite_icon);
-			convertView.setTag(holder);
-			break;
+		switch (viewType) {
+			case SECTION:
+				convertView = LayoutInflater.from(context).inflate(R.layout.friends_group_view, null);
+				break;
+			case FRIEND:
+				convertView = LayoutInflater.from(context).inflate(R.layout.friends_child_view, null);
+				holder = new ViewHolder();
+				holder.userImage = (ImageView) convertView.findViewById(R.id.avatar);
+				holder.name = (TextView) convertView.findViewById(R.id.contact);
+				holder.status = (TextView) convertView.findViewById(R.id.last_seen);
+				holder.statusMood = (ImageView) convertView.findViewById(R.id.status_mood);
+				holder.checkbox = (CheckBox) convertView.findViewById(R.id.checkbox);
+				holder.addFriendIcon = (ImageView) convertView.findViewById(R.id.add_friend);
+				holder.onlineIndicator = (ImageView) convertView.findViewById(R.id.online_indicator);
+				convertView.setTag(holder);
+				break;
+			case BDAY_CONTACT:
+				convertView = LayoutInflater.from(context).inflate(R.layout.hike_bday_list_item, parent, false);
+				holder = new ViewHolder();
+				holder.userImage = (ImageView) convertView.findViewById(R.id.contact_image);
+				holder.name = (TextView) convertView.findViewById(R.id.name);
+				holder.checkbox = (CheckBox) convertView.findViewById(R.id.checkbox);
+				convertView.setTag(holder);
+				break;
+			case NOT_FRIEND_HIKE:
+				convertView = LayoutInflater.from(context).inflate(R.layout.friend_request_item, parent, false);
+				holder = new ViewHolder();
+				holder.name = (TextView) convertView.findViewById(R.id.name);
+				holder.number = (TextView) convertView.findViewById(R.id.number);
+				holder.userImage = (ImageView) convertView.findViewById(R.id.avatar);
+				holder.addFriend = (TextView) convertView.findViewById(R.id.add);
+				holder.addFriend.setOnClickListener(onAddButtonClickListener);
+				holder.addedFriend = (ImageView) convertView.findViewById(R.id.added);
+				convertView.setTag(holder);
+				break;
+
+			default:
+				convertView = LayoutInflater.from(context).inflate(R.layout.hike_list_item, parent, false);
+				holder = new ViewHolder();
+				holder.userImage = (ImageView) convertView.findViewById(R.id.contact_image);
+				holder.numLayout = (View) convertView.findViewById(R.id.num_layout);
+				holder.name = (TextView) convertView.findViewById(R.id.name);
+				holder.status = (TextView) convertView.findViewById(R.id.number);
+				holder.statusMood = (ImageView) convertView.findViewById(R.id.status_mood);
+				holder.checkbox = (CheckBox) convertView.findViewById(R.id.checkbox);
+				holder.inviteText = (TextView) convertView.findViewById(R.id.invite_Text);
+				holder.addFriendIcon = (ImageView) convertView.findViewById(R.id.add_friend);
+				holder.inviteIcon = (ImageView) convertView.findViewById(R.id.invite_icon);
+				convertView.setTag(holder);
+				break;
 		}
 		return convertView;
 	}
@@ -638,6 +671,12 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		ImageView addFriendIcon;
 
 		View numLayout;
+
+		View addFriend;
+
+		View addedFriend;
+
+		TextView number;
 	}
 
 	@Override
@@ -1066,5 +1105,14 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 	{
 		this.isSearchModeOn = isSearchModeOn;
 	}
+
+	View.OnClickListener onAddButtonClickListener = new View.OnClickListener() {
+		@Override
+		public void onClick(View v) {
+			ContactInfo contact = getItem((Integer) v.getTag());
+			contact.setFavoriteType(Utils.toggleFavorite(context, contact, false, HikeConstants.AddFriendSources.ADDED_ME_SCREEN));
+			notifyDataSetChanged();
+		}
+	};
 
 }
