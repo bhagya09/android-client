@@ -116,7 +116,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 	public enum ViewType
 	{
-		SECTION, FRIEND, NOT_FRIEND_HIKE, NOT_FRIEND_SMS, FRIEND_REQUEST, EMPTY, FTUE_CONTACT, REMOVE_SUGGESTIONS, NEW_CONTACT, RECOMMENDED, HIKE_FEATURES, BDAY_CONTACT
+		SECTION, FRIEND, NOT_FRIEND_HIKE, NOT_FRIEND_SMS, EMPTY, FTUE_CONTACT, REMOVE_SUGGESTIONS, NEW_CONTACT, RECOMMENDED, HIKE_FEATURES, BDAY_CONTACT
 	}
 
 	private LayoutInflater layoutInflater;
@@ -1031,10 +1031,6 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		if (favoriteType == FavoriteType.FRIEND || favoriteType == FavoriteType.REQUEST_SENT || favoriteType == FavoriteType.REQUEST_SENT_REJECTED)
 		{
 			return ViewType.FRIEND.ordinal();
-		}
-		else if (favoriteType == FavoriteType.REQUEST_RECEIVED)
-		{
-			return ViewType.FRIEND_REQUEST.ordinal();
 		}
 		else if (HikeConstants.FTUE_MSISDN_TYPE.equals(contactInfo.getMsisdnType()))
 		{

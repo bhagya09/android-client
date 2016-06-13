@@ -475,7 +475,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 				holder.status.setTextColor(context.getResources().getColor(R.color.list_item_subtext));
 				holder.status.setText(OneToNConversationUtils.isGroupConversation(contactInfo.getMsisdn()) ? contactInfo.getPhoneNum():contactInfo.getMsisdn());
 				holder.statusMood.setVisibility(View.GONE);
-				if (viewType != ViewType.FRIEND && viewType != ViewType.FRIEND_REQUEST)
+				if (viewType != ViewType.FRIEND)
 				{
 					if (!contactInfo.isOnhike() && !showCheckbox)
 					{
@@ -576,7 +576,6 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			convertView = LayoutInflater.from(context).inflate(R.layout.friends_group_view, null);
 			break;
 		case FRIEND:
-		case FRIEND_REQUEST:
 			convertView = LayoutInflater.from(context).inflate(R.layout.friends_child_view, null);
 			holder = new ViewHolder();
 			holder.userImage = (ImageView) convertView.findViewById(R.id.avatar);
