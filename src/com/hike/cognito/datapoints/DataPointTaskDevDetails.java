@@ -18,7 +18,7 @@ import org.json.JSONObject;
  */
 public class DataPointTaskDevDetails extends DataPointTask {
 
-    public DataPointTaskDevDetails(String url, boolean isPii, int transportType) {
+    public DataPointTaskDevDetails(String url, Boolean isPii, Integer transportType) {
         super(url, isPii, transportType);
     }
 

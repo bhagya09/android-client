@@ -216,18 +216,18 @@ public class NativeCardRenderer implements View.OnLongClickListener, View.OnClic
 				});
 				if (imageComponent.getUrl() != null)
 				{
-					populateImageWithUrl(imageView, imageComponent,convMessage.platformMessageMetadata.layoutId,convMessage.getContentId(),convMessage.getMsisdn());
+					populateImageWithUrl(imageView, imageComponent,convMessage.platformMessageMetadata.layoutId,convMessage.platformMessageMetadata.contentId,convMessage.getMsisdn());
 				}
 			}
 		}
 
 	}
 
-	private void populateImageWithUrl(ImageView imageView, CardComponent.ImageComponent imageComponent, final int layoutId, final int contentId, final String msisdn)
+	private void populateImageWithUrl(ImageView imageView, CardComponent.ImageComponent imageComponent, final int layoutId, final String contentId, final String msisdn)
 	{
 
 		NativeCardImageLoader nativeCardImageLoader = new NativeCardImageLoader((int) context.getResources().getDimension(R.dimen.native_card_message_container_wide_width),
-				(int) context.getResources().getDimension(R.dimen.native_card_image_height));
+				(int) context.getResources().getDimension(R.dimen.native_card_image_height),  layoutId,  contentId,  msisdn);
 		nativeCardImageLoader.setImageFadeIn(false);
 		nativeCardImageLoader.setDefaultDrawableNull(true);
 		nativeCardImageLoader.setImageLoaderListener(new ImageWorker.ImageLoaderListener()
@@ -236,7 +236,6 @@ public class NativeCardRenderer implements View.OnLongClickListener, View.OnClic
 			public void onImageWorkSuccess(ImageView imageView)
 			{
 				imageView.setVisibility(View.VISIBLE);
-				HikeAnalyticsEvent.nativeCardImageLoaded(layoutId,contentId,msisdn);
 			}
 
 			@Override
@@ -295,7 +294,12 @@ public class NativeCardRenderer implements View.OnLongClickListener, View.OnClic
 			hqThumbLoader.setLoadingImage(thumbnail);
 			hqThumbLoader.loadImage(hikeFile.getFilePath(), ftViewHolder.fileThumb, isListFlinging);
 		}else{
-			ftViewHolder.fileThumb.setBackground(new ColorDrawable(context.getResources().getColor(R.color.thumbnail_default_color)));
+			if(Utils.isJellybeanOrHigher()){
+				ftViewHolder.fileThumb.setBackground(new ColorDrawable(context.getResources().getColor(R.color.thumbnail_default_color)));
+			}else{
+				ftViewHolder.fileThumb.setBackgroundDrawable(new ColorDrawable(context.getResources().getColor(R.color.thumbnail_default_color)));
+			}
+
 			ftViewHolder.fileThumb.setImageDrawable(null);
 		}
 

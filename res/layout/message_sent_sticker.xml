@@ -47,14 +47,6 @@
                     android:layout_height="wrap_content"
                     android:visibility="gone" />
 
-                <ProgressBar
-                    android:id="@+id/mini_loader"
-                    android:layout_width="@dimen/sticker_mini_loader"
-                    android:layout_height="@dimen/sticker_mini_loader"
-                    android:layout_centerInParent="true"
-                    android:contentDescription="Progress Bar"
-                    android:indeterminateDrawable="@drawable/circular_double_spinner_thin"
-                    android:visibility="gone" />
             </RelativeLayout>
         </LinearLayout>
 

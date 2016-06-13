@@ -63,6 +63,7 @@ import com.bsb.hike.models.HikeSharedFile;
 import com.bsb.hike.models.MessageEvent;
 import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.Mute;
+import com.bsb.hike.models.PrivacyPreferences;
 import com.bsb.hike.models.Protip;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
@@ -121,7 +122,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
 import static com.bsb.hike.chatthemes.HikeChatThemeConstants.ASSET_INDEX_ACTION_BAR_BG;
 import static com.bsb.hike.chatthemes.HikeChatThemeConstants.ASSET_INDEX_BG_LANDSCAPE;
@@ -5933,6 +5933,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 
 	public List<StatusMessage> getStatusMessages(boolean timelineUpdatesOnly, int limit, int lastStatusId, String... msisdnList)
 	{
+		return getStatusMessages(timelineUpdatesOnly, limit, lastStatusId, -1, false, msisdnList);
+	}
+
+	public List<StatusMessage> getStatusMessages(boolean timelineUpdatesOnly, int limit, int lastStatusId, int firstStatusId, boolean getOnlyUnread, String... msisdnList)
+	{
 		String[] columns = new String[] { DBConstants.STATUS_ID, DBConstants.STATUS_MAPPED_ID, DBConstants.MSISDN, DBConstants.STATUS_TEXT, DBConstants.STATUS_TYPE,
 				DBConstants.TIMESTAMP, DBConstants.MOOD_ID, DBConstants.TIME_OF_DAY, DBConstants.FILE_KEY, DBConstants.IS_READ};
 
@@ -5961,12 +5966,21 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		{
 			selection.append(" AND " + DBConstants.STATUS_ID + " < " + lastStatusId);
 		}
+		else if (firstStatusId != -1)
+		{
+			selection.append(" AND " + DBConstants.STATUS_ID + " > " + firstStatusId);
+		}
 
 		String orderBy = DBConstants.STATUS_ID + " DESC ";
 
 		if (limit != -1)
 		{
 			orderBy += "LIMIT " + limit;
+		}
+
+		if(getOnlyUnread)
+		{
+			selection.append(" AND "+ DBConstants.IS_READ + " = 0");
 		}
 
 		Cursor c = null;
@@ -7165,9 +7179,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				 * We don't support custom themes yet.
 				 */
 				if (chatBgJson.optBoolean(HikeConstants.CUSTOM)) {
+					ChatThemeManager.getInstance().downloadThemeContent(bgId, true);
 
-					Logger.d(getClass().getSimpleName(), "We don't support custom themes yet");
-					continue;
+//					Logger.d(getClass().getSimpleName(), "We don't support custom themes yet");
+//					continue;
 				}
 
 				contentValues.put(DBConstants.MSISDN, msisdn);
@@ -11925,6 +11940,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 						continue;
 					}
 
+					PrivacyPreferences pref = ContactManager.getInstance().getPrivacyPrefsForAGivenMsisdn(msisdn);
+					if (!pref.shouldShowStatusUpdate()) {
+						continue;
+					}
+
 					StatusMessage statusMessage = new StatusMessage(c.getLong(idIdx), c.getString(mappedIdIdx), msisdn, null, c.getString(textIdx),
 							StatusMessageType.values()[c.getInt(typeIdx)], c.getLong(tsIdx), c.getInt(moodIdIdx), c.getInt(timeOfDayIdx), c.getString(fileKeyIdx), c.getInt(isReadIdx) == 1 ? true : false);
 					statusMessages.add(statusMessage);
@@ -11989,6 +12009,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 						}
 						// If ^ is a stealth msisdn and stealth mode is off, move to next msisdn
 						if (StealthModeManager.getInstance().isStealthMsisdn(friendMsisdn) && !StealthModeManager.getInstance().isActive()) {
+							continue;
+						}
+
+						PrivacyPreferences pref = ContactManager.getInstance().getPrivacyPrefsForAGivenMsisdn(friendMsisdn);
+						if (!pref.shouldShowStatusUpdate()) {
 							continue;
 						}
 						StoryItem<StatusMessage, ContactInfo> storyItem = new StoryItem<>(StoryItem.TYPE_FRIEND, friendInfo.getNameOrMsisdn());

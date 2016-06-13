@@ -815,6 +815,8 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		int blockStatusIndex = c.getColumnIndex(DBConstants.BLOCK_STATUS);
 		int hikeIdIndex = c.getColumnIndex(DBConstants.HIKE_UID);
 		int unreadRequestTimeIdx = c.getColumnIndex(DBConstants.UNREAD_RECEIVED_REQ_TIME);
+		int lastSeenSettingsIdx = c.getColumnIndex(DBConstants.LAST_SEEN_SETTINGS);
+		int suSettingsIdx = c.getColumnIndex(DBConstants.STATUS_UPDATE_SETTINGS);
 
 
 		long hikeJoinTime = 0;
@@ -868,6 +870,17 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		{
 			contactInfo.setUid(c.getString(hikeIdIndex));
 		}
+
+		if (lastSeenSettingsIdx != -1)
+		{
+			contactInfo.getPrivacyPrefs().setLastSeen(c.getInt(lastSeenSettingsIdx) == 1);
+		}
+
+		if (suSettingsIdx != -1)
+		{
+			contactInfo.getPrivacyPrefs().setStatusUpdate(c.getInt(suSettingsIdx) == 1);
+		}
+
 		return contactInfo;
 	}
 
@@ -2122,6 +2135,13 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 /*
 * If we are setting the type as not favorite, we'll remove the row itself.
 */
+		toggleContactFavorite(msisdn, favoriteType, true, unreadRequestTime);
+	}
+
+	void toggleContactFavorite(String msisdn, FavoriteType favoriteType, boolean updatePrivacyValues, long unreadRequestTime) {
+		/*
+		* If we are setting the type as not favorite, we'll remove the row itself.
+		*/
 		ContentValues cv = new ContentValues();
 		Logger.d(TAG, "Adding msisdb to favourite" + msisdn);
 		cv.put(DBConstants.MSISDN, msisdn);
@@ -2129,7 +2149,11 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 // convert millisecond timestamp to seconds(int) before storing
 		unreadRequestTime /= 1000;
 		cv.put(DBConstants.UNREAD_RECEIVED_REQ_TIME, (int) (unreadRequestTime));
-		cv.put(DBConstants.LAST_SEEN_SETTINGS, getLastSeenSettingsForMsisdn());
+
+		if (updatePrivacyValues) {
+			cv.put(DBConstants.LAST_SEEN_SETTINGS, getLastSeenSettingsForMsisdn());
+		}
+
 		long value = mDb.update(DBConstants.USERS_TABLE, cv, DBConstants.MSISDN + "=?", new String[]{msisdn});
 		if (value == -1 || value == 0) {
 			value = mDb.insertWithOnConflict(DBConstants.USERS_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
@@ -3119,6 +3143,32 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 			return 1;
 		}
 		return 0;
+	}
+
+
+	List<ContactInfo> getAllFriends() {
+		List<ContactInfo> contactInfoList = new ArrayList<ContactInfo>(0);
+		Cursor c = null;
+
+		try {
+
+			String selection = DBConstants.FAVORITE_TYPE + " > ?";
+			c = mReadDb.query(DBConstants.USERS_TABLE, new String[]{DBConstants.MSISDN, "max(" + DBConstants.ID + ") as " + DBConstants.ID, DBConstants.NAME, DBConstants.ONHIKE, DBConstants.PHONE, DBConstants.MSISDN_TYPE, DBConstants.LAST_MESSAGED, DBConstants.HAS_CUSTOM_PHOTO,
+					DBConstants.FAVORITE_TYPE, DBConstants.LAST_SEEN_SETTINGS, DBConstants.STATUS_UPDATE_SETTINGS}, selection, new String[]{String.valueOf(FavoriteType.NOT_FRIEND.ordinal())}, null, null, DBConstants.NAME);
+
+
+			if (null != c) {
+				contactInfoList = extractContactInfo(c, true);
+			}
+
+
+		} finally {
+			if (c != null) {
+				c.close();
+			}
+		}
+
+		return contactInfoList;
 	}
 
 }

@@ -1169,7 +1169,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	private void initializeCTBackground() {
 		if(Utils.isUserOnline(activity)) {
 			if(ChatThemeManager.getInstance().customThemeTempUploadImagePath != null) {
-				FileTransferManager.getInstance(activity).uploadCustomThemeBackgroundImage(ChatThemeManager.getInstance().customThemeTempUploadImagePath);
+				FileTransferManager.getInstance(activity).uploadCustomThemeBackgroundImage(ChatThemeManager.getInstance().customThemeTempUploadImagePath, mConversation);
 			}
 			uiHandler.sendEmptyMessageDelayed(SET_CUSTOM_THEME_BACKGROUND, 100);
 			if (themePicker != null && themePicker.isShowing()) {
@@ -1825,7 +1825,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		if (attachmentPicker == null)
 		{
 			attachmentPicker = new AttachmentPicker(msisdn, this, this, activity, true);
-			channelSelector.modifyAttachmentPicker(activity,attachmentPicker,addContact);
+			channelSelector.modifyAttachmentPicker(activity, attachmentPicker, addContact);
 
 		}
 	}
@@ -1908,7 +1908,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 		}
 
-		else if (!mAdapter.getChatThemeId().equals(themeId))
+		else
 		{
 			Logger.i(TAG, "update ui for theme " + themeId);
 			if (mAdapter.getChatThemeId().equals(ChatThemeManager.getInstance().defaultChatThemeId))
@@ -1931,18 +1931,11 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	{
 		CustomBGRecyclingImageView backgroundImage = (CustomBGRecyclingImageView) activity.findViewById(R.id.background);
 		backgroundImage.setOverLay(false);
-		if (themeId.equals(ChatThemeManager.getInstance().defaultChatThemeId))
-		{
-			backgroundImage.setImageDrawable(ChatThemeManager.getInstance().getDrawableForTheme(themeId, HikeChatThemeConstants.ASSET_INDEX_BG_PORTRAIT));
-			setChatBackground(R.color.chat_thread_default_bg);
-		}
-		else
-		{
-			setChatBackground(REMOVE_CHAT_BACKGROUND);
-			Drawable drawable = Utils.getChatTheme(themeId, activity);
-			setThemeBackground(backgroundImage, drawable, ChatThemeManager.getInstance().getTheme(themeId).isTiled(), ChatThemeManager.getInstance().getTheme(themeId).isCustomTheme());
 
-		}
+		setChatBackground(REMOVE_CHAT_BACKGROUND);
+		Drawable drawable = Utils.getChatTheme(themeId, activity);
+
+		setThemeBackground(backgroundImage, drawable, ChatThemeManager.getInstance().getTheme(themeId).isTiled(), ChatThemeManager.getInstance().getTheme(themeId).isCustomTheme());
 	}
 
 	private void setThemeBackground(CustomBGRecyclingImageView backgroundImage, Drawable drawable, boolean isTiled, boolean isCustom) {
@@ -1985,7 +1978,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	public void themeCancelled()
 	{
 		Logger.i(TAG, "theme cancelled, resetting the default theme if needed.");
-		if (!currentThemeId.equals(mAdapter.getChatThemeId())) {
+		if (!HikeChatThemeConstants.THEME_ID_CUSTOM_THEME.equalsIgnoreCase(mAdapter.getChatThemeId()) && !currentThemeId.equals(mAdapter.getChatThemeId())) {
 			setConversationTheme(currentThemeId);
 		}
 	}
@@ -4241,6 +4234,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				updateCustomChatTheme(object);
 				break;
 			case HikePubSub.CHATTHEME_CUSTOM_IMAGE_UPLOAD_FAILED:
+				// TODO CHATTHEME Image upload failed not handled
 				break;
 			case HikePubSub.CHATTHEME_CUSTOM_COMPATABILITY_ERROR:
 				sendUIMessage(CUSTOM_CT_COMPATABILITY_ERROR_MESSAGE, object);
@@ -4249,6 +4243,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				Logger.i(TAG, "General Event: Show Custom Keyboard PubSub");
 				createInputBox(object);
 				break;
+
 			default:
 				Logger.e(TAG, "PubSub Registered But Not used : " + type);
 				break;
@@ -7081,12 +7076,15 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		return mConversation.isMuted();
 	}
 
-	public void updateCustomChatTheme(Object data)
+	public void updateCustomChatTheme(Object object)
 	{
-		String themeId = (String) data;
-		HikeAnalyticsEvent.recordCTAnalyticEvents(ChatAnalyticConstants.CUSTOM_THEME_DONE, AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, msisdn, themeId, null);
-		sendUIMessage(CHAT_THEME, themeId);
-		sendUIMessage(SEND_CUSTOM_THEME_MESSAGE, null);
+		Pair<Conversation, String> pair = (Pair<Conversation, String>) object;
+		Conversation conversation = pair.first;
+		String themeId = pair.second;
+		if(msisdn.equalsIgnoreCase(conversation.getMsisdn())) {
+			HikeAnalyticsEvent.recordCTAnalyticEvents(ChatAnalyticConstants.CUSTOM_THEME_DONE, AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, msisdn, themeId, null);
+			sendUIMessage(CHAT_THEME, themeId);
+		}
 	}
 
 	public void customThemeErrorNotifier(String errorType) {

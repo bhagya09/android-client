@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +17,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.smartImageLoader.TimelineUpdatesImageLoader;
+import com.bsb.hike.timeline.TimelineServerConfigUtils;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StoryItem;
 import com.bsb.hike.utils.Logger;
@@ -166,16 +168,17 @@ public class StoryListAdapter extends BaseAdapter implements PinnedSectionListVi
             Drawable timelineLogoDrawable = ContextCompat.getDrawable(mContext, R.drawable.ic_dp_timeline);
             Drawable otherFeaturesDrawable = ContextCompat.getDrawable(mContext, R.drawable.other_features_bg);
             viewHolder.avatarView.setImageDrawable(timelineLogoDrawable);
-            viewHolder.avatarView.setBackground(otherFeaturesDrawable);
+            viewHolder.avatarView.setBackgroundDrawable(otherFeaturesDrawable);
             viewHolder.titleView.setText(storyItem.getTitle());
             viewHolder.titleView.setAlpha(1f);
             viewHolder.avatarView.setAlpha(1f);
+            viewHolder.avatarView.setScaleType(ImageView.ScaleType.CENTER);
 
             String subText = storyItem.getSubText();
             if (!TextUtils.isEmpty(subText)) {
                 viewHolder.subTextView.setText(subText);
                 viewHolder.subTextView.setVisibility(View.VISIBLE);
-
+                viewHolder.subTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
                 if (mContext.getString(R.string.timeline_sub_no_updt).equals(subText)) {
                     // Color gray
                     viewHolder.subTextView.setTextColor(mContext.getResources().getColor(R.color.stories_sub_text_unread));
@@ -190,11 +193,12 @@ public class StoryListAdapter extends BaseAdapter implements PinnedSectionListVi
             if (!TextUtils.isEmpty(subText)) {
                 viewHolder.subTextView.setText(subText);
                 viewHolder.subTextView.setVisibility(View.VISIBLE);
+                viewHolder.subTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
             }
             List<StatusMessage> statusMessagesList = storyItem.getDataObjects();
             ContactInfo contactInfo = (ContactInfo) storyItem.getTypeInfo();
             if (!Utils.isEmpty(statusMessagesList) || storyItem.getCategory() == StoryItem.CATEGORY_DEFAULT) {
-                if (storyItem.getCategory() == StoryItem.CATEGORY_DEFAULT) {
+                if (storyItem.getCategory() == StoryItem.CATEGORY_DEFAULT || TimelineServerConfigUtils.isStoryThumbnailAsDP()) {
                     //Load profile pic
                     mDPImageLoader.loadImage(contactInfo.getMsisdn(), viewHolder.avatarView, false, false, true, contactInfo);
                 } else {
@@ -212,11 +216,14 @@ public class StoryListAdapter extends BaseAdapter implements PinnedSectionListVi
             if (storyItem.getCategory() != StoryItem.CATEGORY_RECENT) {
                 viewHolder.titleView.setAlpha(0.6f);
                 viewHolder.avatarView.setAlpha(0.6f);
+                viewHolder.subTextView.setTextColor(mContext.getResources().getColor(R.color.stories_sub_text_unread));
+
             } else {
                 viewHolder.titleView.setAlpha(1f);
+                viewHolder.subTextView.setTextColor(mContext.getResources().getColor(R.color.blue_hike));
                 viewHolder.avatarView.setAlpha(1f);
             }
-            viewHolder.subTextView.setTextColor(mContext.getResources().getColor(R.color.stories_sub_text_unread));
+
 
         } else if (storyItem.getType() == StoryItem.TYPE_BRAND) {
             // TODO

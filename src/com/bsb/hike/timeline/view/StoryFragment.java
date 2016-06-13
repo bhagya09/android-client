@@ -22,10 +22,14 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HomeAnalyticsConstants;
 import com.bsb.hike.media.ImageParser;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.contactmgr.HikeUserDatabase;
+import com.bsb.hike.timeline.TimelineUtils;
 import com.bsb.hike.timeline.adapter.StoryListAdapter;
 import com.bsb.hike.timeline.model.StoryItem;
 import com.bsb.hike.timeline.tasks.StoriesDataManager;
@@ -33,6 +37,9 @@ import com.bsb.hike.timeline.tasks.UpdateActionsDataRunnable;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -73,7 +80,8 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
             HikePubSub.FAVORITE_TOGGLED,
             HikePubSub.STEALTH_CONVERSATION_MARKED,
             HikePubSub.STEALTH_CONVERSATION_UNMARKED,
-            HikePubSub.FAVORITE_TOGGLED};
+            HikePubSub.FAVORITE_TOGGLED,
+            HikePubSub.USER_PRIVACY_TOGGLED};
 
     public static StoryFragment newInstance(@Nullable Bundle argBundle) {
         StoryFragment fragmentInstance = new StoryFragment();
@@ -163,6 +171,7 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
 
                 Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(getActivity(), galleryFlags, Utils.getNewImagePostFilePath());
                 startActivityForResult(galleryPickerIntent, UpdatesFragment.TIMELINE_POST_IMAGE_REQ);
+                logTapCameraFromFriendsTab();
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -185,7 +194,13 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
                     @Override
                     public void imageParsed(String imagePath) {
                         // Open Status update activity
-                        getActivity().startActivity(IntentFactory.getPostStatusUpdateIntent(getActivity(), null, imagePath, false));
+                        Intent newSUIntent = IntentFactory.getPostStatusUpdateIntent(getActivity(), null, imagePath, false);
+                        Utils.setSpecies(HomeAnalyticsConstants.SU_SPECIES_FRIENDS_TAB, newSUIntent);
+                        if(!TextUtils.isEmpty(genus))
+                        {
+                            Utils.setGenus(genus, newSUIntent);
+                        }
+                        startActivity(newSUIntent);
                     }
 
                     @Override
@@ -231,7 +246,8 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
                 || type.equals(HikePubSub.STEALTH_MODE_TOGGLED)
                 || type.equals(HikePubSub.DELETE_STATUS)
                 || type.equals(HikePubSub.STEALTH_CONVERSATION_MARKED)
-                || type.equals(HikePubSub.STEALTH_CONVERSATION_UNMARKED)) {
+                || type.equals(HikePubSub.STEALTH_CONVERSATION_UNMARKED)
+                || type.equals(HikePubSub.USER_PRIVACY_TOGGLED)) {
             if (isAdded() && getActivity() != null) {
                 HikeHandlerUtil.getInstance().postRunnable(new Runnable() {
                     @Override
@@ -293,14 +309,84 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
         StoryItem storyItem = storyItemList.get(position);
         if (storyItem.getType() == StoryItem.TYPE_INTENT) {
             getActivity().startActivity(storyItem.getIntent());
+            HikeHandlerUtil.getInstance().postRunnable(new Runnable() {
+                @Override
+                public void run() {
+                    logTimelineOpenAnalyticEvent();
+                }
+            });
         } else if (storyItem.getType() == StoryItem.TYPE_FRIEND && storyItem.getTypeInfo() != null) {
             if (storyItem.getCategory() == StoryItem.CATEGORY_DEFAULT) {
                 view.startAnimation(shakeAnim);
             } else {
                 getActivity().startActivity(IntentFactory.getStoryPhotosActivityIntent(getActivity(), ((ContactInfo) storyItem.getTypeInfo()).getMsisdn()));
             }
+            logTapFriendAnalyticEvent(storyItem);
         } else if (storyItem.getType() == StoryItem.TYPE_BRAND) {
             // TODO
+        }
+    }
+
+    private void logTapFriendAnalyticEvent(StoryItem item) {
+        try {
+            String friendType = null;
+            switch (item.getCategory()) {
+                case StoryItem.CATEGORY_RECENT:
+                    friendType = "recent";
+                    break;
+                case StoryItem.CATEGORY_ALL:
+                    friendType = "all";
+                    break;
+                case StoryItem.CATEGORY_DEFAULT:
+                    friendType = "shy";
+                    break;
+            }
+
+            JSONObject json = new JSONObject();
+            json.put(AnalyticsConstants.V2.UNIQUE_KEY, HomeAnalyticsConstants.UK_HS_FRIENDS);
+            json.put(AnalyticsConstants.V2.KINGDOM, HomeAnalyticsConstants.HOMESCREEN_KINGDOM);
+            json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+            json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+            json.put(AnalyticsConstants.V2.ORDER, HomeAnalyticsConstants.UK_HS_FRIENDS);
+            json.put(AnalyticsConstants.V2.FAMILY, "view_friend");
+            json.put(AnalyticsConstants.V2.SPECIES, friendType);
+            HAManager.getInstance().recordV2(json);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void logTimelineOpenAnalyticEvent() {
+        try {
+
+            JSONObject json = new JSONObject();
+            json.put(AnalyticsConstants.V2.UNIQUE_KEY, HomeAnalyticsConstants.UK_TL_OPEN);
+            json.put(AnalyticsConstants.V2.KINGDOM, HomeAnalyticsConstants.KINGDOM_ACT_LOG2);
+            json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+            json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+            json.put(AnalyticsConstants.V2.ORDER, HomeAnalyticsConstants.UK_TL_OPEN);
+            json.put(AnalyticsConstants.V2.FAMILY, Long.toString(System.currentTimeMillis()));
+            json.put(AnalyticsConstants.V2.GENUS, "tap");
+            json.put(AnalyticsConstants.V2.SPECIES, TimelineUtils.getTimelineSubText().equals(getString(R.string.timeline_sub_no_updt)) ? "no_new_notif" : "new_notif");
+            HAManager.getInstance().recordV2(json);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void logTapCameraFromFriendsTab() {
+        try {
+
+            JSONObject json = new JSONObject();
+            json.put(AnalyticsConstants.V2.UNIQUE_KEY, HomeAnalyticsConstants.UK_HS_FRIENDS);
+            json.put(AnalyticsConstants.V2.KINGDOM, HomeAnalyticsConstants.HOMESCREEN_KINGDOM);
+            json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+            json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+            json.put(AnalyticsConstants.V2.ORDER, HomeAnalyticsConstants.UK_HS_FRIENDS);
+            json.put(AnalyticsConstants.V2.FAMILY, "cam");
+            HAManager.getInstance().recordV2(json);
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 }

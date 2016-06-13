@@ -3324,21 +3324,11 @@ public class HikeConstants
 
 	public static final String REWARDS_URL = "rewards_url";
 
-	public static final String CALL_LOG_ANALYTICS = "cl";
-
-	public static final String ADVERTSING_ID_ANALYTICS = "adv";
-
-	public static final String APP_LOG_ANALYTICS = "al";
-
 	public static final String LOCATION_LOG_ANALYTICS = "ll";
 
 	public static final String FETCH_LOG_ANALYTICS = "gl";
 
 	public static final String SESSION_LOG_TRACKING = "stl";
-
-	public static final String ACCOUNT_LOG_ANALYTICS = "actl";
-
-	public static final String PHONE_SPEC = "pl";
 
 	public static final String SHOP = "shop";
 
@@ -4506,6 +4496,8 @@ public class HikeConstants
 
 	public static final String ENABLE_SPACE_MANAGER = "en_sm";
 
-	public static final String SPACE_MANAGER_SEEN_ONCE = "spcmgr_seen_once";
+	public static final String SPACE_MANAGER_JSON = "sm_json";
+
+	public static final String FRIENDS_TAB_NOTIF_DOT = "frnTabNotifDot";
 
 }

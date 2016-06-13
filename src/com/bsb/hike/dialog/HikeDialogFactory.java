@@ -1380,8 +1380,8 @@ public class HikeDialogFactory
 	{
 		String size = (String)data[0];
 		CustomAlertDialog dialog = new CustomAlertDialog(context, dialogId);
-		dialog.setMessage(context.getString(R.string.delete_space_confirmation_dialog_text, size));
-		dialog.setTitle(context.getString(R.string.delete_space_confirmation_dialog_heading));
+		dialog.setMessage(context.getString(R.string.sm_confirm_dialog_msg, size));
+		dialog.setTitle(context.getString(R.string.sm_confirm_dialog_heading));
 		dialog.setPositiveButton(R.string.OK, listener);
 		dialog.setNegativeButton(R.string.CANCEL, listener);
 		dialog.show();
@@ -1391,8 +1391,8 @@ public class HikeDialogFactory
 	private static HikeDialog showSpaceManagerFallbackDeleteConfirmationDialog(Context context, int dialogId, HikeDialogListener listener, Object[] data)
 	{
 		CustomAlertDialog dialog = new CustomAlertDialog(context, dialogId);
-		dialog.setMessage(context.getString(R.string.delete_space_fallback_confirmation_dialog_text));
-		dialog.setTitle(context.getString(R.string.delete_space_fallback_heading));
+		dialog.setMessage(context.getString(R.string.sm_fallback_confirm_dialog_text));
+		dialog.setTitle(context.getString(R.string.sm_fallback_header));
 		dialog.setPositiveButton(R.string.OK, listener);
 		dialog.setNegativeButton(R.string.CANCEL, listener);
 		dialog.show();

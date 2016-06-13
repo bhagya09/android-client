@@ -23,7 +23,7 @@ public class DataPointTaskStaticLoc extends DataPointTask {
     private static final String RADIUS = "rd";
     private static final String TIMESTAMP = "ts";
 
-    public DataPointTaskStaticLoc(String url, boolean isPii, int transportType) {
+    public DataPointTaskStaticLoc(String url, Boolean isPii, Integer transportType) {
         super(url, isPii, transportType);
     }
 

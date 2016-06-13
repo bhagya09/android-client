@@ -118,6 +118,7 @@ import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.productpopup.AtomicTipManager;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.spaceManager.SpaceManagerUtils;
+import com.bsb.hike.timeline.StoryShyTextGenerator;
 import com.bsb.hike.timeline.TimelineActionsManager;
 import com.bsb.hike.timeline.TimelineServerConfigUtils;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
@@ -126,7 +127,7 @@ import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.triggers.InterceptUtils;
 import com.bsb.hike.ui.HomeActivity;
-import com.hike.cognito.UserLogInfo;
+import com.hike.cognito.CognitoTrigger;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.BirthdayUtils;
 import com.bsb.hike.utils.ClearGroupTypingNotification;
@@ -1607,6 +1608,7 @@ public class MqttMessagesManager
 					newTalkTime = talkTime;
 				}
 			}
+			// We can either get "nls" or "uls" from server
 			if (account.has(HikeConstants.NEW_LAST_SEEN_SETTING))
 			{
 				SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
@@ -1618,6 +1620,19 @@ public class MqttMessagesManager
 				settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, Integer.toString(account.optInt(HikeConstants.NEW_LAST_SEEN_SETTING)));
 				settingEditor.commit();
 			}
+
+			if (account.has(HikeConstants.UPDATED_LAST_SEEN_SETTING) && Utils.isFavToFriendsMigrationAllowed())
+			{
+				SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+				Editor settingEditor = settings.edit();
+				if (account.has(HikeConstants.LAST_SEEN_SETTING))
+				{
+					settingEditor.putBoolean(HikeConstants.LAST_SEEN_PREF, account.optBoolean(HikeConstants.LAST_SEEN_SETTING, true));
+				}
+				settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, Integer.toString(account.optInt(HikeConstants.UPDATED_LAST_SEEN_SETTING)));
+				settingEditor.apply();
+			}
+
 			if (account.has(HikeConstants.UJ_NOTIF_SETTING))
 			{
 				SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
@@ -1678,7 +1693,7 @@ public class MqttMessagesManager
 			}
 		}
 		// this logic requires the backup token which is being setup in the previous if case
-		UserLogInfo.requestUserLogs(data);
+		CognitoTrigger.onDemand(data);
 
 		editor.commit();
 		if (inviteTokenAdded)
@@ -2423,7 +2438,7 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SESSION_LOG_TRACKING, sessionLogEnable);
 			ChatHeadUtils.startOrStopService(false);
 		}
-		UserLogInfo.requestUserLogs(data);
+		CognitoTrigger.onDemand(data);
 
 		if (data.has(HikeConstants.PROB_NUM_HTTP_ANALYTICS))
 		{
@@ -3480,10 +3495,61 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_SPACE_MANAGER, enableSM);
 		}
 
-		if(data.has(TimelineServerConfigUtils.AC_KEY_STORY_DURATION))
-		{
+		if (data.has(TimelineServerConfigUtils.AC_KEY_STORY_DURATION)) {
 			long storyTimeLimit = data.getLong(TimelineServerConfigUtils.AC_KEY_STORY_DURATION);
 			HikeSharedPreferenceUtil.getInstance().saveData(TimelineServerConfigUtils.AC_KEY_STORY_DURATION, storyTimeLimit);
+		}
+		
+		if(data.has(HikeConstants.SPACE_MANAGER_JSON))
+		{
+			String smJSON = data.getString(HikeConstants.SPACE_MANAGER_JSON);
+			if(SpaceManagerUtils.isJSONValid(smJSON))
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SPACE_MANAGER_JSON, smJSON);
+			}
+		}
+
+		if (data.has(TimelineServerConfigUtils.AC_KEY_CAMSHY_SUBTEXT)) {
+			JSONArray subTextArray = data.getJSONArray(TimelineServerConfigUtils.AC_KEY_CAMSHY_SUBTEXT);
+			int subTextArrayLength = subTextArray.length();
+			if (subTextArrayLength > 0) {
+				Set<String> subTextSet = new HashSet<String>();
+				for (int i = 0; i < subTextArrayLength; i++) {
+					subTextSet.add(subTextArray.getString(i));
+				}
+				HikeSharedPreferenceUtil.getInstance().saveStringSet(TimelineServerConfigUtils.AC_KEY_CAMSHY_SUBTEXT, subTextSet);
+				StoryShyTextGenerator.getInstance().reset();
+			}
+		}
+
+		if(data.has(TimelineServerConfigUtils.AC_KEY_CAMSHY_ENABLED))
+		{
+			boolean enableCamShy = data.getBoolean(TimelineServerConfigUtils.AC_KEY_CAMSHY_ENABLED);
+			HikeSharedPreferenceUtil.getInstance().saveData(TimelineServerConfigUtils.AC_KEY_CAMSHY_ENABLED, enableCamShy);
+		}
+
+		if(data.has(TimelineServerConfigUtils.AC_KEY_SHOWDP_STORYTHUMB))
+		{
+			boolean stryThumbDP = data.getBoolean(TimelineServerConfigUtils.AC_KEY_SHOWDP_STORYTHUMB);
+			HikeSharedPreferenceUtil.getInstance().saveData(TimelineServerConfigUtils.AC_KEY_SHOWDP_STORYTHUMB, stryThumbDP);
+		}
+
+		if(data.has(TimelineServerConfigUtils.AC_KEY_TITLE_RECENT))
+		{
+			String title = data.getString(TimelineServerConfigUtils.AC_KEY_TITLE_RECENT);
+			HikeSharedPreferenceUtil.getInstance().saveData(TimelineServerConfigUtils.AC_KEY_TITLE_RECENT, title);
+		}
+
+		if(data.has(TimelineServerConfigUtils.AC_KEY_TITLE_ALL))
+		{
+			String title = data.getString(TimelineServerConfigUtils.AC_KEY_TITLE_ALL);
+			HikeSharedPreferenceUtil.getInstance().saveData(TimelineServerConfigUtils.AC_KEY_TITLE_ALL, title);
+		}
+
+		if(data.has(TimelineServerConfigUtils.AC_KEY_TITLE_SHY))
+		{
+			String title = data.getString(TimelineServerConfigUtils.AC_KEY_TITLE_SHY);
+			HikeSharedPreferenceUtil.getInstance().saveData(TimelineServerConfigUtils.AC_KEY_TITLE_SHY, title);
 		}
 
 		editor.commit();
@@ -3761,6 +3827,8 @@ public class MqttMessagesManager
 
 		if (favoriteType == FavoriteType.FRIEND)
 		{
+			// To update the friends tab indicator
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FRIENDS_TAB_NOTIF_DOT, true);
 			incrementUnseenStatusCount();
 			pubSub.publish(HikePubSub.TIMELINE_UPDATE_RECIEVED, statusMessage);
 			if (statusMessage.getStatusMessageType() == StatusMessageType.PROFILE_PIC || statusMessage.getStatusMessageType() == StatusMessageType.IMAGE
@@ -3983,11 +4051,6 @@ public class MqttMessagesManager
         {
             int limit = data.optInt(HikeConstants.LIMIT_KEY, CategorySearchManager.DEFAULT_SEARCH_QUERY_LENGTH_THRESHOLD);
             HikeSharedPreferenceUtil.getInstance().saveData(CategorySearchManager.SEARCH_QUERY_LENGTH_THRESHOLD, limit);
-        }
-        else if(CategorySearchManager.AUTO_SEARCH_TIME.equals(subType))
-        {
-            long limit = data.optLong(HikeConstants.LIMIT_KEY, CategorySearchManager.DEFAULT_AUTO_SEARCH_TIME);
-            HikeSharedPreferenceUtil.getInstance().saveData(CategorySearchManager.AUTO_SEARCH_TIME, limit);
         }
         else if(CategorySearchManager.SEARCH_RESULTS_LOG_LIMIT.equals(subType))
         {
@@ -5266,6 +5329,9 @@ public class MqttMessagesManager
 
 						// To update Overflow menu on Home Screen
 						HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_HOME_OVERFLOW_CLICKED, false);
+
+						// To update the friends tab indicator
+						HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FRIENDS_TAB_NOTIF_DOT, true);
 						HikeMessengerApp.getPubSub().publish(HikePubSub.UNSEEN_STATUS_COUNT_CHANGED, null);
 					}
 

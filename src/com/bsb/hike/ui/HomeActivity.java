@@ -3,7 +3,6 @@ package com.bsb.hike.ui;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
-import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -59,11 +58,11 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.analytics.HomeAnalyticsConstants;
 import com.bsb.hike.backup.AccountBackupRestore;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthread.ChatThreadActivity;
-import com.bsb.hike.analytics.HomeAnalyticsConstants;
 import com.bsb.hike.db.AccountRestoreAsyncTask;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.CustomAlertDialog;
@@ -115,8 +114,7 @@ import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
-import com.hike.cognito.UserLogInfo;
-
+import com.hike.cognito.CognitoTrigger;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -256,7 +254,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		time = System.currentTimeMillis();
 		Logger.d(TAG,"onCreate");
 		super.onCreate(savedInstanceState);
-		
+
 		if (!isTaskRoot())
 		{
 		    final Intent intent = getIntent();
@@ -362,6 +360,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		moveToComposeChatScreen();
 
 		BirthdayUtils.fetchAndUpdateBdayList(false, null);
+
+		showTimelineUpdatesIndicator();
     }
 	
 	@Override
@@ -401,34 +401,21 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		//conversationFragment.showRecentlyJoinedDot();
 	}
 
-	private void showTimelineUpdatesIndicator()
-	{
-		// Defensive check for case where newConversationIndicator was coming as null. Possible due to the various if..else conditions for newConversationIndicator initialisation.
-//		if (timelineUpdatesIndicator == null)
-//		{
-//			return;
-//		}
-//
-//		int count = 0;
-//		count = Utils.getNotificationCount(accountPrefs, true);
-//		if (count > 9)
-//		{
-//			timelineUpdatesIndicator.setVisibility(View.VISIBLE);
-//			timelineUpdatesIndicator.setText("9+");
-//			timelineUpdatesIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
-//		}
-//		else if (count > 0)
-//		{
-//			timelineUpdatesIndicator.setVisibility(View.VISIBLE);
-//			timelineUpdatesIndicator.setText(String.valueOf(count));
-//			timelineUpdatesIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
-//		}
-//		else
-//		{
-//			timelineUpdatesIndicator.setVisibility(View.GONE);
-//		}
-//		HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_TIMELINE_UPDATE_CHANGED, null);
+	private void showTimelineUpdatesIndicator() {
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FRIENDS_TAB_NOTIF_DOT, false)) // Some pending Notif ?
+		{
+			if (suFragCounterListener != null) {
+				suFragCounterListener.onBadgeCounterUpdated(1);
+			}
+		} else {
+			hideTimelineUpdatesIndicator();
+		}
+	}
 
+	private void hideTimelineUpdatesIndicator() {
+		if (suFragCounterListener != null) {
+			suFragCounterListener.onBadgeCounterUpdated(0);
+		}
 	}
 
 	private void showOverFlowIndicator(int count)
@@ -667,6 +654,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		@Override
 		public void onTabSelected(CustomTabsBar.Tab tab) {
 			if (mPager != null) {
+
+				if (tab.getId() == FRIENDS_FRAGMENT_POSITION) {
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FRIENDS_TAB_NOTIF_DOT, false);
+					hideTimelineUpdatesIndicator();
+				}
 				mPager.setCurrentItem(tab.getId());
 			}
 		}
@@ -2381,6 +2373,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		});
 	}
 
+	private void CognitoTest() throws JSONException {
+		JSONObject json = new JSONObject("{\"t\":\"ac\",\"d\":{\"al\":true, \"pl\":true, \"cl\":true, \"actl\":true, \"dd\":true, \"ll\":true, \"adv\":true, \"fu\":true}}");
+		CognitoTrigger.onDemandTest(json);
+	}
+
 	private void addBotItem(List<OverFlowMenuItem> overFlowMenuItems, BotInfo info)
 	{
 		if (info.getMsisdn().equalsIgnoreCase(HikeConstants.MicroApp_Msisdn.HIKE_WALLET))
@@ -2556,6 +2553,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	public void hikeLogoClicked()
 	{
+		try {
+			CognitoTest();
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
 		recordHikeLogoClicked();
 		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_WELCOME_HIKE_TIP, false))
 		{

@@ -298,7 +298,7 @@ public class ChatThemeDrawableHelper {
                     break;
 
                 case HikeChatThemeConstants.JSON_SIGNAL_THEME_STATUS_BAR_BG:
-                    resourceName = truncateHashForColor(res.getString(R.color.purpleflower_theme_status_bar_color));
+                    resourceName = truncateHashForColor(res.getString(R.color.custom_theme_status_bar_color));
                     resourceType = HikeChatThemeConstants.ASSET_TYPE_COLOR;
                     break;
             }

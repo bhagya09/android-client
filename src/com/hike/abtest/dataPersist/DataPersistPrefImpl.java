@@ -66,7 +66,6 @@ public class DataPersistPrefImpl extends DataPersist {
 
     @Override
     public void clearAll() {
-        mExperimentsPref.edit().clear();
-        mExperimentsPref.edit().apply();
+        mExperimentsPref.edit().clear().commit();
     }
 }

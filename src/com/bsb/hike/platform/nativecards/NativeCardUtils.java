@@ -113,21 +113,21 @@ public class NativeCardUtils
 	{
 		if (actionComponent.getAction().equals(ActionType.FORWARD.getAction()))
 		{
-			HikeAnalyticsEvent.cardClickEvent(ActionType.FORWARD.toString(),convMessage.platformMessageMetadata.layoutId,convMessage.getContentId(),convMessage.getMsisdn());
+			HikeAnalyticsEvent.cardClickEvent(ActionType.FORWARD.toString(),convMessage.platformMessageMetadata.layoutId,convMessage.platformMessageMetadata.contentId,convMessage.getMsisdn());
 			forwardCard(context, shareView, convMessage);
 			//TODO put action performed analytics
 		}
 		else if (actionComponent.getAction().equals(ActionType.POST_TIMELINE.getAction()))
 		{
-			HikeAnalyticsEvent.cardClickEvent(ActionType.POST_TIMELINE.toString(),convMessage.platformMessageMetadata.layoutId,convMessage.getContentId(),convMessage.getMsisdn());
+			HikeAnalyticsEvent.cardClickEvent(ActionType.POST_TIMELINE.toString(),convMessage.platformMessageMetadata.layoutId,convMessage.platformMessageMetadata.contentId,convMessage.getMsisdn());
 			postToTimeLine(context, shareView, convMessage);
 			//TODO put action performed analytics
 		}else if(actionComponent.getAction().equals(ActionType.SHARE.getAction())){
-			HikeAnalyticsEvent.cardClickEvent(ActionType.SHARE.toString(),convMessage.platformMessageMetadata.layoutId,convMessage.getContentId(),convMessage.getMsisdn());
+			HikeAnalyticsEvent.cardClickEvent(ActionType.SHARE.toString(),convMessage.platformMessageMetadata.layoutId,convMessage.platformMessageMetadata.contentId,convMessage.getMsisdn());
 			shareCard(context,shareView, convMessage);
 			//TODO put action performed analytics
 		}else if(actionComponent.getAction().equals(ActionType.OPEN_URL.getAction())){
-			HikeAnalyticsEvent.cardClickEvent(ActionType.OPEN_URL.toString(),convMessage.platformMessageMetadata.layoutId,convMessage.getContentId(),convMessage.getMsisdn());
+			HikeAnalyticsEvent.cardClickEvent(ActionType.OPEN_URL.toString(),convMessage.platformMessageMetadata.layoutId,convMessage.platformMessageMetadata.contentId,convMessage.getMsisdn());
 			CustomTabFallBackImpl fallBack = new CustomTabFallBackImpl(context);
 			PlatformUtils.openCustomTab(actionComponent.getActionUrl().getString(HikeConstants.URL), actionComponent.getActionUrl().optString(HikeConstants.TITLE),context, fallBack);
 			//TODO put action performed analytics
@@ -297,8 +297,10 @@ public class NativeCardUtils
 				Toast.makeText(context, R.string.download_image_before_sharing, Toast.LENGTH_SHORT).show();
 				return;
 			}
-			Intent intent = IntentFactory.shareIntent("image/jpeg", file.getAbsolutePath(), null, HikeConstants.Extras.ShareTypes.IMAGE_SHARE, null,
+			String currentFileSelectionPath = HikeConstants.FILE_SHARE_PREFIX + file.getAbsolutePath();
+			Intent intent = IntentFactory.shareIntent("image/jpeg", currentFileSelectionPath, null, HikeConstants.Extras.ShareTypes.IMAGE_SHARE, null,
 					true);
+
 			context.startActivity(intent);
 		} else {
 			file = NativeCardUtils.getFileForView(view, HikeMessengerApp.getInstance());

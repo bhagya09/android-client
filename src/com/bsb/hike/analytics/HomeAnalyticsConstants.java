@@ -19,7 +19,13 @@ public class HomeAnalyticsConstants {
 
     public static final String SETTINGS_ORDER = "sttng";
 
-    public static final String TIMELINE_UK = "timeline";
+    public static final String UK_TIMELINE = "timeline";
+
+    public static final String UK_TL_OPEN = "TL_open";
+
+    public static final String UK_HS_FRIENDS = "hs_friends";
+
+    public static final String KINGDOM_ACT_LOG2 = "act_log2";
 
     public static final String BACKUP_UK = "backup";
 
@@ -53,7 +59,7 @@ public class HomeAnalyticsConstants {
 
     public static final String SU_GENUS_OTHER = "other";
 
-    @StringDef({SU_SPECIES_OVERFLOW, SU_SPECIES_TIMELINE_PHOTO_BUTTON, SU_SPECIES_TIMELINE_TEXT_BUTTON, SU_SPECIES_OTHER})
+    @StringDef({SU_SPECIES_OVERFLOW, SU_SPECIES_TIMELINE_PHOTO_BUTTON, SU_SPECIES_TIMELINE_TEXT_BUTTON, SU_SPECIES_OTHER, SU_SPECIES_FRIENDS_TAB})
     @Retention(RetentionPolicy.SOURCE)
     public @interface StatusUpdateSpecies {
     }
@@ -63,6 +69,8 @@ public class HomeAnalyticsConstants {
     public static final String SU_SPECIES_TIMELINE_PHOTO_BUTTON = "tl_photo";
 
     public static final String SU_SPECIES_TIMELINE_TEXT_BUTTON = "tl_text";
+
+    public static final String SU_SPECIES_FRIENDS_TAB = "friends_tab_cam";
 
     public static final String SU_SPECIES_OTHER = "other";
 
@@ -84,4 +92,5 @@ public class HomeAnalyticsConstants {
 	public static final String DP_SPECIES_EDIT_DP = "edit_dp";
 
 	public static final String DP_SPECIES_OTHER = "other";
+
 }
