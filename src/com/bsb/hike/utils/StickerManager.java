@@ -444,8 +444,6 @@ public class StickerManager
 		initiateFetchCategoryRanksAndDataTask();
 
 		QuickStickerSuggestionController.getInstance().retryFailedQuickSuggestions();
-
-		makeCallForUserParameters();
 }
 
 	public void fetchCategoryMetadataTask(List<StickerCategory> list)
@@ -2417,6 +2415,7 @@ public class StickerManager
 		HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF).saveData(StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE_ISO_CODE, true);
 		StickerManager.getInstance().downloadStickerTagData();
 		StickerManager.getInstance().downloadDefaultTagsFirstTime(false);
+		makeCallForUserParameters();
 	}
 
 	public void doSignupTasks()
@@ -2432,6 +2431,7 @@ public class StickerManager
 		StickerManager.getInstance().downloadStickerTagData();
 		StickerManager.getInstance().downloadDefaultTagsFirstTime(true);
 		initiateFetchCategoryRanksAndDataTask();
+		makeCallForUserParameters();
 	}
 
     /**
