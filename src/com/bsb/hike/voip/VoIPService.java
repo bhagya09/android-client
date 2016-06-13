@@ -1358,6 +1358,9 @@ public class VoIPService extends Service implements Listener
 		}
 		
 		this.mute = mute;
+
+		if (recorder != null)
+			recorder.setMute(this.mute);
 		
 		// Send mute status to the other party
 		final VoIPClient client = getClient();
