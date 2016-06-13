@@ -81,6 +81,9 @@ public class ChatThemeManager {
                     boolean isThreadException = false;
                     boolean isDataFetched = false;
                     try {
+                        if((fetchCTFutureTask == null) || (fetchCTAsyncTask == null)) {
+                            initializeAsyncDataFetchFromDB();
+                        }
                         isDataFetched = fetchCTFutureTask.get();
                     } catch (InterruptedException e) {
                         Logger.d(TAG, "Interrupted Exception called...>" + Thread.currentThread().getName());
@@ -100,14 +103,14 @@ public class ChatThemeManager {
         return mInstance;
     }
 
-    private static void fetchDataFromDB() {
+    private static void initializeAsyncDataFetchFromDB() {
         fetchCTFutureTask = new FutureTask<Boolean>(new FetchCTFutureTaskCallable());
         fetchCTAsyncTask = new FetchChatThemesAsyncTask(new WeakReference<FutureTask<Boolean>>(fetchCTFutureTask));
         fetchCTAsyncTask.execute();
     }
 
     public static void initializeChatThemes() {
-        fetchDataFromDB();
+        initializeAsyncDataFetchFromDB();
     }
 
     private void initializeData() {
