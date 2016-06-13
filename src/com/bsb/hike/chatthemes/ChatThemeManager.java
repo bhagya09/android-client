@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.media.ThumbnailUtils;
+import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -29,9 +30,13 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
 
 /**
  * Created by sriram on 22/02/16.
@@ -56,32 +61,69 @@ public class ChatThemeManager {
 
     public String currentDownloadingAssetsThemeId = null;
 
-    private String TAG = "ChatThemeManager";
+    private static String TAG = "ChatThemeManager";
 
     private ArrayList<String> defaultHikeThemes = null;
 
     private String recentCustomTheme = null;
 
-    private ChatThemeManager() {
+    private static FetchChatThemesAsyncTask fetchCTAsyncTask = null;
 
+    private static FutureTask<Boolean> fetchCTFutureTask = null;
+
+    private ChatThemeManager() {
+        initializeData();
     }
 
     public static ChatThemeManager getInstance() {
         if (mInstance == null) {
             synchronized (ChatThemeManager.class) {
                 if (mInstance == null) {
-                    mInstance = new ChatThemeManager();
+                    boolean isThreadException = false;
+                    boolean isDataFetched = false;
+                    try {
+                        if((fetchCTFutureTask == null) || (fetchCTAsyncTask == null)) {
+                            initializeAsyncDataFetchFromDB();
+                        }
+                        isDataFetched = fetchCTFutureTask.get();
+                    } catch (InterruptedException e) {
+                        Logger.d(TAG, "Interrupted Exception called...>" + Thread.currentThread().getName());
+                        isThreadException = true;
+                        e.printStackTrace();
+                    } catch (ExecutionException e) {
+                        Logger.d(TAG, "Exceution Exception called...>" + Thread.currentThread().getName());
+                        e.printStackTrace();
+                        isThreadException = true;
+                    }
+                    if (isThreadException && !isDataFetched) {
+                        mInstance = new ChatThemeManager();
+                    }
                 }
             }
         }
         return mInstance;
     }
 
-    public void initialize() {
-        mChatThemesMap = HikeConversationsDatabase.getInstance().getAllChatThemes();
-        mDrawableHelper = new ChatThemeDrawableHelper();
-        mAssetHelper = new ChatThemeAssetHelper();
-        addTempCustomThemeToMap();
+    private static void initializeAsyncDataFetchFromDB() {
+        fetchCTFutureTask = new FutureTask<Boolean>(new FetchCTFutureTaskCallable());
+        fetchCTAsyncTask = new FetchChatThemesAsyncTask(new WeakReference<FutureTask<Boolean>>(fetchCTFutureTask));
+        fetchCTAsyncTask.execute();
+    }
+
+    public static void initializeChatThemes() {
+        initializeAsyncDataFetchFromDB();
+    }
+
+    private void initializeData() {
+        if (mChatThemesMap == null) {
+            mChatThemesMap = HikeConversationsDatabase.getInstance().getAllChatThemes();
+        }
+        if (mDrawableHelper == null) {
+            mDrawableHelper = new ChatThemeDrawableHelper();
+        }
+        if (mAssetHelper == null) {
+            mAssetHelper = new ChatThemeAssetHelper();
+        }
     }
 
     private void getAllHikeThemesForDisplay() {
@@ -442,8 +484,13 @@ public class ChatThemeManager {
     }
 
     public void addTempCustomThemeToMap() {
+        String customThemeId = HikeChatThemeConstants.THEME_ID_CUSTOM_THEME;
+        if (mChatThemesMap.containsKey(customThemeId)) {
+            return;
+        }
+
         HikeChatTheme theme = new HikeChatTheme();
-        theme.setThemeId(HikeChatThemeConstants.THEME_ID_CUSTOM_THEME);
+        theme.setThemeId(customThemeId);
         theme.setThemeType(HikeChatThemeConstants.THEME_TYPE_CUSTOM);
         theme.setVisibilityStatus(false);
         theme.setThemeOrderIndex(0);
@@ -459,6 +506,30 @@ public class ChatThemeManager {
                 }
             }
         }
-        mChatThemesMap.put(theme.getThemeId(), theme);
+        mChatThemesMap.put(customThemeId, theme);
+    }
+
+
+    private static class FetchCTFutureTaskCallable implements Callable<Boolean> {
+        public Boolean call() {
+            mInstance = new ChatThemeManager();
+            return true;
+        }
+    }
+
+    private static class FetchChatThemesAsyncTask extends AsyncTask<Void, Void, Void> {
+        private WeakReference<FutureTask<Boolean>> mChatThemesFutureTask;
+
+        public FetchChatThemesAsyncTask(WeakReference<FutureTask<Boolean>> callableWeakReference) {
+            this.mChatThemesFutureTask = callableWeakReference;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            if (mChatThemesFutureTask.get() != null) {
+                mChatThemesFutureTask.get().run();
+            }
+            return null;
+        }
     }
 }
