@@ -1175,7 +1175,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		try
 		{
 			JSONObject json = new JSONObject();
-			json.put(AnalyticsConstants.V2.UNIQUE_KEY, HomeAnalyticsConstants.TIMELINE_UK);
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, HomeAnalyticsConstants.UK_TIMELINE);
 			json.put(AnalyticsConstants.V2.KINGDOM, HomeAnalyticsConstants.HOMESCREEN_KINGDOM);
 			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
 			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);

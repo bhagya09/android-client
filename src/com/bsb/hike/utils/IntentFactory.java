@@ -1493,24 +1493,6 @@ public class IntentFactory
 		return intent;
 	}
 
-	public static Intent getPostStatusUpdateIntent(Activity argActivity, String text, String argImagePath, boolean compressImage)
-	{
-		Intent intent = new Intent(argActivity, StatusUpdate.class);
-		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
-		if (!TextUtils.isEmpty(argImagePath))
-		{
-			intent.putExtra(StatusUpdate.STATUS_UPDATE_IMAGE_PATH, argImagePath);
-			intent.putExtra(StatusUpdate.ENABLE_COMPRESSION,compressImage);
-		}
-
-		if (!TextUtils.isEmpty(text))
-		{
-			intent.putExtra(StatusUpdate.STATUS_UPDATE_TEXT, text);
-		}
-
-		return intent;
-	}
 	public static Intent getPostStatusUpdateIntent(Context argActivity, String text, String argImagePath, boolean compressImage)
 	{
 		Intent intent = new Intent(argActivity, StatusUpdate.class);

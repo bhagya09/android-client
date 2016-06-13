@@ -17,6 +17,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.smartImageLoader.TimelineUpdatesImageLoader;
+import com.bsb.hike.timeline.TimelineServerConfigUtils;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StoryItem;
 import com.bsb.hike.utils.Logger;
@@ -197,7 +198,7 @@ public class StoryListAdapter extends BaseAdapter implements PinnedSectionListVi
             List<StatusMessage> statusMessagesList = storyItem.getDataObjects();
             ContactInfo contactInfo = (ContactInfo) storyItem.getTypeInfo();
             if (!Utils.isEmpty(statusMessagesList) || storyItem.getCategory() == StoryItem.CATEGORY_DEFAULT) {
-                if (storyItem.getCategory() == StoryItem.CATEGORY_DEFAULT) {
+                if (storyItem.getCategory() == StoryItem.CATEGORY_DEFAULT || TimelineServerConfigUtils.isStoryThumbnailAsDP()) {
                     //Load profile pic
                     mDPImageLoader.loadImage(contactInfo.getMsisdn(), viewHolder.avatarView, false, false, true, contactInfo);
                 } else {

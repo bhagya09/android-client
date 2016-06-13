@@ -49,7 +49,6 @@ import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineException;
 import com.bsb.hike.platform.HikeSDKRequestHandler;
-import com.bsb.hike.tasks.CheckForUpdateTask;
 import com.bsb.hike.tasks.SyncContactExtraInfo;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.triggers.InterceptUtils;
@@ -904,7 +903,7 @@ public class HikeService extends Service
 			try
 			{
 				JSONObject json = new JSONObject();
-				json.put(AnalyticsConstants.V2.UNIQUE_KEY, HomeAnalyticsConstants.TIMELINE_UK);
+				json.put(AnalyticsConstants.V2.UNIQUE_KEY, HomeAnalyticsConstants.UK_TIMELINE);
 				json.put(AnalyticsConstants.V2.KINGDOM, HomeAnalyticsConstants.HOMESCREEN_KINGDOM);
 				json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
 				json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);

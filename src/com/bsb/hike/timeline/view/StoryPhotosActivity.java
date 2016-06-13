@@ -1,5 +1,6 @@
 package com.bsb.hike.timeline.view;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -14,8 +15,12 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -54,12 +59,13 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
+
 /**
  * Shows stories of a friend from last "unread" photos
  * <p/>
  * Created by atul on 05/06/16.
  */
-public class StoryPhotosActivity extends HikeAppStateBaseFragmentActivity implements StoriesDataManager.StoriesDataListener, HikePubSub.Listener {
+public class StoryPhotosActivity extends HikeAppStateBaseFragmentActivity implements StoriesDataManager.StoriesDataListener, HikePubSub.Listener, View.OnClickListener {
 
     public static final String STORY_MSISDN_INTENT_KEY = "storyMsisdn";
 
@@ -91,6 +97,14 @@ public class StoryPhotosActivity extends HikeAppStateBaseFragmentActivity implem
 
     private GestureDetector gestureDetector;
 
+    private Button buttonChat;
+
+    private View replyViewContainer;
+
+    private ImageButton buttonSend;
+
+    private EditText editTextChatMsg;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         getWindow().setBackgroundDrawable(new ColorDrawable(0x00000000));
@@ -115,22 +129,38 @@ public class StoryPhotosActivity extends HikeAppStateBaseFragmentActivity implem
 
         //Setup bindings
         pagerAdapter = new StoryViewPagerAdapter();
-        textViewCounts.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showLikesContactsDialog();
-            }
-        });
+        textViewCounts.setOnClickListener(this);
 
         gestureDetector = new GestureDetector(getApplicationContext(), new GestureListener());
         pagerView.setGestureDetector(gestureDetector);
         pagerView.setScrollDurationFactor(3);
         pagerView.setPageTransformer(false, new CrossfadePageTransformer());
 
+        buttonChat.setOnClickListener(this);
+
         //Get data
         StoriesDataManager.getInstance().getStoryForFriend(mFriendMsisdn, new WeakReference<StoriesDataManager.StoriesDataListener>(this));
 
         HikeMessengerApp.getInstance().getPubSub().addListeners(this, pubSubListeners);
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId())
+        {
+            case R.id.btn_chat:
+                infoContainer.setVisibility(View.GONE);
+                replyViewContainer.setVisibility(View.VISIBLE);
+                editTextChatMsg.requestFocus();
+                // TODO WIP
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(editTextChatMsg, InputMethodManager.SHOW_IMPLICIT);
+                break;
+
+            case R.id.text_view_count:
+                showLikesContactsDialog();
+                break;
+        }
     }
 
     private class StoryViewPagerAdapter extends PagerAdapter {
@@ -183,6 +213,10 @@ public class StoryPhotosActivity extends HikeAppStateBaseFragmentActivity implem
         textViewCounts = (TextView) findViewById(R.id.text_view_count); // love count text view
         checkBoxLove = (CheckBox) findViewById(R.id.btn_love); // love checkbox
         imageInfoDivider = findViewById(R.id.imageInfoDivider); // divider in between caption and love counts
+        replyViewContainer = findViewById(R.id.reply_view_container);
+        buttonChat = (Button) findViewById(R.id.btn_chat); //button to reply to a photo
+        buttonSend = (ImageButton) findViewById(R.id.btn_send);
+        editTextChatMsg = (EditText) findViewById(R.id.edit_text_chat);
     }
 
     @Override
@@ -262,6 +296,9 @@ public class StoryPhotosActivity extends HikeAppStateBaseFragmentActivity implem
 
     @UiThread
     private void updateActionsRelatedViews() {
+        infoContainer.setVisibility(View.VISIBLE);
+        replyViewContainer.setVisibility(View.GONE);
+        editTextChatMsg.setText("");
         StatusMessage currentStatusMessage = getCurrentStatusMessage();
         ActionsDataModel actionsData = TimelineActionsManager.getInstance().getActionsData()
                 .getActions(currentStatusMessage.getMappedId(), ActionsDataModel.ActionTypes.LIKE, ActionsDataModel.ActivityObjectTypes.STATUS_UPDATE);
@@ -353,4 +390,6 @@ public class StoryPhotosActivity extends HikeAppStateBaseFragmentActivity implem
         super.onDestroy();
         HikeMessengerApp.getInstance().getPubSub().removeListeners(this, pubSubListeners);
     }
+
+
 }
