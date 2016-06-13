@@ -82,8 +82,10 @@ public class AddFriendsFragment extends ListFragment {
         text.setText(R.string.add_via_address_book);
 
         parent.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View v) {
+                //TODO open address book here
 
             }
         });
