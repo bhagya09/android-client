@@ -632,7 +632,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	CustomTabsBar.CustomTabBadgeCounterListener suFragCounterListener = new CustomTabsBar.CustomTabBadgeCounterListener() {
 		@Override
 		public void onBadgeCounterUpdated(int newCount) {
-			tabsBar.getTab(FRIENDS_FRAGMENT_POSITION).setIndicator(newCount);
+			if (null != tabsBar)
+				tabsBar.getTab(FRIENDS_FRAGMENT_POSITION).setIndicator(newCount);
 		}
 	};
 
