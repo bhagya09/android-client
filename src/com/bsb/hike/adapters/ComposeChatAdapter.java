@@ -198,13 +198,13 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			fetchFriendsTask.addOtherFeaturesList(hikeOtherFeaturesList,filteredHikeOtherFeaturesList);
 		}
 		if (createGroupBroadcastOption) {
-			ContactInfo newGroupListItem = new HikeFeatureInfo(context.getString(R.string.new_group), R.drawable.ic_new_group, null, false, new Intent(), false, false);
+			ContactInfo newGroupListItem = new HikeFeatureInfo(context.getString(R.string.new_group), R.drawable.ic_new_group, null, false, new Intent(), false);
 			newGroupListItem.setId(ComposeChatAdapter.HIKE_FEATURES_ID);
 			newGroupListItem.setName(context.getString(R.string.new_group));
 			newGroupListItem.setMsisdn(ComposeChatAdapter.HIKE_FEATURES_NEW_GROUP_ID);
 			newGroupListItem.setOnhike(true);
 
-			ContactInfo newBroadcastListItem = new HikeFeatureInfo(context.getString(R.string.new_broadcast), R.drawable.ic_new_broadcast, null, false, new Intent(), false, false);
+			ContactInfo newBroadcastListItem = new HikeFeatureInfo(context.getString(R.string.new_broadcast), R.drawable.ic_new_broadcast, null, false, new Intent(), false);
 			newBroadcastListItem.setId(ComposeChatAdapter.HIKE_FEATURES_ID);
 			newBroadcastListItem.setName(context.getString(R.string.new_broadcast));
 			newBroadcastListItem.setMsisdn(ComposeChatAdapter.HIKE_FEATURES_NEW_BROADCAST_ID);
@@ -226,12 +226,13 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		ContactInfo contactInfo = null;
 		ViewHolder holder = null;
 
+		contactInfo = getItem(position);
+
 		if (convertView == null)
 		{
-			convertView = inflateView(viewType, parent);
+			convertView = inflateView(viewType, parent, contactInfo);
 		}
 
-		contactInfo = getItem(position);
 		// either section or other we do have
 		if (viewType == ViewType.SECTION)
 		{
@@ -287,13 +288,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			{
 				holder.name.setText(hikeFeatureInfo.getName());
 			}
-			String descp = hikeFeatureInfo.getDescription();
-			if (TextUtils.isEmpty(descp)) {
-				holder.numLayout.setVisibility(View.GONE);
-			} else {
-				holder.numLayout.setVisibility(View.VISIBLE);
-				holder.status.setText(descp);
-			}
+			holder.status.setText(hikeFeatureInfo.getDescription());
 
 			Drawable timelineLogoDrawable = ContextCompat.getDrawable(context, hikeFeatureInfo.getIconDrawable());
 			Drawable otherFeaturesDrawable = ContextCompat.getDrawable(context, R.drawable.other_features_bg);
@@ -304,14 +299,13 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
 			holder.userImage.setPadding(paddingPx, paddingPx, paddingPx, paddingPx);
 
-			if (hikeFeatureInfo.isIconBGColorToBeSet()) {
-				if (Utils.isJellybeanOrHigher()) {
-					holder.userImage.setBackground(otherFeaturesDrawable);
-				} else {
-					holder.userImage.setBackgroundDrawable(otherFeaturesDrawable);
-				}
-			} else {
-				holder.userImage.setBackground(null);
+			if (Utils.isJellybeanOrHigher())
+			{
+				holder.userImage.setBackground(otherFeaturesDrawable);
+			}
+			else
+			{
+				holder.userImage.setBackgroundDrawable(otherFeaturesDrawable);
 			}
 
 			if (hikeFeatureInfo.isShowCheckBox())
@@ -331,6 +325,21 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			{
 				holder.checkbox.setVisibility(View.GONE);
 			}
+		}
+		else if (viewType == ViewType.CREATE_ONE_TO_N) {
+			holder = (ViewHolder) convertView.getTag();
+			HikeFeatureInfo hikeFeatureInfo = (HikeFeatureInfo)contactInfo;
+			Integer startIndex = contactSpanStartIndexes.get(hikeFeatureInfo.getMsisdn());
+			if(startIndex!=null && viewType != ViewType.NEW_CONTACT)
+			{
+				holder.name.setText(getSpanText(hikeFeatureInfo.getName(), startIndex), TextView.BufferType.SPANNABLE);
+			}
+			else
+			{
+				holder.name.setText(hikeFeatureInfo.getName());
+			}
+			holder.userImage.setImageResource(hikeFeatureInfo.getIconDrawable());
+
 		}
 		else if (viewType == ViewType.BDAY_CONTACT)
 		{
@@ -588,7 +597,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		iconloader.loadImage(id, holder.userImage, isListFlinging, false, true,contactInfo);
 	}
 
-	private View inflateView(ViewType viewType, ViewGroup parent)
+	private View inflateView(ViewType viewType, ViewGroup parent, ContactInfo info)
 	{
 		View convertView = null;
 		ViewHolder holder = null;
@@ -628,11 +637,18 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 				convertView.setTag(holder);
 				break;
 
+			case CREATE_ONE_TO_N:
+				convertView = LayoutInflater.from(context).inflate(R.layout.new_group_broadcast_item, parent, false);
+				holder = new ViewHolder();
+				holder.userImage = (ImageView) convertView.findViewById(R.id.icon);
+				holder.name = (TextView) convertView.findViewById(R.id.text);
+				convertView.setTag(holder);
+				break;
+
 			default:
 				convertView = LayoutInflater.from(context).inflate(R.layout.hike_list_item, parent, false);
 				holder = new ViewHolder();
 				holder.userImage = (ImageView) convertView.findViewById(R.id.contact_image);
-				holder.numLayout = (View) convertView.findViewById(R.id.num_layout);
 				holder.name = (TextView) convertView.findViewById(R.id.name);
 				holder.status = (TextView) convertView.findViewById(R.id.number);
 				holder.statusMood = (ImageView) convertView.findViewById(R.id.status_mood);
@@ -669,8 +685,6 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		RecyclerView recyclerView;
 
 		ImageView addFriendIcon;
-
-		View numLayout;
 
 		View addFriend;
 
