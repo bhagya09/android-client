@@ -109,6 +109,10 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 	public static final String BDAY_CONTACT_ID = "--136";
 
+	public static final String HIKE_FEATURES_NEW_GROUP_ID = "-137";
+
+	public static final String HIKE_FEATURES_NEW_BROADCAST_ID = "-138";
+
 	/*stores the regex for matching number during search*/
 	public static Pattern numberPattern;
 
@@ -419,6 +423,8 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		protected void publishResults(CharSequence constraint, FilterResults results)
 		{
 			List<List<ContactInfo>> resultList = (List<List<ContactInfo>>) results.values;
+
+			makeFilteredList(constraint, resultList);
 
 			if(nuxRecommendedList != null && !nuxRecommendedList.isEmpty())
 			{

@@ -32,6 +32,7 @@ import com.bsb.hike.NUXConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
+import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.HikeFeatureInfo;
 import com.bsb.hike.models.NuxSelectFriends;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -89,6 +90,8 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
 	private boolean isGroupFirst;
 
+	private boolean createGroupBroadcastOption;
+
     public ComposeChatAdapter(Context context, ListView listView, boolean fetchGroups, boolean fetchRecents, String existingGroupId, String sendingMsisdn, FriendsListFetchedCallback friendsListFetchedCallback, boolean showSMSContacts, boolean showHikeContacts, boolean showTimeline, boolean showBdaySection)
 	{
 		super(context, listView, friendsListFetchedCallback, ContactInfo.lastSeenTimeComparatorWithoutFav);
@@ -119,6 +122,11 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		this.showTimeline = showTimeline;
 
 		this.showBdaySection = showBdaySection;
+	}
+
+	public void setCreateGroupBroadcastOption(boolean setOption)
+	{
+		createGroupBroadcastOption = setOption;
 	}
 
 	public void setIsCreatingOrEditingGroup(boolean b)
@@ -178,7 +186,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
                     showBdaySection, hikeBdayContactList, filteredHikeBdayContactList);
 		}
 
-		if(showTimeline)
+		if (showTimeline)
 		{
 			ContactInfo timelineListItem = new HikeFeatureInfo(context.getResources().getString(R.string.timeline), R.drawable.ic_timeline, context.getResources().getString(
 					R.string.timeline_short_desc), true, new Intent());
@@ -189,6 +197,24 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			timelineListItem.setOnhike(true);
 
 			hikeOtherFeaturesList.add(timelineListItem);
+
+			fetchFriendsTask.addOtherFeaturesList(hikeOtherFeaturesList,filteredHikeOtherFeaturesList);
+		}
+		if (createGroupBroadcastOption) {
+			ContactInfo newGroupListItem = new HikeFeatureInfo(context.getString(R.string.new_group), R.drawable.ic_new_group, null, false, new Intent(), false, false);
+			newGroupListItem.setId(ComposeChatAdapter.HIKE_FEATURES_ID);
+			newGroupListItem.setName(context.getString(R.string.new_group));
+			newGroupListItem.setMsisdn(ComposeChatAdapter.HIKE_FEATURES_NEW_GROUP_ID);
+			newGroupListItem.setOnhike(true);
+
+			ContactInfo newBroadcastListItem = new HikeFeatureInfo(context.getString(R.string.new_broadcast), R.drawable.ic_new_broadcast, null, false, new Intent(), false, false);
+			newBroadcastListItem.setId(ComposeChatAdapter.HIKE_FEATURES_ID);
+			newBroadcastListItem.setName(context.getString(R.string.new_broadcast));
+			newBroadcastListItem.setMsisdn(ComposeChatAdapter.HIKE_FEATURES_NEW_BROADCAST_ID);
+			newBroadcastListItem.setOnhike(true);
+
+			hikeOtherFeaturesList.add(newGroupListItem);
+			hikeOtherFeaturesList.add(newBroadcastListItem);
 
 			fetchFriendsTask.addOtherFeaturesList(hikeOtherFeaturesList,filteredHikeOtherFeaturesList);
 		}
@@ -264,7 +290,13 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			{
 				holder.name.setText(hikeFeatureInfo.getName());
 			}
-			holder.status.setText(hikeFeatureInfo.getDescription());
+			String descp = hikeFeatureInfo.getDescription();
+			if (TextUtils.isEmpty(descp)) {
+				holder.numLayout.setVisibility(View.GONE);
+			} else {
+				holder.numLayout.setVisibility(View.VISIBLE);
+				holder.status.setText(descp);
+			}
 
 			Drawable timelineLogoDrawable = ContextCompat.getDrawable(context, hikeFeatureInfo.getIconDrawable());
 			Drawable otherFeaturesDrawable = ContextCompat.getDrawable(context, R.drawable.other_features_bg);
@@ -275,13 +307,14 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
 			holder.userImage.setPadding(paddingPx, paddingPx, paddingPx, paddingPx);
 
-			if (Utils.isJellybeanOrHigher())
-			{
-				holder.userImage.setBackground(otherFeaturesDrawable);
-			}
-			else
-			{
-				holder.userImage.setBackgroundDrawable(otherFeaturesDrawable);
+			if (hikeFeatureInfo.isIconBGColorToBeSet()) {
+				if (Utils.isJellybeanOrHigher()) {
+					holder.userImage.setBackground(otherFeaturesDrawable);
+				} else {
+					holder.userImage.setBackgroundDrawable(otherFeaturesDrawable);
+				}
+			} else {
+				holder.userImage.setBackground(null);
 			}
 
 			if (hikeFeatureInfo.isShowCheckBox())
@@ -575,6 +608,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			convertView = LayoutInflater.from(context).inflate(R.layout.hike_list_item, parent, false);
 			holder = new ViewHolder();
 			holder.userImage = (ImageView) convertView.findViewById(R.id.contact_image);
+			holder.numLayout = (View) convertView.findViewById(R.id.num_layout);
 			holder.name = (TextView) convertView.findViewById(R.id.name);
 			holder.status = (TextView) convertView.findViewById(R.id.number);
 			holder.statusMood = (ImageView) convertView.findViewById(R.id.status_mood);
@@ -611,6 +645,8 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		RecyclerView recyclerView;
 
 		ImageView addFriendIcon;
+
+		View numLayout;
 	}
 
 	@Override
@@ -646,7 +682,16 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			ContactInfo otherFeaturesSection = new ContactInfo(SECTION_ID, "1", context.getResources().getString(R.string.you).toUpperCase(), HIKE_FEATURES_ID);
 			if (!filteredHikeOtherFeaturesList.isEmpty())
 			{
-				completeList.add(otherFeaturesSection);
+				for (ContactInfo info: filteredHikeOtherFeaturesList)
+				{
+					if (info instanceof HikeFeatureInfo)
+					{
+						if (((HikeFeatureInfo) info).needsHeader()) {
+							completeList.add(otherFeaturesSection);
+							break;
+						}
+					}
+				}
 				completeList.addAll(filteredHikeOtherFeaturesList);
 			}
 			else

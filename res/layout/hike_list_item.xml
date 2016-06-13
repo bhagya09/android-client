@@ -71,10 +71,11 @@
     <LinearLayout
         android:id="@+id/name_num_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_toRightOf="@id/contact_image"
         android:layout_toLeftOf="@id/action_container"
         android:orientation="vertical"
+		android:gravity="center_vertical"
         style="@style/compose_name_container_margins">
 
         <com.bsb.hike.view.CustomFontTextView
@@ -82,6 +83,7 @@
             style="@style/ListItemHeaderTextView" />
 
         <LinearLayout
+				android:id="@+id/num_layout"
             	android:layout_width="wrap_content"
             	android:layout_height="wrap_content"
             	android:orientation="horizontal"
