@@ -640,7 +640,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 	}
 
-	CustomTabsBar.CustomTabBadgeCounterListener suFragCounterListener = new CustomTabsBar.CustomTabBadgeCounterListener() {
+	CustomTabsBar.CustomTabBadgeCounterListener storyFragCounterListener = new CustomTabsBar.CustomTabBadgeCounterListener() {
 		@Override
 		public void onBadgeCounterUpdated(int newCount) {
 			if (null != tabsBar)
@@ -721,6 +721,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	private Fragment getStoryFragment() {
 		if (storyFragment == null) {
 			storyFragment = StoryFragment.newInstance(null);
+			storyFragment.setCustomTabBadgeCounterListener(storyFragCounterListener);
 		}
 		return storyFragment;
 	}
