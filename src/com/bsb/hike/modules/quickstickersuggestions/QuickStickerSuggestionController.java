@@ -22,7 +22,6 @@ import com.bsb.hike.modules.quickstickersuggestions.tasks.InsertQuickSuggestionT
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.StickerManager;
 
-import org.apache.http.util.TextUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -258,12 +257,6 @@ public class QuickStickerSuggestionController
             return true;
         }
         return false;
-    }
-
-    public int getSetIdForQuickSuggestions()
-    {
-        String uid = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.UID_SETTING, null);
-        return Math.abs(TextUtils.isEmpty(uid) ? 0 : uid.hashCode() % 100) + 1;
     }
 
     public boolean shouldAnimateSticker(ConvMessage convMessage) {
