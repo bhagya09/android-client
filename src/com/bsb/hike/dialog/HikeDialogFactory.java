@@ -1382,8 +1382,8 @@ public class HikeDialogFactory
 		CustomAlertDialog dialog = new CustomAlertDialog(context, dialogId);
 		dialog.setMessage(context.getString(R.string.sm_confirm_dialog_msg, size));
 		dialog.setTitle(context.getString(R.string.sm_confirm_dialog_heading));
-		dialog.setPositiveButton(R.string.OK, listener);
-		dialog.setNegativeButton(R.string.CANCEL, listener);
+		dialog.setPositiveButton(R.string.YES, listener);
+		dialog.setNegativeButton(R.string.NO, listener);
 		dialog.show();
 		return dialog;
 	}
@@ -1393,8 +1393,8 @@ public class HikeDialogFactory
 		CustomAlertDialog dialog = new CustomAlertDialog(context, dialogId);
 		dialog.setMessage(context.getString(R.string.sm_fallback_confirm_dialog_text));
 		dialog.setTitle(context.getString(R.string.sm_fallback_header));
-		dialog.setPositiveButton(R.string.OK, listener);
-		dialog.setNegativeButton(R.string.CANCEL, listener);
+		dialog.setPositiveButton(R.string.YES, listener);
+		dialog.setNegativeButton(R.string.NO, listener);
 		dialog.show();
 		return dialog;
 	}
