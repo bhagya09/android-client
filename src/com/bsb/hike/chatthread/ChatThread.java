@@ -1356,13 +1356,10 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		mActionBar.showOverflowMenu(width, LayoutParams.WRAP_CONTENT, -rightMargin, -(int) (0.5 * Utils.scaledDensityMultiplier), activity.findViewById(R.id.overflow_anchor));
 	}
 
-	private void stickerClicked(ConvMessage convMessage)
-	{
+	private void stickerClicked(ConvMessage convMessage) {
 		boolean isSent = convMessage.isSent();
-		if (QuickStickerSuggestionController.getInstance().isStickerClickAllowed(isSent))
-		{
-			if(QuickStickerSuggestionController.getInstance().isFtueSessionRunning() && !QuickStickerSuggestionController.getInstance().isFtueSessionRunning(convMessage.isSent()))
-			{
+		if (QuickStickerSuggestionController.getInstance().isStickerClickAllowed(isSent)) {
+			if (QuickStickerSuggestionController.getInstance().isFtueSessionRunning() && !QuickStickerSuggestionController.getInstance().isFtueSessionRunning(convMessage.isSent())) {
 				return;
 			}
 
@@ -1370,14 +1367,14 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			QuickStickerSuggestionController.getInstance().setCurrentQSConvMessage(convMessage);
 			openOrRefreshStickerPalette(convMessage);
 
-			if (QuickStickerSuggestionController.getInstance().isFtueSessionRunning(convMessage.isSent()))
-			{
+			if (QuickStickerSuggestionController.getInstance().isFtueSessionRunning(convMessage.isSent())) {
 				mTips.setTipSeen(isSent ? ChatThreadTips.QUICK_SUGGESTION_SENT_SECOND_TIP : ChatThreadTips.QUICK_SUGGESTION_RECEIVED_SECOND_TIP);
 				QuickStickerSuggestionController.getInstance().setFtueTipSeen(QuickStickerSuggestionController.QUICK_SUGGESTION_STICKER_ANIMATION);
 				uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
 			}
+		} else {
+			QuickStickerSuggestionController.getInstance().showHikeDirectToast(isSent);
 		}
-
 		StickerManager.getInstance().sendStickerClickedLogs(convMessage, HikeConstants.SINGLE_TAP);
 	}
 
