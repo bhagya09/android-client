@@ -1,12 +1,16 @@
 package com.bsb.hike.ui.fragments;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ListFragment;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.SearchView;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.TextUtils;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -15,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.FriendRequestAdapter;
@@ -26,6 +31,7 @@ import com.bsb.hike.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.Inflater;
 
 /**
  * Created by gauravmittal on 19/05/16.
@@ -135,6 +141,7 @@ public class AddFriendsViaABFragment extends ListFragment {
             if (!TextUtils.isEmpty(newText))
                 newText = newText.toLowerCase().trim();
             mAdapter.onSearchQueryChanged(newText, null);
+            updateListEmptyState(newText);
             return true;
         }
     };
@@ -149,11 +156,22 @@ public class AddFriendsViaABFragment extends ListFragment {
 
     private void endSearch() {
         mAdapter.endSearchMode();
-
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        return super.onOptionsItemSelected(item);
+    private void updateListEmptyState(String searchText) {
+        String emptyText = String.format(getActivity().getString(R.string.home_search_empty_text), searchText);
+        TextView emptyTextView = (TextView) getView().findViewById(R.id.empty_search_txt);
+        if (emptyTextView != null) {
+            if (!TextUtils.isEmpty(searchText)) {
+                SpannableString spanEmptyText = new SpannableString(emptyText);
+                String darkText = "'" + searchText + "'";
+                int start = spanEmptyText.toString().indexOf(darkText);
+                int end = start + darkText.length();
+                spanEmptyText.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.standard_light_grey2)), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                emptyTextView.setText(spanEmptyText, TextView.BufferType.SPANNABLE);
+            } else {
+                emptyTextView.setText(emptyText);
+            }
+        }
     }
 }
