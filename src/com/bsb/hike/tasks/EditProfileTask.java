@@ -130,7 +130,7 @@ public class EditProfileTask implements IHikeHTTPTask
         JSONObject json = getEditProfileRequestBody();
         if (json != null && json.length() > 0)
         {
-            if (this.profileType == ProfileActivity.ProfileType.GROUP_INFO)
+            if (this.profileType == ProfileActivity.ProfileType.GROUP_INFO || this.profileType == ProfileActivity.ProfileType.BROADCAST_INFO)
             {
                 editNameRequestToken = HttpRequests.editGroupProfileNameRequest(json, getEditNameRequestListener(), msisdn);
             }

@@ -670,8 +670,6 @@ public class HikeConstants
 
 	public static final String BLOKED_LIST_PREF = "blockedList";
 
-	public static final String FAV_LIST_PREF = "favoriteList";
-
 	public static final String STEALTH_MODE_PREF = "stealthModeSettings";
 
 	public static final String STEALTH_PREF_SCREEN = "stealthPrefScreen";
@@ -1040,7 +1038,7 @@ public class HikeConstants
 
 	public static final String MAIL = "support@hike.in";
 
-	public static final int MAX_RECENTS_TO_SHOW = 10;
+	public static final int MAX_RECENTS_TO_SHOW = 20;
 
 	public static final int MAX_RECENTLY_JOINED_HIKE_TO_SHOW = 5;
 
@@ -1534,8 +1532,6 @@ public class HikeConstants
 
 		public static final String PREF = "pref";
 
-		public static final String EDIT = "edit";
-
 		public static final String IMAGE_PATH = "image-path";
 
 		public static final String SCALE = "scale";
@@ -1769,8 +1765,6 @@ public class HikeConstants
 		public static final String CREATE_GROUP_SRC = "createGroupSource";
 
 		public static final String COMPOSE_MODE = "composeMode";
-
-		public static final int CREATE_BROADCAST_MODE = 7;
 
 		public static final String FROM_CREDITS_SCREEN = "fromCreditsScreen";
 
@@ -2021,8 +2015,6 @@ public class HikeConstants
 		public static final String CHAT_INTENT_TIMESTAMP = "chat_ts";
 
 		public static final String GROUP_CHAT_DP = "group_chat_dp";
-
-		public static final String IS_MICROAPP_SHOWCASE_INTENT = "microappShowcaseIntent";
 
 		public static final String STICKER_SETTINGS_TASK = "stickerSettingsTask";
 
@@ -2429,8 +2421,6 @@ public class HikeConstants
 		public static final String LS_FAVOURITES_CLICKED = "psLS_F";
 
 		public static final String LS_NOBODY_CLICKED = "psLS_N";
-
-		public static final String MANAGE_FAV_LIST_SETTING = "psMFav";
 
 		public static final String STICKER_SETTINGS_REORDER_CLICKED = "ssReorderClick";
 
@@ -4511,5 +4501,7 @@ public class HikeConstants
 	public static final String SPACE_MANAGER_JSON = "sm_json";
 
 	public static final long DEFAULT_PACK_METADATA_REFRESH_FREQUENCY_IN_DAYS = 7L;
+
+    public static final String FRIENDS_TAB_NOTIF_DOT = "frnTabNotifDot";
 
 }

@@ -7,4 +7,5 @@
     <ListView
         android:id="@id/android:list"
         style="@style/HomeList" />
+
 </LinearLayout>

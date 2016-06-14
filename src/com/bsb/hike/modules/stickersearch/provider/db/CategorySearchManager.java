@@ -160,7 +160,7 @@ public class CategorySearchManager
 		}
 		else
 		{
-			result = HikeStickerSearchDatabase.getInstance().searchIntoFTSAndFindCategoryDataList(searchKey);
+			result = HikeStickerSearchDatabase.getInstance().searchIntoFTSAndFindCategoryDataList(query, exactMatch);
 
 			if (result == null)
 			{

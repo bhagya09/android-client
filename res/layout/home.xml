@@ -24,8 +24,7 @@
             android:id="@+id/tab_action_bar_parent"
             android:layout_width="match_parent"
             android:layout_height="@dimen/custom_tab_action_bar_height"
-            android:layout_alignParentBottom="true"
-            android:background="@color/custom_tab_action_bar"/>
+            android:layout_alignParentBottom="true"/>
 
         <View
             android:id="@+id/fragment_limit"

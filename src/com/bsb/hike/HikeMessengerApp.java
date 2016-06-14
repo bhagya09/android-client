@@ -56,6 +56,7 @@ import com.bsb.hike.service.SendGCMIdToServerTrigger;
 import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.smartcache.HikeLruCache.ImageCacheParams;
 import com.bsb.hike.tasks.FetchHikeUIDTaskForUpgrade;
+import com.bsb.hike.timeline.TimelineUtils;
 import com.bsb.hike.ui.CustomTabsHelper;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.ActivityTimeLogger;
@@ -66,31 +67,9 @@ import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
-import com.hike.abtest.ABTest;
 import com.crashlytics.android.Crashlytics;
+import com.hike.abtest.ABTest;
 import com.twinprime.TwinPrimeSDK.TwinPrimeSDK;
-
-import org.acra.ACRA;
-import org.acra.ErrorReporter;
-import org.acra.ReportField;
-import org.acra.annotation.ReportsCrashes;
-import org.acra.collector.CrashReportData;
-import org.acra.sender.HttpSender;
-import org.acra.sender.ReportSender;
-import org.acra.sender.ReportSenderException;
-import org.acra.util.HttpRequest;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.acra.ACRA;
 import org.acra.ErrorReporter;
@@ -924,6 +903,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 				|| settings.getInt(HikeConstants.UPGRADE_FOR_CHAT_PROPERTIES, 0) == 0
 				|| settings.getInt(MIGRATE_TABLE_TO_USER, 0) == 1
 				|| settings.getBoolean(PRIVACY_SETTINGS_LAST_SEEN_UPGRADE, false) == false
+				|| !HikeSharedPreferenceUtil.getInstance().contains(TimelineUtils.KEY_LAST_SEEN_SUID)
 				|| TEST)
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE, System.currentTimeMillis());

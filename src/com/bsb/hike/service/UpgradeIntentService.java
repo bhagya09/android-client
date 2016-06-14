@@ -18,6 +18,7 @@ import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.tasks.MigrateTablesForHikeUID;
+import com.bsb.hike.timeline.TimelineUtils;
 import com.bsb.hike.ui.HikePreferences;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
@@ -212,6 +213,12 @@ public class UpgradeIntentService extends IntentService
 		Utils.connectToGcmPreSignup();
 
 		Utils.recordUpgradeTaskCompletion(TAG, (System.currentTimeMillis() - upgradeIntentServiceInitSt));
+
+		long lastSeenSUID = HikeSharedPreferenceUtil.getInstance().getData(TimelineUtils.KEY_LAST_SEEN_SUID, 0l);
+		if(lastSeenSUID == 0l)
+		{
+			TimelineUtils.updateLastSeenSUID();
+		}
 
 	}
 

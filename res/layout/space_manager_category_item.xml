@@ -4,25 +4,22 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/white"
-    android:paddingTop="30dp"
+    android:paddingTop="20dp"
     android:paddingRight="19dp"
     android:paddingLeft="16dp"
-    android:paddingBottom="6dp">
+    android:paddingBottom="3dp">
 
     <com.bsb.hike.view.CustomFontTextView
         android:id="@+id/header"
         android:layout_alignParentLeft="true"
         android:text="@string/sm_category_header_text"
-        style="@style/ListSectionTextView"
-        android:textStyle="normal"
-        android:fontFamily="sans-serif-medium"/>
+        style="@style/ListSectionTextView"/>
 
     <com.bsb.hike.view.CustomFontTextView
         android:id="@+id/subHeader"
         android:layout_alignParentRight="true"
         android:text="@string/sm_category_subheader_text"
-        style="@style/AtomicTipBodyText"
-        android:textColor="@color/share_text"
-        android:fontFamily="sans-serif-medium"/>
+        style="@style/ListSectionTextView"
+        android:textColor="@color/share_text"/>
 
 </RelativeLayout>

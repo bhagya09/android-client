@@ -61,7 +61,7 @@
     <color name="unread_message">#0090ec</color>
     <color name="conversation_pressed">#7fececec</color>
     <color name="list_divider">#e6e6e6</color>
-    <color name="home_bg">#fffffc</color>
+    <color name="home_bg">#ffffff</color>
     <color name="update_no_btn">#73716d</color>
     <color name="chat_thread_default_bg">#e8e3d8</color>
     <color name="actionbar_text">#faf8f2</color>
@@ -363,5 +363,10 @@
     <color name="black_8">#14000000</color>
     <color name="black_72">#B8000000</color>
     <color name="black_64">#A3000000</color>
+    <color name="white_96">#F5FFFFFF</color>
+    <color name="sm_ev_text">#803d475b</color>
+    <color name="black_32">#52000000</color>
+
+    <color name="custom_theme_status_bar_color">#000000</color>
 
 </resources>

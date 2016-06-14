@@ -185,7 +185,6 @@ import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.ui.HikePreferences;
 import com.bsb.hike.ui.HomeActivity;
-import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.SignupActivity;
 import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.ui.WelcomeActivity;
@@ -3456,15 +3455,6 @@ public class Utils
 	{
 		final Intent intent = new Intent(context, HomeActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
-		return intent;
-	}
-
-	public static Intent getPeopleActivityIntent(Context context)
-	{
-		final Intent intent = new Intent(context, PeopleActivity.class);
-		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		intent.putExtra(HikeConstants.Extras.FROM_NOTIFICATION, true);
 
 		return intent;
 	}

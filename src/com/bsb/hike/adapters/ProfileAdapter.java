@@ -1172,6 +1172,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.On
 				ContactManager.getInstance().toggleLastSeenSetting(mContactInfo, isChecked);
 				HikeMessengerApp.getInstance().getPubSub().publish(HikePubSub.USER_PRIVACY_TOGGLED, null);
 				recordLastSeenSettingToggle();
+				HikeMessengerApp.getPubSub().publish(HikePubSub.LAST_SEEN_SETTING_TOGGLED, mContactInfo);
 				break;
 
 			case R.id.status_update_switch:

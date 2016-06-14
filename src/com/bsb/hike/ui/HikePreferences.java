@@ -217,7 +217,6 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
         addOnPreferenceClickListeners(HikeConstants.STATUS_BOOLEAN_PREF);
         addOnPreferenceClickListeners(HikeConstants.CHAT_BG_NOTIFICATION_PREF);
         addOnPreferenceClickListeners(HikeConstants.NOTIF_SOUND_PREF);
-        addOnPreferenceClickListeners(HikeConstants.FAV_LIST_PREF);
         addOnPreferenceClickListeners(HikeConstants.CALLER_BLOKED_LIST_PREF);
     }
 
@@ -830,11 +829,6 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
                     task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 }
             }
-        } else if (HikeConstants.FAV_LIST_PREF.equals(preference.getKey())) {
-            HAManager.logClickEvent(HikeConstants.LogEvent.MANAGE_FAV_LIST_SETTING);
-            Intent intent = new Intent(HikePreferences.this, PeopleActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(intent);
         } else if (HikeConstants.STEALTH_MODE_PREF.equals(preference.getKey())) {
             recordHiddenModeSettingsClick();
             startActivity(Utils.getIntentForHiddenSettings(HikePreferences.this));
@@ -1023,7 +1017,12 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
                 preference.setTitle(getString(R.string.last_seen_header) + ": " + selectedPrivacyValue);
                 preference.setSummary(ls_summary);
                 PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean(HikeConstants.LAST_SEEN_PREF, isLSEnabled).commit();
-                sendNLSToServer(slectedPrivacyId, isLSEnabled);
+                if (Utils.isFavToFriendsMigrationAllowed()) {
+                    sendULSToServer(slectedPrivacyId, isLSEnabled);
+                } else {
+                    sendNLSToServer(slectedPrivacyId, isLSEnabled);
+                }
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -1412,15 +1411,6 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
             lp.setTitle(lp.getTitle() + ": " + lp.getEntry());
         }
         lp.setNegativeButtonText(R.string.CANCEL);
-
-        // Need to show the entry values differently in case friends experiment is on
-
-        IconPreference favPref = (IconPreference) getPreferenceScreen().findPreference(HikeConstants.FAV_LIST_PREF);
-
-        if (favPref != null) {
-            favPref.setTitle(getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.privacy_friends_key : R.string.privacy_favorites_key));
-            favPref.setSummary(getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.frn_list_summary : R.string.fav_list_summary));
-        }
 
         SwitchPreferenceCompat profilePicPrefs = (SwitchPreferenceCompat) getPreferenceScreen().findPreference(HikeConstants.PROFILE_PIC_PREF);
 

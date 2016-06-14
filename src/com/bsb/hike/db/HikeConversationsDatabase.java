@@ -5933,6 +5933,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 
 	public List<StatusMessage> getStatusMessages(boolean timelineUpdatesOnly, int limit, int lastStatusId, String... msisdnList)
 	{
+		return getStatusMessages(timelineUpdatesOnly, limit, lastStatusId, -1, false, msisdnList);
+	}
+
+	public List<StatusMessage> getStatusMessages(boolean timelineUpdatesOnly, int limit, int lastStatusId, int firstStatusId, boolean getOnlyUnread, String... msisdnList)
+	{
 		String[] columns = new String[] { DBConstants.STATUS_ID, DBConstants.STATUS_MAPPED_ID, DBConstants.MSISDN, DBConstants.STATUS_TEXT, DBConstants.STATUS_TYPE,
 				DBConstants.TIMESTAMP, DBConstants.MOOD_ID, DBConstants.TIME_OF_DAY, DBConstants.FILE_KEY, DBConstants.IS_READ};
 
@@ -5961,12 +5966,21 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		{
 			selection.append(" AND " + DBConstants.STATUS_ID + " < " + lastStatusId);
 		}
+		else if (firstStatusId != -1)
+		{
+			selection.append(" AND " + DBConstants.STATUS_ID + " > " + firstStatusId);
+		}
 
 		String orderBy = DBConstants.STATUS_ID + " DESC ";
 
 		if (limit != -1)
 		{
 			orderBy += "LIMIT " + limit;
+		}
+
+		if(getOnlyUnread)
+		{
+			selection.append(" AND "+ DBConstants.IS_READ + " = 0");
 		}
 
 		Cursor c = null;
@@ -7165,9 +7179,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				 * We don't support custom themes yet.
 				 */
 				if (chatBgJson.optBoolean(HikeConstants.CUSTOM)) {
+					ChatThemeManager.getInstance().downloadThemeContent(bgId, true);
 
-					Logger.d(getClass().getSimpleName(), "We don't support custom themes yet");
-					continue;
+//					Logger.d(getClass().getSimpleName(), "We don't support custom themes yet");
+//					continue;
 				}
 
 				contentValues.put(DBConstants.MSISDN, msisdn);
@@ -12060,6 +12075,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 						}
 						// If ^ is a stealth msisdn and stealth mode is off, move to next msisdn
 						if (StealthModeManager.getInstance().isStealthMsisdn(friendMsisdn) && !StealthModeManager.getInstance().isActive()) {
+							continue;
+						}
+
+						PrivacyPreferences pref = ContactManager.getInstance().getPrivacyPrefsForAGivenMsisdn(friendMsisdn);
+						if (!pref.shouldShowStatusUpdate()) {
 							continue;
 						}
 						StoryItem<StatusMessage, ContactInfo> storyItem = new StoryItem<>(StoryItem.TYPE_FRIEND, friendInfo.getNameOrMsisdn());

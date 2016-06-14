@@ -28,7 +28,7 @@ public class PhotoActionsFragment extends Fragment
 
 	public static final int ACTION_POST = 3;
 
-	public static interface ActionListener
+	public interface ActionListener
 	{
 		void onAction(int actionCode);
 	}

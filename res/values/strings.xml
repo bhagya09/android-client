@@ -1657,7 +1657,7 @@
     <string name="add_friends">Add Friends</string>
     <string name="added_me">Added Me</string>
     <string name="add_btn_txt">+ ADD</string>
-    <string name="custom_chattheme_device_not_supported">Unable to set Custom Chat Theme</string>
+    <string name="custom_chattheme_device_not_supported">Unable to set chat theme for your friend.</string>
     <string name="qs_error_view_heading">Oops! something went wrong</string>
     <string name="qs_error_view_sub_text">Tap on the sticker to try again</string>
     <string name="qs_ftue_page_tap_text">Tap on any of the stickers to send</string>
@@ -1668,8 +1668,10 @@
     <string name="change_photo">Change Photo</string>
     <string name="unread_all">Unread all</string>
     <string name="timeline_sub_new_updt">New updates available</string>
-    <string name="timeline_sub_likes">%1$d new likes</string>
-    <string name="timeline_sub_like">1 new like</string>
+    <plurals name="abbrev_new_likes">
+        <item quantity="one">1 new like</item>
+        <item quantity="other">%d new likes</item>
+    </plurals>
     <string name="story_category_recent">RECENT</string>
     <string name="story_category_allphotos">ALL PHOTOS</string>
     <string name="story_category_default">CAMERA SHY</string>
@@ -1696,25 +1698,28 @@
     <string name="download_image_before_sharing">You need to download image before sharing.</string>
     <string name="native_card_file_transfer_of_type">Native card file transfer of type</string>
     <string name="space_manager">Manage Space</string>
-    <string name="delete_space_confirmation_dialog_heading">Delete Data</string>
-    <string name="delete_space_confirmation_dialog_text">You are about to delete %1$s of data from your device. Once deleted it will be gone forever.\nDo you wish to proceed with this?</string>
-    <string name="delete_space_loader_text">Deleting Hike Data</string>
+    <string name="sm_confirm_dialog_heading">Delete Data</string>
+    <string name="sm_confirm_dialog_msg">You are about to delete %1$s of data from your device. Deleted items cannot be recovered.\nDo you wish to continue?</string>
+    <string name="sm_delete_loader_text">Deleting... Please wait</string>
     <string name="sm_fallback_header">Clear All Data</string>
     <string name="sm_fallback_subheader">This will clear all app data and preferences and reset your hike account.\n\nTap on the button below to continue.</string>
     <string name="sm_fallback_button">CLEAR DATA</string>
-    <string name="delete_space_fallback_confirmation_dialog_text">You are about to delete the most important data of your life.This action cannot be undone. \n Do you wish to proceeed with this?</string>
-    <string name="sm_empty_view_text1">Hooray! You have cleared all data</string>
-    <string name="sm_empty_view_text2">Come back again after sometime</string>
-    <string name="delete_space_fallback_loader_text">Clearing Data ...</string>
-    <string name="sm_clear_all_header">Clear All Data</string>
-    <string name="sm_clear_all_subheader">Select all options to be deleted</string>
+    <string name="sm_fallback_confirm_dialog_text">This will clear all app data and profile from this device. Deleted items cannot be recovered.\nDo you wish to continue?</string>
+    <string name="sm_empty_view_text1">Cheers! There are no more items to delete now.</string>
+    <string name="sm_empty_view_text2">Happy Hiking!</string>
+    <string name="sm_fallback_loader_text">Clearing Data ...</string>
+    <string name="sm_select_all_text">Select All</string>
     <string name="sm_category_header_text">CATEGORY HEADER</string>
     <string name="sm_category_subheader_text">Item Size</string>
     <string name="sm_subcategory_header_text">SubCategory Header</string>
     <string name="sm_subcategory_subheader_text">SubCategory Size</string>
+    <string name="sm_delete_success_toast">Items deleted successfully</string>
+    <string name="sm_delete_failure_toast">Oops! Something went wrong, please try again.</string>
     <string name="qs_empty_page_text_sub_text_part_one">"Tap on"</string>
     <string name="qs_empty_page_text_sub_text_part_two">"to send a sticker"</string>
     <string name="space_successfully_deleted">Space Deleted successfully</string>
+    <string name="added_me_tab_empty_string">All your new friends will appear here</string>
+    <string name="story_photos_chat_btn">Chat</string>
 
 </resources>
 

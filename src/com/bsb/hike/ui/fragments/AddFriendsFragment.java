@@ -64,7 +64,7 @@ public class AddFriendsFragment extends ListFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         listView = getListView();
-        listView.setAdapter(mAdapter);
+        setListAdapter(mAdapter);
         listView.setOnItemClickListener(onItemClickListener);
     }
 

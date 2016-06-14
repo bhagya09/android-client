@@ -10,6 +10,7 @@
         android:id="@+id/clear_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="1.5dp"
         android:src="@drawable/ic_delete"
         android:layout_marginLeft="20dp"
         android:tint="@color/blue_hike"/>
@@ -37,7 +38,7 @@
             android:text="@string/sm_fallback_subheader"
             android:textColor="@color/black_64"/>
 
-        <Button
+        <com.bsb.hike.view.CustomFontButton
             android:id="@+id/delete_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -46,12 +47,10 @@
             android:paddingBottom="10dp"
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
-            android:background="@color/blue_hike"
+            android:background="@drawable/clear_all_data_button"
             style="@style/ListSectionTextView"
             android:text="@string/sm_fallback_button"
-            android:textColor="@color/white"
-            android:textStyle="normal"
-            android:fontFamily="sans-serif-medium"/>
+            android:textColor="@color/white"/>
 
     </LinearLayout>
 

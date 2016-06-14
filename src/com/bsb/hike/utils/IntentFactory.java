@@ -75,7 +75,6 @@ import com.bsb.hike.ui.HomeFtueActivity;
 import com.bsb.hike.ui.MessageInfoActivity;
 import com.bsb.hike.ui.NUXInviteActivity;
 import com.bsb.hike.ui.NuxSendCustomMessageActivity;
-import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.PictureEditer;
 import com.bsb.hike.ui.PinHistoryActivity;
 import com.bsb.hike.ui.ProfileActivity;
@@ -536,7 +535,7 @@ public class IntentFactory
 	public static void createBroadcastIntent(Context appContext)
 	{
 		Intent intent = new Intent(appContext.getApplicationContext(), ComposeChatActivity.class);
-		intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, HikeConstants.Extras.CREATE_BROADCAST_MODE);
+		intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, ComposeChatActivity.CREATE_BROADCAST_MODE);
 		intent.putExtra(HikeConstants.Extras.CREATE_BROADCAST, true);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		appContext.startActivity(intent);
@@ -1243,21 +1242,6 @@ public class IntentFactory
 	public static Intent getComposeChatIntent(Activity context)
 	{
 		Intent intent = new Intent(context, ComposeChatActivity.class);
-		intent.putExtra(HikeConstants.Extras.EDIT, true);
-		return intent;
-	}
-
-	public static Intent getComposeChatIntentWithBotDiscovery(Activity context)
-	{
-		Intent intent = getComposeChatIntent(context);
-		intent.putExtra(HikeConstants.Extras.IS_MICROAPP_SHOWCASE_INTENT, true);
-		return intent;
-	}
-
-	public static Intent getFavouritesIntent(Activity context)
-	{
-		Intent intent = new Intent(context, PeopleActivity.class);
-		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		return intent;
 	}
 
@@ -1493,24 +1477,6 @@ public class IntentFactory
 		return intent;
 	}
 
-	public static Intent getPostStatusUpdateIntent(Activity argActivity, String text, String argImagePath, boolean compressImage)
-	{
-		Intent intent = new Intent(argActivity, StatusUpdate.class);
-		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
-		if (!TextUtils.isEmpty(argImagePath))
-		{
-			intent.putExtra(StatusUpdate.STATUS_UPDATE_IMAGE_PATH, argImagePath);
-			intent.putExtra(StatusUpdate.ENABLE_COMPRESSION,compressImage);
-		}
-
-		if (!TextUtils.isEmpty(text))
-		{
-			intent.putExtra(StatusUpdate.STATUS_UPDATE_TEXT, text);
-		}
-
-		return intent;
-	}
 	public static Intent getPostStatusUpdateIntent(Context argActivity, String text, String argImagePath, boolean compressImage)
 	{
 		Intent intent = new Intent(argActivity, StatusUpdate.class);
@@ -1548,7 +1514,7 @@ public class IntentFactory
 		Intent intent = new Intent(context, ComposeChatActivity.class);
 		intent.putExtra(HikeConstants.Extras.BROADCAST_LIST, true);
 		intent.putExtra(HikeConstants.Extras.EXISTING_BROADCAST_LIST, mLocalMSISDN);
-		intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, HikeConstants.Extras.CREATE_BROADCAST_MODE);
+		intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, ComposeChatActivity.CREATE_BROADCAST_MODE);
 		return intent;
 	}
 
