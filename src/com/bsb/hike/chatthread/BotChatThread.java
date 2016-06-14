@@ -6,6 +6,7 @@ import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
+import android.widget.LinearLayout;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
@@ -427,21 +428,17 @@ public class BotChatThread extends OneToOneChatThread
 				return;
 			}
 
-			if(unknownContactInfoView == null)
-			{
-				unknownContactInfoView = LayoutInflater.from(activity.getApplicationContext()).inflate(R.layout.block_add_unknown_contact_mute_bot, null);
-				CustomFontButton addButton = (CustomFontButton) unknownContactInfoView.findViewById(R.id.add_unknown_contact);
-				CustomFontButton blockButton = (CustomFontButton) unknownContactInfoView.findViewById(R.id.block_unknown_contact);
-				blockButton.setText(R.string.bot_overlay_block_title);
-				addButton.setTag(R.string.mute);
-				addButton.setText(mConversation.isMuted() ? R.string.unmute : R.string.mute);
-				unknownContactInfoView.setTag(R.string.mute);
-				unknownContactInfoView.findViewById(R.id.unknown_user_info_view).setVisibility(View.GONE);
-				addButton.setOnClickListener(this);
-				unknownContactInfoView.findViewById(R.id.block_unknown_contact).setOnClickListener(this);
-				checkAndAddListViewHeader(unknownContactInfoView);
-				unknownContactInfoView.findViewById(R.id.add_block_view).setBackgroundColor(R.color.add_block_bg_bot_color);
-			}
+			makeHeaderComponentsVisible();
+			unknownContactInfoSpinnerLayout.setVisibility(View.GONE);
+			CustomFontButton addButton = (CustomFontButton) unknownContactInfoView.findViewById(R.id.add_unknown_contact);
+			CustomFontButton blockButton = (CustomFontButton) unknownContactInfoView.findViewById(R.id.block_unknown_contact);
+			blockButton.setText(R.string.bot_overlay_block_title);
+			addButton.setTag(R.string.mute);
+			addButton.setText(mConversation.isMuted() ? R.string.unmute : R.string.mute);
+			unknownContactInfoView.setTag(R.string.mute);
+			addButton.setOnClickListener(this);
+			unknownContactInfoView.findViewById(R.id.block_unknown_contact).setOnClickListener(this);
+			unknownContactInfoView.findViewById(R.id.add_block_view).setBackgroundColor(R.color.add_block_bg_bot_color);
 		}
 	}
 	

@@ -623,11 +623,9 @@ import java.util.Map;
 		}
 
 		boolean isUnknownUserInfoViewEnabled = Utils.isUnknownUserInfoViewEnabled();
-		unknownContactInfoView.findViewById(R.id.header).setVisibility(View.VISIBLE);
-		unknownContactInfoView.findViewById(R.id.chat_header_viewstub).setVisibility(View.VISIBLE);
+		makeHeaderComponentsVisible();
 		CustomFontButton addButton = (CustomFontButton) unknownContactInfoView.findViewById(R.id.add_unknown_contact);
 		addButton.setOnClickListener(this);
-		unknownContactInfoSpinnerLayout =  (LinearLayout)unknownContactInfoView.findViewById(R.id.unknown_user_info_spinner);
 		if(!isUnknownUserInfoViewEnabled)
 		{
 			unknownContactInfoSpinnerLayout.setVisibility(View.GONE);
@@ -640,6 +638,12 @@ import java.util.Map;
 		}
 	}
 
+	protected void makeHeaderComponentsVisible()
+	{
+		unknownContactInfoView.findViewById(R.id.header).setVisibility(View.VISIBLE);
+		unknownContactInfoView.findViewById(R.id.chat_header_viewstub).setVisibility(View.VISIBLE);
+		unknownContactInfoSpinnerLayout =  (LinearLayout)unknownContactInfoView.findViewById(R.id.unknown_user_info_spinner);
+	}
 	/**
 	 * This shows Unknown User (Name, location)
 	 */
