@@ -116,7 +116,7 @@ public class AddFriendsFragment extends ListFragment {
     }
 
     private ContactInfo getAddressBookItem() {
-        HikeFeatureInfo info = new HikeFeatureInfo(getString(R.string.add_via_address_book), 0, null, false, IntentFactory.getFriendReqActivityAddFriendsViaABIntent(getContext()));
+        HikeFeatureInfo info = new HikeFeatureInfo(getString(R.string.add_via_address_book), R.drawable.ic_new_group, null, false, IntentFactory.getFriendReqActivityAddFriendsViaABIntent(getContext()));
         info.setId(ViewType.BASIC_ITEM.toString());
         return info;
     }
