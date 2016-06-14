@@ -1755,7 +1755,7 @@ public class Utils
 
 	public enum WhichScreen
 	{
-		FRIENDS_TAB, UPDATES_TAB, SMS_SECTION, OTHER
+		FRIENDS_TAB, UPDATES_TAB, SMS_SECTION, ADD_FRIENDS_AB, OTHER
 	}
 
 	/*

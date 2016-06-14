@@ -42,7 +42,7 @@ public class AddFriendsFragment extends ListFragment {
     private List<ContactInfo> getToAddContactList() {
         List<ContactInfo> toAddcontacts = getRecommendationsList();
         String quickAdd = getString(R.string.QUICK_ADD);
-        ContactInfo info = new ContactInfo(ViewType.PINNED_SECTION.toString(), quickAdd, quickAdd, quickAdd);
+        ContactInfo info = new ContactInfo(ViewType.PINNED_SECTION.toString(), null, quickAdd, null);
         if (toAddcontacts.size() > 0) {
             toAddcontacts.add(0, info);
         }

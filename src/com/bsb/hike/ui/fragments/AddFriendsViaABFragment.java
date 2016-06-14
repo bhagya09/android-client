@@ -53,12 +53,12 @@ public class AddFriendsViaABFragment extends ListFragment {
         }
         if (toAddHikecontacts.size() > 0) {
             String hikeContacts = getString(R.string.hike_contacts);
-            ContactInfo info = new ContactInfo(FriendRequestAdapter.ViewType.PINNED_SECTION.toString(), hikeContacts, hikeContacts, hikeContacts);
+            ContactInfo info = new ContactInfo(FriendRequestAdapter.ViewType.PINNED_SECTION.toString(), null, hikeContacts,  null);
             toAddHikecontacts.add(0, info);
         }
         if (toAddSMScontacts.size() > 0){
             String smsContacts = getString(R.string.sms_contacts);
-            ContactInfo info = new ContactInfo(FriendRequestAdapter.ViewType.PINNED_SECTION.toString(), smsContacts, smsContacts, smsContacts);
+            ContactInfo info = new ContactInfo(FriendRequestAdapter.ViewType.PINNED_SECTION.toString(), null, smsContacts, null);
             toAddSMScontacts.add(0, info);
         }
         allContacts.clear();
