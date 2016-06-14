@@ -116,7 +116,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 	public enum ViewType
 	{
-		SECTION, FRIEND, NOT_FRIEND_HIKE, NOT_FRIEND_SMS, EMPTY, FTUE_CONTACT, REMOVE_SUGGESTIONS, NEW_CONTACT, RECOMMENDED, HIKE_FEATURES, BDAY_CONTACT, ONE_TO_N_CONV
+		SECTION, FRIEND, NOT_FRIEND_HIKE, NOT_FRIEND_SMS, EMPTY, FTUE_CONTACT, REMOVE_SUGGESTIONS, NEW_CONTACT, RECOMMENDED, HIKE_FEATURES, BDAY_CONTACT, ONE_TO_N_CONV, CREATE_ONE_TO_N
 	}
 
 	private LayoutInflater layoutInflater;
@@ -1013,6 +1013,8 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		}
 		else if (HIKE_FEATURES_ID.equals(contactInfo.getId()))
 		{
+			if (contactInfo.getMsisdn().equals(HIKE_FEATURES_NEW_BROADCAST_ID) || contactInfo.getMsisdn().equals(HIKE_FEATURES_NEW_GROUP_ID))
+				return ViewType.CREATE_ONE_TO_N.ordinal();
 			return ViewType.HIKE_FEATURES.ordinal();
 		}
 		else if (showBdaySection && isBirthdayContact(contactInfo))

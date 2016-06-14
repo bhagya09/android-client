@@ -12007,7 +12007,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 					}
 
 					PrivacyPreferences pref = ContactManager.getInstance().getPrivacyPrefsForAGivenMsisdn(msisdn);
-					if (!pref.shouldShowStatusUpdate()) {
+					if (null != pref && !pref.shouldShowStatusUpdate()) {
 						continue;
 					}
 

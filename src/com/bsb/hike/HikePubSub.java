@@ -577,6 +577,8 @@ public class HikePubSub extends Handler implements Runnable
 
 	public static final String LAST_SEEN_SETTING_TOGGLED = "usr_privcy_toggl";
 
+	public static final String EDIT_SELF_DP_FINISH_PILL = "edit_self_dp_finish";
+
 	private final Thread mThread;
 
 	private final BlockingQueue<Operation> mQueue;
