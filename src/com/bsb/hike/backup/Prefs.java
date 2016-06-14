@@ -1,10 +1,5 @@
 package com.bsb.hike.backup;
 
-import java.io.File;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
@@ -12,8 +7,14 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.timeline.TimelineUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.StealthModeManager;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
 
 /**
  * Created by gauravmittal on 10/03/16.
@@ -39,7 +40,8 @@ public class Prefs
 				.put(HikeMessengerApp.SHOW_STEALTH_INFO_TIP, prefUtil.getData(HikeMessengerApp.SHOW_STEALTH_INFO_TIP, false))
 				.put(HikeMessengerApp.STEALTH_PIN_AS_PASSWORD, prefUtil.getData(HikeMessengerApp.STEALTH_PIN_AS_PASSWORD, false))
 				.put(HikeMessengerApp.CONV_DB_VERSION_PREF, prefUtil.getData(HikeMessengerApp.CONV_DB_VERSION_PREF, DBConstants.CONVERSATIONS_DATABASE_VERSION))
-				.put(HikePlatformConstants.CUSTOM_TABS, prefUtil.getData(HikePlatformConstants.CUSTOM_TABS, true));
+				.put(HikePlatformConstants.CUSTOM_TABS, prefUtil.getData(HikePlatformConstants.CUSTOM_TABS, true))
+				.put(TimelineUtils.KEY_LAST_SEEN_SUID, prefUtil.getData(TimelineUtils.KEY_LAST_SEEN_SUID, 0l));
 
 		SharedPreferences settingUtils = PreferenceManager.getDefaultSharedPreferences(HikeMessengerApp.getInstance());
 
@@ -98,6 +100,10 @@ public class Prefs
 		{
 			String key = HikePlatformConstants.CUSTOM_TABS;
 			prefUtil.saveData(key, prefJson.getBoolean(key));
+		}
+		if (prefJson.has(TimelineUtils.KEY_LAST_SEEN_SUID))
+		{
+			prefUtil.saveData(TimelineUtils.KEY_LAST_SEEN_SUID, prefJson.getLong(TimelineUtils.KEY_LAST_SEEN_SUID));
 		}
 
 		SharedPreferences settingUtils = PreferenceManager.getDefaultSharedPreferences(HikeMessengerApp.getInstance());
