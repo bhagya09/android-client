@@ -69,7 +69,7 @@ public class UploadCustomChatThemeBackgroundTask implements IHikeHTTPTask {
         return new IRequestListener() {
             @Override
             public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException) {
-                HikeMessengerApp.getPubSub().publish(HikePubSub.CHATTHEME_CUSTOM_IMAGE_UPLOAD_FAILED, null);
+                HikeMessengerApp.getPubSub().publish(HikePubSub.CHATTHEME_CUSTOM_IMAGE_UPLOAD_FAILED, ctToken);
             }
 
             @Override

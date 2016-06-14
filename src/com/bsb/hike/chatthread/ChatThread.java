@@ -4236,7 +4236,11 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				updateCustomChatTheme(object);
 				break;
 			case HikePubSub.CHATTHEME_CUSTOM_IMAGE_UPLOAD_FAILED:
-				// TODO CHATTHEME Image upload failed not handled
+				ChatThemeToken ctToken = (ChatThemeToken) object;
+				if(msisdn.equalsIgnoreCase(ctToken.getMsisdn())) {
+					sendUIMessage(SHOW_TOAST, R.string.admin_task_error);
+					sendUIMessage(CHAT_THEME, currentThemeId);
+				}
 				break;
 			case HikePubSub.CHATTHEME_CUSTOM_COMPATABILITY_ERROR:
 				sendUIMessage(CUSTOM_CT_COMPATABILITY_ERROR_MESSAGE, object);
