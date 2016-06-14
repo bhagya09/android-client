@@ -36,7 +36,7 @@ public class EditDPActivity extends ChangeProfileImageBaseActivity {
         setLocalMsisdn(myInfo.getMsisdn());
         setupActionBar();
         setupMyPhotoFragment();
-        HikeMessengerApp.getPubSub().addListener(HikePubSub.EDIT_DP_POSION_PILL, this);
+        HikeMessengerApp.getPubSub().addListener(HikePubSub.EDIT_SELF_DP_FINISH_PILL, this);
     }
 
     private void setupMyPhotoFragment() {
@@ -71,14 +71,14 @@ public class EditDPActivity extends ChangeProfileImageBaseActivity {
 
     @Override
     protected void onDestroy() {
-        HikeMessengerApp.getPubSub().removeListener(HikePubSub.EDIT_DP_POSION_PILL, this);
+        HikeMessengerApp.getPubSub().removeListener(HikePubSub.EDIT_SELF_DP_FINISH_PILL, this);
         super.onDestroy();
     }
 
     @Override
     public void onEventReceived(String type, Object object) {
         switch (type) {
-            case HikePubSub.EDIT_DP_POSION_PILL:
+            case HikePubSub.EDIT_SELF_DP_FINISH_PILL:
                 EditDPActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {

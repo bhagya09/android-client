@@ -374,7 +374,7 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 				{
 					if (isAdded() && mUploadStatus == UPLOAD_COMPLETE && isResumed())
 					{
-						HikeMessengerApp.getPubSub().publish(HikePubSub.EDIT_DP_POSION_PILL, null);
+						HikeMessengerApp.getPubSub().publish(HikePubSub.EDIT_SELF_DP_FINISH_PILL, null);
 						getActivity().finish();
 					}
 				}

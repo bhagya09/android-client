@@ -291,7 +291,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			}
 		}
 
-		HikeMessengerApp.getPubSub().addListener(HikePubSub.EDIT_DP_POSION_PILL, this);
+		HikeMessengerApp.getPubSub().addListener(HikePubSub.EDIT_SELF_DP_FINISH_PILL, this);
 	}
 
 	@Override
@@ -826,14 +826,14 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 
 	@Override
 	protected void onDestroy() {
-		HikeMessengerApp.getPubSub().removeListener(HikePubSub.EDIT_DP_POSION_PILL, this);
+		HikeMessengerApp.getPubSub().removeListener(HikePubSub.EDIT_SELF_DP_FINISH_PILL, this);
 		super.onDestroy();
 	}
 
 	@Override
 	public void onEventReceived(String type, Object object) {
 		switch (type) {
-			case HikePubSub.EDIT_DP_POSION_PILL:
+			case HikePubSub.EDIT_SELF_DP_FINISH_PILL:
 				GalleryActivity.this.runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
