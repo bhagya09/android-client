@@ -320,21 +320,21 @@ public class ChatThemeManager {
             theme.setThemeId(themeID);
             theme.setThemeType(HikeChatThemeConstants.THEME_TYPE_CUSTOM);
             theme.setThemeOrderIndex(0);
+            theme.setVisibilityStatus(!downloadAssets);
             theme.setSystemMessageType(HikeChatThemeConstants.SYSTEM_MESSAGE_TYPE_LIGHT);
 
             parseCustomThemeAssetContent(data, theme);
 
-            // if true, we are receiving the theme.
-            if (downloadAssets) {
-                theme.setVisibilityStatus(false);
+            mChatThemesMap.put(themeID, theme);
+            HikeConversationsDatabase.getInstance().saveChatTheme(theme);
+
+            if (downloadAssets) { // if true, we are receiving the theme.
                 downloadAssetsForTheme(token);
             } else { // if false, we are setting the custom theme
                 recentCustomTheme = themeID;
-                theme.setVisibilityStatus(true);
                 moveLocalAssetsToThemesFolder(token, theme);
             }
-            mChatThemesMap.put(themeID, theme);
-            HikeConversationsDatabase.getInstance().saveChatTheme(theme);
+
             return themeID;
         } catch (JSONException e) {
             e.printStackTrace();
