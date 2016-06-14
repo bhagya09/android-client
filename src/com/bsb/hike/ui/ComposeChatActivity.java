@@ -1007,6 +1007,9 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			{
 				showToast(getString(R.string.maxContactInBroadcastErr, HikeConstants.MAX_CONTACTS_IN_BROADCAST));
 				return;
+			} else if (!contactInfo.isMyOneWayFriend()) {
+				showToast(getString(R.string.contact_non_friend_msg));
+				return;
 			}
 			// for SMS users, append SMS text with name
 			viewtype = adapter.getItemViewType(arg2);
@@ -1047,6 +1050,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				}
 			}
 
+			if (!contactInfo.isMyOneWayFriend()) {
+				showToast(getString(R.string.contact_non_friend_msg));
+				return;
+			}
 			if(selectAllMode)
 			{
 				onItemClickDuringSelectAllMode(contactInfo);
@@ -1090,6 +1097,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				}
 				else{
 					name = viewtype == ViewType.NOT_FRIEND_SMS.ordinal() ? contactInfo.getName() + " (SMS) " : contactInfo.getName();
+					if (!contactInfo.isMyOneWayFriend()) {
+						showToast(getString(R.string.contact_non_friend_msg));
+						return;
+					}
 					if (!nuxIncentiveMode) {
 						// change is to prevent the Tags from appearing in the search bar.
 						toggleTag(name, contactInfo.getMsisdn(), contactInfo);
@@ -1240,10 +1251,12 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 	private void selectContact(ContactInfo contactInfo)
 	{
-		if (!contactInfo.isMyOneWayFriend() && Utils.isFavToFriendsMigrationAllowed() && composeMode == MULTIPLE_FWD) {
-			sendFriendRequest(contactInfo);
+		if (contactInfo.isMyOneWayFriend()) {
+			adapter.addContact(contactInfo);
 		}
-		adapter.addContact(contactInfo);
+		else {
+			Toast.makeText(getApplicationContext(), R.string.contact_non_friend_msg, Toast.LENGTH_LONG).show();
+		}
 	}
 
 	private void deSelectContact(ContactInfo contactInfo)
