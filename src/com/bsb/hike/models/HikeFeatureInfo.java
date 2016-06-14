@@ -21,8 +21,6 @@ public class HikeFeatureInfo extends ContactInfo
 
 	private boolean mShowCheckBox;
 
-	private boolean isIconBGColorToBeSet;
-
 	private boolean addSectionHeader;
 
 	public HikeFeatureInfo()
@@ -31,15 +29,14 @@ public class HikeFeatureInfo extends ContactInfo
 	}
 
 	public HikeFeatureInfo(String name, int iconDrawable, String description, boolean showCheckBox, Intent fireIntent) {
-		this(name, iconDrawable, description, showCheckBox, fireIntent, true, true);
+		this(name, iconDrawable, description, showCheckBox, fireIntent, true);
 	}
-	public HikeFeatureInfo(String name, int iconDrawable, String description, boolean showCheckBox, Intent fireIntent, boolean isIconBGColorToBeSet, boolean addSectionHeader) {
+	public HikeFeatureInfo(String name, int iconDrawable, String description, boolean showCheckBox, Intent fireIntent, boolean addSectionHeader) {
 		mName = name;
 		mIconDrawable = iconDrawable;
 		mDescription = description;
 		mShowCheckBox = showCheckBox;
 		mFireIntent = fireIntent;
-		this.isIconBGColorToBeSet = isIconBGColorToBeSet;
 		this.addSectionHeader = addSectionHeader;
 	}
 
@@ -66,10 +63,6 @@ public class HikeFeatureInfo extends ContactInfo
 	public boolean isShowCheckBox()
 	{
 		return mShowCheckBox;
-	}
-
-	public boolean isIconBGColorToBeSet() {
-		return isIconBGColorToBeSet;
 	}
 
 	public boolean needsHeader() {
