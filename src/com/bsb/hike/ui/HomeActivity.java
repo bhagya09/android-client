@@ -1382,7 +1382,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			return;
 		}
 		// The following change checks if search mode is still there, and takes action accordingly
-		if (conversationFragment.isSearchInActionMode())
+		if (conversationFragment != null && conversationFragment.isSearchInActionMode())
 		{
 			conversationFragment.endSearchActionMode();
 			return;
