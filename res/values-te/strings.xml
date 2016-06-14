@@ -1455,7 +1455,7 @@
     <string name="stealth_unread_tip_header">మీ చాట్లను దాచిపెట్టండి!</string>
     <string name="stealth_unread_tip_message">\'hi\' పై టాప్ చేయడం ద్వారా మీ చాట్లను దాచిపెట్టండి</string>
     <string name="sticker">స్టిక్కర్</string>
-    <string name="language_ftue_complete_message">కీబోర్డ్ భాషను\nసెట్టింగులు-&gtనుంచి మీరు మార్చవచ్చు;భాష ఎప్పుడైనా </string>
+    <string name="language_ftue_complete_message">కీబోర్డ్ భాషను\nసెట్టింగులు-&gt;నుంచి మీరు మార్చవచ్చు;భాష ఎప్పుడైనా </string>
     <string name="block_contact">కాంటాక్ట్ బ్లాక్ చేయండి</string>
     <string name="caller_manage_list">జాబితాను నిర్వహించు</string>
     <string name="caller_blocked_list_hinttext">మీ బ్లాక్ చేయబడిన కాలర్ కాంటాక్ట్స్ నిర్వహించండి.</string>
@@ -1620,7 +1620,7 @@
 
     <string name="restore_msisdn_error">వేరే విభిన్న సంఖ్య యొక్క బ్యాకప్ ఫైలు మీ దగ్గర ఉన్నట్టుంది!</string>
     <string name="ACCEPT">అంగీకరించు</string>
-    <string name="mute_status_notification_subtext_frn">స్టాటస్ &amp కోసం నోటిఫికేషన్లను చూపండి; స్నేహితుల నుంచి ప్రొఫైల్ పిక్చర్ అప్‌డేట్స్</string>
+    <string name="mute_status_notification_subtext_frn">స్టాటస్ &amp;  కోసం నోటిఫికేషన్లను చూపండి; స్నేహితుల నుంచి ప్రొఫైల్ పిక్చర్ అప్‌డేట్స్</string>
     <string name="stream_volume_muted_or_low">దయచేసి వాల్యూమ్ పెంచండి</string>
     <string name="atomic_tip_header_default">డిఫాల్ట్ అటామిక్ టిప్ హెడర్</string>
     <string name="atomic_tip_body_default">అటామిక్ టిప్ డిఫాల్ట్ బాడీ టెక్స్ట్!!! కేవలం అది తదుపరి పంక్తికి పారేందుకు </string>
