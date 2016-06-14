@@ -547,7 +547,7 @@
     <string name="earn_free_sms">Hol dir Gratis-SMS</string>
     <string name="email_subject">Lebe dein Leben mit hike</string>
     <string name="ftue_card_header_last_seen">Zul.online</string>
-    <string name="ftue_card_body_last_seen">Nur Favoriten können deine Zuletzt-online-Angabe & Statusmeldungen sehen</string>
+    <string name="ftue_card_body_last_seen">Nur Favoriten können deine Zuletzt-online-Angabe &amp; Statusmeldungen sehen</string>
     <string name="ftue_card_click_text_last_seen">Tippe hier, um sie auszuwählen!</string>
     <string name="ftue_card_header_hike_offline">Nutze Hike offline</string>
     <string name="ftue_card_body_hike_offline">Sende Nachrichten an Freunde, selbst wenn sie nicht online sind</string>
@@ -617,7 +617,7 @@
     <string name="delete_my_account">MEIN KONTO LÖSCHEN</string>
     <string name="hike_extras">Belohnungen/Extras</string>
     <string name="mute_status_notification_header">Status und Profilbild</string>
-    <string name="mute_status_notification_subtext">Benachrichtigungen bei neuen Statusmeldungen & Profilbildern von Favoriten anzeigen</string>
+    <string name="mute_status_notification_subtext">Benachrichtigungen bei neuen Statusmeldungen &amp; Profilbildern von Favoriten anzeigen</string>
     <string name="notifications_contact_join_summary">Benachrichtigung anzeigen, wenn ein Kontakt zu hike beitritt</string>
     <string name="set_profile_pic"> Hike-Profilbild</string>
     <string name="confirm_delete_pin_header">Wichtige Nachricht löschen</string>
@@ -1067,7 +1067,7 @@
     <string name="cancel_connection">Verbindungsaufbau zu %1$s abbrechen?</string>
     <string name="cancel_offline_connection">Verbindungsaufbau abbrechen</string>
     <string name="retry_connection">Keine Verbindung über \n Hike Direct hergestellt. Erneut versuchen?</string>
-    <string name="file_attachment_info_offline">Teile apk- & Mediendateien bis zu einer beliebigen Größe</string>
+    <string name="file_attachment_info_offline">Teile apk- &amp; Mediendateien bis zu einer beliebigen Größe</string>
     <string name="actionbar_activity_feed_title">Aktivität</string>
     <string name="photo_like_text">Gefällt dein Foto</string>
     <string name="dp_like_text">Gefällt dein Profilfoto</string>
