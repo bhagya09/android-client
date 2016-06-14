@@ -494,6 +494,7 @@ public class StickerManager
 		if (isMoreThanDay)
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ALREDAY_FETCHED_CATEGORIES_RANK_LIMIT, 0);
+			offset = 0;
 		}
 		else
 		{
