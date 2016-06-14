@@ -7,6 +7,7 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.HikeChatTheme;
 import com.bsb.hike.models.HikeChatThemeAsset;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -145,18 +146,20 @@ public class ChatThemeAssetHelper implements HikePubSub.Listener {
         if (HikePubSub.CHATTHEME_CONTENT_DOWNLOAD_SUCCESS.equals(type)) {
             ChatThemeToken token = (ChatThemeToken) object;
             String[] downloadedAssets = token.getAssets();
-            ArrayList<HikeChatThemeAsset> downloadedThemeAssets = new ArrayList<>();
+            if(!Utils.isEmpty(downloadedAssets)) {
+                ArrayList<HikeChatThemeAsset> downloadedThemeAssets = new ArrayList<>();
 
-            for (String dAsset : downloadedAssets) {
-                HikeChatThemeAsset asset = mAssets.get(dAsset);
-                if (asset != null) {
-                    asset.setIsDownloaded(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_DOWNLOADED_SDCARD);
-                    downloadedThemeAssets.add(asset);
+                for (String dAsset : downloadedAssets) {
+                    HikeChatThemeAsset asset = mAssets.get(dAsset);
+                    if (asset != null) {
+                        asset.setIsDownloaded(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_DOWNLOADED_SDCARD);
+                        downloadedThemeAssets.add(asset);
+                    }
                 }
+                //writing the downloaded assets into the tables in DB
+                HikeConversationsDatabase.getInstance().saveChatThemeAssets(downloadedThemeAssets);
+                HikeMessengerApp.getPubSub().publish(HikePubSub.CHATTHEME_DOWNLOAD_SUCCESS, token);
             }
-            //writing the downloaded assets into the tables in DB
-            HikeConversationsDatabase.getInstance().saveChatThemeAssets(downloadedThemeAssets);
-            HikeMessengerApp.getPubSub().publish(HikePubSub.CHATTHEME_DOWNLOAD_SUCCESS, token);
         }
     }
 
