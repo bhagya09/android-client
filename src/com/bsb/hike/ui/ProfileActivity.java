@@ -241,7 +241,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	private String[] profilePubSubListeners = { HikePubSub.USER_JOIN_TIME_OBTAINED, HikePubSub.LARGER_IMAGE_DOWNLOADED, HikePubSub.STATUS_MESSAGE_RECEIVED,
 			HikePubSub.ICON_CHANGED, HikePubSub.PROFILE_IMAGE_DOWNLOADED, HikePubSub.DELETE_MESSAGE, HikePubSub.DISMISS_EDIT_PROFILE_DIALOG };
 
-	private String[] profilEditPubSubListeners = { HikePubSub.PROFILE_UPDATE_FINISH };
+	private String[] profilEditPubSubListeners = { HikePubSub.PROFILE_UPDATE_FINISH};
 
 	private OneToNConversation oneToNConversation;
 	
@@ -3156,6 +3156,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				}
 			});
 		}
+
 	}
 
 	@Override

@@ -1,25 +1,21 @@
 package com.bsb.hike.ui;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.HomeAnalyticsConstants;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.ui.fragments.ImageViewerFragment;
 import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
-import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Utils;
 
 /**
@@ -40,6 +36,7 @@ public class EditDPActivity extends ChangeProfileImageBaseActivity {
         setLocalMsisdn(myInfo.getMsisdn());
         setupActionBar();
         setupMyPhotoFragment();
+        HikeMessengerApp.getPubSub().addListener(HikePubSub.EDIT_DP_POSION_PILL, this);
     }
 
     private void setupMyPhotoFragment() {
@@ -70,6 +67,28 @@ public class EditDPActivity extends ChangeProfileImageBaseActivity {
         actionBar.setCustomView(actionBarView);
         Toolbar parent = (Toolbar) actionBarView.getParent();
         parent.setContentInsetsAbsolute(0, 0);
+    }
+
+    @Override
+    protected void onDestroy() {
+        HikeMessengerApp.getPubSub().removeListener(HikePubSub.EDIT_DP_POSION_PILL, this);
+        super.onDestroy();
+    }
+
+    @Override
+    public void onEventReceived(String type, Object object) {
+        switch (type) {
+            case HikePubSub.EDIT_DP_POSION_PILL:
+                EditDPActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        EditDPActivity.this.finish();
+                    }
+                });
+                break;
+            default:
+                super.onEventReceived(type, object);
+        }
     }
 
     @Override

@@ -10,7 +10,6 @@ import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -46,7 +45,6 @@ import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.tasks.FinishableEvent;
 import com.bsb.hike.timeline.model.StatusMessage;
-import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeUiHandler;
 import com.bsb.hike.utils.HikeUiHandler.IHandlerCallback;
@@ -376,10 +374,7 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 				{
 					if (isAdded() && mUploadStatus == UPLOAD_COMPLETE && isResumed())
 					{
-						Intent in = new Intent(getActivity(), TimelineActivity.class);
-						in.putExtra(TimelineActivity.TIMELINE_SOURCE, TimelineActivity.TimelineOpenSources.PROFILE_PIC_FRAGMENT);
-						in.putExtra(HikeConstants.HikePhotos.HOME_ON_BACK_PRESS, true);
-						getActivity().startActivity(in);
+						HikeMessengerApp.getPubSub().publish(HikePubSub.EDIT_DP_POSION_PILL, null);
 						getActivity().finish();
 					}
 				}
