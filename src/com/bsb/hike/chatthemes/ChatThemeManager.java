@@ -324,9 +324,6 @@ public class ChatThemeManager {
 
             parseCustomThemeAssetContent(data, theme);
 
-            mChatThemesMap.put(themeID, theme);
-            HikeConversationsDatabase.getInstance().saveChatTheme(theme);
-
             // if true, we are receiving the theme.
             if (downloadAssets) {
                 theme.setVisibilityStatus(false);
@@ -336,6 +333,8 @@ public class ChatThemeManager {
                 theme.setVisibilityStatus(true);
                 moveLocalAssetsToThemesFolder(token, theme);
             }
+            mChatThemesMap.put(themeID, theme);
+            HikeConversationsDatabase.getInstance().saveChatTheme(theme);
             return themeID;
         } catch (JSONException e) {
             e.printStackTrace();
