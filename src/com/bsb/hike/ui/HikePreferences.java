@@ -74,7 +74,6 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.IconListPreference;
-import com.bsb.hike.view.IconPreference;
 import com.bsb.hike.view.NotificationToneListPreference;
 import com.bsb.hike.view.PreferenceWithSubText;
 import com.bsb.hike.view.SwitchPreferenceCompat;
@@ -628,18 +627,25 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
             Intent i = new Intent(getApplicationContext(), DeleteAccount.class);
             startActivity(i);
         } else if (preference.getKey().equals(HikeConstants.BACKUP_PREF)) {
-            try {
-                JSONObject metadata = new JSONObject();
-                metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.BACKUP);
-                HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-            } catch (JSONException e) {
-                Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-            }
 
-            BackupAccountTask task = new BackupAccountTask(getApplicationContext(), HikePreferences.this);
-            blockingTaskType = BlockingTaskType.BACKUP_ACCOUNT;
-            setBlockingTask(task);
-            task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            if (blockingTaskType == BlockingTaskType.BACKUP_ACCOUNT && mTask != null && !mTask.isFinished()) {   // DO Nothing
+                return true;
+            }
+            else
+            {
+                try {
+                    JSONObject metadata = new JSONObject();
+                    metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.BACKUP);
+                    HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+                } catch (JSONException e) {
+                    Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+                }
+
+                BackupAccountTask task = new BackupAccountTask(getApplicationContext(), HikePreferences.this);
+                blockingTaskType = BlockingTaskType.BACKUP_ACCOUNT;
+                setBlockingTask(task);
+                task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            }
         } else if (preference.getKey().equals(HikeConstants.UNLINK_PREF)) {
             HikeDialogFactory.showDialog(HikePreferences.this, HikeDialogFactory.UNLINK_ACCOUNT_CONFIRMATION_DIALOG, new HikeDialogListener() {
 

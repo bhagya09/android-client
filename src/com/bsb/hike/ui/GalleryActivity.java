@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import android.content.Intent;
 import android.graphics.Color;
@@ -33,6 +32,7 @@ import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HomeAnalyticsConstants;
@@ -53,7 +53,6 @@ import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.ParcelableSparseArray;
 import com.bsb.hike.utils.Utils;
-import com.bsb.hike.chatthread.ChatThreadActivity;
 
 public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements GalleryItemLoaderImp
 {
@@ -291,6 +290,8 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				progressLoading.setVisibility(View.GONE);
 			}
 		}
+
+		HikeMessengerApp.getPubSub().addListener(HikePubSub.EDIT_SELF_DP_FINISH_PILL, this);
 	}
 
 	@Override
@@ -821,5 +822,27 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				}
 			}
 		});
+	}
+
+	@Override
+	protected void onDestroy() {
+		HikeMessengerApp.getPubSub().removeListener(HikePubSub.EDIT_SELF_DP_FINISH_PILL, this);
+		super.onDestroy();
+	}
+
+	@Override
+	public void onEventReceived(String type, Object object) {
+		switch (type) {
+			case HikePubSub.EDIT_SELF_DP_FINISH_PILL:
+				GalleryActivity.this.runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						GalleryActivity.this.finish();
+					}
+				});
+				break;
+			default:
+				super.onEventReceived(type, object);
+		}
 	}
 }

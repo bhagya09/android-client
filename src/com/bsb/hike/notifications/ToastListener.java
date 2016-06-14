@@ -600,8 +600,15 @@ public class ToastListener implements Listener
 						continue;
 					}
 
-					if (!ContactManager.getInstance().shouldShowNotifForMutedConversation(msisdn))
-					{
+					if (!ContactManager.getInstance().shouldShowNotifForMutedConversation(msisdn)) {
+						if (StealthModeManager.getInstance().isStealthMsisdn(msisdn)) {
+
+							if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.STEALTH_INDICATOR_ENABLED, false)) {
+								HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STEALTH_INDICATOR_SHOW_REPEATED, true);
+								HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_INDICATOR, null);
+							}
+						}
+
 						Logger.d(getClass().getSimpleName(), "Conversation has been muted");
 						continue;
 					}
