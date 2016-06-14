@@ -815,8 +815,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				adapter = new ComposeChatAdapter(this, listView, false, false, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false, false, false, false);
 				break;
 			case START_CHAT_MODE:
-				adapter = new ComposeChatAdapter(this, listView, false, false, null, null, friendsListFetchedCallback, true, true, false, showBdaySection);
+				adapter = new ComposeChatAdapter(this, listView, false, false, null, null, friendsListFetchedCallback, false, false, false, showBdaySection);
 				adapter.setCreateGroupBroadcastOption(true);
+				adapter.enableHikeContactsInSearch(true);
+				adapter.enableSMSContactsInSearch(true);
 				break;
 			case MULTIPLE_FWD:
 				adapter = new ComposeChatAdapter(this, listView, true, true, null, sendingMsisdn, friendsListFetchedCallback, false, false, isShowTimeline(), false);

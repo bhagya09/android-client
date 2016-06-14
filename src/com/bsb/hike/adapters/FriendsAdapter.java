@@ -191,6 +191,10 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 	protected boolean showSMSContacts;
 
+	protected boolean showHikeContactsInSearch;
+
+	protected boolean showSMSContactsInSearch;
+
 	private IconLoader iconloader;
 
 	private boolean listFetchedOnce;
@@ -528,7 +532,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		friendsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredFriendsList.size()), context.getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.friends_upper_case : R.string.favorites_upper_case), FRIEND_PHONE_NUM);
 		updateFriendsList(friendsSection, true, true);
 
-        if (showHikeContacts && isHikeContactsPresent())
+        if (showHikeContacts)
 		{
 			hikeContactsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredHikeContactsList.size()), context.getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.add_frn_upper_case : R.string.add_favorites_upper_case), CONTACT_PHONE_NUM);
 			updateHikeContactList(hikeContactsSection);
@@ -692,11 +696,6 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 			}
 			completeList.addAll(filteredHikeBdayContactList);
 		}
-	}
-
-	protected boolean isHikeContactsPresent()
-	{
-		return !hikeContactsList.isEmpty();
 	}
 
 	private void removeContactByMatchingMsisdn(List<ContactInfo> contactList, ContactInfo contactInfo)

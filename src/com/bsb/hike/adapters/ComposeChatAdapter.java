@@ -126,6 +126,15 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		createGroupBroadcastOption = setOption;
 	}
 
+	public void enableHikeContactsInSearch(boolean enable) {
+		this.showHikeContactsInSearch = enable;
+	}
+
+	public void enableSMSContactsInSearch(boolean enable) {
+		this.showSMSContactsInSearch = enable;
+	}
+
+
 	public void setIsCreatingOrEditingGroup(boolean b)
 	{
 		isCreatingOrEditingGroup = b;
@@ -179,7 +188,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		} else {
 			fetchFriendsTask = new FetchFriendsTask(this, context, friendsList, hikeContactsList, smsContactsList, recentContactsList, friendsStealthList, hikeStealthContactsList,
 					smsStealthContactsList, filteredFriendsList, filteredHikeContactsList, filteredSmsContactsList, groupsList, groupsStealthList, null, null, filteredGroupsList, filteredRecentsList,
-					existingParticipants, sendingMsisdn, fetchGroups, existingGroupId, isCreatingOrEditingGroup, showSMSContacts, false, fetchRecents, showHikeContacts, true, false , false, composeExcludeList,
+					existingParticipants, sendingMsisdn, fetchGroups, existingGroupId, isCreatingOrEditingGroup, showSMSContacts || showSMSContactsInSearch, false, fetchRecents, showHikeContacts || showHikeContactsInSearch, true, false , false, composeExcludeList,
                     showBdaySection, hikeBdayContactList, filteredHikeBdayContactList);
 		}
 
@@ -795,13 +804,13 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			addGroupList();
 			addFriendList();
 		}
-		if (showHikeContacts && isHikeContactsPresent())
+		if (showHikeContacts || (isSearchModeOn && showHikeContactsInSearch))
 		{
 			ContactInfo hikeContactsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredHikeContactsList.size()), context.getString(R.string.hike_contacts),
 					CONTACT_PHONE_NUM);
 			updateHikeContactList(hikeContactsSection);
 		}
-		if (showSMSContacts)
+		if (showSMSContacts || (isSearchModeOn && showSMSContactsInSearch))
 		{
 			ContactInfo smsContactsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredSmsContactsList.size()), context.getString(R.string.sms_contacts),
 					CONTACT_SMS_NUM);
