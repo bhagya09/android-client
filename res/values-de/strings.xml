@@ -24,6 +24,7 @@
     <string name="block_overlay_message">Du hast %1$s gesperrt. Zum Fortfahren und weiter hiken entsperren.</string>
     <string name="phone_num">Telefonnummer</string>
     <string name="pin">PIN</string>
+    <string name="pin_signup">PIN</string>
     <string name="name">Name</string>
     <string name="terms_privacy">Geschäftsbedingungen und Datenschutz</string>
     <string name="invite_now">Jetzt einladen</string>
@@ -43,7 +44,6 @@
     <string name="group_chat">Gruppenchat</string>
     <string name="add_group">Zu Gruppe hinzufügen</string>
     <string name="add_broadcast">Zu Übertragungsliste hinzufügen</string>
-    <string name="invite_share_message">Ich benutze hike, eine tolle neue kostenlose Messaging-App! Lade die App auf http://get.hike.in/%1$s herunter, um mir kostenlos Nachrichten zu senden!</string>
     <string name="sms_alert_text">Du kannst jetzt alle deine SMS in hike empfangen. Unten tippen, um diese Funktion zu aktivieren.</string>
     <string name="sms">SMS</string>
     <string name="turn_on">Einschalten</string>
@@ -70,11 +70,13 @@
     <string name="error_recording">Es konnte kein Tonaufnahme gemacht werden.</string>
     <string name="rewards">Belohnung</string>
     <string name="help">Hilfe</string>
-    <string name="update_app">Update</string>
+    <string name="update_app">Aktualisieren</string>
     <string name="unlink_facebook_confirmation">Bist du sicher, dass du dein Hike-Account nicht mehr mit deinem Facebook-Profil verlinken willst?</string>
     <string name="unlink_twitter_confirmation">Bist du sicher, dass du dein Hike-Account nicht mehr mit deinem Twitter-Account verlinken willst?</string>
     <string name="change_group_name">%1$s hat den Gruppennamen geändert.</string>
+    <string name="you_change_group_name">Du hast den Gruppennamen geändert.</string>
     <string name="change_broadcast_name">%1$s hat den Sendenamen geändert.</string>
+    <string name="you_change_broadcast_name">Du hast den Sendenamen geändert.</string>
     <string name="block_internation_sms">Frei-SMS können nur nach Indien gesendet werden</string>
     <string name="block_internation_sms_bold_text">Indien</string>
     <string name="invite_via_sms">SMS-Einladung</string>
@@ -103,8 +105,8 @@
     <string name="vibrate_msg">Bei neuer Nachricht vibrieren</string>
     <string name="free_sms_msg">Einschalten, um Frei-SMS nach Indien zu senden</string>
     <string name="auto_download_media">Mediendateien automatisch downloaden</string>
-    <string name="md_auto_download_media">Medien autom. herunterladen: Mobilfunkdaten</string>
-    <string name="wf_auto_download_media">Medien autom. herunterladen: WLAN</string>
+    <string name="md_auto_download_media">MEDIEN AUTOM. HERUNTERLADEN: MOBILFUNKDATEN</string>
+    <string name="wf_auto_download_media">MEDIEN AUTOM. HERUNTERLADEN: WLAN</string>
     <string name="auto_download_image_title">Bilder</string>
     <string name="auto_download_video_title">Video</string>
     <string name="auto_download_audio_title">Audiodatei</string>
@@ -150,7 +152,6 @@
     <string name="android_version">Android Version:</string>
     <string name="msisdn">Telefonnummer:</string>
     <string name="unobfuscated_map_api">AIzaSyBvWmHyGeeDjPkJR1xJnWCnUiWTfwciSLw</string>
-    <string name="next_signup">Weiter</string>
     <string name="invalid_num_signup">Das ist eine ungültige Telefonnummer. Versuche es erneut.</string>
     <string name="verify_pin_signup">PIN wird überprüft...</string>
     <string name="wrong_num_signup">Eine falsche Zahl eingegeben? Hier tippen</string>
@@ -172,11 +173,16 @@
     <string name="location_disabled">Dein Standort konnte nicht ermittelt werden. Überprüfe bitte deine Einstellungen.</string>
     <string name="tap_here_invite">Hier tippen, um diese Person einzuladen</string>
     <string name="change_group_image">%1$s hat das Gruppenbild geändert.</string>
+    <string name="you_change_group_image">Du hast das Gruppenbild geändert.</string>
     <string name="faq">FAQs</string>
     <string name="gallery">Galerie</string>
     <string name="number_confirm_title">Bestätige deine Nummer</string>
     <string name="birthday">Geburtstag</string>
     <string name="anniversary">Jahrestag</string>
+    <string name="backup_account">Konto sichern</string>
+    <string name="search_hint_text">Suchen...</string>
+    <string name="is_typing">schreibt...</string>
+    <string name="are_typing">schreiben...</string>
     <string name="other">Sonstiges</string>
     <string name="target_account">Kontakt in diesem Account speichern</string>
     <string name="save">Speichern</string>
@@ -189,9 +195,16 @@
     <string name="free_sms_txt">Frei-SMS</string>
     <string name="blocked_list">Gesperrt-Liste</string>
     <string name="accepted_friend_request">Als Freund bestätigt</string>
-    <string name="invite_free_sms">Per Frei-SMS einladen</string>
     <string name="mute_group">Gruppe stummschalten</string>
     <string name="unmute_group">Stummschaltung der Gruppe aufheben</string>
+    <string name="mute_chat">Chat stummschalten</string>
+    <string name="unmute_chat">Stummschaltung des Chats aufheben</string>
+    <string name="group_mute_dialog_title">Gruppe stummschalten für</string>
+    <string name="chat_mute_dialog_title">Chat stummschalten für</string>
+    <string name="mute_chat_eight_hrs">8 Stunden</string>
+    <string name="mute_chat_one_week">1 Woche</string>
+    <string name="mute_chat_one_yr">1 Jahr</string>
+    <string name="show_notif">Benachrichtigungen anzeigen</string>
     <string name="account">Account</string>
     <string name="enter_num">Bitte Telefonnummer eingeben.</string>
     <string name="enter_pin">Bitte PIN eingeben.</string>
@@ -203,7 +216,6 @@
     <string name="system_health">Systemintegrität</string>
     <string name="you">Du</string>
     <string name="delete_status">Update löschen</string>
-    <string name="delete_status_confirmation">Möchtest du dieses Update sicher löschen?</string>
     <string name="delete_status_error">Deine Statusmeldung konnte nicht gelöscht werden. Bitte überprüfe die Netzwerkverbindung und versuche es erneut.</string>
     <string name="deleting_status">Update wird gelöscht...</string>
     <string name="tap_here_block">Hier tippen, um diese Nummer zu sperren.</string>
@@ -292,6 +304,7 @@
     <string name="invite_friends_hike">Freunde zu hike einladen</string>
     <string name="hike_contacts">PERSONEN AUF HIKE</string>
     <string name="sms_contacts">SMS-KONTAKTE</string>
+    <string name="contacts">KONTAKTE</string>
     <string name="invite_subtext">Verdiene kostenlose SMS für jeden Freund, der hike nach deiner SMS-Einladung beitritt.</string>
     <string name="india_only">Frei-SMS können nur nach Indien gesendet werden.</string>
     <string name="feedback_on_hike">Feedback zu Hike für Android</string>
@@ -321,6 +334,7 @@
     <string name="select_all">Alle auswählen (%1$d)</string>
     <string name="deselect_all">Auswahl löschen (%1$d)</string>
     <string name="chat_bg_changed">%1$s hat das Chatmotiv geändert</string>
+    <string name="you_chat_bg_changed">Du hast das Chatmotiv geändert</string>
     <string name="chat_theme">Chatmotiv</string>
     <string name="last_seen_today_ct">heute, %1$s</string>
     <string name="last_seen_yesterday_ct">gestern, %1$s</string>
@@ -386,6 +400,7 @@
     <string name="more_hike_more_earn">Je mehr du hike verwendest, umso mehr verdienst du!</string>
     <string name="compose_chat_heading">Erstelle eine neue Gruppe</string>
     <string name="compose_chat_other_contacts">SONSTIGE KONTAKTE</string>
+    <string name="compose_chat_action_bar_title">Neuer Chat</string>
     <string name="name_group">Gib der Gruppe einen Namen</string>
     <string name="name_broadcast">Übertragung benennen</string>
     <string name="num_contacts">%1$s Kontakte</string>
@@ -409,14 +424,13 @@
     <string name="one_unread_message">1 neue Nachricht</string>
     <string name="invite_friends_confirmation_msg">Möchtest du %1$s deiner Freunde zu hike einladen?</string>
     <string name="didnt_get_pin">Falls du die PIN nicht erhalten hast, rufen wir dich an</string>
-    <string name="maxContactInGroupErr">Es sind nur max. %1$s Kontakte in einer Gruppe erlaubt</string>
     <string name="maxContactInBroadcastErr">Es sind nur max. %1$s Kontakte in dieser Übertragungsliste erlaubt</string>
     <string name="minContactInGroupErr">Du brauchst mindestens %1$s Mitglieder, um einen Gruppen-Chat zu beginnen</string>
     <string name="minContactInBroadcastErr">Mindestens %1$s Kontakte müssen ausgewählt sein</string>
     <string name="cannot_select_zero_byte_file">Eine Datei mit 0 Byte kann nicht ausgewählt werden</string>
     <string name="addedYouAsFavorite">Es wurden %1$s zu Favoriten hinzugefügt</string>
     <string name="addedYouFrindDescription"><![CDATA[
- Du teilst gerade deine Angabe zu <font color="#ef554e">Zuletzt online</font> und deine <font color="#1da8e8">Statusmeldungen</font> mit %1$s. Möchtest du, dass er/sie diese Informationen auch mitteilt?
+ Du teilst jetzt deine Angabe zu <font color="#ef554e">Zuletzt online</font> und deine <font color="#0f8fe1">Statusmeldungen</font> mit %1$s. Möchtest du, dass er/sie diese Informationen auch mit dir teilt?
 	    
     ]]></string>
     <string name="ftue_favorite_subtext">Als Favorit hinzufügen</string>
@@ -434,6 +448,10 @@
     <string name="CONTINUE">WEITER</string>
     <string name="alp_42447968_cmd_forgot_pattern">Muster vergessen?</string>
     <string name="alp_42447968_loading">Lädt...</string>
+    <string name="alp_42447968_lockscreen_access_pattern_cell_added">Handy hinzugefügt</string>
+    <string name="alp_42447968_lockscreen_access_pattern_cleared">Muster gelöscht</string>
+    <string name="alp_42447968_lockscreen_access_pattern_detected">Muster beendet</string>
+    <string name="alp_42447968_lockscreen_access_pattern_start">Muster begonnen</string>
     <string name="alp_42447968_msg_draw_pattern_to_unlock">Gib dein Entsperrmuster ein</string>
     <string name="alp_42447968_msg_pattern_recorded">Muster gespeichert</string>
     <string name="alp_42447968_msg_release_finger_when_done">Lass deinen Finger los, wenn du fertig bist</string>
@@ -457,13 +475,15 @@
     <string name="resetting_complete_stealth_header">Geheimmodus wird zurückgesetzt</string>
     <string name="resetting_complete_stealth_info">Zum Abbrechen tippen.</string>
     <string name="reset_stealth_tip"><![CDATA[
- <b> Alle verborgenen Chats werden in %1$s Minuten gelöscht </b> 
+ <b> Alle verborgenen Chats werden in %1$s Minuten gelöscht </b>
 	    
     ]]></string>
     <string name="tap_to_reset_stealth_tip"><![CDATA[
- <b> Tippe hier, um den Geheimmodus jetzt zurückzusetzen! </b> 
+ <b> Tippe hier, um den Geheimmodus jetzt zurückzusetzen! </b>
 	    
     ]]></string>
+    <string name="tap_to_reveal_stealth_contacts">Tippe auf „hi“, um deine Chats einzublenden.</string>
+    <string name="tap_to_hide_stealth_contacts">Tippe auf „hi“, um deine Chats auszublenden.</string>
     <string name="reset_stealth_confirmation">Mit dem Zurücksetzen des Geheimmodus gehen all deine verborgenen Chats verloren.\nSicher?</string>
     <string name="stealth_tap_and_hold_tip">Tippe lange auf einen Chat, um ihn zu verbergen.</string>
     <string name="mark_stealth">Chat als verborgen markieren</string>
@@ -473,7 +493,6 @@
     <string name="vib_default_key">Standard</string>
     <string name="vib_short_key">Kurz</string>
     <string name="vib_long_key">Lang</string>
-
     <string name="tickSoundTitle">Unterhaltungstöne</string>
     <string name="tickSoundSummary">Klang für eingehende und ausgehende Nachrichten abspielen</string>
     <string name="notificationSoundTitle">Benachrichtigungstöne</string>
@@ -494,10 +513,8 @@
     <string name="shortcut">Shortcut für Unterhaltung hinzufügen</string>
     <string name="add_to_contacts">Zu Kontakten hinzufügen.</string>
     <string name="delete_leave">Gruppe löschen und verlassen</string>
-    <string name="group_participant_info">Du kannst bis zu 500 Personen zu einer Gruppe hinzufügen</string>
     <string name="broadcast_participant_info"><![CDATA[<font color="#848484"><b>Hinweis: </b>Nur hike-Kontakte mit %1$s in ihrem Adressbuch erhalten diese Übertragung.</font>]]></string>
     <string name="confirm_delete_chat_msg">Chat mit \"%1$s\" löschen? </string>
-    <string name="confirm_delete_group_msg">Gruppe \"%1$s\" löschen und verlassen?</string>
     <string name="email_chat">Chat per E-Mail senden</string>
     <string name="clear_chat">Chatdaten löschen</string>
     <string name="add_shortcut">Shortcut hinzufügen</string>
@@ -528,7 +545,6 @@
     <string name="ftue_status_update_card_header">Drücke dich aus</string>
     <string name="ftue_status_update_card_msg">Hier tippen, um eine Statusmeldung zu veröffentlichen. Nur deine Favoriten können sie lesen.</string>
     <string name="earn_free_sms">Hol dir Gratis-SMS</string>
-    <string name="email_body">Ich habe mir soeben den neuen hike-Messenger heruntergeladen. Was für ein Unterschied zu WhatsApp!\n\nHike hat tolle Sticker zu bieten und ich kann selbst bestimmen, welche Personen erfahren dürfen, wann ich zuletzt online war. Außerdem sind die Chatmotive echt cool.\n\nUnd das Beste daran ist, dass Hike einen Geheimmodus hat, über den ich private Nachrichten vor der Welt verbergen kann! Einfach spitze!\n\nLade dir die App schnell herunter: http://hike.in</string>
     <string name="email_subject">Lebe dein Leben mit hike</string>
     <string name="ftue_card_header_last_seen">Zul.online</string>
     <string name="ftue_card_body_last_seen">Nur Favoriten können deine Zuletzt-online-Angabe &amp; Statusmeldungen sehen</string>
@@ -541,7 +557,7 @@
     <string name="ftue_card_click_text_sticker">Du wirst sie lieben!</string>
     <string name="ftue_card_sep">Tolle Dinge, die du mit hike machen kannst</string>
     <string name="change_stealth_password">Passwort ändern</string>
-    <string name="change_stealth_password_body">Ändere das Passwort deines Geheimmodus</string>
+    <string name="change_stealth_password_body">Ändere dein Geheimmodus-Passwort. Wechsle zudem zwischen Muster und PIN.</string>
     <string name="invited">Eingeladen</string>
     <string name="invite_more">MEHR EINLADEN</string>
     <string name="invite_sent">Einladung gesendet</string>
@@ -555,7 +571,6 @@
     <string name="hike_to_offline_push_title_multiple">%1$d Personen sind offline</string>
     <string name="hike_to_offline_text">Nachrichten als Gratis-SMS versenden</string>
     <string name="invite_with_watsapp">WhatsApp</string>
-    <string name="watsapp_invitation">Hallo! Komme auch zum hike Messenger, der einzigen Messaging-App aus Indien! Hike ermöglicht dir, deinen Zuletzt-online-Status nur ausgewählten Freunden zu zeigen, Nachrichten an Freunde zu schicken, wenn sie offline sind, und tolle Sticker zu senden.\n\nAußerdem kannst du alle Dateiformate mit jeweils bis zu 100 MB teilen, so z. B. Dokumente, Lieder, Filme usw. ;) http://get.hike.in/</string>
     <string name="profile_pic_header">Profilbild</string>
     <string name="profile_pic_display_info">Nur Favoriten zeigen</string>
     <string name="undelivered_sms_setting_remember">Meine Präferenz ist gespeichert</string>
@@ -587,7 +602,6 @@
     <string name="send_sms_file_msg">hat dir eine Datei geschickt</string>
     <string name="select_all_confirmation_header">Alle einladen</string>
     <string name="select_all_confirmation_msg">Einladung zum Herunterladen von hike an %1$d Kontakte senden?</string>
-    <string name="change_password_from_privacy">Passwort über Einstellungen > Datenschutz ändern</string>
     <string name="hike_offline_caps">Hike Offline</string>
 
     <string name="create_pin">PIN erstellen</string>
@@ -595,6 +609,7 @@
     <string name="max_pin_unread_counter">9+</string>
     <string name="pin_text_hint">Teile etwas Wichtiges mit...</string>
     <string name="xyz_posted_pin">%1$s hat eine PIN gepostet</string>
+    <string name="you_xyz_posted_pin">Du hast eine PIN gepostet</string>
     <string name="pinHistoryTutorialText">Noch keine PINs</string>
     <string name="incorrect_msisdn_warning">Falsche Nummer</string>
     <string name="incorrect_msisdn_msg">Bitte gib die Nummer ein, die du bei der Registrierung von hike auf diesem Handy angegeben hast.</string>
@@ -604,7 +619,7 @@
     <string name="mute_status_notification_header">Status und Profilbild</string>
     <string name="mute_status_notification_subtext">Benachrichtigungen bei neuen Statusmeldungen &amp; Profilbildern von Favoriten anzeigen</string>
     <string name="notifications_contact_join_summary">Benachrichtigung anzeigen, wenn ein Kontakt zu hike beitritt</string>
-    <string name="set_profile_pic">hike-Profilbild</string>
+    <string name="set_profile_pic"> Hike-Profilbild</string>
     <string name="confirm_delete_pin_header">Wichtige Nachricht löschen</string>
     <string name="confirm_delete_pin">Möchtest du diese wichtige Nachricht wirklich löschen?</string>
     <string name="confirm_delete_pins_header">Wichtige Nachrichten löschen</string>
@@ -628,14 +643,16 @@
     <string name="add_recipients">EMPFÄNGER HINZUFÜGEN</string>
     <string name="stealth_info_tip_header">Geheimmodus</string>
     <string name="file_missing_caps">FEHLENDE DATEI</string>
-    <string name="status_profile_pic_notification">hat das Profilbild geändert</string>
+    <string name="status_profile_pic_notification">Hat das Profilbild geändert</string>
     <string name="group_admin">Admin</string>
+    <string name="sms_group_member">Ausstehend</string>
+    <string name="favorite_request_pending">Als Favorit hinzugefügt</string>
     <string name="delete_media_from_sdcard">Medien vom Handy löschen</string>
     <string name="unable_to_open">Diese Datei existiert leider nicht</string>
     <string name="notificationSoundSummary">Wähle einen Ton, der bei neuen Benachrichtigungen erklingt</string>
     <string name="hike_offline_notifications">Nutze Hike offline</string>
     <string name="h2o_notifications_setting_summary">Benachrichtigung anzeigen, um eine SMS an einen Offline-Kontakt zu senden</string>
-    <string name="stealth_info_tip_subtext">Tippe auf „Hallo“, um deine Chats auszublenden.</string>
+    <string name="stealth_info_tip_subtext">Tippe \'hi\', um Chats mit einem Passwort zu verbergen.</string>
     <string name="file_attachment_info">Teile doc-, pdf- &amp; Mediendateien mit bis zu 100 MB</string>
     <string name="status_text_notification">hat ein Update gepostet %1$s</string>
     <string name="shared_files">Dateien</string>
@@ -643,9 +660,9 @@
     <string name="image_settings_tip_text">Bildeinstellungen</string>
     <string name="image_settings_tip_subtext">Normal. Besser. Unkomprimierte Größe.</string>
     <string name="settings_media">Medien</string>
-    <string name="image_quality_small">Normal</string>
-    <string name="image_quality_medium">Besser</string>
-    <string name="image_quality_original">Unkomprimiert</string>
+    <string name="image_quality_small">Komprimiert</string>
+    <string name="image_quality_medium">Normal</string>
+    <string name="image_quality_original">Original</string>
     <string name="image_quality_send">Senden</string>
     <string name="image_quality_prefs">Bildqualität</string>
     <string name="no_media">Fotos und Videos werden hier angezeigt</string>
@@ -663,7 +680,6 @@
     <string name="medium_faster">schnell</string>
     <string name="original_slow">langsam</string>
     <string name="forward_to_plural">Nachricht an %1$s Kontakte senden?</string>
-    <string name="forward_to_singular">Nachricht an 1 Kontakt senden?</string>
     <string name="selected_contacts_count_plural">%1$s Kontakte</string>
     <string name="selected_contacts_count_singular">%1$s Kontakt</string>
     <string name="wish_now">Jetzt wünschen</string>
@@ -689,7 +705,6 @@
     <string name="update_all">ALLE AKTUALISIEREN</string>
     <string name="RETRY">ERNEUT VERSUCHEN</string>
     <string name="see_them">FERTIG</string>
-    <string name="drag_tip_text">Tippe ein Paket an und halte es gedrückt, um deine Stickerpakete neu zu sortieren</string>
     <string name="CANCEL">ABBRECHEN</string>
     <string name="n_more">%1$d MEHR</string>
     <string name="n_stickers">%1$d Sticker</string>
@@ -730,7 +745,6 @@
     <string name="error_pick_location">Fehler beim Auswählen eines Standortes</string>
     <string name="zero_sms_hint">0 Frei-SMS übrig...</string>
     <string name="pin_self">Du</string>
-    <string name="hike_upgrade_string">Wir machen hike schneller und besser</string>
     <string name="some_error">Es ist ein Fehler aufgetreten!</string>
     <string name="recently_joined_hike">IST KÜRZLICH HIKE BEIGETRETEN</string>
     <string name="creating_backup_message">Es wird eine Datensicherung deines Kontos erstellt. Die tägliche Datensicherung erfolgt um 3 Uhr. </string>
@@ -774,6 +788,7 @@
     <string name="voip_missed_call_incoming">Du hast einen Anruf verpasst</string>
     <string name="voip_call_chat">Hike-Anruf</string>
     <string name="voip_call_notification_title">Hike-Anruf mit %1$s</string>
+    <string name="voip_conference_call_notification_title">Hike-Konferenzanruf</string>
     <string name="voip_call_notification_text">Anruf aktiv %1$s</string>
     <string name="voip_call">anrufen</string>
     <string name="voip_call_ended">ANRUF BEENDET</string>
@@ -783,13 +798,20 @@
     <string name="voip_connecting">...VERBINDEN</string>
     <string name="voip_partner_busy">...BESETZT</string>
     <string name="voip_offline_error">Keine Netzwerkverbindung. Bitte stelle eine Netzverbindung her und versuche es dann erneut.</string>
-    <string name="voip_signal_fair">MITTELMÄSSIG</string>
-    <string name="voip_signal_good">GUT</string>
-    <string name="voip_signal_weak">SCHLECHT</string>
-    <string name="voip_signal_excellent">AUSGEZEICHNET</string>
+    <string name="voip_conference_label">Konferenzanruf</string>
+    <string name="voip_conference_waiting_for_participants_info">Konferenzdaten werden abgerufen...</string>
+    <string name="voip_hang_up">Auflegen</string>
+    <string name="voip_decline">Ablehnen</string>
+    <string name="voip_accept">Annehmen</string>
     <string name="hike_calls">Hike-Anrufe</string>
     <string name="voip_intro_popup_msg">Du kannst jetzt all deine Hike-Freunde kostenlos anrufen!</string>
     <string name="voip_intro_popup_btn">KLASSE</string>
+    <string name="voip_group_too_large">Die maximale Teilnehmerzahl einer Konferenz beträgt %1$s.</string>
+    <string name="voip_conference_network_support">Konferenzanrufe können nicht über 2G getätigt werden.</string>
+    <string name="voip_conference_os_support">Mit diesem Gerät kannst du keine Konferenz moderieren.</string>
+    <string name="voip_conference_host">Konferenzmoderator</string>
+    <string name="voip_conference_not_supported">%1$s unterstützt keine Konferenzanrufe.</string>
+    <string name="voip_group_conference_confirmation">Möchtest du einen Konferenzanruf mit allen Teilnehmern dieser Gruppe starten?</string>
     <string name="led_color_none_key">Keine</string>
     <string name="led_color_blue_key">Blau</string>
     <string name="led_color_cyan_key">Cyan</string>
@@ -842,9 +864,8 @@
     <string name="photo_dp_saved_sub">Sieht prima aus</string>
     <string name="photo_dp_save_error">Profilfoto konnte nicht eingerichtet werden</string>
     <string name="photo_dp_save_error_sub">Zum Wiederholen tippen</string>
-    <string name="photo_gallery_choose_pic">Foto auswählen</string>
     <string name="cropping_image">Foto zuschneiden</string>
-	<string name="home_search_empty_text">Deine Suche nach \'%1$s\' ergab keine passenden Kontakte.</string>
+    <string name="home_search_empty_text">Deine Suche nach \'%1$s\' ergab keine passenden Kontakte.</string>
     <string name="voip_mic_error">Mikrofon konnte nicht gestartet werden. Dieser Anruf ist evt. nicht möglich.</string>
     <string name="voip_call_failed_frag_subheader">Kontaktiere %1$s sonst mit einem </string>
     <string name="dismiss_upper_case">ABLEHNEN</string>
@@ -853,13 +874,20 @@
     <string name="voip_call_failed_redial">Erneut wählen</string>
     <string name="voip_call_failed_native_call">Operator-Anruf</string>
     <string name="voip_not_reachable">%1$s ist nicht erreichbar</string>
-    <string name="voip_incompat_platform">Kostenlose hike-Anrufe sind derzeit nur auf \n Android-Geräten möglich.</string>
+    <string name="voip_callee_busy">%1$s ist beschäftigt</string>
+    <string name="voip_callee_no_response">%1$s antwortet nicht</string>
+    <string name="voip_incompat_platform">Hike-Anrufe sind auf dem Handy\ndieses Kontakts derzeit nicht möglich.</string>
     <string name="voip_older_app">%1$s ist eine ältere Version von hike</string>
     <string name="voip_caller_poor_network">Du oder %1$s hast ein schlechtes Netz</string>
+    <string name="voip_error_force_mute">Der Moderator hat alle Teilnehmer stumm geschaltet</string>
+    <string name="voip_conf_mute_all_off">ALLE STUMM SCHALTEN</string>
+    <string name="voip_conf_mute_all_on">ALLE LAUT SCHALTEN</string>
+    <string name="voip_speech_force_mute_on">Der Moderator hat alle Teilnehmer stumm geschaltet</string>
+    <string name="voip_speech_force_mute_off">Du kannst jetzt wieder auf laut stellen</string>
     <string name="nux_expired">Diese Aktivität ist abgelaufen</string>
     <string name="nux_completed">Du hast diese Aktivität schon abgeschlossen.</string>
     <string name="holi">Schöne Feiertage</string>
-	<string name="privacy_settings">DATENSCHUTZ-EINSTELLUNGEN</string>
+    <string name="privacy_settings">DATENSCHUTZ-EINSTELLUNGEN</string>
     <string name="manage_list">LISTEN VERWALTEN</string>
     <string name="privacy_everyone_key">Alle</string>
     <string name="privacy_my_contacts_key">Meine Kontakte</string>
@@ -876,18 +904,44 @@
     <string name="sent_favorite_request_tab">Teilt jetzt %1$s. Möchtest du das auch?</string>
     <string name="tap_plus_add_favorites">Nur Favoriten können deine %1$s sehen. Wähle sie sorgsam aus!</string>
     <string name="add_fav_msg">Teilt jetzt %1$s. Möchtest du das auch?</string>
-    <string name="both_ls_status_update">Zuletzt online und Status Updates</string>
+    <string name="both_ls_status_update">Zuletzt-online-Angabe und Statusmeldungen</string>
     <string name="retry_platform_failure">ERNEUT VERSUCHEN</string>
     <string name="platform_error_text">ETWAS IST SCHIEFGEGANGEN</string>
     <string name="platform_error_subtext">Überprüfe bitte deine Internetverbindung</string>
-    <string name="added_in_group">Du hast diesen Kontakt bereits zu deiner Gruppe hinzugefügt</string>
     <string name="added_in_broadcast">Du hast diesen Kontakt bereits zur Übertragungsliste hinzugefügt</string>
     <string name="enter_valid_group_name">Gruppenname darf nicht leer sein</string>
     <string name="enter_valid_broadcast_name">Übertragungsname darf nicht leer sein</string>
-    <string name="doodle_error_message">Doodle konnte nicht gespeichert werden!\nNicht genügend Speicher auf dem Gerät.</string>
-    <string name="photos_oom_save">Bild konnte nicht gespeichert werden!\nNicht genügend Speicher auf dem Gerät.</string>
-    <string name="photos_oom_load">Bild konnte nicht geladen werden!\nNicht genügend Speicher auf dem Gerät.</string>
-    <string name="photos_oom_retry">Versuche es erneut!</string>
+    <string name="doodle_error_message">Das Doodle kann nicht gespeichert werden!\nBitte erneut versuchen.</string>
+    <string name="photos_oom_save">Das Bild kann nicht gespeichert werden!\nBitte erneut versuchen.</string>
+    <string name="photos_oom_load">Das Bild kann nicht geladen werden</string>
+    <string name="photos_oom_retry">Noch einmal versuchen</string>
+    <string name="stealth_mode_title">Geheimmodus</string>
+    <string name="stealth_mode_title_body">Geheimmodus-Einstellungen</string>
+    <string name="change_stealth_timeout">Nach Passwort fragen</string>
+    <string name="change_stealth_timeout_body">Nach einer gewissen Zeit erneut nach Passwort fragen</string>
+    <string name="stealth_password_settings">PASSWORTEINSTELLUNGEN</string>
+    <string name="stealth_notification_settings">BENACHR.-EINSTELLUNGEN</string>
+    <string name="stealth_reset_settings">ZUSÄTZL. EINSTELLUNGEN</string>
+    <string name="enable_stealth_indicator">Anzeige</string>
+    <string name="enable_stealth_indicator_body">\'hi\'-Logo auf der Startseite aufspringen lassen für ungelesene Nachrichten</string>
+    <string name="enable_stealth_notification_body">Beim Empfangen von Nachrichten in verborgenen Chats benachrichtigen</string>
+    <string name="enable_stealth_notification">Benachrichtigung</string>
+    <string name="stealth_msg_draw_an_unlock_pattern">Neues Entsperrungsmuster zeichnen</string>
+    <string name="stealth_msg_enter_an_unlock_pin">Gib deinen neuen vierstelligen PIN ein</string>
+    <string name="stealth_msg_redraw_pattern_to_confirm">Bestätige dein Muster</string>
+    <string name="stealth_msg_reenter_pin_to_confirm">Bestätige deinen PIN</string>
+    <string name="stealth_enter_4_digits">Vervollständige deinen vierstelligen PIN</string>
+    <string name="hide_chat">Chat verbergen</string>
+    <string name="mark_hidden">Verbergen</string>
+    <string name="mark_visible">Als sichtbar markieren</string>
+    <string name="stealth_set_pin">Oder lege einen Nummern-PIN an</string>
+    <string name="stealth_set_pattern">Oder lege ein Entsperrungsmuster fest</string>
+    <string name="stealth_msg_pin_recorded">PIN gespeichert</string>
+    <string name="stealth_msg_your_new_unlock_pin">Dein neuer Entsperrungs-PIN</string>
+    <string name="stealth_msg_try_pin_again">Die PINs stimmen nicht überein. Versuche es erneut.</string>
+    <string name="stealth_msg_enter_pin_to_unlock">PIN zum Entsperren eingeben</string>
+    <string name="stealth_msg_enter_pin_to_unlock_in_reset">Derzeitigen PIN eingeben</string>
+    <string name="change_password_from_privacy">Geheimmodus-Einstellungen</string>
     <string name="nudge_setting_header">Gruß verschicken durch zweimal antippen</string>
     <string name="nudge_setting_info">Schicke einen Gruß indem du beim Chat zweimal antippst</string>
     <string name="enter_setting_header">Eingabetaste heißt abschicken</string>
@@ -898,10 +952,9 @@
     <string name="select_all_hike">Alle auswählen</string>
     <string name="unselect_all_hike">Auswahl aufheben</string>
     <string name="searching">Suche läuft...</string>
-    <string name="sticker_share_description"><![CDATA[Gehe auf <font color="#57dcf9">http://get.hike.in</font>  und hol dir den hike-Messenger]]></string>
     <string name="sticker_share_caption">Herunterladen: http://hike.in</string>
     <string name="text_share_heading">- Über hike verschickt</string>
-    <string name="text_share_caption">Herunterladen: http://hike.in</string> 
+    <string name="text_share_caption">Herunterladen: http://hike.in</string>
     <string name="image_share_heading">Über hike geteilt!</string>
     <string name="image_share_description"><![CDATA[Gehe auf <font color="#57dcf9">http://get.hike.in</font>  und hol dir den hike-Messenger]]></string>
     <string name="image_share_caption">Herunterladen: http://hike.in</string>
@@ -911,10 +964,14 @@
     <string name="choose_contact">Kontakt(e) auswählen</string>
     <string name="voip_reconnecting">...ERNEUT VERBINDEN</string>
     <string name="group_creation">Erstellt am </string>
-    <string name="ls_change_failed">\'Zuletzt online\' Update fehlgeschlagen!</string>
+    <string name="ls_change_failed">Zuletzt-online-Angabe nicht aktualisiert!</string>
     <string name="terms_conditions_hint">Allgemeine Geschäftsbedingungen</string>
     <string name="terms_conditions_title">AGBs</string>
     <string name="content_des_message_send_rec_read_status">Nachrichtenstatus gesendet bzw. ausstehend</string>
+    <string name="content_des_message_clock_state">Nachricht nicht gesendet</string>
+    <string name="content_des_message_double_tick_state">Nachricht an Empfänger übertragen</string>
+    <string name="content_des_message_double_tick_read_state">Nachricht vom Empfänger gelesen</string>
+    <string name="content_des_message_offline_state">Benutzer ist offline</string>
     <string name="content_des_restore_if_backup_found">Wiederherstellen (Backup gefunden)</string>
     <string name="content_des_add_photo_gallery_create_group">Beim Erstellen einer Gruppe Foto hinzufügen</string>
     <string name="content_des_add_photo_camera_create_group">Beim Erstellen einer Gruppe Foto machen</string>
@@ -924,9 +981,700 @@
     <string name="content_des_send_recorded_audio_text_chatting">Beim Chat aufgenommenes Audio/Text versenden</string>
     <string name="content_des_back_button_chatthread_actionbar">Drücke Zurück in der Chat-Thread-Menüleiste</string>
     <string name="content_des_round_user_image_chatthread_actionbar">Benutzerbild (abgerundet) in Chat-Thread-Menüleiste</string>
+    <string name="content_des_round_group_image_chatthread_actionbar">Gruppenbild (abgerundet) in Chat-Thread-Menüleiste</string>
     <string name="content_des_typing_notification_chatting">Beim Chat Informationen an Benutzer schreiben</string>
     <string name="content_des_typing_notification_received">Benachrichtigung erhalten an Benutzer schreiben</string>
-	<string name="activity_not_found">Es wurde keine App gefunden, die diese Aktion ausführen kann</string>
-	<string name="edit_photos">Neues Foto</string>
-	<string name="only_photos_edit">Es können nur Fotos bearbeitet werden</string>
+    <string name="content_des_send_message_button">Zum Nachricht versenden auf diese Schaltfläche tippen</string>
+    <string name="content_des_block_overlay_message">Du hast diesen Nutzer blockiert. Gib ihn wieder frei, um dich über hike mit ihm zu unterhalten.</string>
+    <string name="content_des_user_profile_detail_user_phone_number">Handynummer des Benutzers</string>
+    <string name="content_des_user_profile_detail_edit_profile_pic">Profilbild ändern</string>
+    <string name="content_des_user_invitation_on_hike">Kontakt zu hike einladen</string>
+    <string name="content_des_pause_file_download">Datei Herunterladen pausieren</string>
+    <string name="content_des_download_file">Datei herunterladen</string>
+    <string name="content_des_retry_file_download">Datei Herunterladen erneut versuchen</string>
+    <string name="activity_not_found">Es wurde keine App gefunden, die diese Aktion ausführen kann</string>
+    <string name="apps">Apps</string>
+    <string name="edit_photos">Neues Foto</string>
+    <string name="multi_contact_creation">Wird gesendet…</string>
+    <string name="only_photos_edit">Dateiformart wird nicht unterstützt</string>
+    <string name="delete_block">Sperren und Löschen</string>
+    <string name="confirm_delete_block_msg">Möchtest du \"%1$s\" sperren und löschen? </string>
+    <string name="confirm_delete_non_messaging">Möchtest du \"%1$s\" löschen? </string>
+    <string name="scan_free_hike">Hike Direct</string>
+    <string name="connection_established">Hike Direct verbunden</string>
+    <string name="awaiting_response">Warten auf Antwort</string>
+    <string name="disconnect_offline">Trennen</string>
+    <string name="files_not_received">Einige Dateien konnten nicht empfangen werden, da die Verbindung getrennt wurde.</string>
+    <string name="share_application">Apps teilen</string>
+    <string name="free_hike_connection">Hike Direct verbunden</string>
+    <string name="scan_free_hike_connection"><![CDATA[Tippe hier, um dich mit <b>%1$s</b> über Hike Direct zu verbinden]]></string>
+    <string name="could_not_post_pic">Das Bild konnte nicht hochgeladen werden. Bitte erneut versuchen.</string>
+    <string name="sticker_recommendation_setting_info">Tippe auf die blauen Wörter, um Vorschläge zu erhalten</string>
+    <string name="sticker_recommendation_setting_header">Sticker-Vorschläge</string>
+    <string name="stickers_sent_today">Heute %1$d/%2$d Stickern verschickt</string>
+    <string name="disable_from_hike_settings">Dauerhaft über die hike-Einstellungen deaktivieren</string>
+    <string name="total_sticker_sent">In den letzten %2$d Tagen hast du %1$d Sticker verschickt</string>
+    <string name="disable_button">DEAKTIVIEREN</string>
+    <string name="get_more_stickers_button">MEHR STICKER</string>
+    <string name="open_hike_button">HIKE ÖFFNEN</string>
+    <string name="one_hour_button">1 STUNDE</string>
+    <string name="eight_hour_button">8 STUNDEN</string>
+    <string name="one_day_button">24 STUNDEN</string>
+    <string name="settings_share_stickers">Stickey</string>
+    <string name="sticker_widget_show">Stickey in allen aufgeführten Apps anzeigen</string>
+    <string name="settings_select_all">Alle auswählen </string>
+    <string name="more_stickers">Mehr Sticker</string>
+	<string name="add_members">Mitglieder hinzufügen</string>
+	<string name="add_members_to_conference">Zur Konferenz hinzufügen</string>
+	<string name="created_group_text">Du hast den Gruppenchat erstellt</string>
+	<string name="you_added_as_group_member">%1$s hat dich hinzugefügt</string>
+	<string name="group_member_added">%1$s hat %2$s hinzugefügt</string>
+	<string name="you_group_member_added">Du hast %1$s hinzugefügt</string>
+	<string name="num_members">%1$d Mitglieder</string>
+	<string name="num_member">%1$d Mitglied</string>
+	<string name="profile_pic_upload_in_background">Der Uploadvorgang des Profilbilds wird fortgesetzt...</string>
+	<string name="show_degraded_image_quality">Es wird ein Bild von niedriger Qualität geladen</string>
+	<string name="toast_for_showing_thumbnail">Es wird ein Vorschaubild angezeigt</string>
+	<string name="cont_desc_photos_tab_filter">TabFilter</string>
+    <string name="cont_desc_photos_tab_doodle">TabDoodle</string>
+    <string name="now">Jetzt</string>
+    <string name="sticker_recommend_tip">Tippe auf die blauen Wörter</string>
+    <string name="make_admin">Zum Administrator ernennen</string>
+    <string name="admin_updating">%1$s wird zum Administrator ernannt</string>
+    <string name="admin_task_error">Verbindungsfehler: Bitte überprüfe deine Internetverbindung und versuche es erneut.</string>
+    <string name="group_admin_updated">%1$s hat %2$s zum Administrator ernannt</string>
+    <string name="group_admin_updated_you">%1$s hat dich zum Administrator ernannt</string>
+    <string name="you_updated_group_admin">Du hast %1$s zum Administrator ernannt</string>
+
+    <string name="group_setting_option_only_admin">Nur Administratoren können Mitglieder hinzufügen</string>
+    <string name="group_setting_updating">Die Datenschutz-Einstellungen der Gruppe werden geändert</string>
+    <string name="group_setting_confirmation1">Möchtest du allen erlauben, Mitglieder hinzuzufügen?</string>
+    <string name="group_setting_confirmation2">Möchtest du nur Administratoren erlauben, Mitglieder hinzuzufügen?</string>
+    <string name="group_rights_info">Nur Administratoren können Mitglieder zu dieser Gruppe hinzufügen</string>
+    <string name="sms_admin_toast">Du kannst deine Administratorrechte nicht mit SMS-Kontakten teilen</string>
+    <string name="group_settings_updated">hat die Gruppeneinstellungen geändert</string>
+    <string name="you_group_settings_updated">Du hast die Gruppeneinstellungen geändert</string>
+    <string name="unknown_server_error">Die Datei kann nicht heruntergeladen werden.</string>
+    <string name="sticker_share_description">www.hike.in</string>
+    <string name="num_notification_sub_text_for_multi_msisdn">%1$s Nachrichten von %2$s Unterhaltungen</string>
+    <string name="disconnect_warning">Mit %1$s verbinden?</string>
+    <string name="connected_warning">Deine Verbindung mit %1$s wird beendet.</string>
+    <string name="connecting_to">Die Verbindung mit %1$s wird hergestellt. Dein Freund muss sich im Umkreis von 100 m befinden.</string>
+    <string name="offline_animation_second_message">Dies könnte einen Augenblick dauern. Bitte warten.</string>
+    <string name="offline_animation_third_message">Es dauert länger als sonst. \n Bitte %1$s, \n ebenfalls auf Hike Direct zu tippen.</string>
+    <string name="connect">Verbinden</string>
+    <string name="sticker_share_popup_activate_toast">Stickey ist jetzt aktiviert!</string>
+    <string name="cancel_connection">Verbindungsaufbau zu %1$s abbrechen?</string>
+    <string name="cancel_offline_connection">Verbindungsaufbau abbrechen</string>
+    <string name="retry_connection">Keine Verbindung über \n Hike Direct hergestellt. Erneut versuchen?</string>
+    <string name="file_attachment_info_offline">Teile apk- &amp; Mediendateien bis zu einer beliebigen Größe</string>
+    <string name="actionbar_activity_feed_title">Aktivität</string>
+    <string name="photo_like_text">Gefällt dein Foto</string>
+    <string name="dp_like_text">Gefällt dein Profilfoto</string>
+    <string name="liked_this_post">Gefällt dieser Beitrag</string>
+    <string name="liked_your_post">Gefällt dein Beitrag</string>
+    <string name="activity_feed_actionbar_title">Aktivitäts-Feed</string>
+    <string name="posted_photo">Hat ein Foto veröffentlicht</string>
+    <string name="love_failed">Kein Internet. Bitte später erneut versuchen.</string>
+    <string name="delete_post">Beitrag löschen</string>
+    <string name="message_person">Nachricht %1$s</string>
+    <string name="delete_status_confirmation">Möchtest du dieses Update wirklich löschen?</string>
+    <string name="delete_status_timeline_confirmation">Hiermit wird dein Beitrag aus deiner Chronik und der Chronik deiner Freunde entfernt</string>
+    <string name="clear_timeline">Chronikeinträge löschen</string>
+    <string name="favourites">Favoriten</string>
+    <string name="clear_timeline_dialog">Möchtest du die Einträge in deiner Chronik wirklich löschen?</string>
+    <string name="liked_it">Gefällt dir</string>
+    <string name="status_hint">Was machst du gerade?</string>
+    <string name="status_hint_image">Etwas zu diesem Foto</string>
+    <string name="add_mood">Stimmung hinzufügen</string>
+    <string name="sticker_recommendation_autopopup_setting_info">Sticker bei der Eingabe automatisch anzeigen</string>
+    <string name="sticker_recommendation_autopopup_setting_header">Sticker automatisch vorschlagen</string>
+    <string name="sticker_recommend_ftue_heading">Sticker-Vorschläge</string>
+    <string name="tap_on_sticker_to_send">Tippe auf einen Sticker, um ihn zu senden</string>
+    <string name="download_from_shop">Für bessere Vorschläge weitere Sticker herunterladen</string>
+    <string name="more">Mehr</string>
+    <string name="task_already_running">Vorgang wird bereits ausgeführt</string>
+    <string name="sticker_share_popup_not_activate_toast">Du hast keine kompatiblen Apps</string>
+    <string name="send_logs">Protokolle senden</string>
+    <string name="like_this">Gefällt mir</string>
+    <string name="num_likes">%1$s Gefällt-mir-Angaben</string>
+    <string name="num_like">%1$s  Gefällt-mir-Angabe</string>
+    <string name="dialog_btn_yes">JA</string>
+    <string name="dialog_btn_no">NEIN</string>
+    <string name="timeline_ftue_show_me">ANZEIGEN</string>
+    <string name="timeline_add_as_fav">ALS FAVORIT MARKIEREN</string>
+    <string name="timeline_welldone">Sehr gut!</string>
+    <string name="timeline_ftueexit_desc">Du hast weitere Personen zu deiner Favoritenliste hinzugefügt. Sie werden auch Beiträge sehen, die du veröffentlichst.</string>
+    <string name="timeline_ftueexit_btn">HAB\'S</string>
+    <string name="notif_posted_photo">hat ein Foto veröffentlicht</string>
+    <string name="photo_actions_header">Sieht gut aus! Nutze dieses Foto um:</string>
+    <string name="profile_header_subtext">Das Profilbild ist für jeden sichtbar</string>
+    <string name="sms_with_settings">SMS-Einstellungen</string>
+    <string name="sms_credits_with_settings">GRATIS-SMS: %1$s</string>
+    <string name="free_hike_2_sms_india">Nur in Indien gratis</string>
+    <string name="invite_friends_earn_rewards">Lade Freunde zu hike ein und erhalte Belohnungen</string>
+    <string name="your_referral_code">Dein <b>Empfehlungscode</b></string>
+    <string name="share_referral_code">Teile deinen Empfehlungscode überall und erhalte Belohnungen für jeden Freund, der sich über deine Einladung bei hike registriert</string>
+    <string name="copied_to_clipboard">Erfolgreich in die Zwischenablage kopiert.</string>
+    <string name="multi_edit_undo_warning">Sollen alle Änderungen am Bild verworfen werden?</string>
+    <string name="multi_edit_undo_warning_header">Änderungen verwerfen?</string>
+    <string name="photos_oom_upload">Das Bild kann nicht hochgeladen werden.\nDu hast nicht genügend Speicherkapazitäten auf deinem Gerät.</string>
+    <string name="goto_timeline">Gehe zur Chronik.</string>
+    <string name="contacts_sync_error">Die Synchronisierung der Kontakte ist fehlgeschlagen. Bitte erneut versuchen.</string>
+    <string name="contacts_sync_no_contacts_found">Keine Kontakte zum Synchronisieren</string>
+    <string name="cloud_file_error">Diese Datei existiert nicht auf deinem Handy. Bitte lade sie extern herunter, bevor du sie freigibst.</string>
+    <string name="unknown_file_error">Wir konnten die Datei nicht auf deinem Gerät finden. Bitte erneut versuchen.</string>
+    <string name="confirm_delete_group_msg">Möchtest du „%1$s“ wirklich verlassen?</string>
+    <string name="delete_conversation">Unterhaltung löschen</string>
+    <string name="delete_group_confirm">Möchtest du „%1$s“ wirklich löschen?</string>
+    <string name="add_to_fav_confirmation">Du kannst Statusmeldungen von deinen Favoriten bewerten. Möchtest du %1$s als Favorit hinzufügen?</string>
+    <string name="invite_free_sms">Mit Gratis-SMS einladen</string>
+    <string name="sticker_recommend_settings_toast">Du kannst Sticker-Vorschläge jederzeit über Einstellungen &gt; Chat-Einstellungen aktivieren</string>
+    <string name="YES">JA</string>
+    <string name="NO">NEIN</string>
+    <string name="DELETE">LÖSCHEN</string>
+    <string name="disconnecting_offline">Verbindung wird geschlossen</string>
+    <string name="sticker_recommend_auto_off_tip_text">Sticker-Vorschläge sind ausgeschaltet! Hole sie über Einstellungen &gt; Chat-Einstellungen zurück.</string>
+    <string name="timeline_tab_photo">Foto</string>
+    <string name="timeline_tab_status">Status</string>
+    <string name="timeline_empty_desc1">Chronik-Updates</string>
+    <string name="CLEAR">LÖSCHEN</string>
+    <string name="HIDDEN_MODE">GEHEIMMODUS</string>
+    <string name="EDIT">BEARBEITEN</string>
+    <string name="ALLOW">ZULASSEN</string>
+    <string name="pref_message_settings">NACHRICHTEN-EINSTELLUNGEN</string>
+    <string name="pref_sticker_settings">STICKER-EINSTELLUNGEN</string>
+    <string name="delete_account_heading">DEIN KONTO WIRD GELÖSCHT</string>
+    <string name="delete_account_description">Hiermit werden all deine Nachrichten, Datensicherungen, Gratis-SMS und hike-Belohnungen gelöscht</string>
+    <string name="no_places_found">Keine Orte gefunden</string>
+    <string name="SAVE">SPEICHERN</string>
+    <string name="already_connected_offline">Du bist nicht verbunden. Stelle eine Verbindung her und versuche es erneut.</string>
+    <string name="not_enough_space_receiver">Der Empfänger hat nicht genügend Speicherkapazitäten</string>
+    <string name="no_sdcard_receiver">Der Empfänger hat keine SD-Karte</string>
+    <string name="receiver_cannot_receive">Der Empfänger kann keine Dateien empfangen</string>
+    <string name="add_member_menu">Mitglied hinzufügen</string>
+    <string name="JUST_ONCE">NUR EINMAL</string>
+    <string name="ALWAYS">IMMER</string>
+    <string name="UNLINK_ACCOUNT">KONTO ZURÜCKSETZEN</string>
+    <string name="UNLINK">TRENNEN</string>
+    <string name="UPDATE_APP">AKTUALISIEREN</string>
+    <string name="language_summary">Englisch</string>
+    <string name="language">Sprache</string>
+    <string name="app_language">App-Sprache</string>
+    <string name="delete_all">Alle löschen</string>
+    <string name="like_count_by_unknow_contacts">+%1$d Freunde von %2$s</string>
+    <string name="connection_established_inline_msg">Hike Direct verbunden</string>
+    <string name="connection_deestablished_inline_msg">Hike Direct getrennt</string>
+    <string name="connection_request_inline_msg">Hike-Direct-Anfrage verpasst</string>
+    <string name="hike_direct_info">Hike Direct ist eine neue Möglichkeit, um mit Freunden in Kontakt zu bleiben, wenn du kein Internet hast und keine Mobilfunkdaten verwenden möchtest. Mit Hike Direct kannst du mit Freunden in deiner Nähe Nachrichten schreiben und Dateien teilen. Und zwar völlig kostenlos. Es gibt keine Grenze bei der Dateigröße, d.h. du kannst Filme, Videos, Musik, Apps und vieles mehr senden.</string>
+    <string name="how_hike_direct_works">Wie funktioniert Hike Direct?</string>
+    <string name="condition_one">1. Bedingung: Dein Freund ist max. 100 m von dir entfernt. Umso näher du bist, umso besser ist die Verbindung!</string>
+    <string name="condition_two">2. Bedingung: Um eine Verbindung zu starten, musst du deinen Freund bitten, ebenfalls auf die Option Hike Direct im Chatfenster zu tippen.</string>
+    <string name="offline_group_query">Funktioniert Hike Direct auch bei Gruppenchats?</string>
+    <string name="offline_group_answer">Bislang ermöglicht Hike Direct nur 1:1-Chats. Gruppenchats werden noch nicht unterstützt. Weitere Entwicklungen sind jedoch geplant. Bleibe auf dem Laufenden.</string>
+    <string name="hike_direct_help">Hilfe zu Hike Direct</string>
+    <string name="something_went_wrong">Hier ist etwas schiefgelaufen. Bitte versuche es in Kürze erneut.</string>
+    <string name="ENABLE">AKTIVIEREN</string>
+    <string name="accessibility_settings_system_text">Hike Stickey bietet zahlreiche Funktionen, z. B. kannst du Sticker über Messenger-Apps teilen. Bitte aktiviere Stickey und schalte es ein.</string>
+    <string name="show_accessibility_tip_text">Bedienungshilfen müssen aktiviert sein, um diese Funktion verwenden zu können. Tippe hier und wähle Hike aus.</string>
+    <string name="accessibility_dialog_text">Bedienungshilfen müssen aktiviert sein, um diese Funktion verwenden zu können. Tippe auf AKTIVIERN und wähle Hike aus.</string>
+    <string name="accessbility">Bedienungshilfen</string>
+    <string name="email_body">Ich habe mir soeben den neuen hike Messenger heruntergeladen. Was für ein Unterschied zu WhatsApp!\n\nHike bietet tolle Sticker, tolle Chatmotive und die Möglichkeit, Chats auszublenden. \n\nJetzt herunterladen: http://get.hike.in/$invite_token</string>
+    <string name="watsapp_invitation">Hallo! Nutze mit mir hike, die einzige Messenger-App aus Indien! Mit hike kannst du deine Chats ausblenden, Nachrichten an Freunde senden, wenn sie offline sind, und tolle Sticker nutzen. \n\nDu kannst auch alle Dateiformate teilen: docs, Lieder, Filme usw. mit bis zu 100 MB. Hier herunterladen: http://get.hike.in/</string>
+    <string name="invite_share_message">Hallo! Schau dir mal den Hike Messenger an. Er bietet tolle Sticker! Registriere dich bei der einzigen Messenger-App aus Indien. Hier herunterladen: http://hike.in/$invite_token</string>
+    <string name="offline_request_cancelled"> %1$s hat deine Hike-Direct-Verbindungsanfrage abgebrochen.\nBitte später versuchen.</string>
+    <string name="incoming_hike_direct_request">Eingehende Hike-Direct-Anfrage</string>
+    <string name="hike_direct_request">möchte sich über Hike Direct verbinden.</string>
+    <string name="low_battery_msg">Dein Akku ist niedrig. Nachrichten oder Dateien lassen sich womöglich nur langsam senden und empfangen.</string>
+    <string name="offline_connection_problem">Oh! Gibt\'s Probleme?\nBitte erneut versuchen.</string>
+    <string name="turn_on_connection">Schalte den Datennetzmodus oder WLAN ein</string>
+    <string name="please_wait">Bitte warten.</string>
+    <string name="loading_data">Daten werden geladen...</string>
+    <string name="action_no_network">Bitte überprüfe deine Netzwerkverbindung.</string>
+    <string name="timeline_transition_anim">timeline_image_transit</string>
+    <string name="home_overflow_new_photo">Neues Foto</string>
+    <string name="upgrade_for_larger_files">%1$s benötigt ein Upgrade, um diese Datei zu empfangen. Teile jetzt die aktuelle Version von Hike über Hike Direct.</string>
+    <string name="maxContactInGroupErr">Du kannst max. %1$s Mitglieder hinzufügen</string>
+    <string name="added_in_group">Dieser Kontakt ist bereits ein Mitglied</string>
+    <string name="watsapp">Über WhatsApp hinzufügen</string>
+    <string name="others">Über andere Apps hinzufügen</string>
+    <string name="add_via_hike">Über Hike hinzufügen</string>
+    <string name="link_share_wa_msg">Du kannst jetzt Mitglieder zur Gruppe $groupname über Gruppe und Kontakte von WhatsApp hinzufügen. Teile einfach diesen Link.</string>
+    <string name="link_share_others_msg">Du kannst jetzt Mitglieder zur Gruppe $groupname über Gruppe und Kontakte von anderen Apps hinzufügen. Teile einfach diesen Link.</string>
+    <string name="link_share_network_error">Hey, du bist offline. Bitte verbinde dich mit dem Internet.</string>
+    <string name="link_share_error_invitee_account_deleted">Die Person, die dich eingeladen hat, hat ihr Konto gelöscht.</string>
+    <string name="link_share_error_already_group_member">Du bist bereits in der Gruppe.</string>
+    <string name="link_share_error_invalid_link">Der Link scheint fehlerhaft zu sein. Bitte überprüfen.</string>
+    <string name="link_share_error_group_deleted">Diese Gruppe wurde gelöscht.</string>
+    <string name="link_share_error_person_not_in_group">Die Person, die dich eingeladen hat, ist nicht mehr in der Gruppe.</string>
+    <string name="link_share_error_default">Es ist ein Fehler aufgetreten!</string>
+    <string name="wa_group">WhatsApp-Gruppe</string>
+    <string name="opening_app">App wird geöffnet</string>
+    <string name="max_file_size_offline">Die max. Dateigröße für Hike Direct ist 2 GB.</string>
+    <string name="net_not_connected">HikeCaller funktioniert nur mit WLAN oder 3G/4G.</string>
+    <string name="okay">OK</string>
+    <string name="getting_mapp_shortly">Herzlichen Glückwunsch! %1$s sollte in Kürze in deiner Chatansicht erscheinen.</string>
+    <string name="hike_apps">APPS AUF HIKE</string>
+    <string name="caller_invited_to_join">%1$s wurde zu einem Anruf mit dir eingeladen.</string>
+    <string name="caller_error_403">Es ist ein Fehler aufgetreten.</string>
+    <string name="caller_error_406">Der Name zu dieser Nummer kann nicht abgerufen werden.</string>
+    <string name="caller_error_500">Es ist ein interner Fehler aufgetreten.</string>
+    <string name="hi">Hallo!</string>
+    <string name="next_signup">Weiter</string>
+    <string name="free_call">GRATIS-ANRUF</string>
+    <string name="free_message">GRATIS-NACHRICHT</string>
+    <string name="save_contact">KONTAKT SPEICHERN</string>
+    <string name="getting_details">Details werden abgerufen...</string>
+    <string name="take_me_there">LOS</string>
+    <string name="hike_upgrade_string">Wir machen Hike schneller und besser für dich!\n Dies könnte einige Minuten dauern.</string>
+    <array name="voip_decline_message_texts">
+        <item>Can\'t talk now. What\'s up?</item>
+        <item>I\'ll call you right back</item>
+        <item>I\'ll call you later</item>
+        <item>Can\'t talk now. Call me later?</item>
+    </array>
+    <string name="HELP">HILFE</string>
+    <string name="sticky_caller_settings">Anrufer</string>
+    <string name="sticky_caller_settings_header">Anrufer-Infos</string>
+    <string name="sticky_caller_settings_side_text">Anrufer-Infos und Gratis-Anrufe/Nachrichtenoptionen für alle Kontakte</string>
+    <string name="enable_saved_contact_view_heading">Für gespeicherte Kontakte anzeigen</string>
+    <string name="enable_saved_contact_view_side_text">Anrufer-Infos auch für gespeicherte Kontakte anzeigen</string>
+    <string name="choose_language">Sprache wählen</string>
+    <string name="choose_language_desciption">Jetzt gibt es deinen Lieblings-Messenger auch in deiner Lieblingssprache</string>
+    <string name="phone_language">Handy-Sprache</string>
+	<string name="tip_and_notif_update_text">AKTUALISIEREN</string>
+    <string name="tip_and_notif_later_text">SPÄTER</string>
+    <string name="update_tip_header_text">NEUES HIKE-UPDATE VERFÜGBAR</string>
+    <string name="update_tip_body_text">Mit diesem Update erhältst du kostenlose Gruppenanrufe, Hike News und den neuen Geheimmodus</string>
+    <string name="invite_tip_bottom_text">EINLADEN</string>
+    <string name="invite_tip_header_text">Freunde einladen</string>
+    <string name="invite_tip_body_text">Lade deine Freunde zu Hike ein und verdiene kostenlose Gesprächsminuten.</string>
+    <string name="pers_notif_title">Hike aktualisieren</string>
+    <string name="pers_notif_message">Aktualisiere Hike und erhalte spannende neue Funktionen!</string>
+    <string name="close_gps">Du kannst jetzt Standortdienste für diese App deaktivieren, um Akku zu sparen. An deiner Hike-Direct-Verbindung ändert sich dabei nichts.</string>
+    <string name="gps_not_on">hike direct funktioniert nicht, wenn das GPS deaktiviert ist</string>
+    <string name="switch_on_gps">Bitte aktiviere die Standortdienste, um Hike Direct nutzen zu können.</string>
+    <string name="gps_settings">EINSTELLUNG</string>
+    <string name="user_gps_off">Hike Direct funktioniert erst, wenn du Standortdienste aktivierst.</string>
+    <string name="app_not_enabled">Du hast diese App nicht aktiviert.</string>
+    <string name="no_results_found">Keine Ergebnisse</string>
+    <string name="APPLY">ÜBERNEHMEN</string>
+    <string name="and">und</string>
+    <string name="others_smallcase">sonstige</string>
+    <string name="level">Level</string>
+    <string name="milliseconds">ms</string>
+    <string name="yesterday">Gestern</string>
+    <string name="tomorrow">Morgen</string>
+    <string name="today">heute</string>
+    <!-- This is used to express that something occurred some number of seconds in the past (e.g., 5 seconds ago). -->
+    <plurals name="num_seconds_ago">
+        <item quantity="one">Vor 1 Sekunde</item>
+        <item quantity="other">Vor %d Sekunden</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of minutes in the past (e.g., 5 minutes ago). -->
+    <plurals name="num_minutes_ago">
+        <item quantity="one">Vor 1 Minute</item>
+        <item quantity="other">Vor %d Minuten</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of hours in the past (e.g., 5 hours ago). -->
+    <plurals name="num_hours_ago">
+        <item quantity="one">Vor 1 Stunde</item>
+        <item quantity="other">Vor %d Stunden</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred within the last X days (e.g., Last 7 days). -->
+    <plurals name="last_num_days">
+        <item quantity="other">Vor %d Tagen</item>
+    </plurals>
+
+    <!-- This is used to express that something has occurred within the last month -->
+    <string name="last_month">Letzter Monat</string>
+
+    <!-- This is used to express that something happened longer ago than the previous options -->
+    <string name="older">Älter</string>
+
+    <!-- This is used to express that something occurred some number of days in the past (e.g., 5 days ago). -->
+    <plurals name="num_days_ago">
+        <item quantity="one">Gestern</item>
+        <item quantity="other">Vor %d Tagen</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of seconds in the future (e.g., in 5 seconds). -->
+    <plurals name="in_num_seconds">
+        <item quantity="one">In 1 Sekunde</item>
+        <item quantity="other">In %d Sekunden</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of minutes in the future (e.g., in 5 minutes). -->
+    <plurals name="in_num_minutes">
+        <item quantity="one">In 1 Minute</item>
+        <item quantity="other">In %d Minuten</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of hours in the future (e.g., in 5 hours). -->
+    <plurals name="in_num_hours">
+        <item quantity="one">In 1 Stunde</item>
+        <item quantity="other">In %d Stunden</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of days in the future (e.g., in 5 days). -->
+    <plurals name="in_num_days">
+        <item quantity="one">Morgen</item>
+        <item quantity="other">In %d Tagen</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of abbreviated seconds in the past (e.g., 5 secs ago). -->
+    <plurals name="abbrev_num_seconds_ago">
+        <item quantity="one">Vor 1 Sek.</item>
+        <item quantity="other">Vor %d Sek.</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of abbreviated minutes in the past (e.g., 5 mins ago). -->
+    <plurals name="abbrev_num_minutes_ago">
+        <item quantity="one">Vor 1 Min.</item>
+        <item quantity="other">Vor %d Minuten</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of abbreviated hours in the past (e.g., 5 hrs ago). -->
+    <plurals name="abbrev_num_hours_ago">
+        <item quantity="one">Vor 1 Stunde</item>
+        <item quantity="other">Vor %d Stunden</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of abbreviated days in the past (e.g., 5 days ago). -->
+    <plurals name="abbrev_num_days_ago">
+        <item quantity="one">Gestern</item>
+        <item quantity="other">Vor %d Tagen</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of abbreviated seconds in the future (e.g., in 5 secs). -->
+    <plurals name="abbrev_in_num_seconds">
+        <item quantity="one">In 1 Sek.</item>
+        <item quantity="other">In %d Sek.</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of abbreviated minutes in the future (e.g., in 5 mins). -->
+    <plurals name="abbrev_in_num_minutes">
+        <item quantity="one">In 1 Min.</item>
+        <item quantity="other">In %d Min.</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of abbreviated hours in the future (e.g., in 5 hrs). -->
+    <plurals name="abbrev_in_num_hours">
+        <item quantity="one">In 1 Stunde</item>
+        <item quantity="other">In %d Stunden</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of abbreviated days in the future (e.g., in 5 days). -->
+    <plurals name="abbrev_in_num_days">
+        <item quantity="one">Morgen</item>
+        <item quantity="other">In %d Tagen</item>
+    </plurals>
+
+    <string name="dismiss_button">ABLEHNEN</string>
+    <string name="sms_head">SMS:</string>
+    <string name="try_instead">STATTDESSEN PROBIEREN</string>
+    <string name="sms_card_settings_side_text">Bei allen SMS</string>
+    <string name="sms_card_settings_heading">SMS-ID</string>
+    <string name="timeline_empty_desc2">Hier kannst du Fotos und Statusmeldungen\naus dem Leben deiner Freunde sehen</string>
+
+    <string name="original_caps">ORIGINAL</string>
+    <string name="tirangaa">TIRANGAA</string>
+    <string name="mellow">LIEBLICH</string>
+    <string name="chuski">CHUSKI</string>
+    <string name="azure">AZUR</string>
+    <string name="jalebi">JALEBI</string>
+    <string name="gulaal">GULAAL</string>
+    <string name="x_pro">X-PRO</string>
+    <string name="hdr">HDR</string>
+    <string name="apollo">APOLLO</string>
+    <string name="retro">RETRO</string>
+    <string name="pulsar">PULSAR</string>
+    <string name="sunlitt">ANGESTRAHLT</string>
+    <string name="hazel">NUSSBRAUN</string>
+    <string name="lo_fi">LO-FI</string>
+    <string name="inked">TÄTOWIERT</string>
+    <string name="mashaal">MASHAAL</string>
+    <string name="sholay">SHOLAY</string>
+    <string name="junglee">JUNGLEE</string>
+    <string name="polaroid">POLAROID</string>
+    <string name="sepia">SEPIA</string>
+    <string name="grayscale">GRAUSTUFEN</string>
+    <string name="team_hike_bot">Team hike</string>
+    <string name="emma_bot">Emma von hike</string>
+    <string name="hike_daily_bot">hike News</string>
+    <string name="natasha_bot">Natascha</string>
+    <string name="cricket_bot">Kricket 2015</string>
+    <string name="hike_support_bot">hike Support</string>
+    <string name="games_bot">Spiele auf hike</string>
+    <string name="added_you_friend">Als Freund hinzugefügt</string>
+    <string name="size">Größe</string>
+    <string name="commit_id">Commit Id</string>
+    <string name="branch_name">Filialname</string>
+    <string name="attachment">Anhang</string>
+    <string name="quiz_adda">Quiz Adda</string>
+    <string name="tiny_mogul_games_inc">Tiny Mogul Games Inc.</string>
+    <string name="sample_section">Beispielbereich</string>
+    <string name="name_here">Name eingeben</string>
+    <string name="msisdn_here">MSISDN eingeben</string>
+    <string name="number">Nummer</string>
+    <string name="contact_name">Kontaktname</string>
+    <string name="mobile">Mobil</string>
+    <string name="your_contact">Dein Kontakt</string>
+    <string name="liked_this_photo">Gefällt dieses Foto</string>
+    <string name="india">Indien</string>
+    <string name="afghanistan">Afghanistan</string>
+    <string name="title">Titel</string>
+    <string name="summary">Übersicht</string>
+    <string name="tap_here">Tippe hier, um loszulegen!</string>
+    <string name="two_mins_ago">vor 2 Min.</string>
+    <string name="conference_participant">Konferenzteilnehmer</string>
+    <string name="failed_search">Deine Suche ergab keine Kontakte</string>
+    <string name="send_one_sms_as">1 SMS senden als</string>
+    <string name="always_regular">Immer</string>
+    <string name="just_once_regular">Nur einmal</string>
+    <string name="set_as_dp">Als Profilbild festlegen</string>
+    <string name="pdf">.pdf</string>
+    <string name="happy">Fröhlich</string>
+    <string name="sms_ctr_default_text">Noch 99 SMS</string>
+    <string name="conn_app_since">Seit 5. Jan. 2014</string>
+    <string name="friends">Freunde</string>
+    <string name="photo_like_def_text">0 Person(en) gefällt dieses Foto</string>
+    <string name="sample">Beispiel</string>
+    <string name="lang_item">Sprachelement</string>
+    <string name="timestamp_msg">Dies ist der Zeitstempel</string>
+    <string name="name_number">Name/Nummer</string>
+    <string name="name_caps">NAME</string>
+
+    <string name="made_with_love_in_india">Made with love in India</string>
+    <string name="timeline_ftue_desc">In der Chronik kannst du mit deinen Freunden besondere Augenblicke teilen. Einige Freunde haben bereits Beiträge in deiner Chronik veröffentlicht.</string>
+    <string name="group_selected">%1$s/1000 ausgewählt</string>
+    <string name="group_participant_info"><![CDATA[<font color="#000000">Du kannst jetzt bis zu </font><font color="#1090e0"><b>1000</b> </font><font color="#000000">Mitglieder hinzufügen</font>]]></string>
+    <string name="stealth_unread_tip_header">Blende deine Chats aus!</string>
+    <string name="stealth_unread_tip_message">Blende deine Chats aus, indem du auf „hi“ tippst.</string>
+    <string name="sticker">Sticker</string>
+    <string name="language_ftue_complete_message">Du kannst die Tastatursprache jederzeit unter \nEinstellungen-&gt;Sprache ändern</string>
+    <string name="block_contact">Kontakt blockieren</string>
+    <string name="caller_manage_list">LISTE VERWALTEN</string>
+    <string name="caller_blocked_list_hinttext">Verwalte deine blockierten Anrufer.</string>
+    <string name="block_contact_sure">Möchtest du %1$s wirklich blockieren? Alle Anrufe von dieser Person werden dann automatisch abgelehnt.</string>
+    <string name="unblock_contact_sure">Möchtest du %1$s wirklich freigeben? Du erhältst dann wieder Anrufe von dieser Person!</string>
+    <string name="unblock_contact">Kontakt freigeben</string>
+    <string name="caller_empty_view">Du hast noch keinen Nutzer auf Hike Caller blockiert.</string>
+    <string name="dismiss_with">VERWERFEN UND</string>
+    <string name="block_contact_caps">KONTAKT BLOCKIEREN</string>
+    <string name="unsupported_langs_toast">Dein Handy unterstützt kein %1$s</string>
+    <string name="unsupported_language_toast_msg">Dein Handy unterstützt diese Sprache nicht</string>
+    <string name="error_message_upgrade_peer">Der Verbindungsaufbau ist leider fehlgeschlagen. Dein Freund hat nicht die aktuelle Hike-Version mit Hike Direct installiert.</string>
+    <string name="error_message_unsupported_peer">Der Verbindungsaufbau ist leider fehlgeschlagen. hike direct funktioniert derzeit nur mit Android-Geräten.</string>
+    <string name="bengali">Bengalisch</string>
+    <string name="gujarati">Gujarati</string>
+    <string name="hindi">Hindi</string>
+    <string name="kannada">Kannada</string>
+    <string name="marathi">Marathi</string>
+    <string name="malyalam">Malayalam</string>
+    <string name="tamil">Tamil</string>
+    <string name="telugu">Telugu</string>
+    <string name="english">Englisch</string>
+    <string name="preview_category">VORSCHAU</string>
+    <string name="sticker_tap_text">Sticker zur Vorschau antippen</string>
+    <string name="copyright_text">Copyright @ 2016 Hike Limited</string>
+    <string name="recommended_packs">empfohlene Pakete</string>
+    <string name="pack_preview_activity_actionbar_text">Stickerinfos</string>
+    <string name="downloaded">Heruntergeladen</string>
+    <string name="downloading_sticker">Wird heruntergeladen ...</string>
+    <string name="timeline_short_desc">Teile deine Augenblicke mit Freunden</string>
+    <string name="multiple_su_post_failed">Eine oder mehrere Statusmeldungen konnten nicht veröffentlicht werden.</string>
+    <string name="timeline_post_timeout">Deine Fotos werden in Kürze veröffentlicht</string>
+    <string name="crop">Zuschneiden</string>
+    <string name="photo_gallery_choose_pic">Fotos</string>
+    <string name="remove">Entfernen</string>
+    <string name="filters">Filter</string>
+    <string name="rotate">Drehen</string>
+    <string name="forward_to_plural_timeline">Soll die Nachricht an %1$s Kontakte und an die Chronik gesendet werden?</string>
+    <string name="share_with_timeline">Mit %1$d Kontakten und in der Chronik teilen?</string>
+    <string name="share_with_contact_timeline">Mit %1$s und in der Chronik teilen?</string>
+    <string name="image_w_caption_sms">hat dir ein Bild mit dem Text %1$s gesendet</string>
+    <string name="share_on_timeline">In der Chronik teilen?</string>
+    <string name="admin_error">Dieser Nutzer ist kein Teilnehmer dieser Gruppe mehr</string>
+    <string name="slide_to_cancel">Zum Abbrechen wischen</string>
+    <string name="wallet_menu">Brieftasche</string>
+    <string name="deleting">WIRD GELÖSCHT</string>
+    <string name="sticker_reorder_setting_info">Ordne Pakete in der Stickerauswahl neu an</string>
+    <string name="sticker_reorder_setting_header">Umsortieren</string>
+    <string name="sticker_delete_setting_info">Entferne Stickerpakete von deinem Handy</string>
+    <string name="sticker_delete_setting_header">Löschen</string>
+    <string name="sticker_hide_setting_info">Blende Stickerpakete in der Auswahl ein/aus</string>
+    <string name="sticker_hide_setting_header">Ausblenden</string>
+    <string name="sticker_update_setting_info">Aktualisiere die heruntergeladenen Stickerpakete</string>
+    <string name="sticker_update_setting_header">Aktualisieren</string>
+    <string name="delete_pack_question">Möchtest du das Stickerpaket wirklich löschen?</string>
+    <string name="settings_sticker">Sticker-Einstellungen</string>
+    <string name="deleting_pack">Paket wird gelöscht...</string>
+    <string name="pack_deleted">Gelöschtes Paket</string>
+    <string name="n_more_stickers">%1$d Mehr Sticker</string>
+    <string name="all_packs_updated_heading">Alle Pakete sind aktualisiert!</string>
+    <string name="all_packs_updated_info">Deine Pakete sind alle aktuell. Wenn du mehr Sticker haben möchtest, gehe zum Sticker-Shop.</string>
+    <string name="redirect_to_shop_text">ZUM SHOP</string>
+    <string name="all_done">FERTIG!</string>
+    <string name="drag_tip_text">Zum Umsortieren tippen und ziehen</string>
+    <string name="all_packs_deleted_heading">Wir haben mehr als 10.000 Sticker</string>
+    <string name="all_packs_deleted_info">Schau dir Sticker in unserem Sticker-Shop an und lade dir schöne Exemplare herunter.</string>
+    <string name="intercept_title_screen_shot">Screenshot erstellt!</string>
+    <string name="intercept_message_screen_shot">Bearbeite es und teile es mit deinen Freunden auf hike</string>
+    <string name="intercept_title_image">Tolles Bild!</string>
+    <string name="intercept_message_image">Teile es mit deinen Freunden auf hike!</string>
+    <string name="intercept_lable_set_dp">Als Profilbild festlegen</string>
+    <string name="intercept_lable_screenshot_share">Bearbeiten &amp; teilen</string>
+    <string name="intercept_lable_image_share">Teilen</string>
+    <string name="intercept_title_video">Tolles Video!</string>
+    <string name="intercept_message_video">Teile es mit deinen Freunden auf hike!</string>
+    <string name="intercept_lable_video_share">Auf hike teilen</string>
+    <string name="screenshot_intercept_settings_header">Screenshot-Benachrichtigung</string>
+    <string name="screenshot_intercept_settings_content">Lass dich benachrichtigen, wenn ein Screenshot erstellt wird</string>
+    <string name="image_intercept_settings_header">Bild-Benachrichtigung</string>
+    <string name="image_intercept_settings_content">Lass dich benachrichtigen, wenn ein Bild aufgenommen wird</string>
+    <string name="video_intercept_settings_header">Video-Benachrichtigung</string>
+    <string name="video_intercept_settings_content">Lass dich benachrichtigen, wenn ein Video aufgenommen wird</string>
+    <string name="keyboard_shutdown_heading">Upgrade der Tastatur durchführen</string>
+    <string name="keyboard_shutdown_description">Wir empfehlen dir, das Google Indic Keyboard aus dem Play Store auszuprobieren. Es ist super :)</string>
+    <string name="open_phone_keyboard">HANDY TASTATUR</string>
+    <string name="open_google_keyboard">GOOGLE TASTATUR</string>
+    <string name="max_duration_recorded">Maximalaufnahmedauer erreicht</string>
+    <string name="compose_chat_empty_contact_status_payment_mode">Zum Wiederaufladen tippen</string>
+    <string name="view_all">Alle ansehen</string>
+    <string name="author_text"><![CDATA[Mit Liebe von <b>%1$s</b> entwickelt]]></string>
+    <string name="update">Aktualisieren</string>
+    <string name="spam">ALS SPAM GEMELDET</string>
+    <string name="posting_photos_timeline">Fotos werden in der Chronik veröffentlicht</string>
+    <string name="add_a_caption">Bildtext hinzufügen</string>
+    <string name="upgrade_hike">Aktualisieren</string>
+    <string name="restore_chat_title">Chatverlauf wiederherstellen</string>
+    <string name="restore_chat_body">Mit deinem Chatverlauf ist etwas schief gelaufen. Keine Panik, du kannst deinen Chatverlauf aus dem Backup wiederherstellen. Wenn du die Wiederherstellung jetzt nicht durchführst, wird dies später nicht mehr möglich sein.</string>
+    <string name="SKIP_RESTORE">WIEDERHERSTELLEN ÜBERSPRINGEN</string>
+    <string name="RESTORE_CAP">WIEDERHERSTELLEN</string>
+    <string name="restore_progress_body">Chatverlauf aus dem Backup wiederherstellen.</string>
+    <string name="restore_success">Chats erfolgreich wiederhergestellt!</string>
+    <string name="restore_failure">Es ist ein Fehler aufgetreten. Chats konnten nicht wiederhergestellt werden</string>
+    <string name="db_corrupt_notif_msg">Du hast eine neue Benachrichtigung</string>
+    <string name="recording_help_text">Zum Aufnehmen tippen, zum Senden loslassen</string>
+    <string name="restore_version_error">Dein Backup wurde von einer neueren Version von hike erstellt. Führe ein Update der App zur neuesten Version durch und versuche es erneut.</string>
+    <string name="custom_quick_reply">SCHREIB DEINE EIGENE</string>
+    <string name="save_unknown_contact">SPEICHERN</string>
+    <string name="spam_call_fail">Benutzer konnte nicht als Spam markiert werden</string>
+    <string name="block_dialog_title">Nutzer blockieren</string>
+    <string name="block_dialog_body">Möchtest du diesen Benutzer sicher blockieren?</string>
+    <string name="spam_info_in_dialog">Als Spam markieren und blockieren</string>
+    <string name="unknown_user_spam_info"><![CDATA[ <font color="#ff5f5f"> Von %1$d Leuten als Spam markiert</font> ]]></string>
+    <string name="restore_failed">Wiederherstellung fehlgeschlagen</string>
+    <string name="ADD_FRIEND">FREUND HINZUFÜGEN</string>
+    <string name="ACCEPT_REQUEST">ANFRAGE ANNEHMEN</string>
+    <string name="voip_friend_error">Bitte %1$s als Freund zum Anrufen hinzufügen. </string>
+    <string name="attachment_friend_error">Bitte %1$s als Freund zum Senden von Dateien hinzufügen. </string>
+    <string name="friend_req_pending">Freundschaftsanfrage in Bearbeitung</string>
+    <string name="friend_req_inline_msg_sent">Du hast %1$s als Freund hinzugefügt.</string>
+    <string name="friend_req_inline_msg_received">%1$s hat dich als Freund hinzugefügt.</string>
+    <string name="friends_ftue_heading">Freund hinzufügen</string>
+    <string name="friends_ftue_subtext">Füge %1$s als Freund zum chatten und vieles mehr auf hike hinzu.</string>
+    <string name="friend_request_sent">Als Freund hinzugefügt</string>
+    <string name="friend_request_sent_multiple">Als Freunde hinzugefügt</string>
+    <string name="add_as_friend_notification_line">Als Freund hinzugefügt</string>
+    <string name="add_as_friend_menu">Freund hinzufügen</string>
+    <string name="remove_from_friends">Freund entfernen</string>
+    <string name="add_frn">Freund hinzufügen</string>
+    <string name="timeline_add_as_frn">ALS FREUND HINZUFÜGEN</string>
+    <string name="ls_friends_summary">\"Zuletzt Online\" ist nur für deine Freunde sichtbar</string>
+    <string name="privacy_friends_key">Freunde</string>
+    <string name="ls_my_contacts_summary_frn">\"Zuletzt Online\" ist für die Kontakte in deinem Adressbuch und deine Freunde sichtbar.</string>
+    <string name="frn_list_summary">Benutzer zu Freunden hinzufügen/entfernen</string>
+    <string name="friends_upper_case">FREUNDE</string>
+    <string name="add_frn_upper_case">FREUNDE HINZUFÜGEN</string>
+    <string name="msg_friend_error">Bitte füge %1$s als Freund hinzu, um Nachrichten zu senden. </string>
+    <string name="sent_you_friend_req">Hat dir eine Freundschaftsanfrage gesendet. Nimm die Anfrage an zum Chatten und vieles mehr bei hike</string>
+    <string name="ftue_frn_subtext">Als Freund hinzufügen</string>
+    <string name="profile_pic_display_info_frn">Nur Freunden zeigen</string>
+    <string name="shop_search_hint">Liebe, Hindi, Bollywood usw.</string>
+    <string name="no_sticker_pack_match_found">Deine Suche nach \'%1$s\' trifft auf kein Stickerpaket zu.</string>
+    <string name="pack_search_again_hint">Gib vollständige Wörter wie Liebe, Hindi, Bollywood usw. ein</string>
+    <string name="recharge_menu">Neu aufladen</string>
+
+    <string name="message_info">Nachrichten-Info</string>
+    <string name="emptyreadlist"> - </string>
+    <string name="emptyseenlist"> - </string>
+    <string name="emptydeliveredlist"> - </string>
+    <string name="emptyplayedlist"> - </string>
+    <string name="remaining_items">%1 ausstehend</string>
+    <string name="read_list">GELESEN VON</string>
+    <string name="read_list_one">GELESEN</string>
+    <string name="delivered_list_one">GESENDET</string>
+    <string name="seen_list_one">GESEHEN</string>
+    <string name="readExpanded">Gelesen</string>
+    <string name="seenExpanded">Gesehen</string>
+    <string name="seen_list">GESEHEN VON</string>
+    <string name="delivered_list">GESENDET AN</string>
+    <string name="played_list">GESPIELT</string>
+    <string name="messageinfo_sms">Als SMS gesendet</string>
+    <string name="messageinfo_not_applicable">Für diese Nachricht ist keine Information verfügbar</string>
+
+    <string name="restore_msisdn_error">Es scheint eine Backup-Datei für eine andere Nummer vorhanden zu sein!</string>
+    <string name="ACCEPT">ANNEHMEN</string>
+    <string name="mute_status_notification_subtext_frn">Benachrichtigungen für Status &amp; Profilbilder Updates von Freunden anzeigen</string>
+    <string name="stream_volume_muted_or_low">Bitte drehe die Lautstärke hoch</string>
+    <string name="atomic_tip_header_default">Default Atomic Tip Header</string>
+    <string name="atomic_tip_body_default">Atomic Tip default body text!!! Just to let it flow to next line</string>
+    <string name="atomic_tip_http_failure">Es ist ein Fehler aufgetreten. Bitte später erneut versuchen</string>
+    <string name="edit_profile_birthday">Geburtsdatum</string>
+
+    <string name="select_options">Optionen auswählen...</string>
+    <string name="sticker_restore_diffdpi_title">Sticker Upgrade</string>
+    <string name="sticker_restore_diffdpi_message">Du hast dein Handy aktualisiert. Du musst dein Stickerpaket aktualisieren, damit dein neues Handy unterstützt wird.</string>
+    <string name="GOT_IT">HAB\'S</string>
+    <string name="file_size_invalid_error">Die Dateigröße, die du versuchst zu teilen, ist ungültig</string>
+    <string name="overlay_block_title">BLOCKIEREN | SPAM</string>
+    <string name="bot_overlay_block_title">BLOCKIEREN</string>
+    <string name="overlay_add_title">KONTAKT HINZUFÜGEN</string>
+    <string name="my_location">Mein Standort</string>
+    <string name="custom_location">Benutzerdefinierter Standort</string>
+    <string name="birthday_privacy_header">Geburtstag sichtbar für </string>
+    <string name="bd_my_contacts_summary">Geburtstag ist sichtbar für die Kontakte aus deinem Adressbuch und Favoriten</string>
+    <string name="bd_my_contacts_summary_frn">Geburtstag ist sichtbar für die Kontakte aus deinem Adressbuch und Freunde</string>
+    <string name="bd_favorites_summary">Geburtstag ist nur für deine Favoriten sichtbar</string>
+    <string name="bd_friends_summary">Geburtstag ist nur für deine Freunde sichtbar</string>
+    <string name="bd_everyone_summary">Geburtstag ist für jeden bei hike sichtbar</string>
+    <string name="bd_nobody_summary">Geburtstag wird mit niemandem bei hike geteilt</string>
+    <string name="bd_change_failed">Aktualisierung der Geburtstagseinstellungen fehlgeschlagen!</string>
+    <string name="hike_bday_contacts">HEUTIGE GEBURTSTAGE</string>
+    <string name="bday_list_view_subheading">Gratuliere!</string>
+    <string name="composeview_bday">Alles Gute zum Geburtstag!</string>
+    <string name="forward_to_single_timeline">Nachricht an %1$s schreiben und auf die Chronik posten?</string>
+    <string name="forward_to_singular">Nachricht an %1$s senden</string>
+    <string name="custom_chattheme_device_not_supported">Benutzerdefiniertes Chatmotiv konnte nicht eingestellt werden</string>
+    <string name="qs_error_view_heading">Upps, etwas ist schiefgegangen</string>
+    <string name="qs_error_view_sub_text">Tippe auf den Sticker, um es erneut zu versuchen</string>
+    <string name="qs_ftue_page_tap_text">Tippe auf irgendeinen Sticker zum Senden</string>
+    <string name="single_bday_notif_text">%1$s hat heute Geburtstag!</string>
+    <string name="multiple_bday_notif_text">%1$s und %2$s andere haben heute Geburtstag!</string>
+    <string name="single_bday_notif_subtext"> Tippe hier, um deinem Freund zum Geburtstag zu gratulieren!</string>
+    <string name="multiple_bday_notif_subtext">Tippe hier, um zum Geburtstag zu gratulieren!</string>
+    <string name="rich_uj_default_msg">%1$s ist jetzt bei hike</string>
+    <string name="uj_default_pretype_text">Hallo!</string>
+    <string name="uj_default_cta_say_hi">Sag Hallo</string>
+    <string name="uj_default_cta_add_friend">Freund hinzufügen</string>
+    <string name="ct_confirmation_dialog">Hierdurch wird das Chatmotiv auch zu den Geräten deiner Freunde hinzugefügt.</string>
+    <string name="manage_privacy">Privatsphäre verwalten</string>
+    <string name="last_seen">Zuletzt online</string>
+    <string name="status_update">Statusmeldung</string>
+    <string name="ls_privacy_subtext">Du wirst \"Zuletzt online\" ebenfalls nicht sehen, wenn du es deaktivierst</string>
+    <string name="su_privacy_subtext">Du wirst ebenfalls keine Statusmeldungen sehen, wenn du es deaktivierst</string>
+    <string name="qs_received_first_tip_text">Hey, du hast gerade diesen Sticker erhalten</string>
+    <string name="qs_received_second_tip_text">Tippe auf ihn, um mit einem Sticker zu antworten</string>
+    <string name="qs_received_third_tip_text">Super, du hast es verstanden!</string>
+    <string name="qs_sent_first_tip_text">Jetzt kannst du ähnliche Sticker senden</string>
+    <string name="qs_sent_second_tip_text">Indem du auf Sticker, die du gesendet hast, tippst</string>
+    <string name="qs_sent_third_tip_text">Super, du hast es verstanden!</string>
+    <string name="qs_empty_page_text">Keine Vorschläge für diesen Sticker</string>
+    <string name="download_image_before_sharing">Du musst das Bild vor dem Teilen herunterladen</string>
+    <string name="native_card_file_transfer_of_type">Native card file transfer of type</string>
 </resources>
