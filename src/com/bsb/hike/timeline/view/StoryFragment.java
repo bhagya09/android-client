@@ -167,6 +167,7 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        menu.clear();
         inflater.inflate(R.menu.story_fragment, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
