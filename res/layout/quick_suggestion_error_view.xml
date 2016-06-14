@@ -12,8 +12,9 @@
         android:gravity="center"
         android:orientation="vertical">
 
-        <com.bsb.hike.view.CustomFontTextView
+        <ImageView
             android:id="@+id/emoji_container"
+            android:src="@drawable/emo_im_09_expressionless"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
