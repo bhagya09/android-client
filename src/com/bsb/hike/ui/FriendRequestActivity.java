@@ -73,11 +73,13 @@ public class FriendRequestActivity extends HikeAppStateBaseFragmentActivity {
         Fragment frag = getSupportFragmentManager().findFragmentByTag(ADD_FRIENDS);
         if (frag != null) {
             addFriendsFragment = (AddFriendsFragment) frag;
+            if (!addFriendsFragment.isAdded())
+                getSupportFragmentManager().beginTransaction().add(R.id.fragment_layout, addFriendsFragment, ADD_FRIENDS).commit();
         }
         if (addFriendsFragment == null) {
             addFriendsFragment = new AddFriendsFragment();
+            getSupportFragmentManager().beginTransaction().add(R.id.fragment_layout, addFriendsFragment, ADD_FRIENDS).commit();
         }
-        getSupportFragmentManager().beginTransaction().add(R.id.fragment_layout, addFriendsFragment, ADD_FRIENDS).commit();
     }
 
     private void addAddFriendsViaABFragment() {
@@ -86,11 +88,13 @@ public class FriendRequestActivity extends HikeAppStateBaseFragmentActivity {
         Fragment frag = getSupportFragmentManager().findFragmentByTag(ADD_FRIENDS_ADDRESSBOOK);
         if (frag != null) {
             addFriendsViaABFragment = (AddFriendsViaABFragment) frag;
+            if (!addFriendsViaABFragment.isAdded())
+                getSupportFragmentManager().beginTransaction().add(R.id.fragment_layout, addFriendsViaABFragment, ADD_FRIENDS_ADDRESSBOOK).commit();
         }
         if (addFriendsViaABFragment == null) {
             addFriendsViaABFragment = new AddFriendsViaABFragment();
+            getSupportFragmentManager().beginTransaction().add(R.id.fragment_layout, addFriendsViaABFragment, ADD_FRIENDS_ADDRESSBOOK).commit();
         }
-        getSupportFragmentManager().beginTransaction().add(R.id.fragment_layout, addFriendsViaABFragment, ADD_FRIENDS_ADDRESSBOOK).commit();
     }
 
     private void addAddedMeFragment() {
@@ -99,11 +103,13 @@ public class FriendRequestActivity extends HikeAppStateBaseFragmentActivity {
         Fragment frag = getSupportFragmentManager().findFragmentByTag(ADD_FRIENDS);
         if (frag != null) {
             addedMeFragment = (AddedMeFragment) frag;
+            if (!addedMeFragment.isAdded())
+                getSupportFragmentManager().beginTransaction().add(R.id.fragment_layout, addedMeFragment, ADDED_ME).commit();
         }
         if (addedMeFragment == null) {
             addedMeFragment = new AddedMeFragment();
+            getSupportFragmentManager().beginTransaction().add(R.id.fragment_layout, addedMeFragment, ADDED_ME).commit();
         }
-        getSupportFragmentManager().beginTransaction().add(R.id.fragment_layout, addedMeFragment, ADDED_ME).commit();
 
     }
 
