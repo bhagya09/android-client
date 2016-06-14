@@ -327,7 +327,7 @@ public class CesDiskManager
 		if(dir != null && dir.exists() && dir.isDirectory())
 		{
 			String [] fileNames = dir.list();
-			if(fileNames.length == fileNotToDel.length)
+			if(fileNames == null || fileNotToDel == null || fileNames.length == fileNotToDel.length)
 			{
 				return;
 			}
