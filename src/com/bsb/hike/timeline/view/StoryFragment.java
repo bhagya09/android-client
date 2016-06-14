@@ -34,7 +34,9 @@ import com.bsb.hike.timeline.adapter.StoryListAdapter;
 import com.bsb.hike.timeline.model.StoryItem;
 import com.bsb.hike.timeline.tasks.StoriesDataManager;
 import com.bsb.hike.timeline.tasks.UpdateActionsDataRunnable;
+import com.bsb.hike.ui.CustomTabsBar;
 import com.bsb.hike.ui.GalleryActivity;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Utils;
 
@@ -82,6 +84,8 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
             HikePubSub.STEALTH_CONVERSATION_UNMARKED,
             HikePubSub.FAVORITE_TOGGLED,
             HikePubSub.USER_PRIVACY_TOGGLED};
+
+    private CustomTabsBar.CustomTabBadgeCounterListener badgeCounterListener;
 
     public static StoryFragment newInstance(@Nullable Bundle argBundle) {
         StoryFragment fragmentInstance = new StoryFragment();
@@ -237,6 +241,11 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
                 HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable() {
                     @Override
                     public void run() {
+
+                        if (!getUserVisibleHint()) {
+                            showTimeLineUpdatesIndicator();
+                        }
+
                         StoriesDataManager.getInstance().updateDefaultData(new WeakReference<StoriesDataManager.StoriesDataListener>(StoryFragment.this));
                     }
                 }, 2000); // This is to avoid changing of subtext right when timeline is tapped since it takes time for timeline activity to show up
@@ -388,5 +397,43 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    public void setCustomTabBadgeCounterListener(CustomTabsBar.CustomTabBadgeCounterListener listener)
+    {
+        this.badgeCounterListener = listener;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        showTimeLineUpdatesIndicator();
+        super.onActivityCreated(savedInstanceState);
+    }
+
+    private void showTimeLineUpdatesIndicator() {
+        if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FRIENDS_TAB_NOTIF_DOT, false)) {
+            if (badgeCounterListener != null) {
+                badgeCounterListener.onBadgeCounterUpdated(1);
+            }
+        }
+
+        else {
+            hideTimeLineUpdatesIndicator();
+        }
+    }
+
+    private void hideTimeLineUpdatesIndicator() {
+        if (badgeCounterListener != null) {
+            badgeCounterListener.onBadgeCounterUpdated(0);
+        }
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        if (isVisibleToUser) {
+            HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FRIENDS_TAB_NOTIF_DOT, false);
+            hideTimeLineUpdatesIndicator();
+        }
+        super.setUserVisibleHint(isVisibleToUser);
     }
 }

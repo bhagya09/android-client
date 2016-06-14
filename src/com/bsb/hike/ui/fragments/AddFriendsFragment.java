@@ -14,7 +14,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.FriendRequestAdapter;
@@ -55,7 +57,7 @@ public class AddFriendsFragment extends ListFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setHasOptionsMenu(true);
-        View parent = inflater.inflate(R.layout.fragment_friend_request, null);
+        View parent = inflater.inflate(R.layout.fragment_add_friend, null);
         mAdapter = new FriendRequestAdapter(getToAddContactList(), getActivity());
         return parent;
     }
@@ -63,9 +65,30 @@ public class AddFriendsFragment extends ListFragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        setupList();
+        setupAddressBookOption(view);
+    }
+
+    private void setupList() {
         listView = getListView();
-        listView.setAdapter(mAdapter);
+        setListAdapter(mAdapter);
         listView.setOnItemClickListener(onItemClickListener);
+    }
+
+    private void setupAddressBookOption(View view) {
+        View parent = view.findViewById(R.id.address_book);
+        TextView text = (TextView) parent.findViewById(R.id.text);
+        ImageView icon = (ImageView) parent.findViewById(R.id.icon);
+        text.setText(R.string.add_via_address_book);
+
+        parent.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                //TODO open address book here
+
+            }
+        });
     }
 
     private AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {

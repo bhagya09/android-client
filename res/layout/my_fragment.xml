@@ -36,8 +36,8 @@
             android:contentDescription="Status Layout"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:paddingLeft="24dp"
-            android:paddingRight="24dp">
+            android:paddingLeft="48dp"
+            android:paddingRight="48dp">
 
             <ImageView
                 android:id="@+id/status_mood"
@@ -50,8 +50,9 @@
                 android:id="@+id/subtext"
                 style="@style/ProfileHeaderSubText"
                 android:contentDescription="Status"
+                android:gravity="center"
                 android:text="#mystatus"
-                android:textSize="16dp" />
+                android:textSize="14dp" />
         </LinearLayout>
 
         <LinearLayout

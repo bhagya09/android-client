@@ -210,7 +210,6 @@ public class MessageInfoView
 				v = inflater.inflate(R.layout.message_sent_sticker, null, false);
 				stickerHolder.placeHolder = v.findViewById(R.id.placeholder);
 				stickerHolder.loader = (ProgressBar) v.findViewById(R.id.loading_progress);
-				stickerHolder.miniStickerLoader = (ProgressBar) v.findViewById(R.id.mini_loader);
 				stickerHolder.image = (ImageView) v.findViewById(R.id.image);
 				stickerHolder.time = (TextView) v.findViewById(R.id.time);
 				stickerHolder.status = (ImageView) v.findViewById(R.id.status);
@@ -933,8 +932,6 @@ public class MessageInfoView
 		ProgressBar loader;
 
 		ImageView image;
-
-		ProgressBar miniStickerLoader;
 	}
 
 	private static class NudgeViewHolder extends MessagesAdapter.DetailViewHolder

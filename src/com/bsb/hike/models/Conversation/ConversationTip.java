@@ -28,7 +28,6 @@ import com.bsb.hike.productpopup.AtomicTipContentModel;
 import com.bsb.hike.productpopup.AtomicTipManager;
 import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.ui.HomeActivity;
-import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.TellAFriend;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -530,7 +529,7 @@ public class ConversationTip implements OnClickListener
 			switch (this.tipType)
 			{
 			case ConversationTip.ATOMIC_FAVOURTITES_TIP:
-				context.startActivity(new Intent(context, PeopleActivity.class));
+				context.startActivity(IntentFactory.getFriendReqActivityAddFriendsIntent(context));
 				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.ATOMIC_FAVOURITES_TIP_CLICKED);
 				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 				break;

@@ -1704,7 +1704,7 @@
     <string name="sm_fallback_header">Clear All Data</string>
     <string name="sm_fallback_subheader">This will clear all app data and preferences and reset your hike account.\n\nTap on the button below to continue.</string>
     <string name="sm_fallback_button">CLEAR DATA</string>
-    <string name="sm_fallback_confirm_dialog_text">All the app data will be deleted permanently.\n Do you wish to continue?</string>
+    <string name="sm_fallback_confirm_dialog_text">This will clear all app data and profile from this device. Deleted items cannot be recovered.\nDo you wish to continue?</string>
     <string name="sm_empty_view_text1">Cheers! There are no more items to delete now.</string>
     <string name="sm_empty_view_text2">Happy Hiking!</string>
     <string name="sm_fallback_loader_text">Clearing Data ...</string>
@@ -1713,10 +1713,15 @@
     <string name="sm_category_subheader_text">Item Size</string>
     <string name="sm_subcategory_header_text">SubCategory Header</string>
     <string name="sm_subcategory_subheader_text">SubCategory Size</string>
+    <string name="sm_delete_success_toast">Items deleted successfully</string>
+    <string name="sm_delete_failure_toast">Oops! Something went wrong, please try again.</string>
     <string name="qs_empty_page_text_sub_text_part_one">"Tap on"</string>
     <string name="qs_empty_page_text_sub_text_part_two">"to send a sticker"</string>
     <string name="space_successfully_deleted">Space Deleted successfully</string>
+    <string name="added_me_tab_empty_string">All your new friends will appear here</string>
     <string name="story_photos_chat_btn">Chat</string>
+    <string name="QUICK_ADD">QUICK ADD</string>
+    <string name="add_via_address_book">Add Via Address Book</string>
 
 </resources>
 

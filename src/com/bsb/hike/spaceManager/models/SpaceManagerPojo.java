@@ -1,8 +1,11 @@
 package com.bsb.hike.spaceManager.models;
 
+import com.bsb.hike.utils.CustomAnnotation.DoNotObfuscateSubClasses;
+
 /**
  * @author paramshah
  */
+@DoNotObfuscateSubClasses
 public abstract class SpaceManagerPojo
 {
     private String className;
