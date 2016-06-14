@@ -7126,7 +7126,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				 * We don't support custom themes yet.
 				 */
 				if (chatBgJson.optBoolean(HikeConstants.CUSTOM)) {
-					ChatThemeManager.getInstance().downloadThemeContent(bgId, true);
+					ChatThemeManager.getInstance().downloadThemeContent(bgId, msisdn, true);
 
 //					Logger.d(getClass().getSimpleName(), "We don't support custom themes yet");
 //					continue;

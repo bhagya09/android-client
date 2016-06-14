@@ -6,6 +6,7 @@ import android.os.Bundle;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.chatthemes.model.ChatThemeToken;
 import com.bsb.hike.models.HikeChatThemeAsset;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -36,10 +37,13 @@ public class DownloadAssetsTask implements IHikeHTTPTask, IHikeHttpTaskResult {
 
     private RequestToken token;
 
+    private ChatThemeToken mToken;
+
     private final String TAG = "DownloadAssetsTask";
 
-    public DownloadAssetsTask(String[] ids) {
-        this.mAssetIds = ids;
+    public DownloadAssetsTask(ChatThemeToken token) {
+        this.mToken = token;
+        this.mAssetIds = mToken.getAssets();
     }
 
     @Override
@@ -71,7 +75,7 @@ public class DownloadAssetsTask implements IHikeHTTPTask, IHikeHttpTaskResult {
     public void doOnSuccess(Object result) {
         Logger.d(TAG, "chat theme asset download complete");
         updateAssetDownloadStatus(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_DOWNLOADED_SDCARD);
-        HikeMessengerApp.getPubSub().publish(HikePubSub.CHATTHEME_CONTENT_DOWNLOAD_SUCCESS, result);
+        HikeMessengerApp.getPubSub().publish(HikePubSub.CHATTHEME_CONTENT_DOWNLOAD_SUCCESS, mToken);
     }
 
     @Override
