@@ -1,5 +1,6 @@
 package com.bsb.hike.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 
 import com.bsb.hike.R;
 import com.bsb.hike.ui.fragments.AddFriendsFragment;
+import com.bsb.hike.ui.fragments.AddFriendsViaABFragment;
 import com.bsb.hike.ui.fragments.AddedMeFragment;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.IntentFactory;
@@ -21,15 +23,30 @@ public class FriendRequestActivity extends HikeAppStateBaseFragmentActivity {
 
     public static final String ADD_FRIENDS = "add_friends";
 
+    public static final String ADD_FRIENDS_ADDRESSBOOK = "add_friends_ab";
+
     public static final String ADDED_ME = "added_me";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_friend_request);
-        if (getIntent().hasExtra(ADD_FRIENDS)) {
+        setupFragment(getIntent());
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setupFragment(intent);
+    }
+
+    private void setupFragment(Intent intent) {
+        if (intent.hasExtra(ADD_FRIENDS)) {
             setupActionBar(R.string.add_friends);
             addAddFriendsFragment();
+        } else if (intent.hasExtra(ADD_FRIENDS_ADDRESSBOOK)) {
+            setupActionBar(R.string.add_via_address_book);
+            addAddFriendsViaABFragment();
         } else {
             setupActionBar(R.string.added_me);
             addAddedMeFragment();
@@ -61,6 +78,19 @@ public class FriendRequestActivity extends HikeAppStateBaseFragmentActivity {
             addFriendsFragment = new AddFriendsFragment();
         }
         getSupportFragmentManager().beginTransaction().add(R.id.fragment_layout, addFriendsFragment, ADD_FRIENDS).commit();
+    }
+
+    private void addAddFriendsViaABFragment() {
+        AddFriendsViaABFragment addFriendsViaABFragment = null;
+
+        Fragment frag = getSupportFragmentManager().findFragmentByTag(ADD_FRIENDS_ADDRESSBOOK);
+        if (frag != null) {
+            addFriendsViaABFragment = (AddFriendsViaABFragment) frag;
+        }
+        if (addFriendsViaABFragment == null) {
+            addFriendsViaABFragment = new AddFriendsViaABFragment();
+        }
+        getSupportFragmentManager().beginTransaction().add(R.id.fragment_layout, addFriendsViaABFragment, ADD_FRIENDS_ADDRESSBOOK).commit();
     }
 
     private void addAddedMeFragment() {
