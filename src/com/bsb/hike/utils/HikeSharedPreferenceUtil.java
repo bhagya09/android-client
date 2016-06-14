@@ -1,12 +1,5 @@
 package com.bsb.hike.utils;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -15,6 +8,13 @@ import android.preference.PreferenceManager;
 import android.support.annotation.StringDef;
 
 import com.bsb.hike.HikeMessengerApp;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class HikeSharedPreferenceUtil
 {
@@ -180,17 +180,35 @@ public class HikeSharedPreferenceUtil
 		return hikeSharedPreferences.getString(key, defaultValue);
 	}
 
-	/**
-	 * It was added on API 11 onwards. Instead of this, use of getDataSet(String, Set<String>) in all cases is recommended.
-	 */
-	public synchronized Set<String> getStringSet(String key, Set<String> defaultValues)
+    /**
+     * It was added on API 11 onwards.
+     *
+     * @param key           the key
+     * @param defaultValues the default values
+     * @return the string set
+     */
+    public synchronized Set<String> getStringSet(String key, Set<String> defaultValues)
 	{
-		return hikeSharedPreferences.getStringSet(key, defaultValues);
+        return getDataSet(key, defaultValues);
 	}
 
-	public synchronized Set<String> getDataSet(String key, Set<String> defaultValues)
+    /**
+     * Gets data set.
+     *
+     * @param key           the key
+     * @param defaultValues the default values
+     * @return the data set
+     */
+    public synchronized Set<String> getDataSet(String key, Set<String> defaultValues)
 	{
-		return hikeSharedPreferences.getStringSet(key, defaultValues);
+        // Changes here for issue : https://hikeapp.atlassian.net/browse/CPR-337
+        Set<String> stringSet = hikeSharedPreferences.getStringSet(key, defaultValues);
+
+        if(Utils.isEmpty(stringSet)) {
+            return new HashSet<>();
+        }
+        HashSet sharedPrefsSetNewInstance = new HashSet<>(stringSet);
+        return sharedPrefsSetNewInstance;
 	}
 
 	public synchronized float getData(String key, float defaultValue)
@@ -210,7 +228,15 @@ public class HikeSharedPreferenceUtil
 
 	public synchronized Map<String, ?> getAllData()
 	{
-		return hikeSharedPreferences.getAll();
+        Map<String, ?> hikeSharedPreferencesAll = hikeSharedPreferences.getAll();
+        // Changes here for issue : https://hikeapp.atlassian.net/browse/CPR-337
+
+        if(hikeSharedPreferencesAll == null || hikeSharedPreferencesAll.isEmpty()) {
+            return new HashMap<>();
+        }
+
+        Map<String, ?> hikeSharedPrefsMapNewInstance = new HashMap<>(hikeSharedPreferencesAll);
+        return hikeSharedPrefsMapNewInstance;
 	}
 
 	public synchronized void deleteAllData()
