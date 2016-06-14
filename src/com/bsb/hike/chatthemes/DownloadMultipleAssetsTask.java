@@ -1,6 +1,7 @@
 package com.bsb.hike.chatthemes;
 
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.bsb.hike.HikeConstants;
@@ -158,17 +159,13 @@ public class DownloadMultipleAssetsTask implements IHikeHTTPTask, IHikeHttpTaskR
         try {
             JSONObject data = resp.getJSONObject(HikeConstants.DATA_2);
             String directoryPath = ChatThemeManager.getInstance().getDrawableHelper().getThemeAssetStoragePath();
-            for (String assetId : mAssetIds) {
-                if (directoryPath == null) {
-                    continue;
+            if(!TextUtils.isEmpty(directoryPath)) {
+                for (String assetId : mAssetIds) {
+                    String path = directoryPath + File.separator + assetId;
+                    Utils.saveBase64StringToFile(new File(path), data.getString(assetId));
                 }
-                String path = directoryPath + File.separator + assetId;
-                Utils.saveBase64StringToFile(new File(path), data.getString(assetId));
             }
-        } catch (JSONException e) {
-            doOnFailure(new HttpException(HttpException.REASON_CODE_UNEXPECTED_ERROR, e));
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (JSONException | IOException e) {
             doOnFailure(new HttpException(HttpException.REASON_CODE_UNEXPECTED_ERROR, e));
             e.printStackTrace();
         }

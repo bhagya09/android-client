@@ -312,85 +312,29 @@ public class ChatThemeManager {
 
     public String processCustomThemeSignal(JSONObject data,ChatThemeToken token, boolean downloadAssets) {
         String themeID = null;
-        String assetId = null;
-        String thumbnailAssetId = null;
         try {
-
             themeID = data.getString(HikeChatThemeConstants.JSON_SIGNAL_THEME_THEMEID);
             token.setThemeId(themeID);
 
             HikeChatTheme theme = new HikeChatTheme();
             theme.setThemeId(themeID);
             theme.setThemeType(HikeChatThemeConstants.THEME_TYPE_CUSTOM);
-            if (downloadAssets) {
-                theme.setVisibilityStatus(false);
-            } else {
-                theme.setVisibilityStatus(true);
-            }
             theme.setThemeOrderIndex(0);
             theme.setSystemMessageType(HikeChatThemeConstants.SYSTEM_MESSAGE_TYPE_LIGHT);
 
-            for (byte j = 0; j < HikeChatThemeConstants.ASSET_INDEX_COUNT; j++) {
-                String assetKey = HikeChatThemeConstants.JSON_SIGNAL_THEME[j];
-                if (assetKey.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_THEME_BG_PORTRAIT)) {
-                    JSONObject jsonObject = data.getJSONObject(assetKey);
-                    assetId = (jsonObject.getString(HikeChatThemeConstants.JSON_SIGNAL_ASSET_VALUE) + HikeChatThemeConstants.FILEEXTN_JPG);
-                    int type = jsonObject.getInt(HikeChatThemeConstants.JSON_SIGNAL_ASSET_TYPE);
-                    int size = jsonObject.getInt(HikeChatThemeConstants.JSON_SIGNAL_ASSET_SIZE);
-                    HikeChatThemeAsset asset = new HikeChatThemeAsset(assetId, type, "", size);
-                    mAssetHelper.saveChatThemeAsset(assetId, asset);
-                    asset.setIsDownloaded(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_NOT_DOWNLOADED);
-                    theme.setAsset(HikeChatThemeConstants.ASSET_INDEX_BG_PORTRAIT, assetId);
-                } else if (assetKey.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_THEME_BG_LANDSCAPE)) {
-                    theme.setAsset(HikeChatThemeConstants.ASSET_INDEX_BG_LANDSCAPE, assetId);
-                } else if (assetKey.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_THEME_THUMBNAIL)) {
-                    JSONObject thumbnail = data.getJSONObject(assetKey);
-                    thumbnailAssetId = (thumbnail.getString(HikeChatThemeConstants.JSON_SIGNAL_ASSET_VALUE) + HikeChatThemeConstants.FILEEXTN_JPG);
-                    int thumbnailType = thumbnail.getInt(HikeChatThemeConstants.JSON_SIGNAL_ASSET_TYPE);
-                    int thumbnailSize = thumbnail.getInt(HikeChatThemeConstants.JSON_SIGNAL_ASSET_SIZE);
-                    HikeChatThemeAsset thumbnailAsset = new HikeChatThemeAsset(thumbnailAssetId, thumbnailType, "", thumbnailSize);
-                    mAssetHelper.saveChatThemeAsset(thumbnailAssetId, thumbnailAsset);
-                    thumbnailAsset.setIsDownloaded(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_NOT_DOWNLOADED);
-                    theme.setAsset(HikeChatThemeConstants.ASSET_INDEX_THUMBNAIL, thumbnailAssetId);
-                } else {
-                    HikeChatThemeAsset asset = getDrawableHelper().getDefaultCustomDrawable(assetKey);
-                    if (asset != null) {
-                        mAssetHelper.saveChatThemeAsset(asset.getAssetId(), asset);
-                        asset.setIsDownloaded(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_DOWNLOADED_APK);
-                        theme.setAsset(j, asset.getAssetId());
-                    }
-                }
-            }
+            parseCustomThemeAssetContent(data, theme);
+
             mChatThemesMap.put(themeID, theme);
             HikeConversationsDatabase.getInstance().saveChatTheme(theme);
 
+            // if true, we are receiving the theme.
             if (downloadAssets) {
+                theme.setVisibilityStatus(false);
                 downloadAssetsForTheme(token);
-            } else {
+            } else { // if false, we are setting the custom theme
                 recentCustomTheme = themeID;
-
-                ArrayList<HikeChatThemeAsset> assetsList = new ArrayList<>();
-                String destFilePath = ChatThemeManager.getInstance().getDrawableHelper().getAssetRootPath() + File.separator + assetId;
-                Utils.copyFile(token.getImagePath(), destFilePath);
-                HikeChatThemeAsset asset = getAssetHelper().getChatThemeAsset(assetId);
-                asset.setIsDownloaded(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_DOWNLOADED_SDCARD);
-                assetsList.add(asset);
-
-
-                try {
-                    String thumbnailFilePath = ChatThemeManager.getInstance().getDrawableHelper().getAssetRootPath() + File.separator + thumbnailAssetId;
-                    Bitmap thumbnail = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(token.getImagePath()), HikeChatThemeConstants.CHATTHEME_CUSTOM_THUMBNAIL_SIZE, HikeChatThemeConstants.CHATTHEME_CUSTOM_THUMBNAIL_SIZE);
-                    byte[] bmpData = Utils.bitmapToBytes(thumbnail, Bitmap.CompressFormat.JPEG, 100);
-                    Utils.saveByteArrayToFile(new File(thumbnailFilePath), bmpData);
-
-                    HikeChatThemeAsset thumbAsset = getAssetHelper().getChatThemeAsset(thumbnailAssetId);
-                    thumbAsset.setIsDownloaded(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_DOWNLOADED_SDCARD);
-                    assetsList.add(thumbAsset);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                HikeConversationsDatabase.getInstance().saveChatThemeAssets(assetsList);
+                theme.setVisibilityStatus(true);
+                moveLocalAssetsToThemesFolder(token, theme);
             }
             return themeID;
         } catch (JSONException e) {
@@ -413,38 +357,8 @@ public class ChatThemeManager {
                 theme.setThemeOrderIndex(0);
                 theme.setSystemMessageType(HikeChatThemeConstants.SYSTEM_MESSAGE_TYPE_LIGHT);
 
-                String assetId = null;
-                for (byte j = 0; j < HikeChatThemeConstants.ASSET_INDEX_COUNT; j++) {
-                    String assetKey = HikeChatThemeConstants.JSON_SIGNAL_THEME[j];
-                    if (assetKey.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_THEME_BG_PORTRAIT)) {
-                        JSONObject jsonObject = data.getJSONObject(assetKey);
-                        assetId = (jsonObject.getString(HikeChatThemeConstants.JSON_SIGNAL_ASSET_VALUE) + HikeChatThemeConstants.FILEEXTN_JPG);
-                        int type = jsonObject.getInt(HikeChatThemeConstants.JSON_SIGNAL_ASSET_TYPE);
-                        int size = jsonObject.getInt(HikeChatThemeConstants.JSON_SIGNAL_ASSET_SIZE);
-                        HikeChatThemeAsset asset = new HikeChatThemeAsset(assetId, type, "", size);
-                        mAssetHelper.saveChatThemeAsset(assetId, asset);
-                        asset.setIsDownloaded(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_NOT_DOWNLOADED);
-                        theme.setAsset(HikeChatThemeConstants.ASSET_INDEX_BG_PORTRAIT, assetId);
-                    } else if (assetKey.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_THEME_BG_LANDSCAPE)) {
-                        theme.setAsset(HikeChatThemeConstants.ASSET_INDEX_BG_LANDSCAPE, assetId);
-                    } else if (assetKey.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_THEME_THUMBNAIL)) {
-                        JSONObject thumbnail = data.getJSONObject(assetKey);
-                        String thumbnailAssetId = (thumbnail.getString(HikeChatThemeConstants.JSON_SIGNAL_ASSET_VALUE) + HikeChatThemeConstants.FILEEXTN_JPG);
-                        int thumbnailType = thumbnail.getInt(HikeChatThemeConstants.JSON_SIGNAL_ASSET_TYPE);
-                        int thumbnailSize = thumbnail.getInt(HikeChatThemeConstants.JSON_SIGNAL_ASSET_SIZE);
-                        HikeChatThemeAsset thumbnailAsset = new HikeChatThemeAsset(thumbnailAssetId, thumbnailType, "", thumbnailSize);
-                        mAssetHelper.saveChatThemeAsset(thumbnailAssetId, thumbnailAsset);
-                        thumbnailAsset.setIsDownloaded(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_NOT_DOWNLOADED);
-                        theme.setAsset(HikeChatThemeConstants.ASSET_INDEX_THUMBNAIL, thumbnailAssetId);
-                    } else {
-                        HikeChatThemeAsset asset = getDrawableHelper().getDefaultCustomDrawable(assetKey);
-                        if (asset != null) {
-                            mAssetHelper.saveChatThemeAsset(asset.getAssetId(), asset);
-                            asset.setIsDownloaded(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_DOWNLOADED_APK);
-                            theme.setAsset(j, asset.getAssetId());
-                        }
-                    }
-                }
+                parseCustomThemeAssetContent(data, theme);
+
                 mChatThemesMap.put(themeID, theme);
                 HikeConversationsDatabase.getInstance().saveChatTheme(theme);
             }
@@ -452,6 +366,70 @@ public class ChatThemeManager {
         } catch(JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    private void parseCustomThemeAssetContent(JSONObject data, HikeChatTheme theme){
+        try {
+            String assetId = null;
+            for (byte j = 0; j < HikeChatThemeConstants.ASSET_INDEX_COUNT; j++) {
+                String assetKey = HikeChatThemeConstants.JSON_SIGNAL_THEME[j];
+                if (assetKey.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_THEME_BG_PORTRAIT)) {
+                    JSONObject jsonObject = data.getJSONObject(assetKey);
+                    assetId = (jsonObject.getString(HikeChatThemeConstants.JSON_SIGNAL_ASSET_VALUE) + HikeChatThemeConstants.FILEEXTN_JPG);
+                    int type = jsonObject.getInt(HikeChatThemeConstants.JSON_SIGNAL_ASSET_TYPE);
+                    int size = jsonObject.getInt(HikeChatThemeConstants.JSON_SIGNAL_ASSET_SIZE);
+                    HikeChatThemeAsset asset = new HikeChatThemeAsset(assetId, type, "", size);
+                    mAssetHelper.saveChatThemeAsset(assetId, asset);
+                    asset.setIsDownloaded(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_NOT_DOWNLOADED);
+                    theme.setAsset(HikeChatThemeConstants.ASSET_INDEX_BG_PORTRAIT, assetId);
+                } else if (assetKey.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_THEME_BG_LANDSCAPE)) {
+                    theme.setAsset(HikeChatThemeConstants.ASSET_INDEX_BG_LANDSCAPE, assetId);
+                } else if (assetKey.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_THEME_THUMBNAIL)) {
+                    JSONObject thumbnail = data.getJSONObject(assetKey);
+                    String thumbnailAssetId = (thumbnail.getString(HikeChatThemeConstants.JSON_SIGNAL_ASSET_VALUE) + HikeChatThemeConstants.FILEEXTN_JPG);
+                    int thumbnailType = thumbnail.getInt(HikeChatThemeConstants.JSON_SIGNAL_ASSET_TYPE);
+                    int thumbnailSize = thumbnail.getInt(HikeChatThemeConstants.JSON_SIGNAL_ASSET_SIZE);
+                    HikeChatThemeAsset thumbnailAsset = new HikeChatThemeAsset(thumbnailAssetId, thumbnailType, "", thumbnailSize);
+                    mAssetHelper.saveChatThemeAsset(thumbnailAssetId, thumbnailAsset);
+                    thumbnailAsset.setIsDownloaded(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_NOT_DOWNLOADED);
+                    theme.setAsset(HikeChatThemeConstants.ASSET_INDEX_THUMBNAIL, thumbnailAssetId);
+                } else {
+                    HikeChatThemeAsset asset = getDrawableHelper().getDefaultCustomDrawable(assetKey);
+                    if (asset != null) {
+                        mAssetHelper.saveChatThemeAsset(asset.getAssetId(), asset);
+                        asset.setIsDownloaded(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_DOWNLOADED_APK);
+                        theme.setAsset(j, asset.getAssetId());
+                    }
+                }
+            }
+        }catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void moveLocalAssetsToThemesFolder(ChatThemeToken token, HikeChatTheme theme) {
+        ArrayList<HikeChatThemeAsset> assetsList = new ArrayList<>();
+        String destFilePath = ChatThemeManager.getInstance().getDrawableHelper().getAssetRootPath() + File.separator + theme.getAssetId(HikeChatThemeConstants.ASSET_INDEX_BG_PORTRAIT);
+        Utils.copyFile(token.getImagePath(), destFilePath);
+        HikeChatThemeAsset asset = getAssetHelper().getChatThemeAsset(theme.getAssetId(HikeChatThemeConstants.ASSET_INDEX_BG_PORTRAIT));
+        asset.setIsDownloaded(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_DOWNLOADED_SDCARD);
+        assetsList.add(asset);
+
+
+        try {
+            String thumbnailFilePath = ChatThemeManager.getInstance().getDrawableHelper().getAssetRootPath() + File.separator + theme.getAssetId(HikeChatThemeConstants.ASSET_INDEX_THUMBNAIL);
+            Bitmap thumbnail = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(token.getImagePath()), HikeChatThemeConstants.CHATTHEME_CUSTOM_THUMBNAIL_SIZE, HikeChatThemeConstants.CHATTHEME_CUSTOM_THUMBNAIL_SIZE);
+            byte[] bmpData = Utils.bitmapToBytes(thumbnail, Bitmap.CompressFormat.JPEG, 100);
+            Utils.saveByteArrayToFile(new File(thumbnailFilePath), bmpData);
+
+            HikeChatThemeAsset thumbAsset = getAssetHelper().getChatThemeAsset(theme.getAssetId(HikeChatThemeConstants.ASSET_INDEX_THUMBNAIL));
+            thumbAsset.setIsDownloaded(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_DOWNLOADED_SDCARD);
+            assetsList.add(thumbAsset);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        HikeConversationsDatabase.getInstance().saveChatThemeAssets(assetsList);
     }
 
     public void processDeleteThemeSignal(JSONObject data) {
