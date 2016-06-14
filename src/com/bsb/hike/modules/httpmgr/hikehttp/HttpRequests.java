@@ -816,7 +816,7 @@ public class HttpRequests
 		String parameterUrl = Utils.getParameterUrlForHttpApi(HttpRequestConstants.BASE_QUICK_SUGGESTIONS);
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setId(requestId)
-				.setUrl((quickSuggestionUrl() + "?catId=" + sticker.getCategoryId() + "&stkId=" + sticker.getStickerId() + parameterUrl))
+				.setUrl((quickSuggestionUrl() + "?catId=" + sticker.getCategoryId() + "&stkId=" + sticker.getStickerId() + "&cl=" + StickerManager.getInstance().getNumColumnsForStickerGrid(HikeMessengerApp.getInstance()) + parameterUrl))
 				.setRequestListener(requestListener)
 				.setRequestType(REQUEST_TYPE_SHORT)
 				.setPriority(PRIORITY_HIGH)

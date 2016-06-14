@@ -7,6 +7,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.SparseArray;
 import android.view.View;
+import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -83,6 +84,8 @@ public class QuickStickerSuggestionController
     private boolean qsLoaded;
 
     private String msisdn;
+
+    private boolean shownHikeDirectToast;
 
     @IntDef({EMPTY_STATE_ERROR, NETWORK_ERROR})
     @Retention(RetentionPolicy.SOURCE)
@@ -163,6 +166,7 @@ public class QuickStickerSuggestionController
         completeFtueSession();
         currentQsConvMessage = null;
         msisdn = null;
+        shownHikeDirectToast = false;
     }
 
     public void loadQuickStickerSuggestions(QuickSuggestionStickerCategory quickSuggestionCategory)
@@ -440,5 +444,15 @@ public class QuickStickerSuggestionController
         }
 
         return hikeDirectMsisdn.equalsIgnoreCase(msisdn);
+    }
+
+    public void showHikeDirectToast(boolean isSent)
+    {
+        boolean enabled = isSent ? showQuickStickerSuggestionOnStickerSent : showQuickStickerSuggestionOnStickerReceive;
+        if(enabled && !shownHikeDirectToast && isConnectedToHikeDirect())
+        {
+            shownHikeDirectToast = true;
+            Toast.makeText(HikeMessengerApp.getInstance(), HikeMessengerApp.getInstance().getString(R.string.qs_error_message_for_hike_direct), Toast.LENGTH_LONG).show();
+        }
     }
 }
