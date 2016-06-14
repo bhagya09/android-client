@@ -4213,7 +4213,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			int unreadConvCount = 0;
 			for(ConvInfo info : mAdapter.getCompleteList()) {
 				if (info.getUnreadCount() > 0)
-					unreadConvCount++;
+					unreadConvCount += info.getUnreadCount();
 			}
 			unreadConversationsTotal = unreadConvCount;
 			updateBadgeCount();
