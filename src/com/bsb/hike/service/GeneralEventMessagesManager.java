@@ -124,7 +124,7 @@ public class GeneralEventMessagesManager
 				}
 
 				//Sending DR here
-				PlatformUtils.sendGeneralEventDeliveryReport(mappedId, fromMsisdn);
+				PlatformUtils.sendGeneralEventDeliveryReport(mappedId, fromMsisdn, toMsisdn);
 				HikeMessengerApp.getPubSub().publish(HikePubSub.GENERAL_EVENT, message);
 				if (eventId < 0)
 				{
@@ -189,7 +189,10 @@ public class GeneralEventMessagesManager
 			long mappedEventId = data.optLong(HikeConstants.DATA, -1);
 
 			String fromMsisdn = packet.getString(HikeConstants.FROM);
-
+			if(!TextUtils.isEmpty(data.getString(HikeConstants.IS_GROUP)))
+			{
+				fromMsisdn = data.getString(HikeConstants.IS_GROUP);
+			}
 			if (mappedEventId < 0 || (TextUtils.isEmpty(fromMsisdn)))
 			{
 				Logger.e("GeneralEventMessagesManager", "Received mappedEventID as " + mappedEventId + " Hence returning");
