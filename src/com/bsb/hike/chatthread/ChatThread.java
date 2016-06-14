@@ -421,6 +421,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	private CustomTabActivityHelper mCustomTabActivityHelper;
 
+	protected View unknownContactInfoView;
+
 	private class ChatThreadBroadcasts extends BroadcastReceiver
 	{
 		@Override
@@ -3078,6 +3080,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	{
 		mConversationsView = (ListView) activity.findViewById(R.id.conversations_list);
 		releaseMessageAdapterResources();
+		addHeader();
 		mAdapter = new MessagesAdapter(activity, messages, mConversation, this, mConversationsView, activity);
 		mConversationsView.setAdapter(mAdapter);
 		if (mConversation.getUnreadCount() > 0 && !messages.isEmpty())
@@ -7095,5 +7098,23 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	private void setupCustomTabHelper(){
 		mCustomTabActivityHelper = CustomTabActivityHelper.getInstance();
 		mCustomTabActivityHelper.bindCustomTabsService(activity);
+	}
+
+	/**
+	 * This adds header with viewStub, which is made visible only in case of
+	 * 1-1 chat with unknown user
+	 */
+	private void addHeader()
+	{
+		unknownContactInfoView = LayoutInflater.from(activity.getApplicationContext()).inflate(R.layout.chat_header, null);
+		checkAndAddListViewHeader(unknownContactInfoView);
+	}
+
+	/**
+	 * @param headerView
+	 */
+	protected void checkAndAddListViewHeader(View headerView)
+	{
+		mConversationsView.addHeaderView(headerView);
 	}
 }

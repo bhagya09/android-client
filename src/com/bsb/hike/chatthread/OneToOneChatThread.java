@@ -250,8 +250,6 @@ import java.util.Map;
 	
 	private CallerContentModel callerContentModel;
 
-	protected View unknownContactInfoView;
-
 	protected LinearLayout unknownContactInfoSpinnerLayout;
 
 	/**
@@ -625,19 +623,15 @@ import java.util.Map;
 		}
 
 		boolean isUnknownUserInfoViewEnabled = Utils.isUnknownUserInfoViewEnabled();
-		if (unknownContactInfoView == null)
+		unknownContactInfoView.findViewById(R.id.chat_header).setVisibility(View.VISIBLE);
+		CustomFontButton addButton = (CustomFontButton) unknownContactInfoView.findViewById(R.id.add_unknown_contact);
+		addButton.setOnClickListener(this);
+		unknownContactInfoSpinnerLayout =  (LinearLayout)unknownContactInfoView.findViewById(R.id.unknown_user_info_spinner);
+		if(!isUnknownUserInfoViewEnabled)
 		{
-			unknownContactInfoView = LayoutInflater.from(activity.getApplicationContext()).inflate(R.layout.block_add_unknown_contact_mute_bot, null);
-			CustomFontButton addButton = (CustomFontButton) unknownContactInfoView.findViewById(R.id.add_unknown_contact);
-			addButton.setOnClickListener(this);
-			unknownContactInfoSpinnerLayout =  (LinearLayout)unknownContactInfoView.findViewById(R.id.unknown_user_info_spinner);
-			if(!isUnknownUserInfoViewEnabled)
-			{
-				unknownContactInfoSpinnerLayout.setVisibility(View.GONE);
-			}
-			unknownContactInfoView.findViewById(R.id.block_unknown_contact).setOnClickListener(this);
-			checkAndAddListViewHeader(unknownContactInfoView);
+			unknownContactInfoSpinnerLayout.setVisibility(View.GONE);
 		}
+		unknownContactInfoView.findViewById(R.id.block_unknown_contact).setOnClickListener(this);
 
 		if(isUnknownUserInfoViewEnabled)
 		{
@@ -4538,14 +4532,6 @@ import java.util.Map;
 		{
 			tipView.setAnimation(null);
 		}
-	}
-
-	/**
-	 * @param headerView
-	 */
-	protected void checkAndAddListViewHeader(View headerView)
-	{
-		mConversationsView.addHeaderView(headerView);
 	}
 
 	private void updateUIForBdayChat()
