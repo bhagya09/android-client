@@ -1620,7 +1620,7 @@
 
     <string name="restore_msisdn_error">તમારી પાસે કોઇ અલગ નંબરની backup ફાઇલ હોય તેવું લાગે છે!</string>
     <string name="ACCEPT">સ્વીકાર કરો</string>
-    <string name="mute_status_notification_subtext_frn">સ્ટેટ્સ &amp માટે સુચના દર્શાવો: મિત્રો પાસેથી પ્રોફાઇલ ચિત્રો અપગ્રેડ કરો</string>
+    <string name="mute_status_notification_subtext_frn">સ્ટેટ્સ &amp; માટે સુચના દર્શાવો: મિત્રો પાસેથી પ્રોફાઇલ ચિત્રો અપગ્રેડ કરો</string>
     <string name="stream_volume_muted_or_low">કૃપા કરી વોલ્યુમ બંધ કરો</string>
     <string name="atomic_tip_header_default">Default Atomic Tip Header</string>
     <string name="atomic_tip_body_default">Atomic Tip ડીફોલ્ટ બોડી ટેક્સ્ટ!!! માત્ર તેને હવે પછીની લાઇન ઉપર વહેવા દો</string>
