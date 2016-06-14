@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
+              android:id="@+id/header"
+              android:visibility="gone"
               android:layout_width="match_parent"
               android:layout_height="wrap_content">
 
     <ViewStub
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/chat_header"
+        android:id="@+id/chat_header_viewstub"
         android:inflatedId="@+id/chat_header_inflatedid"
         android:layout="@layout/block_add_unknown_contact_mute_bot"/>
 

@@ -623,7 +623,8 @@ import java.util.Map;
 		}
 
 		boolean isUnknownUserInfoViewEnabled = Utils.isUnknownUserInfoViewEnabled();
-		unknownContactInfoView.findViewById(R.id.chat_header).setVisibility(View.VISIBLE);
+		unknownContactInfoView.findViewById(R.id.header).setVisibility(View.VISIBLE);
+		unknownContactInfoView.findViewById(R.id.chat_header_viewstub).setVisibility(View.VISIBLE);
 		CustomFontButton addButton = (CustomFontButton) unknownContactInfoView.findViewById(R.id.add_unknown_contact);
 		addButton.setOnClickListener(this);
 		unknownContactInfoSpinnerLayout =  (LinearLayout)unknownContactInfoView.findViewById(R.id.unknown_user_info_spinner);
