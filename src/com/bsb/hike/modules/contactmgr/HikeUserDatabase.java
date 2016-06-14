@@ -1529,7 +1529,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		return contactInfomap;
 	}
 
-	Map<String, ContactInfo> getContactsOfFavoriteTypeDB(FavoriteType[] favoriteType, Set<String> blockSet, int onHike, String myMsisdn, boolean nativeSMSOn,
+	public Map<String, ContactInfo> getContactsOfFavoriteTypeDB(FavoriteType[] favoriteType, Set<String> blockSet, int onHike, String myMsisdn, boolean nativeSMSOn,
 			boolean ignoreUnknownContacts)
 	{
 		Map<String, FavoriteType> favoriteMap = getFavoriteMap(favoriteType);

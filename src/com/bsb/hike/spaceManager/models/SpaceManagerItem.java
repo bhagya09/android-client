@@ -2,12 +2,15 @@ package com.bsb.hike.spaceManager.models;
 
 import android.support.annotation.IntDef;
 
+import com.bsb.hike.utils.CustomAnnotation.DoNotObfuscateSubClasses;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
  * @author paramshah
  */
+@DoNotObfuscateSubClasses
 public abstract class SpaceManagerItem
 {
 	private long size;

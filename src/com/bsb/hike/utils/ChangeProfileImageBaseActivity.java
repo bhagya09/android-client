@@ -391,7 +391,7 @@ public abstract class ChangeProfileImageBaseActivity extends HikeAppStateBaseFra
 
 		if (!dpStatusId.isEmpty())
 		{
-			deleteConfirmDialog.setCheckBox(R.string.check_delete_from_timeline, null, false);
+			deleteConfirmDialog.setCheckBox(Utils.isFavToFriendsMigrationAllowed() ? R.string.check_delete_from_frnds_timeline : R.string.check_delete_from_timeline, null, false);
 		}
 
 		HikeDialogListener dialogListener = new HikeDialogListener()

@@ -70,6 +70,7 @@ import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.contactmgr.ConversationMsisdns;
 import com.bsb.hike.modules.contactmgr.GroupDetails;
+import com.bsb.hike.modules.contactmgr.HikeUserDatabase;
 import com.bsb.hike.modules.quickstickersuggestions.model.QuickSuggestionStickerCategory;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickersearch.datamodel.CategoryTagData;
@@ -11855,6 +11856,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 	}
 
 	public List<StoryItem<StatusMessage, ContactInfo>> getStories(@StoryItem.StoryCategory int storyCategory, List<String> msisdnsSelectionList) {
+
+		String TAG = "getStoriesDBCall";
+
 		List<StoryItem<StatusMessage, ContactInfo>> storyList = new ArrayList<>(); // Atleast return empty list obj
 
 		String selection = null;
@@ -11941,7 +11945,15 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 					}
 
 					PrivacyPreferences pref = ContactManager.getInstance().getPrivacyPrefsForAGivenMsisdn(msisdn);
-					if (!pref.shouldShowStatusUpdate()) {
+					if (null != pref && !pref.shouldShowStatusUpdate()) {
+						continue;
+					}
+
+					ContactInfo cInfo = ContactManager.getInstance().getContact(msisdn, true, true, false);
+
+					// Not a friend or not on hike
+					if(cInfo.getFavoriteType() != ContactInfo.FavoriteType.FRIEND || !cInfo.isOnhike())
+					{
 						continue;
 					}
 
@@ -11960,8 +11972,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				}
 
 				ContactInfo.FavoriteType[] favoriteTypes = new ContactInfo.FavoriteType[]{ContactInfo.FavoriteType.FRIEND, ContactInfo.FavoriteType.REQUEST_SENT, ContactInfo.FavoriteType.REQUEST_SENT_REJECTED};
-				List<ContactInfo> friendsList = ContactManager.getInstance().getContactsOfFavoriteType(favoriteTypes, HikeConstants.ON_HIKE_VALUE, ContactManager.getInstance().getSelfMsisdn(), false, false);
-
+				Map<String, ContactInfo> friendsMap = HikeUserDatabase.getInstance().getContactsOfFavoriteTypeDB(favoriteTypes,ContactManager.getInstance().getBlockedMsisdnSet(),HikeConstants.ON_HIKE_VALUE,ContactManager.getInstance().getSelfMsisdn(),false,false);
+				List<ContactInfo> friendsList = new ArrayList<>();
+				friendsList.addAll(friendsMap.values());
 				if (msisdns.size() > 0) {
 					List<ContactInfo> contactList = ContactManager.getInstance().getContact(msisdns, true, true);
 
@@ -12001,21 +12014,28 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 
 				if (storyCategory == StoryItem.CATEGORY_DEFAULT) {
 					for (ContactInfo friendInfo : friendsList) {
+						Logger.d(TAG, "checking friend"+friendInfo.getNameOrMsisdn());
 						String friendMsisdn = friendInfo.getMsisdn();
 
 						// Exclude self msisnd
 						if (friendMsisdn.equals(ContactManager.getInstance().getSelfMsisdn())) {
+							Logger.d(TAG, "is self msisdn");
 							continue;
 						}
 						// If ^ is a stealth msisdn and stealth mode is off, move to next msisdn
 						if (StealthModeManager.getInstance().isStealthMsisdn(friendMsisdn) && !StealthModeManager.getInstance().isActive()) {
+							Logger.d(TAG, "is stealth msisdn");
 							continue;
 						}
 
 						PrivacyPreferences pref = ContactManager.getInstance().getPrivacyPrefsForAGivenMsisdn(friendMsisdn);
 						if (!pref.shouldShowStatusUpdate()) {
+							Logger.d(TAG, "is pref turned off");
 							continue;
 						}
+
+						Logger.d(TAG, "added!!");
+
 						StoryItem<StatusMessage, ContactInfo> storyItem = new StoryItem<>(StoryItem.TYPE_FRIEND, friendInfo.getNameOrMsisdn());
 						storyItem.setSubText(StoryShyTextGenerator.getInstance().getCameraShySubText());
 						storyItem.setTypeInfo(friendInfo);
