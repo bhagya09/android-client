@@ -1722,6 +1722,7 @@
     <string name="story_photos_chat_btn">Chat</string>
     <string name="QUICK_ADD">QUICK ADD</string>
     <string name="add_via_address_book">Add Via Address Book</string>
+    <string name="check_delete_from_frnds_timeline">Delete from friends\' timeline</string>
 
 </resources>
 
