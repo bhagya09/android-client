@@ -4,30 +4,31 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ListFragment;
-import android.support.v4.view.MenuItemCompat;
-import android.support.v7.widget.SearchView;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.TextView;
 
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.FriendRequestAdapter;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.HikeFeatureInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
+import com.bsb.hike.adapters.FriendRequestAdapter.ViewType;
+
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by gauravmittal on 19/05/16.
@@ -36,27 +37,67 @@ public class AddFriendsFragment extends ListFragment {
 
     private ListView listView;
 
-    private MenuItem searchMenuItem;
-
     private FriendRequestAdapter mAdapter;
 
     private List<ContactInfo> getToAddContactList() {
-        List<ContactInfo> allContacts = ContactManager.getInstance().getAllContacts(true);
-        List<ContactInfo> toAddcontacts = new ArrayList<>();
-        for (ContactInfo info : allContacts) {
-            if (!info.isBot() && !info.isMyOneWayFriend()) {
-                toAddcontacts.add(info);
+        List<ContactInfo> toAddcontacts = getRecommendationsList();
+        String quickAdd = getString(R.string.QUICK_ADD);
+        ContactInfo info = new ContactInfo(ViewType.PINNED_SECTION.toString(), quickAdd, quickAdd, quickAdd);
+        if (toAddcontacts.size() > 0) {
+            toAddcontacts.add(0, info);
+        }
+        toAddcontacts.add(0, getAddressBookItem());
+        return toAddcontacts;
+    }
+
+    private List<ContactInfo> getRecommendationsList() {
+        HikeSharedPreferenceUtil settings = HikeSharedPreferenceUtil.getInstance();
+        Set<String> msisdnSet = settings.getStringSet(HikeConstants.TIMELINE_FTUE_MSISDN_LIST, null);
+        List<ContactInfo> finalContactList = new ArrayList<ContactInfo>();
+        if (msisdnSet == null)
+        {
+            String mymsisdn = settings.getData(HikeMessengerApp.MSISDN_SETTING, "");
+            String list = settings.getData(HikeMessengerApp.SERVER_RECOMMENDED_CONTACTS, null);
+            msisdnSet = Utils.getServerRecommendedContactsSelection(list, mymsisdn);
+
+            HikeSharedPreferenceUtil.getInstance().saveStringSet(HikeConstants.TIMELINE_FTUE_MSISDN_LIST, msisdnSet);
+            Logger.d("tl_ftue_ab_recommendations", "====== List from Server Reco:- " + msisdnSet);
+        }
+        else
+        {
+            Logger.d("tl_ftue_ab_recommendations", "====== Going to check fron list received from server packet" + msisdnSet);
+        }
+        if (msisdnSet != null)
+        {
+            Iterator<String> iterator = msisdnSet.iterator();
+            while (iterator.hasNext())
+            {
+                String id = iterator.next();
+                ContactInfo c = ContactManager.getInstance().getContact(id, true, true);
+
+                if(c == null || c.getFavoriteType() == null || c.getMsisdn() == null)
+                {
+                    Logger.d("tl_ftue_ab_recommendations", "NPE: favourite null");
+                    continue;
+                }
+
+                if (!c.isBot() && !c.isMyOneWayFriend())
+                {
+                    Logger.d("tl_ftue_ab_recommendations", id + " is not a frnd so adding for ftue list :- " + c.getName() +", "+ c.getFavoriteType());
+                    finalContactList.add(c);
+                }
+                else
+                {
+                    Logger.d("tl_ftue_ab_recommendations", id + " a frnd or a Bot so NOT ADDING.... for ftue list :- " + c.getName() +", "+ c.getFavoriteType());
+                }
             }
         }
-        // so it gets GC-ed
-        allContacts.clear();
-        return toAddcontacts;
+        return finalContactList;
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        setHasOptionsMenu(true);
         View parent = inflater.inflate(R.layout.fragment_add_friend, null);
         mAdapter = new FriendRequestAdapter(getToAddContactList(), getActivity());
         return parent;
@@ -66,7 +107,6 @@ public class AddFriendsFragment extends ListFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         setupList();
-        setupAddressBookOption(view);
     }
 
     private void setupList() {
@@ -75,92 +115,25 @@ public class AddFriendsFragment extends ListFragment {
         listView.setOnItemClickListener(onItemClickListener);
     }
 
-    private void setupAddressBookOption(View view) {
-        View parent = view.findViewById(R.id.address_book);
-        TextView text = (TextView) parent.findViewById(R.id.text);
-        ImageView icon = (ImageView) parent.findViewById(R.id.icon);
-        text.setText(R.string.add_via_address_book);
-
-        parent.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                //TODO open address book here
-
-            }
-        });
+    private ContactInfo getAddressBookItem() {
+        HikeFeatureInfo info = new HikeFeatureInfo(getString(R.string.add_via_address_book), 0, null, false, IntentFactory.getFriendReqActivityAddFriendsViaABIntent(getContext()));
+        info.setId(ViewType.BASIC_ITEM.toString());
+        return info;
     }
 
     private AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             ContactInfo contact = mAdapter.getItem(position);
-            Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(getContext(), contact, false, false, ChatThreadActivity.ChatThreadOpenSources.ADD_FRIEND_FRAG);
-            startActivity(intent);
+            if (contact.getId().equals(ViewType.PINNED_SECTION.toString())) {
+                return;
+            } else if (contact.getId().equals(ViewType.BASIC_ITEM.toString())) {
+                if (contact.getName().equals(getString(R.string.add_via_address_book)))
+                    startActivity(((HikeFeatureInfo) contact).getFireIntent());
+            } else {
+                Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(getContext(), contact, false, false, ChatThreadActivity.ChatThreadOpenSources.ADD_FRIEND_FRAG);
+                startActivity(intent);
+            }
         }
     };
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        menu.clear();
-        inflater.inflate(R.menu.friend_req_menu, menu);
-        setupSearchOptionItem(menu);
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    private void setupSearchOptionItem(final Menu menu) {
-        searchMenuItem = menu.findItem(R.id.search);
-        SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
-        searchView.setOnQueryTextListener(onQueryTextListener);
-        searchView.setQueryHint(getString(R.string.search));
-        searchView.clearFocus();
-
-        MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener() {
-            @Override
-            public boolean onMenuItemActionExpand(MenuItem item) {
-                setupSearch();
-                return true;
-            }
-
-            @Override
-            public boolean onMenuItemActionCollapse(MenuItem item) {
-                endSearch();
-                return true;
-            }
-        });
-    }
-
-    private SearchView.OnQueryTextListener onQueryTextListener = new SearchView.OnQueryTextListener() {
-        @Override
-        public boolean onQueryTextSubmit(String query) {
-            Utils.hideSoftKeyboard(getActivity().getApplicationContext(), searchMenuItem.getActionView());
-            return true;
-        }
-
-        @Override
-        public boolean onQueryTextChange(String newText) {
-            if (!TextUtils.isEmpty(newText))
-                newText = newText.toLowerCase().trim();
-            mAdapter.onSearchQueryChanged(newText, null);
-            return true;
-        }
-    };
-
-    public boolean isSearchModeOn() {
-        return searchMenuItem.isActionViewExpanded();
-    }
-
-    private void setupSearch() {
-        mAdapter.setupSearchMode();
-    }
-
-    private void endSearch() {
-        mAdapter.endSearchMode();
-
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        return super.onOptionsItemSelected(item);
-    }
 }

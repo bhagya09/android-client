@@ -11,8 +11,8 @@
         android:id="@+id/icon"
         android:layout_width="24dp"
         android:layout_height="24dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
         android:scaleType="centerInside" />
 
     <com.bsb.hike.view.CustomFontTextView
