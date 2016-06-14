@@ -359,7 +359,7 @@ public class ChatThemeManager {
 
                 ArrayList<HikeChatThemeAsset> assetsList = new ArrayList<>();
                 String destFilePath = ChatThemeManager.getInstance().getDrawableHelper().getAssetRootPath() + File.separator + assetId;
-                Utils.copyFile(customThemeTempUploadImagePath, destFilePath);
+                Utils.copyFile(token.getImagePath(), destFilePath);
                 HikeChatThemeAsset asset = getAssetHelper().getChatThemeAsset(assetId);
                 asset.setIsDownloaded(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_DOWNLOADED_SDCARD);
                 assetsList.add(asset);
@@ -367,7 +367,7 @@ public class ChatThemeManager {
 
                 try {
                     String thumbnailFilePath = ChatThemeManager.getInstance().getDrawableHelper().getAssetRootPath() + File.separator + thumbnailAssetId;
-                    Bitmap thumbnail = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(customThemeTempUploadImagePath), HikeChatThemeConstants.CHATTHEME_CUSTOM_THUMBNAIL_SIZE, HikeChatThemeConstants.CHATTHEME_CUSTOM_THUMBNAIL_SIZE);
+                    Bitmap thumbnail = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(token.getImagePath()), HikeChatThemeConstants.CHATTHEME_CUSTOM_THUMBNAIL_SIZE, HikeChatThemeConstants.CHATTHEME_CUSTOM_THUMBNAIL_SIZE);
                     byte[] bmpData = Utils.bitmapToBytes(thumbnail, Bitmap.CompressFormat.JPEG, 100);
                     Utils.saveByteArrayToFile(new File(thumbnailFilePath), bmpData);
 

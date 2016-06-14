@@ -1172,7 +1172,9 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		if(Utils.isUserOnline(activity)) {
 			ChatThemeManager.getInstance().addTempCustomThemeToMap();
 			if(ChatThemeManager.getInstance().customThemeTempUploadImagePath != null) {
-				FileTransferManager.getInstance(activity).uploadCustomThemeBackgroundImage(ChatThemeManager.getInstance().customThemeTempUploadImagePath, mConversation);
+				ChatThemeToken token = new ChatThemeToken(null, msisdn, true);
+				token.setImagePath(ChatThemeManager.getInstance().customThemeTempUploadImagePath);
+				FileTransferManager.getInstance(activity).uploadCustomThemeBackgroundImage(token, mConversation);
 			}
 			uiHandler.sendEmptyMessageDelayed(SET_CUSTOM_THEME_BACKGROUND, 100);
 			if (themePicker != null && themePicker.isShowing()) {
