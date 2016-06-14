@@ -211,7 +211,7 @@ public class ChatThemeManager {
         Set<String> tokenSet = tokenMap.keySet();
         for(String themeId : tokenSet) {
             String[] assets = getMissingAssetsForTheme(themeId);
-            if ((assets != null) && (assets.length > 0)) {
+            if (!Utils.isEmpty(assets)) {
                 tokenMap.get(themeId).setAssets(assets);
             }
         }

@@ -1876,7 +1876,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		{
 			updateUIAsPerTheme(chatThemeId);
 			currentThemeId = chatThemeId;
-			if (ChatThemeManager.getInstance().getTheme(chatThemeId).isCustomTheme()) {
+			if (ChatThemeManager.getInstance().getTheme(chatThemeId, msisdn).isCustomTheme()) {
 				sendChatThemeMessage(true);
 			} else {
 				sendChatThemeMessage();
@@ -1940,7 +1940,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		setChatBackground(REMOVE_CHAT_BACKGROUND);
 		Drawable drawable = Utils.getChatTheme(themeId, activity);
 
-		HikeChatTheme theme = ChatThemeManager.getInstance().getTheme(themeId, msisdn);
+		HikeChatTheme theme = ChatThemeManager.getInstance().getTheme(themeId);
 		setThemeBackground(backgroundImage, drawable, theme.isTiled(), theme.isCustomTheme());
 	}
 

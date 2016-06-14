@@ -90,7 +90,7 @@ public class DownloadMultipleThemeContentTask implements IHikeHTTPTask, IHikeHtt
                         return;
                     }
                     parseAssetContent(response);
-                    //doOnSuccess();
+                    doOnSuccess(null);
                 } catch (Exception e) {
                     e.printStackTrace();
                     doOnFailure(new HttpException(HttpException.REASON_CODE_UNEXPECTED_ERROR, e));
