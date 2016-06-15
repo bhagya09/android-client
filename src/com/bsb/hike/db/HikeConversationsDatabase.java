@@ -10785,10 +10785,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 
 	public void deactivateStickerFromDB(List<Sticker> stickers)
 	{
-		if (Utils.isEmpty(stickers))
-		{
-			return;
-		}
+		if (Utils.isEmpty(stickers)) return;
 
 		try
 		{
@@ -10812,10 +10809,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 
 	public void activateStickerFromDB(List<Sticker> stickers)
 	{
-		if (Utils.isEmpty(stickers))
-		{
-			return;
-		}
+		if (Utils.isEmpty(stickers)) return;
 
 		try
 		{
@@ -10839,10 +10833,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 
 	public void deactivateStickersForCategories(List<StickerCategory> categories)
 	{
-		if (Utils.isEmpty(categories))
-		{
-			return;
-		}
+		if (Utils.isEmpty(categories)) return;
 
 		try
 		{
@@ -10865,10 +10856,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 
 	public void deleteStickersForCategories(List<StickerCategory> categories)
 	{
-		if (Utils.isEmpty(categories))
-		{
-			return;
-		}
+		if (Utils.isEmpty(categories)) return;
 
 		try
 		{
