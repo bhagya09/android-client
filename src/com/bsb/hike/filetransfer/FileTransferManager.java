@@ -455,7 +455,7 @@ public class FileTransferManager
 			}
 			FTAnalyticEvents analyticEvent = FTAnalyticEvents.getAnalyticEvents(getAnalyticFile(mFile, msgId));
 			String network = analyticEvent.mNetwork + "/" + FTUtils.getNetworkTypeString(context);
-			analyticEvent.sendFTSuccessFailureEvent(network, fileSize, FTAnalyticEvents.FT_FAILED, attachmentShardeAs, hikeFile.getAttachementType());
+			analyticEvent.sendFTSuccessFailureEvent(network, fileSize, FTAnalyticEvents.FT_FAILED, attachmentShardeAs, hikeFile.getAttachementType(), null, null);
 			deleteLogFile(msgId, mFile);
 		}
 	}
@@ -723,6 +723,7 @@ public class FileTransferManager
 	public void logTaskCompletedAnalytics(long msgId, Object userContext, boolean isDownloadTask)
 	{
 		HikeFile hikefile;
+		String msisdn = null;
 		if (userContext == null)
 		{
 			try
@@ -744,10 +745,12 @@ public class FileTransferManager
 			}else{
 				hikefile = ((ConvMessage) userContext).getMetadata().getHikeFiles().get(0);
 			}
+			msisdn = convMessage.getMsisdn();
 		}
 		FTAnalyticEvents analyticEvent = FTAnalyticEvents.getAnalyticEvents(getAnalyticFile(hikefile.getFile(), msgId));
 		String network = FTUtils.getNetworkTypeString(context);
-		analyticEvent.sendFTSuccessFailureEvent(network, hikefile.getFileSize(), FTAnalyticEvents.FT_SUCCESS, hikefile.getAttachmentSharedAs(), hikefile.getAttachementType());
+		String extn = getFileExtn(hikefile.getFileName());
+		analyticEvent.sendFTSuccessFailureEvent(network, hikefile.getFileSize(), FTAnalyticEvents.FT_SUCCESS, hikefile.getAttachmentSharedAs(), hikefile.getAttachementType(), msisdn, extn);
 		if (userContext != null && BotUtils.isBot(((ConvMessage) userContext).getMsisdn()) && isDownloadTask)
 		{
 			if(((ConvMessage) userContext).getMessageType() == HikeConstants.MESSAGE_TYPE.CONTENT)
@@ -762,5 +765,10 @@ public class FileTransferManager
 		}
 
 		deleteLogFile(msgId, hikefile.getFile());
+	}
+
+	private String getFileExtn(String fileName) {
+		int index = fileName.lastIndexOf('.');
+		return (index > 0) ? fileName.substring(index + 1) : null;
 	}
 }
