@@ -365,7 +365,7 @@ public class BirthdayUtils
      *
      * @param bdayContactList
      */
-    public static void removeHiddenMsisdnFromContactInfoList(List<ContactInfo> bdayContactList)
+    public static void removeHiddenOrBlockedMsisdnFromContactInfoList(List<ContactInfo> bdayContactList)
     {
         boolean isActive = StealthModeManager.getInstance().isActive();
         if(!isActive)
@@ -375,6 +375,10 @@ public class BirthdayUtils
             {
                 ContactInfo contactInfo = iterator.next();
                 if(StealthModeManager.getInstance().isStealthMsisdn(contactInfo.getMsisdn()))
+                {
+                    iterator.remove();
+                }
+                else if(contactInfo.isBlocked())
                 {
                     iterator.remove();
                 }
@@ -388,7 +392,7 @@ public class BirthdayUtils
      *
      * @param bdayMsisdnList
      */
-    public static void removeHiddenMsisdn(List<String> bdayMsisdnList)
+    public static void removeHiddenOrBlockedMsisdn(List<String> bdayMsisdnList)
     {
         boolean isActive = StealthModeManager.getInstance().isActive();
         if(!isActive)
@@ -400,6 +404,10 @@ public class BirthdayUtils
                 if(StealthModeManager.getInstance().isStealthMsisdn(msisdn))
                 {
                     Logger.d("bday_notif_", "Removing stealth misidn from list " + msisdn);
+                    iterator.remove();
+                }
+                else if(ContactManager.getInstance().isBlocked(msisdn))
+                {
                     iterator.remove();
                 }
             }
@@ -414,7 +422,7 @@ public class BirthdayUtils
     {
         ArrayList<String> bdayMsisdns = new ArrayList<String>(bdayMsisdnSet);
 
-        removeHiddenMsisdn(bdayMsisdns);
+        removeHiddenOrBlockedMsisdn(bdayMsisdns);
 
         recordBirthdayAnalytics(
                 AnalyticsConstants.BirthdayEvents.BIRTHDAY_REQ_RESPONSE,
