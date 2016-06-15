@@ -1798,7 +1798,7 @@ public class StickerManager
 				JSONArray stickerArray = jsonObj.optJSONArray(HikeConstants.STICKER_LIST);
 				String allStickerListString = Utils.isEmpty(stickerArray) ? null : stickerArray.toString();
 				category.setAllStickerListString(allStickerListString);
-				category.setUpdateAvailable(setActiveStickersForCategory(category, stickerArray));
+				category.setUpdateAvailable(setActiveStickersForCategory(category, stickerArrayFromJsonToList(category,stickerArray)));
 			}
 
 			if(jsonObj.has(HikeConstants.SIMILAR_PACKS)) {
@@ -4189,11 +4189,11 @@ public class StickerManager
         parameterMappingDownloadTask.execute();
     }
 
-	public boolean setActiveStickersForCategory(StickerCategory category, JSONArray activeStickerArray) throws JSONException
+	public List<Sticker> stickerArrayFromJsonToList(StickerCategory category, JSONArray activeStickerArray) throws JSONException
 	{
 		if (Utils.isEmpty(activeStickerArray) || category == null)
 		{
-			return false;
+			return null;
 		}
 
 		List<Sticker> newActiveStickerList = new ArrayList<Sticker>(activeStickerArray.length());
@@ -4211,7 +4211,7 @@ public class StickerManager
 			newActiveStickerList.add(sticker);
 		}
 
-		return setActiveStickersForCategory(category, newActiveStickerList);
+		return newActiveStickerList;
 	}
 
 	public boolean setActiveStickersForCategory(StickerCategory category, List<Sticker> newActiveStickerList) throws JSONException
