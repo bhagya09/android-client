@@ -14,13 +14,11 @@ import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.content.PlatformContent;
-import com.bsb.hike.platform.nativecards.NativeCardUtils;
 import com.bsb.hike.service.HikeMqttManagerNew;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 
 import java.util.ArrayList;
 import java.util.List;
@@ -208,9 +206,10 @@ public class HikeAnalyticsEvent
 			analyticsObj.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
 			analyticsObj.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
 			analyticsObj.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.USER_TL_OPEN);
-			analyticsObj.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
 			analyticsObj.put(AnalyticsConstants.V2.GENUS, source);
-			analyticsObj.put(AnalyticsConstants.V2.TO_USER, userMsisdn);
+			analyticsObj.put(AnalyticsConstants.V2.TO_MSISDN, userMsisdn);
+			if (StealthModeManager.getInstance().isStealthMsisdn(userMsisdn))
+				analyticsObj.put(AnalyticsConstants.V2.VARIETY, "stealth");
 
 			HAManager.getInstance().recordV2(analyticsObj);
 		}
@@ -231,11 +230,12 @@ public class HikeAnalyticsEvent
 			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
 			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
 			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.ADD_FRIEND);
-			json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
 			json.put(AnalyticsConstants.V2.GENUS, requestSent ? "req_sent" : "req_acc");
 			json.put(AnalyticsConstants.V2.SPECIES, source);
 			json.put(AnalyticsConstants.V2.RACE, sourceMetadata);
-			json.put(AnalyticsConstants.V2.TO_USER, userMsisdn);
+			json.put(AnalyticsConstants.V2.TO_MSISDN, userMsisdn);
+			if (StealthModeManager.getInstance().isStealthMsisdn(userMsisdn))
+				json.put(AnalyticsConstants.V2.VARIETY, "stealth");
 
 			HAManager.getInstance().recordV2(json);
 		}
