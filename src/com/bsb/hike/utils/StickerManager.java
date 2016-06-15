@@ -3202,7 +3202,17 @@ public class StickerManager
 
 	public void deactivateSticker(List<Sticker> stickers)
 	{
+		Set<String> stickerCodesForRemovedStickers = new HashSet<>(stickers.size());
+
+		for (Sticker sticker : stickers)
+		{
+			removeSticker(sticker);
+			stickerCodesForRemovedStickers.add(sticker.getStickerCode());
+		}
+
 		HikeConversationsDatabase.getInstance().deactivateStickerFromDB(stickers);
+		StickerManager.getInstance().removeTagForDeletedStickers(stickerCodesForRemovedStickers);
+
 	}
 
     public void deactivateStickerForCategory(StickerCategory category)
@@ -4232,19 +4242,9 @@ public class StickerManager
 			}
 		}
 
-		Set<String> stickerCodesForRemovedStickers = new HashSet<>(previousActiveStickerList.size());
-
-		for (Sticker sticker : previousActiveStickerList)
-		{
-			removeSticker(sticker);
-			stickerCodesForRemovedStickers.add(sticker.getStickerCode());
-		}
-
 		HikeConversationsDatabase.getInstance().activateStickerFromDB(newActiveStickerList);
 
 		deactivateSticker(previousActiveStickerList);
-
-		StickerManager.getInstance().removeTagForDeletedStickers(stickerCodesForRemovedStickers);
 
 		int newActiveStickerCount = currentActiveStickerCount - prevActiveStickerCount;
 

@@ -3928,14 +3928,11 @@ public class MqttMessagesManager
 			else
 			{
 				JSONArray stickerIds = data.getJSONArray(HikeConstants.STICKER_IDS);
-				Set<String> removedStickerSetString = new HashSet<String>(stickerIds.length());
 				List<Sticker> removedStickerSet = new ArrayList<>(stickerIds.length());
 
 				for (int i = 0; i < stickerIds.length(); i++)
 				{
 					Sticker sticker = new Sticker(categoryId, stickerIds.getString(i));
-					StickerManager.getInstance().removeSticker(sticker);
-					removedStickerSetString.add(sticker.getStickerCode());
 					removedStickerSet.add(sticker);
 				}
 
@@ -3950,8 +3947,6 @@ public class MqttMessagesManager
 				 */
 				String stickerListString = Utils.isEmpty(stickerArray) ? null : stickerArray.toString();
 				StickerManager.getInstance().updateStickerCategoryData(categoryId, null, stickerCount, categorySize, null, stickerListString);
-				// Remove tags being used for sticker search w.r.t. deleted stickers here
-				StickerManager.getInstance().removeTagForDeletedStickers(removedStickerSetString);
 			}
 		}
 		else if (HikeConstants.SHOP.equals(subType))
