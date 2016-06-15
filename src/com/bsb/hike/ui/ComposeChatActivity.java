@@ -820,6 +820,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				adapter.enableHikeContactsInSearch(true);
 				adapter.enableSMSContactsInSearch(true);
 				adapter.enableUnknownContactsInSearch(true);
+				adapter.addAddFriendOption(true);
 				break;
 			case MULTIPLE_FWD:
 				adapter = new ComposeChatAdapter(this, listView, true, true, null, sendingMsisdn, friendsListFetchedCallback, false, false, isShowTimeline(), false);
@@ -981,11 +982,14 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 		if (ComposeChatAdapter.HIKE_FEATURES_ID.equals(contactInfo.getId())) {
 			if (ComposeChatAdapter.HIKE_FEATURES_NEW_GROUP_ID.equals(contactInfo.getMsisdn())) {
-				Intent intent = new Intent(this, CreateNewGroupOrBroadcastActivity.class);
+				Intent intent = new Intent(ComposeChatActivity.this, CreateNewGroupOrBroadcastActivity.class);
 				startActivity(intent);
 				return;
 			} else if (ComposeChatAdapter.HIKE_FEATURES_NEW_BROADCAST_ID.equals(contactInfo.getMsisdn())) {
 				IntentFactory.createBroadcastIntent(ComposeChatActivity.this);
+				return;
+			} else if (ComposeChatAdapter.HIKE_FEATURES_ADD_FRIEND_ID.equals(contactInfo.getMsisdn())) {
+				startActivity(IntentFactory.getFriendReqActivityAddFriendsIntent(ComposeChatActivity.this));
 				return;
 			}
 		}
@@ -1352,7 +1356,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		case MULTIPLE_FWD:
 			// createGroupHeader.setVisibility(View.GONE);
 			adapter.showCheckBoxAgainstItems(true);
-			adapter.provideAddFriend(true);
 			tagEditText.clear(false);
 			adapter.removeFilter();
 			adapter.clearAllSelection(true);

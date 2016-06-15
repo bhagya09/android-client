@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -81,13 +80,13 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 	
 	private boolean isSearchModeOn = false;
 	
-	private boolean addFriendOption;
-
 	private List<String> composeExcludeList;
 
 	private boolean isGroupFirst;
 
 	private boolean createGroupBroadcastOption;
+
+	private boolean addFriendOptionEnabled;
 
     public ComposeChatAdapter(Context context, ListView listView, boolean fetchGroups, boolean fetchRecents, String existingGroupId, String sendingMsisdn, FriendsListFetchedCallback friendsListFetchedCallback, boolean showSMSContacts, boolean showHikeContacts, boolean showTimeline, boolean showBdaySection)
 	{
@@ -143,6 +142,11 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 	public void enableUnknownContactsInSearch(boolean b)
 	{
 		showUnknownContactsInSearch = b;
+	}
+
+	public void addAddFriendOption(boolean setOption)
+	{
+		addFriendOptionEnabled = setOption;
 	}
 	
 	public void setNuxStateActive(boolean nuxStateActive) {
@@ -213,20 +217,8 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			fetchFriendsTask.addOtherFeaturesList(hikeOtherFeaturesList,filteredHikeOtherFeaturesList);
 		}
 		if (createGroupBroadcastOption) {
-			ContactInfo newGroupListItem = new HikeFeatureInfo(context.getString(R.string.new_group), R.drawable.ic_new_group, null, false, new Intent(), false);
-			newGroupListItem.setId(ComposeChatAdapter.HIKE_FEATURES_ID);
-			newGroupListItem.setName(context.getString(R.string.new_group));
-			newGroupListItem.setMsisdn(ComposeChatAdapter.HIKE_FEATURES_NEW_GROUP_ID);
-			newGroupListItem.setOnhike(true);
-
-			ContactInfo newBroadcastListItem = new HikeFeatureInfo(context.getString(R.string.new_broadcast), R.drawable.ic_new_broadcast, null, false, new Intent(), false);
-			newBroadcastListItem.setId(ComposeChatAdapter.HIKE_FEATURES_ID);
-			newBroadcastListItem.setName(context.getString(R.string.new_broadcast));
-			newBroadcastListItem.setMsisdn(ComposeChatAdapter.HIKE_FEATURES_NEW_BROADCAST_ID);
-			newBroadcastListItem.setOnhike(true);
-
-			hikeOtherFeaturesList.add(newGroupListItem);
-			hikeOtherFeaturesList.add(newBroadcastListItem);
+			hikeOtherFeaturesList.add(getCreateGroupOption());
+			hikeOtherFeaturesList.add(getCreateBroadcastOption());
 
 			fetchFriendsTask.addOtherFeaturesList(hikeOtherFeaturesList,filteredHikeOtherFeaturesList);
 		}
@@ -341,7 +333,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 				holder.checkbox.setVisibility(View.GONE);
 			}
 		}
-		else if (viewType == ViewType.CREATE_ONE_TO_N) {
+		else if (viewType == ViewType.BASIC_ITEM) {
 			holder = (ViewHolder) convertView.getTag();
 			HikeFeatureInfo hikeFeatureInfo = (HikeFeatureInfo)contactInfo;
 			Integer startIndex = contactSpanStartIndexes.get(hikeFeatureInfo.getMsisdn());
@@ -566,28 +558,15 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
 			if (showCheckbox)
 			{
-				if (!contactInfo.isMyFriend()
-						&& Utils.isFavToFriendsMigrationAllowed()
-						&& !OneToNConversationUtils.isOneToNConversation(contactInfo.getMsisdn())
-						&& addFriendOption)
-				{
-					holder.addFriendIcon.setVisibility(View.VISIBLE);
-					holder.checkbox.setVisibility(View.GONE);
-				}
-				else
-				{
-					holder.addFriendIcon.setVisibility(View.GONE);
-					holder.checkbox.setVisibility(View.VISIBLE);
-					if (selectedPeople.containsKey(contactInfo.getMsisdn())){
-						holder.checkbox.setChecked(true);
-					} else {
-						holder.checkbox.setChecked(false);
-					}
+				holder.checkbox.setVisibility(View.VISIBLE);
+				if (selectedPeople.containsKey(contactInfo.getMsisdn())){
+					holder.checkbox.setChecked(true);
+				} else {
+					holder.checkbox.setChecked(false);
 				}
 			}
 			else
 			{
-				holder.addFriendIcon.setVisibility(View.GONE);
 				holder.checkbox.setVisibility(View.GONE);
 			}
 		}
@@ -628,7 +607,6 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 				holder.status = (TextView) convertView.findViewById(R.id.last_seen);
 				holder.statusMood = (ImageView) convertView.findViewById(R.id.status_mood);
 				holder.checkbox = (CheckBox) convertView.findViewById(R.id.checkbox);
-				holder.addFriendIcon = (ImageView) convertView.findViewById(R.id.add_friend);
 				holder.onlineIndicator = (ImageView) convertView.findViewById(R.id.online_indicator);
 				convertView.setTag(holder);
 				break;
@@ -652,7 +630,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 				convertView.setTag(holder);
 				break;
 
-			case CREATE_ONE_TO_N:
+			case BASIC_ITEM:
 				convertView = LayoutInflater.from(context).inflate(R.layout.basic_icon_list_item, parent, false);
 				holder = new ViewHolder();
 				holder.userImage = (ImageView) convertView.findViewById(R.id.icon);
@@ -669,7 +647,6 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 				holder.statusMood = (ImageView) convertView.findViewById(R.id.status_mood);
 				holder.checkbox = (CheckBox) convertView.findViewById(R.id.checkbox);
 				holder.inviteText = (TextView) convertView.findViewById(R.id.invite_Text);
-				holder.addFriendIcon = (ImageView) convertView.findViewById(R.id.add_friend);
 				holder.inviteIcon = (ImageView) convertView.findViewById(R.id.invite_icon);
 				convertView.setTag(holder);
 				break;
@@ -697,10 +674,6 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
 		ImageView inviteIcon;
 		
-		RecyclerView recyclerView;
-
-		ImageView addFriendIcon;
-
 		View addFriend;
 
 		View addedFriend;
@@ -826,6 +799,9 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		{
 			completeList.addAll(newContactsList);
 		}
+		else if (addFriendOptionEnabled) {
+			completeList.add(getAddFriendOption());
+		}
 		notifyDataSetChanged();
 		setEmptyView();
 		friendsListFetchedCallback.completeListFetched();
@@ -876,11 +852,6 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 	{
 		this.showCheckbox = showCheckbox;
 
-	}
-
-	public void provideAddFriend(boolean addFriend)
-	{
-		this.addFriendOption = addFriend;
 	}
 
 	public ArrayList<ContactInfo> getAllSelectedContacts()
@@ -1142,5 +1113,32 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			notifyDataSetChanged();
 		}
 	};
+
+	private ContactInfo getAddFriendOption() {
+		ContactInfo addFriendContact = new HikeFeatureInfo(context.getString(R.string.add_friends), R.drawable.ic_add_friends_list, null, false, null, false);
+		addFriendContact.setId(ComposeChatAdapter.HIKE_FEATURES_ID);
+		addFriendContact.setName(context.getString(R.string.add_friends));
+		addFriendContact.setMsisdn(ComposeChatAdapter.HIKE_FEATURES_ADD_FRIEND_ID);
+		addFriendContact.setOnhike(true);
+		return addFriendContact;
+	}
+
+	private ContactInfo getCreateGroupOption() {
+		ContactInfo createGroupcontact = new HikeFeatureInfo(context.getString(R.string.new_group), R.drawable.ic_new_group, null, false, null, false);
+		createGroupcontact.setId(ComposeChatAdapter.HIKE_FEATURES_ID);
+		createGroupcontact.setName(context.getString(R.string.new_group));
+		createGroupcontact.setMsisdn(ComposeChatAdapter.HIKE_FEATURES_NEW_GROUP_ID);
+		createGroupcontact.setOnhike(true);
+		return createGroupcontact;
+	}
+
+	private ContactInfo getCreateBroadcastOption() {
+		ContactInfo createBroadcastContact = new HikeFeatureInfo(context.getString(R.string.new_broadcast), R.drawable.ic_new_broadcast, null, false, new Intent(), false);
+		createBroadcastContact.setId(ComposeChatAdapter.HIKE_FEATURES_ID);
+		createBroadcastContact.setName(context.getString(R.string.new_broadcast));
+		createBroadcastContact.setMsisdn(ComposeChatAdapter.HIKE_FEATURES_NEW_BROADCAST_ID);
+		createBroadcastContact.setOnhike(true);
+		return createBroadcastContact;
+	}
 
 }
