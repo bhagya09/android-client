@@ -207,7 +207,7 @@ public class HikeAnalyticsEvent
 			analyticsObj.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
 			analyticsObj.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.USER_TL_OPEN);
 			analyticsObj.put(AnalyticsConstants.V2.GENUS, source);
-			analyticsObj.put(AnalyticsConstants.V2.TO_MISISDN, userMsisdn);
+			analyticsObj.put(AnalyticsConstants.V2.TO_MSISDN, userMsisdn);
 			if (StealthModeManager.getInstance().isStealthMsisdn(userMsisdn))
 				analyticsObj.put(AnalyticsConstants.V2.VARIETY, "stealth");
 
@@ -233,7 +233,7 @@ public class HikeAnalyticsEvent
 			json.put(AnalyticsConstants.V2.GENUS, requestSent ? "req_sent" : "req_acc");
 			json.put(AnalyticsConstants.V2.SPECIES, source);
 			json.put(AnalyticsConstants.V2.RACE, sourceMetadata);
-			json.put(AnalyticsConstants.V2.TO_MISISDN, userMsisdn);
+			json.put(AnalyticsConstants.V2.TO_MSISDN, userMsisdn);
 			if (StealthModeManager.getInstance().isStealthMsisdn(userMsisdn))
 				json.put(AnalyticsConstants.V2.VARIETY, "stealth");
 

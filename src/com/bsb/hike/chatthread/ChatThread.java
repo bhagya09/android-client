@@ -6766,7 +6766,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			json.put(AnalyticsConstants.V2.FORM, activity.getIntent().getStringExtra(HikeConstants.Extras.WHICH_CHAT_THREAD));
 			json.put(AnalyticsConstants.V2.RACE, activity.getIntent().getStringExtra(AnalyticsConstants.EXP_ANALYTICS_TAG));
 			json.put(AnalyticsConstants.V2.BREED, activity.getIntent().getStringExtra(AnalyticsConstants.SOURCE_CONTEXT));
-			json.put(AnalyticsConstants.V2.TO_MISISDN, msisdn);
+			json.put(AnalyticsConstants.V2.TO_MSISDN, msisdn);
 			if (StealthModeManager.getInstance().isStealthMsisdn(msisdn))
 				json.put(AnalyticsConstants.V2.VARIETY, "stealth");
 			return json;
