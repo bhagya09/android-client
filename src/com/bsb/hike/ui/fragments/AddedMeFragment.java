@@ -47,7 +47,7 @@ public class AddedMeFragment extends ListFragment implements HikePubSub.Listener
         if (addedMeContacts == null) {
             addedMeContacts = new ArrayList<>();
             for (ContactInfo info : allContacts) {
-                if (info.getUnreadRequestReceivedTime() > 0) {
+                if (hasContactAddedMe(info)) {
                     addedMeContacts.add(info);
                 }
             }
@@ -149,7 +149,8 @@ public class AddedMeFragment extends ListFragment implements HikePubSub.Listener
             } else {
                 ContactInfo newContact = new ContactInfo(contactInfo);
                 newContact.setFavoriteType(favoriteType);
-                addedMeContacts.add(0, newContact);
+                if (hasContactAddedMe(newContact))
+                    addedMeContacts.add(0, newContact);
                 if (favoriteType == ContactInfo.FavoriteType.FRIEND)
                     ContactManager.getInstance().updateUnreadRequestTime(newContact, 0);
             }
@@ -167,5 +168,18 @@ public class AddedMeFragment extends ListFragment implements HikePubSub.Listener
     public void onDestroyView() {
         HikeMessengerApp.getPubSub().removeListeners(this, pubSubListeners);
         super.onDestroyView();
+    }
+
+    public static boolean hasContactAddedMe(ContactInfo info) {
+        ContactInfo.FavoriteType type = info.getFavoriteType();
+
+        if (type == null)
+            return false;
+
+        if (type == ContactInfo.FavoriteType.REQUEST_RECEIVED || type == ContactInfo.FavoriteType.REQUEST_RECEIVED_REJECTED
+                || (type == ContactInfo.FavoriteType.FRIEND && info.getUnreadRequestReceivedTime() > 0)) {
+            return true;
+        }
+        return false;
     }
 }
