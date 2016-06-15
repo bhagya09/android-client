@@ -1693,14 +1693,19 @@ public class IntentFactory
 		return intent;
 	}
 
-	public static Intent getFriendReqActivityAddFriendsIntent(Context context)
-	{
+	public static Intent getFriendReqActivityAddFriendsIntent(Context context) {
 		Intent intent = new Intent(context, FriendRequestActivity.class);
 		intent.putExtra(FriendRequestActivity.ADD_FRIENDS, "");
 		return intent;
 	}
-	public static Intent getFriendReqActivityAddedMeIntent(Context context)
-	{
+
+	public static Intent getFriendReqActivityAddFriendsViaABIntent(Context context) {
+		Intent intent = new Intent(context, FriendRequestActivity.class);
+		intent.putExtra(FriendRequestActivity.ADD_FRIENDS_ADDRESSBOOK, "");
+		return intent;
+	}
+
+	public static Intent getFriendReqActivityAddedMeIntent(Context context) {
 		Intent intent = new Intent(context, FriendRequestActivity.class);
 		intent.putExtra(FriendRequestActivity.ADDED_ME, "");
 		return intent;

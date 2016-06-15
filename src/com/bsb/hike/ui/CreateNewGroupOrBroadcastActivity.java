@@ -366,6 +366,7 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 
 	private void onNextPressed()
 	{
+		Utils.hideSoftKeyboard(CreateNewGroupOrBroadcastActivity.this, convName);
 		switch (convType)
 		{
 			case BROADCAST:
@@ -373,7 +374,7 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 				setResult(RESULT_OK, intentBroadcast);
 				finish();
 				break;
-				
+
 			case GROUP:
 				if(Utils.isGCViaLinkEnabled())
 				{

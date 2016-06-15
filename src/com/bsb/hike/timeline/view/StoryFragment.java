@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
@@ -167,6 +168,7 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        menu.clear();
         inflater.inflate(R.menu.story_fragment, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
@@ -242,7 +244,8 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
         if (type.equals(HikePubSub.UNSEEN_STATUS_COUNT_CHANGED)
                 || type.equals(HikePubSub.ACTIVITY_UPDATE)) {
             if (isAdded() && getActivity() != null) {
-                HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable() {
+                Handler handler = new Handler(getContext().getMainLooper());
+                handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
 

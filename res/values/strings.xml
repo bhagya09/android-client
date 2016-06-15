@@ -1723,6 +1723,7 @@
     <string name="QUICK_ADD">QUICK ADD</string>
     <string name="add_via_address_book">Add Via Address Book</string>
     <string name="check_delete_from_frnds_timeline">Delete from friends\' timeline</string>
+    <string name="contact_non_friend_msg">This contact is not a friend.</string>
 
 </resources>
 

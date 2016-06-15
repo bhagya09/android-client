@@ -631,6 +631,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				return CONV_FRAGMENT_POSITION;
 			else if (intent.hasExtra(OPEN_ME_TAB))
 				return MY_FRAGMENT_POSITION;
+			else if (intent.hasExtra(OPEN_DEFAULT_TAB))
+				return DEAFULT_FRAGMENT_POSITION;
 		}
 		if (selectDefaultIfMissing) {
 			return DEAFULT_FRAGMENT_POSITION;
@@ -1382,7 +1384,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			return;
 		}
 		// The following change checks if search mode is still there, and takes action accordingly
-		if (conversationFragment.isSearchInActionMode())
+		if (conversationFragment != null && conversationFragment.isSearchInActionMode())
 		{
 			conversationFragment.endSearchActionMode();
 			return;
