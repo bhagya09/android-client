@@ -29,7 +29,7 @@ import java.util.List;
 /**
  * Created by gauravmittal on 19/05/16.
  */
-public class FriendRequestAdapter extends BaseAdapter implements PinnedSectionListView.PinnedSectionListAdapter {
+public class AddFriendAdapter extends BaseAdapter implements PinnedSectionListView.PinnedSectionListAdapter {
 
     private List<ContactInfo> completeList;
 
@@ -70,7 +70,7 @@ public class FriendRequestAdapter extends BaseAdapter implements PinnedSectionLi
         ImageView invited;
     }
 
-    public FriendRequestAdapter(List<ContactInfo> list, Context context) {
+    public AddFriendAdapter(List<ContactInfo> list, Context context) {
         this.completeList = list;
         this.displayList = completeList;
         iconLoader = new IconLoader(context, HikeMessengerApp.getInstance().getApplicationContext().getResources().getDimensionPixelSize(R.dimen.icon_picture_size));

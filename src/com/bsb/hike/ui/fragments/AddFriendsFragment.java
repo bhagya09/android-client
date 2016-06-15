@@ -13,7 +13,7 @@ import android.widget.ListView;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
-import com.bsb.hike.adapters.FriendRequestAdapter;
+import com.bsb.hike.adapters.AddFriendAdapter;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.HikeFeatureInfo;
@@ -23,7 +23,7 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
-import com.bsb.hike.adapters.FriendRequestAdapter.ViewType;
+import com.bsb.hike.adapters.AddFriendAdapter.ViewType;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -37,7 +37,7 @@ public class AddFriendsFragment extends ListFragment {
 
     private ListView listView;
 
-    private FriendRequestAdapter mAdapter;
+    private AddFriendAdapter mAdapter;
 
     private List<ContactInfo> getToAddContactList() {
         List<ContactInfo> toAddcontacts = getRecommendationsList();
@@ -99,7 +99,7 @@ public class AddFriendsFragment extends ListFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View parent = inflater.inflate(R.layout.fragment_add_friend, null);
-        mAdapter = new FriendRequestAdapter(getToAddContactList(), getActivity());
+        mAdapter = new AddFriendAdapter(getToAddContactList(), getActivity());
         return parent;
     }
 

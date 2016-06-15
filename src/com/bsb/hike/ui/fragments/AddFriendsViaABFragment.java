@@ -21,7 +21,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bsb.hike.R;
-import com.bsb.hike.adapters.FriendRequestAdapter;
+import com.bsb.hike.adapters.AddFriendAdapter;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -40,7 +40,7 @@ public class AddFriendsViaABFragment extends ListFragment {
 
     private MenuItem searchMenuItem;
 
-    private FriendRequestAdapter mAdapter;
+    private AddFriendAdapter mAdapter;
 
     private List<ContactInfo> getToAddContactList() {
         List<ContactInfo> allContacts = ContactManager.getInstance().getAllContacts(true);
@@ -57,12 +57,12 @@ public class AddFriendsViaABFragment extends ListFragment {
         }
         if (toAddHikecontacts.size() > 0) {
             String hikeContacts = getString(R.string.hike_contacts);
-            ContactInfo info = new ContactInfo(FriendRequestAdapter.ViewType.PINNED_SECTION.toString(), null, hikeContacts,  null);
+            ContactInfo info = new ContactInfo(AddFriendAdapter.ViewType.PINNED_SECTION.toString(), null, hikeContacts,  null);
             toAddHikecontacts.add(0, info);
         }
         if (toAddSMScontacts.size() > 0){
             String smsContacts = getString(R.string.sms_contacts);
-            ContactInfo info = new ContactInfo(FriendRequestAdapter.ViewType.PINNED_SECTION.toString(), null, smsContacts, null);
+            ContactInfo info = new ContactInfo(AddFriendAdapter.ViewType.PINNED_SECTION.toString(), null, smsContacts, null);
             toAddSMScontacts.add(0, info);
         }
         allContacts.clear();
@@ -76,7 +76,7 @@ public class AddFriendsViaABFragment extends ListFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setHasOptionsMenu(true);
         View parent = inflater.inflate(R.layout.fragment_add_friend, null);
-        mAdapter = new FriendRequestAdapter(getToAddContactList(), getActivity());
+        mAdapter = new AddFriendAdapter(getToAddContactList(), getActivity());
         return parent;
     }
 
