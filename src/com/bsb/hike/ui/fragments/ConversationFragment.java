@@ -12,7 +12,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.Intents.Insert;
 import android.support.v4.app.ListFragment;
@@ -100,7 +99,6 @@ import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.productpopup.AtomicTipManager;
-import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.tasks.EmailConversationsAsyncTask;
 import com.bsb.hike.ui.CustomTabsBar;
@@ -237,9 +235,9 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 
 	private CustomTabsBar.CustomTabBadgeCounterListener badgeCounterListener;
 
-	int unreadConversationsTotal;
+	int unreadCountTotal;
 
-	int unreadConversationsTillLastVisit;
+	int unreadCountTillLastVisit;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -1931,7 +1929,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			BotUtils.fetchBotIcons();
 			BotUtils.fetchBotThumbnails = false;
 		}
-
+		setupBadgeCount();
 	}
 	
 	public void startActivityWithResult(Intent intent, int requestCode)
@@ -2261,7 +2259,6 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			return;
 		}
 		Logger.d(getClass().getSimpleName(), "Event received: " + type);
-
 		if ((HikePubSub.MESSAGE_RECEIVED.equals(type)) || (HikePubSub.MESSAGE_SENT.equals(type)) || HikePubSub.OFFLINE_MESSAGE_SENT.equals(type))
 		{
 			ConvMessage message = (ConvMessage) object;
@@ -2396,6 +2393,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				public void run()
 				{
 					updateViewForMessageStateChange(convInfo, msg);
+					checkAndUpdateBadgeCount();
 				}
 			});
 		}
@@ -3475,6 +3473,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				}
 
 				mAdapter.updateViewsRelatedToLastMessage(parentView, newMessage, conversation);
+				checkAndUpdateBadgeCount();
 			}
 		});
 	}
@@ -4199,31 +4198,31 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 	}
 
 	private void resetBadgeCount() {
-		if (unreadConversationsTillLastVisit != unreadConversationsTotal) {
-			unreadConversationsTillLastVisit = unreadConversationsTotal;
+		if (unreadCountTillLastVisit != unreadCountTotal) {
+			unreadCountTillLastVisit = unreadCountTotal;
 			updateBadgeCount();
 		}
 	}
 
 	private void checkAndUpdateBadgeCount() {
-		if (getUserVisibleHint())
-			resetBadgeCount();
-		else
-		{
-			int unreadConvCount = 0;
-			for(ConvInfo info : mAdapter.getCompleteList()) {
-				if (info.getUnreadCount() > 0)
-					unreadConvCount += info.getUnreadCount();
-			}
-			unreadConversationsTotal = unreadConvCount;
-			updateBadgeCount();
-		}
+		setupBadgeCount();
+	}
 
+	private void setupBadgeCount() {
+		int unreadCount = 0;
+		for(ConvInfo info : mAdapter.getCompleteList()) {
+			if (info.getUnreadCount() > 0)
+				unreadCount += info.getUnreadCount();
+		}
+		unreadCountTotal = unreadCount;
+		if (unreadCountTillLastVisit > unreadCountTotal || getUserVisibleHint())
+			unreadCountTillLastVisit = unreadCountTotal;
+		updateBadgeCount();
 	}
 
 	private void updateBadgeCount() {
 		if (badgeCounterListener != null)
-			badgeCounterListener.onBadgeCounterUpdated(unreadConversationsTotal - unreadConversationsTillLastVisit);
+			badgeCounterListener.onBadgeCounterUpdated(unreadCountTotal - unreadCountTillLastVisit);
 	}
 
 }
