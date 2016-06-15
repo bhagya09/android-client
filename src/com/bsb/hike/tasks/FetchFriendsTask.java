@@ -235,16 +235,16 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 			removeExcludedParticipants(convContacts, composeExcludeList);
 			for (ContactInfo recentContact : convContacts)
 			{
-				if (recentTaskList.size() >= HikeConstants.MAX_RECENTS_TO_SHOW)
-					break;
 				String msisdn = recentContact.getMsisdn();
 				boolean hideStealthMsisdn = StealthModeManager.getInstance().isStealthMsisdn(msisdn) && !StealthModeManager.getInstance().isActive();
 				boolean removeSendingMsisdn = (sendingMsisdn != null && sendingMsisdn.equals(msisdn));
-				if (blockSet.contains(msisdn) || HikeMessengerApp.hikeBotInfoMap.containsKey(msisdn) || myMsisdn.equals(msisdn) || hideStealthMsisdn || removeSendingMsisdn)
+				if (blockSet.contains(msisdn) || HikeMessengerApp.hikeBotInfoMap.containsKey(msisdn) || myMsisdn.equals(msisdn) || hideStealthMsisdn || removeSendingMsisdn || !recentContact.isMyOneWayFriend())
 				{
 					continue;
 				}
 				recentTaskList.add(recentContact);
+				if (recentTaskList.size() >= HikeConstants.MAX_RECENTS_TO_SHOW)
+					break;
 			}
 			/**
 			 * Removing Birthday users from resent contacts list
