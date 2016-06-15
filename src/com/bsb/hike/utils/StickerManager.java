@@ -4181,21 +4181,11 @@ public class StickerManager
 			return false;
 		}
 
-		List<Sticker> activeStickerList = new ArrayList<Sticker>(activeStickerArray.length());
-
-		List<Sticker> previousActiveStickerList = HikeConversationsDatabase.getInstance().getActiveStickersListForCatgeoryId(category.getCategoryId(), StickerConstants.StickerType.LARGE);
-
-		if (Utils.isEmpty(previousActiveStickerList))
-		{
-			return false;
-		}
-
-		int prevActiveStickerCount = 0, currentActiveStickerCount = 0;
+		List<Sticker> newActiveStickerList = new ArrayList<Sticker>(activeStickerArray.length());
 
 		for (int i = 0; i < activeStickerArray.length(); i++)
 		{
 			String stickerId = activeStickerArray.getString(i);
-			currentActiveStickerCount++;
 
 			if (TextUtils.isEmpty(stickerId))
 			{
@@ -4203,13 +4193,36 @@ public class StickerManager
 			}
 
 			Sticker sticker = new Sticker(category.getCategoryId(), stickerId);
-			activeStickerList.add(sticker);
+			newActiveStickerList.add(sticker);
+		}
+
+		return setActiveStickersForCategory(category, newActiveStickerList);
+	}
+
+	public boolean setActiveStickersForCategory(StickerCategory category, List<Sticker> newActiveStickerList) throws JSONException
+	{
+		if (Utils.isEmpty(newActiveStickerList) || category == null)
+		{
+			return false;
+		}
+
+		List<Sticker> previousActiveStickerList = HikeConversationsDatabase.getInstance().getActiveStickersListForCategoryId(category.getCategoryId(),
+				StickerConstants.StickerType.LARGE);
+
+		if (Utils.isEmpty(previousActiveStickerList))
+		{
+			return false;
+		}
+
+		int prevActiveStickerCount = 0, currentActiveStickerCount = newActiveStickerList.size();
+
+		for (Sticker sticker : newActiveStickerList)
+		{
 			if (previousActiveStickerList.contains(sticker))
 			{
 				previousActiveStickerList.remove(sticker);
 				prevActiveStickerCount++;
 			}
-
 		}
 
 		Set<String> stickerCodesForRemovedStickers = new HashSet<>(previousActiveStickerList.size());
@@ -4220,7 +4233,7 @@ public class StickerManager
 			stickerCodesForRemovedStickers.add(sticker.getStickerCode());
 		}
 
-		HikeConversationsDatabase.getInstance().activateStickerFromDB(activeStickerList);
+		HikeConversationsDatabase.getInstance().activateStickerFromDB(newActiveStickerList);
 
 		deactivateSticker(previousActiveStickerList);
 
