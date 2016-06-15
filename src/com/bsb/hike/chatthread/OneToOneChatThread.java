@@ -4530,22 +4530,11 @@ import java.util.Map;
 	}
 
 	/**
-	 * Workaround for bug where the header needs to be added after adapter has been set in the list view
-	 *
 	 * @param headerView
 	 */
-	protected void checkAndAddListViewHeader(View headerView) {
-
-		if (mAdapter != null) {
-			mConversationsView.setAdapter(null);
-			mConversationsView.addHeaderView(headerView);
-			mConversationsView.setAdapter(mAdapter);
-
-			//Takes to list end
-			uiHandler.sendEmptyMessage(SCROLL_TO_END);
-		} else {
-			mConversationsView.addHeaderView(headerView);
-		}
+	protected void checkAndAddListViewHeader(View headerView)
+	{
+		mConversationsView.addHeaderView(headerView);
 	}
 
 	private void updateUIForBdayChat()

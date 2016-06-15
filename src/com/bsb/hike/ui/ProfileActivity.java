@@ -2840,6 +2840,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				return;
 			}
 			this.contactInfo.setFavoriteType(favoriteType);
+			this.contactInfo.setPrivacyPrefs(ContactManager.getInstance().getPrivacyPrefsForAGivenMsisdn(this.contactInfo.getMsisdn()));
+
 			runOnUiThread(new Runnable()
 			{
 

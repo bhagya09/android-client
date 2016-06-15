@@ -12069,10 +12069,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 	{
 		String sql = CREATE_TABLE + DBConstants.PARAMETER_MAPPING_TABLE
 				+ " ( "
-				+ DBConstants.URL + " TEXT PRIMARY KEY, "
+				+ DBConstants.URL + " TEXT, "
 				+ DBConstants.METHOD + " TEXT, "
-				+ DBConstants.PARAMETER_LIST + " TEXT"
-				+ " )";
+				+ DBConstants.PARAMETER_LIST + " TEXT, "
+				+ "PRIMARY KEY" + " ( " + DBConstants.URL +" , "+ DBConstants.METHOD + " ) "
+				+ " ) ";
 
 		return sql;
 	}

@@ -24,6 +24,7 @@
     <string name="block_overlay_message">%1$s заблокирован(а). Разблокируйте его и общайтесь дальше.</string>
     <string name="phone_num">Номер телефона</string>
     <string name="pin">PIN</string>
+    <string name="pin_signup">PIN</string>
     <string name="name">Имя</string>
     <string name="terms_privacy">Условия</string>
     <string name="invite_now">Пригласить</string>
@@ -37,13 +38,12 @@
     <string name="delete_broadcast">Удалить рассылку</string>
     <string name="group_chat_end">Групповой чат прекращен.</string>
     <string name="broadcast_list_end">Рассылка прекращена.</string>
-    <string name="group_info">О группе</string>
+    <string name="group_info">Данные о группе</string>
     <string name="broadcast_info">О рассылке</string>
     <string name="done">Готово</string>
     <string name="group_chat">Групповой чат</string>
     <string name="add_group">Добавить в группу</string>
     <string name="add_broadcast">Добавить к списку рассылки</string>
-    <string name="invite_share_message">Я использую hike, новое бесплатное приложение-чат! Загрузи его с http://get.hike.in/%1$s, чтобы общаться со мной бесплатно!</string>
     <string name="sms_alert_text">Вы можете получать все SMS в hike. Нажмите кнопку ниже для включения этой функции.</string>
     <string name="sms">SMS</string>
     <string name="turn_on">Включить</string>
@@ -74,7 +74,9 @@
     <string name="unlink_facebook_confirmation">Вы действительно хотите отвязать учетную запись Facebook от hike?</string>
     <string name="unlink_twitter_confirmation">Вы действительно хотите отвязать учетную запись Twitter от hike?</string>
     <string name="change_group_name">%1$s изменил(а) имя группы.</string>
+    <string name="you_change_group_name">Вы изменили имя группы.</string>
     <string name="change_broadcast_name">%1$s изменил(а) название рассылки.</string>
+    <string name="you_change_broadcast_name">Вы изменили название рассылки.</string>
     <string name="block_internation_sms">SMS доступны только в Индии</string>
     <string name="block_internation_sms_bold_text">Индия</string>
     <string name="invite_via_sms">Пригл. по SMS</string>
@@ -103,19 +105,19 @@
     <string name="vibrate_msg">Вибрировать при новых сообщениях</string>
     <string name="free_sms_msg">Вкл для отправки беспл. SMS в Индии</string>
     <string name="auto_download_media">Автозагрузка мультимедиа</string>
-    <string name="md_auto_download_media">Автозагрузка мультимедиа: сотовая связь</string>
-    <string name="wf_auto_download_media">Автозагрузка мультимедиа: Wi-Fi</string>
+    <string name="md_auto_download_media">АВТОЗАГРУЗКА МУЛЬТИМЕДИА: МОБИЛЬНАЯ СВЯЗЬ</string>
+    <string name="wf_auto_download_media">АВТОЗАГРУЗКА МУЛЬТИМЕДИА: WI-FI</string>
     <string name="auto_download_image_title">Изображения</string>
     <string name="auto_download_video_title">Видео</string>
     <string name="auto_download_audio_title">Аудио</string>
     <string name="delete_account">Удалить аккаунт</string>
-    <string name="privacy">Конфиденциальность</string>
+    <string name="privacy">Конфиденциальн.</string>
     <string name="notifications">Уведомления</string>
     <string name="favorites">Избранное</string>
     <string name="invite_friends">Пригласить друзей</string>
     <string name="downloading">Загрузка файла...</string>
     <string name="hike">hike</string>
-    <string name="group_profile">О группе</string>
+    <string name="group_profile">Данные о группе</string>
     <string name="broadcast_profile">О списке рассылки</string>
     <string name="group_name">Имя группы</string>
     <string name="participants">Участники</string>
@@ -150,7 +152,6 @@
     <string name="android_version">Версия Android:</string>
     <string name="msisdn">Номер телефона</string>
     <string name="unobfuscated_map_api">AIzaSyBvWmHyGeeDjPkJR1xJnWCnUiWTfwciSLw</string>
-    <string name="next_signup">Далее</string>
     <string name="invalid_num_signup">Недопустимый номер, повторите попытку.</string>
     <string name="verify_pin_signup">Проверка PIN-кода...</string>
     <string name="wrong_num_signup">Ввели неверный номер? Нажмите здесь</string>
@@ -172,11 +173,16 @@
     <string name="location_disabled">Не удается получить ваше местоположение. Проверьте настройки.</string>
     <string name="tap_here_invite">Нажмите здесь для приглашения</string>
     <string name="change_group_image">%1$s изменил(а) аватар группы.</string>
+    <string name="you_change_group_image">Вы изменили аватар группы.</string>
     <string name="faq">ЧаВо</string>
     <string name="gallery">Галерея</string>
     <string name="number_confirm_title">Подтвердите номер</string>
     <string name="birthday">День рождения</string>
     <string name="anniversary">Годовщина</string>
+    <string name="backup_account">Создать копию аккаунта</string>
+    <string name="search_hint_text">Поиск...</string>
+    <string name="is_typing">пишет...</string>
+    <string name="are_typing">пишут...</string>
     <string name="other">Другое</string>
     <string name="target_account">Сохранить контакт в этот аккаунт</string>
     <string name="save">Сохр.</string>
@@ -189,9 +195,16 @@
     <string name="free_sms_txt">Беспл. SMS</string>
     <string name="blocked_list">Список заблокир.</string>
     <string name="accepted_friend_request">Дружба подтверждена</string>
-    <string name="invite_free_sms">Пригласить через беспл. SMS</string>
     <string name="mute_group">Откл. уведомления группы</string>
     <string name="unmute_group">Вкл. уведомления группы</string>
+    <string name="mute_chat">Откл. уведомления чата</string>
+    <string name="unmute_chat">Вкл. уведомления чата</string>
+    <string name="group_mute_dialog_title">Откл. уведомления на</string>
+    <string name="chat_mute_dialog_title">Откл. уведомления на</string>
+    <string name="mute_chat_eight_hrs">8 ч</string>
+    <string name="mute_chat_one_week">1 нед.</string>
+    <string name="mute_chat_one_yr">1 год</string>
+    <string name="show_notif">Показывать уведомления</string>
     <string name="account">Аккаунт</string>
     <string name="enter_num">Введите номер телефона</string>
     <string name="enter_pin">Введите PIN</string>
@@ -203,7 +216,6 @@
     <string name="system_health">Состояние системы</string>
     <string name="you">Вы</string>
     <string name="delete_status">Удалить обновление</string>
-    <string name="delete_status_confirmation">Вы действительно хотите удалить это обновление?</string>
     <string name="delete_status_error">Не удалось удалить обновление статуса. Проверьте подключение к сети и повторите попытку.</string>
     <string name="deleting_status">Удаление обновления...</string>
     <string name="tap_here_block">Нажмите для блокир. этого номера</string>
@@ -256,6 +268,7 @@
     <string name="added_as_hike_friend_info">Хотите сделать то же самое?</string>
     <string name="audio_recording_msg_received">Отправил(а) вам голосовое сообщение</string>
     <string name="sent_sticker">Отправил(а) вам стикер</string>
+    <string name="start_new_chat">Начать чат</string>
     <string name="post_new_update">Опубликовать обновление</string>
     <string name="read_by_names_only">Прочитано %1$s</string>
     <string name="read_by_names_number">Прочитано %1$s и %2$d другими</string>
@@ -291,6 +304,7 @@
     <string name="invite_friends_hike">Пригласить друзей в hike</string>
     <string name="hike_contacts">ПОЛЬЗОВАТЕЛИ В HIKE</string>
     <string name="sms_contacts">SMS КОНТАКТЫ</string>
+    <string name="contacts">КОНТАКТЫ</string>
     <string name="invite_subtext">Получите дополнительные бесплатные SMS за каждого друга, присоединившегося к hike через ваше приглашение по SMS.</string>
     <string name="india_only">Бесплатные SMS можно отправлять только в Индии.</string>
     <string name="feedback_on_hike">Отзыв о hike для Android</string>
@@ -320,6 +334,7 @@
     <string name="select_all">Выбрать всех (%1$d)</string>
     <string name="deselect_all">Отменить выбор всех (%1$d)</string>
     <string name="chat_bg_changed">%1$s сменил(а) тему чата</string>
+    <string name="you_chat_bg_changed">Вы сменили тему чата</string>
     <string name="chat_theme">Тема чата</string>
     <string name="last_seen_today_ct">сегодня, %1$s</string>
     <string name="last_seen_yesterday_ct">вчера, %1$s</string>
@@ -385,6 +400,7 @@
     <string name="more_hike_more_earn">Чем больше вы используете hike, тем больше зарабатываете!</string>
     <string name="compose_chat_heading">Создать группу</string>
     <string name="compose_chat_other_contacts">ДРУГИЕ КОНТАКТЫ</string>
+    <string name="compose_chat_action_bar_title">Новый чат</string>
     <string name="name_group">Назовите группу</string>
     <string name="name_broadcast">Назовите рассылку</string>
     <string name="num_contacts">Контактов: %1$s</string>
@@ -408,7 +424,6 @@
     <string name="one_unread_message">1 непрочитанное</string>
     <string name="invite_friends_confirmation_msg">Хотите пригласить друзей (%1$s) в hike?</string>
     <string name="didnt_get_pin">Если вы не получили PIN-код, мы позвоним вам</string>
-    <string name="maxContactInGroupErr">Макс. число контактов в группе: %1$s</string>
     <string name="maxContactInBroadcastErr">Макс. число контактов в этом списке рассылки: %1$s</string>
     <string name="minContactInGroupErr">Чтобы начать групповой чат, выберите контакты (не менее %1$s)</string>
     <string name="minContactInBroadcastErr">Выберите контакты (хотя бы %1$s)</string>
@@ -429,7 +444,7 @@
     <string name="group_chats_upper_case">ГРУППОВЫЕ ЧАТЫ</string>
     <string name="max_num_files_reached">Невозможно отправить больше, чем столько файлов: %1$s</string>
     <string name="status_updates_proper_casing">Обнов. состоян</string>
-    <string name="CONFIRM">ПОДТВ.</string>
+    <string name="CONFIRM">ПОДТВЕРДИТЬ</string>
     <string name="CONTINUE">ПРОДОЛЖИТЬ</string>
     <string name="alp_42447968_cmd_forgot_pattern">Забыли рисунок?</string>
     <string name="alp_42447968_loading">Загрузка...</string>
@@ -444,6 +459,12 @@
     <string name="alp_42447968_msg_your_new_unlock_pattern">Ваш новый рисунок для разблокировки</string>
     <string name="alp_42447968_msg_draw_pattern_to_unlock_in_reset">Прочертите имеющийся рисунок для разблокировки</string>
     <string name="alp_42447968_msg_redraw_new_pattern_confirm">Снова прочертите новый рисунок для разблокировки</string>
+
+    <plurals name="alp_42447968_pmsg_connect_x_dots">
+        <item quantity="one">Надо соединить хотя бы %1$d точку. Попробуйте еще раз</item>
+        <item quantity="other">Надо соединить хотя бы %1$d точки. Попробуйте еще раз</item>
+    </plurals>
+
     <string name="stealth_notification_message">Появилось новое уведомление</string>
     <string name="stealth_notification_messages">Получены новые уведомления</string>
     <string name="retry">Повторить</string>
@@ -454,13 +475,15 @@
     <string name="resetting_complete_stealth_header">Сброс скрытого режима</string>
     <string name="resetting_complete_stealth_info">Нажмите, чтобы отменить.</string>
     <string name="reset_stealth_tip"><![CDATA[
- <b> Все скрытые чаты будут удалены через %1$s мин. </b> 
+ <b> Все скрытые чаты будут удалены через %1$s мин. </b>
 	    
     ]]></string>
     <string name="tap_to_reset_stealth_tip"><![CDATA[
- <b> Нажмите здесь, чтобы сбросить скрытый режим прямо сейчас! </b> 
+ <b> Нажмите здесь, чтобы сбросить скрытый режим прямо сейчас! </b>
 	    
     ]]></string>
+    <string name="tap_to_reveal_stealth_contacts">Коснитесь значка \"hi\", чтобы показать чаты</string>
+    <string name="tap_to_hide_stealth_contacts">Коснитесь значка \"hi\", чтобы скрыть чаты</string>
     <string name="reset_stealth_confirmation">При сбросе скрытого режима будут удалены все скрытые чаты.\nПродолжить?</string>
     <string name="stealth_tap_and_hold_tip">Нажмите на чат и удерживайте, чтобы пометить его как скрытый.</string>
     <string name="mark_stealth">Пометить чат как скрытый</string>
@@ -490,10 +513,8 @@
     <string name="shortcut">Добавить ярлык разговора</string>
     <string name="add_to_contacts">Добавить в контакты</string>
     <string name="delete_leave">Удалить и выйти из группы</string>
-    <string name="group_participant_info">В группу можно добавить до 500 контактов</string>
     <string name="broadcast_participant_info"><![CDATA[<font color="#848484"><b>Примечание:</b> эту рассылку получат только контакты hike с номером %1$s в адресной книге.</font>]]></string>
     <string name="confirm_delete_chat_msg">Удалить чат с «%1$s»? </string>
-    <string name="confirm_delete_group_msg">Удалить и выйти из группы «%1$s»?</string>
     <string name="email_chat">Отправить чат по эл. почте</string>
     <string name="clear_chat">Очистить чат</string>
     <string name="add_shortcut">Добавить ярлык</string>
@@ -510,7 +531,7 @@
     <string name="welcome_to_hike">Приветствуем в hike!</string>
     <string name="ftue_welcome_card_msg">В hike уйма замечательных функций и возможностей, о чем мы хотим рассказать вам.</string>
     <string name="ftue_hidden_mode_card_msg">Пометьте свои личные чаты как скрытые, чтобы их можно было открывать только с помощью пароля.</string>
-    <string name="hike_offline">Hike офлайн</string>
+    <string name="hike_offline">Hike оффлайн</string>
     <string name="new_chat_tip_header">Начать чат</string>
     <string name="recent_empty_string">Здесь будут стикеры, чаще всего используемые вами</string>
     <string name="recent_icon_text">Здесь будут смайлики, чаще всего используемые вами</string>
@@ -524,7 +545,6 @@
     <string name="ftue_status_update_card_header">Выразите себя</string>
     <string name="ftue_status_update_card_msg">Коснитесь, чтобы опубликовать обновление статуса. Его смогут просмотреть только избранные.</string>
     <string name="earn_free_sms">Заработайте бесплатные SMS</string>
-    <string name="email_body">Я пользуюсь новым приложением для чата - hike. Небо и земля по сравнению с WhatsApp!\n\nЗдесь классные стикеры и потрясающие темы чата, а также можно выбирать, кому показывать свое последнее появление в сети.\n\nА круче всего то, что в hike есть \"скрытый режим\", который позволяет скрыть ото всех свои личные чаты. Просто супер!\n\nСкорее скачивай с http://hike.in</string>
     <string name="email_subject">Обогати свою жизнь с hike</string>
     <string name="ftue_card_header_last_seen">Посл. раз</string>
     <string name="ftue_card_body_last_seen">Только избранные контакты могут видеть ваши обновления.</string>
@@ -537,7 +557,7 @@
     <string name="ftue_card_click_text_sticker">Вы полюбите их!</string>
     <string name="ftue_card_sep">Великолепные возможности hike</string>
     <string name="change_stealth_password">Сменить пароль</string>
-    <string name="change_stealth_password_body">Смените свой пароль скрытого режима</string>
+    <string name="change_stealth_password_body">Смена пароля для скрытого режима. Также переключение между рисунком для разблокировки и PIN-кодом. </string>
     <string name="invited">Приглашен(а)</string>
     <string name="invite_more">ПРИГЛАСИТЬ ЕЩЕ</string>
     <string name="invite_sent">Приглашение отправлено</string>
@@ -551,7 +571,6 @@
     <string name="hike_to_offline_push_title_multiple">%1$d пользователей не в сети</string>
     <string name="hike_to_offline_text">Отправить сообщения как бесплатные SMS</string>
     <string name="invite_with_watsapp">WhatsApp</string>
-    <string name="watsapp_invitation">Привет! Рекомендую hike - новое приложение для чата. В нем можно показывать время своего последнего появления в сети только друзьям, отправлять сообщения друзьям, когда они не находятся в сети, а также использовать классные стикеры.\n\nКроме того, можно делиться файлами любого типа - документами, музыкой, видео и т.д. - объемом до 100 МБ каждый ;) http://get.hike.in/</string>
     <string name="profile_pic_header">Аватар</string>
     <string name="profile_pic_display_info">Показывать только избранным контактам</string>
     <string name="undelivered_sms_setting_remember">Настройки сохранены</string>
@@ -583,13 +602,14 @@
     <string name="send_sms_file_msg">отправил(а) вам файл</string>
     <string name="select_all_confirmation_header">Пригласить всех</string>
     <string name="select_all_confirmation_msg">Отправить приглашения %1$d контактам для загрузки hike?</string>
-    <string name="change_password_from_privacy">Смените пароль, перейдя в Настройки &gt; Приватность</string>
-    <string name="hike_offline_caps">Hike офлайн</string>
+    <string name="hike_offline_caps">Hike оффлайн</string>
+
     <string name="create_pin">Создать булавку</string>
     <string name="pin_history">История булавок</string>
     <string name="max_pin_unread_counter">9+</string>
     <string name="pin_text_hint">Поделиться чем-то важным...</string>
     <string name="xyz_posted_pin">%1$s опубликовал(а) булавку</string>
+    <string name="you_xyz_posted_pin">Вы опубликовали булавку</string>
     <string name="pinHistoryTutorialText">Еще нет булавок</string>
     <string name="incorrect_msisdn_warning">Неправильный номер</string>
     <string name="incorrect_msisdn_msg">Введите номер, зарегистрированный с hike на этом телефоне.</string>
@@ -597,9 +617,9 @@
     <string name="delete_my_account">УДАЛИТЬ МОЮ УЧЕТНУЮ ЗАПИСЬ</string>
     <string name="hike_extras">Бонусы/Дополнительно</string>
     <string name="mute_status_notification_header">Статус и аватар</string>
-    <string name="mute_status_notification_subtext">Показывать уведомления об обновлениях статуса и аватара для избранных контактов</string>
+    <string name="mute_status_notification_subtext">Показывать уведомления об обновлении статуса и аватара из избранного</string>
     <string name="notifications_contact_join_summary">Уведомлять, когда контакт присоединяется к hike</string>
-    <string name="set_profile_pic">аватар hike</string>
+    <string name="set_profile_pic"> Аватар hike</string>
     <string name="confirm_delete_pin_header">Удалить булавку</string>
     <string name="confirm_delete_pin">Действительно удалить эту булавку?</string>
     <string name="confirm_delete_pins_header">Удалить булавки</string>
@@ -623,14 +643,16 @@
     <string name="add_recipients">ДОБАВИТЬ ПОЛУЧАТЕЛЕЙ</string>
     <string name="stealth_info_tip_header">Скрытый режим</string>
     <string name="file_missing_caps">ОТСУТСТВУЕТ ФАЙЛ</string>
-    <string name="status_profile_pic_notification">изменил(а) аватар</string>
+    <string name="status_profile_pic_notification">Аватар изменен</string>
     <string name="group_admin">Администратор</string>
+    <string name="sms_group_member">В ожидании</string>
+    <string name="favorite_request_pending">Добавлено в избранное</string>
     <string name="delete_media_from_sdcard">Удалить мультимед. файлы из телефона</string>
     <string name="unable_to_open">Увы, этот файл не существует</string>
     <string name="notificationSoundSummary">Выберите мелодию при получении нового сообщения</string>
     <string name="hike_offline_notifications">hike в офлайн-режиме</string>
     <string name="h2o_notifications_setting_summary">Уведомлять об отправке SMS для контакта, не находящегося в сети</string>
-    <string name="stealth_info_tip_subtext">Нажмите \'hi\', чтобы скрыть свои чаты.</string>
+    <string name="stealth_info_tip_subtext">Нажмите \'hi\', чтобы скрыть свои чаты с помощью пароля.</string>
     <string name="file_attachment_info">Медиафайлы, DOC и PDF до 100 МБ</string>
     <string name="status_text_notification">опубликовал(а) обновление %1$s</string>
     <string name="shared_files">Файлы</string>
@@ -638,9 +660,9 @@
     <string name="image_settings_tip_text">Параметры изображения</string>
     <string name="image_settings_tip_subtext">Обычное. Улучшенное. Несжатый размер</string>
     <string name="settings_media">Файлы</string>
-    <string name="image_quality_small">Обычное</string>
-    <string name="image_quality_medium">Улучшенное</string>
-    <string name="image_quality_original">Несжатое</string>
+    <string name="image_quality_small">Сжатое</string>
+    <string name="image_quality_medium">Обычное</string>
+    <string name="image_quality_original">Исходный</string>
     <string name="image_quality_send">Отпр.</string>
     <string name="image_quality_prefs">Качество изображения</string>
     <string name="no_media">Здесь отображаются фотографии и видео</string>
@@ -658,7 +680,6 @@
     <string name="medium_faster">быстро</string>
     <string name="original_slow">медленно</string>
     <string name="forward_to_plural">Отправить сообщение %1$s контактам?</string>
-    <string name="forward_to_singular">Отправить сообщение 1 контакту?</string>
     <string name="selected_contacts_count_plural">Контактов: %1$s</string>
     <string name="selected_contacts_count_singular">%1$s контакт</string>
     <string name="wish_now">Поздравить сейчас</string>
@@ -673,7 +694,7 @@
     <string name="auth_your_public_profile">Основная информация</string>
     <string name="auth_will_setup_acc">Имя и картинка профиля</string>
     <string name="auth_contacts_on_hike">Контакты в hike</string>
-    <string name="auth_needed_for_messaging">Имена, картинки профиля и избраное</string>
+    <string name="auth_needed_for_messaging">Имена, аватары и избранное</string>
     <string name="auth_button_deny">Нет</string>
     <string name="auth_button_accept">Подключение</string>
     <string name="connected_apps">Подключенные приложения</string>
@@ -684,7 +705,6 @@
     <string name="update_all">ОБНОВИТЬ ВСЕ</string>
     <string name="RETRY">ПОВТОРИТЬ</string>
     <string name="see_them">ГОТОВО</string>
-    <string name="drag_tip_text">Коснитесь и удержите, чтобы перегруппировать свои наборы стикеров</string>
     <string name="CANCEL">ОТМЕНА</string>
     <string name="n_more">ЕЩЕ %1$d</string>
     <string name="n_stickers">%1$d стик.</string>
@@ -725,7 +745,6 @@
     <string name="error_pick_location">При выборе места произошла ошибка</string>
     <string name="zero_sms_hint">Не осталось бесплатных SMS...</string>
     <string name="pin_self">Вы</string>
-    <string name="hike_upgrade_string">Делаем hike быстрее и удобнее для вас</string>
     <string name="some_error">Произошла какая-то ошибка!</string>
     <string name="recently_joined_hike">НЕДАВНО В HIKE</string>
     <string name="creating_backup_message">Создание резервной копии вашей учетной записи. Резервное копирование происходит ежедневно в 3:00 AM</string>
@@ -769,6 +788,7 @@
     <string name="voip_missed_call_incoming">Вы пропустили звонок</string>
     <string name="voip_call_chat">Звонок hike</string>
     <string name="voip_call_notification_title">Звонок hike: %1$s</string>
+    <string name="voip_conference_call_notification_title">Конференц-связь hike </string>
     <string name="voip_call_notification_text">Звоним: %1$s</string>
     <string name="voip_call">звонок</string>
     <string name="voip_call_ended">ЗВОНОК ЗАВЕРШЕН</string>
@@ -778,13 +798,20 @@
     <string name="voip_connecting">…СОЕДИНЯЕМСЯ</string>
     <string name="voip_partner_busy">…ЗАНЯТО</string>
     <string name="voip_offline_error">Сеть не доступна. Попробуйте снова, когда будет подключение к сети.</string>
-    <string name="voip_signal_fair">ПРИЛИЧНОЕ</string>
-    <string name="voip_signal_good">ХОРОШЕЕ</string>
-    <string name="voip_signal_weak">ПЛОХОЕ</string>
-    <string name="voip_signal_excellent">ОТЛИЧНОЕ</string>
+    <string name="voip_conference_label">Конференц-связь</string>
+    <string name="voip_conference_waiting_for_participants_info">Ожидание данных о конференции...</string>
+    <string name="voip_hang_up">Повесить трубку</string>
+    <string name="voip_decline">Отклонить</string>
+    <string name="voip_accept">Принять</string>
     <string name="hike_calls">Звонки hike</string>
     <string name="voip_intro_popup_msg">Теперь вы можете бесплатно звонить своим друзьям в hike!</string>
     <string name="voip_intro_popup_btn">ЧУДЕСНО</string>
+    <string name="voip_group_too_large">Максимальное количество участников конференции: %1$s</string>
+    <string name="voip_conference_network_support">Конференц-связь не поддерживается при 2G.</string>
+    <string name="voip_conference_os_support">Ваш телефон не поддерживает проведение конференций.</string>
+    <string name="voip_conference_host">Проведение конференций</string>
+    <string name="voip_conference_not_supported">%1$s не поддерживает проведение конференций.</string>
+    <string name="voip_group_conference_confirmation">Начать конференц-связь со всеми участниками этой группы?</string>
     <string name="led_color_none_key">Нет</string>
     <string name="led_color_blue_key">Синий</string>
     <string name="led_color_cyan_key">Бирюзовый</string>
@@ -837,9 +864,8 @@
     <string name="photo_dp_saved_sub">Отлично</string>
     <string name="photo_dp_save_error">Не удалось установить фото профиля</string>
     <string name="photo_dp_save_error_sub">Нажмите для повтора</string>
-    <string name="photo_gallery_choose_pic">Выберите фото</string>
     <string name="cropping_image">Обрезка...</string>
-	<string name="home_search_empty_text">По запросу \'%1$s\' никого не найдено.</string>
+    <string name="home_search_empty_text">По запросу %1$s никого не найдено.</string>
     <string name="voip_mic_error">Ошибка в работе микрофона. Возможно, совершить вызов не удастся.</string>
     <string name="voip_call_failed_frag_subheader">Можете отправить контакту %1$s</string>
     <string name="dismiss_upper_case">ОТКЛОНИТЬ</string>
@@ -847,14 +873,21 @@
     <string name="voip_call_failed_message">Сообщение hike</string>
     <string name="voip_call_failed_redial">Набрать снова</string>
     <string name="voip_call_failed_native_call">Вызов оператора</string>
-    <string name="voip_not_reachable">%1$s недоступен</string>
-    <string name="voip_incompat_platform">Бесплатные вызовы hike пока\nдоступны только на Android.</string>
-    <string name="voip_older_app">%1$s использует более раннюю версию hike</string>
+    <string name="voip_not_reachable">Пользователь %1$s недоступен</string>
+    <string name="voip_callee_busy">Пользователь %1$s занят</string>
+    <string name="voip_callee_no_response">Пользователь %1$s не отвечает</string>
+    <string name="voip_incompat_platform">Звонки hike недоступны\nна телефоне этого контакта.</string>
+    <string name="voip_older_app">%1$s пользуется старой версией hike</string>
     <string name="voip_caller_poor_network">У вас или у контакта %1$s низкое качество связи</string>
+    <string name="voip_error_force_mute">Ведущий выключил звук для всех</string>
+    <string name="voip_conf_mute_all_off">ВЫКЛЮЧИТЬ ЗВУК ДЛЯ ВСЕХ</string>
+    <string name="voip_conf_mute_all_on">ВКЛЮЧИТЬ ЗВУК ДЛЯ ВСЕХ</string>
+    <string name="voip_speech_force_mute_on">Ведущий выключил звук для всех</string>
+    <string name="voip_speech_force_mute_off">Теперь можно включить звук</string>
     <string name="nux_expired">Сеанс истек</string>
     <string name="nux_completed">Вы уже выполнили это действие.</string>
     <string name="holi">С праздником!</string>
-	<string name="privacy_settings">НАСТРОЙКИ КОНФИДЕНЦИАЛЬНОСТИ</string>
+    <string name="privacy_settings">НАСТРОЙКИ КОНФИДЕНЦИАЛЬНОСТИ</string>
     <string name="manage_list">НАСТРОЙКИ СПИСКОВ</string>
     <string name="privacy_everyone_key">Всем</string>
     <string name="privacy_my_contacts_key">Мои контакты</string>
@@ -875,14 +908,40 @@
     <string name="retry_platform_failure">ПОВТОРИТЬ</string>
     <string name="platform_error_text">ПРОИЗОШЛА ОШИБКА</string>
     <string name="platform_error_subtext">Проверьте интернет-подключение</string>
-    <string name="added_in_group">Этот контакт уже добавлен в группу</string>
     <string name="added_in_broadcast">Этот контакт уже добавлен в список рассылки</string>
     <string name="enter_valid_group_name">Имя группы не может быть пустым</string>
     <string name="enter_valid_broadcast_name">Название рассылки не может быть пустым</string>
-    <string name="doodle_error_message">Не удалось сохранить дудл!\nНе хватает места на устройстве.</string>
-    <string name="photos_oom_save">Не удалось сохранить изображение!\nНе хватает места на устройстве.</string>
-    <string name="photos_oom_load">Не удалось загрузить изображение!\nНе хватает места на устройстве.</string>
-    <string name="photos_oom_retry">Повторите попытку.</string>
+    <string name="doodle_error_message">Не удалось сохранить дудл!\nПовторите попытку</string>
+    <string name="photos_oom_save">Не удалось сохранить изображение!\nПовторите попытку</string>
+    <string name="photos_oom_load">Не удалось загрузить изображение</string>
+    <string name="photos_oom_retry">Повторить попытку</string>
+    <string name="stealth_mode_title">Скрытый режим</string>
+    <string name="stealth_mode_title_body">Настройки скрытого режима</string>
+    <string name="change_stealth_timeout">Спрашивать пароль</string>
+    <string name="change_stealth_timeout_body">Спрашивать пароль снова только спустя определенное время</string>
+    <string name="stealth_password_settings">НАСТРОЙКИ ПАРОЛЯ</string>
+    <string name="stealth_notification_settings">НАСТРОЙКИ УВЕДОМЛЕНИЙ</string>
+    <string name="stealth_reset_settings">ДОПОЛНИТЕЛЬНЫЕ НАСТРОЙКИ</string>
+    <string name="enable_stealth_indicator">Индикатор</string>
+    <string name="enable_stealth_indicator_body">Толкните логотип \'hi\' на главном экране для отображения непрочитанных сообщений</string>
+    <string name="enable_stealth_notification_body">Уведомлять о получении сообщений в скрытом чате</string>
+    <string name="enable_stealth_notification">Уведомление</string>
+    <string name="stealth_msg_draw_an_unlock_pattern">Проведите новый рисунок для разблокировки</string>
+    <string name="stealth_msg_enter_an_unlock_pin">Введите новый PIN-код из 4 цифр</string>
+    <string name="stealth_msg_redraw_pattern_to_confirm">Подтвердите рисунок</string>
+    <string name="stealth_msg_reenter_pin_to_confirm">Подтвердите PIN-код</string>
+    <string name="stealth_enter_4_digits">Введите PIN-код из 4 цифр</string>
+    <string name="hide_chat">Скрыть чат</string>
+    <string name="mark_hidden">Пометить как скрытый</string>
+    <string name="mark_visible">Пометить как видимый</string>
+    <string name="stealth_set_pin">Или установите PIN-код</string>
+    <string name="stealth_set_pattern">Или задайте рисунок для разблокировки</string>
+    <string name="stealth_msg_pin_recorded">PIN-код записан</string>
+    <string name="stealth_msg_your_new_unlock_pin">Ваш новый PIN-код</string>
+    <string name="stealth_msg_try_pin_again">PIN-коды не совпали. Повторите попытку.</string>
+    <string name="stealth_msg_enter_pin_to_unlock">Введите PIN-код, чтобы разблокировать</string>
+    <string name="stealth_msg_enter_pin_to_unlock_in_reset">Введите текущий PIN-код</string>
+    <string name="change_password_from_privacy">Настройки скрытого режима</string>
     <string name="nudge_setting_header">Чтобы подмигнуть, нажмите дважды</string>
     <string name="nudge_setting_info">Подмигните, нажав в чате дважды</string>
     <string name="enter_setting_header">«Ввод» — для отправки</string>
@@ -893,10 +952,9 @@
     <string name="select_all_hike">Выбрать все</string>
     <string name="unselect_all_hike">Отменить выбор</string>
     <string name="searching">Поиск...</string>
-    <string name="sticker_share_description"><![CDATA[Скачайте мессенджер hike на сайте <font color="#57dcf9">http://get.hike.in</font>]]></string>
     <string name="sticker_share_caption">Скачать: http://hike.in</string>
     <string name="text_share_heading">— Отправлено из hike</string>
-    <string name="text_share_caption">Скачать: http://hike.in</string> 
+    <string name="text_share_caption">Скачать: http://hike.in</string>
     <string name="image_share_heading">Опубликовано из hike!</string>
     <string name="image_share_description"><![CDATA[Скачайте мессенджер hike на сайте <font color="#57dcf9">http://get.hike.in</font>]]></string>
     <string name="image_share_caption">Скачать: http://hike.in</string>
@@ -910,6 +968,10 @@
     <string name="terms_conditions_hint">Условия и положения</string>
     <string name="terms_conditions_title">Условия</string>
     <string name="content_des_message_send_rec_read_status">Отправка сообщения или ожидание</string>
+    <string name="content_des_message_clock_state">Сообщение не отправлено</string>
+    <string name="content_des_message_double_tick_state">Сообщение доставлено получателю</string>
+    <string name="content_des_message_double_tick_read_state">Сообщение прочитано получателем</string>
+    <string name="content_des_message_offline_state">Пользователь не в сети</string>
     <string name="content_des_restore_if_backup_found">Восстановить (найдена рез. копия)</string>
     <string name="content_des_add_photo_gallery_create_group">Создавая группу, добавьте фото</string>
     <string name="content_des_add_photo_camera_create_group">Создавая группу, сделайте фото</string>
@@ -919,9 +981,700 @@
     <string name="content_des_send_recorded_audio_text_chatting">Отправляйте записанное аудио или текст в чате</string>
     <string name="content_des_back_button_chatthread_actionbar">Нажмите кнопку «Назад» в панели чата</string>
     <string name="content_des_round_user_image_chatthread_actionbar">Изображение пользователя (круглое) в панели чата</string>
+    <string name="content_des_round_group_image_chatthread_actionbar">Изображение группы (круглое) в панели чата</string>
     <string name="content_des_typing_notification_chatting">Печатает в чате</string>
     <string name="content_des_typing_notification_received">Уведомление для пользователя</string>
-	<string name="activity_not_found">Приложения для этого действия не найдено</string>
-	<string name="edit_photos">Новое фото</string>
-	<string name="only_photos_edit">Можно изменять только фото</string>
+    <string name="content_des_send_message_button">Нажмите кнопку, чтобы отправить сообщение</string>
+    <string name="content_des_block_overlay_message">Вы заблокировали этого пользователя. Разблокируйте его, чтобы пообщаться в hike.</string>
+    <string name="content_des_user_profile_detail_user_phone_number">Телефон пользователя</string>
+    <string name="content_des_user_profile_detail_edit_profile_pic">Изменить изображение профиля</string>
+    <string name="content_des_user_invitation_on_hike">Пригласить контакт в hike</string>
+    <string name="content_des_pause_file_download">Приостановить загрузку файла</string>
+    <string name="content_des_download_file">Загрузить файл</string>
+    <string name="content_des_retry_file_download">Возобновить загрузку файла</string>
+    <string name="activity_not_found">Приложения для этого действия не найдено</string>
+    <string name="apps">Приложения</string>
+    <string name="edit_photos">Новое фото</string>
+    <string name="multi_contact_creation">Отправка...</string>
+    <string name="only_photos_edit">Формат файла не поддерживается</string>
+    <string name="delete_block">Блокировать и удалить</string>
+    <string name="confirm_delete_block_msg">Удалить и заблокировать \"%1$s\"? </string>
+    <string name="confirm_delete_non_messaging">Удалить \"%1$s\"? </string>
+    <string name="scan_free_hike">Hike Direct</string>
+    <string name="connection_established">Услуга Hike Direct подключена</string>
+    <string name="awaiting_response">Ожидание ответа</string>
+    <string name="disconnect_offline">Отключить</string>
+    <string name="files_not_received">Не удалось получить некоторые файлы, так как прервалось соединение</string>
+    <string name="share_application">Поделиться приложениями</string>
+    <string name="free_hike_connection">Услуга Hike Direct подключена</string>
+    <string name="scan_free_hike_connection"><![CDATA[Коснитесь, чтобы соединиться с <b>%1$s</b> через Hike Direct]]></string>
+    <string name="could_not_post_pic">Не удалось опубликовать изображение. Повторите попытку</string>
+    <string name="sticker_recommendation_setting_info">Коснитесь синих слов, чтобы получить рекомендации</string>
+    <string name="sticker_recommendation_setting_header">Рекомендации стикеров</string>
+    <string name="stickers_sent_today">Сегодня отправлено стикеров: %1$d/%2$d</string>
+    <string name="disable_from_hike_settings">Отключить насовсем в настройках hike</string>
+    <string name="total_sticker_sent">За последние %2$d дн. вы отправили столько стикеров: %1$d</string>
+    <string name="disable_button">ОТКЛЮЧИТЬ</string>
+    <string name="get_more_stickers_button">ПОЛУЧИТЬ ЕЩЕ СТИКЕРЫ</string>
+    <string name="open_hike_button">ОТКРЫТЬ HIKE</string>
+    <string name="one_hour_button">1 ЧАС</string>
+    <string name="eight_hour_button">8 ЧАСОВ</string>
+    <string name="one_day_button">24 ЧАСА</string>
+    <string name="settings_share_stickers">Stickey</string>
+    <string name="sticker_widget_show">Показывать Stickey во всех указанных приложениях</string>
+    <string name="settings_select_all">Выбрать все </string>
+    <string name="more_stickers">Еще стикеры</string>
+	<string name="add_members">Добавить участников</string>
+	<string name="add_members_to_conference">Добавить в конференцию</string>
+	<string name="created_group_text">Вы создали групповой чат</string>
+	<string name="you_added_as_group_member">%1$s добавил(а) вас</string>
+	<string name="group_member_added">%1$s добавил(а) %2$s</string>
+	<string name="you_group_member_added">Вы добавили %1$s</string>
+	<string name="num_members">участников: %1$d</string>
+	<string name="num_member">%1$d участник</string>
+	<string name="profile_pic_upload_in_background">Загрузка аватара будет продолжена...</string>
+	<string name="show_degraded_image_quality">Изображение загрузится в низком качестве</string>
+	<string name="toast_for_showing_thumbnail">Будет отображаться эскиз</string>
+	<string name="cont_desc_photos_tab_filter">TabFilter</string>
+    <string name="cont_desc_photos_tab_doodle">TabDoodle</string>
+    <string name="now">Сейчас</string>
+    <string name="sticker_recommend_tip">Коснитесь синих слов</string>
+    <string name="make_admin">Назначить администратором</string>
+    <string name="admin_updating">Назначить пользователя %1$s администратором</string>
+    <string name="admin_task_error">Ошибка подключения. Проверьте подключение к сети и повторите попытку.</string>
+    <string name="group_admin_updated">%1$s назначил(а) пользователя %2$s администратором</string>
+    <string name="group_admin_updated_you">%1$s назначил(а) вас администратором</string>
+    <string name="you_updated_group_admin">Вы назначили пользователя %1$s администратором</string>
+
+    <string name="group_setting_option_only_admin">Только администраторы могут добавлять участников</string>
+    <string name="group_setting_updating">Изменение настроек конфиденциальности группы</string>
+    <string name="group_setting_confirmation1">Разрешить всем добавлять участников?</string>
+    <string name="group_setting_confirmation2">Разрешить добавлять участников только администраторам?</string>
+    <string name="group_rights_info">Только администраторы могут добавлять участников в эту группу</string>
+    <string name="sms_admin_toast">Вы не можете передать свои права администратора пользователям по SMS</string>
+    <string name="group_settings_updated">изменил(а) настройки группы</string>
+    <string name="you_group_settings_updated">Вы изменили настройки группы</string>
+    <string name="unknown_server_error">Не удалось загрузить файл.</string>
+    <string name="sticker_share_description">www.hike.in</string>
+    <string name="num_notification_sub_text_for_multi_msisdn">%1$s сообщ. из %2$s бесед(ы).</string>
+    <string name="disconnect_warning">Соединиться с %1$s?</string>
+    <string name="connected_warning">Соединение с %1$s будет разорвано.</string>
+    <string name="connecting_to">Идет соединение с %1$s. Ваш друг должен находиться в пределах 100 м от вас.</string>
+    <string name="offline_animation_second_message">Это может занять некоторое время. Пожалуйста, подождите.</string>
+    <string name="offline_animation_third_message">Процесс длится дольше, чем обычно. \n Попросите пользователя %1$s \n тоже коснуться значка hike direct</string>
+    <string name="connect">Подключение</string>
+    <string name="sticker_share_popup_activate_toast">Услуга Stickey активирована!</string>
+    <string name="cancel_connection">Отменить попытку соединения с %1$s?</string>
+    <string name="cancel_offline_connection">Отменить подключение</string>
+    <string name="retry_connection">Не удалось отменить соединение \n через Hike Direct. Повторить?</string>
+    <string name="file_attachment_info_offline">Делитесь apk, мультимедиа и файлами любого размера</string>
+    <string name="actionbar_activity_feed_title">Действия</string>
+    <string name="photo_like_text">нравится ваше фото</string>
+    <string name="dp_like_text">нравится ваш аватар</string>
+    <string name="liked_this_post">нравится этот пост</string>
+    <string name="liked_your_post">нравится ваш пост</string>
+    <string name="activity_feed_actionbar_title">Что происходит</string>
+    <string name="posted_photo">Опубликовал(а) фото</string>
+    <string name="love_failed">Нет Интернета. Повторите попытку позже.</string>
+    <string name="delete_post">Удалить пост</string>
+    <string name="message_person">Написать пользователю %1$s</string>
+    <string name="delete_status_confirmation">Вы действительно хотите удалить это обновление?</string>
+    <string name="delete_status_timeline_confirmation">Это приведет к удалению поста из вашей ленты и ленты друзей</string>
+    <string name="clear_timeline">Очистить ленту</string>
+    <string name="favourites">Избранное</string>
+    <string name="clear_timeline_dialog">Действительно очистить вашу ленту?</string>
+    <string name="liked_it">Понравилось</string>
+    <string name="status_hint">Как у вас дела?</string>
+    <string name="status_hint_image">Добавьте подпись к этому фото</string>
+    <string name="add_mood">Добавить настроение</string>
+    <string name="sticker_recommendation_autopopup_setting_info">Автоматически отображать стикер по мере ввода</string>
+    <string name="sticker_recommendation_autopopup_setting_header">Автозаполнение стикеров</string>
+    <string name="sticker_recommend_ftue_heading">Рекомендации стикеров</string>
+    <string name="tap_on_sticker_to_send">Коснитесь стикера для отправки</string>
+    <string name="download_from_shop">Загрузите больше стикеров, чтобы получать более точные подсказки</string>
+    <string name="more">Дополнительно</string>
+    <string name="task_already_running">Задача уже запущена</string>
+    <string name="sticker_share_popup_not_activate_toast">У вас нет поддерживаемых приложений</string>
+    <string name="send_logs">Отправить журналы</string>
+    <string name="like_this">Нравится</string>
+    <string name="num_likes">%1$s \"Нравится\"</string>
+    <string name="num_like">%1$s \"Нравится\"</string>
+    <string name="dialog_btn_yes">ДА</string>
+    <string name="dialog_btn_no">НЕТ</string>
+    <string name="timeline_ftue_show_me">ПОКАЗАТЬ</string>
+    <string name="timeline_add_as_fav">ДОБАВИТЬ В ИЗБРАННОЕ</string>
+    <string name="timeline_welldone">Отлично!</string>
+    <string name="timeline_ftueexit_desc">Вы добавили новых людей в список избранного. Они также смогут просматривать ваши публикации.</string>
+    <string name="timeline_ftueexit_btn">ОКЕЙ</string>
+    <string name="notif_posted_photo">опубликовал(а) фото</string>
+    <string name="photo_actions_header">Превосходно! Используйте это фото, чтобы</string>
+    <string name="profile_header_subtext">Аватар отображается всем</string>
+    <string name="sms_with_settings">Настройки SMS</string>
+    <string name="sms_credits_with_settings">БЕСПЛАТНЫЕ SMS: %1$s</string>
+    <string name="free_hike_2_sms_india">Бесплатно только в Индии</string>
+    <string name="invite_friends_earn_rewards">Приглашайте друзей в hike и получайте награды</string>
+    <string name="your_referral_code">Ваш код <b>рекомендации</b></string>
+    <string name="share_referral_code">Делитесь своим кодом рекомендации где угодно и получайте награды за каждого друга, который зарегистрируется по вашему приглашению</string>
+    <string name="copied_to_clipboard">Скопировано в буфер обмена.</string>
+    <string name="multi_edit_undo_warning">Отменить все изменения, внесенные в изображение?</string>
+    <string name="multi_edit_undo_warning_header">Отменить изменения?</string>
+    <string name="photos_oom_upload">Не удалось загрузить изображение\nНедостаточно памяти на устройстве.</string>
+    <string name="goto_timeline">Перейти в ленту.</string>
+    <string name="contacts_sync_error">Ошибка синхронизации контактов. Повторите попытку</string>
+    <string name="contacts_sync_no_contacts_found">Нет контактов для синхронизации</string>
+    <string name="cloud_file_error">Этого файла нет на телефоне. Загрузите его с внешнего ресурса перед отправкой</string>
+    <string name="unknown_file_error">Не удалось найти файл на диске. Повторите попытку</string>
+    <string name="confirm_delete_group_msg">Действительно выйти из группы \"%1$s\"?</string>
+    <string name="delete_conversation">Удалить чат</string>
+    <string name="delete_group_confirm">Действительно удалить \"%1$s\"?</string>
+    <string name="add_to_fav_confirmation">Вы можете ставить пометки \"Нравится\" к публикациям статуса избранных. Добавить %1$s в избранное?</string>
+    <string name="invite_free_sms">Бесплатные приглашения по SMS</string>
+    <string name="sticker_recommend_settings_toast">Вы можете в любое время включить подсказки стикеров, выбрав \"Настройки\" &gt; \"Настройки чатов\"</string>
+    <string name="YES">ДА</string>
+    <string name="NO">НЕТ</string>
+    <string name="DELETE">УДАЛИТЬ</string>
+    <string name="disconnecting_offline">Закрытие подключения</string>
+    <string name="sticker_recommend_auto_off_tip_text">Подсказки стикеров выключены! Вы можете вернуть их, выбрав \"Настройки\" &gt; \"Настройки чатов\"</string>
+    <string name="timeline_tab_photo">Фото</string>
+    <string name="timeline_tab_status">Статус</string>
+    <string name="timeline_empty_desc1">Обновления хроники</string>
+    <string name="CLEAR">ОЧИСТИТЬ</string>
+    <string name="HIDDEN_MODE">СКРЫТЫЙ РЕЖИМ</string>
+    <string name="EDIT">ИЗМЕНИТЬ</string>
+    <string name="ALLOW">РАЗРЕШИТЬ</string>
+    <string name="pref_message_settings">НАСТРОЙКИ СООБЩЕНИЙ</string>
+    <string name="pref_sticker_settings">НАСТРОЙКИ СТИКЕРОВ</string>
+    <string name="delete_account_heading">УДАЛЕНИЕ УЧЕТНОЙ ЗАПИСИ</string>
+    <string name="delete_account_description">Это приведет к удалению всех ваших сообщений, резервных копий, бесплатных SMS и бонусов hike</string>
+    <string name="no_places_found">Места не найдены</string>
+    <string name="SAVE">СОХРАНИТЬ</string>
+    <string name="already_connected_offline">Нет подключения у Интернету. Подключитесь повторно и повторите попытку</string>
+    <string name="not_enough_space_receiver">У получателя недостаточно памяти</string>
+    <string name="no_sdcard_receiver">У получателя нет SD-карты</string>
+    <string name="receiver_cannot_receive">Получателю не удается получить файл</string>
+    <string name="add_member_menu">Доб. участника</string>
+    <string name="JUST_ONCE">ТОЛЬКО ОДИН РАЗ</string>
+    <string name="ALWAYS">ВСЕГДА</string>
+    <string name="UNLINK_ACCOUNT">СБРОСИТЬ УЧ. ЗАПИСЬ</string>
+    <string name="UNLINK">ОТВЯЗАТЬ</string>
+    <string name="UPDATE_APP">ОБНОВИТЬ</string>
+    <string name="language_summary">Английский</string>
+    <string name="language">Язык</string>
+    <string name="app_language">Язык приложения</string>
+    <string name="delete_all">Удалить все</string>
+    <string name="like_count_by_unknow_contacts">+друзья(%1$d) из %2$s</string>
+    <string name="connection_established_inline_msg">Услуга Hike Direct подключена</string>
+    <string name="connection_deestablished_inline_msg">Услуга Hike Direct отключена</string>
+    <string name="connection_request_inline_msg">Нет запроса Hike Direct</string>
+    <string name="hike_direct_info">Hike Direct — новый способ поддерживать связь с друзьями, когда мобильная передача данных недоступна. С его помощью вы можете отправлять сообщения и файлы друзьям поблизости совершенно бесплатно, без ограничения по размеру. Вы можете отправлять фильмы, видео, музыку, приложения и все остальное без какой-либо оплаты.</string>
+    <string name="how_hike_direct_works">Как работает Hike Direct?</string>
+    <string name="condition_one">Условие 1. Ваш друг находится в радиусе 100 м от вас. Чем меньше расстояние, тем лучше связь.</string>
+    <string name="condition_two">Условие 2. Чтобы установить подключение, попросите друга коснуться параметра Hike Direct в чате.</string>
+    <string name="offline_group_query">Hike Direct работает для групповых чатов?</string>
+    <string name="offline_group_answer">С этого момента Hike Direct работает только для чатов 1:1. Для групповых чатов эта услуга не поддерживается. Следите за обновлениями!</string>
+    <string name="hike_direct_help">Помощь Hike Direct</string>
+    <string name="something_went_wrong">Что-то пошло не так. Повторите попытку немного позже</string>
+    <string name="ENABLE">ВКЛЮЧИТЬ</string>
+    <string name="accessibility_settings_system_text">Hike Stickey предлагает множество функций, например отправку стикеров в приложениях для обмена сообщениями и т. д. Для использования этой функции ее необходимо включить.</string>
+    <string name="show_accessibility_tip_text">Для использования этой функции необходимо включить службу специальных возможностей. Коснитесь здесь и выберите Hike</string>
+    <string name="accessibility_dialog_text">Для использования этой функции необходимо включить службу специальных возможностей. Коснитесь ВКЛЮЧИТЬ и выберите Hike</string>
+    <string name="accessbility">Специальные возможности</string>
+    <string name="email_body">Я загрузил(а) новое приложение-чат hike. Небо и земля по сравнению с WhatsApp!\n\nЗдесь классные стикеры, темы чата и можно скрывать чаты от других.\n\nСкачай приложение прямо сейчас с сайта http://get.hike.in/$invite_token</string>
+    <string name="watsapp_invitation">Привет! Присоединяйся ко мне в hike, единственном приложении для чата, созданном в Индии! В нем можно скрывать свои чаты, отправлять сообщения друзьям, которые не в сети, и отправлять классные стикеры.\n\nКроме того, можно делиться файлами любого типа (документами, музыкой, видео и пр.) объемом до 100 МБ каждый. Скачай с http://get.hike.in/</string>
+    <string name="invite_share_message">Привет! Попробуй приложение-чат hike с классными стикерами на английском языке. Это единственное приложение для чата, созданное в Индии. Присоединяйся! Скачай его с http://hike.in/$invite_token</string>
+    <string name="offline_request_cancelled"> %1$s отменил(а) ваш запрос на соединение Hike Direct.\nПовторите попытку позже.</string>
+    <string name="incoming_hike_direct_request">Входящий запрос Hike Direct</string>
+    <string name="hike_direct_request">пытается подключиться через Hike Direct.</string>
+    <string name="low_battery_msg">Аккумулятор устройства сильно разряжен. Это может замедлить обмен сообщениями и отправку или получение файлов.</string>
+    <string name="offline_connection_problem">Ошибка!\nПовторите попытку позже.</string>
+    <string name="turn_on_connection">Включите мобильную передачу данных или Wi-Fi</string>
+    <string name="please_wait">Пожалуйста, подождите</string>
+    <string name="loading_data">Загрузка данных...</string>
+    <string name="action_no_network">Проверьте сеть</string>
+    <string name="timeline_transition_anim">timeline_image_transit</string>
+    <string name="home_overflow_new_photo">Новое фото</string>
+    <string name="upgrade_for_larger_files">%1$s нужно обновить версию приложения, чтобы получить этот файл. Поделитесь последней версией Hike прямо сейчас через Hike Direct</string>
+    <string name="maxContactInGroupErr">Можно добавить не более %1$s участников</string>
+    <string name="added_in_group">Этот контакт уже участвует</string>
+    <string name="watsapp">Добавить через WhatsApp</string>
+    <string name="others">Добавить через другие</string>
+    <string name="add_via_hike">Добавить через Hike</string>
+    <string name="link_share_wa_msg">Теперь вы можете добавить участников в группу $groupname из групп и контактов WA, поделившись ссылкой ниже.</string>
+    <string name="link_share_others_msg">Теперь вы можете добавить участников в группу $groupname из групп и контактов других приложений, поделившись ссылкой ниже.</string>
+    <string name="link_share_network_error">Вы не в сети! Подключитесь к Интернету.</string>
+    <string name="link_share_error_invitee_account_deleted">Пригласивший вас пользователь удалил свой аккаунт.</string>
+    <string name="link_share_error_already_group_member">Вы уже в группе.</string>
+    <string name="link_share_error_invalid_link">Ссылка, которую вы нажали, недействительна. Проверьте.</string>
+    <string name="link_share_error_group_deleted">Эта группа удалена.</string>
+    <string name="link_share_error_person_not_in_group">Пригласивший вас пользователь уже вышел из группы.</string>
+    <string name="link_share_error_default">Произошла ошибка!</string>
+    <string name="wa_group">Группа WhatsApp</string>
+    <string name="opening_app">Открытие приложения</string>
+    <string name="max_file_size_offline">Максимальный размер файла для hike direct — 2 ГБ</string>
+    <string name="net_not_connected">HikeCaller работает только при наличии Wi-Fi или 3G/4G.</string>
+    <string name="okay">ОК</string>
+    <string name="getting_mapp_shortly">Поздравляем! %1$s скоро появится на вашем экране чата</string>
+    <string name="hike_apps">ПРИЛОЖЕНИЯ В HIKE</string>
+    <string name="caller_invited_to_join">%1$s приглашен(а) присоединиться к вашему звонку.</string>
+    <string name="caller_error_403">Произошла ошибка.</string>
+    <string name="caller_error_406">Не удалось получить имя для этого номера.</string>
+    <string name="caller_error_500">Произошла внутренняя ошибка.</string>
+    <string name="hi">Здравствуйте</string>
+    <string name="next_signup">Далее</string>
+    <string name="free_call">БЕСПЛАТНЫЙ ЗВОНОК</string>
+    <string name="free_message">БЕСПЛАТНОЕ СООБЩЕНИЕ</string>
+    <string name="save_contact">СОХРАНИТЬ КОНТАКТ</string>
+    <string name="getting_details">Получение подробностей...</string>
+    <string name="take_me_there">ПЕРЕЙТИ</string>
+    <string name="hike_upgrade_string">Мы делаем hike быстрее и лучше\n Это может занять несколько минут</string>
+    <array name="voip_decline_message_texts">
+        <item>Can\'t talk now. What\'s up?</item>
+        <item>I\'ll call you right back</item>
+        <item>I\'ll call you later</item>
+        <item>Can\'t talk now. Call me later?</item>
+    </array>
+    <string name="HELP">ПОМОЩЬ</string>
+    <string name="sticky_caller_settings">Звонящий</string>
+    <string name="sticky_caller_settings_header">Информация о звонящем</string>
+    <string name="sticky_caller_settings_side_text">Показывать информацию о звонящем и варианты бесплатных звонков или сообщений всем контактам</string>
+    <string name="enable_saved_contact_view_heading">Показывать для сохраненных контактов</string>
+    <string name="enable_saved_contact_view_side_text">Показывать информацию о звонящем и сохраненным контактам тоже</string>
+    <string name="choose_language">Выберите язык</string>
+    <string name="choose_language_desciption">Ваш любимый мессенджер теперь на вашем любимом языке</string>
+    <string name="phone_language">Язык телефона</string>
+	<string name="tip_and_notif_update_text">ОБНОВИТЬ</string>
+    <string name="tip_and_notif_later_text">ПОЗЖЕ</string>
+    <string name="update_tip_header_text">ДОСТУПНО НОВОЕ ОБНОВЛЕНИЕ HIKE</string>
+    <string name="update_tip_body_text">В этом обновлении вас ждут бесплатные групповые звонки, новости Hike и новый скрытый режим</string>
+    <string name="invite_tip_bottom_text">ПРИГЛАСИТЬ</string>
+    <string name="invite_tip_header_text">Пригласить друзей</string>
+    <string name="invite_tip_body_text">Пригласите друзей в Hike и получите бесплатное время на разговоры!</string>
+    <string name="pers_notif_title">Обновить Hike</string>
+    <string name="pers_notif_message">Обновите Hike, чтобы получить новые классные функции!</string>
+    <string name="close_gps">Теперь вы можете выключить определение местоположения, чтобы экономить заряд аккумулятора. Соединение через Hike Direct не пострадает.</string>
+    <string name="gps_not_on">Для работы функции hike direct необходимо включить GPS</string>
+    <string name="switch_on_gps">Включите определение местоположения, чтобы использовать Hike Direct.</string>
+    <string name="gps_settings">НАСТРОЙКА</string>
+    <string name="user_gps_off">Для работы hike direct необходимо выключить определение местоположения.</string>
+    <string name="app_not_enabled">Это приложение выключено на устройстве.</string>
+    <string name="no_results_found">Нет результатов</string>
+    <string name="APPLY">ПРИМЕНИТЬ</string>
+    <string name="and">и</string>
+    <string name="others_smallcase">др.</string>
+    <string name="level">Уровень</string>
+    <string name="milliseconds">мс</string>
+    <string name="yesterday">вчера</string>
+    <string name="tomorrow">завтра</string>
+    <string name="today">сегодня</string>
+    <!-- This is used to express that something occurred some number of seconds in the past (e.g., 5 seconds ago). -->
+    <plurals name="num_seconds_ago">
+        <item quantity="one">1 секунду назад</item>
+        <item quantity="other">%d сек назад</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of minutes in the past (e.g., 5 minutes ago). -->
+    <plurals name="num_minutes_ago">
+        <item quantity="one">1 минуту назад</item>
+        <item quantity="other">%d мин назад</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of hours in the past (e.g., 5 hours ago). -->
+    <plurals name="num_hours_ago">
+        <item quantity="one">1 час назад</item>
+        <item quantity="other">%d ч назад</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred within the last X days (e.g., Last 7 days). -->
+    <plurals name="last_num_days">
+        <item quantity="other">Последние %d дн.</item>
+    </plurals>
+
+    <!-- This is used to express that something has occurred within the last month -->
+    <string name="last_month">В прошлом месяце</string>
+
+    <!-- This is used to express that something happened longer ago than the previous options -->
+    <string name="older">Ранее</string>
+
+    <!-- This is used to express that something occurred some number of days in the past (e.g., 5 days ago). -->
+    <plurals name="num_days_ago">
+        <item quantity="one">вчера</item>
+        <item quantity="other">%d дн. назад</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of seconds in the future (e.g., in 5 seconds). -->
+    <plurals name="in_num_seconds">
+        <item quantity="one">через 1 секунду</item>
+        <item quantity="other">через %d сек.</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of minutes in the future (e.g., in 5 minutes). -->
+    <plurals name="in_num_minutes">
+        <item quantity="one">через 1 минуту</item>
+        <item quantity="other">через %d мин.</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of hours in the future (e.g., in 5 hours). -->
+    <plurals name="in_num_hours">
+        <item quantity="one">через 1 час</item>
+        <item quantity="other">через %d ч</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of days in the future (e.g., in 5 days). -->
+    <plurals name="in_num_days">
+        <item quantity="one">завтра</item>
+        <item quantity="other">через %d дн.</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of abbreviated seconds in the past (e.g., 5 secs ago). -->
+    <plurals name="abbrev_num_seconds_ago">
+        <item quantity="one">1 сек назад</item>
+        <item quantity="other">%d сек назад</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of abbreviated minutes in the past (e.g., 5 mins ago). -->
+    <plurals name="abbrev_num_minutes_ago">
+        <item quantity="one">1 мин назад</item>
+        <item quantity="other">%d мин назад</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of abbreviated hours in the past (e.g., 5 hrs ago). -->
+    <plurals name="abbrev_num_hours_ago">
+        <item quantity="one">1 час назад</item>
+        <item quantity="other">%d ч назад</item>
+    </plurals>
+
+    <!-- This is used to express that something occurred some number of abbreviated days in the past (e.g., 5 days ago). -->
+    <plurals name="abbrev_num_days_ago">
+        <item quantity="one">вчера</item>
+        <item quantity="other">%d дн. назад</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of abbreviated seconds in the future (e.g., in 5 secs). -->
+    <plurals name="abbrev_in_num_seconds">
+        <item quantity="one">через 1 сек</item>
+        <item quantity="other">через %d сек</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of abbreviated minutes in the future (e.g., in 5 mins). -->
+    <plurals name="abbrev_in_num_minutes">
+        <item quantity="one">через 1 мин</item>
+        <item quantity="other">через %d мин</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of abbreviated hours in the future (e.g., in 5 hrs). -->
+    <plurals name="abbrev_in_num_hours">
+        <item quantity="one">через 1 час</item>
+        <item quantity="other">через %d ч</item>
+    </plurals>
+
+    <!-- This is used to express that something will occur some number of abbreviated days in the future (e.g., in 5 days). -->
+    <plurals name="abbrev_in_num_days">
+        <item quantity="one">завтра</item>
+        <item quantity="other">через %d дн.</item>
+    </plurals>
+
+    <string name="dismiss_button">ОТКЛОНИТЬ</string>
+    <string name="sms_head">SMS:</string>
+    <string name="try_instead">ПОПРОБОВАТЬ</string>
+    <string name="sms_card_settings_side_text">во всех текстовых сообщениях</string>
+    <string name="sms_card_settings_heading">ИД SMS</string>
+    <string name="timeline_empty_desc2">Здесь вы можете просматривать фото\nи обновления статусов своих друзей</string>
+
+    <string name="original_caps">ORIGINAL</string>
+    <string name="tirangaa">TIRANGAA</string>
+    <string name="mellow">MELLOW</string>
+    <string name="chuski">CHUSKI</string>
+    <string name="azure">AZURE</string>
+    <string name="jalebi">JALEBI</string>
+    <string name="gulaal">GULAAL</string>
+    <string name="x_pro">X-PRO</string>
+    <string name="hdr">HDR</string>
+    <string name="apollo">APOLLO</string>
+    <string name="retro">RETRO</string>
+    <string name="pulsar">PULSAR</string>
+    <string name="sunlitt">SUNLITT</string>
+    <string name="hazel">HAZEL</string>
+    <string name="lo_fi">LO-FI</string>
+    <string name="inked">INKED</string>
+    <string name="mashaal">MASHAAL</string>
+    <string name="sholay">SHOLAY</string>
+    <string name="junglee">JUNGLEE</string>
+    <string name="polaroid">POLAROID</string>
+    <string name="sepia">SEPIA</string>
+    <string name="grayscale">GRAYSCALE</string>
+    <string name="team_hike_bot">команда hike</string>
+    <string name="emma_bot">Эмма из hike</string>
+    <string name="hike_daily_bot">Новости hike</string>
+    <string name="natasha_bot">Наташа</string>
+    <string name="cricket_bot">Крикет 2015</string>
+    <string name="hike_support_bot">Поддержка hike</string>
+    <string name="games_bot">Игры в hike</string>
+    <string name="added_you_friend">Добавил(а) вас в друзья</string>
+    <string name="size">Размер</string>
+    <string name="commit_id">Commit Id</string>
+    <string name="branch_name">Отделение</string>
+    <string name="attachment">Вложение</string>
+    <string name="quiz_adda">Quiz Adda</string>
+    <string name="tiny_mogul_games_inc">Tiny Mogul Games Inc.</string>
+    <string name="sample_section">Образец</string>
+    <string name="name_here">Имя</string>
+    <string name="msisdn_here">Номер MSISDN</string>
+    <string name="number">Номер</string>
+    <string name="contact_name">Имя контакта</string>
+    <string name="mobile">Мобильный</string>
+    <string name="your_contact">Ваш контакт</string>
+    <string name="liked_this_photo">понравилось это фото</string>
+    <string name="india">Индия</string>
+    <string name="afghanistan">Афганистан</string>
+    <string name="title">Название</string>
+    <string name="summary">Сведения</string>
+    <string name="tap_here">Нажмите здесь для начала!</string>
+    <string name="two_mins_ago">2 мин. назад</string>
+    <string name="conference_participant">Участник конференции</string>
+    <string name="failed_search">Нет контактов, соответствующих вашему поиску</string>
+    <string name="send_one_sms_as">Отправить 1 SMS как</string>
+    <string name="always_regular">Всегда</string>
+    <string name="just_once_regular">Только сейчас</string>
+    <string name="set_as_dp">Установить как заставку</string>
+    <string name="pdf">.pdf</string>
+    <string name="happy">Веселый</string>
+    <string name="sms_ctr_default_text">Осталось 99 SMS</string>
+    <string name="conn_app_since">С 5 янв 2014</string>
+    <string name="friends">Друзья</string>
+    <string name="photo_like_def_text">Это фото нравится 0 пользов. </string>
+    <string name="sample">образец</string>
+    <string name="lang_item">язык</string>
+    <string name="timestamp_msg">Это временная метка</string>
+    <string name="name_number">Имя/номер</string>
+    <string name="name_caps">ИМЯ</string>
+
+    <string name="made_with_love_in_india">Сделано с :love: в Индии</string>
+    <string name="timeline_ftue_desc">Хроника — место, где вы и ваши друзья можете делиться важными моментами. Парочка ваших друзей уже публикуют в своей хронике!</string>
+    <string name="group_selected">Выбрано %1$s/1000</string>
+    <string name="group_participant_info"><![CDATA[<font color="#000000">Теперь вы можете добавить до </font><font color="#1090e0"><b>1000</b> </font><font color="#000000">участников</font>]]></string>
+    <string name="stealth_unread_tip_header">Скройте свои чаты!</string>
+    <string name="stealth_unread_tip_message">Чтобы скрыть чаты, нажмите \"hi\"</string>
+    <string name="sticker">Стикер</string>
+    <string name="language_ftue_complete_message">Вы можете в любой момент изменить язык клавиатуры, выбрав \nНастройки -&gt; Язык</string>
+    <string name="block_contact">Заблок. контакт</string>
+    <string name="caller_manage_list">УПРАВЛЕНИЕ СПИСКОМ</string>
+    <string name="caller_blocked_list_hinttext">Управляйте списком заблокированных контактов Caller.</string>
+    <string name="block_contact_sure">Действительно заблокировать пользователя %1$s? Все звонки от него будут автоматически сбрасываться.</string>
+    <string name="unblock_contact_sure">Действительно разблокировать пользователя %1$s? Вы начнете получать от него звонки!</string>
+    <string name="unblock_contact">Разблок. контакт</string>
+    <string name="caller_empty_view">Вы никого не заблокировали в Hike Caller.</string>
+    <string name="dismiss_with">ПРОПУСТИТЬ И</string>
+    <string name="block_contact_caps">ЗАБЛОКИРОВАТЬ</string>
+    <string name="unsupported_langs_toast">Ваш телефон не поддерживает выбранный язык (%1$s)</string>
+    <string name="unsupported_language_toast_msg">Ваш телефон не поддерживает этот язык</string>
+    <string name="error_message_upgrade_peer">Сбой подключения. Ваш друг использует устаревшую версию hike для Hike Direct.</string>
+    <string name="error_message_unsupported_peer">Сбой подключения. Функция Hike Direct поддерживается только на телефонах с ОС Android.</string>
+    <string name="bengali">бенгальский;</string>
+    <string name="gujarati">гуджарати;</string>
+    <string name="hindi">хинди;</string>
+    <string name="kannada">каннада;</string>
+    <string name="marathi">маратхи;</string>
+    <string name="malyalam">малаялам;</string>
+    <string name="tamil">тамильский;</string>
+    <string name="telugu">телугу;</string>
+    <string name="english">Английский</string>
+    <string name="preview_category">ПРОСМОТР</string>
+    <string name="sticker_tap_text">Коснитесь стикера, чтобы просмотреть</string>
+    <string name="copyright_text">© Hike Limited, 2016</string>
+    <string name="recommended_packs">рекомендуемые пакеты</string>
+    <string name="pack_preview_activity_actionbar_text">Сведения о стикерах</string>
+    <string name="downloaded">Загружено</string>
+    <string name="downloading_sticker">Загрузка...</string>
+    <string name="timeline_short_desc">Делитесь моментами с друзьями</string>
+    <string name="multiple_su_post_failed">Не удалось опубликовать обновления статуса.</string>
+    <string name="timeline_post_timeout">Ваши фото скоро опубликуются</string>
+    <string name="crop">Обрезать</string>
+    <string name="photo_gallery_choose_pic">Фото</string>
+    <string name="remove">Удалить</string>
+    <string name="filters">Фильтры</string>
+    <string name="rotate">Повернуть</string>
+    <string name="forward_to_plural_timeline">Отправить сообщение контактам (%1$s) и в хронику?</string>
+    <string name="share_with_timeline">Отправить контактам (%1$d) и в хронику?</string>
+    <string name="share_with_contact_timeline">Отправить контакту %1$s и в хронику?</string>
+    <string name="image_w_caption_sms">отправил(а) изображение с подписью %1$s</string>
+    <string name="share_on_timeline">Поделиться в хронике?</string>
+    <string name="admin_error">Этот пользователь вышел из группы</string>
+    <string name="slide_to_cancel">Проведите для отмены</string>
+    <string name="wallet_menu">Бумажник</string>
+    <string name="deleting">УДАЛЕНИЕ</string>
+    <string name="sticker_reorder_setting_info">Изменить порядок пакетов на палитре стикеров</string>
+    <string name="sticker_reorder_setting_header">Переупорядочить</string>
+    <string name="sticker_delete_setting_info">Удалить пакеты стикеров с телефона</string>
+    <string name="sticker_delete_setting_header">Удалить</string>
+    <string name="sticker_hide_setting_info">Скрыть/показать пакеты стикеров на палитре</string>
+    <string name="sticker_hide_setting_header">Скрыть</string>
+    <string name="sticker_update_setting_info">Обновить загруженные пакеты стикеров</string>
+    <string name="sticker_update_setting_header">Обновить</string>
+    <string name="delete_pack_question">Действительно удалить пакет стикеров?</string>
+    <string name="settings_sticker">Настройки стикеров</string>
+    <string name="deleting_pack">Удаление пакета...</string>
+    <string name="pack_deleted">Пакет удален</string>
+    <string name="n_more_stickers">Новые стикеры: %1$d</string>
+    <string name="all_packs_updated_heading">Все пакеты обновлены!</string>
+    <string name="all_packs_updated_info">Все ваши пакеты обновлены. Чтобы загрузить новые стикеры, перейдите в наш магазин</string>
+    <string name="redirect_to_shop_text">ПЕРЕЙТИ В МАГАЗИН</string>
+    <string name="all_done">ВСЕ ГОТОВО!</string>
+    <string name="drag_tip_text">Коснитесь и преретащите, чтобы изменить порядок</string>
+    <string name="all_packs_deleted_heading">У нас более 10 000 стикеров</string>
+    <string name="all_packs_deleted_info">Загляните в наш магазин стикеров и загрузите то, что захотите!</string>
+    <string name="intercept_title_screen_shot">Снимок экрана готов!</string>
+    <string name="intercept_message_screen_shot">Отредактируйте его и отправьте друзьям в hike</string>
+    <string name="intercept_title_image">Прекрасный снимок!</string>
+    <string name="intercept_message_image">Поделитесь им с друзьями в hike</string>
+    <string name="intercept_lable_set_dp">Установить заставку</string>
+    <string name="intercept_lable_screenshot_share">Отред. и отправить</string>
+    <string name="intercept_lable_image_share">Отправить</string>
+    <string name="intercept_title_video">Превосходное видео!</string>
+    <string name="intercept_message_video">Поделитесь им с друзьями в hike</string>
+    <string name="intercept_lable_video_share">Поделиться в hike</string>
+    <string name="screenshot_intercept_settings_header">Уведомление о снимке экрана</string>
+    <string name="screenshot_intercept_settings_content">Напоминать поделиться, когда сохранен снимок экрана</string>
+    <string name="image_intercept_settings_header">Уведомление о фото</string>
+    <string name="image_intercept_settings_content">Уведомлять, когда сделано фото</string>
+    <string name="video_intercept_settings_header">Уведомление о видео</string>
+    <string name="video_intercept_settings_content">Напоминать поделиться, когда записано видео</string>
+    <string name="keyboard_shutdown_heading">Обновите клавиатуру</string>
+    <string name="keyboard_shutdown_description">Рекомендуем попробовать клавиатуру Google Indic Keyboard из магазина Google Play. Она действительно удобная :)</string>
+    <string name="open_phone_keyboard">КЛАВИАТУРА ТЕЛЕФОНА</string>
+    <string name="open_google_keyboard">КЛАВИАТУРА GOOGLE</string>
+    <string name="max_duration_recorded">Максимально допустимая длительность записи исчерпана</string>
+    <string name="compose_chat_empty_contact_status_payment_mode">Коснитесь, чтобы пополнить</string>
+    <string name="view_all">Показать все</string>
+    <string name="author_text"><![CDATA[Создано с любовью компанией <b>%1$s</b>]]></string>
+    <string name="update">Обновить</string>
+    <string name="spam">ПОМЕЧЕНО КАК СПАМ</string>
+    <string name="posting_photos_timeline">Публикация фото в хронике</string>
+    <string name="add_a_caption">Добавить подпись</string>
+    <string name="upgrade_hike">Обновить</string>
+    <string name="restore_chat_title">Восстановить историю чата</string>
+    <string name="restore_chat_body">Ошибка истории чатов! Не переживайте, ее можно восстановить из резервной копии, но только сейчас. Позже восстановление истории будет недоступно.</string>
+    <string name="SKIP_RESTORE">ПРОПУСТИТЬ ВОССТАНОВЛЕНИЕ</string>
+    <string name="RESTORE_CAP">ВОССТАНОВИТЬ</string>
+    <string name="restore_progress_body">Восстановление истории чатов из резервной копии</string>
+    <string name="restore_success">Чаты восстановлены!</string>
+    <string name="restore_failure">Ошибка! Не удалось восстановить чаты</string>
+    <string name="db_corrupt_notif_msg">Появилось новое уведомление</string>
+    <string name="recording_help_text">Коснитесь и удерживайте для записи, отпустите для отправки</string>
+    <string name="restore_version_error">Ваша резервная копия создана в более новой версии hike. Обновите приложение до последней версии и повторите попытку.</string>
+    <string name="custom_quick_reply">СОЗДАТЬ</string>
+    <string name="save_unknown_contact">СОХРАНИТЬ</string>
+    <string name="spam_call_fail">Не удалось пометить пользователя как спам</string>
+    <string name="block_dialog_title">Заблокировать пользователя</string>
+    <string name="block_dialog_body">Действительно заблокировать этого пользователя?</string>
+    <string name="spam_info_in_dialog">Заблокировать как спам</string>
+    <string name="unknown_user_spam_info"><![CDATA[ <font color="#ff5f5f"> пометили как спам %1$d чел.</font> ]]></string>
+    <string name="restore_failed">Сбой восстановления</string>
+    <string name="ADD_FRIEND">ДОБАВИТЬ ДРУГА</string>
+    <string name="ACCEPT_REQUEST">ПРИНЯТЬ ЗАПРОС</string>
+    <string name="voip_friend_error">Добавьте пользователя %1$s в друзья, чтобы позвонить. </string>
+    <string name="attachment_friend_error">Добавьте пользователя %1$s в друзья, чтобы отправить файл. </string>
+    <string name="friend_req_pending">Ожидается принятие приглашения в друзья</string>
+    <string name="friend_req_inline_msg_sent">%1$s добавлен(а) к вам в друзья.</string>
+    <string name="friend_req_inline_msg_received">%1$s добавил(а) вас в друзья.</string>
+    <string name="friends_ftue_heading">Добавить друга</string>
+    <string name="friends_ftue_subtext">Добавьте пользователя %1$s в друзья, чтобы переписываться и пользоваться другими возможностями hike </string>
+    <string name="friend_request_sent">Добавлен(а) в друзья</string>
+    <string name="friend_request_sent_multiple">Добавлены в друзья</string>
+    <string name="add_as_friend_notification_line">Добавил(а) вас в друзья</string>
+    <string name="add_as_friend_menu">Добавить друга</string>
+    <string name="remove_from_friends">Удалить друга</string>
+    <string name="add_frn">Добавить друга</string>
+    <string name="timeline_add_as_frn">ДОБАВИТЬ В ДРУЗЬЯ</string>
+    <string name="ls_friends_summary">Ваше последнее появление в сети видят только друзья</string>
+    <string name="privacy_friends_key">Друзья</string>
+    <string name="ls_my_contacts_summary_frn">Ваше последнее появление в сети видят контакты из адресной книги и друзья</string>
+    <string name="frn_list_summary">Добавить/удалить пользователей из друзей</string>
+    <string name="friends_upper_case">ДРУЗЬЯ</string>
+    <string name="add_frn_upper_case">ДОБАВИТЬ ДРУЗЕЙ</string>
+    <string name="msg_friend_error">Добавьте пользователя %1$s в друзья, чтобы отправить сообщение. </string>
+    <string name="sent_you_friend_req">отправил(а) запрос на добавление в друзья. Примите запрос, чтобы переписываться и пользоваться другими возможностями hike </string>
+    <string name="ftue_frn_subtext">Добавить в друзья</string>
+    <string name="profile_pic_display_info_frn">Показывать только друзьям</string>
+    <string name="shop_search_hint">Любовь, хинди, болливуд и т. д.</string>
+    <string name="no_sticker_pack_match_found">Нет пакетов стикеров по запросу \"%1$s\"</string>
+    <string name="pack_search_again_hint">Введите слова целиком, например \"любовь\", \"хинди\", \"болливуд\" и т. д.</string>
+    <string name="recharge_menu">Пополнить</string>
+
+    <string name="message_info">Сведения о сообщении</string>
+    <string name="emptyreadlist"> - </string>
+    <string name="emptyseenlist"> - </string>
+    <string name="emptydeliveredlist"> - </string>
+    <string name="emptyplayedlist"> - </string>
+    <string name="remaining_items">Осталось %1s</string>
+    <string name="read_list">ПРОЧЛИ</string>
+    <string name="read_list_one">ПРОЧИТАНО</string>
+    <string name="delivered_list_one">ДОСТАВЛЕНО</string>
+    <string name="seen_list_one">ПРОСМОТРЕНО</string>
+    <string name="readExpanded">Прочитано</string>
+    <string name="seenExpanded">Просмотрено</string>
+    <string name="seen_list">ПРОСМОТРЕЛИ</string>
+    <string name="delivered_list">ПОЛУЧИЛИ</string>
+    <string name="played_list">ВОСПРОИЗВ.</string>
+    <string name="messageinfo_sms">Отправлено по SMS</string>
+    <string name="messageinfo_not_applicable">Нет сведений об этом сообщении</string>
+
+    <string name="restore_msisdn_error">Файл резервной копии создан для другого номера!</string>
+    <string name="ACCEPT">ПРИНЯТЬ</string>
+    <string name="mute_status_notification_subtext_frn">Показывать уведомления об обновлениях статуса и аватара друзей</string>
+    <string name="stream_volume_muted_or_low">Включите громкость</string>
+    <string name="atomic_tip_header_default">Default Atomic Tip Header</string>
+    <string name="atomic_tip_body_default">Atomic Tip default body text!!! Just to let it flow to next line</string>
+    <string name="atomic_tip_http_failure">Произошла ошибка. Повторите попытку позже.</string>
+    <string name="edit_profile_birthday">Дата рождения</string>
+
+    <string name="select_options">Выбор параметров...</string>
+    <string name="sticker_restore_diffdpi_title">Обновление стикеров</string>
+    <string name="sticker_restore_diffdpi_message">Похоже, вы сменили телефон. Обновите пакеты стикеров, чтобы пользоваться ими на новом телефоне</string>
+    <string name="GOT_IT">ОКЕЙ</string>
+    <string name="file_size_invalid_error">Файл, который вы пытаетесь отправить, имеет недопустимый размер</string>
+    <string name="overlay_block_title">ЗАБЛОК. | СПАМ</string>
+    <string name="bot_overlay_block_title">ЗАБЛОК.</string>
+    <string name="overlay_add_title">+ КОНТАКТ</string>
+    <string name="my_location">Мое местоположение</string>
+    <string name="custom_location">Ввести местоположение</string>
+    <string name="birthday_privacy_header">Показывать дату рождения </string>
+    <string name="bd_my_contacts_summary">Показывать дату рождения только контактам из адресной книги и избранным</string>
+    <string name="bd_my_contacts_summary_frn">Показывать дату рождения только контактам из адресной книги и друзьям</string>
+    <string name="bd_favorites_summary">Показывать дату рождения только избранным</string>
+    <string name="bd_friends_summary">Показывать дату рождения только друзьям</string>
+    <string name="bd_everyone_summary">Показывать дату рождения всем пользователям hike</string>
+    <string name="bd_nobody_summary">Не показывать дату рождения никому</string>
+    <string name="bd_change_failed">Не удалось обновить данные о конфиденциальности даты рождения!</string>
+    <string name="hike_bday_contacts">ДНИ РОЖДЕНИЯ СЕГОДНЯ</string>
+    <string name="bday_list_view_subheading">Отправьте поздравления!</string>
+    <string name="composeview_bday">Поздравляю!</string>
+    <string name="forward_to_single_timeline">Отправить сообщение пользователю %1$s и в хронику?</string>
+    <string name="forward_to_singular">Отправить сообщение пользователю %1$s?</string>
+    <string name="custom_chattheme_device_not_supported">Не удалось установить пользовательскую тему чатов</string>
+    <string name="qs_error_view_heading">Ой! Что-то пошло не так</string>
+    <string name="qs_error_view_sub_text">Коснитесь стикера, чтобы повторить попытку</string>
+    <string name="qs_ftue_page_tap_text">Коснитесь стикера, чтобы отправить</string>
+    <string name="single_bday_notif_text">%1$s сегодня отмечает день рождения!</string>
+    <string name="multiple_bday_notif_text">%1$s и еще %2$s сегодня отмечают день рождения!</string>
+    <string name="single_bday_notif_subtext"> Коснитесь, чтобы поздравить друга с днем рождения!</string>
+    <string name="multiple_bday_notif_subtext">Коснитесь, чтобы поздравить их с днем рождения!</string>
+    <string name="rich_uj_default_msg">%1$s теперь пользуется hike</string>
+    <string name="uj_default_pretype_text">Здравствуйте</string>
+    <string name="uj_default_cta_say_hi">Поздоровайтесь!</string>
+    <string name="uj_default_cta_add_friend">Добавить друга</string>
+    <string name="ct_confirmation_dialog">Тема чата будет применена и на устройствах друзей.</string>
+    <string name="manage_privacy">Управление конфиденц.</string>
+    <string name="last_seen">В онлайн:</string>
+    <string name="status_update">Обновление статуса</string>
+    <string name="ls_privacy_subtext">Если выключить, вы также не сможете просматривать последнее появление в сети</string>
+    <string name="su_privacy_subtext">Если выключить, вы также не будете получать обновления статуса </string>
+    <string name="qs_received_first_tip_text">Вы только что получили этот стикер</string>
+    <string name="qs_received_second_tip_text">Коснитесь, чтобы ответить стикером</string>
+    <string name="qs_received_third_tip_text">У вас прекрасно получается!</string>
+    <string name="qs_sent_first_tip_text">Теперь вы можете отправить похожие стикеры</string>
+    <string name="qs_sent_second_tip_text">Коснувшись отправленных стикеров</string>
+    <string name="qs_sent_third_tip_text">У вас прекрасно получается!</string>
+    <string name="qs_empty_page_text">Нет рекомендаций по этому стикеру</string>
+    <string name="download_image_before_sharing">Необходимо загрузить изображение, прежде чем делиться.</string>
+    <string name="native_card_file_transfer_of_type">Native card file transfer of type</string>
 </resources>

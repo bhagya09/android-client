@@ -25,10 +25,10 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.smartImageLoader.StickerOtherIconLoader;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
-import com.bsb.hike.voip.protobuf.VoIPSerializer;
 
 public class StickerShopFragment extends StickerShopBaseFragment implements OnScrollListener, AdapterView.OnItemClickListener
 {
@@ -158,7 +158,7 @@ public class StickerShopFragment extends StickerShopBaseFragment implements OnSc
 			listview.addFooterView(loadingFooterView);
 		}
 
-		StickerManager.getInstance().executeFetchShopPackTask(currentCategoriesCount + StickerManager.SHOP_PAGE_SIZE);
+		StickerManager.getInstance().executeFetchShopPackTask(currentCategoriesCount + StickerManager.getInstance().getShopPageSize());
 	}
 
 	@Override
@@ -169,9 +169,8 @@ public class StickerShopFragment extends StickerShopBaseFragment implements OnSc
 			maxIndexShown = firstVisibleItem + visibleItemCount;
 		}
 
-		if (downloadState == NOT_DOWNLOADING && (!mAdapter.isEmpty()) && (firstVisibleItem + visibleItemCount) > (totalItemCount - (StickerManager.SHOP_PAGE_SIZE/2))
-				&& StickerManager.getInstance().moreDataAvailableForStickerShop())
-		{
+		if (downloadState == NOT_DOWNLOADING && (!mAdapter.isEmpty()) && (firstVisibleItem + visibleItemCount) > (totalItemCount - (StickerManager.getInstance().getShopPageSize() / 2))
+				&& StickerManager.getInstance().moreDataAvailableForStickerShop()) {
 			downLoadStickerData();
 		}
 
@@ -235,9 +234,8 @@ public class StickerShopFragment extends StickerShopBaseFragment implements OnSc
 			return;
 		}
 
-		Cursor reloadedCursor = HikeConversationsDatabase.getInstance().getCursorFromStickerCategoryTable(currentCategoriesCount + StickerManager.SHOP_PAGE_SIZE);
-		if (reloadedCursor != null)
-		{
+		Cursor reloadedCursor = HikeConversationsDatabase.getInstance().getCursorFromStickerCategoryTable(currentCategoriesCount + StickerManager.getInstance().getShopPageSize());
+		if (reloadedCursor != null) {
 			currentCategoriesCount = reloadedCursor.getCount();
 		}
 		mAdapter.changeCursor(reloadedCursor);
