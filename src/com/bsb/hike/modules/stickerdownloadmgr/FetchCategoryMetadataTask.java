@@ -69,7 +69,8 @@ public class FetchCategoryMetadataTask implements IHikeHTTPTask, IHikeHttpTaskRe
 		}
 	}
 
-	public String getCategoryFetchRequestId()
+	@Override
+	public String getRequestId()
 	{
 		return StickerConstants.StickerRequestType.FETCH_CATEGORY.getLabel() + Utils.StringToMD5(ucids);
 	}
@@ -112,7 +113,7 @@ public class FetchCategoryMetadataTask implements IHikeHTTPTask, IHikeHttpTaskRe
 						return;
 					}
 					JSONArray jsonArray = resultData.optJSONArray(HikeConstants.PACKS);
-					boolean isUpdated =HikeConversationsDatabase.getInstance().updateStickerCategoriesInDb(jsonArray, false);
+					boolean isUpdated = HikeConversationsDatabase.getInstance().updateStickerCategoriesInDb(jsonArray);
 					if (isUpdated)
 					{
 						HikeConversationsDatabase.getInstance().updateIsPackMetadataUpdated(list);
@@ -142,7 +143,7 @@ public class FetchCategoryMetadataTask implements IHikeHTTPTask, IHikeHttpTaskRe
 		{
 			return;
 		}
-		token = HttpRequests.fetchCategoryData(getCategoryFetchRequestId(), requestJsonBody, getRequestListener());
+		token = HttpRequests.fetchCategoryData(getRequestId(), requestJsonBody, getRequestListener());
 		if (!token.isRequestRunning())
 		{
 			token.execute();
@@ -160,12 +161,6 @@ public class FetchCategoryMetadataTask implements IHikeHTTPTask, IHikeHttpTaskRe
 
 	@Override
 	public Bundle getRequestBundle()
-	{
-		return null;
-	}
-
-	@Override
-	public String getRequestId()
 	{
 		return null;
 	}

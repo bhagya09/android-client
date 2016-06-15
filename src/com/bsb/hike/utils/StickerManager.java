@@ -54,6 +54,7 @@ import com.bsb.hike.modules.stickerdownloadmgr.ParameterMappingDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerQuickSuggestionDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerTagDownloadTask;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerCategoriesDetailsDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerCategoryDataUpdateTask;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerCategoryDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
@@ -61,7 +62,6 @@ import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerPreviewImageDownloadTask;
-import com.bsb.hike.modules.stickerdownloadmgr.StickerSignupUpgradeDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.UserParameterDownloadTask;
 import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
@@ -417,7 +417,10 @@ public class StickerManager
 		initiateFetchCategoryRanksAndDataTask();
 
 		QuickStickerSuggestionController.getInstance().retryFailedQuickSuggestions();
-}
+
+		refreshDownloadPacksMetadata();
+    }
+
 
 	public void fetchCategoryMetadataTask(List<StickerCategory> list)
 	{
@@ -718,7 +721,6 @@ public class StickerManager
 
 		File stickerSmall = new File(categoryDir + HikeConstants.SMALL_STICKER_ROOT, sticker.getStickerId());
 		stickerSmall.delete();
-		deactivateSticker(sticker);
 
 		if (stickerCategoriesMap == null)
 		{
@@ -1568,31 +1570,30 @@ public class StickerManager
 		return stickerPageList;
 	}
 
-	public JSONArray getAllInitialyInsertedStickerCategories()
-	{
-		JSONObject jsonObj;
-		JSONArray jsonArray = new JSONArray();
-		try
-		{
-			jsonObj = new JSONObject(Utils.loadJSONFromAsset(context, StickerManager.STICKERS_JSON_FILE_NAME));
-			JSONArray stickerCategories = jsonObj.optJSONArray(StickerManager.STICKER_CATEGORIES);
-			for (int i = 0; i < stickerCategories.length(); i++)
-			{
-				JSONObject obj = stickerCategories.optJSONObject(i);
-				String categoryId = obj.optString(StickerManager.CATEGORY_ID);
-				boolean isCustom = obj.optBoolean(StickerManager.IS_CUSTOM);
-				if (!isCustom)
-				{
-					jsonArray.put(categoryId);
-				}
-			}
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
-		return jsonArray;
-	}
+    public List<StickerCategory> getAllInitialyInsertedStickerCategories() {
+        JSONObject jsonObj;
+        List<StickerCategory> categoryList = null;
+        try {
+            jsonObj = new JSONObject(Utils.loadJSONFromAsset(context, StickerManager.STICKERS_JSON_FILE_NAME));
+            JSONArray stickerCategories = jsonObj.optJSONArray(StickerManager.STICKER_CATEGORIES);
+
+            categoryList = new ArrayList<StickerCategory>(stickerCategories.length());
+
+            for (int i = 0; i < stickerCategories.length(); i++) {
+                JSONObject obj = stickerCategories.optJSONObject(i);
+                String categoryId = obj.optString(StickerManager.CATEGORY_ID);
+                boolean isCustom = obj.optBoolean(StickerManager.IS_CUSTOM);
+                if (!isCustom) {
+
+                    StickerCategory category = new StickerCategory.Builder().setCategoryId(categoryId).build();
+                    categoryList.add(category);
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return categoryList;
+    }
 
 	public void checkAndDownLoadStickerData()
 	{
@@ -1601,8 +1602,8 @@ public class StickerManager
 			return;
 		}
 
-		StickerSignupUpgradeDownloadTask stickerSignupUpgradeDownloadTask = new StickerSignupUpgradeDownloadTask(getAllInitialyInsertedStickerCategories());
-		stickerSignupUpgradeDownloadTask.execute();
+        StickerCategoriesDetailsDownloadTask stickerSignupUpgradeDownloadTask = new StickerCategoriesDetailsDownloadTask(getAllInitialyInsertedStickerCategories(), true);
+        stickerSignupUpgradeDownloadTask.execute();
 	}
 
 	public void showStickerRecommendTurnOnToast()
@@ -1620,7 +1621,7 @@ public class StickerManager
 		}
 	}
 
-	public void updateStickerCategoriesMetadata(JSONArray jsonArray)
+	public void updateInitialStickerCategoriesMetadata(JSONArray jsonArray)
 	{
 		int length = jsonArray.length();
 		List<StickerCategory> visibleStickerCategories = new ArrayList<>();
@@ -1755,6 +1756,7 @@ public class StickerManager
 		multiStickerQuickSuggestionDownloadTask.execute();
 	}
 
+
 	public StickerCategory parseStickerCategoryMetadata(JSONObject jsonObj)
 	{
 		try
@@ -1796,6 +1798,7 @@ public class StickerManager
 				JSONArray stickerArray = jsonObj.optJSONArray(HikeConstants.STICKER_LIST);
 				String allStickerListString = Utils.isEmpty(stickerArray) ? null : stickerArray.toString();
 				category.setAllStickerListString(allStickerListString);
+				category.setUpdateAvailable(setActiveStickersForCategory(category, stickerArrayFromJsonToList(category,stickerArray)));
 			}
 
 			if(jsonObj.has(HikeConstants.SIMILAR_PACKS)) {
@@ -3197,7 +3200,17 @@ public class StickerManager
 
 	public void deactivateSticker(List<Sticker> stickers)
 	{
+		Set<String> stickerCodesForRemovedStickers = new HashSet<>(stickers.size());
+
+		for (Sticker sticker : stickers)
+		{
+			removeSticker(sticker);
+			stickerCodesForRemovedStickers.add(sticker.getStickerCode());
+		}
+
 		HikeConversationsDatabase.getInstance().deactivateStickerFromDB(stickers);
+		StickerManager.getInstance().removeTagForDeletedStickers(stickerCodesForRemovedStickers);
+
 	}
 
     public void deactivateStickerForCategory(StickerCategory category)
@@ -4170,9 +4183,88 @@ public class StickerManager
 		userParameterDownloadTask.execute();
 	}
 
-	public void initiateParameterMappingDownloadTask()
+    public void initiateParameterMappingDownloadTask()
+    {
+        ParameterMappingDownloadTask parameterMappingDownloadTask = new ParameterMappingDownloadTask();
+        parameterMappingDownloadTask.execute();
+    }
+
+	public List<Sticker> stickerArrayFromJsonToList(StickerCategory category, JSONArray activeStickerArray) throws JSONException
 	{
-		ParameterMappingDownloadTask parameterMappingDownloadTask = new ParameterMappingDownloadTask();
-		parameterMappingDownloadTask.execute();
+		if (Utils.isEmpty(activeStickerArray) || category == null)
+		{
+			return null;
+		}
+
+		List<Sticker> newActiveStickerList = new ArrayList<Sticker>(activeStickerArray.length());
+
+		for (int i = 0; i < activeStickerArray.length(); i++)
+		{
+			String stickerId = activeStickerArray.getString(i);
+
+			if (TextUtils.isEmpty(stickerId))
+			{
+				continue;
+			}
+
+			Sticker sticker = new Sticker(category.getCategoryId(), stickerId);
+			newActiveStickerList.add(sticker);
+		}
+
+		return newActiveStickerList;
+	}
+
+	public boolean setActiveStickersForCategory(StickerCategory category, List<Sticker> newActiveStickerList) throws JSONException
+	{
+		if (Utils.isEmpty(newActiveStickerList) || category == null)
+		{
+			return false;
+		}
+
+		List<Sticker> previousActiveStickerList = HikeConversationsDatabase.getInstance().getActiveStickersListForCategoryId(category.getCategoryId(),
+				StickerConstants.StickerType.LARGE);
+
+		if (Utils.isEmpty(previousActiveStickerList))
+		{
+			return false;
+		}
+
+		int prevActiveStickerCount = 0, currentActiveStickerCount = newActiveStickerList.size();
+
+		for (Sticker sticker : newActiveStickerList)
+		{
+			if (previousActiveStickerList.contains(sticker))
+			{
+				previousActiveStickerList.remove(sticker);
+				prevActiveStickerCount++;
+			}
+		}
+
+		HikeConversationsDatabase.getInstance().activateStickerFromDB(newActiveStickerList);
+
+		deactivateSticker(previousActiveStickerList);
+
+		int newActiveStickerCount = currentActiveStickerCount - prevActiveStickerCount;
+
+		return (newActiveStickerCount > 0);
+
+	}
+
+	public void refreshDownloadPacksMetadata()
+	{
+		long lastRefreshTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PACK_METADATA_REFRESH_TIME, 0l);
+		long packRefreshFrequency = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.PACK_METADATA_REFRESH_FREQUENCY, HikeConstants.DEFAULT_PACK_METADATA_REFRESH_FREQUENCY_IN_MILLIS);
+
+		if ((System.currentTimeMillis() - lastRefreshTime) > (packRefreshFrequency)) // greater than n days
+		{
+			initiateMultiStickerCategoriesDetailsDownloadtask();
+		}
+
+	}
+
+	public void initiateMultiStickerCategoriesDetailsDownloadtask()
+	{
+		StickerCategoriesDetailsDownloadTask stickerCategoriesDetailsDownloadTask = new StickerCategoriesDetailsDownloadTask(getMyStickerCategoryList(), false);
+		stickerCategoriesDetailsDownloadTask.execute();
 	}
 }

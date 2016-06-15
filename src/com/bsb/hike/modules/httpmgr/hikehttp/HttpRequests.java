@@ -42,11 +42,11 @@ import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
-import com.bsb.hike.utils.PhoneSpecUtils;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
+import com.bsb.hike.utils.PhoneSpecUtils;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.google.android.gms.gcm.Task;
@@ -64,23 +64,25 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.chatThemeBgImgUploadBase;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.BASE_CATEGORY_DETAIL;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.authSDKBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.bulkLastSeenUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.chatThemeAssetIdDownloadBase;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.chatThemeAssetsDownloadBase;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.chatThemeBgImgUploadBase;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.deleteAccountBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.editDOBBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.editProfileAvatarBase;
-import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.fetchUIDForMissingMsisdnUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.editProfileEmailGenderBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.editProfileNameBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.fetchUIDForMissingMsisdnUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getActionsUpdateUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getAvatarBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getBDPrefUpdateUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getBaseCodeGCAcceptUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getBotdiscoveryTableUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getCesLevelOneInfoUploadUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getCesScoreUploadUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getDeleteAvatarBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getDeleteStatusBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getFastFileUploadBaseUrl;
@@ -123,15 +125,12 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.sticker
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerPreviewImageDownloadUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerShopFetchCategoryTagsUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerShopFetchCategoryUrl;
-import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerSignupUpgradeUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.unlinkAccountBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.updateAddressbookBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.updateLoveLinkUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.updateUnLoveLinkUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.userParameterUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.validateNumberBaseUrl;
-import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getCesScoreUploadUrl;
-import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getCesLevelOneInfoUploadUrl;
 import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_HIGH;
 import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_LOW;
 import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_NORMAL;
@@ -365,20 +364,6 @@ public class HttpRequests
 		return requestToken;
 	}
 
-	public static RequestToken StickerSignupUpgradeRequest(String requestId, JSONObject json, IRequestListener requestListener)
-	{
-		IRequestBody body = new JsonBody(json);
-		RequestToken requestToken = new JSONObjectRequest.Builder()
-				.setUrl(stickerSignupUpgradeUrl())
-				.setId(requestId)
-				.post(body)
-				.setRequestListener(requestListener)
-				.setRequestType(REQUEST_TYPE_SHORT)
-				.build();
-		requestToken.getRequestInterceptors().addFirst("gzip", new GzipRequestInterceptor());
-		return requestToken;
-	}
-
     public static RequestToken stickerCategoryDetailsDownloadRequest(String requestId, String categoryId, IRequestListener requestListener, Bundle extras)
     {
         Config config = new Config.Builder()
@@ -405,7 +390,35 @@ public class HttpRequests
         return requestToken;
     }
 
-	public static RequestToken LastSeenRequest(String msisdn, IRequestListener requestListener, BasicRetryPolicy retryPolicy)
+    public static RequestToken stickerCategoriesDetailsDownloadRequest(String requestId, JSONObject json, IRequestListener requestListener, Bundle extras)
+    {
+        Config config = new Config.Builder()
+                .setExecutionWindow(0, 1)
+                .setPersisted(true)
+                .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
+                .setTag(GcmTaskConstants.CATEGORIES_DETAILS_GCM_TASK + HikeConstants.DELIMETER + requestId)
+                .setService(GcmNwMgrService.class)
+                .setExtras(extras)
+                .build();
+
+
+        JsonBody body = new JsonBody(json);
+        RequestToken requestToken = new JSONObjectRequest.Builder()
+                .setUrl(stickerCategoryDetailsUrl())
+                .setId(requestId)
+                .post(body)
+                .setRequestListener(requestListener)
+                .setRequestType(REQUEST_TYPE_SHORT)
+                .setPriority(PRIORITY_HIGH)
+                .setGcmTaskConfig(config)
+                .build();
+
+        requestToken.getRequestInterceptors().addFirst("gzip", new GzipRequestInterceptor());
+        return requestToken;
+    }
+
+
+    public static RequestToken LastSeenRequest(String msisdn, IRequestListener requestListener, BasicRetryPolicy retryPolicy)
 	{
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setUrl(lastSeenUrl() + "/" + msisdn)

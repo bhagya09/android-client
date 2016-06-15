@@ -3930,14 +3930,16 @@ public class MqttMessagesManager
 			else
 			{
 				JSONArray stickerIds = data.getJSONArray(HikeConstants.STICKER_IDS);
-				Set<String> removedStickerSet = new HashSet<String>();
+				List<Sticker> removedStickerSet = new ArrayList<>(stickerIds.length());
 
 				for (int i = 0; i < stickerIds.length(); i++)
 				{
-                    Sticker sticker = new Sticker(categoryId, stickerIds.getString(i));
-					StickerManager.getInstance().removeSticker(sticker);
-					removedStickerSet.add(sticker.getStickerCode());
+					Sticker sticker = new Sticker(categoryId, stickerIds.getString(i));
+					removedStickerSet.add(sticker);
 				}
+
+				StickerManager.getInstance().deactivateSticker(removedStickerSet);
+
 				int stickerCount = data.optInt(HikeConstants.COUNT, -1);
 				int categorySize = data.optInt(HikeConstants.UPDATED_SIZE, -1);
 				JSONArray stickerArray = data.optJSONArray(HikeConstants.STICKER_LIST);
@@ -3947,8 +3949,6 @@ public class MqttMessagesManager
 				 */
 				String stickerListString = Utils.isEmpty(stickerArray) ? null : stickerArray.toString();
 				StickerManager.getInstance().updateStickerCategoryData(categoryId, null, stickerCount, categorySize, null, stickerListString);
-				// Remove tags being used for sticker search w.r.t. deleted stickers here
-				StickerManager.getInstance().removeTagForDeletedStickers(removedStickerSet);
 			}
 		}
 		else if (HikeConstants.SHOP.equals(subType))
@@ -4038,8 +4038,8 @@ public class MqttMessagesManager
         }
         else if(HikeConstants.SHOW_STICKER_SHOP_SEARCH_FTUE_LIMIT.equals(subType))
         {
-            int limit = data.optInt(HikeConstants.LIMIT_KEY, HikeConstants.DEFAULT_SEARCH_FTUE_LIMIT);
-            HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_STICKER_SHOP_SEARCH_FTUE_LIMIT, limit);
+            int magnitude = data.optInt(HikeConstants.MAGNITUDE_KEY, HikeConstants.DEFAULT_SEARCH_FTUE_LIMIT);
+            HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_STICKER_SHOP_SEARCH_FTUE_LIMIT, magnitude);
         }
         else if(HikeConstants.STICKER_SHOP_SEARCH_TOGGLE.equals(subType))
         {
@@ -4052,35 +4052,39 @@ public class MqttMessagesManager
         }
         else if(CategorySearchManager.SEARCH_RESULTS_LIMIT.equals(subType))
         {
-            int limit = data.optInt(HikeConstants.LIMIT_KEY, CategorySearchManager.DEFAULT_SEARCH_RESULTS_LIMIT);
-            HikeSharedPreferenceUtil.getInstance().saveData(CategorySearchManager.SEARCH_RESULTS_LIMIT, limit);
+            int magnitude = data.optInt(HikeConstants.MAGNITUDE_KEY, CategorySearchManager.DEFAULT_SEARCH_RESULTS_LIMIT);
+            HikeSharedPreferenceUtil.getInstance().saveData(CategorySearchManager.SEARCH_RESULTS_LIMIT, magnitude);
         }
         else if(CategorySearchManager.SEARCH_QUERY_LENGTH_THRESHOLD.equals(subType))
         {
-            int limit = data.optInt(HikeConstants.LIMIT_KEY, CategorySearchManager.DEFAULT_SEARCH_QUERY_LENGTH_THRESHOLD);
-            HikeSharedPreferenceUtil.getInstance().saveData(CategorySearchManager.SEARCH_QUERY_LENGTH_THRESHOLD, limit);
+            int magnitude = data.optInt(HikeConstants.MAGNITUDE_KEY, CategorySearchManager.DEFAULT_SEARCH_QUERY_LENGTH_THRESHOLD);
+            HikeSharedPreferenceUtil.getInstance().saveData(CategorySearchManager.SEARCH_QUERY_LENGTH_THRESHOLD, magnitude);
         }
         else if(CategorySearchManager.SEARCH_RESULTS_LOG_LIMIT.equals(subType))
         {
-            int limit = data.optInt(HikeConstants.LIMIT_KEY, CategorySearchManager.DEFAULT_SEARCH_RESULTS_LOG_LIMIT);
-            HikeSharedPreferenceUtil.getInstance().saveData(CategorySearchManager.SEARCH_RESULTS_LOG_LIMIT, limit);
+            int magnitude = data.optInt(HikeConstants.MAGNITUDE_KEY, CategorySearchManager.DEFAULT_SEARCH_RESULTS_LOG_LIMIT);
+            HikeSharedPreferenceUtil.getInstance().saveData(CategorySearchManager.SEARCH_RESULTS_LOG_LIMIT, magnitude);
         }
         else if(HikeStickerSearchBaseConstants.STICKER_SEARCH_RECORD_COUNT_LIMIT.equals(subType))
         {
-            int limit = data.optInt(HikeConstants.LIMIT_KEY, HikeStickerSearchBaseConstants.DEFAULT_STICKER_SEARCH_COUNT_LIMIT);
-            HikeSharedPreferenceUtil.getInstance().saveData(HikeStickerSearchBaseConstants.STICKER_SEARCH_RECORD_COUNT_LIMIT, limit);
+            int magnitude = data.optInt(HikeConstants.MAGNITUDE_KEY, HikeStickerSearchBaseConstants.DEFAULT_STICKER_SEARCH_COUNT_LIMIT);
+            HikeSharedPreferenceUtil.getInstance().saveData(HikeStickerSearchBaseConstants.STICKER_SEARCH_RECORD_COUNT_LIMIT, magnitude);
         }
         else if(HikeStickerSearchBaseConstants.STICKER_SEARCH_SUCCESS_COUNT_LIMIT.equals(subType))
         {
-            int limit = data.optInt(HikeConstants.LIMIT_KEY, HikeStickerSearchBaseConstants.DEFAULT_STICKER_SEARCH_SUCCESS_COUNT_LIMIT);
-            HikeSharedPreferenceUtil.getInstance().saveData(HikeStickerSearchBaseConstants.STICKER_SEARCH_SUCCESS_COUNT_LIMIT, limit);
+            int magnitude = data.optInt(HikeConstants.MAGNITUDE_KEY, HikeStickerSearchBaseConstants.DEFAULT_STICKER_SEARCH_SUCCESS_COUNT_LIMIT);
+            HikeSharedPreferenceUtil.getInstance().saveData(HikeStickerSearchBaseConstants.STICKER_SEARCH_SUCCESS_COUNT_LIMIT, magnitude);
         }
         else if(HikeStickerSearchBaseConstants.STICKER_SEARCH_FAIL_COUNT_LIMIT.equals(subType))
         {
-            int limit = data.optInt(HikeConstants.LIMIT_KEY, HikeStickerSearchBaseConstants.DEFAULT_STICKER_SEARCH_FAIL_COUNT_LIMIT);
-            HikeSharedPreferenceUtil.getInstance().saveData(HikeStickerSearchBaseConstants.STICKER_SEARCH_FAIL_COUNT_LIMIT, limit);
+            int magnitude = data.optInt(HikeConstants.MAGNITUDE_KEY, HikeStickerSearchBaseConstants.DEFAULT_STICKER_SEARCH_FAIL_COUNT_LIMIT);
+            HikeSharedPreferenceUtil.getInstance().saveData(HikeStickerSearchBaseConstants.STICKER_SEARCH_FAIL_COUNT_LIMIT, magnitude);
         }
-
+        else if(HikeConstants.PACK_METADATA_REFRESH_FREQUENCY.equals(subType))
+        {
+            long magnitude = data.optLong(HikeConstants.MAGNITUDE_KEY, HikeConstants.DEFAULT_PACK_METADATA_REFRESH_FREQUENCY_IN_MILLIS);
+            HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.PACK_METADATA_REFRESH_FREQUENCY, magnitude);
+        }
 	}
 
 	private void saveBulkLastSeen(JSONObject jsonObj) throws JSONException

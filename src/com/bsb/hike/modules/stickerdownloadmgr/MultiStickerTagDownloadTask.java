@@ -113,7 +113,7 @@ public class MultiStickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTask
 		try
 		{
 			JSONObject json = new JSONObject();
-			json.put(HikeConstants.CATEGORY_ID_LIST, array);
+			json.put(HikeConstants.STICKER_ID_LIST, array);
 			json.put(HikeConstants.TIMESTAMP_2, (lastTagRefreshTime/1000));
 
 			if(Utils.isEmpty(languagesList))

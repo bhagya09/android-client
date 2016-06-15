@@ -8738,7 +8738,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 	/*
 	 * This method is called from sticker shop call responce.
 	 */
-	public boolean updateStickerCategoriesInDb(JSONArray jsonArray, boolean insertInShopTable)
+	public boolean updateStickerCategoriesInDb(JSONArray jsonArray)
 	{
 		try
 		{
@@ -8760,12 +8760,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				contentValues.put(DBConstants.SIMILAR_CATEGORIES, category.getSimilarPacksString());
 				contentValues.put(DBConstants.AUTHOR, category.getAuthor());
 				contentValues.put(DBConstants.COPYRIGHT_STRING, category.getCopyRightString());
-				if (!insertInShopTable)
-				{
-					contentValues.put(DBConstants.IS_DISABLED, category.isDisabled() ? 1 : 0);
-					contentValues.put(DBConstants.UPDATED_METADATA_TIMESTAMP, category.getPackUpdationTime());
-					contentValues.put(DBConstants.UCID, category.getUcid());
-				}
+				contentValues.put(DBConstants.IS_DISABLED, category.isDisabled() ? 1 : 0);
+				contentValues.put(DBConstants.UPDATED_METADATA_TIMESTAMP, category.getPackUpdationTime());
+				contentValues.put(DBConstants.UPDATE_AVAILABLE, category.isUpdateAvailable());
+				contentValues.put(DBConstants.UCID, category.getUcid());
+
 				int rowsAffected = mDb.update(DBConstants.STICKER_CATEGORIES_TABLE, contentValues, DBConstants._ID + "=?", new String[]{category.getCategoryId()});
 				if(rowsAffected <= 0)
 				{
@@ -10655,9 +10654,57 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		insertStickersToDB(stickerSet, StickerConstants.StickerType.LARGE);
 	}
 
+	public List<Sticker> parseStickerTableCursor(Cursor c)
+	{
+		if (c == null)
+		{
+			return null;
+		}
+
+		List<Sticker> stickerList = null;
+
+		try
+		{
+
+			stickerList = new ArrayList<Sticker>(c.getCount());
+
+			int largestickerpathIdx = c.getColumnIndex(DBConstants.LARGE_STICKER_PATH);
+			int smallstickerpathIdx = c.getColumnIndex(DBConstants.SMALL_STICKER_PATH);
+			int stickerWidthIdx = c.getColumnIndex(DBConstants.WIDTH);
+			int stickerHeightIdx = c.getColumnIndex(DBConstants.HEIGHT);
+			int stickerIdIdx = c.getColumnIndex(DBConstants.STICKER_ID);
+			int categoryIdIdx = c.getColumnIndex(DBConstants.CATEGORY_ID);
+
+			while (c.moveToNext())
+			{
+				String categoryId = c.getString(categoryIdIdx);
+				String stickerId = c.getString(stickerIdIdx);
+
+				Sticker sticker = new Sticker(categoryId, stickerId);
+
+				sticker.setSmallStickerPath(c.getString(smallstickerpathIdx));
+				sticker.setLargeStickerPath(c.getString(largestickerpathIdx));
+				sticker.setWidth(c.getInt(stickerWidthIdx));
+				sticker.setHeight(c.getInt(stickerHeightIdx));
+
+				stickerList.add(sticker);
+			}
+
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+
+		return stickerList;
+	}
+
 	public Sticker getStickerFromStickerTable(Sticker sticker)
 	{
-		if(sticker == null || TextUtils.isEmpty(sticker.getStickerId()) || TextUtils.isEmpty(sticker.getCategoryId()))
+		if (sticker == null)
 		{
 			return null;
 		}
@@ -10666,8 +10713,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 
 		try
 		{
-			c = mDb.query(DBConstants.STICKER_TABLE, null, DBConstants.STICKER_ID + " =?" + " AND " + DBConstants.CATEGORY_ID + "=?", new String[] {sticker.getStickerId(), sticker.getCategoryId()}, null,
-					null, null, null);
+			c = mDb.query(DBConstants.STICKER_TABLE, null, DBConstants.STICKER_ID + " =?" + " AND " + DBConstants.CATEGORY_ID + "=?", new String[] { sticker.getStickerId(),
+					sticker.getCategoryId() }, null, null, null, null);
 
 			int largestickerpathIdx = c.getColumnIndex(DBConstants.LARGE_STICKER_PATH);
 			int smallstickerpathIdx = c.getColumnIndex(DBConstants.SMALL_STICKER_PATH);
@@ -10684,7 +10731,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		}
 		finally
 		{
-			if(c != null)
+			if (c != null)
 			{
 				c.close();
 			}
@@ -10693,37 +10740,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		return sticker;
 	}
 
-	public List<String> getStickerIdsForCatgeoryId(String catId,StickerConstants.StickerType stickerType)
+	public List<Sticker> getActiveStickersListForCategoryId(String categoryId, StickerConstants.StickerType stickerType)
 	{
 		Cursor c = null;
-		List<String> stickerIdsList;
-		try
-		{
-			c = mDb.query(
-					DBConstants.STICKER_TABLE,
-					new String[] { DBConstants.STICKER_ID },
-					DBConstants.CATEGORY_ID + "=?" + " AND " + DBConstants.IS_ACTIVE + "=?" + " AND " + DBConstants.TYPE + "=?",
-					new String[] { catId, Integer.toString(DBConstants.DEFAULT_ACTIVE_STATE),Integer.toString(stickerType.ordinal())},
-					null, null, null, null);
+		List<Sticker> stickerList;
+		c = mDb.query(DBConstants.STICKER_TABLE, null, DBConstants.CATEGORY_ID + "=?" + " AND " + DBConstants.IS_ACTIVE + "=?" + " AND " + DBConstants.TYPE + "=?", new String[] {
+				categoryId, Integer.toString(DBConstants.DEFAULT_ACTIVE_STATE), Integer.toString(stickerType.ordinal()) }, null, null, null, null);
 
-			int stidIdx = c.getColumnIndex(DBConstants.STICKER_ID);
-
-			stickerIdsList = new ArrayList<>(c.getCount());
-
-			while(c.moveToNext())
-			{
-				String stickerId = c.getString(stidIdx);
-				stickerIdsList.add(stickerId);
-			}
-		}
-		finally
-		{
-			if(c != null)
-			{
-				c.close();
-			}
-		}
-		return stickerIdsList;
+		return parseStickerTableCursor(c);
 	}
 
 	public void insertStickersToDB(List<Sticker> stickers, StickerConstants.StickerType stickerType)
@@ -10739,7 +10763,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				contentValues.put(DBConstants.STICKER_ID, sticker.getStickerId());
 				contentValues.put(DBConstants.CATEGORY_ID, sticker.getCategoryId());
 
-				if(!TextUtils.isEmpty(sticker.getLargeStickerPath(true)))
+				if (!TextUtils.isEmpty(sticker.getLargeStickerPath(true)))
 				{
 					contentValues.put(DBConstants.LARGE_STICKER_PATH, sticker.getLargeStickerPath());
 					contentValues.put(DBConstants.SMALL_STICKER_PATH, sticker.getSmallStickerPath());
@@ -10762,6 +10786,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 
 	public void deactivateStickerFromDB(List<Sticker> stickers)
 	{
+		if (Utils.isEmpty(stickers)) return;
+
 		try
 		{
 			mDb.beginTransaction();
@@ -10772,7 +10798,31 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				contentValues.clear();
 				contentValues.put(DBConstants.IS_ACTIVE, DBConstants.DEFAULT_INACTIVE_STATE);
 				mDb.update(DBConstants.STICKER_TABLE, contentValues, DBConstants.CATEGORY_ID + "=?" + " AND " + DBConstants.STICKER_ID + "=?",
-					new String[]{sticker.getCategoryId(), sticker.getStickerId()});
+						new String[] { sticker.getCategoryId(), sticker.getStickerId() });
+			}
+			mDb.setTransactionSuccessful();
+		}
+		finally
+		{
+			mDb.endTransaction();
+		}
+	}
+
+	public void activateStickerFromDB(List<Sticker> stickers)
+	{
+		if (Utils.isEmpty(stickers)) return;
+
+		try
+		{
+			mDb.beginTransaction();
+
+			ContentValues contentValues = new ContentValues();
+			for (Sticker sticker : stickers)
+			{
+				contentValues.clear();
+				contentValues.put(DBConstants.IS_ACTIVE, DBConstants.DEFAULT_ACTIVE_STATE);
+				mDb.update(DBConstants.STICKER_TABLE, contentValues, DBConstants.CATEGORY_ID + "=?" + " AND " + DBConstants.STICKER_ID + "=?",
+						new String[] { sticker.getCategoryId(), sticker.getStickerId() });
 			}
 			mDb.setTransactionSuccessful();
 		}
@@ -10784,6 +10834,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 
 	public void deactivateStickersForCategories(List<StickerCategory> categories)
 	{
+		if (Utils.isEmpty(categories)) return;
+
 		try
 		{
 			mDb.beginTransaction();
@@ -10793,7 +10845,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 			{
 				contentValues.clear();
 				contentValues.put(DBConstants.IS_ACTIVE, DBConstants.DEFAULT_INACTIVE_STATE);
-				mDb.update(DBConstants.STICKER_TABLE, contentValues, DBConstants.CATEGORY_ID + "=?", new String[]{category.getCategoryId()});
+				mDb.update(DBConstants.STICKER_TABLE, contentValues, DBConstants.CATEGORY_ID + "=?", new String[] { category.getCategoryId() });
 			}
 			mDb.setTransactionSuccessful();
 		}
@@ -10805,6 +10857,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 
 	public void deleteStickersForCategories(List<StickerCategory> categories)
 	{
+		if (Utils.isEmpty(categories)) return;
+
 		try
 		{
 			mDb.beginTransaction();
@@ -10812,7 +10866,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 			ContentValues contentValues = new ContentValues();
 			for (StickerCategory category : categories)
 			{
-				mDb.delete(DBConstants.STICKER_TABLE, DBConstants.CATEGORY_ID + "=?", new String[]{category.getCategoryId()});
+				mDb.delete(DBConstants.STICKER_TABLE, DBConstants.CATEGORY_ID + "=?", new String[] { category.getCategoryId() });
 			}
 			mDb.setTransactionSuccessful();
 		}
