@@ -192,6 +192,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
                     showBdaySection, hikeBdayContactList, filteredHikeBdayContactList);
 		}
 
+		hikeOtherFeaturesList.clear();
 		if (showTimeline)
 		{
 			ContactInfo timelineListItem = new HikeFeatureInfo(context.getResources().getString(R.string.timeline), R.drawable.ic_timeline, context.getResources().getString(
