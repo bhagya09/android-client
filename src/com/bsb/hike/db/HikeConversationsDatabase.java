@@ -10739,7 +10739,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 		return sticker;
 	}
 
-	public List<Sticker> getActiveStickersListForCatgeoryId(String categoryId, StickerConstants.StickerType stickerType)
+	public List<Sticker> getActiveStickersListForCategoryId(String categoryId, StickerConstants.StickerType stickerType)
 	{
 		Cursor c = null;
 		List<Sticker> stickerList;

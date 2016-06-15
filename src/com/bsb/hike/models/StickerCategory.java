@@ -750,7 +750,7 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 
     private List<Sticker> getStickersFromDb()
     {
-        return HikeConversationsDatabase.getInstance().getActiveStickersListForCatgeoryId(categoryId, StickerConstants.StickerType.LARGE);
+        return HikeConversationsDatabase.getInstance().getActiveStickersListForCategoryId(categoryId, StickerConstants.StickerType.LARGE);
     }
 
     /**
