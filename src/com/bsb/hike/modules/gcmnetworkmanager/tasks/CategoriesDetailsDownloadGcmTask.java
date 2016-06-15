@@ -3,7 +3,6 @@ package com.bsb.hike.modules.gcmnetworkmanager.tasks;
 import android.os.Bundle;
 
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.utils.StickerManager;
 import com.google.android.gms.gcm.TaskParams;
 
@@ -24,7 +23,7 @@ public class CategoriesDetailsDownloadGcmTask implements IGcmTask
 		}
 		else
 		{
-			StickerManager.getInstance().initiateDownloadedStickerCategoriesDetailsRefreshTask();
+			StickerManager.getInstance().initiateMultiStickerCategoriesDetailsDownloadtask();
 		}
 
 		return null;

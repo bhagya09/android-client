@@ -4257,12 +4257,12 @@ public class StickerManager
 
 		if ((System.currentTimeMillis() - lastRefreshTime) > (packRefreshFrequency)) // greater than n days
 		{
-			initiateDownloadedStickerCategoriesDetailsRefreshTask();
+			initiateMultiStickerCategoriesDetailsDownloadtask();
 		}
 
 	}
 
-	public void initiateDownloadedStickerCategoriesDetailsRefreshTask()
+	public void initiateMultiStickerCategoriesDetailsDownloadtask()
 	{
 		StickerCategoriesDetailsDownloadTask stickerCategoriesDetailsDownloadTask = new StickerCategoriesDetailsDownloadTask(getMyStickerCategoryList(), false);
 		stickerCategoriesDetailsDownloadTask.execute();
