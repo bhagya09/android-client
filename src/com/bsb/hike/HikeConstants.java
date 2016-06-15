@@ -3594,7 +3594,7 @@ public class HikeConstants
 
 	public static final String HIKE_CONTACT_PICKER_RESULT = "contact_pick_result";
 
-	public static final String CATEGORY_ID_LIST = "sId_list";
+	public static final String STICKER_ID_LIST = "sId_list";
 
 	public static final String HIKE_CONTACT_PICKER_RESULT_FOR_CONFERENCE = "contact_pick_result_for_conference";
 
@@ -3901,7 +3901,7 @@ public class HikeConstants
 
 	public static final String STICKER_TAG_MAXIMUM_SEARCH = "stms"; // initial to following 4 keys
 
-    public static final String LIMIT_KEY = "limit";
+    public static final String MAGNITUDE_KEY = "limit";
 
 	public static final String STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT = "stms_tl"; // integer
 
@@ -4022,6 +4022,8 @@ public class HikeConstants
 	public static final String TIMESTAMP_2 = "timestamp";
 
 	public static final String UNKNOWN_KEYBOARDS = "unknown_kbds";
+
+	public static final String UNKNOWN_LANGUAGES = "unknown_langs";
 
 	public static final float ONE_PERCENT_PROGRESS = 0.01f;
 
@@ -4500,7 +4502,11 @@ public class HikeConstants
 
 	public static final String SPACE_MANAGER_JSON = "sm_json";
 
-	public static final String FRIENDS_TAB_NOTIF_DOT = "frnTabNotifDot";
+	public static final long DEFAULT_PACK_METADATA_REFRESH_FREQUENCY_IN_MILLIS = 7L * ONE_DAY_MILLS;
+
+    public static final String FRIENDS_TAB_NOTIF_DOT = "frnTabNotifDot";
+
+	public static final String PACK_METADATA_REFRESH_FREQUENCY = "pk_md_rF";
 
 	public static final String FRIENDS_TAB_STEALTH_NOTIF_DOT = "frnTabNotifDot";
 

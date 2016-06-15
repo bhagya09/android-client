@@ -4,11 +4,14 @@ import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 
 import org.json.JSONException;
@@ -280,7 +283,7 @@ public class FTAnalyticEvents
 	/*
 	 * We send an event every time user transfer file whether it is succeeded or canceled.
 	 */
-	public void sendFTSuccessFailureEvent(String network,  long fileSize, int status, String attachmentShardeAs, int mAttachementType)
+	public void sendFTSuccessFailureEvent(String network,  long fileSize, int status, String attachmentShardeAs, int mAttachementType, String msisdn, String fileExtn)
 	{
 		try
 		{
@@ -292,6 +295,19 @@ public class FTAnalyticEvents
 			if(!TextUtils.isEmpty(attachmentShardeAs)) {
 				metadata.put(FT_ATTACHEMENT_SHARED_AS, attachmentShardeAs);
 			}
+
+			if (!TextUtils.isEmpty(msisdn)) {
+				//species as chat thread type, form for stealth info
+				metadata.put(HikeConstants.SPECIES, ChatThreadUtils.getChatThreadType(msisdn));
+				if(StealthModeManager.getInstance().isStealthMsisdn(msisdn)) {
+					metadata.put(HikeConstants.FROM, ChatAnalyticConstants.STEALTH_CHAT_THREAD);
+				}
+			}
+			if (!TextUtils.isEmpty(fileExtn)) {
+				// Add genus as file extn
+				metadata.put(AnalyticsConstants.V2.GENUS, fileExtn);
+			}
+
 			HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.FILE_TRANSFER, EventPriority.HIGH, metadata, HikeConstants.LogEvent.FILE_TRANSFER_STATUS);			
 		}
 		catch (JSONException e)

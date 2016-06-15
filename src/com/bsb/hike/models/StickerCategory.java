@@ -5,6 +5,7 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.Utils;
 
 import java.io.File;
 import java.io.IOException;
@@ -615,24 +616,17 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
         {
 
             long t1 = System.currentTimeMillis();
-            stickersList = new ArrayList<Sticker>();
-
-            List<String> stickerIds = getStickerIdsFromDb();
-            if(stickerIds != null)
+            stickersList = getStickersFromDb();
+            if(!Utils.isEmpty(stickersList))
             {
-                for (String stickerId : stickerIds)
-                {
-                    Sticker s = new Sticker(this, stickerId);
-                    stickersList.add(s);
-                }
-                setDownloadedStickersCount(stickerIds.size());
+                setDownloadedStickersCount(stickersList.size());
+                Collections.sort(stickersList);
             }
             else
             {
                 setDownloadedStickersCount(0);
             }
 
-            Collections.sort(stickersList);
             long t2 = System.currentTimeMillis();
             Logger.d(getClass().getSimpleName(), "category id : " + categoryId + " sticker list " +  stickersList);
             Logger.d(getClass().getSimpleName(), "Time to sort category : " + getCategoryId() + " in ms : " + (t2 - t1));
@@ -754,9 +748,9 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
         return getDownloadedStickersCount() < getTotalStickers();
     }
 
-    private List<String> getStickerIdsFromDb()
+    private List<Sticker> getStickersFromDb()
     {
-        return HikeConversationsDatabase.getInstance().getStickerIdsForCatgeoryId(categoryId, StickerConstants.StickerType.LARGE);
+        return HikeConversationsDatabase.getInstance().getActiveStickersListForCategoryId(categoryId, StickerConstants.StickerType.LARGE);
     }
 
     /**
@@ -811,9 +805,9 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 
     public void updateDownloadedStickersCount()
     {
-        List<String> stickerIds = getStickerIdsFromDb();
-        if(stickerIds != null)
-            setDownloadedStickersCount(stickerIds.size());
+        List<Sticker> stickerList = getStickersFromDb();
+        if(stickerList != null)
+            setDownloadedStickersCount(stickerList.size());
         else
             setDownloadedStickersCount(0);
     }
