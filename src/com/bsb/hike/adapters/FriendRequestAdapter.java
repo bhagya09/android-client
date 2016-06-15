@@ -48,6 +48,11 @@ public class FriendRequestAdapter extends BaseAdapter implements PinnedSectionLi
         return viewType == ViewType.PINNED_SECTION.ordinal();
     }
 
+    @Override
+    public boolean isEnabled(int position) {
+        return !isItemViewTypePinned(getItemViewType(position));
+    }
+
     private static class ViewHolder {
         // each data item is just a string in this case
         public TextView name;
