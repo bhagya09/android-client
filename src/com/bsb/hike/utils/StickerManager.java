@@ -1570,36 +1570,30 @@ public class StickerManager
 		return stickerPageList;
 	}
 
-	public List<StickerCategory> getAllInitialyInsertedStickerCategories()
-	{
-		JSONObject jsonObj;
-		List<StickerCategory> categoryList = null;
-		try
-		{
-			jsonObj = new JSONObject(Utils.loadJSONFromAsset(context, StickerManager.STICKERS_JSON_FILE_NAME));
-			JSONArray stickerCategories = jsonObj.optJSONArray(StickerManager.STICKER_CATEGORIES);
+    public List<StickerCategory> getAllInitialyInsertedStickerCategories() {
+        JSONObject jsonObj;
+        List<StickerCategory> categoryList = null;
+        try {
+            jsonObj = new JSONObject(Utils.loadJSONFromAsset(context, StickerManager.STICKERS_JSON_FILE_NAME));
+            JSONArray stickerCategories = jsonObj.optJSONArray(StickerManager.STICKER_CATEGORIES);
 
             categoryList = new ArrayList<StickerCategory>(stickerCategories.length());
 
-			for (int i = 0; i < stickerCategories.length(); i++)
-			{
-				JSONObject obj = stickerCategories.optJSONObject(i);
-				String categoryId = obj.optString(StickerManager.CATEGORY_ID);
-				boolean isCustom = obj.optBoolean(StickerManager.IS_CUSTOM);
-				if (!isCustom)
-				{
+            for (int i = 0; i < stickerCategories.length(); i++) {
+                JSONObject obj = stickerCategories.optJSONObject(i);
+                String categoryId = obj.optString(StickerManager.CATEGORY_ID);
+                boolean isCustom = obj.optBoolean(StickerManager.IS_CUSTOM);
+                if (!isCustom) {
 
                     StickerCategory category = new StickerCategory.Builder().setCategoryId(categoryId).build();
                     categoryList.add(category);
-				}
-			}
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
-		return categoryList;
-	}
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return categoryList;
+    }
 
 	public void checkAndDownLoadStickerData()
 	{

@@ -41,23 +41,23 @@ public class StickerCategoriesDetailsDownloadTask implements IHikeHTTPTask, IHik
 
 	private RequestToken token;
 
-    private boolean isSignup;
+	private boolean isSignup;
 
-    private JSONObject requestJsonBody;
+	private JSONObject requestJsonBody;
 
-    private String categoryListString = "";
+	private String categoryListString = "";
 
 	public StickerCategoriesDetailsDownloadTask(List<StickerCategory> categoryList, boolean isSignup)
 	{
 		this.categoryList = categoryList;
-        this.isSignup = isSignup;
-        createRequestJsonBody();
+		this.isSignup = isSignup;
+		createRequestJsonBody();
 	}
 
 	@Override
 	public void execute()
 	{
-		if(!StickerManager.getInstance().isMinimumMemoryAvailable())
+		if (!StickerManager.getInstance().isMinimumMemoryAvailable())
 		{
 			doOnFailure(new HttpException(REASON_CODE_OUT_OF_SPACE));
 			return;
@@ -71,9 +71,9 @@ public class StickerCategoriesDetailsDownloadTask implements IHikeHTTPTask, IHik
 
 		token = stickerCategoriesDetailsDownloadRequest(getRequestId(), requestJsonBody, getRequestListener(), getRequestBundle());
 
-		if(token.isRequestRunning())
+		if (token.isRequestRunning())
 		{
-			return ;
+			return;
 		}
 		token.execute();
 	}
@@ -87,48 +87,48 @@ public class StickerCategoriesDetailsDownloadTask implements IHikeHTTPTask, IHik
 		}
 	}
 
-    @Override
-    public String getRequestId()
-    {
-        return StickerRequestType.CATEGORY_DETAIL.getLabel() + Utils.StringToMD5(categoryListString);
-    }
+	@Override
+	public String getRequestId()
+	{
+		return StickerRequestType.CATEGORY_DETAIL.getLabel() + Utils.StringToMD5(categoryListString);
+	}
 
-    private void createRequestJsonBody()
-    {
-        requestJsonBody = new JSONObject();
+	private void createRequestJsonBody()
+	{
+		requestJsonBody = new JSONObject();
 
-        JSONObject jsonObject;
+		JSONObject jsonObject;
 
-        JSONArray catIdArray = new JSONArray();
-        JSONArray tsArray = new JSONArray();
+		JSONArray catIdArray = new JSONArray();
+		JSONArray tsArray = new JSONArray();
 
-        try
-        {
-            for (StickerCategory category : categoryList)
-            {
-                catIdArray.put(category.getCategoryId());
-                tsArray.put(category.getPackUpdationTime());
-                categoryListString += category.getCategoryId();
-            }
+		try
+		{
+			for (StickerCategory category : categoryList)
+			{
+				catIdArray.put(category.getCategoryId());
+				tsArray.put(category.getPackUpdationTime());
+				categoryListString += category.getCategoryId();
+			}
 
-            requestJsonBody.put(StickerManager.CATEGORY_IDS, catIdArray);
-            requestJsonBody.put(HikeConstants.TIMESTAMP, tsArray);
-            requestJsonBody.put(HikeConstants.RESOLUTION_ID, Utils.getResolutionId());
-            requestJsonBody.put(HikeConstants.LANG, StickerSearchUtils.getCurrentLanguageISOCode());
+			requestJsonBody.put(StickerManager.CATEGORY_IDS, catIdArray);
+			requestJsonBody.put(HikeConstants.TIMESTAMP, tsArray);
+			requestJsonBody.put(HikeConstants.RESOLUTION_ID, Utils.getResolutionId());
+			requestJsonBody.put(HikeConstants.LANG, StickerSearchUtils.getCurrentLanguageISOCode());
 
-            List<String> unsupportedLanguages = StickerLanguagesManager.getInstance().getUnsupportedLanguagesCollection();
-            if (Utils.isEmpty(unsupportedLanguages))
-            {
-                requestJsonBody.put(HikeConstants.UNKNOWN_KEYBOARDS, Utils.listToString(unsupportedLanguages));
-            }
+			List<String> unsupportedLanguages = StickerLanguagesManager.getInstance().getUnsupportedLanguagesCollection();
+			if (Utils.isEmpty(unsupportedLanguages))
+			{
+				requestJsonBody.put(HikeConstants.UNKNOWN_KEYBOARDS, Utils.listToString(unsupportedLanguages));
+			}
 
-            requestJsonBody = Utils.getParameterPostBodyForHttpApi(HttpRequestConstants.BASE_CATEGORY_DETAIL, requestJsonBody);
-        }
-        catch (JSONException e)
-        {
-            Logger.e(TAG, "Exception in create JsonBody", e);
-        }
-    }
+			requestJsonBody = Utils.getParameterPostBodyForHttpApi(HttpRequestConstants.BASE_CATEGORY_DETAIL, requestJsonBody);
+		}
+		catch (JSONException e)
+		{
+			Logger.e(TAG, "Exception in create JsonBody", e);
+		}
+	}
 
 	private IRequestListener getRequestListener()
 	{
@@ -141,17 +141,17 @@ public class StickerCategoriesDetailsDownloadTask implements IHikeHTTPTask, IHik
 				try
 				{
 					JSONObject response = (JSONObject) result.getBody().getContent();
-					if(!Utils.isResponseValid(response))
+					if (!Utils.isResponseValid(response))
 					{
 						Logger.e(TAG, "Sticker download failed null response");
 						doOnFailure(null);
-						return ;
+						return;
 					}
 
-					Logger.d(TAG,  "Got response for download : " + response.toString());
+					Logger.d(TAG, "Got response for download : " + response.toString());
 
 					JSONArray resultData = response.optJSONArray(HikeConstants.DATA_2);
-					if(null == resultData)
+					if (null == resultData)
 					{
 						Logger.e(TAG, "Sticker download failed null data");
 						doOnFailure(null);
@@ -207,7 +207,7 @@ public class StickerCategoriesDetailsDownloadTask implements IHikeHTTPTask, IHik
 	public Bundle getRequestBundle()
 	{
 		Bundle bundle = new Bundle();
-        bundle.putBoolean(HikeConstants.IS_NEW_USER, isSignup);
+		bundle.putBoolean(HikeConstants.IS_NEW_USER, isSignup);
 		return bundle;
 	}
 }
