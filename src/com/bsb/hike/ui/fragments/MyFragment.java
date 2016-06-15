@@ -392,6 +392,6 @@ public class MyFragment extends Fragment implements HikePubSub.Listener {
     @Override
     public void onDestroyView() {
         HikeMessengerApp.getPubSub().removeListeners(this, pubSubListeners);
-        super.onDestroy();
+        super.onDestroyView();
     }
 }
