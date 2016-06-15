@@ -735,9 +735,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
 			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
 			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.TIME_LINE_OPEN);
-			json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
 			json.put(AnalyticsConstants.V2.GENUS, getTimelineOpenSource(getIntent().getIntExtra(TIMELINE_SOURCE, UNKNOWN)));
-
 			HAManager.getInstance().recordV2(json);
 
 		}
