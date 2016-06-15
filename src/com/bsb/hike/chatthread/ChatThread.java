@@ -722,6 +722,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		initMessageChannel();
 		shouldKeyboardPopupShow=HikeMessengerApp.keyboardApproach(activity);
 		keyboardOffBoarding = new KeyboardOffBoarding();
+		QuickStickerSuggestionController.getInstance().setCurrentChatMsisdn(msisdn);
 	}
 
 
@@ -1168,6 +1169,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	private void initializeCTBackground() {
 		if(Utils.isUserOnline(activity)) {
+			ChatThemeManager.getInstance().addTempCustomThemeToMap();
 			if(ChatThemeManager.getInstance().customThemeTempUploadImagePath != null) {
 				FileTransferManager.getInstance(activity).uploadCustomThemeBackgroundImage(ChatThemeManager.getInstance().customThemeTempUploadImagePath, mConversation);
 			}
@@ -1355,13 +1357,10 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		mActionBar.showOverflowMenu(width, LayoutParams.WRAP_CONTENT, -rightMargin, -(int) (0.5 * Utils.scaledDensityMultiplier), activity.findViewById(R.id.overflow_anchor));
 	}
 
-	private void stickerClicked(ConvMessage convMessage)
-	{
+	private void stickerClicked(ConvMessage convMessage) {
 		boolean isSent = convMessage.isSent();
-		if (QuickStickerSuggestionController.getInstance().isStickerClickAllowed(isSent))
-		{
-			if(QuickStickerSuggestionController.getInstance().isFtueSessionRunning() && !QuickStickerSuggestionController.getInstance().isFtueSessionRunning(convMessage.isSent()))
-			{
+		if (QuickStickerSuggestionController.getInstance().isStickerClickAllowed(isSent)) {
+			if (QuickStickerSuggestionController.getInstance().isFtueSessionRunning() && !QuickStickerSuggestionController.getInstance().isFtueSessionRunning(convMessage.isSent())) {
 				return;
 			}
 
@@ -1369,14 +1368,14 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			QuickStickerSuggestionController.getInstance().setCurrentQSConvMessage(convMessage);
 			openOrRefreshStickerPalette(convMessage);
 
-			if (QuickStickerSuggestionController.getInstance().isFtueSessionRunning(convMessage.isSent()))
-			{
+			if (QuickStickerSuggestionController.getInstance().isFtueSessionRunning(convMessage.isSent())) {
 				mTips.setTipSeen(isSent ? ChatThreadTips.QUICK_SUGGESTION_SENT_SECOND_TIP : ChatThreadTips.QUICK_SUGGESTION_RECEIVED_SECOND_TIP);
 				QuickStickerSuggestionController.getInstance().setFtueTipSeen(QuickStickerSuggestionController.QUICK_SUGGESTION_STICKER_ANIMATION);
 				uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
 			}
+		} else {
+			QuickStickerSuggestionController.getInstance().showHikeDirectToast(isSent);
 		}
-
 		StickerManager.getInstance().sendStickerClickedLogs(convMessage, HikeConstants.SINGLE_TAP);
 	}
 
@@ -6762,12 +6761,13 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
 			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
 			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.CHAT_OPEN);
-			json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
 			json.put(AnalyticsConstants.V2.SPECIES, getChatThreadOpenSource(activity.getIntent().getIntExtra(ChatThreadActivity.CHAT_THREAD_SOURCE, ChatThreadOpenSources.UNKNOWN)));
 			json.put(AnalyticsConstants.V2.FORM, activity.getIntent().getStringExtra(HikeConstants.Extras.WHICH_CHAT_THREAD));
 			json.put(AnalyticsConstants.V2.RACE, activity.getIntent().getStringExtra(AnalyticsConstants.EXP_ANALYTICS_TAG));
 			json.put(AnalyticsConstants.V2.BREED, activity.getIntent().getStringExtra(AnalyticsConstants.SOURCE_CONTEXT));
-			json.put(AnalyticsConstants.V2.TO_USER, msisdn);
+			json.put(AnalyticsConstants.V2.TO_MSISDN, msisdn);
+			if (StealthModeManager.getInstance().isStealthMsisdn(msisdn))
+				json.put(AnalyticsConstants.V2.VARIETY, "stealth");
 			return json;
 		}
 		catch (JSONException e)
@@ -6814,11 +6814,17 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				return "new_group_create";
 			case ChatThreadOpenSources.MICRO_APP:
 				return "micro_app";
+			case ChatThreadOpenSources.ADD_FRIEND_FRAG:
+				return "add_friend_frag";
+			case ChatThreadOpenSources.ADDED_ME_FRAG:
+				return "added_me_frag";
+			case ChatThreadOpenSources.INITIATE_BOT:
+				return "initiate_bot";
 			default:
 				return "unknown";
 		}
-
 	}
+
 	public void onHelpClicked()
 	{
 		Intent intent =IntentFactory.getNonMessagingBotIntent(HikePlatformConstants.CUSTOMER_SUPPORT_BOT_MSISDN,activity.getApplicationContext());

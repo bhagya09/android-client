@@ -2152,6 +2152,8 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 
 		if (updatePrivacyValues) {
 			cv.put(DBConstants.LAST_SEEN_SETTINGS, getLastSeenSettingsForMsisdn());
+
+			cv.put(DBConstants.STATUS_UPDATE_SETTINGS, getSUSettingsForMsisdn(msisdn));
 		}
 
 		long value = mDb.update(DBConstants.USERS_TABLE, cv, DBConstants.MSISDN + "=?", new String[]{msisdn});
@@ -3169,6 +3171,10 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		}
 
 		return contactInfoList;
+	}
+
+	private int getSUSettingsForMsisdn(String msisdn) {
+		return ContactManager.getInstance().isOneWayFriend(msisdn) ? 1 : 0;
 	}
 
 }

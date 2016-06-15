@@ -4360,7 +4360,9 @@ public class HikeConstants
 
 	public static final String FETCH_METADATA_PACK_COUNT = "fetchPackMetadataCount";
 
-    public static final String SHOW_STICKER_SHOP_SEARCH_FTUE_LIMIT = "s_s_ftue";
+	public static final String SHOP_PAGE_SIZE = "shopPageSize";
+
+	public static final String SHOW_STICKER_SHOP_SEARCH_FTUE_LIMIT = "s_s_ftue";
 
     public static final String STICKER_SHOP_SEARCH_ALLOWED = "s_s_s_allwd";
 
@@ -4499,5 +4501,7 @@ public class HikeConstants
 	public static final String SPACE_MANAGER_JSON = "sm_json";
 
 	public static final String FRIENDS_TAB_NOTIF_DOT = "frnTabNotifDot";
+
+	public static final String FRIENDS_TAB_STEALTH_NOTIF_DOT = "frnTabNotifDot";
 
 }

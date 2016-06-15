@@ -4,8 +4,10 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.support.annotation.IntDef;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.TextUtils;
 import android.util.SparseArray;
 import android.view.View;
+import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -19,10 +21,10 @@ import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
 import com.bsb.hike.modules.quickstickersuggestions.model.QuickSuggestionStickerCategory;
 import com.bsb.hike.modules.quickstickersuggestions.tasks.FetchQuickStickerSuggestionTask;
 import com.bsb.hike.modules.quickstickersuggestions.tasks.InsertQuickSuggestionTask;
+import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.StickerManager;
 
-import org.apache.http.util.TextUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -80,6 +82,10 @@ public class QuickStickerSuggestionController
     public static final int NETWORK_ERROR = 2;
 
     private boolean qsLoaded;
+
+    private String msisdn;
+
+    private boolean shownHikeDirectToast;
 
     @IntDef({EMPTY_STATE_ERROR, NETWORK_ERROR})
     @Retention(RetentionPolicy.SOURCE)
@@ -152,13 +158,15 @@ public class QuickStickerSuggestionController
 
     public boolean isStickerClickAllowed(boolean isSent)
     {
-        return isSent ? showQuickStickerSuggestionOnStickerSent : showQuickStickerSuggestionOnStickerReceive;
+        return !isConnectedToHikeDirect() && (isSent ? showQuickStickerSuggestionOnStickerSent : showQuickStickerSuggestionOnStickerReceive);
     }
 
     public void releaseResources()
     {
         completeFtueSession();
         currentQsConvMessage = null;
+        msisdn = null;
+        shownHikeDirectToast = false;
     }
 
     public void loadQuickStickerSuggestions(QuickSuggestionStickerCategory quickSuggestionCategory)
@@ -258,12 +266,6 @@ public class QuickStickerSuggestionController
             return true;
         }
         return false;
-    }
-
-    public int getSetIdForQuickSuggestions()
-    {
-        String uid = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.UID_SETTING, null);
-        return Math.abs(TextUtils.isEmpty(uid) ? 0 : uid.hashCode() % 100) + 1;
     }
 
     public boolean shouldAnimateSticker(ConvMessage convMessage) {
@@ -426,5 +428,31 @@ public class QuickStickerSuggestionController
     public ConvMessage getCurrentQSConvMessage()
     {
         return currentQsConvMessage;
+    }
+
+    public void setCurrentChatMsisdn(String msisdn)
+    {
+        this.msisdn = msisdn;
+    }
+
+    public boolean isConnectedToHikeDirect()
+    {
+        String hikeDirectMsisdn = OfflineController.getInstance().getConnectedDevice();
+        if(TextUtils.isEmpty(hikeDirectMsisdn) || TextUtils.isEmpty(msisdn))
+        {
+            return false;
+        }
+
+        return hikeDirectMsisdn.equalsIgnoreCase(msisdn);
+    }
+
+    public void showHikeDirectToast(boolean isSent)
+    {
+        boolean enabled = isSent ? showQuickStickerSuggestionOnStickerSent : showQuickStickerSuggestionOnStickerReceive;
+        if(enabled && !shownHikeDirectToast && isConnectedToHikeDirect())
+        {
+            shownHikeDirectToast = true;
+            Toast.makeText(HikeMessengerApp.getInstance(), HikeMessengerApp.getInstance().getString(R.string.qs_error_message_for_hike_direct), Toast.LENGTH_LONG).show();
+        }
     }
 }

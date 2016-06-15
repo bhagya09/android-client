@@ -1180,7 +1180,7 @@ public class HAManager {
 			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.STICKY_CALLER);
 			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CHAT_THREAD);
 			json.put(AnalyticsConstants.V2.ORDER, order);
-			json.put(AnalyticsConstants.V2.TO_MISISDN, msisdn);
+			json.put(AnalyticsConstants.V2.TO_MSISDN, msisdn);
 			json.put(AnalyticsConstants.V2.SPECIES, species);
 			Logger.d("c_spam_logs", " Caller spam logs are \n " + json);
 			recordV2(json);

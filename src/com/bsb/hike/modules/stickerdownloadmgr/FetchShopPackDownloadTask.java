@@ -11,8 +11,6 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
-import com.bsb.hike.modules.httpmgr.request.PriorityConstants;
-import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
@@ -70,7 +68,7 @@ public class FetchShopPackDownloadTask extends AsyncTask<Void, Void, Void>
 
 	private void decisionWhenRankAndDataPresent(Cursor cursor) {
 
-		if ((cursor.getCount() + StickerManager.SHOP_PAGE_SIZE - limit) > 0
+		if ((cursor.getCount() + StickerManager.getInstance().getShopPageSize() - limit) > 0
 				|| HikeSharedPreferenceUtil.getInstance().getData(StickerManager.STICKER_SHOP_RANK_FULLY_FETCHED, false)) // this means we have some new categories or the
 		// categories fetched are already done
 		{

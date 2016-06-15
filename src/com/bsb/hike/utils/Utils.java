@@ -8229,7 +8229,7 @@ public class Utils
 			stringBuilder.append("=");
 			stringBuilder.append(parameterPair.second);
 		}
-		return parameterUrl;
+		return stringBuilder.toString();
 	}
 
 	public static JSONObject getParameterPostBodyForHttpApi(String url, JSONObject postBody) {
