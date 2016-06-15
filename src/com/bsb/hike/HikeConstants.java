@@ -4500,8 +4500,10 @@ public class HikeConstants
 
 	public static final String SPACE_MANAGER_JSON = "sm_json";
 
-	public static final long DEFAULT_PACK_METADATA_REFRESH_FREQUENCY_IN_DAYS = 7L;
+	public static final long DEFAULT_PACK_METADATA_REFRESH_FREQUENCY_IN_MILLIS = 7L * ONE_DAY_MILLS;
 
     public static final String FRIENDS_TAB_NOTIF_DOT = "frnTabNotifDot";
+
+	public static final String PACK_METADATA_REFRESH_FREQUENCY = "pk_md_rF";
 
 }

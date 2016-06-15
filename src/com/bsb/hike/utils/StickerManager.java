@@ -291,8 +291,6 @@ public class StickerManager
 
 	public static final String STICKER_TYPE = "s_t";
 
-	public static final String PACK_METADATA_REFRESH_FREQUENCY = "pk_md_rF";
-
 	private final Map<String, StickerCategory> stickerCategoriesMap;
 
 	public static String stickerExternalDir;
@@ -422,7 +420,9 @@ public class StickerManager
 		QuickStickerSuggestionController.getInstance().retryFailedQuickSuggestions();
 
 		makeCallForUserParameters();
-}
+
+		refreshDownloadPacksMetadata();
+    }
 
 	public void fetchCategoryMetadataTask(List<StickerCategory> list)
 	{
@@ -2532,7 +2532,6 @@ public class StickerManager
 		sendStickerPackAndOrderListForAnalytics();
 		CategorySearchManager.sendSearchedCategoryDailyReport();
 		StickerSearchManager.getInstance().sendStickerSearchDailyAnalytics();
-		refreshDownloadPacksMetadata();
 	}
 
 	/**
@@ -4235,9 +4234,9 @@ public class StickerManager
 	public void refreshDownloadPacksMetadata()
 	{
 		long lastRefreshTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PACK_METADATA_REFRESH_TIME, 0l);
-		long packRefreshDayFrequency = HikeSharedPreferenceUtil.getInstance().getData(PACK_METADATA_REFRESH_FREQUENCY, HikeConstants.DEFAULT_PACK_METADATA_REFRESH_FREQUENCY_IN_DAYS);
+		long packRefreshFrequency = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.PACK_METADATA_REFRESH_FREQUENCY, HikeConstants.DEFAULT_PACK_METADATA_REFRESH_FREQUENCY_IN_MILLIS);
 
-		if ((System.currentTimeMillis() - lastRefreshTime) > (HikeConstants.ONE_DAY_MILLS * packRefreshDayFrequency)) // greater than n days
+		if ((System.currentTimeMillis() - lastRefreshTime) > (packRefreshFrequency)) // greater than n days
 		{
 			initiateDownloadedStickerCategoriesDetailsRefreshTask();
 		}

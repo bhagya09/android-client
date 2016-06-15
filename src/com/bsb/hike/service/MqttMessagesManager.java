@@ -4072,10 +4072,10 @@ public class MqttMessagesManager
             int magnitude = data.optInt(HikeConstants.MAGNITUDE_KEY, HikeStickerSearchBaseConstants.DEFAULT_STICKER_SEARCH_FAIL_COUNT_LIMIT);
             HikeSharedPreferenceUtil.getInstance().saveData(HikeStickerSearchBaseConstants.STICKER_SEARCH_FAIL_COUNT_LIMIT, magnitude);
         }
-        else if(StickerManager.PACK_METADATA_REFRESH_FREQUENCY.equals(subType))
+        else if(HikeConstants.PACK_METADATA_REFRESH_FREQUENCY.equals(subType))
         {
-            long magnitude = data.optLong(HikeConstants.MAGNITUDE_KEY, HikeConstants.DEFAULT_PACK_METADATA_REFRESH_FREQUENCY_IN_DAYS);
-            HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.PACK_METADATA_REFRESH_FREQUENCY, magnitude);
+            long magnitude = data.optLong(HikeConstants.MAGNITUDE_KEY, HikeConstants.DEFAULT_PACK_METADATA_REFRESH_FREQUENCY_IN_MILLIS);
+            HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.PACK_METADATA_REFRESH_FREQUENCY, magnitude);
         }
 	}
 

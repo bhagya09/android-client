@@ -805,9 +805,9 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 
     public void updateDownloadedStickersCount()
     {
-        List<Sticker> stickerIds = getStickersFromDb();
-        if(stickerIds != null)
-            setDownloadedStickersCount(stickerIds.size());
+        List<Sticker> stickerList = getStickersFromDb();
+        if(stickerList != null)
+            setDownloadedStickersCount(stickerList.size());
         else
             setDownloadedStickersCount(0);
     }
