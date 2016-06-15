@@ -19,7 +19,7 @@ import com.bsb.hike.utils.IntentFactory;
 /**
  * Created by gauravmittal on 19/05/16.
  */
-public class FriendRequestActivity extends HikeAppStateBaseFragmentActivity {
+public class FriendsActivity extends HikeAppStateBaseFragmentActivity {
 
     public static final String ADD_FRIENDS = "add_friends";
 
