@@ -45,7 +45,7 @@ public class FriendRequestActivity extends HikeAppStateBaseFragmentActivity {
             setupActionBar(R.string.add_friends);
             addAddFriendsFragment();
         } else if (intent.hasExtra(ADD_FRIENDS_ADDRESSBOOK)) {
-            setupActionBar(R.string.add_via_address_book);
+            setupActionBar(R.string.address_book);
             addAddFriendsViaABFragment();
         } else {
             setupActionBar(R.string.added_me);
