@@ -56,7 +56,7 @@ public class AddedMeFragment extends ListFragment implements HikePubSub.Listener
             Collections.sort(addedMeContacts, new Comparator<ContactInfo>() {
                 @Override
                 public int compare(ContactInfo lhs, ContactInfo rhs) {
-                    return lhs.getUnreadRequestReceivedTime() > rhs.getUnreadRequestReceivedTime() ? 1 : -1;
+                    return lhs.getUnreadRequestReceivedTime() < rhs.getUnreadRequestReceivedTime() ? 1 : -1;
                 }
             });
         }
