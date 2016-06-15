@@ -62,7 +62,6 @@ import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerPreviewImageDownloadTask;
-import com.bsb.hike.modules.stickerdownloadmgr.StickerSignupUpgradeDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.UserParameterDownloadTask;
 import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
@@ -1571,14 +1570,17 @@ public class StickerManager
 		return stickerPageList;
 	}
 
-	public JSONArray getAllInitialyInsertedStickerCategories()
+	public List<StickerCategory> getAllInitialyInsertedStickerCategories()
 	{
 		JSONObject jsonObj;
-		JSONArray jsonArray = new JSONArray();
+		List<StickerCategory> categoryList = null;
 		try
 		{
 			jsonObj = new JSONObject(Utils.loadJSONFromAsset(context, StickerManager.STICKERS_JSON_FILE_NAME));
 			JSONArray stickerCategories = jsonObj.optJSONArray(StickerManager.STICKER_CATEGORIES);
+
+            categoryList = new ArrayList<StickerCategory>(stickerCategories.length());
+
 			for (int i = 0; i < stickerCategories.length(); i++)
 			{
 				JSONObject obj = stickerCategories.optJSONObject(i);
@@ -1586,7 +1588,9 @@ public class StickerManager
 				boolean isCustom = obj.optBoolean(StickerManager.IS_CUSTOM);
 				if (!isCustom)
 				{
-					jsonArray.put(categoryId);
+
+                    StickerCategory category = new StickerCategory.Builder().setCategoryId(categoryId).build();
+                    categoryList.add(category);
 				}
 			}
 		}
@@ -1594,7 +1598,7 @@ public class StickerManager
 		{
 			e.printStackTrace();
 		}
-		return jsonArray;
+		return categoryList;
 	}
 
 	public void checkAndDownLoadStickerData()
@@ -1604,8 +1608,8 @@ public class StickerManager
 			return;
 		}
 
-		StickerSignupUpgradeDownloadTask stickerSignupUpgradeDownloadTask = new StickerSignupUpgradeDownloadTask(getAllInitialyInsertedStickerCategories());
-		stickerSignupUpgradeDownloadTask.execute();
+        StickerCategoriesDetailsDownloadTask stickerSignupUpgradeDownloadTask = new StickerCategoriesDetailsDownloadTask(getAllInitialyInsertedStickerCategories(), true);
+        stickerSignupUpgradeDownloadTask.execute();
 	}
 
 	public void showStickerRecommendTurnOnToast()
@@ -4259,7 +4263,7 @@ public class StickerManager
 
 	public void initiateDownloadedStickerCategoriesDetailsRefreshTask()
 	{
-		StickerCategoriesDetailsDownloadTask stickerCategoriesDetailsDownloadTask = new StickerCategoriesDetailsDownloadTask(getMyStickerCategoryList());
+		StickerCategoriesDetailsDownloadTask stickerCategoriesDetailsDownloadTask = new StickerCategoriesDetailsDownloadTask(getMyStickerCategoryList(), false);
 		stickerCategoriesDetailsDownloadTask.execute();
 	}
 }
