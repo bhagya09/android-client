@@ -20,6 +20,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bsb.hike.BitmapModule.BitmapUtils;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
@@ -1170,6 +1172,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.On
 				ContactManager.getInstance().toggleLastSeenSetting(mContactInfo, isChecked);
 				mContactInfo.getPrivacyPrefs().toggleLastSeen();
 				recordLastSeenSettingToggle();
+				HikeMessengerApp.getPubSub().publish(HikePubSub.LAST_SEEN_SETTING_TOGGLED, mContactInfo);
 				break;
 
 			case R.id.status_update_switch:

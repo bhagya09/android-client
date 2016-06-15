@@ -349,7 +349,8 @@ public class StickyCaller {
 				if (movedOnXaxis != 0) {
 					Logger.d(TAG, "making caller gone");
 					stickyCallerFrameHolder.setVisibility(View.GONE);
-					HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CLOSE_SWIPE, getNumberFromCard(),
+					String msisdn = CALL_TYPE == QUICK_REPLY ? quickReplyContentModel.getMsisdn() : getNumberFromCard();
+					HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CLOSE_SWIPE, msisdn,
 							AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
 				}
 			}
@@ -574,7 +575,7 @@ public class StickyCaller {
 				@Override
 				public void run() {
 					if (stickyCallerView != null && callerContentModel != null && stickyCallerView.isShown()
-							&& ((TextView) stickyCallerView.findViewById(R.id.caller_number)).getText().equals(callerContentModel.getMsisdn())) {
+							&& CALL_TYPE != QUICK_REPLY && ((TextView) stickyCallerView.findViewById(R.id.caller_number)).getText().equals(callerContentModel.getMsisdn())) {
 						if (callerContentModel.getFullName() != null
 								&& ((TextView) stickyCallerView.findViewById(R.id.caller_name)).getText().equals(callerContentModel.getFullName())) {
 							setValueOnID(R.id.caller_name, callerContentModel.getFullName());
