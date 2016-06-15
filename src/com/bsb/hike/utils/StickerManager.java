@@ -418,8 +418,6 @@ public class StickerManager
 
 		QuickStickerSuggestionController.getInstance().retryFailedQuickSuggestions();
 
-		makeCallForUserParameters();
-
 		refreshDownloadPacksMetadata();
     }
 
