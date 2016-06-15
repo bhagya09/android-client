@@ -4,6 +4,8 @@ import android.support.annotation.Nullable;
 import android.os.Bundle;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.chatthemes.model.ChatThemeToken;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -60,6 +62,7 @@ public class DownloadThemeContentTask implements IHikeHTTPTask, IHikeHttpTaskRes
     @Override
     public void doOnFailure(HttpException exception) {
         Logger.d(TAG, "chat theme asset id download failed");
+        HikeMessengerApp.getPubSub().publish(HikePubSub.CHATTHEME_CONTENT_DOWNLOAD_FAILURE, mToken);
     }
 
     @Override

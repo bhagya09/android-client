@@ -82,7 +82,7 @@ public class DownloadAssetsTask implements IHikeHTTPTask, IHikeHttpTaskResult {
     public void doOnFailure(HttpException exception) {
         Logger.d(TAG, "chat theme asset download failed");
         updateAssetDownloadStatus(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_NOT_DOWNLOADED);
-        HikeMessengerApp.getPubSub().publish(HikePubSub.CHATTHEME_CONTENT_DOWNLOAD_FAILURE, exception);
+        HikeMessengerApp.getPubSub().publish(HikePubSub.CHATTHEME_CONTENT_DOWNLOAD_FAILURE, mToken);
     }
 
     @Override

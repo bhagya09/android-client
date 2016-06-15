@@ -7013,6 +7013,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 					}
 					else
 					{
+						ChatThemeManager.getInstance().downloadThemeContent(currentThemeId, msisdn, true);
 						return prevThemeId;
 					}
 				}
@@ -7063,6 +7064,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 					else
 					{
 						chatThemeId = prevThemeId;
+						ChatThemeManager.getInstance().downloadThemeContent(currentThemeId, msisdn, true);
 					}
 				}
 				catch (IllegalArgumentException e)
