@@ -400,10 +400,22 @@ public class BotUtils
 							String popupsPath = PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.ONE_TIME_POPUPS, microAppsDirectoryPath,
 									appName);
 
+                            boolean isFileExistsInMappDirectory = false;
+                            if(new File(mAppsPath).exists())
+                                isFileExistsInMappDirectory = true;
+
+
 							if (PlatformUtils.deleteDirectory(webMicroAppsPath) || PlatformUtils.deleteDirectory(mAppsPath) || PlatformUtils.deleteDirectory(nativeMicroAppsPath)
 									|| PlatformUtils.deleteDirectory(popupsPath))
 							{
-								String sentData = AnalyticsConstants.REMOVE_SUCCESS;
+                                // If app exists in micro app directory, remove entry from MAPP Table and cache as well
+                                if(isFileExistsInMappDirectory)
+                                {
+                                    HikeContentDatabase.getInstance().removeFromMAppDataTable(appName);
+                                    HikeMessengerApp.hikeMappInfo.remove(appName);
+                                }
+
+                                String sentData = AnalyticsConstants.REMOVE_SUCCESS;
 								JSONObject json = new JSONObject();
 								json.putOpt(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.REMOVE_MICRO_APP);
 								json.putOpt(AnalyticsConstants.REMOVE_MICRO_APP, sentData);

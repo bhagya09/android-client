@@ -1605,7 +1605,7 @@
     <string name="emptyseenlist"> - </string>
     <string name="emptydeliveredlist"> - </string>
     <string name="emptyplayedlist"> - </string>
-    <string name="remaining_items">%1 ausstehend</string>
+    <string name="remaining_items">%1$s ausstehend</string>
     <string name="read_list">GELESEN VON</string>
     <string name="read_list_one">GELESEN</string>
     <string name="delivered_list_one">GESENDET</string>
