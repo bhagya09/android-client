@@ -3835,6 +3835,8 @@ public class MqttMessagesManager
 			// To update the friends tab indicator
 			if (!StealthModeManager.getInstance().isStealthMsisdn(contactInfo.getUserIdentifier())) // Is Stealth ?
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FRIENDS_TAB_NOTIF_DOT, true);
+			else
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FRIENDS_TAB_STEALTH_NOTIF_DOT, true); // Save temporarily for stealth
 			incrementUnseenStatusCount();
 			pubSub.publish(HikePubSub.TIMELINE_UPDATE_RECIEVED, statusMessage);
 			if (statusMessage.getStatusMessageType() == StatusMessageType.PROFILE_PIC || statusMessage.getStatusMessageType() == StatusMessageType.IMAGE
@@ -5338,6 +5340,8 @@ public class MqttMessagesManager
 						// To update the friends tab indicator
 						if (!StealthModeManager.getInstance().isStealthMsisdn(feedData.getActor()))
 							HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FRIENDS_TAB_NOTIF_DOT, true);
+						else
+							HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FRIENDS_TAB_STEALTH_NOTIF_DOT, true);
 
 						HikeMessengerApp.getPubSub().publish(HikePubSub.UNSEEN_STATUS_COUNT_CHANGED, null);
 					}
