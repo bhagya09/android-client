@@ -6762,12 +6762,13 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
 			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
 			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.CHAT_OPEN);
-			json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
 			json.put(AnalyticsConstants.V2.SPECIES, getChatThreadOpenSource(activity.getIntent().getIntExtra(ChatThreadActivity.CHAT_THREAD_SOURCE, ChatThreadOpenSources.UNKNOWN)));
 			json.put(AnalyticsConstants.V2.FORM, activity.getIntent().getStringExtra(HikeConstants.Extras.WHICH_CHAT_THREAD));
 			json.put(AnalyticsConstants.V2.RACE, activity.getIntent().getStringExtra(AnalyticsConstants.EXP_ANALYTICS_TAG));
 			json.put(AnalyticsConstants.V2.BREED, activity.getIntent().getStringExtra(AnalyticsConstants.SOURCE_CONTEXT));
-			json.put(AnalyticsConstants.V2.TO_USER, msisdn);
+			json.put(AnalyticsConstants.V2.TO_MISISDN, msisdn);
+			if (StealthModeManager.getInstance().isStealthMsisdn(msisdn))
+				json.put(AnalyticsConstants.V2.VARIETY, "stealth");
 			return json;
 		}
 		catch (JSONException e)
@@ -6814,11 +6815,17 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				return "new_group_create";
 			case ChatThreadOpenSources.MICRO_APP:
 				return "micro_app";
+			case ChatThreadOpenSources.ADD_FRIEND_FRAG:
+				return "add_friend_frag";
+			case ChatThreadOpenSources.ADDED_ME_FRAG:
+				return "added_me_frag";
+			case ChatThreadOpenSources.INITIATE_BOT:
+				return "initiate_bot";
 			default:
 				return "unknown";
 		}
-
 	}
+
 	public void onHelpClicked()
 	{
 		Intent intent =IntentFactory.getNonMessagingBotIntent(HikePlatformConstants.CUSTOMER_SUPPORT_BOT_MSISDN,activity.getApplicationContext());
