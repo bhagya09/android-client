@@ -324,7 +324,7 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 			}
 			FavoriteType favoriteType = contactInfo.getFavoriteType();
 
-			if (shouldAddToFavorites(favoriteType) && fetchFavContacts)
+			if (contactInfo.isMyOneWayFriend() && fetchFavContacts)
 			{
 				friendTaskList.add(contactInfo);
 			}
@@ -399,12 +399,6 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		Logger.d("TestQuery", "total time: " + (System.currentTimeMillis() - startTime));
 		return null;
 
-	}
-
-	private boolean shouldAddToFavorites(FavoriteType favoriteType)
-	{
-		return favoriteType == FavoriteType.REQUEST_RECEIVED || favoriteType == FavoriteType.FRIEND || favoriteType == FavoriteType.REQUEST_SENT
-				|| favoriteType == FavoriteType.REQUEST_SENT_REJECTED;
 	}
 
 	private boolean shouldShowSmsContact(String msisdn)
