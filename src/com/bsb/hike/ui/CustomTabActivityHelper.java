@@ -157,12 +157,12 @@ public class CustomTabActivityHelper
 	 * @param activity
 	 *            the activity to be binded to the service
 	 */
-	public void bindCustomTabsService(Activity activity)
+	public void bindCustomTabsService(final Activity activity)
 	{
 		if (mClient != null)
 			return;
 
-		String packageName = CustomTabsHelper.getPackageNameToUse(activity);
+		final String packageName = CustomTabsHelper.getPackageNameToUse(activity);
 		if (packageName == null)
 			return;
 		mConnection = new CustomTabsServiceConnection()
@@ -186,8 +186,14 @@ public class CustomTabActivityHelper
 					mConnectionCallback.onCustomTabsDisconnected();
 			}
 		};
-		CustomTabsClient.bindCustomTabsService(activity, packageName, mConnection);
-
+		//Fix for CD-899
+		Thread bindThread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				CustomTabsClient.bindCustomTabsService(activity, packageName, mConnection);
+			}
+		});
+		bindThread.start();
 	}
 
 	/**

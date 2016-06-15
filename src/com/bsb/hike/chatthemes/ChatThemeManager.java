@@ -185,7 +185,7 @@ public class ChatThemeManager {
         if (themeId.equals(ChatThemeManager.getInstance().defaultChatThemeId)) // the default theme is always available
             return true;
 
-        if (!mChatThemesMap.containsKey(themeId))
+        if (mChatThemesMap == null || !mChatThemesMap.containsKey(themeId))
             return false;
 
         HikeChatTheme theme = mChatThemesMap.get(themeId);

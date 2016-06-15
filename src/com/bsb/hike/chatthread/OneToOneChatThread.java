@@ -1,20 +1,5 @@
 package com.bsb.hike.chatthread;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.NotificationManager;
@@ -121,6 +106,21 @@ import com.bsb.hike.view.CustomFontButton;
 import com.bsb.hike.view.CustomFontTextView;
 import com.bsb.hike.voip.VoIPUtils;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 /**
  * <!-- begin-user-doc --> <!-- end-user-doc -->
  * 
@@ -187,6 +187,8 @@ import com.bsb.hike.voip.VoIPUtils;
 	private static final int SHOW_UNKNOWN_USER_OVERLAY = 123;
 
 	private static final int SHOW_BDAY_UI = 124;
+
+	private static final int HIDE_LAST_SEEN = 125;
 
 	private static short H2S_MODE = 0; // Hike to SMS Mode
 
@@ -729,7 +731,7 @@ import com.bsb.hike.voip.VoIPUtils;
 				HikePubSub.CHANGED_MESSAGE_TYPE, HikePubSub.SHOW_SMS_SYNC_DIALOG, HikePubSub.SMS_SYNC_COMPLETE, HikePubSub.SMS_SYNC_FAIL, HikePubSub.SMS_SYNC_START,
 				HikePubSub.LAST_SEEN_TIME_UPDATED, HikePubSub.SEND_SMS_PREF_TOGGLED, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.USER_JOINED, HikePubSub.USER_LEFT,
 				HikePubSub.APP_FOREGROUNDED, HikePubSub.FAVORITE_TOGGLED, HikePubSub.FRIEND_REQUEST_ACCEPTED, HikePubSub.REJECT_FRIEND_REQUEST ,HikePubSub.OFFLINE_FILE_COMPLETED,
-				HikePubSub.UPDATE_MESSAGE_ORIGIN_TYPE, HikePubSub.UPDATE_UNKNOWN_USER_INFO_VIEW};
+				HikePubSub.UPDATE_MESSAGE_ORIGIN_TYPE, HikePubSub.UPDATE_UNKNOWN_USER_INFO_VIEW, HikePubSub.LAST_SEEN_SETTING_TOGGLED };
 		return oneToOneListeners;
 	}
 
@@ -914,6 +916,9 @@ import com.bsb.hike.voip.VoIPUtils;
 		case HikePubSub.UPDATE_UNKNOWN_USER_INFO_VIEW:
 			updateUnknownUserInfoChatView(object);
 			break;
+			case HikePubSub.LAST_SEEN_SETTING_TOGGLED:
+				onUpdateLastSeenSetting((ContactInfo) object);
+				break;
 		default:
 			Logger.d(TAG, "Did not find any matching PubSub event in OneToOne ChatThread. Calling super class' onEventReceived");
 			super.onEventReceived(type, object);
@@ -1139,6 +1144,9 @@ import com.bsb.hike.voip.VoIPUtils;
 		case SHOW_BDAY_UI:
 			updateUIForBdayChat();
 			break;
+			case HIDE_LAST_SEEN:
+				hideLastSeenText();
+				break;
 		default:
 			Logger.d(TAG, "Did not find any matching event in OneToOne ChatThread. Calling super class' handleUIMessage");
 			super.handleUIMessage(msg);
@@ -4522,22 +4530,11 @@ import com.bsb.hike.voip.VoIPUtils;
 	}
 
 	/**
-	 * Workaround for bug where the header needs to be added after adapter has been set in the list view
-	 *
 	 * @param headerView
 	 */
-	protected void checkAndAddListViewHeader(View headerView) {
-
-		if (mAdapter != null) {
-			mConversationsView.setAdapter(null);
-			mConversationsView.addHeaderView(headerView);
-			mConversationsView.setAdapter(mAdapter);
-
-			//Takes to list end
-			uiHandler.sendEmptyMessage(SCROLL_TO_END);
-		} else {
-			mConversationsView.addHeaderView(headerView);
-		}
+	protected void checkAndAddListViewHeader(View headerView)
+	{
+		mConversationsView.addHeaderView(headerView);
 	}
 
 	private void updateUIForBdayChat()
@@ -4568,6 +4565,18 @@ import com.bsb.hike.voip.VoIPUtils;
 			mActionBar.updateOverflowMenuIndicatorCount(0);
 			mActionBar.updateOverflowMenuItemCount(R.string.view_profile, 0);
 			wasFriendsPrivacyRedDotShown = false;
+		}
+	}
+
+	private void onUpdateLastSeenSetting(ContactInfo contactInfo) {
+
+		if (mContactInfo.getMsisdn().equals(contactInfo.getMsisdn())) {
+			mContactInfo.setPrivacyPrefs(contactInfo.getPrivacyPrefs());
+			if (ChatThreadUtils.shouldShowLastSeen(mContactInfo, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked())) {
+				checkAndStartLastSeenTask();
+			} else {
+				uiHandler.sendEmptyMessage(HIDE_LAST_SEEN);
+			}
 		}
 	}
 

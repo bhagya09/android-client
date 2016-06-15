@@ -2076,6 +2076,10 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 	}
 
 	void toggleContactFavorite(String msisdn, FavoriteType favoriteType) {
+		toggleContactFavorite(msisdn, favoriteType, true);
+	}
+
+	void toggleContactFavorite(String msisdn, FavoriteType favoriteType, boolean updatePrivacyValues) {
 		/*
 		 * If we are setting the type as not favorite, we'll remove the row itself.
 		 */
@@ -2083,7 +2087,13 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		Logger.d(TAG, "Adding msisdb to favourite" + msisdn);
 		cv.put(DBConstants.MSISDN, msisdn);
 		cv.put(DBConstants.FAVORITE_TYPE, favoriteType.ordinal());
-		cv.put(DBConstants.LAST_SEEN_SETTINGS, getLastSeenSettingsForMsisdn());
+
+		if (updatePrivacyValues) {
+			cv.put(DBConstants.LAST_SEEN_SETTINGS, getLastSeenSettingsForMsisdn());
+
+			cv.put(DBConstants.STATUS_UPDATE_SETTINGS, getSUSettingsForMsisdn(msisdn));
+		}
+
 		long value = mDb.update(DBConstants.USERS_TABLE, cv, DBConstants.MSISDN + "=?", new String[]{msisdn});
 		if (value == -1 || value == 0) {
 			value = mDb.insertWithOnConflict(DBConstants.USERS_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
@@ -2092,7 +2102,6 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 			Logger.d(TAG, "MSISDN FAVOURITE" + msisdn + "result -->" + value + "UPDATE EXECUTED");
 		}
 	}
-
 
 	public List<ContactInfo> getNonHikeMostContactedContactsFromListOfNumbers(String selectionNumbers, final Map<String, Integer> mostContactedValues, int limit)
 	{
@@ -3058,6 +3067,10 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 			return 1;
 		}
 		return 0;
+	}
+
+	private int getSUSettingsForMsisdn(String msisdn) {
+		return ContactManager.getInstance().isOneWayFriend(msisdn) ? 1 : 0;
 	}
 
 }

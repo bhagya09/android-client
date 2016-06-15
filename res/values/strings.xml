@@ -1681,5 +1681,5 @@
     <string name="native_card_file_transfer_of_type">Native card file transfer of type</string>
     <string name="qs_empty_page_text_sub_text_part_one">"Tap on"</string>
     <string name="qs_empty_page_text_sub_text_part_two">"to send a sticker"</string>
-
+    <string name="qs_error_message_for_hike_direct">You need to be connected to the internet to get quick suggestions for stickers</string>
 </resources>
