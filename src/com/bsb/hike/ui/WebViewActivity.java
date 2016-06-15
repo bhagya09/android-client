@@ -461,6 +461,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		loadMicroApp();
 		checkAndBlockOrientation();
 		resetNotificationCounter();
+        webView.setWebChromeClient(new HikeWebChromeClient(allowLoc));
 		webView.setWebViewClient(new HikeWebViewClient());
 	}
 
