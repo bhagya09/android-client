@@ -1876,7 +1876,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		{
 			updateUIAsPerTheme(chatThemeId);
 			currentThemeId = chatThemeId;
-			if (ChatThemeManager.getInstance().getTheme(chatThemeId).isCustomTheme()) {
+			if (ChatThemeManager.getInstance().getTheme(chatThemeId, msisdn).isCustomTheme()) {
 				sendChatThemeMessage(true);
 			} else {
 				sendChatThemeMessage();

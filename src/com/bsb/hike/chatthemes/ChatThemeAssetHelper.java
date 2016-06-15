@@ -10,6 +10,7 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -118,6 +119,12 @@ public class ChatThemeAssetHelper implements HikePubSub.Listener {
      */
     public void assetDownloadRequest(ChatThemeToken token) {
         DownloadAssetsTask downloadAssets = new DownloadAssetsTask(token);
+        downloadAssets.execute();
+    }
+
+
+    public void assetDownloadRequestAcrossThemes(HashMap<String, ChatThemeToken> tokenMap) {
+        DownloadMultipleAssetsTask downloadAssets = new DownloadMultipleAssetsTask(tokenMap);
         downloadAssets.execute();
     }
 
