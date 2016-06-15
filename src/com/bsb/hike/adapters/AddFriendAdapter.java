@@ -83,6 +83,9 @@ public class AddFriendAdapter extends BaseAdapter implements PinnedSectionListVi
     public void updateList(List<ContactInfo> list) {
         this.completeList = list;
         this.displayList = completeList;
+        // if the list is being updated while in search mode. then we need to run the query again.
+        if (searchText != null)
+            onSearchQueryChanged(searchText, null);
     }
 
     public enum ViewType
