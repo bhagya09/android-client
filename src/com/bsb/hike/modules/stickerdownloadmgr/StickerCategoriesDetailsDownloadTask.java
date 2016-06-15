@@ -19,6 +19,7 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHTTPTask;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHttpTaskResult;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
@@ -75,6 +76,7 @@ public class StickerCategoriesDetailsDownloadTask implements IHikeHTTPTask, IHik
 				requestJsonBody.put(HikeConstants.UNKNOWN_KEYBOARDS, Utils.listToString(unsupportedLanguages));
 			}
 
+			requestJsonBody = Utils.getParameterPostBodyForHttpApi(HttpRequestConstants.BASE_CATEGORY_DETAIL, requestJsonBody);
 		}
 		catch (JSONException e)
 		{
