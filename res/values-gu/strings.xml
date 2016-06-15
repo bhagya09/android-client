@@ -1605,7 +1605,7 @@
     <string name="emptyseenlist"> - </string>
     <string name="emptydeliveredlist"> - </string>
     <string name="emptyplayedlist"> - </string>
-    <string name="remaining_items">%1 બાકી રહે છે</string>
+    <string name="remaining_items">%1$s બાકી રહે છે</string>
     <string name="read_list">ના દ્વારા વાંચેલું</string>
     <string name="read_list_one">વાંંચ્યુ</string>
     <string name="delivered_list_one">ડીલીવર કર્યું</string>
