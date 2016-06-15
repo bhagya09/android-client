@@ -114,7 +114,7 @@ public class FriendRequestAdapter extends BaseAdapter implements PinnedSectionLi
         else if (info.getId() == ViewType.BASIC_ITEM.toString()) {
             return ViewType.BASIC_ITEM.ordinal();
         }
-        else if (info.isMyOneWayFriend()) {
+        else if (info.isMyFriend()) {
             return ViewType.FRIEND.ordinal();
         }
         else {
@@ -186,7 +186,7 @@ public class FriendRequestAdapter extends BaseAdapter implements PinnedSectionLi
             viewHolder.number.setText(info.getMsisdn());
             viewHolder.avatar.setTag(info.getMsisdn());
             iconLoader.loadImage(info.getMsisdn(), viewHolder.avatar, false, false, true, info);
-            if (info.isMyOneWayFriend()) {
+            if (info.isMyFriend()) {
                 viewHolder.addedFriend.setVisibility(View.VISIBLE);
                 viewHolder.addFriend.setVisibility(View.GONE);
             } else {

@@ -2852,7 +2852,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 					{
 						updateProfileHeaderView();
 						// Also setup the the privacy view again
-						if (Utils.isFavToFriendsMigrationAllowed() && contactInfo.isMyOneWayFriend()) {
+						if (Utils.isFavToFriendsMigrationAllowed() && contactInfo.isMyFriend()) {
 							setupContactProfileList();
 							profileAdapter.notifyDataSetChanged();
 						}
@@ -4013,7 +4013,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	}
 
 	private void checkAndAddPrivacySection() {
-		if (Utils.isFavToFriendsMigrationAllowed() && contactInfo.isMyOneWayFriend()) {
+		if (Utils.isFavToFriendsMigrationAllowed() && contactInfo.isMyFriend()) {
 			boolean shouldShowFTUE = false;
 			if (getIntent() != null) {
 				if (getIntent().getBooleanExtra(EXPAND_PRIVACY_VIEW, false) || !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FRIENDS_PRIVACY_PROFILE_VIEW_SHOWN, false))

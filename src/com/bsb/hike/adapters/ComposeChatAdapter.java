@@ -396,7 +396,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			holder.number.setText(contactInfo.getMsisdn());
 			holder.userImage.setTag(contactInfo.getMsisdn());
 			iconloader.loadImage(contactInfo.getMsisdn(), holder.userImage, false, false, true, contactInfo);
-			if (contactInfo.isMyOneWayFriend()) {
+			if (contactInfo.isMyFriend()) {
 				holder.addedFriend.setVisibility(View.VISIBLE);
 				holder.addFriend.setVisibility(View.GONE);
 			} else {
@@ -560,7 +560,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
 			if (showCheckbox)
 			{
-				if (!contactInfo.isMyOneWayFriend()
+				if (!contactInfo.isMyFriend()
 						&& Utils.isFavToFriendsMigrationAllowed()
 						&& !OneToNConversationUtils.isOneToNConversation(contactInfo.getMsisdn())
 						&& addFriendOption)
@@ -1092,7 +1092,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 							selectedPeople.put(contactInfo.getMsisdn(), contactInfo);
 						}
 						// select if its my friend
-						else if (contactInfo.isMyOneWayFriend()) {
+						else if (contactInfo.isMyFriend()) {
 							selectedPeople.put(contactInfo.getMsisdn(), contactInfo);
 						}
 					}

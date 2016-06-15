@@ -238,7 +238,7 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 				String msisdn = recentContact.getMsisdn();
 				boolean hideStealthMsisdn = StealthModeManager.getInstance().isStealthMsisdn(msisdn) && !StealthModeManager.getInstance().isActive();
 				boolean removeSendingMsisdn = (sendingMsisdn != null && sendingMsisdn.equals(msisdn));
-				if (blockSet.contains(msisdn) || HikeMessengerApp.hikeBotInfoMap.containsKey(msisdn) || myMsisdn.equals(msisdn) || hideStealthMsisdn || removeSendingMsisdn || !recentContact.isMyOneWayFriend())
+				if (blockSet.contains(msisdn) || HikeMessengerApp.hikeBotInfoMap.containsKey(msisdn) || myMsisdn.equals(msisdn) || hideStealthMsisdn || removeSendingMsisdn || !recentContact.isMyFriend())
 				{
 					continue;
 				}
@@ -324,7 +324,7 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 			}
 			FavoriteType favoriteType = contactInfo.getFavoriteType();
 
-			if (contactInfo.isMyOneWayFriend() && fetchFavContacts)
+			if (contactInfo.isMyFriend() && fetchFavContacts)
 			{
 				friendTaskList.add(contactInfo);
 			}

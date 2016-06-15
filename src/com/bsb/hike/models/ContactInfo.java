@@ -668,7 +668,7 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 	 *
 	 * @return
 	 */
-	public boolean isMyOneWayFriend()
+	public boolean isMyFriend()
 	{
 		FavoriteType favoriteType = this.getFavoriteType();
 		return (favoriteType == FavoriteType.REQUEST_SENT ||

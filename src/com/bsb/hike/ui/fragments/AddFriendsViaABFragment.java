@@ -1,6 +1,5 @@
 package com.bsb.hike.ui.fragments;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -31,7 +30,6 @@ import com.bsb.hike.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.Inflater;
 
 /**
  * Created by gauravmittal on 19/05/16.
@@ -49,7 +47,7 @@ public class AddFriendsViaABFragment extends ListFragment {
         List<ContactInfo> toAddHikecontacts = new ArrayList<>();
         List<ContactInfo> toAddSMScontacts = new ArrayList<>();
         for (ContactInfo info : allContacts) {
-            if (!info.isBot() && !info.isMyOneWayFriend()) {
+            if (!info.isBot() && !info.isMyFriend()) {
                 if (info.isOnhike()) {
                     toAddHikecontacts.add(info);
                 } else {

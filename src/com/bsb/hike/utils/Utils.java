@@ -7489,7 +7489,7 @@ public class Utils
 
 	public static boolean isNotMyOneWayFriend(ContactInfo contactInfo)
 	{
-		return Utils.isFavToFriendsMigrationAllowed() && !contactInfo.isMyOneWayFriend();
+		return Utils.isFavToFriendsMigrationAllowed() && !contactInfo.isMyFriend();
 	}
 
 	public static String getExternalFilesDirPath(String type)

@@ -982,7 +982,7 @@ import java.util.Map;
 			sendUIMessage(UPDATE_ADD_FRIEND_VIEWS, true);
 		}
 
-		else if (mContactInfo.isMyOneWayFriend())
+		else if (mContactInfo.isMyFriend())
 		{
 			sendUIMessage(UPDATE_ADD_FRIEND_VIEWS, false);
 		}
@@ -4067,7 +4067,7 @@ import java.util.Map;
 			return; // Do nothing here!
 		}
 
-		else if (mContactInfo.isMyOneWayFriend())
+		else if (mContactInfo.isMyFriend())
 		{
 			return; //If I am 1-way or 2-way friends, do not inflate these views
 		}
@@ -4149,7 +4149,7 @@ import java.util.Map;
 			return; // Do nothing here!
 		}
 
-		else if (mContactInfo.isMyOneWayFriend())
+		else if (mContactInfo.isMyFriend())
 		{
 			return; // If it already is a 1 way or a 2 way friend, no need for all this shizzle!
 		}
@@ -4551,7 +4551,7 @@ import java.util.Map;
 			return;
 		}
 
-		if (Utils.isFavToFriendsMigrationAllowed() && mContactInfo != null && mContactInfo.isMyOneWayFriend()) {
+		if (Utils.isFavToFriendsMigrationAllowed() && mContactInfo != null && mContactInfo.isMyFriend()) {
 			mActionBar.updateOverflowMenuIndicatorCount(1);
 			mActionBar.updateOverflowMenuItemCount(R.string.view_profile, 1);
 			wasFriendsPrivacyRedDotShown = true;
