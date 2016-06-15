@@ -47,7 +47,7 @@ public class AddFriendsViaABFragment extends ListFragment {
         List<ContactInfo> toAddHikecontacts = new ArrayList<>();
         List<ContactInfo> toAddSMScontacts = new ArrayList<>();
         for (ContactInfo info : allContacts) {
-            if (!info.isBot() && !info.isMyFriend()) {
+            if (!info.isBot()) {
                 if (info.isOnhike()) {
                     toAddHikecontacts.add(info);
                 } else {
