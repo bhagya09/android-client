@@ -195,6 +195,8 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 	protected boolean showSMSContactsInSearch;
 
+	protected boolean showUnknownContactsInSearch;
+
 	private IconLoader iconloader;
 
 	private boolean listFetchedOnce;

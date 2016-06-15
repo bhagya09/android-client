@@ -139,6 +139,11 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 	{
 		isCreatingOrEditingGroup = b;
 	}
+
+	public void enableUnknownContactsInSearch(boolean b)
+	{
+		showUnknownContactsInSearch = b;
+	}
 	
 	public void setNuxStateActive(boolean nuxStateActive) {
 		this.nuxStateActive = nuxStateActive;
@@ -950,7 +955,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		// to add new section and number for user typed number
 		String text = constraint.toString().trim();
 	
-		if (isIntegers(text))
+		if (showUnknownContactsInSearch && isIntegers(text))
 		{
 			newContactsList = new ArrayList<ContactInfo>();
 			ContactInfo section = new ContactInfo(SECTION_ID, null, context.getString(R.string.compose_chat_other_contacts), null);
