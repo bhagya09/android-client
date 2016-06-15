@@ -10,6 +10,7 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,13 +21,23 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.AddFriendAdapter;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.service.HikeService;
 import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,13 +45,15 @@ import java.util.List;
 /**
  * Created by gauravmittal on 19/05/16.
  */
-public class AddFriendsViaABFragment extends ListFragment {
+public class AddFriendsViaABFragment extends ListFragment implements HikePubSub.Listener {
 
     private ListView listView;
 
     private MenuItem searchMenuItem;
 
     private AddFriendAdapter mAdapter;
+
+    private String[] pubSubListeners = {HikePubSub.CONTACT_SYNC_STARTED, HikePubSub.CONTACT_SYNCED};
 
     private List<ContactInfo> getToAddContactList() {
         List<ContactInfo> allContacts = ContactManager.getInstance().getAllContacts(true);
@@ -86,6 +99,13 @@ public class AddFriendsViaABFragment extends ListFragment {
         listView = getListView();
         setListAdapter(mAdapter);
         listView.setOnItemClickListener(onItemClickListener);
+        HikeMessengerApp.getPubSub().addListeners(this, pubSubListeners);
+    }
+
+    @Override
+    public void onDestroyView() {
+        HikeMessengerApp.getPubSub().removeListeners(this, pubSubListeners);
+        super.onDestroyView();
     }
 
     private AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
@@ -100,9 +120,38 @@ public class AddFriendsViaABFragment extends ListFragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         menu.clear();
-        inflater.inflate(R.menu.friend_req_menu, menu);
+        inflater.inflate(R.menu.add_friend_menu, menu);
         setupSearchOptionItem(menu);
         super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId() == R.id.refresh_contacts)
+        {
+            if(HikeMessengerApp.syncingContacts)
+                return super.onOptionsItemSelected(item);
+            if(!Utils.isUserOnline(getContext()))
+            {
+                Utils.showNetworkUnavailableDialog(getContext());
+                return super.onOptionsItemSelected(item);
+            }
+            Intent contactSyncIntent = new Intent(HikeService.MQTT_CONTACT_SYNC_ACTION);
+            contactSyncIntent.putExtra(HikeConstants.Extras.MANUAL_SYNC, true);
+            getActivity().sendBroadcast(contactSyncIntent);
+
+            try
+            {
+                JSONObject metadata = new JSONObject();
+                metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.ADD_FRIEND_AB_REFRESH_CONTACTS);
+                HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+            }
+            catch(JSONException e)
+            {
+                Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+            }
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void setupSearchOptionItem(final Menu menu) {
@@ -171,5 +220,25 @@ public class AddFriendsViaABFragment extends ListFragment {
                 emptyTextView.setText(emptyText);
             }
         }
+    }
+
+    @Override
+    public void onEventReceived(String type, Object object) {
+        if (HikePubSub.CONTACT_SYNC_STARTED.equals(type)) {
+        } else if (HikePubSub.CONTACT_SYNCED.equals(type)) {
+            Pair<Boolean, Byte> ret = (Pair<Boolean, Byte>) object;
+            final byte contactSyncResult = ret.second;
+            // Dont repopulate list if no sync changes
+            if (contactSyncResult == ContactManager.SYNC_CONTACTS_CHANGED) {
+                mAdapter.updateList(getToAddContactList());
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mAdapter.notifyDataSetChanged();
+                    }
+                });
+            }
+        }
+
     }
 }

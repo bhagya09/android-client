@@ -80,6 +80,11 @@ public class AddFriendAdapter extends BaseAdapter implements PinnedSectionListVi
         this.context = context;
     }
 
+    public void updateList(List<ContactInfo> list) {
+        this.completeList = list;
+        this.displayList = completeList;
+    }
+
     public enum ViewType
     {
         PINNED_SECTION, FRIEND, NOT_FRIEND_HIKE, NOT_FRIEND_SMS, BASIC_ITEM
