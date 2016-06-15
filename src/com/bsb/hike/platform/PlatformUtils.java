@@ -1847,7 +1847,7 @@ public class PlatformUtils
 	 * @param mappedEventId
 	 * @param receiverMsisdn
 	 */
-	public static void sendGeneralEventDeliveryReport(long mappedEventId, String receiverMsisdn)
+	public static void sendGeneralEventDeliveryReport(long mappedEventId, String receiverMsisdn,String groupId)
 	{
 
 		JSONObject jObj = new JSONObject();
@@ -1860,6 +1860,10 @@ public class PlatformUtils
 
 			data.put(HikeConstants.TYPE, HikeConstants.GeneralEventMessagesTypes.GENERAL_EVENT_DR);
 			data.put(HikePlatformConstants.EVENT_DATA, mappedEventId);
+			if (!TextUtils.isEmpty(groupId) && OneToNConversationUtils.isGroupConversation(groupId)) {
+				data.put(HikeConstants.IS_GROUP, groupId);
+			}
+
 
 			jObj.put(HikeConstants.DATA, data);
 			HikeMqttManagerNew.getInstance().sendMessage(jObj, MqttConstants.MQTT_QOS_ONE);

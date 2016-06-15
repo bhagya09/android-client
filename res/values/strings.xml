@@ -1723,6 +1723,7 @@
     <string name="QUICK_ADD">QUICK ADD</string>
     <string name="add_via_address_book">Add Via Address Book</string>
     <string name="check_delete_from_frnds_timeline">Delete from friends\' timeline</string>
+    <string name="qs_error_message_for_hike_direct">You need to be connected to the internet to get quick suggestions for stickers</string>
 
 </resources>
 
