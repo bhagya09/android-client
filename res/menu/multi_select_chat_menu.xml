@@ -5,7 +5,8 @@
         android:id="@+id/message_info"
         android:icon="@drawable/ic_message_info"
         app:showAsAction="always"
-        android:title="@string/message_info"/>
+        android:title="@string/message_info"
+        android:visible="false"/>
     <item
         android:id="@+id/delete_msgs"
         android:icon="@drawable/actionbar_ic_delete"
