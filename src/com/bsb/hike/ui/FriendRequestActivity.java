@@ -120,7 +120,7 @@ public class FriendRequestActivity extends HikeAppStateBaseFragmentActivity {
 
     @Override
     public void onBackPressed() {
-        IntentFactory.openHomeActivity(FriendRequestActivity.this, true);
+        startActivity(IntentFactory.getHomeActivityIntent(this));
         super.onBackPressed();
     }
 }
