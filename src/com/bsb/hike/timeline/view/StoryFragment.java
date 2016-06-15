@@ -39,6 +39,7 @@ import com.bsb.hike.ui.CustomTabsBar;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 
 import org.json.JSONException;
@@ -431,7 +432,15 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
             if (badgeCounterListener != null) {
                 badgeCounterListener.onBadgeCounterUpdated(1);
             }
-        } else {
+        }
+
+        else if (StealthModeManager.getInstance().isActive() && HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FRIENDS_TAB_STEALTH_NOTIF_DOT, false)) {
+            if (badgeCounterListener != null) {
+                badgeCounterListener.onBadgeCounterUpdated(1);
+            }
+        }
+
+        else {
             hideTimeLineUpdatesIndicator();
         }
     }
@@ -446,6 +455,10 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
     public void setUserVisibleHint(boolean isVisibleToUser) {
         if (isVisibleToUser) {
             HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FRIENDS_TAB_NOTIF_DOT, false);
+
+            if (StealthModeManager.getInstance().isActive())
+                HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FRIENDS_TAB_STEALTH_NOTIF_DOT, false);
+
             hideTimeLineUpdatesIndicator();
         }
         super.setUserVisibleHint(isVisibleToUser);

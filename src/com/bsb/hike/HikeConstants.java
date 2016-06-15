@@ -4502,4 +4502,6 @@ public class HikeConstants
 
 	public static final String FRIENDS_TAB_NOTIF_DOT = "frnTabNotifDot";
 
+	public static final String FRIENDS_TAB_STEALTH_NOTIF_DOT = "frnTabNotifDot";
+
 }
