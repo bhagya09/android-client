@@ -722,7 +722,6 @@ public class StickerManager
 
 		File stickerSmall = new File(categoryDir + HikeConstants.SMALL_STICKER_ROOT, sticker.getStickerId());
 		stickerSmall.delete();
-		deactivateSticker(sticker);
 
 		if (stickerCategoriesMap == null)
 		{
@@ -4222,6 +4221,8 @@ public class StickerManager
 		}
 
 		HikeConversationsDatabase.getInstance().activateStickerFromDB(activeStickerList);
+
+		deactivateSticker(previousActiveStickerList);
 
 		StickerManager.getInstance().removeTagForDeletedStickers(stickerCodesForRemovedStickers);
 

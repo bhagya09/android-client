@@ -3922,14 +3922,19 @@ public class MqttMessagesManager
 			else
 			{
 				JSONArray stickerIds = data.getJSONArray(HikeConstants.STICKER_IDS);
-				Set<String> removedStickerSet = new HashSet<String>();
+				Set<String> removedStickerSetString = new HashSet<String>(stickerIds.length());
+				List<Sticker> removedStickerSet = new ArrayList<>(stickerIds.length());
 
 				for (int i = 0; i < stickerIds.length(); i++)
 				{
-                    Sticker sticker = new Sticker(categoryId, stickerIds.getString(i));
+					Sticker sticker = new Sticker(categoryId, stickerIds.getString(i));
 					StickerManager.getInstance().removeSticker(sticker);
-					removedStickerSet.add(sticker.getStickerCode());
+					removedStickerSetString.add(sticker.getStickerCode());
+					removedStickerSet.add(sticker);
 				}
+
+				StickerManager.getInstance().deactivateSticker(removedStickerSet);
+
 				int stickerCount = data.optInt(HikeConstants.COUNT, -1);
 				int categorySize = data.optInt(HikeConstants.UPDATED_SIZE, -1);
 				JSONArray stickerArray = data.optJSONArray(HikeConstants.STICKER_LIST);
@@ -3940,7 +3945,7 @@ public class MqttMessagesManager
 				String stickerListString = Utils.isEmpty(stickerArray) ? null : stickerArray.toString();
 				StickerManager.getInstance().updateStickerCategoryData(categoryId, null, stickerCount, categorySize, null, stickerListString);
 				// Remove tags being used for sticker search w.r.t. deleted stickers here
-				StickerManager.getInstance().removeTagForDeletedStickers(removedStickerSet);
+				StickerManager.getInstance().removeTagForDeletedStickers(removedStickerSetString);
 			}
 		}
 		else if (HikeConstants.SHOP.equals(subType))
