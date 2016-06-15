@@ -805,13 +805,13 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			addGroupList();
 			addFriendList();
 		}
-		if (showHikeContacts || (isSearchModeOn && showHikeContactsInSearch))
+		if (showHikeContacts || (filtered && showHikeContactsInSearch))
 		{
 			ContactInfo hikeContactsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredHikeContactsList.size()), context.getString(R.string.hike_contacts),
 					CONTACT_PHONE_NUM);
 			updateHikeContactList(hikeContactsSection);
 		}
-		if (showSMSContacts || (isSearchModeOn && showSMSContactsInSearch))
+		if (showSMSContacts || (filtered && showSMSContactsInSearch))
 		{
 			ContactInfo smsContactsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredSmsContactsList.size()), context.getString(R.string.sms_contacts),
 					CONTACT_SMS_NUM);

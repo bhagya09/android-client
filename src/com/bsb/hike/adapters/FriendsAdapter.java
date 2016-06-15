@@ -439,7 +439,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
                 filteredSuggestedContactsList.addAll(resultList.get(8));
             }
 			
-			makeCompleteList(true);
+			makeCompleteList(isFiltered);
 		}
 	}
 

@@ -533,7 +533,7 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 			filteredRecommendedContactsList.addAll(nuxRecommendedTaskList);
 		}
 		friendsAdapter.setListFetchedOnce(true);
-		friendsAdapter.makeCompleteList(true, true);
+		friendsAdapter.makeCompleteList(false, true);
 	}
 
 	private void clearAllLists()
