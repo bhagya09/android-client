@@ -2257,7 +2257,7 @@ public class HikeNotification
 		Intent homeIntent = Utils.getHomeActivityIntent(context);
 		Intent[] intentSequence = new Intent[] { homeIntent, mNotificationIntent } ;
 
-		PendingIntent contentIntent = PendingIntent.getActivities(context, 0, intentSequence, PendingIntent.FLAG_ONE_SHOT);
+		PendingIntent contentIntent = PendingIntent.getActivities(context, 0, intentSequence, PendingIntent.FLAG_UPDATE_CURRENT);
 		mBuilder.setContentIntent(contentIntent);
 
 		Intent deleteIntent = new Intent(context, NotificationDismissedReceiver.class);
