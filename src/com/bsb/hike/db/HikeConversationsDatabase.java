@@ -10703,7 +10703,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 
 	public Sticker getStickerFromStickerTable(Sticker sticker)
 	{
-		if (sticker == null || TextUtils.isEmpty(sticker.getStickerId()) || TextUtils.isEmpty(sticker.getCategoryId()))
+		if (sticker == null)
 		{
 			return null;
 		}

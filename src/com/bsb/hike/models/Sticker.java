@@ -45,6 +45,7 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 		this.category = category;
 		this.stickerId = stickerId;
 		this.categoryId = category.getCategoryId();
+		ensureSaneDefaults();
 	}
 
 	public Sticker(String categoryId, String stickerId)
@@ -52,11 +53,20 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 		this.stickerId = stickerId;
 		this.category = StickerManager.getInstance().getCategoryForId(categoryId);
 		this.categoryId = categoryId;
+		ensureSaneDefaults();
 	}
 
 	public Sticker()
 	{
 
+	}
+
+	private void ensureSaneDefaults()
+	{
+		if (TextUtils.isEmpty(stickerId) || TextUtils.isEmpty(categoryId))
+		{
+			throw new IllegalStateException("Category cannot be null");
+		}
 	}
 
 	public void setCategoryId(String categoryId)
