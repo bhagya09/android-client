@@ -996,7 +996,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		try
 		{
 			c = mReadDb.rawQuery("SELECT max(" + DBConstants.ID + ") AS " + DBConstants.ID + ", " + DBConstants.NAME + ", " + DBConstants.MSISDN + ", " + DBConstants.PHONE + ", "
-					+ DBConstants.LAST_MESSAGED + ", " + DBConstants.MSISDN_TYPE + ", " + DBConstants.ONHIKE + ", " + DBConstants.HAS_CUSTOM_PHOTO + ", "
+					+ DBConstants.LAST_MESSAGED + ", " + DBConstants.MSISDN_TYPE + ", " + DBConstants.ONHIKE + ", " + DBConstants.HAS_CUSTOM_PHOTO + ", " + DBConstants.UNREAD_RECEIVED_REQ_TIME + ", "
 					+ DBConstants.HIKE_JOIN_TIME + ", " + DBConstants.LAST_SEEN + ", " + DBConstants.IS_OFFLINE + ", " + DBConstants.INVITE_TIMESTAMP + ", " + DBConstants.PLATFORM_USER_ID + ", " + DBConstants.FAVORITE_TYPE + " , " + DBConstants.HIKE_UID + " , " + DBConstants.BLOCK_STATUS + " from "
 					+ DBConstants.USERS_TABLE + " GROUP BY " + DBConstants.MSISDN + " ORDER BY " + DBConstants.NAME + " COLLATE NOCASE ", null);
 
@@ -1529,7 +1529,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		return contactInfomap;
 	}
 
-	Map<String, ContactInfo> getContactsOfFavoriteTypeDB(FavoriteType[] favoriteType, Set<String> blockSet, int onHike, String myMsisdn, boolean nativeSMSOn,
+	public Map<String, ContactInfo> getContactsOfFavoriteTypeDB(FavoriteType[] favoriteType, Set<String> blockSet, int onHike, String myMsisdn, boolean nativeSMSOn,
 			boolean ignoreUnknownContacts)
 	{
 		Map<String, FavoriteType> favoriteMap = getFavoriteMap(favoriteType);
@@ -2152,6 +2152,8 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 
 		if (updatePrivacyValues) {
 			cv.put(DBConstants.LAST_SEEN_SETTINGS, getLastSeenSettingsForMsisdn());
+
+			cv.put(DBConstants.STATUS_UPDATE_SETTINGS, getSUSettingsForMsisdn(msisdn));
 		}
 
 		long value = mDb.update(DBConstants.USERS_TABLE, cv, DBConstants.MSISDN + "=?", new String[]{msisdn});
@@ -3169,6 +3171,10 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		}
 
 		return contactInfoList;
+	}
+
+	private int getSUSettingsForMsisdn(String msisdn) {
+		return ContactManager.getInstance().isOneWayFriend(msisdn) ? 1 : 0;
 	}
 
 }

@@ -137,9 +137,8 @@ public class StoriesDataManager {
             StoryItem recentsHeader = new StoryItem(StoryItem.TYPE_HEADER, TimelineServerConfigUtils.getStoryTitleRecent());
             recentsHeader.setSubText(String.valueOf(recentsList.size()));
             recentsList.add(0, recentsHeader);
-
-            notifyDataUpdate(argListenerRef);
         }
+        notifyDataUpdate(argListenerRef);
     }
 
     public void updateAllPhotosStories(WeakReference<StoriesDataListener> argListenerRef) {
@@ -151,9 +150,8 @@ public class StoriesDataManager {
             StoryItem allPhotosHeader = new StoryItem(StoryItem.TYPE_HEADER, TimelineServerConfigUtils.getStoryTitleAll());
             allPhotosHeader.setSubText(String.valueOf(allPhotosList.size()));
             allPhotosList.add(0, allPhotosHeader);
-
-            notifyDataUpdate(argListenerRef);
         }
+        notifyDataUpdate(argListenerRef);
     }
 
     public void updateCameraShyStories(WeakReference<StoriesDataListener> argListenerRef) {
@@ -174,9 +172,8 @@ public class StoriesDataManager {
             StoryItem defaultHeader = new StoryItem(StoryItem.TYPE_HEADER, TimelineServerConfigUtils.getStoryTitleShy());
             defaultHeader.setSubText(String.valueOf(cameraShyList.size()));
             cameraShyList.add(0, defaultHeader);
-
-            notifyDataUpdate(argListenerRef);
         }
+        notifyDataUpdate(argListenerRef);
     }
 
     private void removeSimilarElements(List referenceList, List workingList) {

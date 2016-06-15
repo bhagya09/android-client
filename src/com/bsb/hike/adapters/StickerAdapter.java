@@ -309,9 +309,6 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 	private View inflateQuickSuggestionEmptyView(ViewGroup container)
 	{
 		View emptyView = LayoutInflater.from(mContext).inflate(R.layout.quick_suggestions_empty_view, container);
-		TextView tvEmoji = (TextView) emptyView.findViewById(R.id.emoji_container);
-		tvEmoji.setText(Utils.getEmojiByUnicode(0x1F648));
-		tvEmoji.setTextSize(Utils.spToPx(10));
 
 		TextView tvSubText = (TextView) emptyView.findViewById(R.id.empty_view_sub_text);
 		SpannableStringBuilder builder = new SpannableStringBuilder();
@@ -381,9 +378,6 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 	{
 		stickerPageObject.getContainerView().removeAllViews();
 		View errorView = LayoutInflater.from(mContext).inflate(R.layout.quick_suggestion_error_view, stickerPageObject.getContainerView());
-		TextView tvEmoji = (TextView) errorView.findViewById(R.id.emoji_container);
-		tvEmoji.setText(Utils.getEmojiByUnicode(0x1F633));
-		tvEmoji.setTextSize(Utils.spToPx(10));
 		errorView.setOnClickListener(new View.OnClickListener()
 		{
 			@Override

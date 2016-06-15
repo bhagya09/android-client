@@ -1101,6 +1101,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 		hikeBotInfoMap = new ConcurrentHashMap<>();
 
+		ChatThemeManager.initializeChatThemes();
+
 		initContactManager();
 		BotUtils.initBots();
 		//Check if any pending platform packet is waiting for download.
@@ -1145,8 +1147,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		initCrashReportingTool();
 
 		fetchHikeUIDForUpgrade();
-
-		ChatThemeManager.getInstance().initialize();
 
 		checkAndTriggerPendingGcmNetworkCalls();
 	}

@@ -3323,6 +3323,11 @@ public class MqttMessagesManager
 		{
 			QuickStickerSuggestionController.getInstance().toggleQuickSuggestionOnSent(data.optBoolean(HikeConstants.SHOW_QUICK_STICKER_SUGGESTION_ON_STICKER_SENT));
 		}
+		if(data.has(HikeConstants.SHOP_PAGE_SIZE))
+		{
+			int shopPageSize = data.optInt(HikeConstants.SHOP_PAGE_SIZE, StickerManager.DEFAULT_SHOP_PAGE_SIZE);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOP_PAGE_SIZE, shopPageSize);
+		}
 
 		if(data.has(HikeConstants.QUICK_SUGGESTED_STICKERS_TTL))
 		{
@@ -3828,7 +3833,8 @@ public class MqttMessagesManager
 		if (favoriteType == FavoriteType.FRIEND)
 		{
 			// To update the friends tab indicator
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FRIENDS_TAB_NOTIF_DOT, true);
+			if (!StealthModeManager.getInstance().isStealthMsisdn(contactInfo.getUserIdentifier())) // Is Stealth ?
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FRIENDS_TAB_NOTIF_DOT, true);
 			incrementUnseenStatusCount();
 			pubSub.publish(HikePubSub.TIMELINE_UPDATE_RECIEVED, statusMessage);
 			if (statusMessage.getStatusMessageType() == StatusMessageType.PROFILE_PIC || statusMessage.getStatusMessageType() == StatusMessageType.IMAGE
@@ -5339,7 +5345,8 @@ public class MqttMessagesManager
 						// To update Overflow menu on Home Screen
 						HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_HOME_OVERFLOW_CLICKED, false);
 						// To update the friends tab indicator
-						HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FRIENDS_TAB_NOTIF_DOT, true);
+						if (!StealthModeManager.getInstance().isStealthMsisdn(feedData.getActor()))
+							HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FRIENDS_TAB_NOTIF_DOT, true);
 
 						HikeMessengerApp.getPubSub().publish(HikePubSub.UNSEEN_STATUS_COUNT_CHANGED, null);
 					}

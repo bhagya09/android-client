@@ -377,7 +377,7 @@ public class HikeNotificationUtils
             json.put(AnalyticsConstants.V2.DIVISION, division);
             json.put(AnalyticsConstants.V2.SECTION, section);
             json.put(AnalyticsConstants.V2.VAL_INT, val_int);
-            json.put(AnalyticsConstants.V2.TO_MISISDN, to_msisdn);
+            json.put(AnalyticsConstants.V2.TO_MSISDN, to_msisdn);
 
             HAManager.getInstance().recordV2(json);
         }

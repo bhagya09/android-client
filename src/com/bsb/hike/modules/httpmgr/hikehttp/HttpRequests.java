@@ -37,7 +37,6 @@ import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
 import com.bsb.hike.modules.httpmgr.request.requestbody.JsonBody;
 import com.bsb.hike.modules.httpmgr.request.requestbody.MultipartRequestBody;
 import com.bsb.hike.modules.httpmgr.retry.BasicRetryPolicy;
-import com.bsb.hike.modules.quickstickersuggestions.QuickStickerSuggestionController;
 import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.platform.HikePlatformConstants;
@@ -830,7 +829,7 @@ public class HttpRequests
 		String parameterUrl = Utils.getParameterUrlForHttpApi(HttpRequestConstants.BASE_QUICK_SUGGESTIONS);
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setId(requestId)
-				.setUrl((quickSuggestionUrl() + "?catId=" + sticker.getCategoryId() + "&stkId=" + sticker.getStickerId() + "&gender=" + HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.GENDER, 0) + "&lang=" + langList + "&setId=" + QuickStickerSuggestionController.getInstance().getSetIdForQuickSuggestions() + parameterUrl))
+				.setUrl((quickSuggestionUrl() + "?catId=" + sticker.getCategoryId() + "&stkId=" + sticker.getStickerId() + "&cl=" + StickerManager.getInstance().getNumColumnsForStickerGrid(HikeMessengerApp.getInstance()) + parameterUrl))
 				.setRequestListener(requestListener)
 				.setRequestType(REQUEST_TYPE_SHORT)
 				.setPriority(PRIORITY_HIGH)

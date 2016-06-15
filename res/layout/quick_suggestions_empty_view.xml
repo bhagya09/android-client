@@ -14,8 +14,9 @@
         android:paddingLeft="24dp"
         android:paddingRight="24dp">
 
-        <com.bsb.hike.view.CustomFontTextView
+        <ImageView
             android:id="@+id/emoji_container"
+            android:src="@drawable/emo_im_50_facepalm"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
