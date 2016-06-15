@@ -15,7 +15,7 @@ import android.widget.ListView;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
-import com.bsb.hike.adapters.FriendRequestAdapter;
+import com.bsb.hike.adapters.AddedMeFriendAdapter;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -36,7 +36,7 @@ public class AddedMeFragment extends ListFragment implements HikePubSub.Listener
 
     private ListView listView;
 
-    private FriendRequestAdapter mAdapter;
+    private AddedMeFriendAdapter mAdapter;
 
     private List<ContactInfo> addedMeContacts;
 
@@ -67,7 +67,7 @@ public class AddedMeFragment extends ListFragment implements HikePubSub.Listener
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View parent = inflater.inflate(R.layout.fragment_added_me, null);
-        mAdapter = new FriendRequestAdapter(setupAddedMeContactList(), getActivity());
+        mAdapter = new AddedMeFriendAdapter(setupAddedMeContactList(), getActivity());
         markFriendsRead();
         return parent;
     }
