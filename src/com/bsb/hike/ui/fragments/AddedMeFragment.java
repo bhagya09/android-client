@@ -117,6 +117,7 @@ public class AddedMeFragment extends ListFragment implements HikePubSub.Listener
     }
 
     public static void resetBadgeCount() {
+        MyFragment.decreaseBadgeCount(getBadgeCount());
         setBadgeCount(0);
     }
 

@@ -309,6 +309,14 @@ public class MyFragment extends Fragment implements HikePubSub.Listener {
         setBadgeCount(getBadgeCount() + increaseBy);
     }
 
+    public static void decreaseBadgeCount(int decreaseBy) {
+        decreaseBy = getBadgeCount() - decreaseBy;
+        if (decreaseBy < 0)
+            decreaseBy = 0;
+        setBadgeCount(decreaseBy);
+    }
+
+
     public static void resetBadgeCount() {
         setBadgeCount(0);
     }
