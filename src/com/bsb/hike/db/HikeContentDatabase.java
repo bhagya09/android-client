@@ -1,13 +1,5 @@
 package com.bsb.hike.db;
 
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
@@ -16,9 +8,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.SparseArray;
-import static com.bsb.hike.db.DBConstants.*;
-import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.*;
-
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -34,9 +23,63 @@ import com.bsb.hike.productpopup.AtomicTipContentModel;
 import com.bsb.hike.productpopup.AtomicTipManager;
 import com.bsb.hike.productpopup.ProductContentModel;
 import com.bsb.hike.productpopup.ProductInfoManager;
-import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.bsb.hike.db.DBConstants.CREATE_INDEX;
+import static com.bsb.hike.db.DBConstants.CREATE_TABLE;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.ALARM_MGR_TABLE;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.APP_PACKAGE;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.ATOMIC_TIP_TABLE;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.AUTH_TABLE;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.AUTO_RESUME;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.CHANNEL_ID;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.CONTENT_CACHE_TABLE;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.CONTENT_ID;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.CONTENT_ID_INDEX;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.CONTENT_TABLE;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.CONTENT_TABLE_NAMESPACE_INDEX;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.DB_NAME;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.DB_VERSION;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.DOMAIN;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.DOWNLOAD_STATE;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.END_TIME;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.INTENT;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.IN_HIKE;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.KEY;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.LOVE_ID;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.MAPP_DATA;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.METADATA;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.MICROAPP_ID;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.NAMESPACE;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.PID;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.PLATFORM_DOWNLOAD_STATE_TABLE;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.POPUPDATA;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.POPUPDATA_INDEX;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.START_TIME;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.STATUS;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.TIME;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.TIP_DATA;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.TIP_END_TIME;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.TIP_PRIORITY;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.TIP_STATUS;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.TOKEN;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.TRIGGER_POINT;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.URL_WHITELIST;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.VALUE;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.VERSION;
+import static com.bsb.hike.db.DBConstants.HIKE_CONTENT.WILL_WAKE_CPU;
+import static com.bsb.hike.db.DBConstants.HIKE_CONV_DB;
+import static com.bsb.hike.db.DBConstants.NAME;
+import static com.bsb.hike.db.DBConstants._ID;
 
 public class HikeContentDatabase extends SQLiteOpenHelper
 {
@@ -1113,6 +1156,17 @@ public class HikeContentDatabase extends SQLiteOpenHelper
         {
             c.close();
         }
+    }
+
+	/**
+	 * Remove from mapp data table.
+	 *
+	 * @param name
+	 *            the name
+	 */
+    public void removeFromMAppDataTable(String name)
+    {
+        mDB.delete(HIKE_CONTENT.MAPP_DATA, NAME + " =?", new String[]{name});
     }
 
     /*
