@@ -8,7 +8,6 @@ import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Filter;
 import android.widget.ImageView;
@@ -18,9 +17,11 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.HikeFeatureInfo;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.view.PinnedSectionListView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +29,7 @@ import java.util.List;
 /**
  * Created by gauravmittal on 19/05/16.
  */
-public class FriendRequestAdapter extends BaseAdapter {
+public class FriendRequestAdapter extends BaseAdapter implements PinnedSectionListView.PinnedSectionListAdapter {
 
     private List<ContactInfo> completeList;
 
@@ -42,6 +43,11 @@ public class FriendRequestAdapter extends BaseAdapter {
 
     private Context context;
 
+    @Override
+    public boolean isItemViewTypePinned(int viewType) {
+        return viewType == ViewType.PINNED_SECTION.ordinal();
+    }
+
     private static class ViewHolder {
         // each data item is just a string in this case
         public TextView name;
@@ -50,17 +56,13 @@ public class FriendRequestAdapter extends BaseAdapter {
 
         ImageView avatar;
 
-        View addFriend;
+        TextView addFriend;
 
-        View addedFriend;
+        ImageView addedFriend;
 
-        public ViewHolder(View v) {
-            name = (TextView) v.findViewById(R.id.name);
-            number = (TextView) v.findViewById(R.id.number);
-            avatar = (ImageView) v.findViewById(R.id.avatar);
-            addFriend = (TextView) v.findViewById(R.id.add);
-            addedFriend = (ImageView) v.findViewById(R.id.added);
-        }
+        TextView invite;
+
+        ImageView invited;
     }
 
     public FriendRequestAdapter(List<ContactInfo> list, Context context) {
@@ -71,6 +73,16 @@ public class FriendRequestAdapter extends BaseAdapter {
         iconLoader.setDefaultAvatarIfNoCustomIcon(false);
         iconLoader.setDefaultDrawableNull(false);
         this.context = context;
+    }
+
+    public enum ViewType
+    {
+        PINNED_SECTION, FRIEND, NOT_FRIEND_HIKE, NOT_FRIEND_SMS, BASIC_ITEM
+    }
+
+    @Override
+    public int getViewTypeCount() {
+        return ViewType.values().length;
     }
 
     @Override
@@ -89,41 +101,139 @@ public class FriendRequestAdapter extends BaseAdapter {
     }
 
     @Override
+    public int getItemViewType(int position) {
+        ContactInfo info = getItem(position);
+        if (info.getId() == ViewType.PINNED_SECTION.toString()){
+            return ViewType.PINNED_SECTION.ordinal();
+        }
+        else if (info.getId() == ViewType.BASIC_ITEM.toString()) {
+            return ViewType.BASIC_ITEM.ordinal();
+        }
+        else if (info.isMyOneWayFriend()) {
+            return ViewType.FRIEND.ordinal();
+        }
+        else {
+            if (info.isOnhike())
+                return ViewType.NOT_FRIEND_HIKE.ordinal();
+            else
+                return ViewType.NOT_FRIEND_SMS.ordinal();
+        }
+    }
+
+    private View inflateView(int position, View convertView, ViewGroup parent, ViewType viewType) {
+        ViewHolder viewHolder = null;
+        if (convertView == null) {
+            switch (viewType) {
+                case FRIEND:
+                case NOT_FRIEND_HIKE:
+                    convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.friend_request_item, parent, false);
+                    viewHolder = new ViewHolder();
+                    viewHolder.name = (TextView) convertView.findViewById(R.id.name);
+                    viewHolder.number = (TextView) convertView.findViewById(R.id.number);
+                    viewHolder.avatar = (ImageView) convertView.findViewById(R.id.avatar);
+                    viewHolder.addFriend = (TextView) convertView.findViewById(R.id.add);
+                    viewHolder.addedFriend = (ImageView) convertView.findViewById(R.id.added);
+                    if (viewHolder.addFriend != null)
+                        viewHolder.addFriend.setOnClickListener(onAddButtonClickListener);
+                    break;
+                case NOT_FRIEND_SMS:
+                    convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.contact_invite_item, parent, false);
+                    viewHolder = new ViewHolder();
+                    viewHolder.name = (TextView) convertView.findViewById(R.id.name);
+                    viewHolder.number = (TextView) convertView.findViewById(R.id.number);
+                    viewHolder.avatar = (ImageView) convertView.findViewById(R.id.avatar);
+                    viewHolder.invite = (TextView) convertView.findViewById(R.id.invite);
+                    viewHolder.invited = (ImageView) convertView.findViewById(R.id.invited);
+                    if (viewHolder.invite != null)
+                        viewHolder.invite.setOnClickListener(onInviteButtonClickListener);
+                    break;
+                case BASIC_ITEM:
+                    convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.basic_icon_list_item, parent, false);
+                    viewHolder = new ViewHolder();
+                    viewHolder.name = (TextView) convertView.findViewById(R.id.text);
+                    viewHolder.avatar = (ImageView) convertView.findViewById(R.id.icon);
+                    break;
+                case PINNED_SECTION:
+                    convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.friends_group_view, parent, false);
+                    viewHolder = new ViewHolder();
+                    viewHolder.name = (TextView)convertView.findViewById(R.id.name);
+                    convertView.findViewById(R.id.count).setVisibility(View.INVISIBLE);
+                    break;
+                default:
+                    break;
+            }
+            convertView.setTag(viewHolder);
+        }
+        return convertView;
+    }
+
+    @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        ViewHolder viewHolder;
-        if (convertView == null) {
-            convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.friend_request_item, parent, false);
-            viewHolder = new ViewHolder(convertView);
-            convertView.setTag(viewHolder);
-            viewHolder.addFriend.setOnClickListener(onAddButtonClickListener);
-        } else {
-            viewHolder = (ViewHolder) convertView.getTag();
-        }
+        ViewType viewType = ViewType.values()[getItemViewType(position)];
         ContactInfo info = this.displayList.get(position);
-        String displayName = info.getNameOrMsisdn();
-        viewHolder.name.setText(displayName);
-        viewHolder.number.setText(info.getMsisdn());
-        viewHolder.avatar.setTag(info.getMsisdn());
-        iconLoader.loadImage(info.getMsisdn(), viewHolder.avatar, false, false, true, info);
-        if (info.isMyOneWayFriend()) {
-            viewHolder.addedFriend.setVisibility(View.VISIBLE);
-            viewHolder.addFriend.setVisibility(View.GONE);
-        } else {
-            viewHolder.addedFriend.setVisibility(View.GONE);
-            viewHolder.addFriend.setVisibility(View.VISIBLE);
-            viewHolder.addFriend.setTag(position);
-        }
+        convertView = inflateView(position, convertView, parent, viewType);
+        ViewHolder viewHolder = (ViewHolder) convertView.getTag();
 
-        if (!TextUtils.isEmpty(searchText)) {
-            int start = displayName.toLowerCase().indexOf(searchText);
-            int end = start + searchText.length();
-            if (start >= 0 && end <= displayName.length()) {
-                SpannableString spanName = new SpannableString(displayName);
-                spanName.setSpan(new ForegroundColorSpan(context.getResources().getColor(R.color.blue_color_span)), start, end,
-                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                viewHolder.name.setText(spanName, TextView.BufferType.SPANNABLE);
+        if (viewType == ViewType.FRIEND || viewType == ViewType.NOT_FRIEND_HIKE) {
+            String displayName = info.getNameOrMsisdn();
+            viewHolder.name.setText(displayName);
+            viewHolder.number.setText(info.getMsisdn());
+            viewHolder.avatar.setTag(info.getMsisdn());
+            iconLoader.loadImage(info.getMsisdn(), viewHolder.avatar, false, false, true, info);
+            if (info.isMyOneWayFriend()) {
+                viewHolder.addedFriend.setVisibility(View.VISIBLE);
+                viewHolder.addFriend.setVisibility(View.GONE);
+            } else {
+                viewHolder.addedFriend.setVisibility(View.GONE);
+                viewHolder.addFriend.setVisibility(View.VISIBLE);
+                viewHolder.addFriend.setTag(position);
             }
+
+            if (!TextUtils.isEmpty(searchText)) {
+                int start = displayName.toLowerCase().indexOf(searchText);
+                int end = start + searchText.length();
+                if (start >= 0 && end <= displayName.length()) {
+                    SpannableString spanName = new SpannableString(displayName);
+                    spanName.setSpan(new ForegroundColorSpan(context.getResources().getColor(R.color.blue_color_span)), start, end,
+                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    viewHolder.name.setText(spanName, TextView.BufferType.SPANNABLE);
+                }
+            }
+        }
+        else if (viewType == ViewType.NOT_FRIEND_SMS) {
+            String displayName = info.getNameOrMsisdn();
+            viewHolder.name.setText(displayName);
+            viewHolder.number.setText(info.getMsisdn());
+            viewHolder.avatar.setTag(info.getMsisdn());
+            iconLoader.loadImage(info.getMsisdn(), viewHolder.avatar, false, false, true, info);
+            if (info.getInviteTime() > 0) {
+                viewHolder.invited.setVisibility(View.VISIBLE);
+                viewHolder.invite.setVisibility(View.GONE);
+            } else {
+                viewHolder.invited.setVisibility(View.GONE);
+                viewHolder.invite.setVisibility(View.VISIBLE);
+                viewHolder.invite.setTag(position);
+            }
+
+            if (!TextUtils.isEmpty(searchText)) {
+                int start = displayName.toLowerCase().indexOf(searchText);
+                int end = start + searchText.length();
+                if (start >= 0 && end <= displayName.length()) {
+                    SpannableString spanName = new SpannableString(displayName);
+                    spanName.setSpan(new ForegroundColorSpan(context.getResources().getColor(R.color.blue_color_span)), start, end,
+                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    viewHolder.name.setText(spanName, TextView.BufferType.SPANNABLE);
+                }
+            }
+        }
+        else if (viewType == ViewType.BASIC_ITEM) {
+            HikeFeatureInfo hikeFeatureInfo = (HikeFeatureInfo)info ;
+            viewHolder.name.setText(hikeFeatureInfo.getName());
+            viewHolder.avatar.setImageResource(hikeFeatureInfo.getIconDrawable());
+        }
+        else if (viewType == ViewType.PINNED_SECTION) {
+            viewHolder.name.setText(info.getName());
         }
         return convertView;
     }
@@ -178,9 +288,18 @@ public class FriendRequestAdapter extends BaseAdapter {
 
 
         private void filterList(List<ContactInfo> allList, List<ContactInfo> listToUpdate, String textToBeFiltered) {
+            ContactInfo header = null;
             for (ContactInfo info : allList) {
                 try {
+                    if (TextUtils.isEmpty(info.getPhoneNum())) {
+                        header = info;
+                        continue;
+                    }
                     if (filterContactForSearch(info, textToBeFiltered)) {
+                        if (header != null) {
+                            listToUpdate.add(header);
+                            header = null;
+                        }
                         listToUpdate.add(info);
                     }
                 } catch (Exception ex) {
@@ -206,6 +325,16 @@ public class FriendRequestAdapter extends BaseAdapter {
         public void onClick(View v) {
             ContactInfo contact = displayList.get((Integer) v.getTag());
             contact.setFavoriteType(Utils.toggleFavorite(context, contact, false, HikeConstants.AddFriendSources.ADDED_ME_SCREEN));
+            notifyDataSetChanged();
+        }
+    };
+
+    View.OnClickListener onInviteButtonClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            ContactInfo contact = displayList.get((Integer) v.getTag());
+            Utils.sendInviteUtil(contact, context, HikeConstants.SINGLE_INVITE_SMS_ALERT_CHECKED, context.getString(R.string.native_header),
+                    context.getString(R.string.native_info), Utils.WhichScreen.ADD_FRIENDS_AB);
             notifyDataSetChanged();
         }
     };

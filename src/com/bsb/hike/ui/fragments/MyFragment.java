@@ -237,9 +237,9 @@ public class MyFragment extends Fragment implements HikePubSub.Listener {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        menu.clear();
         inflater.inflate(R.menu.my_fragment, menu);
         super.onCreateOptionsMenu(menu, inflater);
-
     }
 
     @Override

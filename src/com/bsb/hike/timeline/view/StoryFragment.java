@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
@@ -28,7 +29,7 @@ import com.bsb.hike.analytics.HomeAnalyticsConstants;
 import com.bsb.hike.media.ImageParser;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.HikeHandlerUtil;
-import com.bsb.hike.modules.contactmgr.HikeUserDatabase;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.timeline.TimelineUtils;
 import com.bsb.hike.timeline.adapter.StoryListAdapter;
 import com.bsb.hike.timeline.model.StoryItem;
@@ -87,6 +88,8 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
 
     private CustomTabsBar.CustomTabBadgeCounterListener badgeCounterListener;
 
+    private boolean isEmptyStateShown;
+
     public static StoryFragment newInstance(@Nullable Bundle argBundle) {
         StoryFragment fragmentInstance = new StoryFragment();
         if (argBundle != null) {
@@ -124,12 +127,12 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
         shakeAnim = AnimationUtils.loadAnimation(getActivity(), R.anim.shake);
     }
 
-    private void bindFragmentViews()
-    {
-        // Check if user has any friends
-        if (HikeUserDatabase.getInstance().isTwoWayFriendsPresent()) {
+    private void bindFragmentViews() {
+        ContactInfo.FavoriteType[] favoriteTypes = new ContactInfo.FavoriteType[]{ContactInfo.FavoriteType.FRIEND, ContactInfo.FavoriteType.REQUEST_SENT, ContactInfo.FavoriteType.REQUEST_SENT_REJECTED};
+        List<ContactInfo> friendsList = ContactManager.getInstance().getContactsOfFavoriteType(favoriteTypes, HikeConstants.ON_HIKE_VALUE, ContactManager.getInstance().getSelfMsisdn(), false, false);
+
+        if (!Utils.isEmpty(friendsList)) {
             bindStoryFragmentList();
-            HikeMessengerApp.getInstance().getPubSub().addListeners(this, pubsubEvents); // listen only in non-empty state
         } else {
             //Show empty state
             bindEmptyStateView();
@@ -137,6 +140,8 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
     }
 
     private void bindStoryFragmentList() {
+        isEmptyStateShown = false;
+        HikeMessengerApp.getInstance().getPubSub().addListeners(this, pubsubEvents); // listen only in non-empty state
         listViewStories.setVisibility(View.VISIBLE);
         emptyStateView.setVisibility(View.GONE);
         btnAddFriends.setOnClickListener(null);
@@ -155,6 +160,7 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
     }
 
     private void bindEmptyStateView() {
+        isEmptyStateShown = true;
         listViewStories.setVisibility(View.GONE);
         emptyStateView.setVisibility(View.VISIBLE);
         btnAddFriends.setOnClickListener(this);
@@ -162,6 +168,7 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        menu.clear();
         inflater.inflate(R.menu.story_fragment, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
@@ -200,8 +207,7 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
                         // Open Status update activity
                         Intent newSUIntent = IntentFactory.getPostStatusUpdateIntent(getActivity(), null, imagePath, false);
                         Utils.setSpecies(HomeAnalyticsConstants.SU_SPECIES_FRIENDS_TAB, newSUIntent);
-                        if(!TextUtils.isEmpty(genus))
-                        {
+                        if (!TextUtils.isEmpty(genus)) {
                             Utils.setGenus(genus, newSUIntent);
                         }
                         startActivity(newSUIntent);
@@ -238,7 +244,8 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
         if (type.equals(HikePubSub.UNSEEN_STATUS_COUNT_CHANGED)
                 || type.equals(HikePubSub.ACTIVITY_UPDATE)) {
             if (isAdded() && getActivity() != null) {
-                HikeHandlerUtil.getInstance().postRunnableWithDelay(new Runnable() {
+                Handler handler = new Handler(getContext().getMainLooper());
+                handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
 
@@ -274,16 +281,25 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
                     }
                 });
             }
-        }
-        else if (type.equals(HikePubSub.FAVORITE_TOGGLED)) {
+        } else if (type.equals(HikePubSub.FAVORITE_TOGGLED)) {
             if (isAdded() && getActivity() != null) {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if (emptyStateView.getVisibility() == View.VISIBLE) {
-                            bindFragmentViews();
+                        ContactInfo.FavoriteType[] favoriteTypes = new ContactInfo.FavoriteType[]{ContactInfo.FavoriteType.FRIEND, ContactInfo.FavoriteType.REQUEST_SENT, ContactInfo.FavoriteType.REQUEST_SENT_REJECTED};
+                        List<ContactInfo> friendsList = ContactManager.getInstance().getContactsOfFavoriteType(favoriteTypes, HikeConstants.ON_HIKE_VALUE, ContactManager.getInstance().getSelfMsisdn(), false, false);
+                        if (Utils.isEmpty(friendsList)) { // no more friends, show empty view
+                            if (!isEmptyStateShown) {
+                                bindEmptyStateView();
+                            } else {
+                                // Do nothing
+                            }
                         } else {
-                            StoriesDataManager.getInstance().updateCameraShyStories(new WeakReference<StoriesDataManager.StoriesDataListener>(StoryFragment.this));
+                            if (isEmptyStateShown) {
+                                bindStoryFragmentList();
+                            } else {
+                                StoriesDataManager.getInstance().getAllStoryData(StoryFragment.this); // update list}
+                            }
                         }
                     }
                 });
@@ -399,8 +415,8 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
         }
     }
 
-    public void setCustomTabBadgeCounterListener(CustomTabsBar.CustomTabBadgeCounterListener listener)
-    {
+    public void setCustomTabBadgeCounterListener
+            (CustomTabsBar.CustomTabBadgeCounterListener listener) {
         this.badgeCounterListener = listener;
     }
 
@@ -415,9 +431,7 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
             if (badgeCounterListener != null) {
                 badgeCounterListener.onBadgeCounterUpdated(1);
             }
-        }
-
-        else {
+        } else {
             hideTimeLineUpdatesIndicator();
         }
     }

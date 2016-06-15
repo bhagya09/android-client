@@ -304,7 +304,7 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		catch (Exception e)
 		{
 		}
-		IntentFactory.openHomeActivity(ChatThreadActivity.this, true);
+		startActivity(IntentFactory.getHomeActivityConvTabIntent(ChatThreadActivity.this));
 		super.onBackPressed();
 	}
 	

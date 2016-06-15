@@ -978,6 +978,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
 	{
+		menu.clear();
 		inflater.inflate(R.menu.conv_menu, menu);
 		setupSearchOptionItem(menu);
 		super.onCreateOptionsMenu(menu, inflater);
@@ -4212,7 +4213,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			int unreadConvCount = 0;
 			for(ConvInfo info : mAdapter.getCompleteList()) {
 				if (info.getUnreadCount() > 0)
-					unreadConvCount++;
+					unreadConvCount += info.getUnreadCount();
 			}
 			unreadConversationsTotal = unreadConvCount;
 			updateBadgeCount();
