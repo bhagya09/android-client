@@ -643,6 +643,7 @@ import java.util.Map;
 		unknownContactInfoView.findViewById(R.id.header).setVisibility(View.VISIBLE);
 		unknownContactInfoView.findViewById(R.id.chat_header_viewstub).setVisibility(View.VISIBLE);
 		unknownContactInfoSpinnerLayout =  (LinearLayout)unknownContactInfoView.findViewById(R.id.unknown_user_info_spinner);
+		unknownContactInfoSpinnerLayout.setBackgroundColor(getResources().getColor(R.color.caller_free_call));
 	}
 	/**
 	 * This shows Unknown User (Name, location)

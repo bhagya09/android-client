@@ -438,7 +438,7 @@ public class BotChatThread extends OneToOneChatThread
 			unknownContactInfoView.setTag(R.string.mute);
 			addButton.setOnClickListener(this);
 			unknownContactInfoView.findViewById(R.id.block_unknown_contact).setOnClickListener(this);
-			unknownContactInfoView.findViewById(R.id.add_block_view).setBackgroundColor(R.color.add_block_bg_bot_color);
+			unknownContactInfoView.findViewById(R.id.add_block_view).setBackgroundColor(getResources().getColor(R.color.add_block_bg_bot_color));
 		}
 	}
 	
