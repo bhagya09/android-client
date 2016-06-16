@@ -5252,14 +5252,22 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			mAdapter.notifyDataSetChanged();
 		}
 
-		if (convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.CONTENT)
+		if (NativeCardUtils.isNativeCardFTMessage(convMessage))
 		{
 			int numberOfMediaComponents = convMessage.platformMessageMetadata.cards.get(0).mediaComponents.size();
 			for (int i = 0; i < numberOfMediaComponents; i++)
 			{
-				CardComponent.MediaComponent mediaComponent = convMessage.platformMessageMetadata.cards.get(0).mediaComponents.get(i);
-				HikeConversationsDatabase.getInstance().reduceRefCount(mediaComponent.getKey());
+				HikeFile hikeFile = convMessage.platformMessageMetadata.cards.get(0).mediaComponents.get(i).getHikeFile();
+				String key = hikeFile.getFileKey();
+				if (deleteMediaFromPhone && hikeFile != null)
+				{
+					hikeFile.delete(activity.getApplicationContext());
+				}
+				HikeConversationsDatabase.getInstance().reduceRefCount(key);
+				FileTransferManager.getInstance(activity.getApplicationContext()).cancelTask(convMessage.getMsgID(), hikeFile, convMessage.isSent(), hikeFile.getFileSize(), hikeFile.getAttachmentSharedAs());
+
 			}
+			mAdapter.notifyDataSetChanged();
 		}
 
 		if (convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT || convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT)
