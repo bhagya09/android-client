@@ -321,11 +321,8 @@ public class MyFragment extends Fragment implements HikePubSub.Listener {
         setBadgeCount(0);
     }
 
-    public static void setBadgeCount(int value) {
-        int oldValue = getBadgeCount();
-        if (oldValue != value) {
-            HikeSharedPreferenceUtil.getInstance().saveData(MY_FRAGMENT_BADGE_COUNT, value);
-        }
+    public static void setBadgeCount(int newValue) {
+        HikeSharedPreferenceUtil.getInstance().saveData(MY_FRAGMENT_BADGE_COUNT, newValue);
     }
 
     @Override
