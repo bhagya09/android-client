@@ -673,7 +673,7 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 		FavoriteType favoriteType = this.getFavoriteType();
 		return (favoriteType == FavoriteType.REQUEST_SENT ||
 				favoriteType == FavoriteType.REQUEST_SENT_REJECTED ||
-				isMyTwoWayFriend());
+				isTwoWayFriend());
 	}
 
 	/**
@@ -681,7 +681,7 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 	 *
 	 * @return
 	 */
-	public boolean isMyTwoWayFriend()
+	public boolean isTwoWayFriend()
 	{
 		return this.getFavoriteType() == FavoriteType.FRIEND;
 	}

@@ -6646,7 +6646,7 @@ public class Utils
 	{
 		if (isFavToFriendsMigrationAllowed())
 		{
-			return contactInfo.isMyTwoWayFriend();
+			return contactInfo.isTwoWayFriend();
 		}
 		else
 		{

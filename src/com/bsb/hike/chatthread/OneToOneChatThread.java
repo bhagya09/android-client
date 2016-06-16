@@ -4159,7 +4159,7 @@ import java.util.Map;
 			showFriendReqPendingAsLastSeen();
 		}
 
-		else if(!mContactInfo.isMyTwoWayFriend())
+		else if(!mContactInfo.isTwoWayFriend())
 		{
 			hideLastSeenText();
 		}
