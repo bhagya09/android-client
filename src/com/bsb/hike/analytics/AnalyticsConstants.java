@@ -74,6 +74,8 @@ public class AnalyticsConstants
 
 	public static String CLICK_EVENT = "click";
 
+	public static String TAB_SWITCH = "tab_switch";
+
 	public static String HTTP_EVENT = "rel_http";
 
 	public static String VIEW_EVENT = "view";
