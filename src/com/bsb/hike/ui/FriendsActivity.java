@@ -27,6 +27,8 @@ public class FriendsActivity extends HikeAppStateBaseFragmentActivity {
 
     public static final String ADDED_ME = "added_me";
 
+    private String currentFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,12 +46,15 @@ public class FriendsActivity extends HikeAppStateBaseFragmentActivity {
         if (intent.hasExtra(ADD_FRIENDS)) {
             setupActionBar(R.string.add_friends);
             addAddFriendsFragment();
+            currentFragment = ADD_FRIENDS;
         } else if (intent.hasExtra(ADD_FRIENDS_ADDRESSBOOK)) {
             setupActionBar(R.string.address_book);
             addAddFriendsViaABFragment();
+            currentFragment = ADD_FRIENDS_ADDRESSBOOK;
         } else {
             setupActionBar(R.string.added_me);
             addAddedMeFragment();
+            currentFragment = ADDED_ME;
         }
     }
 
@@ -115,8 +120,8 @@ public class FriendsActivity extends HikeAppStateBaseFragmentActivity {
 
     @Override
     public void onBackPressed() {
-        if (isTaskRoot())
-            startActivity(IntentFactory.getHomeActivityIntent(this));
+        if (ADDED_ME.equals(currentFragment) || isTaskRoot())
+            startActivity(IntentFactory.getHomeActivityMeTabIntent(this));
         super.onBackPressed();
     }
 }
