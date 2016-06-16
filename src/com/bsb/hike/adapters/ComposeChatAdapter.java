@@ -88,6 +88,8 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
 	private boolean addFriendOptionEnabled;
 
+	private HashSet<String> justAddedFriends;
+
     public ComposeChatAdapter(Context context, ListView listView, boolean fetchGroups, boolean fetchRecents, String existingGroupId, String sendingMsisdn, FriendsListFetchedCallback friendsListFetchedCallback, boolean showSMSContacts, boolean showHikeContacts, boolean showTimeline, boolean showBdaySection)
 	{
 		super(context, listView, friendsListFetchedCallback, ContactInfo.lastSeenTimeComparatorWithoutFav);
@@ -118,6 +120,8 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		this.showTimeline = showTimeline;
 
 		this.showBdaySection = showBdaySection;
+
+		this.justAddedFriends = new HashSet<>();
 	}
 
 	public void setCreateGroupBroadcastOption(boolean setOption)
@@ -975,6 +979,9 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		{
 			return super.getItemViewType(position);
 		}
+		else if (justAddedFriends.contains(info.getUserIdentifier())) {
+			return ViewType.NOT_FRIEND_HIKE.ordinal();
+		}
 		else if (info.isUnknownContact() && info.getFavoriteType() == null)
 		{
 			return ViewType.NEW_CONTACT.ordinal();
@@ -1110,6 +1117,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		public void onClick(View v) {
 			ContactInfo contact = getItem((Integer) v.getTag());
 			contact.setFavoriteType(Utils.toggleFavorite(context, contact, false, HikeConstants.AddFriendSources.ADDED_ME_SCREEN));
+			justAddedFriends.add(contact.getUserIdentifier());
 			notifyDataSetChanged();
 		}
 	};
