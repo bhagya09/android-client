@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ListFragment;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,9 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.AddFriendAdapter;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HomeAnalyticsConstants;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.HikeFeatureInfo;
@@ -24,6 +28,9 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 import com.bsb.hike.adapters.AddFriendAdapter.ViewType;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -128,12 +135,30 @@ public class AddFriendsFragment extends ListFragment {
             if (contact.getId().equals(ViewType.PINNED_SECTION.toString())) {
                 return;
             } else if (contact.getId().equals(ViewType.BASIC_ITEM.toString())) {
-                if (contact.getName().equals(getString(R.string.add_via_address_book)))
+                if (contact.getName().equals(getString(R.string.add_via_address_book))) {
                     startActivity(((HikeFeatureInfo) contact).getFireIntent());
+                    recordBasicClick("add_ab");
+                }
             } else {
                 Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(getContext(), contact, false, false, ChatThreadActivity.ChatThreadOpenSources.ADD_FRIEND_FRAG);
                 startActivity(intent);
             }
         }
     };
+
+    private void recordBasicClick(String family) {
+        try {
+
+            JSONObject json = new JSONObject();
+            json.put(AnalyticsConstants.V2.UNIQUE_KEY, HomeAnalyticsConstants.HS_ME);
+            json.put(AnalyticsConstants.V2.KINGDOM, HomeAnalyticsConstants.HOMESCREEN_KINGDOM);
+            json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+            json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+            json.put(AnalyticsConstants.V2.ORDER, HomeAnalyticsConstants.HS_ME);
+            if (!TextUtils.isEmpty(family)) json.put(AnalyticsConstants.V2.FAMILY, family);
+            HAManager.getInstance().recordV2(json);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
 }
