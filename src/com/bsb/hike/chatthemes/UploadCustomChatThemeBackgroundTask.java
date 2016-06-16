@@ -8,6 +8,7 @@ import android.util.Pair;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.chatthemes.model.ChatThemeToken;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -26,21 +27,21 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.postCustomChatT
  */
 public class UploadCustomChatThemeBackgroundTask implements IHikeHTTPTask {
     private RequestToken token;
-    private String imagePath;
+    private ChatThemeToken ctToken;
     private String sessionId;
     private Conversation mConversation;
 
     private final String TAG = "UploadCustomChatThemeBackgroundTask";
 
-    public UploadCustomChatThemeBackgroundTask(String imagePath, Conversation conversation, String sessionId) {
-        this.imagePath = imagePath;
+    public UploadCustomChatThemeBackgroundTask(ChatThemeToken token, Conversation conversation, String sessionId) {
+        this.ctToken = token;
         this.sessionId = sessionId;
         this.mConversation = conversation;
     }
 
     @Override
     public void execute() {
-        token = postCustomChatThemeBgImgUpload(imagePath, sessionId, getRequestListener());
+        token = postCustomChatThemeBgImgUpload(ctToken.getImagePath(), sessionId, getRequestListener());
         if ((token == null) || token.isRequestRunning()) {
             return;
         }
@@ -68,7 +69,7 @@ public class UploadCustomChatThemeBackgroundTask implements IHikeHTTPTask {
         return new IRequestListener() {
             @Override
             public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException) {
-                HikeMessengerApp.getPubSub().publish(HikePubSub.CHATTHEME_CUSTOM_IMAGE_UPLOAD_FAILED, null);
+                HikeMessengerApp.getPubSub().publish(HikePubSub.CHATTHEME_CUSTOM_IMAGE_UPLOAD_FAILED, ctToken);
             }
 
             @Override
@@ -81,7 +82,7 @@ public class UploadCustomChatThemeBackgroundTask implements IHikeHTTPTask {
                     }
 
                     JSONObject meta = response.getJSONObject(HikeChatThemeConstants.JSON_SIGNAL_THEME_META);
-                    String themeId = ChatThemeManager.getInstance().processCustomThemeSignal(meta, false);
+                    String themeId = ChatThemeManager.getInstance().processCustomThemeSignal(meta, ctToken, false);
                     if(themeId != null && mConversation != null) {
                         Pair<Conversation, String> pair = new Pair<>(mConversation, themeId);
                         HikeMessengerApp.getPubSub().publish(HikePubSub.CHATTHEME_CUSTOM_IMAGE_UPLOAD_SUCCESS, pair);

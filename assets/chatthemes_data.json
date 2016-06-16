@@ -793,7 +793,7 @@
         "order": 12,
         "name": "NIGHT_PATTERN",
         "sysMessageType": 1,
-        "theme_state": 0,
+        "theme_state": 1,
         "header": {
           "type": 1,
           "value": "bg_header_transparent_2x.png",

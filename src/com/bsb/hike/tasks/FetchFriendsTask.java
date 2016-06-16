@@ -8,6 +8,8 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.NUXConstants;
 import com.bsb.hike.adapters.FriendsAdapter;
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
@@ -204,8 +206,8 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 			hikeBdayContactList.clear();
             hikeBdayContactList.addAll(BirthdayUtils.getSortedBdayContactListFromSharedPref());
 			filteredHikeBdayContactList.clear();
+			BirthdayUtils.removeHiddenOrBlockedMsisdnFromContactInfoList(hikeBdayContactList);
 			filteredHikeBdayContactList.addAll(hikeBdayContactList);
-			BirthdayUtils.removeHiddenMsisdnFromContactInfoList(hikeBdayContactList);
 			/**
 			 * Removing Birthday users from all contacts list
 			 */

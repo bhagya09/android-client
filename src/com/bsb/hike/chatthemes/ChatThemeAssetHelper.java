@@ -2,12 +2,15 @@ package com.bsb.hike.chatthemes;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.chatthemes.model.ChatThemeToken;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.HikeChatTheme;
 import com.bsb.hike.models.HikeChatThemeAsset;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -114,8 +117,14 @@ public class ChatThemeAssetHelper implements HikePubSub.Listener {
      * @param String [] assetIds
      * @return void
      */
-    public void assetDownloadRequest(String[] assetIds) {
-        DownloadAssetsTask downloadAssets = new DownloadAssetsTask(assetIds);
+    public void assetDownloadRequest(ChatThemeToken token) {
+        DownloadAssetsTask downloadAssets = new DownloadAssetsTask(token);
+        downloadAssets.execute();
+    }
+
+
+    public void assetDownloadRequestAcrossThemes(HashMap<String, ChatThemeToken> tokenMap) {
+        DownloadMultipleAssetsTask downloadAssets = new DownloadMultipleAssetsTask(tokenMap);
         downloadAssets.execute();
     }
 
@@ -142,19 +151,22 @@ public class ChatThemeAssetHelper implements HikePubSub.Listener {
     @Override
     public void onEventReceived(String type, Object object) {
         if (HikePubSub.CHATTHEME_CONTENT_DOWNLOAD_SUCCESS.equals(type)) {
-            String[] downloadedAssets = (String[]) object;
-            ArrayList<HikeChatThemeAsset> downloadedThemeAssets = new ArrayList<>();
+            ChatThemeToken token = (ChatThemeToken) object;
+            String[] downloadedAssets = token.getAssets();
+            if(!Utils.isEmpty(downloadedAssets)) {
+                ArrayList<HikeChatThemeAsset> downloadedThemeAssets = new ArrayList<>();
 
-            for (String dAsset : downloadedAssets) {
-                HikeChatThemeAsset asset = mAssets.get(dAsset);
-                if (asset != null) {
-                    asset.setIsDownloaded(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_DOWNLOADED_SDCARD);
-                    downloadedThemeAssets.add(asset);
+                for (String dAsset : downloadedAssets) {
+                    HikeChatThemeAsset asset = mAssets.get(dAsset);
+                    if (asset != null) {
+                        asset.setIsDownloaded(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_DOWNLOADED_SDCARD);
+                        downloadedThemeAssets.add(asset);
+                    }
                 }
+                //writing the downloaded assets into the tables in DB
+                HikeConversationsDatabase.getInstance().saveChatThemeAssets(downloadedThemeAssets);
+                HikeMessengerApp.getPubSub().publish(HikePubSub.CHATTHEME_DOWNLOAD_SUCCESS, token);
             }
-            //writing the downloaded assets into the tables in DB
-            HikeConversationsDatabase.getInstance().saveChatThemeAssets(downloadedThemeAssets);
-            HikeMessengerApp.getPubSub().publish(HikePubSub.CHATTHEME_DOWNLOAD_SUCCESS, null);
         }
     }
 
