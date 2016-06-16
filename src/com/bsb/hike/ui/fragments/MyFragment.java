@@ -384,6 +384,7 @@ public class MyFragment extends Fragment implements HikePubSub.Listener {
     public void onResume() {
         super.onResume();
         updateAddedMeBadgeCounter();
+        updateTabBadgeCounter();
     }
 
     /*
