@@ -37,6 +37,7 @@ import com.bsb.hike.timeline.tasks.StoriesDataManager;
 import com.bsb.hike.timeline.tasks.UpdateActionsDataRunnable;
 import com.bsb.hike.ui.CustomTabsBar;
 import com.bsb.hike.ui.GalleryActivity;
+import com.bsb.hike.ui.HomeScreenFragment;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.StealthModeManager;
@@ -54,7 +55,7 @@ import java.util.List;
  * <p/>
  * Created by AtulM on 24/05/16.
  */
-public class StoryFragment extends Fragment implements View.OnClickListener, HikePubSub.Listener, StoriesDataManager.StoriesDataListener, AdapterView.OnItemClickListener {
+public class StoryFragment extends Fragment implements View.OnClickListener, HikePubSub.Listener, StoriesDataManager.StoriesDataListener, AdapterView.OnItemClickListener, HomeScreenFragment {
     private View fragmentView;
 
     private ListView listViewStories;
@@ -324,8 +325,17 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
                 public void run() {
                     if (!Utils.isEmpty(argList)) {
                         storyItemList = argList;
-                        storyAdapter.setStoryItemList(storyItemList);
-                        storyAdapter.notifyDataSetChanged();
+
+                        if (storyItemList.size() <= 2) { // Contains only timeline and its header
+                            bindEmptyStateView();
+                        } else {
+                            if (isEmptyStateShown) {
+                                bindStoryFragmentList();
+                            } else {
+                                storyAdapter.setStoryItemList(storyItemList);
+                                storyAdapter.notifyDataSetChanged();
+                            }
+                        }
                     }
                 }
             });
@@ -464,5 +474,10 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
             hideTimeLineUpdatesIndicator();
         }
         super.setUserVisibleHint(isVisibleToUser);
+    }
+
+    @Override
+    public void onFragmentSelected() {
+        StoriesDataManager.getInstance().getAllStoryData(this);
     }
 }
