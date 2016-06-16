@@ -865,7 +865,7 @@
     <string name="photo_dp_save_error">ಪ್ರೊಫೈಲ್‌ ಫೊಟೋ ಸೆಟ್‌ ಮಾಡಲಾಗುತ್ತಿಲ್ಲ</string>
     <string name="photo_dp_save_error_sub">ಮರು ಪ್ರಯತ್ನಿಸಲು ಟ್ಯಾಪ್ ಮಾಡಿ</string>
     <string name="cropping_image">ಚಿತ್ರ ಕ್ರಾಪ್‌ ಮಾಡಲಾಗುತ್ತಿದೆ...</string>
-    <string name="home_search_empty_text">%1$s\' ಗೆ ನಿಮ್ಮ ಹುಡುಕಾಟ ಯಾವುದೇ ಸಂಪರ್ಕಗಳಿಗೆ ಹೊಂದುತ್ತಿಲ್ಲ.</string>
+    <string name="home_search_empty_text">\'%1$s\' ಗೆ ನಿಮ್ಮ ಹುಡುಕಾಟ ಯಾವುದೇ ಸಂಪರ್ಕಗಳಿಗೆ ಹೊಂದುತ್ತಿಲ್ಲ.</string>
     <string name="voip_mic_error">ಮೈಕ್‌ ಆರಂಬಿಸಲು ಸಾಧ್ಯವಾಗುತ್ತಿಲ್ಲ. ಈ ಕರೆ ಕೆಲಸ ಮಾಡದಿರಬಹುದು.</string>
     <string name="voip_call_failed_frag_subheader">ನೀವು ಈಗಲೂ %1$s ಅವರನ್ನು ಹೀಗೆ ಸಂಪರ್ಕಿಸಬಹುದು</string>
     <string name="dismiss_upper_case">ವಜಾಗೊಳಿಸಿ</string>
