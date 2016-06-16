@@ -114,13 +114,9 @@ public class FriendsActivity extends HikeAppStateBaseFragmentActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-    }
-
-    @Override
     public void onBackPressed() {
-        startActivity(IntentFactory.getHomeActivityIntent(this));
+        if (isTaskRoot())
+            startActivity(IntentFactory.getHomeActivityIntent(this));
         super.onBackPressed();
     }
 }
