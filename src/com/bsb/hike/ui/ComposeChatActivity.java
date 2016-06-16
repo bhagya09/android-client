@@ -821,7 +821,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				adapter.enableHikeContactsInSearch(true);
 				adapter.enableSMSContactsInSearch(true);
 				adapter.enableUnknownContactsInSearch(true);
-				adapter.addAddFriendOption(true);
 				break;
 			case MULTIPLE_FWD:
 				adapter = new ComposeChatAdapter(this, listView, true, true, null, sendingMsisdn, friendsListFetchedCallback, false, false, isShowTimeline(), false);
