@@ -123,6 +123,9 @@ public class StickerCategoriesDetailsDownloadTask implements IHikeHTTPTask, IHik
 			}
 
 			requestJsonBody = Utils.getParameterPostBodyForHttpApi(HttpRequestConstants.BASE_CATEGORY_DETAIL, requestJsonBody);
+
+			Logger.i(TAG, "Sent JSON : " + requestJsonBody);
+
 		}
 		catch (JSONException e)
 		{
