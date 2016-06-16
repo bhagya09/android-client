@@ -8104,14 +8104,14 @@ public class Utils
 
 	public static byte[] getBytesFromBundle(Bundle bundle)
 	{
+		Parcel parcel = null;
 		try {
 			byte[] bundleBytes = null;
 
 			if (bundle != null) {
-				Parcel parcel = Parcel.obtain();
+				parcel = Parcel.obtain();
 				bundle.writeToParcel(parcel, 0);
 				bundleBytes = parcel.marshall();
-				parcel.recycle();
 			}
 			return bundleBytes;
 		} catch (Throwable ex) {
@@ -8120,20 +8120,24 @@ public class Utils
 			}
 			Logger.e("Utils", "Exception while getting bytes from bundle : " , ex);
 			return null;
+		} finally {
+			if (parcel != null) {
+				parcel.recycle();
+			}
 		}
 	}
 
 	public static Bundle getBundleFromBytes(byte[] bundleBytes)
 	{
+		Parcel parcel = null;
 		try {
 			Bundle bundle = null;
 
 			if (!isEmpty(bundleBytes)) {
-				Parcel parcel = Parcel.obtain();
+				parcel = Parcel.obtain();
 				parcel.unmarshall(bundleBytes, 0, bundleBytes.length);
 				parcel.setDataPosition(0);
 				bundle = parcel.readBundle();
-				parcel.recycle();
 			}
 
 			return bundle;
@@ -8141,6 +8145,10 @@ public class Utils
 		catch (Throwable ex) {
 			Logger.e("Utils", "Exception while getting bytes from bundle : ", ex);
 			return null;
+		} finally {
+			if (parcel != null) {
+				parcel.recycle();
+			}
 		}
 	}
 
