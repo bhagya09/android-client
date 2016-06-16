@@ -913,7 +913,7 @@ public class StickerSearchManager
 				metadata.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
 
 				String searchedKey = iterator.next();
-				String searchedText = searchedKey.split(HikeConstants.DELIMETER)[0];
+				String searchedText = searchedKey.split(HikeConstants.DELIMETER)[0];//searchedKey = searchedText + ':' + isSuccess
 				JSONObject stickerSearchReportJson = searchReportJSON.getJSONObject(searchedKey);
 				JSONArray searchedResults = stickerSearchReportJson.getJSONArray(HikeConstants.LIST);
 
