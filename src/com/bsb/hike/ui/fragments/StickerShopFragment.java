@@ -126,6 +126,14 @@ public class StickerShopFragment extends StickerShopBaseFragment implements OnSc
 			}
 		});
 
+		loadingFooterView.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+
+				Logger.d(TAG, "LOADING FOOTER VIEW CLICKED");
+			}
+		});
+
 		if ((mAdapter.getCursor() == null) || mAdapter.getCursor().getCount() == 0)
 		{
 			listview.setVisibility(View.GONE);
