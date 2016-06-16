@@ -100,7 +100,7 @@ public class FriendsActivity extends HikeAppStateBaseFragmentActivity {
     private void addAddedMeFragment() {
         AddedMeFragment addedMeFragment = null;
 
-        Fragment frag = getSupportFragmentManager().findFragmentByTag(ADD_FRIENDS);
+        Fragment frag = getSupportFragmentManager().findFragmentByTag(ADDED_ME);
         if (frag != null) {
             addedMeFragment = (AddedMeFragment) frag;
             if (!addedMeFragment.isAdded())
