@@ -47,7 +47,7 @@ public class AddedMeFragment extends ListFragment implements HikePubSub.Listener
         if (addedMeContacts == null) {
             addedMeContacts = new ArrayList<>();
             for (ContactInfo info : allContacts) {
-                if (hasContactAddedMe(info)) {
+                if (doesQualifyForAddedMe(info)) {
                     addedMeContacts.add(info);
                 }
             }
@@ -149,7 +149,7 @@ public class AddedMeFragment extends ListFragment implements HikePubSub.Listener
             } else {
                 ContactInfo newContact = new ContactInfo(contactInfo);
                 newContact.setFavoriteType(favoriteType);
-                if (hasContactAddedMe(newContact))
+                if (doesQualifyForAddedMe(newContact))
                     addedMeContacts.add(0, newContact);
                 if (favoriteType == ContactInfo.FavoriteType.FRIEND)
                     ContactManager.getInstance().updateUnreadRequestTime(newContact, 0);
@@ -170,7 +170,7 @@ public class AddedMeFragment extends ListFragment implements HikePubSub.Listener
         super.onDestroyView();
     }
 
-    public static boolean hasContactAddedMe(ContactInfo info) {
+    public static boolean doesQualifyForAddedMe(ContactInfo info) {
         ContactInfo.FavoriteType type = info.getFavoriteType();
 
         if (type == null)
