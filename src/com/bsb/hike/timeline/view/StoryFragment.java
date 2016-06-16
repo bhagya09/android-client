@@ -85,7 +85,8 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
             HikePubSub.STEALTH_CONVERSATION_MARKED,
             HikePubSub.STEALTH_CONVERSATION_UNMARKED,
             HikePubSub.FAVORITE_TOGGLED,
-            HikePubSub.USER_PRIVACY_TOGGLED};
+            HikePubSub.USER_PRIVACY_TOGGLED,
+            HikePubSub.CONTACT_SYNCED};
 
     private CustomTabsBar.CustomTabBadgeCounterListener badgeCounterListener;
 
@@ -264,6 +265,7 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
                 || type.equals(HikePubSub.DELETE_STATUS)
                 || type.equals(HikePubSub.STEALTH_CONVERSATION_MARKED)
                 || type.equals(HikePubSub.STEALTH_CONVERSATION_UNMARKED)
+                || type.equals(HikePubSub.CONTACT_SYNCED)
                 || type.equals(HikePubSub.USER_PRIVACY_TOGGLED)) {
             if (isAdded() && getActivity() != null) {
                 HikeHandlerUtil.getInstance().postRunnable(new Runnable() {
