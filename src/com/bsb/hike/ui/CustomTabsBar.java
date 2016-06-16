@@ -123,6 +123,8 @@ public class CustomTabsBar {
 
         private CustomTabListener customTabListener;
 
+        private int indicatorCount;
+
         Tab(int id) {
             this.id = id;
         }
@@ -196,6 +198,11 @@ public class CustomTabsBar {
                 showIndicator();
             else
                 hideIndicator();
+            indicatorCount = count;
+        }
+
+        public int getIndicatorCount() {
+            return indicatorCount;
         }
 
         public void hideIndicator() {
