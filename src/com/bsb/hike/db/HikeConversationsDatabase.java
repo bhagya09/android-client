@@ -28,6 +28,8 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatthemes.model.ChatThemeToken;
+import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.chatthemes.ChatThemeManager;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.db.DBConstants.HIKE_CONV_DB;
@@ -7067,6 +7069,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 					}
 					else
 					{
+						ChatThemeManager.getInstance().downloadThemeContent(currentThemeId, msisdn, true);
 						return prevThemeId;
 					}
 				}
@@ -7117,6 +7120,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 					else
 					{
 						chatThemeId = prevThemeId;
+						ChatThemeManager.getInstance().downloadThemeContent(currentThemeId, msisdn, true);
 					}
 				}
 				catch (IllegalArgumentException e)
@@ -7152,7 +7156,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 	public void setChatThemesFromArray(JSONArray chatBackgroundArray)
 	{
 		ContentValues contentValues = new ContentValues();
-
+		HashMap<String, ChatThemeToken> cctTokensMap = new HashMap<>();
 		try{
 			mDb.beginTransaction();
 			if (Utils.isEmpty(chatBackgroundArray))
@@ -7180,10 +7184,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				 * We don't support custom themes yet.
 				 */
 				if (chatBgJson.optBoolean(HikeConstants.CUSTOM)) {
-					ChatThemeManager.getInstance().downloadThemeContent(bgId, true);
-
-//					Logger.d(getClass().getSimpleName(), "We don't support custom themes yet");
-//					continue;
+					ChatThemeToken token = new ChatThemeToken(bgId, msisdn, true);
+					cctTokensMap.put(bgId, token);
 				}
 
 				contentValues.put(DBConstants.MSISDN, msisdn);
@@ -7198,6 +7200,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper
 				HikeMessengerApp.getPubSub().publish(HikePubSub.CHAT_BACKGROUND_CHANGED, new Pair<String, String>(msisdn, bgId));
 			}
 			mDb.setTransactionSuccessful();
+
+			ChatThemeManager.getInstance().downloadMultipleThemeContent(cctTokensMap);
 
 		} catch (Exception e) {
 
