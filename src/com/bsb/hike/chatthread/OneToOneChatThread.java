@@ -641,7 +641,14 @@ import java.util.Map;
 	protected void makeHeaderComponentsVisible()
 	{
 		unknownContactInfoView.findViewById(R.id.header).setVisibility(View.VISIBLE);
-		unknownContactInfoView.findViewById(R.id.chat_header_viewstub).setVisibility(View.VISIBLE);
+
+		//ADD check for NPE as view stub has a feature that once it is inflated, than id with which it was inflated
+		// is no more valid (only inflatedid is valid after that),so modifying header again after header was added/inflated leads to NPE
+		ViewStub viewStub = (ViewStub)unknownContactInfoView.findViewById(R.id.chat_header_viewstub);
+		if(viewStub != null)
+		{
+			viewStub.setVisibility(View.VISIBLE);
+		}
 		unknownContactInfoSpinnerLayout =  (LinearLayout)unknownContactInfoView.findViewById(R.id.unknown_user_info_spinner);
 		unknownContactInfoSpinnerLayout.setBackgroundColor(getResources().getColor(R.color.caller_free_call));
 	}
