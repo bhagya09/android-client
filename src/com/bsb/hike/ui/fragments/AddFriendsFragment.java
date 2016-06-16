@@ -25,6 +25,7 @@ import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 
 import com.bsb.hike.adapters.AddFriendAdapter.ViewType;
@@ -82,9 +83,14 @@ public class AddFriendsFragment extends ListFragment {
                 String id = iterator.next();
                 ContactInfo c = ContactManager.getInstance().getContact(id, true, true);
 
-                if(c == null || c.getFavoriteType() == null || c.getMsisdn() == null)
+                if(c == null || c.getFavoriteType() == null || c.getUserIdentifier() == null)
                 {
                     Logger.d("tl_ftue_ab_recommendations", "NPE: favourite null");
+                    continue;
+                }
+
+                if (!StealthModeManager.getInstance().isActive() && StealthModeManager.getInstance().isStealthMsisdn(c.getUserIdentifier())) {
+                    Logger.d("tl_ftue_ab_recommendations", id + " is a stealth contact and stealthmode is not active");
                     continue;
                 }
 

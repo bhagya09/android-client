@@ -34,6 +34,7 @@ import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.service.HikeService;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 
 import org.json.JSONException;
@@ -60,6 +61,12 @@ public class AddFriendsViaABFragment extends ListFragment implements HikePubSub.
         List<ContactInfo> toAddHikecontacts = new ArrayList<>();
         List<ContactInfo> toAddSMScontacts = new ArrayList<>();
         for (ContactInfo info : allContacts) {
+
+            if (!StealthModeManager.getInstance().isActive() && StealthModeManager.getInstance().isStealthMsisdn(info.getUserIdentifier())) {
+                Logger.d("AddFriend Address Book", info.getUserIdentifier() + " is a stealth contact and stealthmode is not active");
+                continue;
+            }
+
             if (!info.isBot()) {
                 if (info.isOnhike()) {
                     toAddHikecontacts.add(info);
