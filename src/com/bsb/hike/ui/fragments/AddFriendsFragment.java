@@ -81,7 +81,7 @@ public class AddFriendsFragment extends ListFragment {
                     continue;
                 }
 
-                if (!c.isBot() && !c.isMyFriend())
+                if (!c.isBot() && !c.isMyFriend() && c.isOnhike())
                 {
                     Logger.d("tl_ftue_ab_recommendations", id + " is not a frnd so adding for ftue list :- " + c.getName() +", "+ c.getFavoriteType());
                     finalContactList.add(c);
