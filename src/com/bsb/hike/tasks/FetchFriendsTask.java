@@ -348,10 +348,6 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 
 		Logger.d("TestQuery", "Iteration time: " + (System.currentTimeMillis() - iterationTime));
 
-		long sortTime = System.currentTimeMillis();
-		Collections.sort(friendTaskList, checkFavTypeInComparision ? ContactInfo.lastSeenTimeComparator : ContactInfo.lastSeenTimeComparatorWithoutFav);
-		Logger.d("TestQuery", "Sorting time: " + (System.currentTimeMillis() - sortTime));
-
 		// When adding members to an existing group, remove existing participants
 		if (!TextUtils.isEmpty(existingGroupId))
 		{
