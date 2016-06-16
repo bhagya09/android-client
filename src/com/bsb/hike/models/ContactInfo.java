@@ -35,7 +35,7 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 	@Override
 	public String toString()
 	{
-		return "ContactInfo [id = " + id + " , name=" + name + ", msisdn=" + msisdn +  ", rawNum =" + phoneNum + "]";
+		return "ContactInfo [id = " + id + " , name=" + name + ",  msisdn=" + msisdn +  ", rawNum =" + phoneNum + "]";
 	}
 
 	private String name;
@@ -689,11 +689,6 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 	public boolean isFriendRequestReceivedForMe()
 	{
 		return this.getFavoriteType() == FavoriteType.REQUEST_RECEIVED;
-	}
-
-	public boolean isNotMyFriend()
-	{
-		return this.getFavoriteType() == FavoriteType.REQUEST_RECEIVED_REJECTED || this.getFavoriteType() == FavoriteType.NOT_FRIEND;
 	}
 
 	public void setBlockStatus(boolean status)
