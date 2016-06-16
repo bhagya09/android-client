@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.modules.gcmnetworkmanager.HikeGcmNetworkMgr;
 import com.bsb.hike.roboClasses.MultiDexShadowClass;
 
 import org.junit.Before;
@@ -51,5 +52,11 @@ public class TestHikeMessengerApp extends HikeMessengerApp
 		Log.d(TAG, "initCrashReportingTool");
 
 	}
+
+    @Implementation
+    public void checkAndTriggerPendingGcmNetworkCalls()
+    {
+        Log.d(TAG, "checkAndTriggerPendingGcmNetworkCalls");
+    }
 
 }

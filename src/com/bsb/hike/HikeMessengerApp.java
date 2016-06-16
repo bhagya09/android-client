@@ -1471,7 +1471,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
         diskCache = null;
     }
 
-	private void checkAndTriggerPendingGcmNetworkCalls()
+	public void checkAndTriggerPendingGcmNetworkCalls()
 	{
 		HikeGcmNetworkMgr.getInstance().triggerPendingGcmNetworkCalls();
 	}

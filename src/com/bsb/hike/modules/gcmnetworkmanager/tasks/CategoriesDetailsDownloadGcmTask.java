@@ -23,7 +23,7 @@ public class CategoriesDetailsDownloadGcmTask implements IGcmTask
 		}
 		else
 		{
-			StickerManager.getInstance().initiateMultiStickerCategoriesDetailsDownloadtask();
+			StickerManager.getInstance().initiateMultiStickerCategoriesDetailsDownloadTask();
 		}
 
 		return null;

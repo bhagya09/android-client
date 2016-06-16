@@ -912,8 +912,9 @@ public class StickerSearchManager
 				metadata.put(AnalyticsConstants.V2.UNIQUE_KEY, HikeConstants.LogEvent.STICKER_RECOMMENDATION_REPORT);
 				metadata.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
 
-				String searchedText = iterator.next();
-				JSONObject stickerSearchReportJson = searchReportJSON.getJSONObject(searchedText);
+				String searchedKey = iterator.next();
+				String searchedText = searchedKey.split(HikeConstants.DELIMETER)[0];//searchedKey = searchedText + ':' + isSuccess
+				JSONObject stickerSearchReportJson = searchReportJSON.getJSONObject(searchedKey);
 				JSONArray searchedResults = stickerSearchReportJson.getJSONArray(HikeConstants.LIST);
 
 				metadata.put(AnalyticsConstants.V2.VAL_STR, searchedText);
