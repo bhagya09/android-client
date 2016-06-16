@@ -23,16 +23,6 @@
             android:gravity="right"
             android:layout_height="@dimen/compose_item_height" >
 
-            <ImageView
-                android:id="@+id/add_friend"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:scaleType="centerInside"
-                android:background="@drawable/list_item"
-                android:src="@drawable/ic_add_friend"
-                android:visibility="gone" />
-            
         <CheckBox
 	        android:id="@+id/checkbox"
 	        android:layout_width="wrap_content"

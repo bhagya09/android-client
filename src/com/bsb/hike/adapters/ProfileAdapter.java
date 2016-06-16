@@ -1214,7 +1214,7 @@ public class ProfileAdapter extends ArrayAdapter<ProfileItem> implements View.On
 			if (json != null) {
 				json.put(AnalyticsConstants.V2.UNIQUE_KEY, "hs_privacy_options");
 				json.put(AnalyticsConstants.V2.ORDER, "hs_privacy_options");
-				json.put(AnalyticsConstants.V2.FAMILY, mContactInfo.isMyOneWayFriend() ? "friend" : "not_friend");
+				json.put(AnalyticsConstants.V2.FAMILY, mContactInfo.isMyFriend() ? "friend" : "not_friend");
 				json.put(AnalyticsConstants.V2.TO_MSISDN, mContactInfo.getMsisdn());
 				HAManager.getInstance().recordV2(json);
 			}

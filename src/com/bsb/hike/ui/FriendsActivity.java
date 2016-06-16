@@ -19,7 +19,7 @@ import com.bsb.hike.utils.IntentFactory;
 /**
  * Created by gauravmittal on 19/05/16.
  */
-public class FriendRequestActivity extends HikeAppStateBaseFragmentActivity {
+public class FriendsActivity extends HikeAppStateBaseFragmentActivity {
 
     public static final String ADD_FRIENDS = "add_friends";
 
@@ -45,7 +45,7 @@ public class FriendRequestActivity extends HikeAppStateBaseFragmentActivity {
             setupActionBar(R.string.add_friends);
             addAddFriendsFragment();
         } else if (intent.hasExtra(ADD_FRIENDS_ADDRESSBOOK)) {
-            setupActionBar(R.string.add_via_address_book);
+            setupActionBar(R.string.address_book);
             addAddFriendsViaABFragment();
         } else {
             setupActionBar(R.string.added_me);
@@ -100,7 +100,7 @@ public class FriendRequestActivity extends HikeAppStateBaseFragmentActivity {
     private void addAddedMeFragment() {
         AddedMeFragment addedMeFragment = null;
 
-        Fragment frag = getSupportFragmentManager().findFragmentByTag(ADD_FRIENDS);
+        Fragment frag = getSupportFragmentManager().findFragmentByTag(ADDED_ME);
         if (frag != null) {
             addedMeFragment = (AddedMeFragment) frag;
             if (!addedMeFragment.isAdded())
@@ -120,7 +120,7 @@ public class FriendRequestActivity extends HikeAppStateBaseFragmentActivity {
 
     @Override
     public void onBackPressed() {
-        IntentFactory.openHomeActivity(FriendRequestActivity.this, true);
+        startActivity(IntentFactory.getHomeActivityIntent(this));
         super.onBackPressed();
     }
 }

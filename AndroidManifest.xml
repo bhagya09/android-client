@@ -176,7 +176,7 @@
             android:launchMode="singleTop"
             android:windowSoftInputMode="adjustPan|stateAlwaysHidden"/>
         <activity
-            android:name=".ui.FriendRequestActivity"
+            android:name=".ui.FriendsActivity"
             android:label="@string/app_label"
             android:launchMode="singleTop"
             android:windowSoftInputMode="adjustPan|stateAlwaysHidden"/>

@@ -29,7 +29,7 @@ import java.util.List;
 /**
  * Created by gauravmittal on 19/05/16.
  */
-public class FriendRequestAdapter extends BaseAdapter implements PinnedSectionListView.PinnedSectionListAdapter {
+public class AddFriendAdapter extends BaseAdapter implements PinnedSectionListView.PinnedSectionListAdapter {
 
     private List<ContactInfo> completeList;
 
@@ -46,6 +46,11 @@ public class FriendRequestAdapter extends BaseAdapter implements PinnedSectionLi
     @Override
     public boolean isItemViewTypePinned(int viewType) {
         return viewType == ViewType.PINNED_SECTION.ordinal();
+    }
+
+    @Override
+    public boolean isEnabled(int position) {
+        return !isItemViewTypePinned(getItemViewType(position));
     }
 
     private static class ViewHolder {
@@ -65,7 +70,7 @@ public class FriendRequestAdapter extends BaseAdapter implements PinnedSectionLi
         ImageView invited;
     }
 
-    public FriendRequestAdapter(List<ContactInfo> list, Context context) {
+    public AddFriendAdapter(List<ContactInfo> list, Context context) {
         this.completeList = list;
         this.displayList = completeList;
         iconLoader = new IconLoader(context, HikeMessengerApp.getInstance().getApplicationContext().getResources().getDimensionPixelSize(R.dimen.icon_picture_size));
@@ -73,6 +78,14 @@ public class FriendRequestAdapter extends BaseAdapter implements PinnedSectionLi
         iconLoader.setDefaultAvatarIfNoCustomIcon(false);
         iconLoader.setDefaultDrawableNull(false);
         this.context = context;
+    }
+
+    public void updateList(List<ContactInfo> list) {
+        this.completeList = list;
+        this.displayList = completeList;
+        // if the list is being updated while in search mode. then we need to run the query again.
+        if (searchText != null)
+            onSearchQueryChanged(searchText, null);
     }
 
     public enum ViewType
@@ -109,7 +122,7 @@ public class FriendRequestAdapter extends BaseAdapter implements PinnedSectionLi
         else if (info.getId() == ViewType.BASIC_ITEM.toString()) {
             return ViewType.BASIC_ITEM.ordinal();
         }
-        else if (info.isMyOneWayFriend()) {
+        else if (info.isMyFriend()) {
             return ViewType.FRIEND.ordinal();
         }
         else {
@@ -181,7 +194,7 @@ public class FriendRequestAdapter extends BaseAdapter implements PinnedSectionLi
             viewHolder.number.setText(info.getMsisdn());
             viewHolder.avatar.setTag(info.getMsisdn());
             iconLoader.loadImage(info.getMsisdn(), viewHolder.avatar, false, false, true, info);
-            if (info.isMyOneWayFriend()) {
+            if (info.isMyFriend()) {
                 viewHolder.addedFriend.setVisibility(View.VISIBLE);
                 viewHolder.addFriend.setVisibility(View.GONE);
             } else {

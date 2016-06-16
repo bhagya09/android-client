@@ -505,14 +505,14 @@ public class ConversationsAdapter extends BaseAdapter
 			{
 
 				//defensive check here .Need to figure out how come a contact is present without a valid msisdn.This check can be placed here Small risk only
-				if (contact == null || TextUtils.isEmpty(contact.getMsisdn()))
+				if (contact == null || TextUtils.isEmpty(contact.getMsisdn()) || !contact.isMyFriend() || !contact.isOnhike())
 				{
 					continue;
 				}
 
 				ConvInfo convInfo = new ConvInfo.ConvInfoBuilder(contact.getMsisdn()).setConvName(contact.getName()).setOnHike(contact.isOnhike()).build();
 				
-				if(stealthConversations.contains(convInfo) || conversationsMsisdns.contains(contact.getMsisdn()) || !convInfo.isOnHike())
+				if(stealthConversations.contains(convInfo) || conversationsMsisdns.contains(contact.getMsisdn()))
 				{
 					continue;
 				}

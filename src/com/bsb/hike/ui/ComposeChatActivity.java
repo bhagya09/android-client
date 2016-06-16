@@ -819,6 +819,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				adapter.setCreateGroupBroadcastOption(true);
 				adapter.enableHikeContactsInSearch(true);
 				adapter.enableSMSContactsInSearch(true);
+				adapter.enableUnknownContactsInSearch(true);
+				adapter.addAddFriendOption(true);
 				break;
 			case MULTIPLE_FWD:
 				adapter = new ComposeChatAdapter(this, listView, true, true, null, sendingMsisdn, friendsListFetchedCallback, false, false, isShowTimeline(), false);
@@ -980,11 +982,14 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 		if (ComposeChatAdapter.HIKE_FEATURES_ID.equals(contactInfo.getId())) {
 			if (ComposeChatAdapter.HIKE_FEATURES_NEW_GROUP_ID.equals(contactInfo.getMsisdn())) {
-				Intent intent = new Intent(this, CreateNewGroupOrBroadcastActivity.class);
+				Intent intent = new Intent(ComposeChatActivity.this, CreateNewGroupOrBroadcastActivity.class);
 				startActivity(intent);
 				return;
 			} else if (ComposeChatAdapter.HIKE_FEATURES_NEW_BROADCAST_ID.equals(contactInfo.getMsisdn())) {
 				IntentFactory.createBroadcastIntent(ComposeChatActivity.this);
+				return;
+			} else if (ComposeChatAdapter.HIKE_FEATURES_ADD_FRIEND_ID.equals(contactInfo.getMsisdn())) {
+				startActivity(IntentFactory.getFriendReqActivityAddFriendsIntent(ComposeChatActivity.this));
 				return;
 			}
 		}
@@ -1007,7 +1012,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			{
 				showToast(getString(R.string.maxContactInBroadcastErr, HikeConstants.MAX_CONTACTS_IN_BROADCAST));
 				return;
-			} else if (!contactInfo.isMyOneWayFriend()) {
+			} else if (!contactInfo.isMyFriend()) {
 				showToast(getString(R.string.contact_non_friend_msg));
 				return;
 			}
@@ -1050,7 +1055,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				}
 			}
 
-			if (!contactInfo.isMyOneWayFriend()) {
+			if (!contactInfo.isMyFriend()) {
 				showToast(getString(R.string.contact_non_friend_msg));
 				return;
 			}
@@ -1097,7 +1102,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				}
 				else{
 					name = viewtype == ViewType.NOT_FRIEND_SMS.ordinal() ? contactInfo.getName() + " (SMS) " : contactInfo.getName();
-					if (!contactInfo.isMyOneWayFriend()) {
+					if (!contactInfo.isMyFriend()) {
 						showToast(getString(R.string.contact_non_friend_msg));
 						return;
 					}
@@ -1168,7 +1173,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		if (!OneToNConversationUtils.isOneToNConversation(info.getMsisdn()))
 		{
 			info.setFavoriteType(Utils.toggleFavorite(this, info, false, HikeConstants.AddFriendSources.FORWARD_SCREEN));
-			if (info.isMyTwoWayFriend())
+			if (info.isTwoWayFriend())
 				Toast.makeText(this, R.string.friend_request_sent, Toast.LENGTH_SHORT).show();
 		}
 	}
@@ -1251,7 +1256,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 	private void selectContact(ContactInfo contactInfo)
 	{
-		if (contactInfo.isMyOneWayFriend()) {
+		if (contactInfo.isMyFriend()) {
 			adapter.addContact(contactInfo);
 		}
 		else {
@@ -1351,7 +1356,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		case MULTIPLE_FWD:
 			// createGroupHeader.setVisibility(View.GONE);
 			adapter.showCheckBoxAgainstItems(true);
-			adapter.provideAddFriend(true);
 			tagEditText.clear(false);
 			adapter.removeFilter();
 			adapter.clearAllSelection(true);

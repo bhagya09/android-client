@@ -237,16 +237,16 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 			removeExcludedParticipants(convContacts, composeExcludeList);
 			for (ContactInfo recentContact : convContacts)
 			{
-				if (recentTaskList.size() >= HikeConstants.MAX_RECENTS_TO_SHOW)
-					break;
 				String msisdn = recentContact.getMsisdn();
 				boolean hideStealthMsisdn = StealthModeManager.getInstance().isStealthMsisdn(msisdn) && !StealthModeManager.getInstance().isActive();
 				boolean removeSendingMsisdn = (sendingMsisdn != null && sendingMsisdn.equals(msisdn));
-				if (blockSet.contains(msisdn) || HikeMessengerApp.hikeBotInfoMap.containsKey(msisdn) || myMsisdn.equals(msisdn) || hideStealthMsisdn || removeSendingMsisdn)
+				if (blockSet.contains(msisdn) || HikeMessengerApp.hikeBotInfoMap.containsKey(msisdn) || myMsisdn.equals(msisdn) || hideStealthMsisdn || removeSendingMsisdn || !recentContact.isMyFriend())
 				{
 					continue;
 				}
 				recentTaskList.add(recentContact);
+				if (recentTaskList.size() >= HikeConstants.MAX_RECENTS_TO_SHOW)
+					break;
 			}
 			/**
 			 * Removing Birthday users from resent contacts list
@@ -326,7 +326,7 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 			}
 			FavoriteType favoriteType = contactInfo.getFavoriteType();
 
-			if (shouldAddToFavorites(favoriteType) && fetchFavContacts)
+			if (contactInfo.isMyFriend() && fetchFavContacts)
 			{
 				friendTaskList.add(contactInfo);
 			}
@@ -401,12 +401,6 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		Logger.d("TestQuery", "total time: " + (System.currentTimeMillis() - startTime));
 		return null;
 
-	}
-
-	private boolean shouldAddToFavorites(FavoriteType favoriteType)
-	{
-		return favoriteType == FavoriteType.REQUEST_RECEIVED || favoriteType == FavoriteType.FRIEND || favoriteType == FavoriteType.REQUEST_SENT
-				|| favoriteType == FavoriteType.REQUEST_SENT_REJECTED;
 	}
 
 	private boolean shouldShowSmsContact(String msisdn)
@@ -541,7 +535,7 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 			filteredRecommendedContactsList.addAll(nuxRecommendedTaskList);
 		}
 		friendsAdapter.setListFetchedOnce(true);
-		friendsAdapter.makeCompleteList(true, true);
+		friendsAdapter.makeCompleteList(false, true);
 	}
 
 	private void clearAllLists()

@@ -62,7 +62,7 @@ import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.ConnectedAppsActivity;
 import com.bsb.hike.ui.CreateNewGroupOrBroadcastActivity;
 import com.bsb.hike.ui.FileSelectActivity;
-import com.bsb.hike.ui.FriendRequestActivity;
+import com.bsb.hike.ui.FriendsActivity;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.GallerySelectionViewer;
 import com.bsb.hike.ui.HikeAuthActivity;
@@ -1694,20 +1694,20 @@ public class IntentFactory
 	}
 
 	public static Intent getFriendReqActivityAddFriendsIntent(Context context) {
-		Intent intent = new Intent(context, FriendRequestActivity.class);
-		intent.putExtra(FriendRequestActivity.ADD_FRIENDS, "");
+		Intent intent = new Intent(context, FriendsActivity.class);
+		intent.putExtra(FriendsActivity.ADD_FRIENDS, "");
 		return intent;
 	}
 
 	public static Intent getFriendReqActivityAddFriendsViaABIntent(Context context) {
-		Intent intent = new Intent(context, FriendRequestActivity.class);
-		intent.putExtra(FriendRequestActivity.ADD_FRIENDS_ADDRESSBOOK, "");
+		Intent intent = new Intent(context, FriendsActivity.class);
+		intent.putExtra(FriendsActivity.ADD_FRIENDS_ADDRESSBOOK, "");
 		return intent;
 	}
 
 	public static Intent getFriendReqActivityAddedMeIntent(Context context) {
-		Intent intent = new Intent(context, FriendRequestActivity.class);
-		intent.putExtra(FriendRequestActivity.ADDED_ME, "");
+		Intent intent = new Intent(context, FriendsActivity.class);
+		intent.putExtra(FriendsActivity.ADDED_ME, "");
 		return intent;
 	}
 

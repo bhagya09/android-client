@@ -309,15 +309,20 @@ public class MyFragment extends Fragment implements HikePubSub.Listener {
         setBadgeCount(getBadgeCount() + increaseBy);
     }
 
+    public static void decreaseBadgeCount(int decreaseBy) {
+        int newValue = getBadgeCount() - decreaseBy;
+        if (newValue < 0)
+            newValue = 0;
+        setBadgeCount(newValue);
+    }
+
+
     public static void resetBadgeCount() {
         setBadgeCount(0);
     }
 
-    public static void setBadgeCount(int value) {
-        int oldValue = getBadgeCount();
-        if (oldValue != value) {
-            HikeSharedPreferenceUtil.getInstance().saveData(MY_FRAGMENT_BADGE_COUNT, value);
-        }
+    public static void setBadgeCount(int newValue) {
+        HikeSharedPreferenceUtil.getInstance().saveData(MY_FRAGMENT_BADGE_COUNT, newValue);
     }
 
     @Override
@@ -384,6 +389,6 @@ public class MyFragment extends Fragment implements HikePubSub.Listener {
     @Override
     public void onDestroyView() {
         HikeMessengerApp.getPubSub().removeListeners(this, pubSubListeners);
-        super.onDestroy();
+        super.onDestroyView();
     }
 }
