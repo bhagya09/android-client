@@ -1,11 +1,8 @@
 package com.bsb.hike.chatthemes;
 
-import android.support.annotation.Nullable;
 import android.os.Bundle;
 
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
 import com.bsb.hike.chatthemes.model.ChatThemeToken;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -13,26 +10,28 @@ import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHTTPTask;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHttpTaskResult;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashMap;
+import java.util.Set;
+
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.downloadChatThemeAssetId;
 
+/**
+ * Created by sriram on 12/06/16.
+ */
+public class DownloadMultipleThemeContentTask implements IHikeHTTPTask, IHikeHttpTaskResult {
 
-public class DownloadThemeContentTask implements IHikeHTTPTask, IHikeHttpTaskResult {
+    private HashMap<String, ChatThemeToken> mTokensMap;
 
     private RequestToken token;
 
-    private ChatThemeToken mToken = null;
-
-    private final String TAG = "DownloadThemeContentTask";
-
-    public DownloadThemeContentTask(ChatThemeToken token) {
-        this.mToken = token;
+    public DownloadMultipleThemeContentTask(HashMap<String, ChatThemeToken> tokensMap){
+        this.mTokensMap = tokensMap;
     }
 
     @Override
@@ -55,17 +54,6 @@ public class DownloadThemeContentTask implements IHikeHTTPTask, IHikeHttpTaskRes
     }
 
     @Override
-    public void doOnSuccess(Object result) {
-        Logger.d(TAG, "chat theme asset id download complete");
-    }
-
-    @Override
-    public void doOnFailure(HttpException exception) {
-        Logger.d(TAG, "chat theme asset id download failed");
-        HikeMessengerApp.getPubSub().publish(HikePubSub.CHATTHEME_CONTENT_DOWNLOAD_FAILURE, mToken);
-    }
-
-    @Override
     public Bundle getRequestBundle() {
         return null;
     }
@@ -75,11 +63,21 @@ public class DownloadThemeContentTask implements IHikeHTTPTask, IHikeHttpTaskRes
         return null;
     }
 
+    @Override
+    public void doOnSuccess(Object result) {
+
+    }
+
+    @Override
+    public void doOnFailure(HttpException exception) {
+
+    }
+
     private IRequestListener getRequestListener() {
         return new IRequestListener() {
 
             @Override
-            public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException) {
+            public void onRequestFailure(Response errorResponse, HttpException httpException) {
                 doOnFailure(httpException);
             }
 
@@ -111,8 +109,15 @@ public class DownloadThemeContentTask implements IHikeHTTPTask, IHikeHttpTaskRes
         try {
             JSONObject themeIds = new JSONObject();
             JSONArray ids = new JSONArray();
-            ids.put(mToken.getThemeId());
+            Set<String> themeIdToReq = mTokensMap.keySet();
+            //adding to the JSON array
+            int i = 0;
+            for(String themeId : themeIdToReq) {
+                ids.put(i, themeId);
+                i++;
+            }
             themeIds.put(HikeChatThemeConstants.JSON_DWNLD_THEME_ID, ids);
+
             return themeIds;
         } catch (JSONException e) {
             e.printStackTrace();
@@ -123,14 +128,7 @@ public class DownloadThemeContentTask implements IHikeHTTPTask, IHikeHttpTaskRes
     private void parseAssetContent(JSONObject resp) {
         try {
             JSONArray data = resp.getJSONArray(HikeConstants.DATA_2);
-            if(mToken.isCustom()){
-                if(!Utils.isEmpty(data)) {
-                    ChatThemeManager.getInstance().processCustomThemeSignal(data.getJSONObject(0), mToken, true);
-                }
-            }else {
-                //TODO CHATTHEME, Enable if it OTA Themes
-                //ChatThemeManager.getInstance().processNewThemeSignal(data, false);
-            }
+            ChatThemeManager.getInstance().processMultipleCustomThemeSignal(data, mTokensMap);
         } catch (JSONException e) {
             doOnFailure(new HttpException(HttpException.REASON_CODE_UNEXPECTED_ERROR, e));
             e.printStackTrace();

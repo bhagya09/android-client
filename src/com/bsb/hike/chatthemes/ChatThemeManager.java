@@ -14,7 +14,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.ChatAnalyticConstants;
-import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.chatthemes.model.ChatThemeToken;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.HikeChatTheme;
@@ -32,6 +32,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -58,8 +59,6 @@ public class ChatThemeManager {
     public HikeChatTheme defaultChatTheme = new HikeChatTheme();
 
     public String customThemeTempUploadImagePath = null;
-
-    public String currentDownloadingAssetsThemeId = null;
 
     private static String TAG = "ChatThemeManager";
 
@@ -150,18 +149,25 @@ public class ChatThemeManager {
         return mDrawableHelper;
     }
 
-    public HikeChatTheme getTheme(String themeId) {
+    public HikeChatTheme getTheme(String themeId){
+        return getTheme(themeId, null);
+    }
+
+    public HikeChatTheme getTheme(String themeId, String msisdn) {
         HikeChatTheme theme = mChatThemesMap.get(themeId);
-        if(theme == null) {
+        if (theme == null) {
             theme = mChatThemesMap.get(defaultChatThemeId);
+
             //looks like theme data is missing downloading theme content
-            downloadThemeContent(themeId, true);
+            if((msisdn != null) && !isThemeAvailable(themeId)) {
+                downloadThemeContent(themeId, msisdn, true);
+            }
         }
         return theme;
     }
 
     public void clearThemes() {
-        if(mChatThemesMap != null) {
+        if (mChatThemesMap != null) {
             mChatThemesMap.clear();
         }
     }
@@ -173,7 +179,7 @@ public class ChatThemeManager {
      * @return boolean
      */
     public boolean isThemeAvailable(String themeId) {
-        if(themeId == null)
+        if (themeId == null)
             return false;
 
         if (themeId.equals(ChatThemeManager.getInstance().defaultChatThemeId)) // the default theme is always available
@@ -182,7 +188,7 @@ public class ChatThemeManager {
         if (mChatThemesMap == null || !mChatThemesMap.containsKey(themeId))
             return false;
 
-        HikeChatTheme theme = getTheme(themeId);
+        HikeChatTheme theme = mChatThemesMap.get(themeId);
         return mAssetHelper.isAssetsAvailableForTheme(theme);
     }
 
@@ -201,11 +207,22 @@ public class ChatThemeManager {
         return null;
     }
 
-    public void downloadAssetsForTheme(String themeId) {
-        String[] assets = getMissingAssetsForTheme(themeId);
-        if ((assets != null) && (assets.length > 0)) {
-            currentDownloadingAssetsThemeId = themeId;
-            mAssetHelper.assetDownloadRequest(assets);
+    public void downloadAssetsForMultipleThemes(HashMap<String, ChatThemeToken> tokenMap) {
+        Set<String> tokenSet = tokenMap.keySet();
+        for(String themeId : tokenSet) {
+            String[] assets = getMissingAssetsForTheme(themeId);
+            if (!Utils.isEmpty(assets)) {
+                tokenMap.get(themeId).setAssets(assets);
+            }
+        }
+        mAssetHelper.assetDownloadRequestAcrossThemes(tokenMap);
+    }
+
+    public void downloadAssetsForTheme(ChatThemeToken token) {
+        String[] assets = getMissingAssetsForTheme(token.getThemeId());
+        if (!Utils.isEmpty(assets)) {
+            token.setAssets(assets);
+            mAssetHelper.assetDownloadRequest(token);
         }
     }
 
@@ -284,7 +301,8 @@ public class ChatThemeManager {
             //querying for chat themes data (images) when the packet is received. The call might be removed later.
             if (!areTheseAssetsOnApk) {
                 for (HikeChatTheme theme : themeList) {
-                    downloadAssetsForTheme(theme.getThemeId());
+                    //OTA chatthemes is not in scope
+                    //downloadAssetsForTheme(theme.getThemeId());
                 }
             }
         } catch (JSONException e) {
@@ -292,25 +310,66 @@ public class ChatThemeManager {
         }
     }
 
-    public String processCustomThemeSignal(JSONObject data, boolean downloadAssets) {
+    public String processCustomThemeSignal(JSONObject data,ChatThemeToken token, boolean downloadAssets) {
         String themeID = null;
-        String assetId = null;
-        String thumbnailAssetId = null;
         try {
-
             themeID = data.getString(HikeChatThemeConstants.JSON_SIGNAL_THEME_THEMEID);
+            token.setThemeId(themeID);
 
             HikeChatTheme theme = new HikeChatTheme();
             theme.setThemeId(themeID);
             theme.setThemeType(HikeChatThemeConstants.THEME_TYPE_CUSTOM);
-            if (downloadAssets) {
-                theme.setVisibilityStatus(false);
-            } else {
-                theme.setVisibilityStatus(true);
-            }
             theme.setThemeOrderIndex(0);
+            theme.setVisibilityStatus(!downloadAssets);
             theme.setSystemMessageType(HikeChatThemeConstants.SYSTEM_MESSAGE_TYPE_LIGHT);
 
+            parseCustomThemeAssetContent(data, theme);
+
+            mChatThemesMap.put(themeID, theme);
+            HikeConversationsDatabase.getInstance().saveChatTheme(theme);
+
+            if (downloadAssets) { // if true, we are receiving the theme.
+                downloadAssetsForTheme(token);
+            } else { // if false, we are setting the custom theme
+                recentCustomTheme = themeID;
+                moveLocalAssetsToThemesFolder(token, theme);
+            }
+
+            return themeID;
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void processMultipleCustomThemeSignal(JSONArray dataArr, HashMap<String, ChatThemeToken> tokenMap) {
+        try {
+            for (int i = 0; i < dataArr.length(); i++) {
+                JSONObject data = dataArr.getJSONObject(i);
+
+                String themeID = data.getString(HikeChatThemeConstants.JSON_SIGNAL_THEME_THEMEID);
+
+                HikeChatTheme theme = new HikeChatTheme();
+                theme.setThemeId(themeID);
+                theme.setThemeType(HikeChatThemeConstants.THEME_TYPE_CUSTOM);
+                theme.setVisibilityStatus(false);
+                theme.setThemeOrderIndex(0);
+                theme.setSystemMessageType(HikeChatThemeConstants.SYSTEM_MESSAGE_TYPE_LIGHT);
+
+                parseCustomThemeAssetContent(data, theme);
+
+                mChatThemesMap.put(themeID, theme);
+                HikeConversationsDatabase.getInstance().saveChatTheme(theme);
+            }
+            downloadAssetsForMultipleThemes(tokenMap);
+        } catch(JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void parseCustomThemeAssetContent(JSONObject data, HikeChatTheme theme){
+        try {
+            String assetId = null;
             for (byte j = 0; j < HikeChatThemeConstants.ASSET_INDEX_COUNT; j++) {
                 String assetKey = HikeChatThemeConstants.JSON_SIGNAL_THEME[j];
                 if (assetKey.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_THEME_BG_PORTRAIT)) {
@@ -326,7 +385,7 @@ public class ChatThemeManager {
                     theme.setAsset(HikeChatThemeConstants.ASSET_INDEX_BG_LANDSCAPE, assetId);
                 } else if (assetKey.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_THEME_THUMBNAIL)) {
                     JSONObject thumbnail = data.getJSONObject(assetKey);
-                    thumbnailAssetId = (thumbnail.getString(HikeChatThemeConstants.JSON_SIGNAL_ASSET_VALUE) + HikeChatThemeConstants.FILEEXTN_JPG);
+                    String thumbnailAssetId = (thumbnail.getString(HikeChatThemeConstants.JSON_SIGNAL_ASSET_VALUE) + HikeChatThemeConstants.FILEEXTN_JPG);
                     int thumbnailType = thumbnail.getInt(HikeChatThemeConstants.JSON_SIGNAL_ASSET_TYPE);
                     int thumbnailSize = thumbnail.getInt(HikeChatThemeConstants.JSON_SIGNAL_ASSET_SIZE);
                     HikeChatThemeAsset thumbnailAsset = new HikeChatThemeAsset(thumbnailAssetId, thumbnailType, "", thumbnailSize);
@@ -342,42 +401,34 @@ public class ChatThemeManager {
                     }
                 }
             }
-            mChatThemesMap.put(themeID, theme);
-            HikeConversationsDatabase.getInstance().saveChatTheme(theme);
-
-            if (downloadAssets) {
-                downloadAssetsForTheme(themeID);
-            } else {
-                recentCustomTheme = themeID;
-
-                ArrayList<HikeChatThemeAsset> assetsList = new ArrayList<>();
-                String destFilePath = ChatThemeManager.getInstance().getDrawableHelper().getAssetRootPath() + File.separator + assetId;
-                Utils.copyFile(customThemeTempUploadImagePath, destFilePath);
-                HikeChatThemeAsset asset = getAssetHelper().getChatThemeAsset(assetId);
-                asset.setIsDownloaded(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_DOWNLOADED_SDCARD);
-                assetsList.add(asset);
-
-
-                try {
-                    String thumbnailFilePath = ChatThemeManager.getInstance().getDrawableHelper().getAssetRootPath() + File.separator + thumbnailAssetId;
-                    Bitmap thumbnail = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(customThemeTempUploadImagePath), HikeChatThemeConstants.CHATTHEME_CUSTOM_THUMBNAIL_SIZE, HikeChatThemeConstants.CHATTHEME_CUSTOM_THUMBNAIL_SIZE);
-                    byte[] bmpData = Utils.bitmapToBytes(thumbnail, Bitmap.CompressFormat.JPEG, 100);
-                    Utils.saveByteArrayToFile(new File(thumbnailFilePath), bmpData);
-
-                    HikeChatThemeAsset thumbAsset = getAssetHelper().getChatThemeAsset(thumbnailAssetId);
-                    thumbAsset.setIsDownloaded(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_DOWNLOADED_SDCARD);
-                    assetsList.add(thumbAsset);
-                } catch(IOException e) {
-                    e.printStackTrace();
-                }
-
-                HikeConversationsDatabase.getInstance().saveChatThemeAssets(assetsList);
-            }
-            return themeID;
-        } catch (JSONException e) {
+        }catch (JSONException e) {
             e.printStackTrace();
         }
-        return null;
+    }
+
+    private void moveLocalAssetsToThemesFolder(ChatThemeToken token, HikeChatTheme theme) {
+        ArrayList<HikeChatThemeAsset> assetsList = new ArrayList<>();
+        String destFilePath = ChatThemeManager.getInstance().getDrawableHelper().getAssetRootPath() + File.separator + theme.getAssetId(HikeChatThemeConstants.ASSET_INDEX_BG_PORTRAIT);
+        Utils.copyFile(token.getImagePath(), destFilePath);
+        HikeChatThemeAsset asset = getAssetHelper().getChatThemeAsset(theme.getAssetId(HikeChatThemeConstants.ASSET_INDEX_BG_PORTRAIT));
+        asset.setIsDownloaded(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_DOWNLOADED_SDCARD);
+        assetsList.add(asset);
+
+
+        try {
+            String thumbnailFilePath = ChatThemeManager.getInstance().getDrawableHelper().getAssetRootPath() + File.separator + theme.getAssetId(HikeChatThemeConstants.ASSET_INDEX_THUMBNAIL);
+            Bitmap thumbnail = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(token.getImagePath()), HikeChatThemeConstants.CHATTHEME_CUSTOM_THUMBNAIL_SIZE, HikeChatThemeConstants.CHATTHEME_CUSTOM_THUMBNAIL_SIZE);
+            byte[] bmpData = Utils.bitmapToBytes(thumbnail, Bitmap.CompressFormat.JPEG, 100);
+            Utils.saveByteArrayToFile(new File(thumbnailFilePath), bmpData);
+
+            HikeChatThemeAsset thumbAsset = getAssetHelper().getChatThemeAsset(theme.getAssetId(HikeChatThemeConstants.ASSET_INDEX_THUMBNAIL));
+            thumbAsset.setIsDownloaded(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_DOWNLOADED_SDCARD);
+            assetsList.add(thumbAsset);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        HikeConversationsDatabase.getInstance().saveChatThemeAssets(assetsList);
     }
 
     public void processDeleteThemeSignal(JSONObject data) {
@@ -386,7 +437,7 @@ public class ChatThemeManager {
 
     public ArrayList<String> getAvailableThemeIds() {
         ArrayList<String> availableThemes = new ArrayList<>();
-        if((defaultHikeThemes == null) || (defaultHikeThemes.size() == 0)) {
+        if ((defaultHikeThemes == null) || (defaultHikeThemes.size() == 0)) {
             getAllHikeThemesForDisplay();
         }
         availableThemes.addAll(defaultHikeThemes);
@@ -413,25 +464,37 @@ public class ChatThemeManager {
     public void downloadThemeAssetsMetadata(String themeId, String toUser, String groupId, boolean isCustom) {
         // Automatically enabling the Chatthemes for the receiver, though the packet is not enabled from server. This will help to organically grow chat themes
         // https://hikeapp.atlassian.net/browse/CE-764
-        if(isCustom && !ChatThreadUtils.isCustomChatThemeEnabled()){
+        if (isCustom && !ChatThreadUtils.isCustomChatThemeEnabled()) {
             HikeAnalyticsEvent.recordCTAnalyticEvents(ChatAnalyticConstants.CUSTOM_THEME_ENABLE, AnalyticsConstants.NON_UI_EVENT, null, toUser, themeId, groupId);
             HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CUSTOM_CHATTHEME_ENABLED, true);
         }
 
-        downloadThemeContent(themeId, isCustom);
+        downloadThemeContent(themeId, toUser, isCustom);
     }
 
-    public void downloadThemeContent(String themeId, boolean isCustom) {
+    public void downloadThemeContent(String themeId, String msisdn, boolean isCustom) {
+        ChatThemeToken token = new ChatThemeToken(themeId, msisdn, isCustom);
         if (!mChatThemesMap.containsKey(themeId)) {
-            DownloadThemeContentTask downloadAssetIds = new DownloadThemeContentTask(themeId, isCustom);
+            DownloadThemeContentTask downloadAssetIds = new DownloadThemeContentTask(token);
             downloadAssetIds.execute();
         } else {
             if (isThemeAvailable(themeId)) {
-                HikeMessengerApp.getPubSub().publish(HikePubSub.CHATTHEME_DOWNLOAD_SUCCESS, themeId);
+                HikeMessengerApp.getPubSub().publish(HikePubSub.CHATTHEME_DOWNLOAD_SUCCESS, token);
             } else {
-                downloadAssetsForTheme(themeId);
+                downloadAssetsForTheme(token);
             }
         }
+    }
+
+    public void downloadMultipleThemeContent(HashMap<String, ChatThemeToken> tokensMap) {
+        // Automatically enabling the Chatthemes for the receiver, though the packet is not enabled from server. This will help to organically grow chat themes
+        // https://hikeapp.atlassian.net/browse/CE-764
+        if (!ChatThreadUtils.isCustomChatThemeEnabled()) {
+            HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CUSTOM_CHATTHEME_ENABLED, true);
+        }
+
+        DownloadMultipleThemeContentTask downloadAssetIds = new DownloadMultipleThemeContentTask(tokensMap);
+        downloadAssetIds.execute();
     }
 
 
@@ -455,7 +518,7 @@ public class ChatThemeManager {
     }
 
     public int getSystemMessageTextViewLayout(int systemMessageType) {
-        switch(systemMessageType){
+        switch (systemMessageType) {
             case HikeChatThemeConstants.SYSTEM_MESSAGE_TYPE_LIGHT:
                 return R.layout.system_message_light;
             case HikeChatThemeConstants.SYSTEM_MESSAGE_TYPE_DARK:
@@ -467,7 +530,7 @@ public class ChatThemeManager {
     }
 
     public int getSystemMessageBackgroundLayout(int systemMessageType) {
-        switch(systemMessageType){
+        switch (systemMessageType) {
             case HikeChatThemeConstants.SYSTEM_MESSAGE_TYPE_LIGHT:
                 return R.drawable.bg_system_message_light;
             case HikeChatThemeConstants.SYSTEM_MESSAGE_TYPE_DARK:

@@ -865,7 +865,7 @@
     <string name="photo_dp_save_error">प्रोफ़ाइल फ़ोटो सेट नहीं हो सकी</string>
     <string name="photo_dp_save_error_sub">पुनः प्रयास करने के लिए टैप करें</string>
     <string name="cropping_image">छवि क्रॉप हो रही है..</string>
-    <string name="home_search_empty_text">%1$s\' के लिए आपकी खोज का किसी संपर्क से मिलना नहीं हुआ।</string>
+    <string name="home_search_empty_text">\'%1$s\' के लिए आपकी खोज का किसी संपर्क से मिलना नहीं हुआ।</string>
     <string name="voip_mic_error">माइक चालू नहीं हो सका। शायद यह कॉल कारगर न हो।</string>
     <string name="voip_call_failed_frag_subheader">आप अभी भी निम्नलिखित के साथ %1$s से संपर्क कर सकते हैं</string>
     <string name="dismiss_upper_case">खारिज करें</string>
@@ -1605,7 +1605,7 @@
     <string name="emptyseenlist"> – </string>
     <string name="emptydeliveredlist"> – </string>
     <string name="emptyplayedlist"> – </string>
-    <string name="remaining_items">%1 शेष</string>
+    <string name="remaining_items">%1$s शेष</string>
     <string name="read_list">इनके द्वारा पढ़ा गया</string>
     <string name="read_list_one">पढ़ा गया</string>
     <string name="delivered_list_one">डिलीवर किया गया</string>

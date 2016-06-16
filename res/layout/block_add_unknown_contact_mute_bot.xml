@@ -1,109 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical" >
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="vertical">
 
-    <RelativeLayout
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.2dp"
+        android:layout_alignParentTop="true"
+        android:background="#60787878"/>
+
+    <ViewStub
         android:id="@+id/unknown_user_info_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="gone"
-        android:paddingBottom="10dp"
-        android:alpha=".91"
-        android:background="#3d475b">
+        android:inflatedId="@+id/unknown_user_info_view_stubid"
+        android:layout="@layout/unknown_user_info_layout"/>
 
-        <com.bsb.hike.view.CustomFontTextView
-            android:id="@+id/unknown_user_info_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/white"
-            android:textSize="18sp"
-            android:layout_marginTop="16dp"
-            android:layout_marginLeft="20dp"/>
-
-        <com.bsb.hike.view.CustomFontTextView
-            android:id="@+id/unknown_user_info_location"
-            android:layout_below="@id/unknown_user_info_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textColor="#ced0d5"
-            android:textSize="12sp"
-            android:layout_marginLeft="20dp"/>
-
-        <com.bsb.hike.view.CustomFontTextView
-            android:id="@+id/unknown_user_spam_info"
-            android:layout_below="@id/unknown_user_info_location"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:textSize="13sp"
-            android:visibility="gone"
-            android:layout_marginBottom="12dp"
-            android:layout_marginLeft="20dp"/>
-
-        <LinearLayout
-            android:id="@+id/unknown_user_info_close"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginTop="18dp"
-            android:layout_toRightOf="@+id/unknown_user_info_name"
-            android:layout_alignParentRight="true"
-            android:gravity="right"
-            android:layout_marginRight="18dp"
-            android:padding="6dp">
-
-            <com.bsb.hike.ui.utils.RecyclingImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/connectionscreencross" />
-        </LinearLayout>
-
-        <include
-            android:id="@+id/unknown_user_info_spinner"
-            layout="@layout/spinner_center_screen"/>
-
-    </RelativeLayout>
+    <include
+        android:id="@+id/unknown_user_info_spinner"
+        layout="@layout/spinner_center_screen"/>
 
     <LinearLayout
         android:id="@+id/add_block_view"
-        android:layout_below="@id/unknown_user_info_view"
         android:layout_width="match_parent"
         android:layout_height="45dp"
+        android:layout_below="@id/unknown_user_info_view"
         android:background="@color/black_unknwon_contacts"
-        android:orientation="horizontal" >
+        android:orientation="horizontal">
 
         <com.bsb.hike.view.CustomFontButton
             android:id="@+id/block_unknown_contact"
             style="@style/BlockAddUnknownContact"
-            android:text="@string/overlay_block_title" />
+            android:text="@string/overlay_block_title"/>
 
         <View
             android:layout_width="1dp"
             android:layout_height="match_parent"
             android:layout_marginBottom="17dp"
             android:layout_marginTop="17dp"
-            android:background="#3DFFFFFF" />
+            android:background="#3DFFFFFF"/>
 
         <com.bsb.hike.view.CustomFontButton
             android:id="@+id/add_unknown_contact"
             style="@style/BlockAddUnknownContact"
             android:tag="@string/add"
-            android:text="@string/overlay_add_title" />
+            android:text="@string/overlay_add_title"/>
 
     </LinearLayout>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="0.2dp"
-        android:layout_alignParentTop="true"
-        android:background="#60787878" />
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0.2dp"
         android:layout_alignParentBottom="true"
-        android:background="#60787878" />
+        android:background="#60787878"/>
 
-</RelativeLayout>
+</LinearLayout>

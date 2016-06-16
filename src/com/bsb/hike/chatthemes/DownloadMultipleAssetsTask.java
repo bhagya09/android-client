@@ -1,7 +1,8 @@
 package com.bsb.hike.chatthemes;
 
-import android.support.annotation.Nullable;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -24,26 +25,27 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_OUT_OF_SPACE;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.downloadChatThemeAssets;
 
 /**
- * Created by sriram on 24/02/16.
+ * Created by sriram on 12/06/16.
  */
-public class DownloadAssetsTask implements IHikeHTTPTask, IHikeHttpTaskResult {
+public class DownloadMultipleAssetsTask implements IHikeHTTPTask, IHikeHttpTaskResult {
 
-    private String[] mAssetIds;
+    private HashMap<String, ChatThemeToken> mTokenMap;
+
+    private HashSet<String> mAssetIds = new HashSet<>();
 
     private RequestToken token;
 
-    private ChatThemeToken mToken;
-
-    private final String TAG = "DownloadAssetsTask";
-
-    public DownloadAssetsTask(ChatThemeToken token) {
-        this.mToken = token;
-        this.mAssetIds = mToken.getAssets();
+    public DownloadMultipleAssetsTask(HashMap<String, ChatThemeToken> tokenMap) {
+        this.mTokenMap = tokenMap;
     }
 
     @Override
@@ -72,20 +74,6 @@ public class DownloadAssetsTask implements IHikeHTTPTask, IHikeHttpTaskResult {
     }
 
     @Override
-    public void doOnSuccess(Object result) {
-        Logger.d(TAG, "chat theme asset download complete");
-        updateAssetDownloadStatus(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_DOWNLOADED_SDCARD);
-        HikeMessengerApp.getPubSub().publish(HikePubSub.CHATTHEME_CONTENT_DOWNLOAD_SUCCESS, mToken);
-    }
-
-    @Override
-    public void doOnFailure(HttpException exception) {
-        Logger.d(TAG, "chat theme asset download failed");
-        updateAssetDownloadStatus(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_NOT_DOWNLOADED);
-        HikeMessengerApp.getPubSub().publish(HikePubSub.CHATTHEME_CONTENT_DOWNLOAD_FAILURE, mToken);
-    }
-
-    @Override
     public Bundle getRequestBundle() {
         return null;
     }
@@ -95,11 +83,26 @@ public class DownloadAssetsTask implements IHikeHTTPTask, IHikeHttpTaskResult {
         return null;
     }
 
+    @Override
+    public void doOnSuccess(Object result) {
+        updateAssetDownloadStatus(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_DOWNLOADED_SDCARD);
+        Set<String> themeIds = mTokenMap.keySet();
+        for(String themeId : themeIds) {
+            HikeMessengerApp.getPubSub().publish(HikePubSub.CHATTHEME_CONTENT_DOWNLOAD_SUCCESS, mTokenMap.get(themeId));
+        }
+    }
+
+    @Override
+    public void doOnFailure(HttpException exception) {
+        updateAssetDownloadStatus(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_NOT_DOWNLOADED);
+        HikeMessengerApp.getPubSub().publish(HikePubSub.CHATTHEME_CONTENT_DOWNLOAD_FAILURE, exception);
+    }
+
     private IRequestListener getRequestListener() {
         return new IRequestListener() {
 
             @Override
-            public void onRequestFailure(@Nullable Response errorResponse, HttpException httpException) {
+            public void onRequestFailure(Response errorResponse, HttpException httpException) {
                 doOnFailure(httpException);
             }
 
@@ -111,7 +114,8 @@ public class DownloadAssetsTask implements IHikeHTTPTask, IHikeHttpTaskResult {
                         doOnFailure(null);
                         return;
                     }
-                    doOnSuccess(parseAssetContent(response));
+                    parseAssetContent(response);
+                    doOnSuccess(null);
                 } catch (Exception e) {
                     e.printStackTrace();
                     doOnFailure(new HttpException(HttpException.REASON_CODE_UNEXPECTED_ERROR, e));
@@ -130,8 +134,18 @@ public class DownloadAssetsTask implements IHikeHTTPTask, IHikeHttpTaskResult {
         try {
             JSONObject assetIds = new JSONObject();
             JSONArray ids = new JSONArray();
-            for(int i = 0 ; i < mAssetIds.length; i++){
-                ids.put(i, mAssetIds[i]);
+            Set<String> themeIds = mTokenMap.keySet();
+            for(String themeId : themeIds){
+                ChatThemeToken token = mTokenMap.get(themeId);
+                //to avoid duplicates if any in the request
+                mAssetIds.addAll(Arrays.asList(token.getAssets()));
+            }
+
+            //adding to the JSON array
+            int i = 0;
+            for(String assetId : mAssetIds) {
+                ids.put(i, assetId);
+                i++;
             }
             assetIds.put(HikeChatThemeConstants.JSON_DWNLD_ASSET_ID, ids);
             return assetIds;
@@ -141,26 +155,20 @@ public class DownloadAssetsTask implements IHikeHTTPTask, IHikeHttpTaskResult {
         return null;
     }
 
-    private String[] parseAssetContent(JSONObject resp) {
+    private void parseAssetContent(JSONObject resp) {
         try {
             JSONObject data = resp.getJSONObject(HikeConstants.DATA_2);
             String directoryPath = ChatThemeManager.getInstance().getDrawableHelper().getThemeAssetStoragePath();
-            for (String assetId : mAssetIds) {
-                if (directoryPath == null) {
-                    continue;
+            if(!TextUtils.isEmpty(directoryPath)) {
+                for (String assetId : mAssetIds) {
+                    String path = directoryPath + File.separator + assetId;
+                    Utils.saveBase64StringToFile(new File(path), data.getString(assetId));
                 }
-                String path = directoryPath + File.separator + assetId;
-                Utils.saveBase64StringToFile(new File(path), data.getString(assetId));
             }
-        } catch (JSONException e) {
-            doOnFailure(new HttpException(HttpException.REASON_CODE_UNEXPECTED_ERROR, e));
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (JSONException | IOException e) {
             doOnFailure(new HttpException(HttpException.REASON_CODE_UNEXPECTED_ERROR, e));
             e.printStackTrace();
         }
-
-        return mAssetIds;
     }
 
     private void updateAssetDownloadStatus(byte status) {

@@ -48,19 +48,17 @@ public class DataPointTaskSessionLog extends DataPointTask {
             } catch (Exception e) {
                 Logger.d(TAG, "Exception : " + e);
             }
-
-            if (sessionJsonArray == null || sessionJsonArray.length() == 0) {
-                Logger.d(TAG, "No sessions recorded!!");
-                return null;
-            }
-
-            Logger.d(TAG, sessionJsonArray.toString());
-            //cleanup user data
-            userPrefs.deleteAllData();
-            return sessionJsonArray;
         }
 
-        return null;
+        if (sessionJsonArray == null || sessionJsonArray.length() == 0) {
+            Logger.d(TAG, "No sessions recorded!!");
+            return null;
+        }
+
+        Logger.d(TAG, sessionJsonArray.toString());
+        //cleanup user data
+        userPrefs.deleteAllData();
+        return sessionJsonArray;
     }
 
     public JSONObject toJSON(String packageName, String applicationName, long duration, int sessions) throws JSONException {
