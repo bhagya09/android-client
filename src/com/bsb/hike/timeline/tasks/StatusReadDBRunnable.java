@@ -67,6 +67,7 @@ public class StatusReadDBRunnable implements Runnable {
 
         if (changesMade > 0) {
             HikeMessengerApp.getInstance().getPubSub().publish(HikePubSub.STATUS_MARKED_READ, mSuIdList);
+
         }
     }
 

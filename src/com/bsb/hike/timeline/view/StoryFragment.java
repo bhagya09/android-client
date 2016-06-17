@@ -32,6 +32,7 @@ import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.timeline.TimelineUtils;
 import com.bsb.hike.timeline.adapter.StoryListAdapter;
+import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StoryItem;
 import com.bsb.hike.timeline.tasks.StoriesDataManager;
 import com.bsb.hike.timeline.tasks.UpdateActionsDataRunnable;
@@ -364,7 +365,7 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
         }
     }
 
-    private void logTapFriendAnalyticEvent(StoryItem item) {
+    private void logTapFriendAnalyticEvent(StoryItem<ContactInfo,StatusMessage> item) {
         try {
             String friendType = null;
             switch (item.getCategory()) {
@@ -387,6 +388,11 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
             json.put(AnalyticsConstants.V2.ORDER, HomeAnalyticsConstants.UK_HS_FRIENDS);
             json.put(AnalyticsConstants.V2.FAMILY, "view_friend");
             json.put(AnalyticsConstants.V2.SPECIES, friendType);
+
+            StatusMessage cInfo = item.getTypeInfo();
+            boolean isStealth = StealthModeManager.getInstance().isStealthMsisdn(cInfo.getMsisdn());
+            json.put(AnalyticsConstants.V2.VARIETY, isStealth ? "stealth" : null);
+
             HAManager.getInstance().recordV2(json);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -403,7 +409,7 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
             json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
             json.put(AnalyticsConstants.V2.ORDER, HomeAnalyticsConstants.UK_TL_OPEN);
             json.put(AnalyticsConstants.V2.FAMILY, Long.toString(System.currentTimeMillis()));
-            json.put(AnalyticsConstants.V2.GENUS, "tap");
+            json.put(AnalyticsConstants.V2.GENUS, "frnds_tab_tap");
             json.put(AnalyticsConstants.V2.SPECIES, TimelineUtils.getTimelineSubText().equals(getString(R.string.timeline_sub_no_updt)) ? "no_new_notif" : "new_notif");
             HAManager.getInstance().recordV2(json);
         } catch (JSONException e) {
