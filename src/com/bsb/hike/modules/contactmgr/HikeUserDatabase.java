@@ -183,20 +183,6 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		}
 	}
 
-	private List<String> getIndexQueriesForV19() {
-		int i = 0;
-		String indexQuery = null;
-		List<String> index=new ArrayList<>();
-
-
-		indexQuery = "CREATE INDEX IF NOT EXISTS " + DBConstants.BLOCK_STATUS_INDEX + " ON " + DBConstants.USERS_TABLE + " (" + DBConstants.BLOCK_STATUS + ")";
-		index.add(indexQuery);
-
-		indexQuery = "CREATE INDEX IF NOT EXISTS " + DBConstants.FAVORITE_INDEX + " ON " + DBConstants.USERS_TABLE + " (" + DBConstants.FAVORITE_TYPE + ")";
-		index.add(indexQuery);
-		return index;
-	}
-
 	@Override
 	public void close()
 	{
