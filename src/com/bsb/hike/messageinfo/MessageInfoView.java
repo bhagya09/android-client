@@ -53,7 +53,6 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.HikeChatTheme;
-import com.bsb.hike.models.HikeChatThemeAsset;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeSharedFile;
 import com.bsb.hike.models.MessageMetadata;
@@ -62,12 +61,12 @@ import com.bsb.hike.models.PhonebookContact;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.Unique;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
-import com.bsb.hike.platform.CardRenderer;
+import com.bsb.hike.platform.NativeCardRenderer;
 import com.bsb.hike.platform.WebViewCardRenderer;
+import com.bsb.hike.smartImageLoader.HighQualityThumbLoader;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.smartImageLoader.StickerLoader;
 import com.bsb.hike.ui.fragments.PhotoViewerFragment;
-import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
@@ -103,8 +102,7 @@ public class MessageInfoView
 
 	private HikeDialog dialog;
 
-
-	public CardRenderer mMessageInfoCardRenderer;
+	public NativeCardRenderer mMessageInfoCardRenderer;
 
 	public WebViewCardRenderer mWebViewCardRenderer;
 
@@ -148,8 +146,11 @@ public class MessageInfoView
 		ArrayList<ConvMessage>list=new ArrayList<ConvMessage>();
 		list.add(convMessage);
 		this.movingList=new MovingList<ConvMessage>(list,mOnItemsFinishedListener);
-		this.mWebViewCardRenderer=new WebViewCardRenderer(mActivity,movingList,adapter);
-		this.mMessageInfoCardRenderer=new CardRenderer(mContext);
+		this.mWebViewCardRenderer = new WebViewCardRenderer(mActivity, movingList, adapter);
+		HighQualityThumbLoader hqThumbLoader = new HighQualityThumbLoader();
+		hqThumbLoader.setImageFadeIn(false);
+		hqThumbLoader.setDefaultDrawableNull(false);
+		this.mMessageInfoCardRenderer = new NativeCardRenderer(mContext, conversation, adapter, hqThumbLoader, false);
 		stickerLoader = new StickerLoader.Builder()
 			.downloadLargeStickerIfNotFound(true)
 			.lookForOfflineSticker(true)
