@@ -685,6 +685,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	};
 
 	private class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter {
+
 		public ScreenSlidePagerAdapter(FragmentManager fm) {
 			super(fm);
 		}

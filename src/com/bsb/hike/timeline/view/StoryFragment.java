@@ -85,7 +85,8 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
             HikePubSub.STEALTH_CONVERSATION_MARKED,
             HikePubSub.STEALTH_CONVERSATION_UNMARKED,
             HikePubSub.FAVORITE_TOGGLED,
-            HikePubSub.USER_PRIVACY_TOGGLED};
+            HikePubSub.USER_PRIVACY_TOGGLED,
+            HikePubSub.CONTACT_SYNCED};
 
     private CustomTabsBar.CustomTabBadgeCounterListener badgeCounterListener;
 
@@ -264,6 +265,7 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
                 || type.equals(HikePubSub.DELETE_STATUS)
                 || type.equals(HikePubSub.STEALTH_CONVERSATION_MARKED)
                 || type.equals(HikePubSub.STEALTH_CONVERSATION_UNMARKED)
+                || type.equals(HikePubSub.CONTACT_SYNCED)
                 || type.equals(HikePubSub.USER_PRIVACY_TOGGLED)) {
             if (isAdded() && getActivity() != null) {
                 HikeHandlerUtil.getInstance().postRunnable(new Runnable() {
@@ -322,8 +324,17 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
                 public void run() {
                     if (!Utils.isEmpty(argList)) {
                         storyItemList = argList;
-                        storyAdapter.setStoryItemList(storyItemList);
-                        storyAdapter.notifyDataSetChanged();
+
+                        if (storyItemList.size() <= 2) { // Contains only timeline and its header
+                            bindEmptyStateView();
+                        } else {
+                            if (isEmptyStateShown) {
+                                bindStoryFragmentList();
+                            } else {
+                                storyAdapter.setStoryItemList(storyItemList);
+                                storyAdapter.notifyDataSetChanged();
+                            }
+                        }
                     }
                 }
             });
@@ -454,6 +465,8 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         if (isVisibleToUser) {
+            StoriesDataManager.getInstance().getAllStoryData(this);
+
             HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FRIENDS_TAB_NOTIF_DOT, false);
 
             if (StealthModeManager.getInstance().isActive())
