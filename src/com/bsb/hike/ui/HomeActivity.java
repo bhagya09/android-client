@@ -239,7 +239,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private ViewPager mPager;
 
-	private ScreenSlidePagerAdapter mPagerAdapter;
+	private PagerAdapter mPagerAdapter;
 
 	private CustomTabsBar tabsBar;
 
