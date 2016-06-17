@@ -3,6 +3,7 @@
  */
 package com.bsb.hike.modules.contactmgr;
 
+import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -2238,13 +2239,14 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	public List<ContactInfo> getContactsOld(Context ctx)
 	{
 		Logger.d("ContactUtils", "Old way to read conctacts from device");
+		List<ContactInfo> contactinfos = new ArrayList<ContactInfo>();
 		HashSet<String> contactsToStore = new HashSet<String>();
+		try
+		{
 		String[] projection = new String[] { ContactsContract.Contacts._ID, ContactsContract.Contacts.HAS_PHONE_NUMBER, ContactsContract.Contacts.DISPLAY_NAME };
 
 		String selection = ContactsContract.Contacts.HAS_PHONE_NUMBER + "='1'";
 		Cursor contacts = null;
-
-		List<ContactInfo> contactinfos = new ArrayList<ContactInfo>();
 		Map<String, String> contactNames = new HashMap<String, String>();
 		try
 		{
@@ -2402,7 +2404,159 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 				cursorSim.close();
 			}
 		}
+		}
+		catch (Throwable th) {
+			Logger.e("ContactUtils", "Error in getting contacts ", th);
+			if (Utils.isJELLY_BEAN_MR2OrHigher()) {
+				return getContactsUsingContactablesUri(ctx);
+			}
+		}
+		return contactinfos;
+	}
 
+	@TargetApi(18)
+	public List<ContactInfo> getContactsUsingContactablesUri(Context ctx) {
+		Logger.d("ContactUtils", "Old way to read conctacts from device using contactables uri ");
+		HashSet<String> contactsToStore = new HashSet<String>();
+		List<ContactInfo> contactinfos = new ArrayList<ContactInfo>();
+		Map<String, String> contactNames = new HashMap<String, String>();
+
+		try {
+			String[] projection = new String[]{ContactsContract.CommonDataKinds.Contactables.CONTACT_ID, ContactsContract.CommonDataKinds.Contactables.HAS_PHONE_NUMBER, ContactsContract.CommonDataKinds.Contactables.DISPLAY_NAME};
+
+			String selection = ContactsContract.CommonDataKinds.Contactables.HAS_PHONE_NUMBER + "='1'";
+			Cursor contacts = null;
+
+
+			try {
+				contacts = ctx.getContentResolver().query(ContactsContract.CommonDataKinds.Contactables.CONTENT_URI, projection, selection, null, null);
+
+			/*
+			 * Added this check for an issue where the cursor is null in some random cases (We suspect that happens when hotmail contacts are synced.)
+			 */
+				if (contacts == null) {
+					return null;
+				}
+
+				int idFieldColumnIndex = contacts.getColumnIndex(ContactsContract.CommonDataKinds.Contactables.CONTACT_ID);
+				int nameFieldColumnIndex = contacts.getColumnIndex(ContactsContract.CommonDataKinds.Contactables.DISPLAY_NAME);
+				Logger.d("ContactUtils", "Starting to scan address book using contactables uri");
+				while (contacts.moveToNext()) {
+					String id = contacts.getString(idFieldColumnIndex);
+					String name = contacts.getString(nameFieldColumnIndex);
+					contactNames.put(id, name);
+				}
+			} catch (SecurityException e) {
+				/**
+				 * currently some one plus one users are getting this exception on 5.1. we haven't found
+				 * any particular reason how it can happen. putting a catch block for the same.
+				 *
+				 * In future, when our target sdk version is 23 and user denies contacts permission
+				 * to hike. then we would get a security exception here, if we try to access contacts.
+				 */
+
+				Logger.e("ContactUtils", "Exception while querying contacts to name projection in using contactables uri", e);
+			} finally {
+				if (contacts != null) {
+					contacts.close();
+				}
+			}
+
+			Cursor phones = null;
+
+			try {
+				phones = ctx.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, new String[]{ContactsContract.CommonDataKinds.Phone.CONTACT_ID, ContactsContract.CommonDataKinds.Phone.NUMBER}, null, null, null);
+			/*
+			 * Added this check for an issue where the cursor is null in some random cases (We suspect that happens when hotmail contacts are synced.)
+			 */
+				if (phones == null) {
+					return null;
+				}
+
+				int numberColIdx = phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
+				int idColIdx = phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID);
+
+				while (phones.moveToNext()) {
+					String number = phones.getString(numberColIdx);
+					String id = phones.getString(idColIdx);
+					String name = contactNames.get(id);
+					if ((name != null) && (number != null)) {
+						if (contactsToStore.add("_" + name + "_" + number)) // if
+						// this
+						// element
+						// is
+						// added
+						// successfully
+						// , it
+						// returns
+						// true
+						{
+							contactinfos.add(new ContactInfo(id, null, name, number));
+						}
+					}
+				}
+			} catch (SecurityException e) {
+				/**
+				 * similar reason here as above security exception.
+				 */
+
+				Logger.e("ContactUtils", "Exception while querying phone numbers using contactables uri", e);
+			} finally {
+				if (phones != null) {
+					phones.close();
+
+				}
+			}
+
+		/*
+		 * We will catch exceptions here since we do not know which devices support this URI.
+		 */
+			Cursor cursorSim = null;
+			try {
+				Uri simUri = Uri.parse("content://icc/adn");
+				cursorSim = ctx.getContentResolver().query(simUri, null, null, null, null);
+				if (cursorSim != null) {
+					while (cursorSim.moveToNext()) {
+						try {
+							String id = cursorSim.getString(cursorSim.getColumnIndex("_id"));
+							String name = cursorSim.getString(cursorSim.getColumnIndex("name"));
+							String number = cursorSim.getString(cursorSim.getColumnIndex("number"));
+							if ((name != null) && (number != null)) {
+								if (contactsToStore.add("_" + name + "_" + number)) // if
+								// this
+								// element
+								// is
+								// added
+								// successfully
+								// ,
+								// it
+								// returns
+								// true
+								{
+									contactinfos.add(new ContactInfo(id, null, name, number));
+								}
+							}
+						} catch (Exception e) {
+							Logger.w("ContactUtils", "Expection while adding sim contacts", e);
+						}
+					}
+				}
+			} catch (SecurityException e) {
+				/**
+				 * similar reason here as above security exception.
+				 */
+
+				Logger.e("ContactUtils", "Exception while querying sim contacts", e);
+			} catch (Exception e) {
+				Logger.w("ContactUtils", "Expection while querying for sim contacts", e);
+			} finally {
+				if (cursorSim != null) {
+					cursorSim.close();
+				}
+			}
+		} catch (Throwable th) {
+			Logger.e("ContactUtils", "Error in getting contacts using contactables", th);
+		}
 		return contactinfos;
 	}
 
@@ -2414,7 +2568,10 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	 */
 	public List<ContactInfo> getContacts(Context ctx)
 	{
+		List<ContactInfo> contactinfos = new ArrayList<ContactInfo>();
 		HashSet<String> contactsToStore = new HashSet<String>();
+		try
+		{
 		String[] projection = new String[] { ContactsContract.Contacts._ID, ContactsContract.Contacts.HAS_PHONE_NUMBER, ContactsContract.Contacts.DISPLAY_NAME
 				, ContactsContract.Contacts.IN_VISIBLE_GROUP};
 
@@ -2424,7 +2581,6 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		String selection = ContactsContract.Contacts.HAS_PHONE_NUMBER + "='1'" + " AND " + ContactsContract.Contacts.IN_VISIBLE_GROUP + "='1'";
 		Cursor contacts = null;
 
-		List<ContactInfo> contactinfos = new ArrayList<ContactInfo>();
 		Map<String, String> contactNames = new HashMap<String, String>();
 		HashMap<String, ContactInfo> readContacts = new HashMap<String, ContactInfo>();
 		try
@@ -2635,7 +2791,13 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 				cursorSim.close();
 			}
 		}
-
+		}
+		catch (Throwable th) {
+			Logger.e("ContactUtils", "Error in getting contacts ", th);
+			if (Utils.isJELLY_BEAN_MR2OrHigher()) {
+				return getContactsUsingContactablesUri(ctx);
+			}
+		}
 		return contactinfos;
 	}
 
