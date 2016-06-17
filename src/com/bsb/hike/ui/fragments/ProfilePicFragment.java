@@ -610,6 +610,8 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 				species = HomeAnalyticsConstants.DP_SPECIES_OTHER;
 			}
 			json.put(AnalyticsConstants.V2.SPECIES, species);
+			json.put(AnalyticsConstants.V2.NETWORK, Utils.getNetworkTypeAsString(
+					HikeMessengerApp.getInstance().getApplicationContext()));
 			HAManager.getInstance().recordV2(json);
 		}
 		catch (JSONException e)

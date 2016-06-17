@@ -368,6 +368,8 @@ public class StatusUpdateTask implements IHikeHTTPTask
 			json.put(AnalyticsConstants.V2.FAMILY, getAnalyticsFamilyName());
 			json.put(AnalyticsConstants.V2.GENUS, mGenus);
 			json.put(AnalyticsConstants.V2.SPECIES, mSpecies);
+			json.put(AnalyticsConstants.V2.NETWORK, Utils.getNetworkTypeAsString(
+					HikeMessengerApp.getInstance().getApplicationContext()));
 			HAManager.getInstance().recordV2(json);
 		}
 		catch (JSONException e)

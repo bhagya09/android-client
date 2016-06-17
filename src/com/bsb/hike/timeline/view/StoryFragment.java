@@ -365,7 +365,7 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
         }
     }
 
-    private void logTapFriendAnalyticEvent(StoryItem<ContactInfo,StatusMessage> item) {
+    private void logTapFriendAnalyticEvent(StoryItem<StatusMessage,ContactInfo> item) {
         try {
             String friendType = null;
             switch (item.getCategory()) {
@@ -389,9 +389,11 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
             json.put(AnalyticsConstants.V2.FAMILY, "view_friend");
             json.put(AnalyticsConstants.V2.SPECIES, friendType);
 
-            StatusMessage cInfo = item.getTypeInfo();
-            boolean isStealth = StealthModeManager.getInstance().isStealthMsisdn(cInfo.getMsisdn());
-            json.put(AnalyticsConstants.V2.VARIETY, isStealth ? "stealth" : null);
+            ContactInfo cInfo = item.getTypeInfo();
+            if (cInfo != null) {
+                boolean isStealth = StealthModeManager.getInstance().isStealthMsisdn(cInfo.getUserIdentifier());
+                json.put(AnalyticsConstants.V2.VARIETY, isStealth ? "stealth" : "non-stealth");
+            }
 
             HAManager.getInstance().recordV2(json);
         } catch (JSONException e) {
@@ -401,7 +403,6 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
 
     private void logTimelineOpenAnalyticEvent() {
         try {
-
             JSONObject json = new JSONObject();
             json.put(AnalyticsConstants.V2.UNIQUE_KEY, HomeAnalyticsConstants.UK_TL_OPEN);
             json.put(AnalyticsConstants.V2.KINGDOM, HomeAnalyticsConstants.KINGDOM_ACT_LOG2);

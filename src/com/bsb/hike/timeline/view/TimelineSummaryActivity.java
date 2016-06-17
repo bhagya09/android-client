@@ -282,9 +282,15 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 			showLikesContactsDialog();
 		}
 
-		List<String> readSuIDList = new ArrayList<String>();
-		readSuIDList.add(mappedId);
-		HikeHandlerUtil.getInstance().postRunnable(new StatusReadDBRunnable(readSuIDList));
+		List<StatusMessage> readSuMsg = new ArrayList<StatusMessage>();
+		readSuMsg.add(mStatusMessage);
+
+		StatusReadDBRunnable suReadRunnable = new StatusReadDBRunnable(readSuMsg);
+		suReadRunnable.setSourceAnalytics("tl_full_view");
+
+		HikeHandlerUtil.getInstance().postRunnable(suReadRunnable);
+
+		onLoveToggleListener.setSource("tl_view");
 	}
 	
 	private void fetchActionsData()
@@ -813,7 +819,7 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 		avatar.setImageDrawable(drawable);
 	}
 
-	private OnCheckedChangeListener onLoveToggleListener = new LoveCheckBoxToggleListener()
+	private LoveCheckBoxToggleListener onLoveToggleListener = new LoveCheckBoxToggleListener()
 	{
 		@Override
 		public void onCheckedChanged(final CompoundButton buttonView, boolean isChecked)

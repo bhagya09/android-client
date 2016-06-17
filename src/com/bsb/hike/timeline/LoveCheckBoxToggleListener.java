@@ -31,6 +31,12 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 public class LoveCheckBoxToggleListener implements OnCheckedChangeListener
 {
 
+	private String mSource;
+
+	public void setSource(String mSource) {
+		this.mSource = mSource;
+	}
+
 	@Override
 	public void onCheckedChanged(final CompoundButton buttonView, boolean isChecked)
 	{
@@ -79,6 +85,8 @@ public class LoveCheckBoxToggleListener implements OnCheckedChangeListener
 
 							HikeConversationsDatabase.getInstance().changeActionCountForObjID(statusMessage.getMappedId(),
 									ActionsDataModel.ActivityObjectTypes.STATUS_UPDATE.getTypeString(), ActionsDataModel.ActionTypes.LIKE.getKey(), actorList, true);
+
+							TimelineUtils.logPostLovedAnalytics(statusMessage,mSource);
 						}
 					}
 					finally

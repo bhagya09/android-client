@@ -235,8 +235,16 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 							List<String> suIDList = new ArrayList<String>();
 							suIDList.add(suMsg.getMappedId());
 
-							StatusReadDBRunnable suReadRunnable = new StatusReadDBRunnable(suIDList);
+							List<StatusMessage> readSuMsg = new ArrayList<StatusMessage>();
+							readSuMsg.add(suMsg);
+							StatusReadDBRunnable suReadRunnable = new StatusReadDBRunnable(readSuMsg);
 							suReadRunnable.setViewPosn(posn, UpdatesFragment.this);
+
+							if (mShowProfileHeader) {
+								suReadRunnable.setSourceAnalytics("profile_view");
+							} else {
+								suReadRunnable.setSourceAnalytics("tl_view");
+							}
 
 							StatusReadDBManager.getInstance().execute(suReadRunnable);
 						}

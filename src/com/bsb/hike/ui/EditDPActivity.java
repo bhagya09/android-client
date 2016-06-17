@@ -93,6 +93,6 @@ public class EditDPActivity extends ChangeProfileImageBaseActivity {
 
     @Override
     protected String getSourceSpecies() {
-        return HomeAnalyticsConstants.DP_SPECIES_EDIT_PROFILE;
+        return HomeAnalyticsConstants.DP_SPECIES_ME_TAB;
     }
 }
