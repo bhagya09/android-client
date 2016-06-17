@@ -297,11 +297,16 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		HikeMessengerApp.getPubSub().addListener(HikePubSub.FAVORITE_TOGGLED, this);
 		HikeMessengerApp.getPubSub().addListener(HikePubSub.DELETE_STATUS, this);
 		HikeMessengerApp.getPubSub().addListener(HikePubSub.ACTIVITY_UPDATE, this);
+
+		if (mShowUserProfile) {
+			onLoveToggleListener.setSource("profile_view");
+		} else {
+			onLoveToggleListener.setSource("tl_full_view");
+		}
 	}
 
 	@Override
-	public int getItemCount()
-	{
+	public int getItemCount() {
 		int size = 0;
 		if (mShowUserProfile)
 		{
@@ -1496,7 +1501,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		}
 	};
 	
-	private OnCheckedChangeListener onLoveToggleListener = new LoveCheckBoxToggleListener()
+	private LoveCheckBoxToggleListener onLoveToggleListener = new LoveCheckBoxToggleListener()
 	{
 		@Override
 		public void onCheckedChanged(final CompoundButton buttonView, boolean isChecked)

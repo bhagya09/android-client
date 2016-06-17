@@ -23,6 +23,8 @@ public class HomeAnalyticsConstants {
 
     public static final String UK_TL_OPEN = "TL_open";
 
+    public static final String UK_SU_READ = "su_read";
+
     public static final String UK_HS_FRIENDS = "hs_friends";
 
     public static final String KINGDOM_ACT_LOG2 = "act_log2";
@@ -82,6 +84,8 @@ public class HomeAnalyticsConstants {
     public static final String DP_SPECIES_MY_PROFILE = "my_profile";
 
     public static final String DP_SPECIES_EDIT_PROFILE = "edit_profile";
+
+    public static final String DP_SPECIES_ME_TAB = "me_tab";
 
     public static final String DP_SPECIES_FULL_VIEW = "dp_full_view";
 

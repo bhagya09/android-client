@@ -54,4 +54,14 @@ public class TimelineServerConfigUtils {
         return HikeSharedPreferenceUtil.getInstance().getData(AC_KEY_TITLE_SHY, HikeMessengerApp.getInstance().getString(R.string.story_category_default));
     }
 
+    public static void reset()
+    {
+        HikeSharedPreferenceUtil.getInstance().removeData(AC_KEY_TITLE_SHY);
+        HikeSharedPreferenceUtil.getInstance().removeData(AC_KEY_TITLE_ALL);
+        HikeSharedPreferenceUtil.getInstance().removeData(AC_KEY_TITLE_RECENT);
+        HikeSharedPreferenceUtil.getInstance().removeData(AC_KEY_SHOWDP_STORYTHUMB);
+        HikeSharedPreferenceUtil.getInstance().removeData(AC_KEY_CAMSHY_ENABLED);
+        HikeSharedPreferenceUtil.getInstance().removeData(AC_KEY_CAMSHY_SUBTEXT);
+
+    }
 }

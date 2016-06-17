@@ -3,15 +3,22 @@ package com.bsb.hike.timeline;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.WorkerThread;
+import android.text.TextUtils;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HomeAnalyticsConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.List;
 
@@ -74,4 +81,35 @@ public class TimelineUtils {
         return statusMessages.size();
     }
 
+    public static void logPostLovedAnalytics(StatusMessage suMsg, String source) {
+        try {
+            JSONObject json = new JSONObject();
+            json.put(AnalyticsConstants.V2.UNIQUE_KEY, HomeAnalyticsConstants.UK_HS_FRIENDS);
+            json.put(AnalyticsConstants.V2.KINGDOM, HomeAnalyticsConstants.HOMESCREEN_KINGDOM);
+            json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+            json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+            json.put(AnalyticsConstants.V2.ORDER, HomeAnalyticsConstants.UK_HS_FRIENDS);
+            json.put(AnalyticsConstants.V2.FAMILY, "love_post");
+            json.put(AnalyticsConstants.V2.GENUS, getAnalyticsFamilyName(suMsg));
+            if (!TextUtils.isEmpty(source)) {
+                json.put(AnalyticsConstants.V2.SPECIES, source);
+            }
+            HAManager.getInstance().recordV2(json);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static String getAnalyticsFamilyName(StatusMessage suMsg) {
+        if (suMsg.getStatusMessageType() == StatusMessage.StatusMessageType.PROFILE_PIC) {
+            return "dp";
+        } else if (suMsg.getStatusMessageType() == StatusMessage.StatusMessageType.IMAGE) {
+            return "photo";
+        } else if (suMsg.getStatusMessageType() == StatusMessage.StatusMessageType.TEXT) {
+            return "text";
+        } else if (suMsg.getStatusMessageType() == StatusMessage.StatusMessageType.TEXT_IMAGE) {
+            return "photo_text";
+        }
+        return "others";
+    }
 }

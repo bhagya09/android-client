@@ -142,6 +142,8 @@ public class StoryPhotosActivity extends HikeAppStateBaseFragmentActivity implem
         StoriesDataManager.getInstance().getStoryForFriend(mFriendMsisdn, new WeakReference<StoriesDataManager.StoriesDataListener>(this));
 
         HikeMessengerApp.getInstance().getPubSub().addListeners(this, pubSubListeners);
+
+        onLoveToggleListener.setSource("frnd_tab_view");
     }
 
     @Override
@@ -249,9 +251,9 @@ public class StoryPhotosActivity extends HikeAppStateBaseFragmentActivity implem
 
     private void markAsRead(StoryItem<StatusMessage, ContactInfo> storyItem, int position) {
         if (!Utils.isEmpty(storyItem.getDataObjects())) {
-            List<String> readSuIDList = new ArrayList<String>();
-            readSuIDList.add(storyItem.getDataObjects().get(position).getMappedId());
-            HikeHandlerUtil.getInstance().postRunnable(new StatusReadDBRunnable(readSuIDList));
+            StatusReadDBRunnable suReadRunnable = new StatusReadDBRunnable(storyItem.getDataObjects());
+            suReadRunnable.setSourceAnalytics("frnd_tab_view");
+            HikeHandlerUtil.getInstance().postRunnable(suReadRunnable);
         }
     }
 
@@ -292,7 +294,7 @@ public class StoryPhotosActivity extends HikeAppStateBaseFragmentActivity implem
         }
     };
 
-    private CompoundButton.OnCheckedChangeListener onLoveToggleListener = new LoveCheckBoxToggleListener();
+    private LoveCheckBoxToggleListener onLoveToggleListener = new LoveCheckBoxToggleListener();
 
     @UiThread
     private void updateActionsRelatedViews() {
