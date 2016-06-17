@@ -93,7 +93,7 @@ public class ChatAnalyticConstants {
 
         public static final String MESSAGE_INFO_EVENT = "msgInfo";
 
-        public static final String MESSAGE_INFO_TAP = "tap";
+        public static final String MESSAGE_INFO_TAP = "longpress";
 
         public static final String APK="apk";
 

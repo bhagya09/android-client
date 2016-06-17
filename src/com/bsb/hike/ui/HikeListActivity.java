@@ -599,7 +599,6 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 				}
 				HikeMessengerApp.getPubSub().publish(blocked ? HikePubSub.BLOCK_USER : HikePubSub.UNBLOCK_USER, msisdn);
 			}
-			sendBlockAnalyticsOnBackAndSaveEvent(true);
 			finish();
 		}
 	}
@@ -741,7 +740,13 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 	{
 		setResult(RESULT_OK);
 		super.onBackPressed();
-		sendBlockAnalyticsOnBackAndSaveEvent(false);
+		if (type == Type.BLOCK) {
+			if (alreadyBlockedContacts.equals(selectedContacts)) {
+				sendBlockAnalyticsOnBackAndSaveEvent(false);
+			} else {
+				sendBlockAnalyticsOnBackAndSaveEvent(true);
+			}
+		}
 	}
 	
 	@Override
