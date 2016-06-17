@@ -93,4 +93,10 @@ public class HomeAnalyticsConstants {
 
 	public static final String DP_SPECIES_OTHER = "other";
 
+    public static final String HS_MOVE = "hs_move";
+
+    public static final String HS_ME = "hs_me";
+
+    public static final String NEW_COMP = "new_comp";
+
 }

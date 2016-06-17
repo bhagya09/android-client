@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.Loader;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,6 +21,9 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HomeAnalyticsConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.imageHttp.HikeImageDownloader;
 import com.bsb.hike.imageHttp.HikeImageWorker;
@@ -35,6 +39,9 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.ProfileImageLoader;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Created by gauravmittal on 14/04/16.
@@ -248,6 +255,7 @@ public class MyFragment extends Fragment implements HikePubSub.Listener {
             case R.id.settings:
                 Intent intent = new Intent(getContext(), SettingsActivity.class);
                 getActivity().startActivity(intent);
+                recordBasicClick("sttng");
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -258,6 +266,7 @@ public class MyFragment extends Fragment implements HikePubSub.Listener {
         public void onClick(View v) {
             Intent intent = new Intent(getContext(), EditDPActivity.class);
             getContext().startActivity(intent);
+            recordBasicClick("dp_view");
         }
     };
 
@@ -267,12 +276,15 @@ public class MyFragment extends Fragment implements HikePubSub.Listener {
             switch (v.getId()) {
                 case R.id.ic_add_friends:
                     getActivity().startActivity(IntentFactory.getFriendReqActivityAddFriendsIntent(getContext()));
+                    recordBasicClick("add_friends");
                     break;
                 case R.id.ic_added_me:
                     getActivity().startActivity(IntentFactory.getFriendReqActivityAddedMeIntent(getContext()));
+                    recordBasicClick("added_me");
                     break;
                 case R.id.ic_services:
                     getActivity().startActivity(IntentFactory.getServicesActivityIntent(getContext()));
+                    recordBasicClick("services");
                     break;
             }
         }
@@ -372,6 +384,7 @@ public class MyFragment extends Fragment implements HikePubSub.Listener {
     public void onResume() {
         super.onResume();
         updateAddedMeBadgeCounter();
+        updateTabBadgeCounter();
     }
 
     /*
@@ -390,5 +403,21 @@ public class MyFragment extends Fragment implements HikePubSub.Listener {
     public void onDestroyView() {
         HikeMessengerApp.getPubSub().removeListeners(this, pubSubListeners);
         super.onDestroyView();
+    }
+
+    private void recordBasicClick(String family) {
+        try {
+
+            JSONObject json = new JSONObject();
+            json.put(AnalyticsConstants.V2.UNIQUE_KEY, HomeAnalyticsConstants.HS_ME);
+            json.put(AnalyticsConstants.V2.KINGDOM, HomeAnalyticsConstants.HOMESCREEN_KINGDOM);
+            json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+            json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+            json.put(AnalyticsConstants.V2.ORDER, HomeAnalyticsConstants.HS_ME);
+            if (!TextUtils.isEmpty(family)) json.put(AnalyticsConstants.V2.FAMILY, family);
+            HAManager.getInstance().recordV2(json);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 }

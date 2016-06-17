@@ -61,6 +61,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.analytics.HomeAnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthread.ChatThreadActivity;
@@ -820,7 +821,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				adapter.enableHikeContactsInSearch(true);
 				adapter.enableSMSContactsInSearch(true);
 				adapter.enableUnknownContactsInSearch(true);
-				adapter.addAddFriendOption(true);
 				break;
 			case MULTIPLE_FWD:
 				adapter = new ComposeChatAdapter(this, listView, true, true, null, sendingMsisdn, friendsListFetchedCallback, false, false, isShowTimeline(), false);
@@ -990,6 +990,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				return;
 			} else if (ComposeChatAdapter.HIKE_FEATURES_ADD_FRIEND_ID.equals(contactInfo.getMsisdn())) {
 				startActivity(IntentFactory.getFriendReqActivityAddFriendsIntent(ComposeChatActivity.this));
+				recordBasicClick("add_friends");
 				return;
 			}
 		}
@@ -3641,6 +3642,22 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 		catch (JSONException e)
 		{
+			e.printStackTrace();
+		}
+	}
+
+	private void recordBasicClick(String family) {
+		try {
+
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, HomeAnalyticsConstants.NEW_COMP);
+			json.put(AnalyticsConstants.V2.KINGDOM, HomeAnalyticsConstants.HOMESCREEN_KINGDOM);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, HomeAnalyticsConstants.NEW_COMP);
+			if (!TextUtils.isEmpty(family)) json.put(AnalyticsConstants.V2.FAMILY, family);
+			HAManager.getInstance().recordV2(json);
+		} catch (JSONException e) {
 			e.printStackTrace();
 		}
 	}

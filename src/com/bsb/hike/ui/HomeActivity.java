@@ -247,6 +247,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
     private IconLoader iconloader;
 
+	private int selectedTabPosition;
+
 	private boolean botRequested;
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -668,6 +670,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		@Override
 		public void onTabSelected(CustomTabsBar.Tab tab) {
 			if (mPager != null) {
+				recordActionTabClick(tabsBar.getTab(mPager.getCurrentItem()), tab);
 				mPager.setCurrentItem(tab.getId());
 			}
 		}
@@ -713,7 +716,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		@Override
 		public void onPageSelected(int position) {
+			recordTabSwitch(tabsBar.getTab(selectedTabPosition), tabsBar.getTab(position));
 			tabsBar.selectTab(position);
+			selectedTabPosition  = position;
 		}
 
 		@Override
@@ -2912,6 +2917,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
 			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
 			json.put(AnalyticsConstants.V2.ORDER, HomeAnalyticsConstants.HIDDEN_UK);
+			if (tabsBar != null && mPager != null)
+				json.put(AnalyticsConstants.V2.FAMILY, getTabNameForAnalytics(tabsBar.getTab(mPager.getCurrentItem())));
 			HAManager.getInstance().recordV2(json);
 		}
 
@@ -2937,5 +2944,52 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		startActivity(intent);
 		finish();
 
+	}
+
+	private void recordActionTabClick(CustomTabsBar.Tab from, CustomTabsBar.Tab to) {
+		try {
+
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, HomeAnalyticsConstants.HS_MOVE);
+			json.put(AnalyticsConstants.V2.KINGDOM, HomeAnalyticsConstants.HOMESCREEN_KINGDOM);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, HomeAnalyticsConstants.HS_MOVE);
+			json.put(AnalyticsConstants.V2.FAMILY, getTabNameForAnalytics(from));
+			json.put(AnalyticsConstants.V2.GENUS, getTabNameForAnalytics(to));
+			json.put(AnalyticsConstants.V2.SPECIES, to.getIndicatorCount() > 0);
+			HAManager.getInstance().recordV2(json);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void recordTabSwitch(CustomTabsBar.Tab from, CustomTabsBar.Tab to) {
+		try {
+
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, HomeAnalyticsConstants.HS_MOVE);
+			json.put(AnalyticsConstants.V2.KINGDOM, HomeAnalyticsConstants.HOMESCREEN_KINGDOM);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.TAB_SWITCH);
+			json.put(AnalyticsConstants.V2.ORDER, HomeAnalyticsConstants.HS_MOVE);
+			json.put(AnalyticsConstants.V2.FAMILY, getTabNameForAnalytics(from));
+			json.put(AnalyticsConstants.V2.GENUS, getTabNameForAnalytics(to));
+			json.put(AnalyticsConstants.V2.SPECIES, to.getIndicatorCount() > 0);
+			HAManager.getInstance().recordV2(json);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private String getTabNameForAnalytics(CustomTabsBar.Tab tab) {
+		String name = "";
+		if (tab.getId() == CONV_FRAGMENT_POSITION)
+			name = "chats";
+		else if (tab.getId() == MY_FRAGMENT_POSITION)
+			name = "me";
+		else if (tab.getId() == FRIENDS_FRAGMENT_POSITION)
+			name = "friends";
+		return name;
 	}
 }
