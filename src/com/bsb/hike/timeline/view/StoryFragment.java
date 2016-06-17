@@ -37,7 +37,6 @@ import com.bsb.hike.timeline.tasks.StoriesDataManager;
 import com.bsb.hike.timeline.tasks.UpdateActionsDataRunnable;
 import com.bsb.hike.ui.CustomTabsBar;
 import com.bsb.hike.ui.GalleryActivity;
-import com.bsb.hike.ui.HomeScreenFragment;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.StealthModeManager;
@@ -55,7 +54,7 @@ import java.util.List;
  * <p/>
  * Created by AtulM on 24/05/16.
  */
-public class StoryFragment extends Fragment implements View.OnClickListener, HikePubSub.Listener, StoriesDataManager.StoriesDataListener, AdapterView.OnItemClickListener, HomeScreenFragment {
+public class StoryFragment extends Fragment implements View.OnClickListener, HikePubSub.Listener, StoriesDataManager.StoriesDataListener, AdapterView.OnItemClickListener {
     private View fragmentView;
 
     private ListView listViewStories;
@@ -466,6 +465,8 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         if (isVisibleToUser) {
+            StoriesDataManager.getInstance().getAllStoryData(this);
+
             HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FRIENDS_TAB_NOTIF_DOT, false);
 
             if (StealthModeManager.getInstance().isActive())
@@ -474,10 +475,5 @@ public class StoryFragment extends Fragment implements View.OnClickListener, Hik
             hideTimeLineUpdatesIndicator();
         }
         super.setUserVisibleHint(isVisibleToUser);
-    }
-
-    @Override
-    public void onFragmentSelected() {
-        StoriesDataManager.getInstance().getAllStoryData(this);
     }
 }

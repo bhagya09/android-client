@@ -53,4 +53,5 @@ public class TimelineServerConfigUtils {
     public static String getStoryTitleShy() {
         return HikeSharedPreferenceUtil.getInstance().getData(AC_KEY_TITLE_SHY, HikeMessengerApp.getInstance().getString(R.string.story_category_default));
     }
+
 }

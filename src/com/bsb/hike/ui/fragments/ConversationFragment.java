@@ -105,7 +105,6 @@ import com.bsb.hike.ui.CustomTabsBar;
 import com.bsb.hike.ui.HikeFragmentable;
 import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HomeActivity;
-import com.bsb.hike.ui.HomeScreenFragment;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.fragments.OfflineDisconnectFragment.OfflineConnectionRequestListener;
 import com.bsb.hike.ui.utils.LockPattern;
@@ -136,7 +135,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 public class ConversationFragment extends ListFragment implements OnItemLongClickListener, Listener, OnScrollListener, HikeFragmentable, OnClickListener,
-		ConversationTipClickedListener, FilterListener, HomeScreenFragment
+		ConversationTipClickedListener, FilterListener
 {
 	private String[] pubSubListeners = { HikePubSub.MESSAGE_RECEIVED, HikePubSub.SERVER_RECEIVED_MSG, HikePubSub.MESSAGE_DELIVERED_READ, HikePubSub.MESSAGE_DELIVERED,
 			HikePubSub.NEW_CONVERSATION, HikePubSub.MESSAGE_SENT, HikePubSub.MSG_READ, HikePubSub.ICON_CHANGED, HikePubSub.ONETONCONV_NAME_CHANGED, HikePubSub.CONTACT_ADDED,
@@ -201,11 +200,6 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 	protected static final int START_OFFLINE_CONNECTION = 1;
 
 	protected static final int STEALTH_CONVERSATION_TOGGLE = 2;
-
-	@Override
-	public void onFragmentSelected() {
-			// TODO Use if/when required
-	}
 
 	private enum hikeBotConvStat
 	{

@@ -28,7 +28,6 @@ import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.ui.CustomTabsBar.CustomTabBadgeCounterListener;
 import com.bsb.hike.ui.EditDPActivity;
-import com.bsb.hike.ui.HomeScreenFragment;
 import com.bsb.hike.ui.SettingsActivity;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -40,7 +39,7 @@ import com.bsb.hike.utils.Utils;
 /**
  * Created by gauravmittal on 14/04/16.
  */
-public class MyFragment extends Fragment implements HikePubSub.Listener, HomeScreenFragment {
+public class MyFragment extends Fragment implements HikePubSub.Listener {
 
     private static final String MY_FRAGMENT_BADGE_COUNT = "my_frag_badge_count";
 
@@ -391,10 +390,5 @@ public class MyFragment extends Fragment implements HikePubSub.Listener, HomeScr
     public void onDestroyView() {
         HikeMessengerApp.getPubSub().removeListeners(this, pubSubListeners);
         super.onDestroyView();
-    }
-
-    @Override
-    public void onFragmentSelected() {
-        // TODO Use if/when required
     }
 }

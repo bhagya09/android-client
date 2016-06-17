@@ -682,22 +682,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	};
 
 	private class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter {
-		private HomeScreenFragment mCurrentFragment;
-
-		public HomeScreenFragment getCurrentFragment() {
-			return mCurrentFragment;
-		}
-
-		//http://stackoverflow.com/questions/18609261/getting-the-current-fragment-instance-in-the-viewpager
-		public void setPrimaryItem(ViewGroup container, int position, Object object) {
-			if (getCurrentFragment() != object) {
-				mCurrentFragment = ((HomeScreenFragment) object);
-				if (mCurrentFragment != null) {
-					mCurrentFragment.onFragmentSelected();
-				}
-			}
-			super.setPrimaryItem(container, position, object);
-		}
 
 		public ScreenSlidePagerAdapter(FragmentManager fm) {
 			super(fm);
