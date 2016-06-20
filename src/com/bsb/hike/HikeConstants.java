@@ -1772,8 +1772,6 @@ public class HikeConstants
 
 		public static final String SHOW_RECORDING_DIALOG = "showRecordingDialog";
 
-		public static final String IS_HOME_POPUP_SHOWING = "homePopupType";
-
 		public static final String LAST_UPDATE_PACKET_ID = "lastUpdatePacketId";
 
 		public static final String LAST_APPLICATION_PUSH_PACKET_ID = "lastApplicationPushPacketId";
