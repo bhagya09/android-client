@@ -724,6 +724,10 @@ public class ChatThreadTips implements OnClickListener, OnTouchListener
 				return;
 			}
 			View container = mainView.findViewById(R.id.container);
+			if (container == null)
+			{
+				return;
+			}
 			Animation am = HikeAnimationFactory.getUpUpPartAnimation(mainView.getContext(), container);
 			container.startAnimation(am);
 			QuickStickerSuggestionController.getInstance().setFtueTipSeen(whichTip);

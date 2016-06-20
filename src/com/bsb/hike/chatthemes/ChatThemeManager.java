@@ -276,7 +276,13 @@ public class ChatThemeManager {
                         size = assetObj.getInt(HikeChatThemeConstants.JSON_SIGNAL_ASSET_SIZE);
                     }
                     theme.setAsset(j, id);
-                    if (!mAssetHelper.hasAsset(id)) {
+
+                    //Below if condition is commented for CE-1075.
+                    // This looks like a threading issue on upgrade. we are missing few assets from getting inserted in to database.
+                    // 1. In database when we insert assets, we check for update and if not available then insert. (HikeConversationsDatabase.getInstance().saveChatThemeAssets(assetsList) method)
+                    // 2. In to the memory map also if the asset already exist it would update (mAssetHelper.saveChatThemeAsset(id, hcta); )
+                    
+                    //if (!mAssetHelper.hasAsset(id)) {
                         HikeChatThemeAsset hcta = new HikeChatThemeAsset(id, type, null, size);
                         if (areTheseAssetsOnApk) {
                             hcta.setIsDownloaded(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_DOWNLOADED_APK);
@@ -287,7 +293,7 @@ public class ChatThemeManager {
                         }
                         assetsList.add(hcta);
                         mAssetHelper.saveChatThemeAsset(id, hcta);
-                    }
+                    //}
                 }
                 themeList.add(theme);
 
