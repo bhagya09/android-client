@@ -3185,13 +3185,21 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	{
 
 		@Override
-		public void listFetched()
+		public boolean listFetched()
 		{
+			if (composeMode == START_CHAT_MODE && adapter != null) {
+				if (adapter.getOriginalFriendListSize() <= 0) {
+					startActivity(IntentFactory.getFriendReqActivityAddFriendsIntent(ComposeChatActivity.this));
+					ComposeChatActivity.this.finish();
+					return false;
+				}
+			}
 			if (PreferenceManager.getDefaultSharedPreferences(ComposeChatActivity.this).getBoolean(HikeConstants.LAST_SEEN_PREF, true))
 			{
 				lastSeenScheduler = LastSeenScheduler.getInstance(ComposeChatActivity.this);
 				lastSeenScheduler.start(true);
 			}
+			return true;
 		}
 
 		@Override
