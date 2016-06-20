@@ -150,7 +150,12 @@ public class MessageInfoView
 		HighQualityThumbLoader hqThumbLoader = new HighQualityThumbLoader();
 		hqThumbLoader.setImageFadeIn(false);
 		hqThumbLoader.setDefaultDrawableNull(false);
-		this.mMessageInfoCardRenderer = new NativeCardRenderer(mContext, conversation, adapter, hqThumbLoader, false);
+		this.mMessageInfoCardRenderer = new NativeCardRenderer(mContext, conversation, adapter, hqThumbLoader, false, new NativeCardRenderer.NativeCardRendererImageAnchor() {
+			@Override
+			public int getImageAnchor() {
+				return R.id.parent_layout;
+			}
+		});
 		stickerLoader = new StickerLoader.Builder()
 			.downloadLargeStickerIfNotFound(true)
 			.lookForOfflineSticker(true)
