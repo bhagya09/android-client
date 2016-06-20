@@ -1013,7 +1013,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			{
 				showToast(getString(R.string.maxContactInBroadcastErr, HikeConstants.MAX_CONTACTS_IN_BROADCAST));
 				return;
-			} else if (!contactInfo.isMyFriend()) {
+			} else if (!contactInfo.isMyFriend() && !OneToNConversationUtils.isOneToNConversation(contactInfo.getUserIdentifier())) {
 				showToast(getString(R.string.contact_non_friend_msg));
 				return;
 			}
@@ -1056,7 +1056,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				}
 			}
 
-			if (!contactInfo.isMyFriend()) {
+			if (!contactInfo.isMyFriend() && !OneToNConversationUtils.isOneToNConversation(contactInfo.getUserIdentifier())) {
 				showToast(getString(R.string.contact_non_friend_msg));
 				return;
 			}
@@ -1103,7 +1103,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				}
 				else{
 					name = viewtype == ViewType.NOT_FRIEND_SMS.ordinal() ? contactInfo.getName() + " (SMS) " : contactInfo.getName();
-					if (!contactInfo.isMyFriend()) {
+					if (!contactInfo.isMyFriend() && !OneToNConversationUtils.isOneToNConversation(contactInfo.getUserIdentifier())) {
 						showToast(getString(R.string.contact_non_friend_msg));
 						return;
 					}
@@ -1257,7 +1257,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 	private void selectContact(ContactInfo contactInfo)
 	{
-		if (contactInfo.isMyFriend()) {
+		if (contactInfo.isMyFriend() || OneToNConversationUtils.isOneToNConversation(contactInfo.getUserIdentifier())) {
 			adapter.addContact(contactInfo);
 		}
 		else {

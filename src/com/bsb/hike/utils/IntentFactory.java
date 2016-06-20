@@ -1541,13 +1541,18 @@ public class IntentFactory
 	
 	public static Intent getIntentForBots(BotInfo mBotInfo, Context context)
 	{
+		return getIntentForBots(mBotInfo, context, ChatThreadActivity.ChatThreadOpenSources.MICRO_APP);
+	}
+
+	public static Intent getIntentForBots(BotInfo mBotInfo, Context context, int messagingBotChatThreadSource)
+	{
 		if (mBotInfo.isNonMessagingBot())
 		{
 			return IntentFactory.getNonMessagingBotIntent(mBotInfo.getMsisdn(), context);
 		}
 		else
 		{
-			return IntentFactory.createChatThreadIntentFromMsisdn(context, mBotInfo.getMsisdn(), false, false, ChatThreadActivity.ChatThreadOpenSources.MICRO_APP);
+			return IntentFactory.createChatThreadIntentFromMsisdn(context, mBotInfo.getMsisdn(), false, false, messagingBotChatThreadSource);
 		}
 	}
 	

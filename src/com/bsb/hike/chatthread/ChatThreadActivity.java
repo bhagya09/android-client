@@ -79,7 +79,11 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		public static final int ADDED_ME_FRAG = 19;
 
         public static final int INITIATE_BOT = 20;
+
+		public static final int SERVICES = 21;
 	}
+
+	private int source = -1;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -118,6 +122,7 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		{
 			closeChatThread(null);
 		}
+		source = getIntent().getIntExtra(CHAT_THREAD_SOURCE, -1);
 	}
 
 	private boolean filter(Intent intent)
@@ -304,7 +309,8 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		catch (Exception e)
 		{
 		}
-		startActivity(IntentFactory.getHomeActivityConvTabIntent(ChatThreadActivity.this));
+		if (source != ChatThreadOpenSources.SERVICES)
+			startActivity(IntentFactory.getHomeActivityConvTabIntent(ChatThreadActivity.this));
 		super.onBackPressed();
 	}
 	

@@ -1443,7 +1443,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			outState.putInt(HikeConstants.Extras.DIALOG_SHOWING, dialogShowing != null ? dialogShowing.ordinal() : -1);
 		}
-		outState.putBoolean(HikeConstants.Extras.IS_HOME_POPUP_SHOWING, overFlowWindow != null && overFlowWindow.isShowing());
 		outState.putInt(HikeConstants.Extras.FRIENDS_LIST_COUNT, friendsListCount);
 		outState.putInt(HikeConstants.Extras.HIKE_CONTACTS_COUNT, hikeContactsCount);
 		outState.putInt(HikeConstants.Extras.RECOMMENDED_CONTACTS_COUNT, recommendedCount);
@@ -2009,32 +2008,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 	}
 
-	@SuppressLint("NewApi")
-	@Override
-	public boolean onKeyUp(int keyCode, KeyEvent event)
-	{
-		if (Build.VERSION.SDK_INT <= 10 || (Build.VERSION.SDK_INT >= 14 && ViewConfiguration.get(this).hasPermanentMenuKey()))
-		{
-			if (event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_MENU)
-			{
-				if ((ftueAddFriendWindow != null && ftueAddFriendWindow.getVisibility() == View.VISIBLE) || dialogShowing!=null)
-				{
-					return true;
-				}
-				if (overFlowWindow == null || !overFlowWindow.isShowing())
-				{
-					showOverFlowMenu();
-				}
-				else
-				{
-					overFlowWindow.dismiss();
-				}
-				return true;
-			}
-		}
-		return super.onKeyUp(keyCode, event);
-	}
-
 	private void checkNShowNetworkError()
 	{
 		if (networkErrorPopUp == null)
@@ -2418,17 +2391,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			overFlowMenuItems.add(new OverFlowMenuItem(getString(R.string.send_logs), 0, 0, R.string.send_logs));
 		}
-	}
-	@Override
-	protected void onRestoreInstanceState(Bundle savedInstanceState)
-	{
-		Logger.d(TAG, "onRestoredInstanceState");
-		final boolean overflowState = savedInstanceState.getBoolean(HikeConstants.Extras.IS_HOME_POPUP_SHOWING);
-		if (overflowState)
-		{
-			showOverFlowMenu();
-		}
-		super.onRestoreInstanceState(savedInstanceState);
 	}
 
 	public void updateOverFlowMenuNotification()

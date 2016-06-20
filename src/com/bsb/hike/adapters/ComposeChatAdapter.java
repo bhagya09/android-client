@@ -417,6 +417,8 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 				holder.name.setText(contactInfo.getNameOrMsisdn());
 			}
 		}
+		else if (viewType == ViewType.EMPTY) {
+		}
 		else
 		{
 			holder = (ViewHolder) convertView.getTag();
@@ -642,6 +644,10 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 				convertView.setTag(holder);
 				break;
 
+			case EMPTY:
+				convertView = LayoutInflater.from(context).inflate(R.layout.empty_list_item, parent, false);
+				break;
+
 			default:
 				convertView = LayoutInflater.from(context).inflate(R.layout.hike_list_item, parent, false);
 				holder = new ViewHolder();
@@ -806,6 +812,9 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		else if (addFriendOptionEnabled) {
 			completeList.add(getAddFriendOption());
 		}
+		if (!completeList.isEmpty()) {
+			completeList.add(new ContactInfo(EMPTY_ID, null, null, null));
+		}
 		notifyDataSetChanged();
 		setEmptyView();
 		friendsListFetchedCallback.completeListFetched();
@@ -819,7 +828,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		{
 			friendsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredFriendsList.size()), context.getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.friends_upper_case : R.string.favorites_upper_case), FRIEND_PHONE_NUM);
 		}
-		updateFriendsList(friendsSection, false, false);
+		updateFriendsList(friendsSection, false);
 	}
 
 	private void addGroupList() {
