@@ -107,7 +107,7 @@
                             android:id="@+id/expand_delivered_text"
                             style="@style/ListItemSubText"
                             android:layout_height="18dp"
-                            android:text="Delivered"/>
+                            android:text="@string/delivered_txt"/>
 
                         <View
                             android:layout_width="0dp"
