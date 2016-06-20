@@ -51,7 +51,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class FriendsAdapter extends BaseAdapter implements OnClickListener, PinnedSectionListAdapter
+public abstract class FriendsAdapter extends BaseAdapter implements OnClickListener, PinnedSectionListAdapter
 {
 
 	protected final ArrayList<ContactInfo> filteredHikeOtherFeaturesList;
@@ -515,41 +515,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		makeCompleteList(filtered, false);
 	}
 
-	public void makeCompleteList(boolean filtered, boolean firstFetch)
-	{
-		if (firstFetch)
-		{
-			friendsListFetchedCallback.listFetched();
-		}
-
-		boolean shouldContinue = makeSetupForCompleteList(filtered,firstFetch);
-
-		if (!shouldContinue)
-		{
-			return;
-		}
-
-		/*
-		 * removed extra items from friends screen
-		 */
-
-		friendsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredFriendsList.size()), context.getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.friends_upper_case : R.string.favorites_upper_case), FRIEND_PHONE_NUM);
-		updateFriendsList(friendsSection, true, true);
-
-        if (showHikeContacts)
-		{
-			hikeContactsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredHikeContactsList.size()), context.getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.add_frn_upper_case : R.string.add_favorites_upper_case), CONTACT_PHONE_NUM);
-			updateHikeContactList(hikeContactsSection);
-		}
-		if (showSMSContacts)
-		{
-			smsContactsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredSmsContactsList.size()), context.getString(R.string.sms_contacts), CONTACT_SMS_NUM);
-			updateSMSContacts(smsContactsSection);
-		}
-
-		notifyDataSetChanged();
-		setEmptyView();
-	}
+	public abstract void makeCompleteList(boolean filtered, boolean firstFetch);
 
 	protected boolean makeSetupForCompleteList(boolean filtered, boolean firstFetch)
 	{
@@ -584,7 +550,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		return true;
 	}
 
-	protected void updateFriendsList(ContactInfo section, boolean addFTUE, boolean showAddFriendView)
+	protected void updateFriendsList(ContactInfo section, boolean addFTUE)
 	{
 
 		boolean hideSuggestions = true;
@@ -637,18 +603,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 		if (hideSuggestions)
 		{
-			if (!Utils.isFavToFriendsMigrationAllowed() && showAddFriendView && friendsList.isEmpty())
-			{
-				if (TextUtils.isEmpty(queryText))
-				{
-					completeList.add(new ContactInfo(EMPTY_ID, null, null, null));
-				}
-			}
-			else
-			{
-
-				completeList.addAll(filteredFriendsList);
-			}
+			completeList.addAll(filteredFriendsList);
 		}
 	}
 
@@ -1191,7 +1146,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 	public boolean isEnabled(int position)
 	{
 		ContactInfo contactInfo = getItem(position);
-		if (SECTION_ID.equals(contactInfo.getId()))
+		if (SECTION_ID.equals(contactInfo.getId()) || EMPTY_ID.equals(contactInfo.getId()))
 		{
 			return false;
 		}
