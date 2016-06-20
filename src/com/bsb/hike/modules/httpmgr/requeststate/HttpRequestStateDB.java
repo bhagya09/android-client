@@ -233,6 +233,10 @@ public class HttpRequestStateDB extends SQLiteOpenHelper
 	{
 		byte[] bundleBytes = Utils.getBytesFromBundle(bundle);
 
+		if (bundleBytes == null) {
+			return;
+		}
+
 		ContentValues contentValues = new ContentValues();
 		contentValues.put(REQUEST_TAG, requestTag);
 		contentValues.put(BUNDLE, bundleBytes);
@@ -243,6 +247,9 @@ public class HttpRequestStateDB extends SQLiteOpenHelper
 	public void update(String requestTag, Bundle bundle)
 	{
 		byte[] bundleBytes = Utils.getBytesFromBundle(bundle);
+		if (bundleBytes == null) {
+			return;
+		}
 
 		ContentValues contentValues = new ContentValues();
 		contentValues.put(BUNDLE, bundleBytes);
@@ -286,7 +293,10 @@ public class HttpRequestStateDB extends SQLiteOpenHelper
 				{
 					byte[] bundleBytes = c.getBlob(bundleIdx);
 
-					pendingConfigs.add(Config.fromBundle(Utils.getBundleFromBytes(bundleBytes)));
+					Bundle bundle = Utils.getBundleFromBytes(bundleBytes);
+					if (bundle != null) {
+						pendingConfigs.add(Config.fromBundle(bundle));
+					}
 				}
 			}
 		}

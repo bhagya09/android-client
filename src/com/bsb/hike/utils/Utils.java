@@ -8093,33 +8093,52 @@ public class Utils
 
 	public static byte[] getBytesFromBundle(Bundle bundle)
 	{
-		byte[] bundleBytes = null;
+		Parcel parcel = null;
+		try {
+			byte[] bundleBytes = null;
 
-		if(bundle != null)
-		{
-			Parcel parcel = Parcel.obtain();
-			bundle.writeToParcel(parcel, 0);
-			bundleBytes = parcel.marshall();
-			parcel.recycle();
+			if (bundle != null) {
+				parcel = Parcel.obtain();
+				bundle.writeToParcel(parcel, 0);
+				bundleBytes = parcel.marshall();
+			}
+			return bundleBytes;
+		} catch (Throwable ex) {
+			if (bundle != null) {
+				Logger.e("Utils", "bundle data " + bundle.toString());
+			}
+			Logger.e("Utils", "Exception while getting bytes from bundle : " , ex);
+			return null;
+		} finally {
+			if (parcel != null) {
+				parcel.recycle();
+			}
 		}
-
-		return bundleBytes;
 	}
 
 	public static Bundle getBundleFromBytes(byte[] bundleBytes)
 	{
-		Bundle bundle = null;
+		Parcel parcel = null;
+		try {
+			Bundle bundle = null;
 
-		if (!isEmpty(bundleBytes))
-		{
-			Parcel parcel = Parcel.obtain();
-			parcel.unmarshall(bundleBytes, 0, bundleBytes.length);
-			parcel.setDataPosition(0);
-			bundle = parcel.readBundle();
-			parcel.recycle();
+			if (!isEmpty(bundleBytes)) {
+				parcel = Parcel.obtain();
+				parcel.unmarshall(bundleBytes, 0, bundleBytes.length);
+				parcel.setDataPosition(0);
+				bundle = parcel.readBundle();
+			}
+
+			return bundle;
 		}
-
-		return bundle;
+		catch (Throwable ex) {
+			Logger.e("Utils", "Exception while getting bytes from bundle : ", ex);
+			return null;
+		} finally {
+			if (parcel != null) {
+				parcel.recycle();
+			}
+		}
 	}
 
 	public static boolean isEmpty(byte[] argument)

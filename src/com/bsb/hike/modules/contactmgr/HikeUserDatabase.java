@@ -173,23 +173,15 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		db.execSQL(create);
 
 
-		for(String s: getIndexQueriesForV19())
-		{
-			db.execSQL(s);
+		if (Utils.isColumnExistsInTable(db, DBConstants.USERS_TABLE, DBConstants.BLOCK_STATUS)) {
+			String alter = "CREATE INDEX IF NOT EXISTS " + DBConstants.BLOCK_STATUS_INDEX + " ON " + DBConstants.USERS_TABLE + " (" + DBConstants.BLOCK_STATUS + ")";
+			db.execSQL(alter);
 		}
-	}
 
-	private List<String> getIndexQueriesForV19() {
-		int i = 0;
-		String indexQuery = null;
-		List<String> index=new ArrayList<>();
-
-		indexQuery = "CREATE INDEX IF NOT EXISTS " + DBConstants.BLOCK_STATUS_INDEX + " ON " + DBConstants.USERS_TABLE + " (" + DBConstants.BLOCK_STATUS + ")";
-		index.add(indexQuery);
-
-		indexQuery = "CREATE INDEX IF NOT EXISTS " + DBConstants.FAVORITE_INDEX + " ON " + DBConstants.USERS_TABLE + " (" + DBConstants.FAVORITE_TYPE + ")";
-		index.add(indexQuery);
-		return index;
+		if (Utils.isColumnExistsInTable(db, DBConstants.USERS_TABLE, DBConstants.FAVORITE_TYPE)) {
+			String alter = "CREATE INDEX IF NOT EXISTS " + DBConstants.FAVORITE_INDEX + " ON " + DBConstants.USERS_TABLE + " (" + DBConstants.FAVORITE_TYPE + ")";
+			db.execSQL(alter);
+		}
 	}
 
 	@Override
@@ -352,9 +344,14 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 				String alter = "ALTER TABLE " + DBConstants.USERS_TABLE + " ADD COLUMN " + DBConstants.FAVORITE_TYPE + " TEXT DEFAULT 0";
 				db.execSQL(alter);
 			}
+			if (Utils.isColumnExistsInTable(db, DBConstants.USERS_TABLE, DBConstants.BLOCK_STATUS)) {
+				String alter = "CREATE INDEX IF NOT EXISTS " + DBConstants.BLOCK_STATUS_INDEX + " ON " + DBConstants.USERS_TABLE + " (" + DBConstants.BLOCK_STATUS + ")";
+				db.execSQL(alter);
+			}
 
-			for (String s : getIndexQueriesForV19()) {
-				db.execSQL(s);
+			if (Utils.isColumnExistsInTable(db, DBConstants.USERS_TABLE, DBConstants.FAVORITE_TYPE)) {
+				String alter = "CREATE INDEX IF NOT EXISTS " + DBConstants.FAVORITE_INDEX + " ON " + DBConstants.USERS_TABLE + " (" + DBConstants.FAVORITE_TYPE + ")";
+				db.execSQL(alter);
 			}
 			// Need to migrate the DBs in upgradeIntentService
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.MIGRATE_TABLE_TO_USER, 1);
