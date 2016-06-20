@@ -106,6 +106,7 @@ import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.CardRenderer;
 import com.bsb.hike.platform.NativeCardRenderer;
 import com.bsb.hike.platform.WebViewCardRenderer;
+import com.bsb.hike.platform.nativecards.NativeCardUtils;
 import com.bsb.hike.smartImageLoader.HighQualityThumbLoader;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.smartImageLoader.StickerLoader;
@@ -4615,26 +4616,28 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		}
 	}
 
-	public boolean containsMediaMessage(ArrayList<Long> msgIds)
-	{
+	public boolean containsMediaMessage(ArrayList<Long> msgIds) {
 		/*
 		 * Iterating in reverse order since its more likely the user wants to know about latest messages.
 		 */
 		int lastIndex = msgIds.size() - 1;
-		for (int i = lastIndex; i >= 0; i--)
-		{
+		for (int i = lastIndex; i >= 0; i--) {
 			long msgId = msgIds.get(i);
-			for (ConvMessage convMessage : convMessages)
-			{
-				if (convMessage != null)
-				{
-					if (convMessage.getMsgID() == msgId && convMessage.isFileTransferMessage())
-					{
-						HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
-						if (hikeFile.getHikeFileType() == HikeFileType.IMAGE || hikeFile.getHikeFileType() == HikeFileType.VIDEO || hikeFile.getHikeFileType() == HikeFileType.AUDIO_RECORDING)
-						{
-							return true;
+			for (ConvMessage convMessage : convMessages) {
+				if (convMessage != null) {
+					if (convMessage.getMsgID() == msgId) {
+						if (convMessage.isFileTransferMessage()) {
+							HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
+							if (hikeFile.getHikeFileType() == HikeFileType.IMAGE || hikeFile.getHikeFileType() == HikeFileType.VIDEO || hikeFile.getHikeFileType() == HikeFileType.AUDIO_RECORDING) {
+								return true;
+							}
+						} else if (NativeCardUtils.isNativeCardFTMessage(convMessage)) {
+							HikeFile hikeFile = convMessage.platformMessageMetadata.getHikeFiles().get(0);
+							if (hikeFile.getHikeFileType() == HikeFileType.IMAGE || hikeFile.getHikeFileType() == HikeFileType.VIDEO || hikeFile.getHikeFileType() == HikeFileType.AUDIO_RECORDING) {
+								return true;
+							}
 						}
+
 					}
 				}
 			}
