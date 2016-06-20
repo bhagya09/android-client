@@ -30,6 +30,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.HikeDialog;
@@ -238,7 +239,7 @@ public class ServicesActivity extends HikeAppStateBaseFragmentActivity {
 
     private void openBot(BotInfo mBotInfo) {
         if (mContext != null) {
-            Intent intent = IntentFactory.getIntentForBots(mBotInfo, mContext);
+            Intent intent = IntentFactory.getIntentForBots(mBotInfo, mContext, ChatThreadActivity.ChatThreadOpenSources.SERVICES);
 
             intent.putExtra(AnalyticsConstants.BOT_NOTIF_TRACKER, AnalyticsConstants.BOT_OPEN_SOURCE_DISC);
 
