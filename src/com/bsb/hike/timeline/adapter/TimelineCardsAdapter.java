@@ -874,7 +874,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		if(AppConfig.TIMELINE_READ_DEBUG) {
 			//Debug code
 			try {
-				viewHolder.name.setText(viewHolder.name.getText() + (statusMessage.isRead() ? "(Read)" : "(Unread)"));
+				viewHolder.name.setText(viewHolder.name.getText());
 			} catch (Exception e) {
 			}
 		}
