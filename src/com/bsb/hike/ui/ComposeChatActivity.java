@@ -2473,7 +2473,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						JSONObject metadata = msgExtrasJson.optJSONObject(HikeConstants.METADATA);
 						if(metadata != null){
 							JSONArray filesArray = metadata.optJSONArray(HikeConstants.FILES);
-							if(metadata.optJSONArray(HikeConstants.FILES) != null){
+							if(filesArray != null){
 
 								JSONObject msg = filesArray.getJSONObject(0);
 								String fileKey = null;
@@ -2481,10 +2481,13 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 								{
 									fileKey = msg.getString(HikeConstants.FILE_KEY);
 								}
-								String filePath = msg.getString(HikeConstants.FILE_PATH);
 								String fileType = msg.getString(HikeConstants.CONTENT_TYPE);
-
 								HikeFileType hikeFileType = HikeFileType.fromString(fileType);
+								String fileName = msg.getString(HikeConstants.FILE_NAME);
+								//CD-949
+								// Since this is a native card message, hence getting the file path from the received message(received via bot like JFL)
+								File file = Utils.getOutputMediaFile(hikeFileType, fileName, false);
+								String filePath = file.getPath();
 								FileTransferData fileData = initialiseFileTransfer(filePath, fileKey, hikeFileType, fileType,
 										false, 0, true, arrayList,imageCaptions.get(i), true, metadata, msgExtrasJson.optString(HikeConstants.HIKE_MESSAGE));
 								if (fileData != null && fileData.file != null)
