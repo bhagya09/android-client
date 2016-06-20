@@ -88,8 +88,10 @@ public class NativeCardRenderer implements View.OnLongClickListener, View.OnClic
 
 	private boolean isListFlinging;
 
+	private NativeCardRendererImageAnchor anchor;
 
-	public NativeCardRenderer(Context context, Conversation conversation, BaseAdapter baseAdapter, HighQualityThumbLoader hqThumbLoader, boolean isListFlinging)
+
+	public NativeCardRenderer(Context context, Conversation conversation, BaseAdapter baseAdapter, HighQualityThumbLoader hqThumbLoader, boolean isListFlinging,NativeCardRendererImageAnchor anchor)
 	{
 		this.context = context;
 		this.conversation = conversation;
@@ -97,6 +99,7 @@ public class NativeCardRenderer implements View.OnLongClickListener, View.OnClic
 		this.mBaseAdapter = baseAdapter;
 		this.hqThumbLoader = hqThumbLoader;
 		this.isListFlinging = isListFlinging;
+		this.anchor=anchor;
 
 	}
 
@@ -506,7 +509,7 @@ public class NativeCardRenderer implements View.OnLongClickListener, View.OnClic
 					sharedFile.setCaption(hikeFile.getCaption());
 				}
 				hsf.add(sharedFile);
-				PhotoViewerFragment.openPhoto(R.id.ct_parent_rl, context, hsf, true, conversation);
+				PhotoViewerFragment.openPhoto(anchor.getImageAnchor(), context, hsf, true, conversation);
 			}
 			else
 			{
@@ -532,5 +535,10 @@ public class NativeCardRenderer implements View.OnLongClickListener, View.OnClic
 		{
 			((ChatThreadActivity) context).recordMediaShareEvent(uniqueKey_Order, genus, family);
 		}
+	}
+
+	public interface NativeCardRendererImageAnchor
+	{
+		int getImageAnchor();
 	}
 }

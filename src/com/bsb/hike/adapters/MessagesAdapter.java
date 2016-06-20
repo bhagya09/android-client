@@ -1,5 +1,19 @@
 package com.bsb.hike.adapters;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
@@ -103,7 +117,6 @@ import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
-import com.bsb.hike.platform.CardRenderer;
 import com.bsb.hike.platform.NativeCardRenderer;
 import com.bsb.hike.platform.WebViewCardRenderer;
 import com.bsb.hike.platform.nativecards.NativeCardUtils;
@@ -130,20 +143,6 @@ import com.bsb.hike.view.CustomSendMessageTextView;
 import com.bsb.hike.view.HoloCircularProgress;
 import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.VoIPUtils;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
 
 
 public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnLongClickListener, OnCheckedChangeListener
@@ -407,7 +406,12 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
                         .stretchMini(useMiniSticker)
                         .build();
 
-		this.mChatThreadCardRenderer = new NativeCardRenderer(context, conversation, this, hqThumbLoader, isListFlinging);
+		this.mChatThreadCardRenderer = new NativeCardRenderer(context, conversation, this, hqThumbLoader, isListFlinging, new NativeCardRenderer.NativeCardRendererImageAnchor() {
+			@Override
+			public int getImageAnchor() {
+				return R.id.ct_parent_rl;
+			}
+		});
 		this.mWebViewCardRenderer = new WebViewCardRenderer(activity, convMessages,this);
 		this.messageTextMap = new HashMap<Long, CharSequence>();
 
