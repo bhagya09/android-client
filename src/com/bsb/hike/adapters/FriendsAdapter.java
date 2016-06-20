@@ -58,7 +58,7 @@ public abstract class FriendsAdapter extends BaseAdapter implements OnClickListe
 
 	public static interface FriendsListFetchedCallback
 	{
-		public void listFetched();
+		public boolean listFetched();
 
 		public void completeListFetched();
 	}

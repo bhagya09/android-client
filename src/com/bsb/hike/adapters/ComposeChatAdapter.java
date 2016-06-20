@@ -708,7 +708,8 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 	{
 		if (firstFetch)
 		{
-			friendsListFetchedCallback.listFetched();
+			if (!friendsListFetchedCallback.listFetched())
+				return;
 		}
 
 		//Fix AND-3408
@@ -906,6 +907,11 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		onHikeLists.add(getOnHikeSublist(recentContactsList));
 
 		return onHikeLists;
+	}
+
+	public int getOriginalFriendListSize()
+	{
+		return friendsList.size();
 	}
 
 	public List<ContactInfo> getOnHikeSublist(List<ContactInfo> completeList)
