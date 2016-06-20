@@ -3208,7 +3208,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 						if(metadata != null){
 
 							if (metadata.optJSONArray(HikeConstants.FILES) != null && metadata.optJSONArray(HikeConstants.FILES).length() > 0) {
-									handleFileTypeMessage(intent, metadata, msgExtrasJson.optString(HikeConstants.HIKE_MESSAGE), msgExtrasJson.optString(HikeConstants.Extras.FILE_PATH));
+									handleFileTypeMessage(intent, metadata, msgExtrasJson.optString(HikeConstants.HIKE_MESSAGE));
 							} else {
 								sendNativeCardMessage(msgExtrasJson);
 							}
@@ -3385,8 +3385,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		convMessage.setMessage(msgExtrasJson.optString(HikeConstants.HIKE_MESSAGE));
 		sendMessage(convMessage);
 	}
-	private void handleFileTypeMessage(Intent intent, JSONObject nativeCardMetadata, String hikeMessage, String filePath) throws JSONException{
-        //TODO: parse from HikeFile
+	private void handleFileTypeMessage(Intent intent, JSONObject nativeCardMetadata, String hikeMessage) throws JSONException{
 		JSONArray filesArray = nativeCardMetadata.optJSONArray(HikeConstants.FILES);
 		JSONObject msg = filesArray.getJSONObject(0);
 		String fileKey = null;
@@ -3407,9 +3406,12 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			attachmentType = FTAnalyticEvents.FILE_ATTACHEMENT;
 
 		}
-
+		String fileName = msg.getString(HikeConstants.FILE_NAME);
 		HikeFileType hikeFileType = HikeFileType.fromString(fileType);
-
+		//CD-949
+		// Since this is a native card message, hence getting the file path from the received message(received via bot like JFL)
+		File file = Utils.getOutputMediaFile(hikeFileType, fileName, false);
+		String filePath = file.getPath();
 		Logger.d("ChatThread", "isCloudMediaUri" + Utils.isPicasaUri(filePath));
 
 		ChatThreadUtils.initialiseFileTransferForNativeCards(activity.getApplicationContext(), msisdn, filePath, fileKey, hikeFileType, fileType, false,
@@ -5252,14 +5254,22 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			mAdapter.notifyDataSetChanged();
 		}
 
-		if (convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.CONTENT)
+		if (NativeCardUtils.isNativeCardFTMessage(convMessage))
 		{
 			int numberOfMediaComponents = convMessage.platformMessageMetadata.cards.get(0).mediaComponents.size();
 			for (int i = 0; i < numberOfMediaComponents; i++)
 			{
-				CardComponent.MediaComponent mediaComponent = convMessage.platformMessageMetadata.cards.get(0).mediaComponents.get(i);
-				HikeConversationsDatabase.getInstance().reduceRefCount(mediaComponent.getKey());
+				HikeFile hikeFile = convMessage.platformMessageMetadata.cards.get(0).mediaComponents.get(i).getHikeFile();
+				String key = hikeFile.getFileKey();
+				if (deleteMediaFromPhone && hikeFile != null)
+				{
+					hikeFile.delete(activity.getApplicationContext());
+				}
+				HikeConversationsDatabase.getInstance().reduceRefCount(key);
+				FileTransferManager.getInstance(activity.getApplicationContext()).cancelTask(convMessage.getMsgID(), hikeFile, convMessage.isSent(), hikeFile.getFileSize(), hikeFile.getAttachmentSharedAs());
+
 			}
+			mAdapter.notifyDataSetChanged();
 		}
 
 		if (convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT || convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT)
