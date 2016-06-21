@@ -21,18 +21,22 @@
         android:visibility="gone">
 
         <ImageView
+            android:id="@+id/empty_state_no_friends_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:contentDescription="@string/cont_desc_empty_state_no_friends_view"
             android:src="@drawable/empty_state_no_friends" />
 
         <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/friend_photo_timeline"
+            android:contentDescription="@string/cont_desc_friend_photo_timeline"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="56dp"
             android:layout_marginRight="56dp"
             android:layout_marginTop="24dp"
             android:gravity="center"
-            android:text="Your friend's latest photos and timeline will appear here"
+            android:text="@string/friend_photo_timeline_text"
             android:textColor="#663d475b"
             android:textSize="16sp" />
 

@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.bsb.hike.R;
 import com.bsb.hike.utils.Logger;
@@ -59,6 +58,8 @@ public class CustomTabsBar {
         tabs.put(tab.getId(), tab);
         actionBar.addView(tabView);
         tabView.setTag(tab);
+        tabView.setId(tab.getId());
+        tabView.setContentDescription(mContext.getResources().getString(R.string.cont_desc_home_tabs) + tab.getId());
         tabView.setOnClickListener(onTabClickListener);
     }
 

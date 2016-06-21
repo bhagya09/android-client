@@ -17,6 +17,8 @@
         android:orientation="horizontal">
 
         <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/manage_privacy_text"
+            android:contentDescription="@string/cont_desc_manage_privacy"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
